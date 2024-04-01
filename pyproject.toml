@@ -1,0 +1,16 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+    "setuptools-scm",
+    "wheel",
+]
+
+[project]
+authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
+dynamic = ["version"]
+license = { file = "LICENSE" }
+name = "beignet"
+requires-python = ">=3.10"
+
+[tool.setuptools_scm]
