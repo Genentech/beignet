@@ -12,7 +12,6 @@ jobs:
         with:
           name: "python-package-distributions"
           path: "dist/"
-      - uses: "pypa/gh-action-pypi-publish@release/v1"
   test:
     environment:
       name: "pypi.org"
