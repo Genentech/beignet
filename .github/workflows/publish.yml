@@ -6,6 +6,7 @@ jobs:
       - uses: "actions/setup-python@v5"
         with:
           python-version: "3.x"
+      - run: "git update-index --assume-unchanged pyproject.toml"
       - run: "python -m pip install --upgrade build"
       - run: "python -m build ."
       - uses: "actions/upload-artifact@v3"
