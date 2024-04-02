@@ -3,6 +3,7 @@
 *.py[cod]
 *.so
 *~
+.DS_Store
 .coverage
 .hypothesis/
 .idea/
