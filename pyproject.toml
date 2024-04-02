@@ -11,6 +11,8 @@ authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
+readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.setuptools_scm]
+local_scheme = "no-local-version"

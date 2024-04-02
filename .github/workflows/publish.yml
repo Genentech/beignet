@@ -14,8 +14,8 @@ jobs:
           path: "dist/"
   test:
     environment:
-      name: "pypi.org"
-      url: "https://pypi.org/project/beignet"
+      name: "test.pypi.org"
+      url: "https://test.pypi.org/project/beignet"
     needs:
       - "build"
     permissions:
@@ -29,6 +29,7 @@ jobs:
       - uses: "pypa/gh-action-pypi-publish@release/v1"
         with:
           repository-url: "https://test.pypi.org/legacy/"
+          skip-existing: true
   publish:
     environment:
       name: "pypi.org"
