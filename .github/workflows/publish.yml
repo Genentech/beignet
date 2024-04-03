@@ -3,6 +3,8 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 0
       - uses: "actions/setup-python@v5"
         with:
           python-version: "3.x"
@@ -29,7 +31,6 @@ jobs:
       - uses: "pypa/gh-action-pypi-publish@release/v1"
         with:
           repository-url: "https://test.pypi.org/legacy/"
-          skip-existing: true
   publish:
     environment:
       name: "pypi.org"

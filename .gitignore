@@ -1,0 +1,14 @@
+*.egg
+*.egg-info/
+*.py[cod]
+*.so
+*~
+.DS_Store
+.coverage
+.hypothesis/
+.idea/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+build/
+dist/
