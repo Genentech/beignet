@@ -47,7 +47,6 @@ jobs:
       url: "https://pypi.org/project/beignet"
     if: "startsWith(github.ref, 'refs/tags/')"
     needs:
-      - "build"
       - "test-pypi"
     permissions:
       id-token: "write"
@@ -60,7 +59,7 @@ jobs:
       - uses: "pypa/gh-action-pypi-publish@release/v1"
   release:
     needs:
-      - "publish"
+      - "pypi"
     permissions:
       contents: "write"
       id-token: "write"
