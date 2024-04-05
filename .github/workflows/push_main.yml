@@ -8,10 +8,9 @@ jobs:
           python-version: "3.x"
       - run: "python -m pip install --upgrade mkdocs-material"
       - run: "mkdocs gh-deploy --force"
-#on:
-#  push:
-#    branches:
-#      - "main"
-on: "push"
+on:
+  push:
+    branches:
+      - "main"
 permissions:
   contents: "write"

@@ -1,3 +1,6 @@
 site_name: "Beignet"
 theme:
   name: "material"
+extra:
+  version:
+    provider: "mike"
