@@ -27,6 +27,11 @@ test = [
 ]
 
 [tool.ruff]
+exclude = [
+    "./src/beignet/constants/_substitution_matrices.py",
+]
+
+[tool.ruff]
 select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
