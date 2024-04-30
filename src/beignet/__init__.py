@@ -12,8 +12,8 @@ from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_transform import invert_transform
 
 __all__ = [
-    "apply_transform",
-    "invert_transform",
     "apply_rotation_matrix",
+    "apply_transform",
     "invert_rotation_matrix",
+    "invert_transform",
 ]
