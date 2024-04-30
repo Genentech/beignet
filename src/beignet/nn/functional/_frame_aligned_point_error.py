@@ -3,7 +3,7 @@
 import torch
 from torch import Tensor
 
-import beignet.operators
+import beignet
 
 
 def frame_aligned_point_error(
@@ -51,7 +51,7 @@ def frame_aligned_point_error(
     output : Tensor
         Losses for each frame of shape $(\\ldots, 3)$.
     """
-    output = torch.sqrt(torch.sum((beignet.operators.apply_transform(input[1][..., None, :, :], beignet.operators.invert_transform(input[0])) - beignet.operators.apply_transform(target[1][..., None, :, :], beignet.operators.invert_transform(target[0]), )) ** 2, dim=-1) + epsilon)  # fmt: off
+    output = torch.sqrt(torch.sum((beignet.apply_transform(input[1][..., None, :, :], beignet.invert_transform(input[0])) - beignet.apply_transform(target[1][..., None, :, :], beignet.invert_transform(target[0]), )) ** 2, dim=-1) + epsilon)  # fmt: off
 
     if maximum is not None:
         output = torch.clamp(output, 0, maximum)
