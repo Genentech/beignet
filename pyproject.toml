@@ -14,8 +14,30 @@ name = "beignet"
 readme = "README.md"
 requires-python = ">=3.10"
 
-[tool.ruff.format]
-docstring-code-format = true
+[tool.ruff]
+exclude = [
+    "./src/beignet/constants/_adjacent_residue_phi_cosine.py",
+    "./src/beignet/constants/_adjacent_residue_psi_cosine.py",
+    "./src/beignet/constants/_amino_acid_1.py",
+    "./src/beignet/constants/_amino_acid_1_to_amino_acid_3.py",
+    "./src/beignet/constants/_amino_acid_3.py",
+    "./src/beignet/constants/_amino_acid_3_to_amino_acid_1.py",
+    "./src/beignet/constants/_amino_acid_3_to_atom_14.py",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",  # FLAKE8-BUGBEAR
+    "E",  # PYCODESTYLE ERRORS
+    "F",  # PYFLAKES
+    "I",  # ISORT
+    "W",  # PYCODESTYLE WARNINGS
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401", # MODULE IMPORTED BUT UNUSED
+]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
