@@ -14,6 +14,17 @@ name = "beignet"
 readme = "README.md"
 requires-python = ">=3.10"
 
+[tool.ruff]
+exclude = [
+    "./src/beignet/constants/_adjacent_residue_phi_cosine.py",
+    "./src/beignet/constants/_adjacent_residue_psi_cosine.py",
+    "./src/beignet/constants/_amino_acid_1.py",
+    "./src/beignet/constants/_amino_acid_1_to_amino_acid_3.py",
+    "./src/beignet/constants/_amino_acid_3.py",
+    "./src/beignet/constants/_amino_acid_3_to_amino_acid_1.py",
+    "./src/beignet/constants/_amino_acid_3_to_atom_14.py",
+]
+
 [tool.ruff.lint]
 select = [
     "B",  # FLAKE8-BUGBEAR
