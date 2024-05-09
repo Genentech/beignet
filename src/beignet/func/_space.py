@@ -1,9 +1,4 @@
-from typing import (
-    Callable,
-    Optional,
-    Tuple,
-    TypeVar,
-)
+from typing import Callable, TypeVar
 
 import torch
 from torch import Tensor
@@ -35,7 +30,7 @@ def _inverse_transform(transformation: Tensor) -> Tensor:
     raise ValueError("Unsupported transformation dimensions.")
 
 
-def _transform(transformation: Tensor, position: Tensor) -> Tensor:
+def _apply_transform(transformation: Tensor, position: Tensor) -> Tensor:
     """
     Applies an affine transformation to the position vector.
 
@@ -78,7 +73,7 @@ def _transform(transformation: Tensor, position: Tensor) -> Tensor:
     raise ValueError("Unsupported transformation dimensions.")
 
 
-def transform(transformation: Tensor, position: Tensor) -> Tensor:
+def apply_transform(transformation: Tensor, position: Tensor) -> Tensor:
     """
     Return affine transformed position.
 
@@ -119,7 +114,7 @@ def transform(transformation: Tensor, position: Tensor) -> Tensor:
             Tensor
                 Affine transformed position of shape `(..., dimension)`.
             """
-            return _transform(transformation, position)
+            return _apply_transform(transformation, position)
 
         @staticmethod
         def setup_context(ctx, inputs, output):
@@ -132,12 +127,12 @@ def transform(transformation: Tensor, position: Tensor) -> Tensor:
             ctx,
             grad_transformation: Tensor,
             grad_position: Tensor,
-        ) -> Tuple[Tensor, Tensor]:
+        ) -> (Tensor, Tensor):
             transformation, position, _ = ctx.saved_tensors
 
-            output = _transform(transformation, position)
+            output = _apply_transform(transformation, position)
 
-            grad_output = grad_position + _transform(
+            grad_output = grad_position + _apply_transform(
                 grad_transformation,
                 position,
             )
@@ -145,7 +140,7 @@ def transform(transformation: Tensor, position: Tensor) -> Tensor:
             return output, grad_output
 
         @staticmethod
-        def backward(ctx, grad_output: Tensor) -> Tuple[Tensor, Tensor]:
+        def backward(ctx, grad_output: Tensor) -> (Tensor, Tensor):
             _, _, output = ctx.saved_tensors
 
             return output, grad_output
@@ -154,12 +149,12 @@ def transform(transformation: Tensor, position: Tensor) -> Tensor:
 
 
 def space(
-    dimensions: Optional[Tensor] = None,
+    dimensions: Tensor | None = None,
     *,
     normalized: bool = True,
     parallelepiped: bool = True,
     remapped: bool = True,
-) -> Tuple[Callable, Callable]:
+) -> (Callable, Callable):
     r"""Define a simulation space.
 
     This function is fundamental in constructing simulation spaces derived from
@@ -175,20 +170,27 @@ def space(
 
     Parameters
     ----------
-    dimensions : Optional[Tensor], default=None
-        Dimensions of the simulation space. Interpretation varies based on the
-        value of `parallelepiped`. If `parallelepiped` is `True`, must be an
-        affine transformation, $T$, specified in one of three ways: a cube,
-        $L$; an orthorhombic unit cell, $[L_{x}, L_{y}, L_{z}]$; or a triclinic
-        cell, upper triangular matrix. If `parallelepiped` is `False`, must be
-        the edge lengths. If `None`, the simulation space has free boundary
+    dimensions : Tensor | None, default=None
+        Dimensions of the simulation space.
+
+        Interpretation varies based on the value of `parallelepiped`. If
+        `parallelepiped` is `True`, must be an affine transformation, $T$,
+        specified in one of three ways:
+
+        1. a cube, $L$;
+        2. an orthorhombic unit cell, $[L_{x}, L_{y}, L_{z}]$; or
+        3. a triclinic cell, upper triangular matrix.
+
+        If `parallelepiped` is `False`, must be the edge lengths.
+
+        If `dimensions` is `None`, the simulation space has free boundary
         conditions.
 
     normalized : bool, default=True
-        If `True`, positions are stored in the unit cube. Displacements and
-        shifts are computed in a normalized simulation space and can be
-        transformed back to real simulation space using the provided affine
-        transformation matrix. If `False`, positions are expressed and
+        If `normalized` is `True`, positions are stored in the unit cube.
+        Displacements and shifts are computed in a normalized simulation space
+        and can be transformed back to real simulation space using the affine
+        transformation. If `normalized` is `False`, positions are expressed and
         computations performed directly in the real simulation space.
 
     parallelepiped : bool, default=True
@@ -200,18 +202,18 @@ def space(
         If `True`, positions and displacements are remapped to stay in the
         bounds of the defined simulation space. A rempapped simulation space is
         topologically equivalent to a torus, ensuring that particles exiting
-        one boundary re-enter from the opposite side. This is particularly
-        relevant for simulation spaces with periodic boundary conditions.
+        one boundary re-enter from the opposite side.
 
     Returns
     -------
-    Tuple[Callable[[Tensor, Tensor], Tensor], Callable[[Tensor, Tensor], Tensor]]
-        A tuple containing two functions:
+    (Callable[[Tensor, Tensor], Tensor], Callable[[Tensor, Tensor], Tensor])
+        A pair of functions:
 
-        1.  The displacement function, $\overrightarrow{d}$, measures the
+        1.  The displacement function, $\vec{d}$, measures the
             difference between two points in the simulation space, factoring in
             the geometry and boundary conditions. This function is used to
             calculate particle interactions and dynamics.
+
         2.  The shift function, $u$, applies a displacement vector to a point
             in the space, effectively moving it. This function is used to
             update simulated particle positions.
@@ -253,7 +255,7 @@ def space(
             input: Tensor,
             other: Tensor,
             *,
-            perturbation: Optional[Tensor] = None,
+            perturbation: Tensor | None = None,
             **_,
         ) -> Tensor:
             if len(input.shape) != 1:
@@ -263,7 +265,7 @@ def space(
                 raise ValueError
 
             if perturbation is not None:
-                return _transform(input - other, perturbation)
+                return _apply_transform(input - other, perturbation)
 
             return input - other
 
@@ -281,7 +283,7 @@ def space(
                 input: Tensor,
                 other: Tensor,
                 *,
-                perturbation: Optional[Tensor] = None,
+                perturbation: Tensor | None = None,
                 **kwargs,
             ) -> Tensor:
                 _transformation = dimensions
@@ -300,13 +302,13 @@ def space(
                 if input.shape != other.shape:
                     raise ValueError
 
-                displacement = transform(
+                displacement = apply_transform(
                     _transformation,
                     torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
                 )
 
                 if perturbation is not None:
-                    return _transform(displacement, perturbation)
+                    return _apply_transform(displacement, perturbation)
 
                 return displacement
 
@@ -328,7 +330,7 @@ def space(
                     if "updated_transformation" in kwargs:
                         _transformation = kwargs["updated_transformation"]
 
-                    return u(input, transform(_inverse_transformation, other))
+                    return u(input, apply_transform(_inverse_transformation, other))
 
                 return displacement_fn, shift_fn
 
@@ -347,7 +349,7 @@ def space(
                 if "updated_transformation" in kwargs:
                     _transformation = kwargs["updated_transformation"]
 
-                return input + transform(_inverse_transformation, other)
+                return input + apply_transform(_inverse_transformation, other)
 
             return displacement_fn, shift_fn
 
@@ -355,7 +357,7 @@ def space(
             input: Tensor,
             other: Tensor,
             *,
-            perturbation: Optional[Tensor] = None,
+            perturbation: Tensor | None = None,
             **kwargs,
         ) -> Tensor:
             _transformation = dimensions
@@ -370,8 +372,8 @@ def space(
             if "updated_transformation" in kwargs:
                 _transformation = kwargs["updated_transformation"]
 
-            input = transform(_inverse_transformation, input)
-            other = transform(_inverse_transformation, other)
+            input = apply_transform(_inverse_transformation, input)
+            other = apply_transform(_inverse_transformation, other)
 
             if len(input.shape) != 1:
                 raise ValueError
@@ -379,13 +381,13 @@ def space(
             if input.shape != other.shape:
                 raise ValueError
 
-            displacement = transform(
+            displacement = apply_transform(
                 _transformation,
                 torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
             )
 
             if perturbation is not None:
-                return _transform(displacement, perturbation)
+                return _apply_transform(displacement, perturbation)
 
             return displacement
 
@@ -409,11 +411,11 @@ def space(
                 if "updated_transformation" in kwargs:
                     _transformation = kwargs["updated_transformation"]
 
-                return transform(
+                return apply_transform(
                     _transformation,
                     u(
-                        transform(_inverse_transformation, input),
-                        transform(_inverse_transformation, other),
+                        apply_transform(_inverse_transformation, input),
+                        apply_transform(_inverse_transformation, other),
                     ),
                 )
 
@@ -440,7 +442,7 @@ def space(
         displacement = torch.remainder(input - other + dimensions * 0.5, dimensions)
 
         if perturbation is not None:
-            return _transform(displacement - dimensions * 0.5, perturbation)
+            return _apply_transform(displacement - dimensions * 0.5, perturbation)
 
         return displacement - dimensions * 0.5
 
