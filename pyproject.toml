@@ -8,14 +8,33 @@ requires = [
 
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
+dependencies = ["torch"]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
 readme = "README.md"
 requires-python = ">=3.10"
 
-[tool.ruff.format]
-docstring-code-format = true
+[project.optional-dependencies]
+test = [
+    "hypothesis",
+    "pytest",
+    "scipy",
+]
+
+[tool.ruff]
+select = [
+    "B",  # FLAKE8-BUGBEAR
+    "E",  # PYCODESTYLE ERRORS
+    "F",  # PYFLAKES
+    "I",  # ISORT
+    "W",  # PYCODESTYLE WARNINGS
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401", # MODULE IMPORTED BUT UNUSED
+]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
