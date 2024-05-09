@@ -1,3 +1,20 @@
+extra_javascript:
+  - "javascripts/mathjax.js"
+  - "https://polyfill.io/v3/polyfill.min.js?features=es6"
+  - "https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+plugins:
+  - mkdocstrings:
+      default_handler: "python"
+      handlers:
+        python:
+          options:
+            docstring_style: "numpy"
+            separate_signature: true
+            show_root_heading: true
+            show_source: true
 site_name: "Beignet"
 theme:
   name: "material"
