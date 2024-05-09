@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
@@ -58,7 +58,7 @@ def test_euler_angle_to_rotation_matrix(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.euler_angle_to_rotation_matrix(
+        beignet.euler_angle_to_rotation_matrix(
             **parameters,
         ),
         expected,

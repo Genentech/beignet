@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
@@ -29,6 +29,6 @@ def test_rotation_matrix_identity(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.rotation_matrix_identity(**parameters),
+        beignet.rotation_matrix_identity(**parameters),
         expected,
     )

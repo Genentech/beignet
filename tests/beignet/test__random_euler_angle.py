@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 
 
@@ -46,6 +46,6 @@ def _strategy(function):
 def test_random_euler_angle(data):
     parameters, _ = data
 
-    assert beignet.ops.random_euler_angle(
+    assert beignet.random_euler_angle(
         **parameters,
     ).shape == (parameters["size"], 3)

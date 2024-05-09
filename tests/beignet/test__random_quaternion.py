@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 
 
@@ -26,6 +26,6 @@ def _strategy(function):
 def test_random_quaternion(data):
     parameters, _ = data
 
-    assert beignet.ops.random_quaternion(
+    assert beignet.random_quaternion(
         **parameters,
     ).shape == (parameters["size"], 4)

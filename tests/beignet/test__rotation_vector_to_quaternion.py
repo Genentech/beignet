@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.extra.numpy
 import hypothesis.strategies
 import torch
@@ -46,7 +46,7 @@ def test_rotation_vector_to_quaternion(data):
 
     torch.testing.assert_close(
         torch.abs(
-            beignet.ops.rotation_vector_to_quaternion(
+            beignet.rotation_vector_to_quaternion(
                 **parameters,
             ),
         ),

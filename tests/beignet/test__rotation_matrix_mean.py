@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
@@ -28,6 +28,6 @@ def test_rotation_matrix_mean(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.rotation_matrix_mean(**parameters),
+        beignet.rotation_matrix_mean(**parameters),
         expected,
     )

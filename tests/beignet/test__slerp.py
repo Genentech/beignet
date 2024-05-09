@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import numpy
 import torch
@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation, Slerp
 def test_slerp():
     # t = 0
     torch.testing.assert_close(
-        beignet.ops.quaternion_slerp(
+        beignet.quaternion_slerp(
             torch.tensor([+0.00000]),
             torch.tensor([+0.00000, +1.00000]),
             torch.tensor(
@@ -23,7 +23,7 @@ def test_slerp():
 
     # t = 1
     torch.testing.assert_close(
-        beignet.ops.quaternion_slerp(
+        beignet.quaternion_slerp(
             torch.tensor([+1.00000]),
             torch.tensor([+0.00000, +1.00000]),
             torch.tensor(
@@ -38,7 +38,7 @@ def test_slerp():
 
     # SMALL (ACUTE) ANGLE BETWEEN QUATERNIONS
     torch.testing.assert_close(
-        beignet.ops.quaternion_slerp(
+        beignet.quaternion_slerp(
             torch.tensor([+0.50000]),
             torch.tensor([+0.00000, +1.00000]),
             torch.tensor(
@@ -56,7 +56,7 @@ def test_slerp():
 
     # LARGE (OBTUSE) ANGLE BETWEEN QUATERNIONS
     torch.testing.assert_close(
-        beignet.ops.quaternion_slerp(
+        beignet.quaternion_slerp(
             torch.tensor([+0.50000]),
             torch.tensor([+0.00000, +1.00000]),
             torch.tensor(
@@ -147,5 +147,5 @@ def test_slerp_properties(data):
     parameters, expected_rotations = data
 
     torch.testing.assert_close(
-        beignet.ops.quaternion_slerp(*parameters), expected_rotations
+        beignet.quaternion_slerp(*parameters), expected_rotations
     )

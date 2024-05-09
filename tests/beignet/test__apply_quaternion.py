@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.extra.numpy
 import hypothesis.strategies
 import numpy
@@ -48,6 +48,6 @@ def test_apply_quaternion(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.apply_quaternion(**parameters),
+        beignet.apply_quaternion(**parameters),
         expected,
     )

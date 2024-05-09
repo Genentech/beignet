@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 
 
@@ -23,6 +23,6 @@ def _strategy(function):
 def test_random_rotation_matrix(data):
     parameters, _ = data
 
-    assert beignet.ops.random_rotation_matrix(
+    assert beignet.random_rotation_matrix(
         **parameters,
     ).shape == (parameters["size"], 3, 3)

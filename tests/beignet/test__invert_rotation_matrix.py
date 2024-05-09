@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
@@ -28,6 +28,6 @@ def test_invert_rotation_matrix(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.invert_rotation_matrix(**parameters),
+        beignet.invert_rotation_matrix(**parameters),
         expected,
     )

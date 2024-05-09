@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
@@ -42,7 +42,7 @@ def test_quaternion_mean(data):
 
     torch.testing.assert_close(
         torch.abs(
-            beignet.ops.quaternion_mean(
+            beignet.quaternion_mean(
                 **parameters,
             ),
         ),

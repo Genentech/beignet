@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.extra.numpy
 import hypothesis.strategies
 import torch
@@ -67,7 +67,7 @@ def test_euler_angle_to_quaternion(data):
 
     torch.testing.assert_close(
         torch.abs(
-            beignet.ops.euler_angle_to_quaternion(
+            beignet.euler_angle_to_quaternion(
                 **parameters,
             ),
         ),

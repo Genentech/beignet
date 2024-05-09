@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
@@ -31,6 +31,6 @@ def test_rotation_vector_magnitude(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.rotation_vector_magnitude(**parameters),
+        beignet.rotation_vector_magnitude(**parameters),
         expected,
     )

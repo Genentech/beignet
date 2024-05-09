@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.extra.numpy
 import hypothesis.strategies
 import numpy
@@ -87,7 +87,7 @@ def test_apply_euler_angle(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.apply_euler_angle(
+        beignet.apply_euler_angle(
             **parameters,
         ),
         expected,

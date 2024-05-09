@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.extra.numpy
 import hypothesis.strategies
 import torch
@@ -38,7 +38,7 @@ def test_rotation_matrix_to_rotation_vector(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.rotation_matrix_to_rotation_vector(
+        beignet.rotation_matrix_to_rotation_vector(
             **parameters,
         ),
         expected,

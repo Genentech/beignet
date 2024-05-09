@@ -1,4 +1,4 @@
-import beignet.ops
+import beignet
 import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
@@ -34,7 +34,7 @@ def test_quaternion_to_rotation_matrix(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.ops.quaternion_to_rotation_matrix(
+        beignet.quaternion_to_rotation_matrix(
             **parameters,
         ),
         expected,
