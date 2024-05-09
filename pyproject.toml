@@ -16,6 +16,10 @@ readme = "README.md"
 requires-python = ">=3.10"
 
 [project.optional-dependencies]
+docs = [
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
 test = [
     "hypothesis",
     "pytest",
