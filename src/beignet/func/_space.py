@@ -391,10 +391,10 @@ def space(
 
         if remapped:
 
-            def u(a: Tensor, b: Tensor) -> Tensor:
-                return torch.remainder(a + b, 1.0)
+            def u(input: Tensor, other: Tensor) -> Tensor:
+                return torch.remainder(input + other, 1.0)
 
-            def shift_fn(a: Tensor, b: Tensor, **kwargs) -> Tensor:
+            def shift_fn(input: Tensor, other: Tensor, **kwargs) -> Tensor:
                 _transformation = dimensions
 
                 _inverse_transformation = inverse_transformation
@@ -412,8 +412,8 @@ def space(
                 return transform(
                     _transformation,
                     u(
-                        transform(_inverse_transformation, a),
-                        transform(_inverse_transformation, b),
+                        transform(_inverse_transformation, input),
+                        transform(_inverse_transformation, other),
                     ),
                 )
 
@@ -437,15 +437,12 @@ def space(
         if input.shape != other.shape:
             raise ValueError
 
-        displacement = (
-            torch.remainder(input - other + dimensions * 0.5, dimensions)
-            - dimensions * 0.5
-        )
+        displacement = torch.remainder(input - other + dimensions * 0.5, dimensions)
 
         if perturbation is not None:
-            return _transform(displacement, perturbation)
+            return _transform(displacement - dimensions * 0.5, perturbation)
 
-        return displacement
+        return displacement - dimensions * 0.5
 
     if remapped:
 
