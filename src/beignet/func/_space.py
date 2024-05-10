@@ -151,8 +151,8 @@ def space(
 
                 _inverse_transformation = inverse_transformation
 
-                if "transformation" in kwargs:
-                    _transformation = kwargs["transformation"]
+                if "transform" in kwargs:
+                    _transformation = kwargs["transform"]
 
                 if "updated_transformation" in kwargs:
                     _transformation = kwargs["updated_transformation"]
@@ -183,8 +183,8 @@ def space(
 
                     _inverse_transformation = inverse_transformation
 
-                    if "transformation" in kwargs:
-                        _transformation = kwargs["transformation"]
+                    if "transform" in kwargs:
+                        _transformation = kwargs["transform"]
 
                         _inverse_transformation = invert_transform(_transformation)
 
@@ -200,8 +200,8 @@ def space(
 
                 _inverse_transformation = inverse_transformation
 
-                if "transformation" in kwargs:
-                    _transformation = kwargs["transformation"]
+                if "transform" in kwargs:
+                    _transformation = kwargs["transform"]
 
                     _inverse_transformation = invert_transform(
                         _transformation,
@@ -225,8 +225,8 @@ def space(
 
             _inverse_transformation = inverse_transformation
 
-            if "transformation" in kwargs:
-                _transformation = kwargs["transformation"]
+            if "transform" in kwargs:
+                _transformation = kwargs["transform"]
 
                 _inverse_transformation = invert_transform(_transformation)
 
@@ -262,8 +262,8 @@ def space(
 
                 _inverse_transformation = inverse_transformation
 
-                if "transformation" in kwargs:
-                    _transformation = kwargs["transformation"]
+                if "transform" in kwargs:
+                    _transformation = kwargs["transform"]
 
                     _inverse_transformation = invert_transform(
                         _transformation,
