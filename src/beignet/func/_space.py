@@ -2,150 +2,11 @@ from typing import Callable, TypeVar
 
 import torch
 from torch import Tensor
-from torch.autograd import Function
+
+from beignet._apply_transform import _apply_transform, apply_transform
+from beignet._invert_transform import invert_transform
 
 T = TypeVar("T")
-
-
-def _inverse_transform(transformation: Tensor) -> Tensor:
-    """
-    Calculates the inverse of an affine transformation matrix.
-
-    Parameters
-    ----------
-    transformation : Tensor
-        The affine transformation matrix to be inverted.
-
-    Returns
-    -------
-    Tensor
-        The inverse of the given affine transformation matrix.
-    """
-    if transformation.ndim in {0, 1}:
-        return 1.0 / transformation
-
-    if transformation.ndim == 2:
-        return torch.linalg.inv(transformation)
-
-    raise ValueError("Unsupported transformation dimensions.")
-
-
-def _apply_transform(transformation: Tensor, position: Tensor) -> Tensor:
-    """
-    Applies an affine transformation to the position vector.
-
-    Parameters
-    ----------
-    position : Tensor
-        Position, must have the shape `(..., dimension)`.
-
-    transformation : Tensor
-        The affine transformation matrix, must be a scalar, a vector, or a
-        matrix with the shape `(dimension, dimension)`.
-
-    Returns
-    -------
-    Tensor
-        Affine transformed position vector, has the same shape as the
-        position vector.
-    """
-    if transformation.ndim == 0:
-        return position * transformation
-
-    indices = [chr(ord("a") + index) for index in range(position.ndim - 1)]
-
-    indices = "".join(indices)
-
-    if transformation.ndim == 1:
-        return torch.einsum(
-            f"i,{indices}i->{indices}i",
-            transformation,
-            position,
-        )
-
-    if transformation.ndim == 2:
-        return torch.einsum(
-            f"ij,{indices}j->{indices}i",
-            transformation,
-            position,
-        )
-
-    raise ValueError("Unsupported transformation dimensions.")
-
-
-def apply_transform(transformation: Tensor, position: Tensor) -> Tensor:
-    """
-    Return affine transformed position.
-
-    Parameters
-    ----------
-    transformation : Tensor
-        Affine transformation matrix, must have shape
-        `(dimension, dimension)`.
-
-    position : Tensor
-        Position, must have shape `(..., dimension)`.
-
-    Returns
-    -------
-    Tensor
-        Affine transformed position of shape `(..., dimension)`.
-    """
-
-    class _Transform(Function):
-        generate_vmap_rule = True
-
-        @staticmethod
-        def forward(transformation: Tensor, position: Tensor) -> Tensor:
-            """
-            Return affine transformed position.
-
-            Parameters
-            ----------
-            transformation : Tensor
-                Affine transformation matrix, must have shape
-                `(dimension, dimension)`.
-
-            position : Tensor
-                Position, must have shape `(..., dimension)`.
-
-            Returns
-            -------
-            Tensor
-                Affine transformed position of shape `(..., dimension)`.
-            """
-            return _apply_transform(transformation, position)
-
-        @staticmethod
-        def setup_context(ctx, inputs, output):
-            transformation, position = inputs
-
-            ctx.save_for_backward(transformation, position, output)
-
-        @staticmethod
-        def jvp(
-            ctx,
-            grad_transformation: Tensor,
-            grad_position: Tensor,
-        ) -> (Tensor, Tensor):
-            transformation, position, _ = ctx.saved_tensors
-
-            output = _apply_transform(transformation, position)
-
-            grad_output = grad_position + _apply_transform(
-                grad_transformation,
-                position,
-            )
-
-            return output, grad_output
-
-        @staticmethod
-        def backward(ctx, grad_output: Tensor) -> (Tensor, Tensor):
-            _, _, output = ctx.saved_tensors
-
-            return output, grad_output
-
-    return _Transform.apply(transformation, position)
 
 
 def space(
@@ -265,7 +126,7 @@ def space(
                 raise ValueError
 
             if perturbation is not None:
-                return _apply_transform(input - other, perturbation)
+                return _apply_transform(perturbation, input - other)
 
             return input - other
 
@@ -275,7 +136,7 @@ def space(
         return displacement_fn, shift_fn
 
     if parallelepiped:
-        inverse_transformation = _inverse_transform(dimensions)
+        inverse_transformation = invert_transform(dimensions)
 
         if normalized:
 
@@ -303,12 +164,12 @@ def space(
                     raise ValueError
 
                 displacement = apply_transform(
-                    _transformation,
                     torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
+                    _transformation,
                 )
 
                 if perturbation is not None:
-                    return _apply_transform(displacement, perturbation)
+                    return _apply_transform(perturbation, displacement)
 
                 return displacement
 
@@ -325,12 +186,12 @@ def space(
                     if "transformation" in kwargs:
                         _transformation = kwargs["transformation"]
 
-                        _inverse_transformation = _inverse_transform(_transformation)
+                        _inverse_transformation = invert_transform(_transformation)
 
                     if "updated_transformation" in kwargs:
                         _transformation = kwargs["updated_transformation"]
 
-                    return u(input, apply_transform(_inverse_transformation, other))
+                    return u(input, apply_transform(other, _inverse_transformation))
 
                 return displacement_fn, shift_fn
 
@@ -342,14 +203,14 @@ def space(
                 if "transformation" in kwargs:
                     _transformation = kwargs["transformation"]
 
-                    _inverse_transformation = _inverse_transform(
+                    _inverse_transformation = invert_transform(
                         _transformation,
                     )
 
                 if "updated_transformation" in kwargs:
                     _transformation = kwargs["updated_transformation"]
 
-                return input + apply_transform(_inverse_transformation, other)
+                return input + apply_transform(other, _inverse_transformation)
 
             return displacement_fn, shift_fn
 
@@ -367,13 +228,13 @@ def space(
             if "transformation" in kwargs:
                 _transformation = kwargs["transformation"]
 
-                _inverse_transformation = _inverse_transform(_transformation)
+                _inverse_transformation = invert_transform(_transformation)
 
             if "updated_transformation" in kwargs:
                 _transformation = kwargs["updated_transformation"]
 
-            input = apply_transform(_inverse_transformation, input)
-            other = apply_transform(_inverse_transformation, other)
+            input = apply_transform(input, _inverse_transformation)
+            other = apply_transform(other, _inverse_transformation)
 
             if len(input.shape) != 1:
                 raise ValueError
@@ -382,12 +243,12 @@ def space(
                 raise ValueError
 
             displacement = apply_transform(
-                _transformation,
                 torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
+                _transformation,
             )
 
             if perturbation is not None:
-                return _apply_transform(displacement, perturbation)
+                return _apply_transform(perturbation, displacement)
 
             return displacement
 
@@ -404,7 +265,7 @@ def space(
                 if "transformation" in kwargs:
                     _transformation = kwargs["transformation"]
 
-                    _inverse_transformation = _inverse_transform(
+                    _inverse_transformation = invert_transform(
                         _transformation,
                     )
 
@@ -412,11 +273,11 @@ def space(
                     _transformation = kwargs["updated_transformation"]
 
                 return apply_transform(
-                    _transformation,
                     u(
                         apply_transform(_inverse_transformation, input),
                         apply_transform(_inverse_transformation, other),
                     ),
+                    _transformation,
                 )
 
             return displacement_fn, shift_fn
@@ -442,7 +303,7 @@ def space(
         displacement = torch.remainder(input - other + dimensions * 0.5, dimensions)
 
         if perturbation is not None:
-            return _apply_transform(displacement - dimensions * 0.5, perturbation)
+            return _apply_transform(perturbation, displacement - dimensions * 0.5)
 
         return displacement - dimensions * 0.5
 
