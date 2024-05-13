@@ -28,6 +28,7 @@ from ._invert_euler_angle import invert_euler_angle
 from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
+from ._needleman_wunsch import needleman_wunsch
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -65,6 +66,7 @@ from ._rotation_vector_to_quaternion import (
 from ._rotation_vector_to_rotation_matrix import (
     rotation_vector_to_rotation_matrix,
 )
+from ._smith_waterman import smith_waterman
 from ._translation_identity import translation_identity
 
 __all__ = [
@@ -86,9 +88,11 @@ __all__ = [
     "invert_quaternion",
     "invert_rotation_matrix",
     "invert_rotation_vector",
+    "needleman_wunsch",
     "quaternion_identity",
     "quaternion_magnitude",
     "quaternion_mean",
+    "quaternion_slerp",
     "quaternion_to_euler_angle",
     "quaternion_to_rotation_matrix",
     "quaternion_to_rotation_vector",
@@ -108,6 +112,6 @@ __all__ = [
     "rotation_vector_to_euler_angle",
     "rotation_vector_to_quaternion",
     "rotation_vector_to_rotation_matrix",
-    "quaternion_slerp",
+    "smith_waterman",
     "translation_identity",
 ]

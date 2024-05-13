@@ -7,8 +7,13 @@ requires = [
 ]
 
 [project]
-authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
-dependencies = ["torch"]
+authors = [
+    { email = "allen.goodman@icloud.com", name = "Allen Goodman" },
+]
+dependencies = [
+    "pooch",
+    "torch",
+]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
@@ -27,6 +32,11 @@ test = [
 ]
 
 [tool.ruff]
+exclude = [
+    "./src/beignet/constants/_substitution_matrices.py",
+]
+
+[tool.ruff.lint]
 select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS

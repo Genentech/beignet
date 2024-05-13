@@ -18,6 +18,7 @@
 ::: beignet.invert_quaternion
 ::: beignet.invert_rotation_matrix
 ::: beignet.invert_rotation_vector
+::: beignet.needleman_wunsch
 ::: beignet.quaternion_identity
 ::: beignet.quaternion_magnitude
 ::: beignet.quaternion_mean
@@ -41,4 +42,5 @@
 ::: beignet.rotation_vector_to_euler_angle
 ::: beignet.rotation_vector_to_quaternion
 ::: beignet.rotation_vector_to_rotation_matrix
+::: beignet.smith_waterman
 ::: beignet.translation_identity
