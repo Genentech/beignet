@@ -31,7 +31,7 @@ exclude = [
     "./src/beignet/constants/_substitution_matrices.py",
 ]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
