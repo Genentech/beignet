@@ -1,12 +1,16 @@
 from pathlib import Path
 from typing import Callable
 
-from torch import Tensor
-from torch.utils.data import Dataset
-
 import numpy
 import pooch
 import torch
+from torch import Tensor
+from torch.utils.data import Dataset
+
+
+def make_similarity_matrices(*args):
+    return
+
 
 class MSADataset(Dataset):
     def __init__(
@@ -24,7 +28,7 @@ class MSADataset(Dataset):
 
         if download:
             pooch.retrieve(
-                f"https://files.ipd.uw.edu/krypton/data_unalign.npz",
+                "https://files.ipd.uw.edu/krypton/data_unalign.npz",
                 fname=f"{name}.npz",
                 known_hash="9cc22e381619b66fc353c079221fd02450705d4e3ee23e4e23a052b6e70a95ec",
                 path=root / name,
@@ -41,7 +45,7 @@ class MSADataset(Dataset):
         for subset in self.all_data.files:
             data = self.all_data[subset].tolist()
 
-          # pad sequences
+            # pad sequences
             sequences = torch.nested.to_padded_tensor(
                 torch.nested.nested_tensor(data["ms"]),
                 0.0,
@@ -59,7 +63,7 @@ class MSADataset(Dataset):
             sizes = torch.tensor([len(seq) for seq in sequences])
             all_sizes.append(sizes)
 
-          # pad alignments
+            # pad alignments
             alignments = torch.nested.to_padded_tensor(
                 torch.nested.nested_tensor(data["aln"]),
                 0.0,
@@ -72,10 +76,12 @@ class MSADataset(Dataset):
                 ],
             )[alignments]
 
-            _, alignments = alignments[0], alignments[1:] # ignore first alignment
+            _, alignments = alignments[0], alignments[1:]  # ignore first alignment
             all_alignments.append(alignments)
 
-            matrices = make_similarity_matrices(sequences, reference_sequence) # TODO (Edith): make matrices
+            matrices = make_similarity_matrices(
+                sequences, reference_sequence
+            )  # TODO (Edith): make matrices
             all_matrices.append(matrices)
 
         self.sequences = torch.stack(all_sequences, dim=1)
