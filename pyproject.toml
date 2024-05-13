@@ -7,8 +7,13 @@ requires = [
 ]
 
 [project]
-authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
-dependencies = ["torch"]
+authors = [
+    { email = "allen.goodman@icloud.com", name = "Allen Goodman" },
+]
+dependencies = [
+    "pooch",
+    "torch",
+]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
