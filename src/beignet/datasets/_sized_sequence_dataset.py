@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any, Union
 
 import numpy
 
@@ -9,7 +8,7 @@ from ._sequence_dataset import SequenceDataset
 class SizedSequenceDataset(SequenceDataset):
     def __init__(
         self,
-        root: Union[str, Path],
+        root: str | Path,
         sizes: numpy.ndarray,
         *args,
         **kwargs,
@@ -18,7 +17,7 @@ class SizedSequenceDataset(SequenceDataset):
 
         self._sizes = sizes
 
-    def __getitem__(self, index: int) -> Any:
+    def __getitem__(self, index: int):
         raise NotImplementedError
 
     def __len__(self) -> int:
