@@ -1,6 +1,6 @@
 import pytest
 import torch
-from beignet.features._features import Feature
+from beignet.features._feature import Feature
 
 
 @pytest.fixture
