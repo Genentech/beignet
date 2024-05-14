@@ -4,8 +4,9 @@ from typing import Callable, Tuple, TypeVar
 
 import numpy
 
-from beignet.datasets import SizedSequenceDataset
 from beignet.io import ThreadSafeFile
+
+from ._sized_sequence_dataset import SizedSequenceDataset
 
 T = TypeVar("T")
 
