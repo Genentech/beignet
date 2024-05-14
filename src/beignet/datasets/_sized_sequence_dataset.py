@@ -17,9 +17,6 @@ class SizedSequenceDataset(SequenceDataset):
 
         self._sizes = sizes
 
-    def __getitem__(self, index: int):
-        raise NotImplementedError
-
     def __len__(self) -> int:
         return len(self.sizes)
 
