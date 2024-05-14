@@ -27,11 +27,6 @@ class UniRef90Dataset(_UniRefDataset):
             If `True`, caches the sequence indicies to disk for faster
             re-initialization (default: `True`).
 
-        download : bool, optional
-            If `True`, download the dataset and to the `root` directory
-            (default: `False`). If the dataset is already downloaded, it is
-            not redownloaded.
-
         transform : Callable, optional
             A `Callable` or `Transform` that that maps a sequence to a
             transformed sequence (default: `None`).
@@ -41,11 +36,10 @@ class UniRef90Dataset(_UniRefDataset):
             identifier) to a transformed target (default: `None`).
         """
         super().__init__(
+            "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz",
             root,
-            "uniref90",
-            "6161bad4d7506365aee882fd5ff9c833",
+            "md5:6161bad4d7506365aee882fd5ff9c833",
             index=index,
-            download=download,
             transform=transform,
             target_transform=target_transform,
         )

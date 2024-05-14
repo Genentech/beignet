@@ -1,4 +1,4 @@
-from pathlib import Path
+from os import PathLike
 from typing import Callable
 
 from beignet.transforms import Transform
@@ -9,29 +9,23 @@ from .__uni_ref_dataset import _UniRefDataset
 class UniRef50Dataset(_UniRefDataset):
     def __init__(
         self,
-        root: str | Path,
+        root: str | PathLike | None = None,
         *,
         index: bool = True,
-        download: bool = False,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ) -> None:
         """
         Parameters
         ----------
-        root : str | Path
+        root : str | PathLike, optional
             Root directory where the dataset subdirectory exists or, if
             `download` is `True`, the directory where the dataset subdirectory
             will be created and the dataset downloaded.
 
         index : bool, optional
-            If `True`, caches the sequence indicies to disk for faster
+            If `True`, caches the sequence indexes to disk for faster
             re-initialization (default: `True`).
-
-        download : bool, optional
-            If `True`, download the dataset and to the `root` directory
-            (default: `False`). If the dataset is already downloaded, it is
-            not redownloaded.
 
         transform : Callable, optional
             A `Callable` or `Transform` that that maps a sequence to a
@@ -42,11 +36,10 @@ class UniRef50Dataset(_UniRefDataset):
             identifier) to a transformed target (default: `None`).
         """
         super().__init__(
+            "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz",
             root,
-            "uniref50",
-            "e638c63230d13ad5e2098115b9cb5d8f",
+            "md5:e638c63230d13ad5e2098115b9cb5d8f",
             index=index,
-            download=download,
             transform=transform,
             target_transform=target_transform,
         )

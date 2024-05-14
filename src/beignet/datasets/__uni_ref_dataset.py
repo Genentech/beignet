@@ -1,8 +1,10 @@
 import re
+from os import PathLike
 from pathlib import Path
 from typing import Callable
 
 import pooch
+from pooch import Decompress
 
 from beignet.transforms import Transform
 
@@ -12,31 +14,29 @@ from ._fasta_dataset import FASTADataset
 class _UniRefDataset(FASTADataset):
     def __init__(
         self,
-        root: str | Path,
-        name: str,
-        md5: (str, str),
+        url: str,
+        root: str | PathLike | None = None,
+        known_hash: str | None = None,
         *,
         index: bool = True,
-        download: bool = False,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ) -> None:
         """
         Parameters
         ----------
-        root : str | Path
+        url : str
+            URL to the file that needs to be downloaded. Ideally, the URL
+            should end with a file name (e.g., `uniref50.fasta.gz`).
+
+        root : str | PathLike, optional
             Root directory where the dataset subdirectory exists or, if
             `download` is `True`, the directory where the dataset subdirectory
             will be created and the dataset downloaded.
 
         index : bool, optional
-            If `True`, caches the sequence indicies to disk for faster
+            If `True`, caches the sequence indexes to disk for faster
             re-initialization (default: `True`).
-
-        download : bool, optional
-            If `True`, download the dataset and to the `root` directory
-            (default: `False`). If the dataset is already downloaded, it is
-            not redownloaded.
 
         transform : Callable | Transform, optional
             A `Callable` or `Transform` that that maps a sequence to a
@@ -46,20 +46,24 @@ class _UniRefDataset(FASTADataset):
             A `Callable` or `Transform` that maps a target (a cluster
             identifier) to a transformed target (default: `None`).
         """
-        root = Path(root)
+        if root is None:
+            root = pooch.os_cache("beignet")
 
-        directory = root / name
+        if isinstance(root, str):
+            root = Path(root)
 
-        path = directory / f"{name}.fasta"
+        root = root.resolve()
 
-        if download:
-            pooch.retrieve(
-                f"http://ftp.uniprot.org/pub/databases/uniprot/uniref/{name}/{name}.fasta.gz",
-                md5[1],
-                f"{name}.fasta.gz",
-                root / name,
-                progressbar=True,
-            )
+        name = self.__class__.__name__.replace("Dataset", "")
+
+        path = pooch.retrieve(
+            url,
+            known_hash,
+            f"{name}.fasta.gz",
+            root / name,
+            processor=Decompress(),
+            progressbar=True,
+        )
 
         self._pattern = re.compile(r"^UniRef.+_([A-Z0-9]+)\s.+$")
 

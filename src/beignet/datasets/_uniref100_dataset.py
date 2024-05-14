@@ -11,7 +11,6 @@ class UniRef100Dataset(_UniRefDataset):
         root: str | Path,
         *,
         index: bool = True,
-        download: bool = False,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ) -> None:
@@ -27,11 +26,6 @@ class UniRef100Dataset(_UniRefDataset):
             If `True`, caches the sequence indicies to disk for faster
             re-initialization (default: `True`).
 
-        download : bool, optional
-            If `True`, download the dataset and to the `root` directory
-            (default: `False`). If the dataset is already downloaded, it is
-            not redownloaded.
-
         transform : Callable, optional
             A `Callable` or `Transform` that that maps a sequence to a
             transformed sequence (default: `None`).
@@ -41,11 +35,10 @@ class UniRef100Dataset(_UniRefDataset):
             identifier) to a transformed target (default: `None`).
         """
         super().__init__(
+            "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz",
             root,
-            "uniref100",
-            "0354240a56f4ca91ff426f8241cfeb7d",
+            "md5:0354240a56f4ca91ff426f8241cfeb7d",
             index=index,
-            download=download,
             transform=transform,
             target_transform=target_transform,
         )
