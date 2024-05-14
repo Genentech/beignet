@@ -8,7 +8,12 @@ requires = [
 
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
-dependencies = ["torch"]
+dependencies = [
+    "torch",
+    "pandas",
+    "pyarrow",
+    "s3fs[boto3]",
+    ]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
