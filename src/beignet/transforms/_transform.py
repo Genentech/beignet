@@ -5,7 +5,7 @@ import torch.utils._pytree
 from torch import Tensor
 from torch.nn import Module
 
-from yeji.features import Feature
+from beignet.features import Feature
 
 
 class Transform(Module):
@@ -92,7 +92,7 @@ class Transform(Module):
 
         inputs = []
 
-        for x, transformable in zip(flattened, transformables):
+        for x, transformable in zip(flattened, transformables, strict=False):
             if transformable:
                 inputs = [*inputs, x]
 
@@ -100,7 +100,7 @@ class Transform(Module):
 
         ys = []
 
-        for x, transformable in zip(flattened, transformables):
+        for x, transformable in zip(flattened, transformables, strict=False):
             if transformable:
                 y = self._transform(x, inputs)
             else:

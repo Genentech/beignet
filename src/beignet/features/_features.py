@@ -101,11 +101,11 @@ class Feature(Tensor):
             #   The ``__torch_function__`` protocol will invoke this method
             #   on each type in the computation by walking the method
             #   resolution  order (MRO). For example,
-            #   ``Tensor(...).to(yeji.features.Foo( ...))`` invokes
-            #   ``yeji.features.Foo.__torch_function__`` with
-            #   ``args = (Tensor(), yeji.featues.Foo())``.
+            #   ``Tensor(...).to(beignet.features.Foo( ...))`` invokes
+            #   ``beignet.features.Foo.__torch_function__`` with
+            #   ``args = (Tensor(), beignet.featues.Foo())``.
             #   Without this guard, ``Tensor`` would be wrapped into
-            #   ``yeji.features.Foo``.
+            #   ``beignet.features.Foo``.
             if wrapper and isinstance(args[0], cls):
                 return wrapper(cls, args[0], output)
 
@@ -129,15 +129,15 @@ class Feature(Tensor):
     @property
     def _f(self) -> ModuleType:
         # NOTE:
-        #   Lazy import of ``yeji.transforms.functional`` to bypass the
+        #   Lazy import of ``beignet.transforms.functional`` to bypass the
         #   ``ImportError`` raised by the circual import. The
-        #   ``yeji.transforms.functional`` import is deferred until the
+        #   ``beignet.transforms.functional`` import is deferred until the
         #   functional module is referenced and it’s shared across all
         #   instances of the class.
         if Feature.__f is None:
-            import yeji.transforms.functional
+            import beignet.transforms.functional
 
-            Feature.__f = yeji.transforms.functional
+            Feature.__f = beignet.transforms.functional
 
         return Feature.__f
 
