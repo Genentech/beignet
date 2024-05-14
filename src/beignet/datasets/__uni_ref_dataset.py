@@ -1,11 +1,11 @@
-import os.path
 import re
 from pathlib import Path
 from typing import Callable
 
-from beignet.io import download_and_extract_archive
+import pooch
 
-from ..transforms import Transform
+from beignet.transforms import Transform
+
 from ._fasta_dataset import FASTADataset
 
 
@@ -52,13 +52,13 @@ class _UniRefDataset(FASTADataset):
 
         path = directory / f"{name}.fasta"
 
-        if download and not os.path.exists(path):
-            download_and_extract_archive(
+        if download:
+            pooch.retrieve(
                 f"http://ftp.uniprot.org/pub/databases/uniprot/uniref/{name}/{name}.fasta.gz",
-                str(directory),
-                str(directory),
-                f"{name}.fasta.gz",
                 md5[1],
+                f"{name}.fasta.gz",
+                root / name,
+                progressbar=True,
             )
 
         self._pattern = re.compile(r"^UniRef.+_([A-Z0-9]+)\s.+$")

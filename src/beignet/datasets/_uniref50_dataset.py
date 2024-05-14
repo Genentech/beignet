@@ -44,10 +44,7 @@ class UniRef50Dataset(_UniRefDataset):
         super().__init__(
             root,
             "uniref50",
-            (
-                "2b05bd43c14ce0bc0591a017efa648e6",  # uniref50.fasta
-                "cb28f2fc41694ccc009cbbab3e08db98",  # uniref50.fasta.gz
-            ),
+            "e638c63230d13ad5e2098115b9cb5d8f",
             index=index,
             download=download,
             transform=transform,

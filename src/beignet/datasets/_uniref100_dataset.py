@@ -43,10 +43,7 @@ class UniRef100Dataset(_UniRefDataset):
         super().__init__(
             root,
             "uniref100",
-            (
-                "",
-                "",
-            ),
+            "0354240a56f4ca91ff426f8241cfeb7d",
             index=index,
             download=download,
             transform=transform,
