@@ -40,7 +40,7 @@ all = [
 ]
 
 [tool.ruff]
-select = [
+lint.select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
     "F",  # PYFLAKES
