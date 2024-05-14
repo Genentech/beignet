@@ -10,10 +10,6 @@ requires = [
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
     "torch",
-    "pandas",
-    "pyarrow",
-    "s3fs[boto3]",
-    "requests",
     ]
 dynamic = ["version"]
 license = { file = "LICENSE" }
@@ -30,6 +26,17 @@ test = [
     "hypothesis",
     "pytest",
     "scipy",
+]
+io = [
+    "pandas",
+    "pyarrow",
+    "s3fs[boto3]",
+    "requests",
+    "universal-pathlib",
+    "tqdm",
+]
+all = [
+    "beignet[docs,test,io]",
 ]
 
 [tool.ruff]
