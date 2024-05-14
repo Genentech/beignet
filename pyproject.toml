@@ -13,6 +13,7 @@ dependencies = [
     "pandas",
     "pyarrow",
     "s3fs[boto3]",
+    "requests",
     ]
 dynamic = ["version"]
 license = { file = "LICENSE" }
