@@ -1,21 +1,22 @@
 import subprocess
 from pathlib import Path
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, Tuple, TypeVar
 
 import numpy
 
+from beignet.datasets import SizedSequenceDataset
 from beignet.io import ThreadSafeFile
 
-from ._sized_sequence_dataset import SizedSequenceDataset
+T = TypeVar("T")
 
 
 class FASTADataset(SizedSequenceDataset):
     def __init__(
         self,
-        root: Union[str, Path],
+        root: str | Path,
         *,
-        cache_sequence_indicies: bool = True,
-        transform_fn: Optional[Callable] = None,
+        index: bool = True,
+        transform: Callable[[T], T] | None = None,
     ) -> None:
         self.root = Path(root)
 
@@ -24,19 +25,19 @@ class FASTADataset(SizedSequenceDataset):
 
         self._thread_safe_file = ThreadSafeFile(root, open)
 
-        self.cache = Path(f"{self.root}.index.npy")
+        self._index = Path(f"{self.root}.index.npy")
 
-        if cache_sequence_indicies:
-            if self.cache.exists():
-                self.offsets, sizes = numpy.load(str(self.cache))
+        if index:
+            if self._index.exists():
+                self.offsets, sizes = numpy.load(str(self._index))
             else:
                 self.offsets, sizes = self._build_index()
 
-                numpy.save(str(self.cache), numpy.stack([self.offsets, sizes]))
+                numpy.save(str(self._index), numpy.stack([self.offsets, sizes]))
         else:
             self.offsets, sizes = self._build_index()
 
-        self._transform_fn = transform_fn
+        self._transform_fn = transform
 
         super().__init__(self.root, sizes)
 
@@ -71,7 +72,8 @@ class FASTADataset(SizedSequenceDataset):
         return (
             numpy.fromstring(
                 subprocess.check_output(
-                    f"cat {self.root} | tqdm --bytes --total $(wc -c < {self.root})"
+                    f"cat {self.root} "
+                    f"| tqdm --bytes --total $(wc -c < {self.root})"
                     "| grep --byte-offset '^>' -o | cut -d: -f1",
                     shell=True,
                 ),
@@ -80,8 +82,10 @@ class FASTADataset(SizedSequenceDataset):
             ),
             numpy.fromstring(
                 subprocess.check_output(
-                    f"cat {self.root} | tqdm --bytes --total $(wc -c < {self.root})"
-                    '| awk \'/^>/ {print "";next;} { printf("%s",$0);}\' | tail -n+2 | awk '
+                    f"cat {self.root} "
+                    f"| tqdm --bytes --total $(wc -c < {self.root})"
+                    '| awk \'/^>/ {print "";next;} { printf("%s",$0);}\' '
+                    "| tail -n+2 | awk "
                     "'{print length($1)}'",
                     shell=True,
                 ),
