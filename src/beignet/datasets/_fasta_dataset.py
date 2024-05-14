@@ -38,15 +38,15 @@ class FASTADataset(SizedSequenceDataset):
         else:
             self.offsets, sizes = self._build_index()
 
-        self._transform_fn = transform
+        self._transform = transform
 
         super().__init__(self.root, sizes)
 
     def __getitem__(self, index: int) -> Tuple[str, str]:
         x = self.get(index)
 
-        if self._transform_fn:
-            x = self._transform_fn(x)
+        if self._transform:
+            x = self._transform(x)
 
         return x
 
