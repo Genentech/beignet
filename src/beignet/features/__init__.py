@@ -1,4 +1,4 @@
-from ._feature import Feature
+from ._features import Feature
 
 __all__ = [
     "Feature",

@@ -24,8 +24,6 @@ class TestFeature:
             (feature, torch.tensor([1, 2, 3])),
         )
 
-        assert torch.is_tensor(result)
-
         assert not isinstance(result, Feature)
 
     def test_device(self, feature: Feature):

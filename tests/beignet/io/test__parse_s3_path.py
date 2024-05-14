@@ -1,4 +1,4 @@
-from prescient.io._parse_s3_path import parse_s3_path
+from beignet.io._parse_s3_path import parse_s3_path
 
 
 def test_parse_s3_path():

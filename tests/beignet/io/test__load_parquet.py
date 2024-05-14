@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from prescient.io._load_parquet import load_parquet_to_pandas
+from beignet.io._load_parquet import load_parquet_to_pandas
 
 
 @pytest.fixture
