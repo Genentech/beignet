@@ -42,6 +42,13 @@ def murcko_scaffold_split(
     Returns:
         tuple[Subset, Subset]: The train and test subsets.
 
+    References:
+        - Bemis, G. W., & Murcko, M. A. (1996).
+        The properties of known drugs. 1. Molecular frameworks.
+        Journal of medicinal chemistry, 39(15), 2887–2893.
+        https://doi.org/10.1021/jm9602928
+        - "RDKit: Open-source cheminformatics. https://www.rdkit.org"
+
     """
     train_idx, test_idx = _murcko_scaffold_split_indices(
         smiles,
