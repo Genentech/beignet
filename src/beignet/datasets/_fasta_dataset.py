@@ -30,7 +30,7 @@ class FASTADataset(SizedSequenceDataset):
 
         self.data = ThreadSafeFile(self.root, open)
 
-        offsets = Path(f"{self.root}.index.npy")
+        offsets = Path(f"{self.root}.offsets.npy")
 
         if offsets.exists():
             self.offsets, sizes = numpy.load(f"{offsets}")
