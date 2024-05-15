@@ -11,6 +11,7 @@ authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
     "pooch",
     "torch",
+    "tqdm",
 ]
 dynamic = ["version"]
 license = { file = "LICENSE" }

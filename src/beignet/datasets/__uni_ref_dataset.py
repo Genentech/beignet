@@ -18,7 +18,6 @@ class _UniRefDataset(FASTADataset):
         root: str | PathLike | None = None,
         known_hash: str | None = None,
         *,
-        index: bool = True,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ) -> None:
@@ -33,10 +32,6 @@ class _UniRefDataset(FASTADataset):
             Root directory where the dataset subdirectory exists or, if
             `download` is `True`, the directory where the dataset subdirectory
             will be created and the dataset downloaded.
-
-        index : bool, optional
-            If `True`, caches the sequence indexes to disk for faster
-            re-initialization (default: `True`).
 
         transform : Callable | Transform, optional
             A `Callable` or `Transform` that that maps a sequence to a
@@ -56,32 +51,34 @@ class _UniRefDataset(FASTADataset):
 
         name = self.__class__.__name__.replace("Dataset", "")
 
-        path = pooch.retrieve(
-            url,
-            known_hash,
-            f"{name}.fasta.gz",
-            root / name,
-            processor=Decompress(),
-            progressbar=True,
-        )
-
         self._pattern = re.compile(r"^UniRef.+_([A-Z0-9]+)\s.+$")
 
-        super().__init__(path, index=index)
+        super().__init__(
+            pooch.retrieve(
+                url,
+                known_hash,
+                f"{name}.fasta.gz",
+                root / name,
+                processor=Decompress(
+                    name=f"{name}.fasta",
+                ),
+                progressbar=True,
+            ),
+        )
 
-        self._transform = transform
+        self.transform = transform
 
-        self._target_transform = target_transform
+        self.target_transform = target_transform
 
     def __getitem__(self, index: int) -> (str, str):
         target, sequence = self.get(index)
 
         (target,) = re.search(self._pattern, target).groups()
 
-        if self._transform:
-            sequence = self._transform(sequence)
+        if self.transform:
+            sequence = self.transform(sequence)
 
-        if self._target_transform:
-            target = self._target_transform(target)
+        if self.target_transform:
+            target = self.target_transform(target)
 
         return sequence, target

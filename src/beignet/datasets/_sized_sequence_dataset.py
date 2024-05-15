@@ -1,4 +1,4 @@
-from pathlib import Path
+from os import PathLike
 
 import numpy
 
@@ -8,7 +8,7 @@ from ._sequence_dataset import SequenceDataset
 class SizedSequenceDataset(SequenceDataset):
     def __init__(
         self,
-        root: str | Path,
+        root: str | PathLike,
         sizes: numpy.ndarray,
         *args,
         **kwargs,

@@ -39,7 +39,6 @@ class UniRef90Dataset(_UniRefDataset):
             "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz",
             root,
             "md5:6161bad4d7506365aee882fd5ff9c833",
-            index=index,
             transform=transform,
             target_transform=target_transform,
         )

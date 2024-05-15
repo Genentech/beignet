@@ -11,7 +11,6 @@ class UniRef50Dataset(_UniRefDataset):
         self,
         root: str | PathLike | None = None,
         *,
-        index: bool = True,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ) -> None:
@@ -22,10 +21,6 @@ class UniRef50Dataset(_UniRefDataset):
             Root directory where the dataset subdirectory exists or, if
             `download` is `True`, the directory where the dataset subdirectory
             will be created and the dataset downloaded.
-
-        index : bool, optional
-            If `True`, caches the sequence indexes to disk for faster
-            re-initialization (default: `True`).
 
         transform : Callable, optional
             A `Callable` or `Transform` that that maps a sequence to a
@@ -39,7 +34,6 @@ class UniRef50Dataset(_UniRefDataset):
             "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz",
             root,
             "md5:e638c63230d13ad5e2098115b9cb5d8f",
-            index=index,
             transform=transform,
             target_transform=target_transform,
         )
