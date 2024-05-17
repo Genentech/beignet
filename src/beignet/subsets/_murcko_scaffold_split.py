@@ -1,12 +1,13 @@
 import math
 import random
 from collections import defaultdict
+from typing import Sequence
 
 from torch.utils.data import Dataset, Subset
 
 try:
     from rdkit import Chem
-    from rdkit.Chem.Scaffolds.MurckoScaffold import MurckoScaffoldSmiles
+    from rdkit.Chem.Scaffolds.MurckoScaffold import GetScaffoldForMol
 
     _RDKit_AVAILABLE = True
 except (ImportError, ModuleNotFoundError):
@@ -16,39 +17,47 @@ except (ImportError, ModuleNotFoundError):
 
 def murcko_scaffold_split(
     dataset: Dataset,
-    smiles: list[str],
+    smiles: Sequence[str],
     test_size: float | int,
     *,
     seed: int = 0xDEADBEEF,
     shuffle: bool = True,
     include_chirality: bool = False,
 ) -> tuple[Subset, Subset]:
-    """Split a dataset based on Murcko scaffold splitting based
+    """
+    Creates datasets subsets with disjoint Murcko scaffolds based
     on provided SMILES strings.
 
     Note that for datasets that are small or not highly diverse,
     the final test set may be smaller than the specified test_size.
 
-    Parameters:
-        dataset (Dataset): The dataset to split.
-        smiles (list[str]): A list of SMILES strings.
-        test_size (float | int): The size of the test set.
-            If float, should be between 0.0 and 1.0.
-            If int, should be between 0 and len(smiles).
-        seed (int): The random seed to use for shuffling.
-        shuffle (bool): Whether to shuffle the indices.
-        include_chirality (bool): Whether to include chirality in the scaffold.
+    Parameters
+    ----------
+    dataset : Dataset
+        The dataset to split.
+    smiles : Sequence[str]
+        A list of SMILES strings.
+    test_size : float | int
+        The size of the test set. If float, should be between 0.0 and 1.0.
+        If int, should be between 0 and len(smiles).
+    seed : int, optional
+        The random seed to use for shuffling, by default 0xDEADBEEF
+    shuffle : bool, optional
+        Whether to shuffle the indices, by default True
+    include_chirality : bool, optional
+        Whether to include chirality in the scaffold, by default False
 
-    Returns:
-        tuple[Subset, Subset]: The train and test subsets.
+    Returns
+    -------
+    tuple[Subset, Subset]
+        The train and test subsets.
 
-    References:
-        - Bemis, G. W., & Murcko, M. A. (1996).
-        The properties of known drugs. 1. Molecular frameworks.
-        Journal of medicinal chemistry, 39(15), 2887–2893.
-        https://doi.org/10.1021/jm9602928
-        - "RDKit: Open-source cheminformatics. https://www.rdkit.org"
-
+    References
+    ----------
+    - Bemis, G. W., & Murcko, M. A. (1996). The properties of known drugs.
+      1. Molecular frameworks.  Journal of medicinal chemistry, 39(15), 2887–2893.
+      https://doi.org/10.1021/jm9602928
+    - "RDKit: Open-source cheminformatics. https://www.rdkit.org"
     """
     train_idx, test_idx = _murcko_scaffold_split_indices(
         smiles,
@@ -68,7 +77,8 @@ def _murcko_scaffold_split_indices(
     shuffle: bool = True,
     include_chirality: bool = False,
 ) -> tuple[list[int], list[int]]:
-    """Get train and test indices based on Murcko scaffold splitting."""
+    """
+    Get train and test indices based on Murcko scaffolds."""
     if not _RDKit_AVAILABLE:
         raise ImportError(
             "This function requires RDKit to be installed (pip install rdkit)"
@@ -89,7 +99,9 @@ def _murcko_scaffold_split_indices(
     for ind, s in enumerate(smiles):
         mol = Chem.MolFromSmiles(s)
         if mol is not None:
-            scaffold = MurckoScaffoldSmiles(mol=mol, includeChirality=include_chirality)
+            scaffold = Chem.MolToSmiles(
+                GetScaffoldForMol(mol), isomericSmiles=include_chirality
+            )
         scaffolds[scaffold].append(ind)
 
     train_idx = []

@@ -2,7 +2,7 @@ from importlib.util import find_spec
 from unittest.mock import MagicMock, patch
 
 import pytest
-from beignet.splits._murcko_scaffold_split import (
+from beignet.subsets._murcko_scaffold_split import (
     _murcko_scaffold_split_indices,
     murcko_scaffold_split,
 )
@@ -12,7 +12,7 @@ _RDKit_AVAILABLE = find_spec("rdkit") is not None
 
 
 @pytest.mark.skipif(not _RDKit_AVAILABLE, reason="RDKit is not available")
-@patch("beignet.splits._murcko_scaffold_split._murcko_scaffold_split_indices")
+@patch("beignet.subsets._murcko_scaffold_split._murcko_scaffold_split_indices")
 def test_murcko_scaffold_split(mock__murcko_scaffold_split_indices):
     mock__murcko_scaffold_split_indices.return_value = ([0], [1])
 

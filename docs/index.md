@@ -42,3 +42,4 @@
 ::: beignet.rotation_vector_to_quaternion
 ::: beignet.rotation_vector_to_rotation_matrix
 ::: beignet.translation_identity
+::: beignet.subsets.murcko_scaffold_split
