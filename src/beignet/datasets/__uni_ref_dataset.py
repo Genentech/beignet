@@ -1,4 +1,3 @@
-import re
 from os import PathLike
 from pathlib import Path
 from typing import Callable
@@ -51,8 +50,6 @@ class _UniRefDataset(FASTADataset):
 
         name = self.__class__.__name__.replace("Dataset", "")
 
-        self._pattern = re.compile(r"^UniRef.+_([A-Z0-9]+)\s.+$")
-
         super().__init__(
             pooch.retrieve(
                 url,
@@ -71,14 +68,12 @@ class _UniRefDataset(FASTADataset):
         self.target_transform = target_transform
 
     def __getitem__(self, index: int) -> (str, str):
-        target, sequence = self.get(index)
-
-        (target,) = re.search(self._pattern, target).groups()
+        input, target = self.get(index)
 
         if self.transform:
-            sequence = self.transform(sequence)
+            input = self.transform(input)
 
         if self.target_transform:
             target = self.target_transform(target)
 
-        return sequence, target
+        return input, target

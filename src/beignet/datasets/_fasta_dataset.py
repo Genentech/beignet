@@ -1,9 +1,9 @@
-import subprocess
 from os import PathLike
 from pathlib import Path
 from typing import Callable, Tuple, TypeVar
 
 import numpy
+import tqdm
 
 from beignet.io import ThreadSafeFile
 
@@ -37,10 +37,7 @@ class FASTADataset(SizedSequenceDataset):
         else:
             self.offsets, sizes = self._build_index()
 
-            numpy.save(
-                f"{offsets}",
-                numpy.stack([self.offsets, sizes]),
-            )
+            numpy.save(f"{offsets}", numpy.stack([self.offsets, sizes]))
 
         self.transform = transform
 
@@ -57,44 +54,50 @@ class FASTADataset(SizedSequenceDataset):
     def __len__(self) -> int:
         return self.offsets.size
 
-    def get(self, index: int) -> str:
+    def get(self, index: int) -> (str, str):
         self.data.seek(self.offsets[index])
 
         if index == len(self) - 1:
             data = self.data.read()
         else:
-            data = self.data.read(
-                self.offsets[index + 1] - self.offsets[index],
-            )
+            data = self.data.read(self.offsets[index + 1] - self.offsets[index])
 
         description, *sequence = data.split("\n")
 
-        return "".join(sequence)
+        return "".join(sequence), description
 
-    def _build_index(self) -> tuple[numpy.ndarray, numpy.ndarray]:
-        # TODO: rewrite in Rust (using `libripgrep`) or similar to remove
-        #  dependency on `grep` and `awk`. — Allen (Tuesday, November 29, 2022)
-        return (
-            numpy.fromstring(
-                subprocess.check_output(
-                    f"cat {self.root} "
-                    f"| tqdm --bytes --total $(wc -c < {self.root})"
-                    "| grep --byte-offset '^>' -o | cut -d: -f1",
-                    shell=True,
-                ),
-                dtype=numpy.int64,
-                sep=" ",
-            ),
-            numpy.fromstring(
-                subprocess.check_output(
-                    f"cat {self.root} "
-                    f"| tqdm --bytes --total $(wc -c < {self.root})"
-                    '| awk \'/^>/ {print "";next;} { printf("%s",$0);}\' '
-                    "| tail -n+2 | awk "
-                    "'{print length($1)}'",
-                    shell=True,
-                ),
-                dtype=numpy.int64,
-                sep=" ",
-            ),
-        )
+    def _build_index(self) -> (numpy.ndarray, numpy.ndarray):
+        with open(self.root, "r") as file:
+            content = file.read()
+
+        offsets, sizes = [], []
+
+        current_offset, current_size = 0, 0
+
+        parsing = False
+
+        for sequence in tqdm.tqdm(content.splitlines(keepends=True)):
+            characters = len(sequence)
+
+            if sequence.startswith(">"):
+                if parsing:
+                    sizes = [*sizes, current_size]
+
+                    current_size = 0
+
+                offsets = [*offsets, current_offset]
+
+                parsing = True
+            elif parsing:
+                current_size = current_size + len(sequence.rstrip("\n"))
+
+            current_offset = current_offset + characters
+
+        if parsing:
+            sizes = [*sizes, current_size]
+
+        offsets = numpy.array(offsets, dtype=numpy.int64)
+
+        sizes = numpy.array(sizes, dtype=numpy.int64)
+
+        return offsets, sizes
