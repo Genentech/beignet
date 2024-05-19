@@ -36,7 +36,12 @@ class ThreadSafeFile:
         return getattr(self.file, name)
 
     def __getstate__(self) -> dict[str, Any]:
-        return {k: v for k, v in self.__dict__.items() if k != "_local"}
+        state = self.__dict__.copy()
+
+        if "storage" in state:
+            del state["storage"]
+
+        return state
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self.__dict__ = state
