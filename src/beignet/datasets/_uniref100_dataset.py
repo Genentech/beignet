@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Callable
 
 from ..transforms import Transform
-from .__uni_ref_dataset import _UniRefDataset
+from .__uniref_dataset import _UniRefDataset
 
 
 class UniRef100Dataset(_UniRefDataset):

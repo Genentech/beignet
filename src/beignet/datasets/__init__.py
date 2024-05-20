@@ -1,4 +1,4 @@
-from .__uni_ref_dataset import _UniRefDataset
+from .__uniref_dataset import _UniRefDataset
 from ._fasta_dataset import FASTADataset
 from ._sequence_dataset import SequenceDataset
 from ._sized_sequence_dataset import SizedSequenceDataset

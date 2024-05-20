@@ -3,7 +3,7 @@ from typing import Callable
 
 from beignet.transforms import Transform
 
-from .__uni_ref_dataset import _UniRefDataset
+from .__uniref_dataset import _UniRefDataset
 
 
 class UniRef50Dataset(_UniRefDataset):
