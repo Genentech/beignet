@@ -8,7 +8,11 @@ requires = [
 
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
-dependencies = ["torch"]
+dependencies = [
+    "pooch",
+    "torch",
+    "tqdm",
+]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
@@ -16,6 +20,9 @@ readme = "README.md"
 requires-python = ">=3.10"
 
 [project.optional-dependencies]
+all = [
+    "beignet[docs,test]",
+]
 docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
@@ -27,7 +34,7 @@ test = [
 ]
 
 [tool.ruff]
-select = [
+lint.select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
     "F",  # PYFLAKES
