@@ -12,7 +12,7 @@ class UniRef100Dataset(_UniRefDataset):
         *,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         r"""
         Parameters
         ----------

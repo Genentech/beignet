@@ -13,7 +13,7 @@ class SwissProtDataset(_UniRefDataset):
         *,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         """
         Parameters
         ----------

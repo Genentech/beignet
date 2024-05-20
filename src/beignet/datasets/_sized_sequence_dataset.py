@@ -12,7 +12,7 @@ class SizedSequenceDataset(SequenceDataset):
         sizes: numpy.ndarray,
         *args,
         **kwargs,
-    ) -> None:
+    ):
         super().__init__(root, *args, **kwargs)
 
         self._sizes = sizes
