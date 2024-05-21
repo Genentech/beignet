@@ -11,7 +11,7 @@ logger = transformers.utils.logging.get_logger(__name__)
 VOCAB_FILES_NAMES = {"vocab_file": "vocab.txt"}
 
 VOCAB_PATH = (
-    importlib.resources.files("lobster") / "assets" / "pmlm_tokenizer" / "vocab.txt"
+    importlib.resources.files("beignet") / "assets" / "pmlm_tokenizer" / "vocab.txt"
 )
 
 PRETRAINED_VOCAB_FILES_MAP = {
