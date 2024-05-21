@@ -10,9 +10,9 @@ logger = transformers.utils.logging.get_logger(__name__)
 
 VOCAB_FILES_NAMES = {"vocab_file": "vocab.txt"}
 
-VOCAB_PATH = (
-    importlib.resources.files("beignet") / "assets" / "pmlm_tokenizer" / "vocab.txt"
-)
+TOKENIZERS_DIRECTORY = importlib.resources.files("beignet") / "data" / "tokenizers"
+
+VOCAB_PATH = TOKENIZERS_DIRECTORY / "vocab.txt"
 
 PRETRAINED_VOCAB_FILES_MAP = {
     "vocab_file": {
@@ -165,6 +165,7 @@ class ProteinMLMTokenizer(PreTrainedTokenizer):
 
     def _create_trie(self, unique_no_split_tokens):
         trie = Trie()
+
         for token in unique_no_split_tokens:
             if (
                 hasattr(self, "do_lower_case")
@@ -174,4 +175,5 @@ class ProteinMLMTokenizer(PreTrainedTokenizer):
                 trie.add(token.lower())
             else:
                 trie.add(token)
+
         self.tokens_trie = trie
