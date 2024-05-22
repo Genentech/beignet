@@ -1,14 +1,14 @@
 from typing import Callable, Generator
 
 import torch
-from torch import Tensor
-from torch.utils.data import Dataset
 
 import beignet
 from beignet.transforms import Transform
 
+from .__random_rotation_dataset import RandomRotationDataset
 
-class RandomEulerAngleDataset(Dataset):
+
+class RandomEulerAngleDataset(RandomRotationDataset):
     def __init__(
         self,
         size: int,
@@ -23,8 +23,6 @@ class RandomEulerAngleDataset(Dataset):
         requires_grad: bool | None = False,
         transform: Callable | Transform | None = None,
     ) -> None:
-        super().__init__()
-
         self.data = beignet.random_euler_angle(
             size,
             axes,
@@ -37,15 +35,4 @@ class RandomEulerAngleDataset(Dataset):
             pin_memory=pin_memory,
         )
 
-        self.transform = transform
-
-    def __getitem__(self, index: int) -> Tensor:
-        x = self.data[index]
-
-        if self.transform:
-            x = self.transform(x)
-
-        return x
-
-    def __len__(self) -> int:
-        return len(self.data)
+        super().__init__(transform=transform)
