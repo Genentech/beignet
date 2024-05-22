@@ -21,6 +21,10 @@ class RandomRotationVectorDataset(Dataset):
         requires_grad: bool | None = False,
         transform: Callable | Transform | None = None,
     ):
+        r"""
+        Parameters
+        ----------
+        """
         super().__init__(
             beignet.random_rotation_vector(
                 size,
