@@ -1,6 +1,6 @@
 import importlib.resources
 import os
-from typing import List, Optional, Union
+from typing import Dict, List, Optional
 
 import transformers.utils.logging
 from transformers.tokenization_utils import PreTrainedTokenizer, Trie
@@ -8,18 +8,9 @@ from transformers.tokenization_utils_base import AddedToken
 
 logger = transformers.utils.logging.get_logger(__name__)
 
-VOCAB_FILES_NAMES = {"vocab_file": "vocab.txt"}
-
 TOKENIZERS_DIRECTORY = importlib.resources.files("beignet") / "data" / "tokenizers"
 
 VOCAB_PATH = TOKENIZERS_DIRECTORY / "vocab.txt"
-
-PRETRAINED_VOCAB_FILES_MAP = {
-    "vocab_file": {
-        "facebook/esm2_t6_8M_UR50D": "https://huggingface.co/facebook/esm2_t6_8M_UR50D/resolve/main/vocab.txt",
-        "facebook/esm2_t12_35M_UR50D": "https://huggingface.co/facebook/esm2_t12_35M_UR50D/resolve/main/vocab.txt",
-    },
-}
 
 PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
     "facebook/esm2_t6_8M_UR50D": 1024,
@@ -34,23 +25,34 @@ def load_vocab_file(vocab_file):
 
 
 class ProteinMLMTokenizer(PreTrainedTokenizer):
-    """
-    Constructs a Pmlm tokenizer.
-    """
+    vocab_files_names: Dict[str, str] = {
+        "vocab_file": "vocab.txt",
+    }
 
-    vocab_files_names = VOCAB_FILES_NAMES
-    pretrained_vocab_files_map = PRETRAINED_VOCAB_FILES_MAP
+    pretrained_vocab_files_map: Dict[str, Dict[str, str]] = {
+        "vocab_file": {
+            "facebook/esm2_t6_8M_UR50D": "https://huggingface.co/facebook/esm2_t6_8M_UR50D/resolve/main/vocab.txt",
+            "facebook/esm2_t12_35M_UR50D": "https://huggingface.co/facebook/esm2_t12_35M_UR50D/resolve/main/vocab.txt",
+        },
+    }
+
+    model_input_names: List[str] = [
+        "attention_mask",
+        "input_ids",
+    ]
+
     max_model_input_sizes = PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES
-    model_input_names = ["input_ids", "attention_mask"]
 
     def __init__(
         self,
         vocab_file=VOCAB_PATH,
-        unk_token="<unk>",
-        cls_token="<cls>",
-        pad_token="<pad>",
-        mask_token="<mask>",
-        eos_token="<eos>",
+        bos_token: str | AddedToken | None = None,
+        eos_token: str | AddedToken | None = "<eos>",
+        unk_token: str | AddedToken | None = "<unk>",
+        sep_token: str | AddedToken | None = None,
+        pad_token: str | AddedToken | None = "<pad>",
+        cls_token: str | AddedToken | None = "<cls>",
+        mask_token: str | AddedToken | None = "<mask>",
         **kwargs,
     ):
         self.all_tokens = load_vocab_file(vocab_file)
@@ -58,12 +60,17 @@ class ProteinMLMTokenizer(PreTrainedTokenizer):
         super().__init__(**kwargs)
 
         self._token_to_id = {tok: ind for ind, tok in enumerate(self.all_tokens)}
-        self.unk_token = unk_token
-        self.cls_token = cls_token
-        self.pad_token = pad_token
-        self.mask_token = mask_token
+
+        self.bos_token = bos_token
         self.eos_token = eos_token
+        self.unk_token = unk_token
+        self.sep_token = sep_token
+        self.pad_token = pad_token
+        self.cls_token = cls_token
+        self.mask_token = mask_token
+
         self.unique_no_split_tokens = self.all_tokens
+
         self._create_trie(self.unique_no_split_tokens)
 
     def _convert_id_to_token(self, index: int) -> str:
@@ -108,7 +115,7 @@ class ProteinMLMTokenizer(PreTrainedTokenizer):
     def get_special_tokens_mask(
         self,
         token_ids_0: List,
-        token_ids_1: Optional[List] = None,
+        token_ids_1: List | None = None,
         already_has_special_tokens: bool = False,
     ) -> List[int]:
         """
@@ -158,7 +165,7 @@ class ProteinMLMTokenizer(PreTrainedTokenizer):
 
     def _add_tokens(
         self,
-        new_tokens: Union[List[str], List[AddedToken]],
+        new_tokens: List[str] | List[AddedToken],
         special_tokens: bool = False,
     ) -> int:
         return super()._add_tokens(new_tokens, special_tokens=True)

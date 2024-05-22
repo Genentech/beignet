@@ -1,6 +1,6 @@
 import importlib.resources
 from os import PathLike
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 from transformers.tokenization_utils_base import (
     BatchEncoding,
@@ -16,7 +16,7 @@ from ._transform import Transform
 class ProteinMLMTokenizerTransform(Transform):
     def __init__(
         self,
-        path: str | PathLike = None,
+        pretrained_model_name_or_path: str | PathLike = None,
         padding: bool | str | PaddingStrategy = False,
         truncation: bool | str | TruncationStrategy = False,
         max_length: int | None = None,
@@ -32,7 +32,8 @@ class ProteinMLMTokenizerTransform(Transform):
     ):
         super().__init__()
 
-        self._pretrained_model_name_or_path = path
+        self.pretrained_model_name_or_path = pretrained_model_name_or_path
+
         self._padding = padding
         self._truncation = truncation
         self._max_length = max_length
@@ -46,26 +47,24 @@ class ProteinMLMTokenizerTransform(Transform):
         self._tokenizer_dir = tokenizer_dir
         self._mlm = mlm
 
-        if self._pretrained_model_name_or_path is not None:
-            self._auto_tokenizer = ProteinMLMTokenizer.from_pretrained(
-                self._pretrained_model_name_or_path,
+        if self.pretrained_model_name_or_path is not None:
+            self.tokenizer = ProteinMLMTokenizer.from_pretrained(
+                self.pretrained_model_name_or_path,
                 do_lower_case=False,
                 use_fast=True,
             )
         elif self._tokenizer_dir is not None:
-            path = importlib.resources.files("lobster") / "assets" / self._tokenizer_dir
-            self._auto_tokenizer = ProteinMLMTokenizer.from_pretrained(
-                path,
+            pretrained_model_name_or_path = (
+                importlib.resources.files("beignet") / "data" / self._tokenizer_dir
+            )
+            self.tokenizer = ProteinMLMTokenizer.from_pretrained(
+                pretrained_model_name_or_path,
                 do_lower_case=False,
                 use_fast=True,
             )
 
-    def transform(
-        self,
-        text: Union[str, List[str], List[int]],
-        parameters: dict[str, Any],
-    ) -> BatchEncoding:
-        tokenized = self._auto_tokenizer(
+    def transform(self, text: str | List[str] | List[int], **_) -> BatchEncoding:
+        tokenized = self.tokenizer(
             text,
             padding=self._padding,
             truncation=self._truncation,
@@ -86,15 +85,15 @@ class ProteinMLMTokenizerTransform(Transform):
             tokenized["labels"][-1] = -100
         else:
             labels = tokenized["input_ids"].clone()
-            if self._auto_tokenizer.pad_token_id is not None:
-                labels[
-                    labels == self._auto_tokenizer.pad_token_id
-                ] = -100  # ignore in loss
+
+            if self.tokenizer.pad_token_id is not None:
+                labels[labels == self.tokenizer.pad_token_id] = -100  # ignore in loss
+
             tokenized["labels"] = labels
 
         return tokenized
 
-    def _reverse_text(self, text: Union[str, List[str]]) -> Union[str, List[str]]:
+    def _reverse_text(self, text: str | List[str]) -> str | List[str]:
         if isinstance(text, str):
             return text[::-1]
         elif isinstance(text, list):
