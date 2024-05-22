@@ -24,8 +24,57 @@ class RandomEulerAngleDataset(RandomRotationDataset):
         transform: Callable | Transform | None = None,
     ):
         r"""
+        Generate random Euler angles.
+
         Parameters
         ----------
+        size : int
+            Output size.
+
+        axes : str
+            Axes. 1-3 characters belonging to the set {‘X’, ‘Y’, ‘Z’} for
+            intrinsic rotations, or {‘x’, ‘y’, ‘z’} for extrinsic rotations.
+            Extrinsic and intrinsic rotations cannot be mixed.
+
+        degrees : bool, optional
+            If `True`, Euler angles are assumed to be in degrees. Default,
+            `False`.
+
+        generator : torch.Generator, optional
+            Psuedo-random number generator. Default, `None`.
+
+        dtype : torch.dtype, optional
+            Type of the returned tensor. Default, global default.
+
+        layout : torch.layout, optional
+            Layout of the returned tensor. Default, `torch.strided`.
+
+        device : torch.device, optional
+            Device of the returned tensor. Default, current device for the
+            default tensor type.
+
+        requires_grad : bool, optional
+            Whether autograd records operations on the returned tensor.
+            Default, `False`.
+
+        pin_memory : bool, optional
+            If `True`, returned tensor is allocated in pinned memory. Default,
+            `False`.
+
+        Returns
+        -------
+        random_euler_angles : Tensor, shape (..., 3)
+            Random Euler angles.
+
+            The returned Euler angles are in the range:
+
+                *   First angle: :math:`(-180, 180]` degrees (inclusive)
+                *   Second angle:
+                        *   :math:`[-90, 90]` degrees if all axes are different
+                            (e.g., :math:`xyz`)
+                        *   :math:`[0, 180]` degrees if first and third axes are
+                            the same (e.g., :math:`zxz`)
+                *   Third angle: :math:`[-180, 180]` degrees (inclusive)
         """
         super().__init__(
             beignet.random_euler_angle(
