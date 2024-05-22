@@ -1,6 +1,6 @@
 import importlib.resources
 from os import PathLike
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 from transformers.tokenization_utils_base import (
     BatchEncoding,
@@ -16,24 +16,24 @@ from ._transform import Transform
 class ProteinMLMTokenizerTransform(Transform):
     def __init__(
         self,
-        pretrained_model_name_or_path: Union[str, PathLike] = None,
-        padding: Union[bool, str, PaddingStrategy] = False,
-        truncation: Union[bool, str, TruncationStrategy] = False,
-        max_length: Optional[int] = None,
-        return_token_type_ids: Optional[bool] = None,
-        return_attention_mask: Optional[bool] = None,
+        path: str | PathLike = None,
+        padding: bool | str | PaddingStrategy = False,
+        truncation: bool | str | TruncationStrategy = False,
+        max_length: int | None = None,
+        return_token_type_ids: bool | None = None,
+        return_attention_mask: bool | None = None,
         return_overflowing_tokens: bool = False,
         return_special_tokens_mask: bool = False,
         return_offsets_mapping: bool = False,
         return_length: bool = False,
         verbose: bool = True,
-        tokenizer_dir: Optional[str] = "pmlm_tokenizer",
+        tokenizer_dir: str | None = "pmlm_tokenizer",
         mlm: bool = True,
         reversal_augmentation: bool = False,
     ):
         super().__init__()
 
-        self._pretrained_model_name_or_path = pretrained_model_name_or_path
+        self._pretrained_model_name_or_path = path
         self._padding = padding
         self._truncation = truncation
         self._max_length = max_length
