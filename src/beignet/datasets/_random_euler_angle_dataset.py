@@ -24,8 +24,6 @@ class RandomEulerAngleDataset(RandomRotationDataset):
         transform: Callable | Transform | None = None,
     ):
         r"""
-        Generate random Euler angles.
-
         Parameters
         ----------
         size : int
@@ -60,21 +58,6 @@ class RandomEulerAngleDataset(RandomRotationDataset):
         pin_memory : bool, optional
             If `True`, returned tensor is allocated in pinned memory. Default,
             `False`.
-
-        Returns
-        -------
-        random_euler_angles : Tensor, shape (..., 3)
-            Random Euler angles.
-
-            The returned Euler angles are in the range:
-
-                *   First angle: :math:`(-180, 180]` degrees (inclusive)
-                *   Second angle:
-                        *   :math:`[-90, 90]` degrees if all axes are different
-                            (e.g., :math:`xyz`)
-                        *   :math:`[0, 180]` degrees if first and third axes are
-                            the same (e.g., :math:`zxz`)
-                *   Third angle: :math:`[-180, 180]` degrees (inclusive)
         """
         super().__init__(
             beignet.random_euler_angle(

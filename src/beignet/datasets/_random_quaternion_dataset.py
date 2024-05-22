@@ -23,8 +23,6 @@ class RandomQuaternionDataset(RandomRotationDataset):
         transform: Callable | Transform | None = None,
     ):
         r"""
-        Generate random quaternions.
-
         Parameters
         ----------
         size : int
