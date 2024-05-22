@@ -1,1 +1,2 @@
 from ._needleman_wunsch_msa import NeedlemanWunschMSA
+from ._smith_waterman_msa import SmithWatermanMSA
