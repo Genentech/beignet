@@ -1,6 +1,6 @@
 from lightning import LightningModule
 
-from beignet.nn import MSA
+from beignet.nn import NeedlemanWunschMSA
 
 
 class MSALightningModule(LightningModule):
@@ -15,7 +15,7 @@ class MSALightningModule(LightningModule):
     ):
         super().__init__()
 
-        self.module = MSA(
+        self.module = NeedlemanWunschMSA(
             in_channels,
             out_channels,
             kernel_size,

@@ -2,10 +2,10 @@ import torch
 from torch import Tensor
 from torch.nn import Conv1d, Module
 
-import beignet.operators
+import beignet
 
 
-class MSA(Module):
+class NeedlemanWunschMSA(Module):
     def __init__(
         self,
         in_channels: int,
@@ -35,7 +35,7 @@ class MSA(Module):
 
         embedding = embedding @ embedding[0].T
 
-        output = beignet.operators.needleman_wunsch(
+        output = beignet.needleman_wunsch(
             embedding,
             shapes,
             gap_penalty=self.gap_penalty,
