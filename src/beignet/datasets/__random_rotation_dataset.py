@@ -12,7 +12,7 @@ class RandomRotationDataset(Dataset):
         data: Tensor,
         *,
         transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         super().__init__()
 
         self.data = data

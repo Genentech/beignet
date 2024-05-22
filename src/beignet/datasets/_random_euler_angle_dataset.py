@@ -22,7 +22,7 @@ class RandomEulerAngleDataset(RandomRotationDataset):
         pin_memory: bool | None = False,
         requires_grad: bool | None = False,
         transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         super().__init__(
             beignet.random_euler_angle(
                 size,

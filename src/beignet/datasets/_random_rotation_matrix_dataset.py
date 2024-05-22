@@ -10,7 +10,7 @@ class RandomRotationMatrixDataset(Dataset):
         size: int,
         *,
         transform: Optional[Callable] = None,
-    ) -> None:
+    ):
         super().__init__()
 
         self.size = size
