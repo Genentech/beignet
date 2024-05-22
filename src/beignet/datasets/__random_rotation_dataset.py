@@ -7,14 +7,15 @@ from beignet.transforms import Transform
 
 
 class RandomRotationDataset(Dataset):
-    data: Tensor
-
     def __init__(
         self,
+        data: Tensor,
         *,
         transform: Callable | Transform | None = None,
     ) -> None:
         super().__init__()
+
+        self.data = data
 
         self.transform = transform
 

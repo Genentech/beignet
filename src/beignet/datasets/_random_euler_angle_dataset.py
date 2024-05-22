@@ -23,16 +23,17 @@ class RandomEulerAngleDataset(RandomRotationDataset):
         requires_grad: bool | None = False,
         transform: Callable | Transform | None = None,
     ) -> None:
-        self.data = beignet.random_euler_angle(
-            size,
-            axes,
-            degrees,
-            generator=generator,
-            dtype=dtype,
-            layout=layout,
-            device=device,
-            requires_grad=requires_grad,
-            pin_memory=pin_memory,
+        super().__init__(
+            beignet.random_euler_angle(
+                size,
+                axes,
+                degrees,
+                generator=generator,
+                dtype=dtype,
+                layout=layout,
+                device=device,
+                requires_grad=requires_grad,
+                pin_memory=pin_memory,
+            ),
+            transform=transform,
         )
-
-        super().__init__(transform=transform)
