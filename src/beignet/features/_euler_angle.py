@@ -8,9 +8,9 @@ from torch import Tensor
 from ._feature import Feature
 
 
-class EulerAngles(Feature):
+class EulerAngle(Feature):
     @classmethod
-    def _wrap(cls, tensor: Tensor) -> EulerAngles:
+    def _wrap(cls, tensor: Tensor) -> EulerAngle:
         return tensor.as_subclass(cls)
 
     def __new__(
@@ -20,7 +20,7 @@ class EulerAngles(Feature):
         dtype: torch.dtype | None = None,
         device: torch.device | str | int | None = None,
         requires_grad: bool | None = None,
-    ) -> EulerAngles:
+    ) -> EulerAngle:
         tensor = cls._to_tensor(
             data,
             dtype=dtype,
@@ -40,15 +40,15 @@ class EulerAngles(Feature):
         return cls._wrap(tensor)
 
     @classmethod
-    def wrap_like(cls, other: EulerAngles, tensor: Tensor) -> EulerAngles:
+    def wrap_like(cls, other: EulerAngle, tensor: Tensor) -> EulerAngle:
         return cls._wrap(tensor)
 
     def __repr__(self, *, tensor_contents: Any = None) -> str:
         return self._make_repr()
 
 
-_EulerAnglesType = Tensor | EulerAngles
-_EulerAnglesTypeJIT = Tensor
+_EulerAngleType = Tensor | EulerAngle
+_EulerAngleTypeJIT = Tensor
 
-_TensorEulerAnglesType = Tensor | EulerAngles
-_TensorEulerAnglesTypeJIT = Tensor
+_TensorEulerAngleType = Tensor | EulerAngle
+_TensorEulerAngleTypeJIT = Tensor
