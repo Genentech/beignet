@@ -1,3 +1,3 @@
 class TestRandomRotationVectorDataset:
-    def __init__(self):
+    def test___init__(self):
         assert True
