@@ -1,4 +1,5 @@
 from ._calm_dataset import CaLMDataset
+from ._dataframe_dataset import DataFrameDataset
 from ._fasta_dataset import FASTADataset
 from ._sequence_dataset import SequenceDataset
 from ._sized_sequence_dataset import SizedSequenceDataset
@@ -8,6 +9,7 @@ from ._uniref100_dataset import UniRef100Dataset
 
 __all__ = [
     "CaLMDataset",
+    "DataFrameDataset",
     "FASTADataset",
     "SequenceDataset",
     "SizedSequenceDataset",
