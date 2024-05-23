@@ -21,15 +21,13 @@ def bond_angles(input: Tensor, angle_indices: Tensor) -> Tensor:
     # Data verification
     num_frames, n_atoms, _ = input.shape
     if torch.any(angle_indices >= n_atoms) or torch.any(angle_indices < 0):
-        raise ValueError(
-            'angle_indices must be between 0 and %d' % (n_atoms - 1))
+        raise ValueError("angle_indices must be between 0 and %d" % (n_atoms - 1))
 
     if angle_indices.shape[0] == 0:
         return torch.zeros((num_frames, 0), dtype=torch.float32)
 
     # Initializing the output tensor
-    angles = torch.zeros((num_frames, angle_indices.shape[0]),
-                         dtype=torch.float32)
+    angles = torch.zeros((num_frames, angle_indices.shape[0]), dtype=torch.float32)
 
     # Gathering vectors related to the angle calculation
     vec1 = input[:, angle_indices[:, 1]] - input[:, angle_indices[:, 0]]
