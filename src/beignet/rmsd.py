@@ -4,7 +4,7 @@ import torch
 
 # TODO (isaacsoh) parallelize and speed up, eliminate 3-D requirement
 def rmsd(traj1: Tensor, traj2: Tensor):
-    """
+    r"""
     Compute the Root Mean Square Deviation (RMSD) between two trajectories.
 
     Parameters

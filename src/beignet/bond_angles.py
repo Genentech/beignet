@@ -3,7 +3,7 @@ from torch import Tensor
 
 
 def bond_angles(input: Tensor, angle_indices: Tensor) -> Tensor:
-    """
+    r"""
     Compute the bond angles between the supplied triplets of indices in each frame of a trajectory using PyTorch.
 
     Parameters

@@ -3,7 +3,7 @@ from torch import Tensor
 
 
 def _compute_center_of_geometry(input: Tensor) -> Tensor:
-    """Compute the center of geometry for each frame.
+    r"""Compute the center of geometry for each frame.
     Parameters
     ----------
     input : Tensor
