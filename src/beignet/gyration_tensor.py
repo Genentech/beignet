@@ -1,55 +1,50 @@
 import torch
+from torch import Tensor
 
 
-def _compute_center_of_geometry(traj):
+def _compute_center_of_geometry(input: Tensor) -> Tensor:
     """Compute the center of geometry for each frame.
-
     Parameters
     ----------
-    traj : Trajectory
-        Trajectory to compute center of geometry for.
+    input : Tensor
+        Trajectory to compute center of geometry for, shape=(n_frames, n_atoms, 3)
 
     Returns
     -------
-    centers : torch.Tensor, shape=(n_frames, 3)
+    centers : Tensor, shape=(n_frames, 3)
          Coordinates of the center of geometry for each frame.
-
     """
-
-    centers = torch.zeros((traj.n_frames, 3))
-
-    for i, x in enumerate(traj.xyz):
-        centers[i, :] = torch.mean(x.double().t(), dim=1)
-
+    centers = torch.mean(input, dim=1)
     return centers
 
 
-def gyration_tensor(traj):
+def gyration_tensor(input: Tensor) -> Tensor:
     """Compute the gyration tensor of a trajectory.
 
-        For every frame,
+    Parameters
+    ----------
+    input : Tensor
+        Trajectory for which to compute gyration tensor, shape=(n_frames, n_atoms, 3)
 
-        .. math::
+    Returns
+    -------
+    gyration_tensors: Tensor, shape=(n_frames, 3, 3)
+        Gyration tensors for each frame.
 
-            S_{xy} = \sum_{i_atoms} r^{i}_x r^{i}_y
+    References
+    ----------
+    .. [1] https://isg.nist.gov/deepzoomweb/measurement3Ddata_help#shape-metrics-formulas
+    """
+    n_frames, n_atoms, _ = input.shape
+    center_of_geometry = _compute_center_of_geometry(input).unsqueeze(1)
 
-        Parameters
-        ----------
-        traj : Trajectory
-            Trajectory to compute gyration tensor of.
+    # Translate the atoms by subtracting the center of geometry
+    translated_trajectory = input - center_of_geometry
 
-        Returns
-        -------
-        S_xy:  torch.Tensor, shape=(traj.n_frames, 3, 3), dtype=float64
-            Gyration tensors for each frame.
+    # Compute gyration tensor for each frame
+    gyration_tensors = (
+        torch.einsum("nij,nik->njk", translated_trajectory, translated_trajectory)
+        / n_atoms
+    )
 
-        References
-        ----------
-        .. [1] https://isg.nist.gov/deepzoomweb/measurement3Ddata_help#shape-metrics-formulas
-
-        """
-    center_of_geom = torch.unsqueeze(_compute_center_of_geometry(traj), dim=1)
-
-    xyz = traj.xyz - center_of_geom
-
-    return torch.einsum('...ji,...jk->...ik', xyz, xyz) / traj.n_atoms
+    return gyration_tensors

@@ -1,60 +1,44 @@
+from torch import Tensor
 import torch
-from scipy.spatial.transform import Rotation as R
 
 
 # TODO (isaacsoh) parallelize and speed up, eliminate 3-D requirement
-def _rmsd(traj1, traj2):
+def rmsd(traj1: Tensor, traj2: Tensor):
     """
+    Compute the Root Mean Square Deviation (RMSD) between two trajectories.
 
     Parameters
     ----------
-    traj1 : Trajectory
-        For each conformation in this trajectory, compute the RMSD to
-        a particular 'reference' conformation in another trajectory.
-    traj2 : Trajectory
-        The reference conformation to measure distances
-        to.
+    traj1 : Tensor
+        First trajectory tensor, shape (num_frames, num_atoms, dim).
+    traj2 : Tensor
+        Second trajectory tensor (reference), same shape as traj1.
 
     Returns
     -------
-    rmsd_result : torch.Tensor
-        The rmsd calculation of two trajectories.
+    rmsd_result : Tensor
+        The RMSD calculation of two trajectories.
     """
-
     assert traj1.shape == traj2.shape, "Input tensors must have the same shape"
-    assert traj1.dim() == 3, "Input tensors must be 3-D (num_frames, num_atoms, 3)"
 
-    num_frames = traj1.shape[0]  # Number of frames
-
-    # Center the trajectories
-    traj1 = traj1 - traj1.mean(dim=1, keepdim=True)
-    traj2 = traj2 - traj2.mean(dim=1, keepdim=True)
-
-    # Initialization of the resulting RMSD tensor
-    rmsd_result = torch.zeros(num_frames).double()
+    num_frames = traj1.shape[0]
+    rmsd_result = torch.zeros(num_frames)
 
     for i in range(num_frames):
-        # For each configuration compute the rotation matrix minimizing RMSD using SVD
-        u, s, v = torch.svd(torch.mm(traj1[i].t(), traj2[i]))
+        traj1_centered = traj1[i] - traj1[i].mean(dim=0, keepdim=True)
+        traj2_centered = traj2[i] - traj2[i].mean(dim=0, keepdim=True)
 
-        # Determinat of u * v
-        d = (u * v).det().item() < 0.0
+        u, s, vh = torch.linalg.svd(torch.mm(traj1_centered.t(), traj2_centered))
+        d = torch.sign(torch.det(torch.mm(vh.t(), u.t())))
 
-        if d:
-            s[-1] = s[-1] * (-1)
-            u[:, -1] = u[:, -1] * (-1)
+        if d < 0:
+            vh[:, -1] *= -1
 
-        # Optimal rotation matrix
-        rot_matrix = torch.mm(v, u.t())
+        rot_matrix = torch.mm(vh.t(), u.t())
+        traj2_rotated = torch.mm(traj2_centered, rot_matrix)
 
-        test = (R.from_matrix(rot_matrix)).as_matrix()
+        rmsd = torch.sqrt(((traj1_centered - traj2_rotated) ** 2).sum(dim=1).mean())
 
-        assert torch.allclose(torch.from_numpy(test), rot_matrix, rtol=1e-03, atol=1e-04)
-
-        # Calculate RMSD and append to resulting tensor
-        traj2[i] = torch.mm(traj2[i], rot_matrix)
-
-        rmsd_result[i] = torch.sqrt(
-            torch.sum((traj1[i] - traj2[i]) ** 2) / traj1.shape[1])
+        rmsd_result[i] = rmsd
 
     return rmsd_result
