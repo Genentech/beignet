@@ -1,28 +1,23 @@
-import torch
+from torch import Tensor
 
 
-def compute_center_of_mass(traj):
-    """Compute the center of mass for each frame.
+def center_of_mass(input: Tensor, masses: Tensor) -> Tensor:
+    r"""Compute the center of mass for each frame.
 
     Parameters
     ----------
-    traj : Trajectory
-        Trajectory to compute center of mass for
+    input : Tensor
+        A tensor of shape (n_frames, n_atoms, 3) which contains the XYZ coordinates of atoms in each frame.
+    masses : Tensor
+        A tensor of shape (n_atoms,) containing the masses of each atom.
 
     Returns
     -------
-    com : torch.Tensor, shape=(n_frames, 3)
-         Coordinates of the center of mass for each frame
+    output : Tensor, shape=(n_frames, 3)
+         A tensor of shape (n_frames, 3) with the coordinates of the center of mass for each frame.
     """
+    total_mass = masses.sum()
 
-    com = torch.empty((traj.n_frames, 3))
+    weighted_positions = input * masses[:, None]
 
-    masses = torch.tensor([a.element.mass for a in traj.top.atoms])
-    masses /= masses.sum()
-
-    xyz = traj.xyz
-
-    for i, x in enumerate(xyz):
-        com[i, :] = torch.tensordot(masses, x.double().t(), dims=0)
-
-    return com
+    return weighted_positions.sum(dim=1) / total_mass
