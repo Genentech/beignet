@@ -31,14 +31,14 @@ def _apply_transform(input: Tensor, transform: Tensor) -> Tensor:
 
     if transform.ndim == 1:
         return torch.einsum(
-            f"i,{indices}i->{indices}i",
+            "i,...i->...i",
             transform,
             input,
         )
 
     if transform.ndim == 2:
         return torch.einsum(
-            f"ij,{indices}j->{indices}i",
+            f"ij,...j->...i",
             transform,
             input,
         )
