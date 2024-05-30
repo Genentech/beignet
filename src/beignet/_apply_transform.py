@@ -3,6 +3,13 @@ from torch import Tensor
 from torch.autograd import Function
 
 
+# Only import torch._dynamo when necessary https://github.com/pytorch/pytorch/issues/110549
+def conditional_import_torch_dynamo():
+    import torch._dynamo
+
+    return torch._dynamo
+
+
 def _apply_transform(input: Tensor, transform: Tensor) -> Tensor:
     """
     Applies an affine transformation to the position vector.
@@ -80,6 +87,8 @@ class _ApplyTransform(Function):
     def jvp(ctx, grad_transform: Tensor, grad_position: Tensor) -> (Tensor, Tensor):
         transformation, position, _ = ctx.saved_tensors
 
+        _dynamo = conditional_import_torch_dynamo()
+
         output = _apply_transform(position, transformation)
 
         grad_output = grad_position + _apply_transform(position, grad_transform)
@@ -89,6 +98,8 @@ class _ApplyTransform(Function):
     @staticmethod
     def backward(ctx, grad_output: Tensor) -> (Tensor, Tensor):
         _, _, output = ctx.saved_tensors
+
+        _dynamo = conditional_import_torch_dynamo()
 
         return output, grad_output
 

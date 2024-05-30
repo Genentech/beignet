@@ -1,10 +1,11 @@
 import torch
 import torch.func
-from beignet import apply_transform
 from torch import Tensor
 
 
 def test_apply_transform():
+    from beignet._apply_transform import apply_transform
+
     input = torch.randn([32, 3])
 
     transform = torch.randn([3, 3])
