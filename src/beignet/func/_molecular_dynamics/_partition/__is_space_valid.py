@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 
-def _is_space_valid(space: Tensor) -> bool:
+def _is_space_valid(space: Tensor) -> Tensor:
     if space.ndim == 0 or space.ndim == 1:
         return torch.tensor([True])
 

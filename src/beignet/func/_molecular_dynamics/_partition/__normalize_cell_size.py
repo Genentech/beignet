@@ -1,7 +1,33 @@
 import torch
+from torch import Tensor
 
 
-def _normalize_cell_size(box, cutoff):
+def _normalize_cell_size(box: Tensor, cutoff: float) -> Tensor:
+    """
+    Normalize the cell size given the bounding box dimensions and a cutoff value.
+
+    Parameters
+    ----------
+    box : Tensor
+        A tensor representing the dimensions of the bounding box. The shape of
+        the tensor can be:
+        - Scalar (0D): representing a uniform box.
+        - 1D: a vector representing the side lengths of the box.
+        - 2D: a matrix representing the side lengths and angles between them.
+
+    cutoff : float
+        The cutoff value used for normalization.
+
+    Returns
+    -------
+    Tensor
+        A tensor representing the normalized cell size.
+
+    Raises
+    ------
+    ValueError
+        If `box` has more than 3 dimensions or if the shape is not supported.
+    """
     if box.ndim == 0:
         return cutoff / box
 
