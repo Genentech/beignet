@@ -88,7 +88,7 @@ class SMURFDataset(Dataset):
             # sizes
             self.all_sizes[idx : idx + sequences.shape[0], :] = torch.tensor(
                 [len(seq) for seq in sequences]
-            ).unsqueeze(1)  # noqa: E501
+            ).unsqueeze(1)
 
             idx += sequences.shape[0]
 
@@ -104,7 +104,7 @@ class SMURFDataset(Dataset):
             self.all_sequences[index],
             self.all_references[index],
             self.all_sizes[index],
-        )  # noqa: E501
+        ) 
 
         if self.transform:
             inputs = self.transform(*inputs)
