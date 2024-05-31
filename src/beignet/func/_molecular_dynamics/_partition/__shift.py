@@ -3,67 +3,25 @@ from torch import Tensor
 
 
 def _shift(a: Tensor, b: Tensor) -> Tensor:
-    x = None
-    y = None
-    z = None
+    """
+    Shifts a tensor `a` along dimensions specified in `b`.
 
-    if len(b) == 2:
-        x, y = b
+    The shift can be applied in up to three dimensions (x, y, z).
+    Positive values in `b` indicate a forward shift, while negative values indicate
+    a backward shift.
 
-        z = 0
-    elif len(b) == 3:
-        x, y, z = b
+    Parameters
+    ----------
+    a : Tensor
+      The input tensor to be shifted.
+    b : Tensor
+      A tensor of two or three elements specifying the shift amount for each dimension.
 
-    if x is not None:
-        if x < 0:
-            a = torch.concatenate(
-                [
-                    a[1:],
-                    a[:1],
-                ],
-            )
-        elif x > 0:
-            a = torch.concatenate(
-                [
-                    a[-1:],
-                    a[:-1],
-                ],
-            )
+    Returns
+    -------
+    Tensor
+      The shifted tensor.
+    """
 
-    if y is not None:
-        if y < 0:
-            a = torch.concatenate(
-                [
-                    a[:, 1:],
-                    a[:, :1],
-                ],
-                dim=1,
-            )
-        elif y > 0:
-            a = torch.concatenate(
-                [
-                    a[:, -1:],
-                    a[:, :-1],
-                ],
-                dim=1,
-            )
+    return torch.roll(a, shifts=tuple(b), dims=tuple(range(len(b))))
 
-    if z is not None:
-        if z < 0:
-            a = torch.concatenate(
-                [
-                    a[:, :, 1:],
-                    a[:, :, :1],
-                ],
-                dim=2,
-            )
-        elif z > 0:
-            a = torch.concatenate(
-                [
-                    a[:, :, -1:],
-                    a[:, :, :-1],
-                ],
-                dim=2,
-            )
-
-    return a
