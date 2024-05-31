@@ -104,7 +104,7 @@ class SMURFDataset(Dataset):
             self.all_sequences[index],
             self.all_references[index],
             self.all_sizes[index],
-        ) 
+        )
 
         if self.transform:
             inputs = self.transform(*inputs)
