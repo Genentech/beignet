@@ -4,8 +4,9 @@ import torch
 from hypothesis import given
 from torch import Tensor
 
-from src.beignet.func._molecular_dynamics._partition.__to_square_metric_fn import \
-    _to_square_metric_fn
+from src.beignet.func._molecular_dynamics._partition.__to_square_metric_fn import (
+    _to_square_metric_fn,
+)
 
 
 def dummy_fn(a: Tensor, b: Tensor, **kwargs) -> Tensor:
@@ -17,15 +18,19 @@ def _square_metric_fn_strategy(draw):
     dimension = draw(st.integers(min_value=1, max_value=3))
     size = draw(st.integers(min_value=1, max_value=5))
 
-    a = draw(st.lists(
-        st.floats(min_value=-10.0, max_value=10.0),
-        min_size=dimension, max_size=dimension
-    ).map(torch.tensor))
+    a = draw(
+        st.lists(
+            st.floats(min_value=-10.0, max_value=10.0),
+            min_size=dimension,
+            max_size=dimension,
+        ).map(torch.tensor)
+    )
 
     b = draw(
         st.lists(
             st.floats(min_value=-10.0, max_value=10.0),
-            min_size=dimension, max_size=dimension
+            min_size=dimension,
+            max_size=dimension,
         ).map(torch.tensor)
     )
 
@@ -39,7 +44,7 @@ def _square_metric_fn_strategy(draw):
         # Valid input
         (torch.tensor([1.0, 2.0]), torch.tensor([3.0, 4.0, 5.0]), RuntimeError),
         # Mismatched dimensions
-    ]
+    ],
 )
 def test_square_metric_exceptions(a, b, expected_exception):
     """

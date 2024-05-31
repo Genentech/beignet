@@ -5,8 +5,9 @@ import pytest
 import torch
 from torch import Tensor
 
-from beignet.func._molecular_dynamics._partition.__cell_dimensions import \
-    _cell_dimensions
+from beignet.func._molecular_dynamics._partition.__cell_dimensions import (
+    _cell_dimensions,
+)
 
 
 @st.composite
@@ -19,8 +20,11 @@ def _cell_dimensions_strategy(draw):
             st.floats(min_value=3.0, max_value=10.0),
             st.lists(
                 st.floats(min_value=3.0, max_value=10.0),
-                min_size=spatial_dimension, max_size=spatial_dimension
-            ).map(torch.tensor).map(lambda x: x.float()),
+                min_size=spatial_dimension,
+                max_size=spatial_dimension,
+            )
+            .map(torch.tensor)
+            .map(lambda x: x.float()),
         )
     )
 
@@ -39,7 +43,9 @@ def _cell_dimensions_strategy(draw):
         (0, torch.tensor([100]), 10.0, AssertionError),
     ],
 )
-def test_cell_dimensions_exceptions(spatial_dimension, box_size, minimum_cell_size, expected_exception):
+def test_cell_dimensions_exceptions(
+    spatial_dimension, box_size, minimum_cell_size, expected_exception
+):
     if expected_exception is not None:
         with pytest.raises(expected_exception):
             _cell_dimensions(spatial_dimension, box_size, minimum_cell_size)
@@ -64,9 +70,7 @@ def test__cell_dimensions(data):
             return
 
     box_size_out, cell_size, cells_per_side, cell_count = _cell_dimensions(
-        spatial_dimension,
-        box_size,
-        minimum_cell_size
+        spatial_dimension, box_size, minimum_cell_size
     )
 
     if isinstance(box_size, (int, float)):
@@ -79,6 +83,10 @@ def test__cell_dimensions(data):
 
         torch.testing.assert_allclose(box_size / cells_per_side.float(), cell_size)
 
-    expected_cell_count = int(torch.prod(cells_per_side).item()) if isinstance(cells_per_side, Tensor) else int(cells_per_side ** spatial_dimension)
+    expected_cell_count = (
+        int(torch.prod(cells_per_side).item())
+        if isinstance(cells_per_side, Tensor)
+        else int(cells_per_side**spatial_dimension)
+    )
 
     assert cell_count == expected_cell_count

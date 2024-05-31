@@ -24,4 +24,3 @@ def _shift(a: Tensor, b: Tensor) -> Tensor:
     """
 
     return torch.roll(a, shifts=tuple(b), dims=tuple(range(len(b))))
-
