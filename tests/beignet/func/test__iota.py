@@ -11,15 +11,25 @@ def _iota_strategy(draw):
     max_dimensions = 5
     dim = draw(st.integers(min_value=0, max_value=max_dimensions - 1))
 
-    shape = tuple(draw(
-        st.lists(st.integers(min_value=1, max_value=10), min_size=1,
-                 max_size=max_dimensions)))
+    shape = tuple(
+        draw(
+            st.lists(
+                st.integers(min_value=1, max_value=10),
+                min_size=1,
+                max_size=max_dimensions,
+            )
+        )
+    )
 
     kwargs = {
-        "dtype": draw(st.sampled_from(
-            [torch.int32, torch.int64, torch.float32, torch.float64])),
-        "device": draw(st.sampled_from(
-            ["cpu", "cuda"]) if torch.cuda.is_available() else st.just("cpu"))
+        "dtype": draw(
+            st.sampled_from([torch.int32, torch.int64, torch.float32, torch.float64])
+        ),
+        "device": draw(
+            st.sampled_from(["cpu", "cuda"])
+            if torch.cuda.is_available()
+            else st.just("cpu")
+        ),
     }
 
     return shape, dim, kwargs
@@ -60,7 +70,7 @@ def test__iota(data):
         if len(shape) > 1:
             assert torch.equal(
                 result.select(dim, idx),
-                torch.tensor(idx, **kwargs).expand(*result.select(dim, idx).shape)
+                torch.tensor(idx, **kwargs).expand(*result.select(dim, idx).shape),
             )
         else:
             assert result[idx].item() == idx

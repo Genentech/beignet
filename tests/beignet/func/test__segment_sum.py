@@ -4,34 +4,43 @@ import pytest
 import torch
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__segment_sum import \
-    _segment_sum
+from beignet.func._molecular_dynamics._partition.__segment_sum import _segment_sum
 
 
 @st.composite
 def _segment_sum_strategy(draw):
     num_elements = draw(st.integers(min_value=1, max_value=10))
 
-    inner_shape = draw(st.shared(
-        st.lists(st.integers(min_value=1, max_value=5), min_size=1,
-                 max_size=4)))
+    inner_shape = draw(
+        st.shared(
+            st.lists(st.integers(min_value=1, max_value=5), min_size=1, max_size=4)
+        )
+    )
 
     input = draw(
         st.lists(
             elements=st.floats(min_value=0.0, max_value=10.0),
             min_size=math.prod(inner_shape) * num_elements,
-            max_size=math.prod(inner_shape) * num_elements
-        ).map(torch.tensor).map(lambda x: x.view(num_elements, *inner_shape))
+            max_size=math.prod(inner_shape) * num_elements,
+        )
+        .map(torch.tensor)
+        .map(lambda x: x.view(num_elements, *inner_shape))
     )
 
-    indexes = draw(st.lists(
-        elements=st.integers(min_value=0, max_value=num_elements - 1),
-        min_size=num_elements, max_size=num_elements
-    ).map(torch.tensor))
+    indexes = draw(
+        st.lists(
+            elements=st.integers(min_value=0, max_value=num_elements - 1),
+            min_size=num_elements,
+            max_size=num_elements,
+        ).map(torch.tensor)
+    )
 
-    n = draw(st.one_of(st.none(),
-                       st.integers(min_value=indexes.max().item() + 1,
-                                   max_value=num_elements * 2)))
+    n = draw(
+        st.one_of(
+            st.none(),
+            st.integers(min_value=indexes.max().item() + 1, max_value=num_elements * 2),
+        )
+    )
 
     return input, indexes, n
 
@@ -39,11 +48,15 @@ def _segment_sum_strategy(draw):
 @pytest.mark.parametrize(
     "input, indexes, n, expected_exception",
     [
-        (torch.tensor([[1.0, 2.0], [3.0, 4.0]]), torch.tensor([0, 1, 2]), None,
-         ValueError),  # Indexes not matching length of input
+        (
+            torch.tensor([[1.0, 2.0], [3.0, 4.0]]),
+            torch.tensor([0, 1, 2]),
+            None,
+            ValueError,
+        ),  # Indexes not matching length of input
         (torch.tensor([1.0, 2.0]), torch.tensor([0, 1]), 3.0, TypeError),
         # Invalid Type for n
-    ]
+    ],
 )
 def test_segment_sum_exceptions(input, indexes, n, expected_exception):
     """
@@ -74,8 +87,7 @@ def test__segment_sum(data):
     result = _segment_sum(input, indexes, n)
 
     # Validate the result shape
-    expected_shape = (
-    n if n is not None else (max(indexes) + 1), *input.shape[1:])
+    expected_shape = (n if n is not None else (max(indexes) + 1), *input.shape[1:])
 
     assert result.shape == expected_shape
 

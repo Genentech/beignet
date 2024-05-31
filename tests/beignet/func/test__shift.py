@@ -9,22 +9,26 @@ from beignet.func._molecular_dynamics._partition.__shift import _shift
 def _shift_strategy(draw):
     max_dims = draw(st.integers(min_value=2, max_value=3))
     shape = draw(
-        st.lists(st.integers(min_value=2, max_value=5), min_size=max_dims,
-                 max_size=max_dims))
+        st.lists(
+            st.integers(min_value=2, max_value=5), min_size=max_dims, max_size=max_dims
+        )
+    )
 
     tensor = draw(
         st.lists(
             st.floats(min_value=-5.0, max_value=5.0),
             min_size=torch.prod(torch.tensor(shape)).item(),
-            max_size=torch.prod(torch.tensor(shape)).item()
-        ).map(torch.tensor).map(lambda x: x.view(*shape))
+            max_size=torch.prod(torch.tensor(shape)).item(),
+        )
+        .map(torch.tensor)
+        .map(lambda x: x.view(*shape))
     )
 
     shift_vec = draw(
         st.lists(
             st.integers(min_value=-shape[0], max_value=shape[0]),
             min_size=max_dims,
-            max_size=max_dims
+            max_size=max_dims,
         ).map(torch.tensor)
     )
 

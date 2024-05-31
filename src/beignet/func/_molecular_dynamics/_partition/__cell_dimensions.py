@@ -16,7 +16,7 @@ def _cell_dimensions(
         box_size = float(box_size)
 
         if box_size < minimum_cell_size:
-            raise ValueError('Box size must be at least as large as minimum cell size.')
+            raise ValueError("Box size must be at least as large as minimum cell size.")
 
     if isinstance(box_size, Tensor):
         if box_size.dtype in {torch.int32, torch.int64}:
@@ -36,7 +36,9 @@ def _cell_dimensions(
 
             for cells in flattened_cells_per_side:
                 if cells.item() < 3:
-                    raise ValueError('Box must be at least 3x the size of the grid spacing in each dimension.')
+                    raise ValueError(
+                        "Box must be at least 3x the size of the grid spacing in each dimension."
+                    )
 
             cell_count = functools.reduce(
                 operator.mul,
@@ -45,16 +47,18 @@ def _cell_dimensions(
             )
 
         elif box_size.dim() == 0:
-            cell_count = cells_per_side ** spatial_dimension
+            cell_count = cells_per_side**spatial_dimension
 
         else:
-            raise ValueError(f'Box must be either: a scalar, a vector, or a matrix. Found {box_size}.')
+            raise ValueError(
+                f"Box must be either: a scalar, a vector, or a matrix. Found {box_size}."
+            )
 
     else:
         cells_per_side = math.floor(box_size / minimum_cell_size)
 
         cell_size = box_size / cells_per_side
 
-        cell_count = cells_per_side ** spatial_dimension
+        cell_count = cells_per_side**spatial_dimension
 
     return box_size, cell_size, cells_per_side, int(cell_count)

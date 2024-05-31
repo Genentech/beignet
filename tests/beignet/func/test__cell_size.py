@@ -3,8 +3,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__cell_size import \
-    _cell_size
+from beignet.func._molecular_dynamics._partition.__cell_size import _cell_size
 
 
 @st.composite
@@ -12,13 +11,23 @@ def _cell_size_strategy(draw):
     shape = draw(st.integers(min_value=1, max_value=10))
 
     box = torch.tensor(
-        draw(st.lists(st.floats(min_value=1.0, max_value=100.0), min_size=shape, max_size=shape)),
-        dtype=torch.float32
+        draw(
+            st.lists(
+                st.floats(min_value=1.0, max_value=100.0),
+                min_size=shape,
+                max_size=shape,
+            )
+        ),
+        dtype=torch.float32,
     )
 
     minimum_unit_size = torch.tensor(
-        draw(st.lists(st.floats(min_value=1.0, max_value=10.0), min_size=shape, max_size=shape)),
-        dtype=torch.float32
+        draw(
+            st.lists(
+                st.floats(min_value=1.0, max_value=10.0), min_size=shape, max_size=shape
+            )
+        ),
+        dtype=torch.float32,
     )
 
     return box, minimum_unit_size

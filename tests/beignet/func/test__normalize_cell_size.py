@@ -3,8 +3,9 @@ import torch
 import pytest
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__normalize_cell_size import \
-    _normalize_cell_size
+from beignet.func._molecular_dynamics._partition.__normalize_cell_size import (
+    _normalize_cell_size,
+)
 
 
 @st.composite
@@ -16,16 +17,31 @@ def _normalize_cell_size_strategy(draw):
 
     elif box_dim == 1:
         size = draw(st.integers(min_value=1, max_value=10))
-        box = torch.tensor(draw(
-            st.lists(st.floats(min_value=1.0, max_value=10.0), min_size=size,
-                     max_size=size)))
+        box = torch.tensor(
+            draw(
+                st.lists(
+                    st.floats(min_value=1.0, max_value=10.0),
+                    min_size=size,
+                    max_size=size,
+                )
+            )
+        )
 
     elif box_dim == 2:
         shape = draw(st.sampled_from([(1, 1), (2, 2), (3, 3)]))
-        box = torch.tensor(draw(st.lists(
-            st.lists(st.floats(min_value=1.0, max_value=10.0),
-                     min_size=shape[1], max_size=shape[1]), min_size=shape[0],
-            max_size=shape[0])))
+        box = torch.tensor(
+            draw(
+                st.lists(
+                    st.lists(
+                        st.floats(min_value=1.0, max_value=10.0),
+                        min_size=shape[1],
+                        max_size=shape[1],
+                    ),
+                    min_size=shape[0],
+                    max_size=shape[0],
+                )
+            )
+        )
 
     cutoff = draw(st.floats(min_value=1.0, max_value=10.0))
 
@@ -35,9 +51,13 @@ def _normalize_cell_size_strategy(draw):
 @pytest.mark.parametrize(
     "box, cutoff, expected_exception",
     [
-        (torch.tensor([[10, 20, 30], [10, 20, 30], [10, 20, 30], [10, 20, 30]]), 2.0, ValueError),
+        (
+            torch.tensor([[10, 20, 30], [10, 20, 30], [10, 20, 30], [10, 20, 30]]),
+            2.0,
+            ValueError,
+        ),
         (torch.tensor([[[[[10, 5], [3, 4], [1, 2]]]]]), 2.0, ValueError),
-    ]
+    ],
 )
 def test_normalize_cell_size_exceptions(box, cutoff, expected_exception):
     """
@@ -81,7 +101,7 @@ def test__normalize_cell_size(data):
             xx = box[0, 0]
             yy = box[1, 1]
             xy = box[0, 1] / yy
-            nx = xx / torch.sqrt(1 + xy ** 2)
+            nx = xx / torch.sqrt(1 + xy**2)
             ny = yy
             nmin = torch.floor(torch.min(torch.tensor([nx, ny])) / cutoff)
             expected_result = 1 / torch.where(nmin == 0, 1, nmin)
@@ -93,8 +113,8 @@ def test__normalize_cell_size(data):
             xy = box[0, 1] / yy
             xz = box[0, 2] / zz
             yz = box[1, 2] / zz
-            nx = xx / torch.sqrt(1 + xy ** 2 + (xy * yz - xz) ** 2)
-            ny = yy / torch.sqrt(1 + yz ** 2)
+            nx = xx / torch.sqrt(1 + xy**2 + (xy * yz - xz) ** 2)
+            ny = yy / torch.sqrt(1 + yz**2)
             nz = zz
             nmin = torch.floor(torch.min(torch.tensor([nx, ny, nz])) / cutoff)
             expected_result = 1 / torch.where(nmin == 0, 1, nmin)

@@ -8,4 +8,3 @@ def _cell_size(box: Tensor, minimum_unit_size: Tensor) -> Tensor:
 
     else:
         raise ValueError("Box and minimum unit size must be of the same shape.")
-
