@@ -19,7 +19,8 @@ def ranked_fft(
 ):
     """
     Farthest-first traversal of a library of strings.
-    If `ranking_scores` is provided, the scores are used to pick the starting point and break ties.
+    If `ranking_scores` is provided, the scores are used to pick the starting point and break ties
+    based on edit distance. If no scores are provided, whichever appears first in library will be prioritized for breaking ties
 
     Args:
         library: A numpy array of shape (N,) where N is the number of sequences.
