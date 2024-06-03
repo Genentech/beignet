@@ -52,7 +52,7 @@ class SMURFDataset(Dataset):
         self.all_sequences = torch.zeros([num_sequences, 583])
         self.all_references = torch.zeros([num_sequences, 583])
         self.all_alignments = torch.zeros([num_sequences, 583])
-        self.all_sizes = torch.zeros([num_sequences, 1])
+        self.all_sizes = torch.zeros([num_sequences])
 
         idx = 0
 
@@ -63,17 +63,24 @@ class SMURFDataset(Dataset):
             sequences = torch.nested.to_padded_tensor(
                 torch.nested.nested_tensor(data["ms"]), 0.0
             )
-            reference_sequence, sequences = sequences[0], sequences[1:]
+
+            reference_sequence, sequences = sequences[0].squeeze(0), sequences[1:]
 
             chunk = torch.zeros([sequences.shape[0], 583])
             chunk[:, : sequences.shape[1]] = sequences
             self.all_sequences[idx : idx + sequences.shape[0], :] = chunk
 
+            # reference sequences
             chunk = torch.zeros([sequences.shape[0], 583])
             chunk[:, : sequences.shape[1]] = reference_sequence.repeat(
                 (sequences.shape[0], 1)
             )
             self.all_references[idx : idx + sequences.shape[0], :] = chunk
+
+            # sizes
+            self.all_sizes[idx : idx + sequences.shape[0]] = torch.tensor(
+                [len(seq) for seq in sequences]
+            )
 
             # alignments
             alignments = torch.nested.to_padded_tensor(
@@ -85,12 +92,24 @@ class SMURFDataset(Dataset):
             chunk[:, : sequences.shape[1]] = alignments
             self.all_alignments[idx : idx + sequences.shape[0], :] = chunk
 
-            # sizes
-            self.all_sizes[idx : idx + sequences.shape[0], :] = torch.tensor(
-                [len(seq) for seq in sequences]
-            ).unsqueeze(1)
-
             idx += sequences.shape[0]
+
+        # one-hot sequences and reference sequences
+        max_token = torch.max(self.all_sequences.int()).item()
+
+        self.all_sequences = torch.concatenate(
+            [
+                torch.eye(max_token + 1),
+                torch.zeros([1, max_token + 1]),
+            ],
+        )[self.all_sequences.int()]
+
+        self.all_references = torch.concatenate(
+            [
+                torch.eye(max_token + 1),
+                torch.zeros([1, max_token + 1]),
+            ],
+        )[self.all_references.int()]
 
         self.transform = transform
 

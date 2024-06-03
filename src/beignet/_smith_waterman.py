@@ -1,6 +1,8 @@
 # @title `smith_waterman`
 
 
+from typing import Sequence
+
 import torch
 import torch.func
 from torch import Tensor
@@ -8,7 +10,7 @@ from torch import Tensor
 
 def smith_waterman(
     input: Tensor,
-    lengths: (int, int),
+    lengths: Sequence[int],
     gap_penalty: float = 0.0,
     temperature: float = 1.0,
 ) -> Tensor:
@@ -41,7 +43,7 @@ def smith_waterman(
 
     def fn(
         input: Tensor,
-        lengths: (int, int),
+        lengths: Sequence[int],
     ) -> Tensor:
         if input.is_complex() or input.is_floating_point():
             initial_value = torch.finfo(input.dtype).min
