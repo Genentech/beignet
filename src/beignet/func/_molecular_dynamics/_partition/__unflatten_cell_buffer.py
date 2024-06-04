@@ -1,12 +1,6 @@
 import torch
-from torch import Tensor
 
-
-def _unflatten_cell_buffer(
-    buffer: Tensor,
-    cells_per_side: Tensor,
-    dim: int,
-) -> Tensor:
+def _unflatten_cell_buffer(buffer: torch.Tensor, cells_per_side: [int, float, torch.Tensor], dim: int) -> torch.Tensor:
     """
     Reshape a flat buffer into a multidimensional cell buffer.
 
@@ -24,25 +18,34 @@ def _unflatten_cell_buffer(
     Tensor
         The reshaped buffer tensor.
     """
-    if (
-        isinstance(cells_per_side, int)
-        or isinstance(cells_per_side, float)
-        or (isinstance(cells_per_side, Tensor) and cells_per_side.ndim == 0)
-    ):
+
+    # Check and standardize cells_per_side to a tuple
+    if isinstance(cells_per_side, (int, float)):
         cells_per_side = (int(cells_per_side),) * dim
-    elif isinstance(cells_per_side, Tensor) and len(cells_per_side.shape) == 1:
-        cells_per_side = [int(units) for units in cells_per_side.flip(0)]
-
-        cells_per_side = tuple(cells_per_side)
-
-    elif isinstance(cells_per_side, Tensor) and len(cells_per_side.shape) == 2:
-        cells_per_side = [int(x) for x in cells_per_side[0].flip(0)]
-
-        cells_per_side = tuple(cells_per_side)
-
+    elif isinstance(cells_per_side, torch.Tensor):
+        cells_per_side = cells_per_side.to(dtype=torch.int)
+        if cells_per_side.ndimension() == 0:
+            cells_per_side = (cells_per_side.item(),) * dim
+        elif cells_per_side.ndimension() == 1:
+            cells_per_side = tuple(cells_per_side.flip(0).tolist())
+        elif cells_per_side.ndimension() == 2:
+            cells_per_side = tuple(cells_per_side[0].flip(0).tolist())
+        else:
+            raise ValueError("cells_per_side must be a scalar, 1D tensor, or 2D tensor.")
     else:
-        raise ValueError("Invalid cells_per_side format")
+        raise ValueError("Unsupported type for cells_per_side.")
 
-    shape = cells_per_side + (-1,) + buffer.shape[1:]
+    # Calculate product of dimensions in cells_per_side
+    total_cells = 1
+    for size in cells_per_side:
+        total_cells *= size
 
-    return torch.reshape(buffer, shape)
+    # Ensure the buffer can be reshaped into the target shape
+    if buffer.numel() % total_cells != 0:
+        raise ValueError("Buffer size is not compatible with the desired shape.")
+
+    inner_dim_size = buffer.numel() // total_cells
+
+    # Reshape the buffer
+    new_shape = cells_per_side + (inner_dim_size,) + buffer.shape[1:]
+    return buffer.view(*new_shape)
