@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 
 def _voigt_v_impl(x, y):
@@ -199,12 +200,12 @@ def _faddeeva_w_impl(z):
 #    )
 
 
-def faddeeva_w(z: torch.Tensor):
-    """Compute faddeeva w function using method described in [1].
+def faddeeva_w(input: Tensor):
+    r"""Compute faddeeva w function using method described in [1].
 
-    Parameterz
+    Parameters
     ----------
-    z: torch.Tensor
+    input: Tensor
         complex input
 
     References
@@ -214,14 +215,14 @@ def faddeeva_w(z: torch.Tensor):
         SIAM Journal on Numerical Analysis 59.5 (2021): 2346-2367.
     """
     # use symmetries to map to upper right quadrant of complex plane
-    imag_negative = z.imag < 0.0
-    z = torch.where(z.imag < 0.0, -z, z)
-    real_negative = z.real < 0.0
-    z = torch.where(z.real < 0.0, -z.conj(), z)
-    assert (z.real >= 0.0).all()
-    assert (z.imag >= 0.0).all()
+    imag_negative = input.imag < 0.0
+    input = torch.where(input.imag < 0.0, -input, input)
+    real_negative = input.real < 0.0
+    input = torch.where(input.real < 0.0, -input.conj(), input)
+    assert (input.real >= 0.0).all()
+    assert (input.imag >= 0.0).all()
 
-    out = _faddeeva_w_impl(z)
-    out = torch.where(imag_negative, 2 * torch.exp(-z.pow(2)) - out, out)
+    out = _faddeeva_w_impl(input)
+    out = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - out, out)
     out = torch.where(real_negative, out.conj(), out)
     return out
