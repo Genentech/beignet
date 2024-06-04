@@ -55,11 +55,11 @@ def _strategy(function):
 
     input = x + 1.0j * y
 
-    return input, scipy.special.erf(input)
+    return input, scipy.special.erfc(input)
 
 
 @hypothesis.given(_strategy())
 def test_erf(data):
     input, output = data
 
-    torch.testing.assert_close(beignet.special.erf(input), output)
+    torch.testing.assert_close(beignet.special.erfc(input), output)
