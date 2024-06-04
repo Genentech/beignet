@@ -62,4 +62,4 @@ def _strategy(function):
 def test_erf(data):
     input, output = data
 
-    torch.testing.assert_close(beignet.special.erf(input), output)
+    torch.testing.assert_close(beignet.special.error_erf(input), output)

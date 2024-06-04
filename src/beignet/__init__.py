@@ -66,7 +66,7 @@ from ._rotation_vector_to_rotation_matrix import (
     rotation_vector_to_rotation_matrix,
 )
 from ._translation_identity import translation_identity
-from .special import erf, erfc
+from .special import error_erf, error_erfc
 
 __all__ = [
     "apply_euler_angle",

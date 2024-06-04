@@ -159,47 +159,6 @@ def _faddeeva_w_impl(z):
     return _voigt_v_impl(z.real, z.imag) + 1j * _voigt_l_impl(z.real, z.imag)
 
 
-# NOTE we use _voigt_v_impl and _voigt_l_impl to compute the real and complex parts
-# separately instead of this because torch.compile does not support complex numbers
-# def _faddeeva_w_impl_complex(z):
-#    N = 11
-#
-#    # equation 11
-#    # h = math.sqrt(math.pi / (N + 1))
-#    h = 0.5116633539732443
-#
-#    x = z.real
-#    y = z.imag
-#
-#    phi = (x / h) - (x / h).floor()
-#
-#    k = torch.arange(N + 1, dtype=x.dtype, device=z.device)
-#    t = (k + 0.5) * h
-#    tau = k[1:] * h
-#
-#    # equation 12
-#    w_m = (2j * h * z / torch.pi) * (
-#        torch.exp(-t.pow(2)) / (z[..., None].pow(2) - t.pow(2))
-#    ).sum(dim=-1)
-#
-#    # equation 13
-#    w_mm = (2 * torch.exp(-z.pow(2)) / (1 + torch.exp(-2j * torch.pi * z / h))) + w_m
-#
-#    # equation 14
-#    w_mt = (
-#        (2 * torch.exp(-z.pow(2)) / (1 - torch.exp(-2j * torch.pi * z / h)))
-#        + (1j * h / (torch.pi * z))
-#        + (2j * h * z / torch.pi)
-#        * (torch.exp(-tau.pow(2)) / (z[..., None].pow(2) - tau.pow(2))).sum(dim=-1)
-#    )
-#
-#    return torch.where(
-#        y >= torch.maximum(x, torch.tensor(torch.pi / h)),
-#        w_m,
-#        torch.where((y < x) & (1 / 4 <= phi) & (phi <= 3 / 4), w_mt, w_mm),
-#    )
-
-
 def faddeeva_w(input: Tensor):
     r"""Compute faddeeva w function using method described in [1].
 
@@ -222,7 +181,9 @@ def faddeeva_w(input: Tensor):
     assert (input.real >= 0.0).all()
     assert (input.imag >= 0.0).all()
 
-    out = _faddeeva_w_impl(input)
+    out = _voigt_v_impl(input.real, input.imag) + 1j * _voigt_l_impl(
+        input.real, input.imag
+    )
     out = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - out, out)
     out = torch.where(real_negative, out.conj(), out)
     return out
