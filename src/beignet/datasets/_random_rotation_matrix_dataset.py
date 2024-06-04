@@ -1,13 +1,13 @@
 from typing import Callable, Generator
 
 import torch
-from torch.utils.data import Dataset
 
 import beignet
+from beignet.datasets.__random_rotation_dataset import RandomRotationDataset
 from beignet.transforms import Transform
 
 
-class RandomRotationMatrixDataset(Dataset):
+class RandomRotationMatrixDataset(RandomRotationDataset):
     def __init__(
         self,
         size: int,
