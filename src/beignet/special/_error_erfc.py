@@ -16,4 +16,4 @@ def error_erfc(input: Tensor) -> Tensor:
     -------
     Tensor
     """
-    return torch.exp(-torch.pow(input, 2)) * faddeeva_w(1.0j * input)
+    return torch.exp(-(input**2)) * faddeeva_w(1.0j * input)
