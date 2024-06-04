@@ -8,6 +8,8 @@ from ._error_erfi import error_erfi
 
 def dawson_integral_f(input: Tensor) -> Tensor:
     r"""
+    Dawson’s integral.
+
     Parameters
     ----------
     input : Tensor
