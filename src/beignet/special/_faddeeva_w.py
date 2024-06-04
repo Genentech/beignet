@@ -1,7 +1,6 @@
 import torch
 
 
-@torch.compile(fullgraph=True, dynamic=True)
 def _voigt_v_impl(x, y):
     # assumes x >= 0, y >= 0
 
@@ -79,7 +78,6 @@ def _voigt_v_impl(x, y):
     )
 
 
-@torch.compile(fullgraph=True, dynamic=True)
 def _voigt_l_impl(x, y):
     # assumes x >= 0, y >= 0
 
@@ -227,11 +225,3 @@ def faddeeva_w(z: torch.Tensor):
     out = torch.where(imag_negative, 2 * torch.exp(-z.pow(2)) - out, out)
     out = torch.where(real_negative, out.conj(), out)
     return out
-
-
-def erfc(z):
-    return torch.exp(-z.pow(2)) * faddeeva_w(1j * z)
-
-
-def erf(z):
-    return 1 - erfc(z)

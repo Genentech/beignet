@@ -1,6 +1,7 @@
+import beignet.special
+import beignet.special._erf
 import scipy
 import torch
-from beignet import erf
 
 
 def test_erf():
@@ -10,7 +11,7 @@ def test_erf():
 
     x, y = torch.meshgrid(_x, _y, indexing="xy")
     z = x + 1j * y
-    val = erf(z)
+    val = beignet.special._erf.erf(z)
     ref = scipy.special.erf(z)
 
     torch.testing.assert_close(ref, val, rtol=1e-12, atol=5e-11)
