@@ -161,6 +161,8 @@ def _faddeeva_w_impl(z):
 
 def faddeeva_w(input: Tensor) -> Tensor:
     r"""
+    Faddeeva function.
+
     Parameters
     ----------
     input : Tensor
