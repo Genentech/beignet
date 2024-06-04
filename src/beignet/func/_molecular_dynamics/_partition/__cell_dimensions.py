@@ -11,7 +11,36 @@ def _cell_dimensions(
     box_size: Tensor,
     minimum_cell_size: float,
 ) -> (Tensor, Tensor, Tensor, int):
-    """Calculates cell dimension"""
+    """
+    Compute the number of cells-per-side and total number of cells in a box.
+
+    Parameters:
+    -----------
+    spatial_dimension : int
+        The spatial dimension of the box (e.g., 2 for 2D, 3 for 3D).
+    box_size : Tensor or scalar
+        The size of the box. Can be a scalar or a Tensor with dimensions 0, 1, or 2.
+    minimum_cell_size : float
+        The minimum size of the cells.
+
+    Returns:
+    --------
+    box_size : Tensor
+        The (possibly modified) size of the box.
+    cell_size : Tensor
+        The size of the cells.
+    cells_per_side : Tensor
+        The number of cells per side.
+    cell_count : int
+        The total number of cells in the box.
+
+    Raises:
+    -------
+    ValueError
+        If the box size is less than the minimum cell size.
+        If the box is not at least 3x the size of the grid spacing in each dimension.
+        If the box is not a scalar, a vector, or a matrix.
+    """
     if isinstance(box_size, (int, float)):
         box_size = float(box_size)
 

@@ -18,6 +18,24 @@ def cell_list(
     minimum_unit_size: float,
     buffer_size_multiplier: float = 1.25,
 ) -> _CellListFunctionList:
+    r"""Construct a cell list for neighbor searching in particle simulations.
+
+    This function constructs a cell list used in particle simulations to accelerate the search for neighboring particles. Particle positions are grouped into cells based on their coordinates, and the cell list can be used to quickly find particles within a specified radius.
+
+    Parameters
+    ----------
+    size : Tensor
+        The size of the simulation box. If a 1-dimensional tensor is passed, it's reshaped to (1, -1).
+    minimum_unit_size : float
+        The minimum size of the simulation cells.
+    buffer_size_multiplier : float, default=1.25
+        A multiplier to determine the buffer size for each cell.
+
+    Returns
+    -------
+    _CellListFunctionList
+        An object containing `setup_fn` and `update_fn` functions to create and update the cell list.
+    """
     if not isinstance(size, Tensor):
         size = torch.tensor(size, dtype=torch.float32)
 
@@ -30,6 +48,24 @@ def cell_list(
         excess_buffer_size: int = 0,
         **kwargs,
     ) -> _CellList:
+        r"""Create or update the cell list with particle positions and optional excess buffer.
+
+        Parameters
+        ----------
+        positions : Tensor
+            Positions of the particles.
+        excess : tuple[bool, int, Callable[..., _CellList]] | None, default=None
+            Information about excess buffer size.
+        excess_buffer_size : int, default=0
+            Size of the excess buffer.
+        **kwargs : dict
+            Additional parameters to store alongside the particle positions.
+
+        Returns
+        -------
+        _CellList
+            The constructed or updated cell list.
+        """
         spatial_dimension = positions.shape[1]
 
         if spatial_dimension not in {2, 3}:
@@ -87,8 +123,9 @@ def cell_list(
                 kwarg_shape = (1,)
 
             parameters[name] = 100000 * torch.ones(
-                (unit_count * buffer_size,) + kwarg_shape, parameter.dtype
-            )
+                (unit_count * buffer_size,) + kwarg_shape,
+                dtype=parameter.dtype,
+                device=parameter.device)
 
         hashes = torch.sum(
             (positions / unit_size).to(dtype=torch.int32)
@@ -123,11 +160,17 @@ def cell_list(
             [(positions.shape[0]), 1],
         )
 
+        print("Positions Buffer Before Unflattening:")
+        print(positions_buffer)
+
         positions_buffer = _unflatten_cell_buffer(
             positions_buffer, units_per_side, spatial_dimension
         )
 
         indexes = _unflatten_cell_buffer(indexes, units_per_side, spatial_dimension)
+
+        print("Positions Buffer After Unflattening:")
+        print(positions_buffer)
 
         for name, parameter in sorted_parameters.items():
             if parameter.ndim == 1:
@@ -159,6 +202,22 @@ def cell_list(
         excess_buffer_size: int = 0,
         **kwargs,
     ) -> _CellList:
+        r"""Setup the cell list with initial particle positions.
+
+        Parameters
+        ----------
+        positions : Tensor
+            Initial positions of the particles.
+        excess_buffer_size : int, default=0
+            Size of the excess buffer.
+        **kwargs : dict
+            Additional parameters to store alongside the particle positions.
+
+        Returns
+        -------
+        _CellList
+            The initialized cell list.
+        """
         return fn(positions, excess_buffer_size=excess_buffer_size, **kwargs)
 
     def update_fn(
@@ -166,6 +225,22 @@ def cell_list(
         buffer: int | _CellList,
         **kwargs,
     ) -> _CellList:
+        r"""Update the cell list with new particle positions.
+
+        Parameters
+        ----------
+        positions : Tensor
+            New positions of the particles.
+        buffer : int or _CellList
+            Either an integer specifying the buffer size or an existing `_CellList` object.
+        **kwargs : dict
+            Additional parameters to store alongside the particle positions.
+
+        Returns
+        -------
+        _CellList
+            The updated cell list.
+        """
         if isinstance(buffer, int):
             return fn(positions, (buffer, False, fn), **kwargs)
 
@@ -176,3 +251,23 @@ def cell_list(
         )
 
     return _CellListFunctionList(setup_fn=setup_fn, update_fn=update_fn)
+
+
+if __name__ == '__main__':
+    dtype = torch.float32
+    box_size = torch.tensor([8.65, 8.0], dtype=torch.float32)
+    cell_size = 1.0
+
+    # Test particle positions
+    R = torch.tensor([
+        [0.25, 0.25],
+        [8.5, 1.95],
+        [8.1, 1.5],
+        [3.7, 7.9]
+    ], dtype=dtype)
+
+    cell_fn = cell_list(box_size, cell_size)
+
+    cell_list_instance = cell_fn.setup_fn(R)
+
+    print(cell_list_instance.positions_buffer[7, 3, 0])
