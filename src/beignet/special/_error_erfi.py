@@ -4,11 +4,12 @@ from ._error_erf import error_erf
 
 
 def error_erfi(input: Tensor) -> Tensor:
-    r"""Imaginary error function.
+    r"""
+    Imaginary error function.
 
     Parameters
     ----------
-    input: Tensor
+    input : Tensor
 
     Returns
     -------

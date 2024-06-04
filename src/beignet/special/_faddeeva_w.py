@@ -159,19 +159,15 @@ def _faddeeva_w_impl(z):
     return _voigt_v_impl(z.real, z.imag) + 1j * _voigt_l_impl(z.real, z.imag)
 
 
-def faddeeva_w(input: Tensor):
-    r"""Compute faddeeva w function using method described in [1].
-
+def faddeeva_w(input: Tensor) -> Tensor:
+    r"""
     Parameters
     ----------
-    input: Tensor
-        complex input
+    input : Tensor
 
-    References
-    ----------
-    [1] Al Azah, Mohammad, and Simon N. Chandler-Wilde.
-        "Computation of the complex error function using modified trapezoidal rules."
-        SIAM Journal on Numerical Analysis 59.5 (2021): 2346-2367.
+    Returns
+    -------
+    Tensor
     """
     # use symmetries to map to upper right quadrant of complex plane
     imag_negative = input.imag < 0.0
