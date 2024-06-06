@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 
-def _voigt_v_impl(x, y):
+def _voigt_v(x, y):
     # assumes x >= 0, y >= 0
 
     N = 11
@@ -79,7 +79,7 @@ def _voigt_v_impl(x, y):
     )
 
 
-def _voigt_l_impl(x, y):
+def _voigt_l(x, y):
     # assumes x >= 0, y >= 0
 
     N = 11
@@ -156,16 +156,20 @@ def _voigt_l_impl(x, y):
 
 
 def _faddeeva_w_impl(z):
-    return _voigt_v_impl(z.real, z.imag) + 1j * _voigt_l_impl(z.real, z.imag)
+    return _voigt_v(z.real, z.imag) + 1j * _voigt_l(z.real, z.imag)
 
 
-def faddeeva_w(input: Tensor) -> Tensor:
+def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     r"""
     Faddeeva function.
 
     Parameters
     ----------
     input : Tensor
+        Input tensor.
+
+    out : Tensor, optional
+        Output tensor.
 
     Returns
     -------
@@ -176,12 +180,20 @@ def faddeeva_w(input: Tensor) -> Tensor:
     input = torch.where(input.imag < 0.0, -input, input)
     real_negative = input.real < 0.0
     input = torch.where(input.real < 0.0, -input.conj(), input)
-    assert (input.real >= 0.0).all()
-    assert (input.imag >= 0.0).all()
 
-    out = _voigt_v_impl(input.real, input.imag) + 1j * _voigt_l_impl(
-        input.real, input.imag
-    )
-    out = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - out, out)
-    out = torch.where(real_negative, out.conj(), out)
-    return out
+    a = input.real
+    b = input.imag
+
+    assert (a >= 0.0).all()
+    assert (b >= 0.0).all()
+
+    output = _voigt_v(a, b) + 1j * _voigt_l(a, b)
+
+    output = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - output, output)
+
+    if out is not None:
+        out.copy_(output)
+
+        return out
+
+    return torch.where(real_negative, output.conj(), output, out=out)
