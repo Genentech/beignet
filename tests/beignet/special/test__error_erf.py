@@ -21,12 +21,7 @@ def _strategy(function):
                     max_value=10,
                 ),
             ),
-            steps=function(
-                hypothesis.strategies.integers(
-                    min_value=128,
-                    max_value=512,
-                ),
-            ),
+            steps=128,
             dtype=torch.float64,
         ),
         torch.linspace(
@@ -42,12 +37,7 @@ def _strategy(function):
                     max_value=10,
                 ),
             ),
-            function(
-                hypothesis.strategies.integers(
-                    min_value=128,
-                    max_value=512,
-                ),
-            ),
+            steps=128,
             dtype=torch.float64,
         ),
         indexing="xy",
@@ -55,11 +45,11 @@ def _strategy(function):
 
     input = x + 1.0j * y
 
-    return input, scipy.special.erfc(input)
+    return input, scipy.special.erf(input)
 
 
 @hypothesis.given(_strategy())
-def test_erfc(data):
+def test_error_erf(data):
     input, output = data
 
-    torch.testing.assert_close(beignet.special.error_erfc(input), output)
+    torch.testing.assert_close(beignet.special.error_erf(input), output)

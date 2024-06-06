@@ -45,11 +45,11 @@ def _strategy(function):
 
     input = x + 1.0j * y
 
-    return input, scipy.special.wofz(input)
+    return input, scipy.special.erfi(input)
 
 
 @hypothesis.given(_strategy())
-def test_faddeeva_w(data):
+def test_error_erfi(data):
     input, output = data
 
-    torch.testing.assert_close(beignet.special.faddeeva_w(input), output)
+    torch.testing.assert_close(beignet.special.error_erfi(input), output)
