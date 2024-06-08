@@ -26,6 +26,7 @@ def _voigt_v(x, y, N: int = 11):
     ).sum(dim=-1)
 
     # equation 13
+    # NOTE both numerator and denominator overflow for large y
     w_mm = (
         (
             2
@@ -43,6 +44,7 @@ def _voigt_v(x, y, N: int = 11):
         )
     ) + w_m
 
+    # NOTE both numerator and denominator overflow for large y
     w_mt_1 = (
         2
         * torch.exp(-x.pow(2) + y.pow(2))
@@ -99,6 +101,7 @@ def _voigt_l(x, y, N: int = 11):
     ).sum(dim=-1)
 
     # equation 13
+    # NOTE both numerator and denominator overflow for large y
     w_mm = (
         (
             -2
@@ -116,6 +119,7 @@ def _voigt_l(x, y, N: int = 11):
         )
     ) + w_m
 
+    # NOTE both numerator and denominator overflow for large y
     w_mt_1 = (
         -2
         * torch.exp(-x.pow(2) + y.pow(2))
