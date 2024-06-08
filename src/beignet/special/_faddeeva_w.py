@@ -1,14 +1,13 @@
+import math
+
 import torch
 from torch import Tensor
 
 
-def _voigt_v(x, y):
-    # assumes x >= 0, y >= 0
-
-    N = 11
-
-    # h = math.sqrt(math.pi / (N + 1))
-    h = 0.5116633539732443
+def _voigt_v(x, y, N: int = 11):
+    assert (x >= 0.0).all()
+    assert (y >= 0.0).all()
+    h = math.sqrt(math.pi / (N + 1))
 
     phi = (x / h) - (x / h).floor()
 
@@ -79,13 +78,10 @@ def _voigt_v(x, y):
     )
 
 
-def _voigt_l(x, y):
-    # assumes x >= 0, y >= 0
-
-    N = 11
-
-    # h = math.sqrt(math.pi / (N + 1))
-    h = 0.5116633539732443
+def _voigt_l(x, y, N: int = 11):
+    assert (x >= 0.0).all()
+    assert (y >= 0.0).all()
+    h = math.sqrt(math.pi / (N + 1))
 
     phi = (x / h) - (x / h).floor()
 
