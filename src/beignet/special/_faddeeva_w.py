@@ -190,10 +190,10 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     output = _voigt_v(a, b) + 1j * _voigt_l(a, b)
 
     output = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - output, output)
+    output = torch.where(real_negative, output.conj(), output, out=out)
 
     if out is not None:
         out.copy_(output)
-
         return out
-
-    return torch.where(real_negative, output.conj(), output, out=out)
+    else:
+        return output
