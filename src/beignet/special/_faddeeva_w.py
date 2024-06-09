@@ -26,38 +26,20 @@ def _voigt_v(x, y, N: int = 11):
     ).sum(dim=-1)
 
     # equation 13
-    # NOTE both numerator and denominator overflow for large y
-    w_mm = (
-        (
-            2
-            * torch.exp(-x.pow(2) + y.pow(2))
-            * (
-                torch.cos(2 * x * y)
-                + torch.exp(2 * torch.pi * y / h)
-                * torch.cos(2 * torch.pi * x / h - 2 * x * y)
-            )
-        )
-        / (
-            1
-            + torch.exp(4 * torch.pi * y / h)
-            + 2 * torch.exp(2 * torch.pi * y / h) * torch.cos(2 * torch.pi * x / h)
-        )
-    ) + w_m
+    expy = torch.exp(-2 * torch.pi * y / h)
+    w_mm_1 = (
+        2
+        * torch.exp(-x.pow(2) + y.pow(2))
+        * (torch.cos(2 * x * y) * expy + torch.cos(2 * torch.pi * x / h - 2 * x * y))
+    ) / (expy + 1 / expy + 2 * torch.cos(2 * torch.pi * x / h))
 
-    # NOTE both numerator and denominator overflow for large y
+    w_mm = w_mm_1 + w_m
+
     w_mt_1 = (
         2
         * torch.exp(-x.pow(2) + y.pow(2))
-        * (
-            torch.cos(2 * x * y)
-            - torch.exp(2 * torch.pi * y / h)
-            * torch.cos(2 * torch.pi * x / h - 2 * x * y)
-        )
-    ) / (
-        1
-        + torch.exp(4 * torch.pi * y / h)
-        - 2 * torch.exp(2 * torch.pi * y / h) * torch.cos(2 * torch.pi * x / h)
-    )
+        * (torch.cos(2 * x * y) * expy - torch.cos(2 * torch.pi * x / h - 2 * x * y))
+    ) / (expy + 1 / expy - 2 * torch.cos(2 * torch.pi * x / h))
 
     w_mt_2 = (h * y) / (torch.pi * (x.pow(2) + y.pow(2)))
 
@@ -101,38 +83,20 @@ def _voigt_l(x, y, N: int = 11):
     ).sum(dim=-1)
 
     # equation 13
-    # NOTE both numerator and denominator overflow for large y
-    w_mm = (
-        (
-            -2
-            * torch.exp(-x.pow(2) + y.pow(2))
-            * (
-                torch.sin(2 * x * y)
-                - torch.exp(2 * torch.pi * y / h)
-                * torch.sin(2 * torch.pi * x / h - 2 * x * y)
-            )
-        )
-        / (
-            1
-            + torch.exp(4 * torch.pi * y / h)
-            + 2 * torch.exp(2 * torch.pi * y / h) * torch.cos(2 * torch.pi * x / h)
-        )
-    ) + w_m
+    expy = torch.exp(-2 * torch.pi * y / h)
+    w_mm_1 = (
+        -2
+        * torch.exp(-x.pow(2) + y.pow(2))
+        * (torch.sin(2 * x * y) * expy - torch.sin(2 * torch.pi * x / h - 2 * x * y))
+    ) / (expy + 1 / expy + 2 * torch.cos(2 * torch.pi * x / h))
 
-    # NOTE both numerator and denominator overflow for large y
+    w_mm = w_mm_1 + w_m
+
     w_mt_1 = (
         -2
         * torch.exp(-x.pow(2) + y.pow(2))
-        * (
-            torch.sin(2 * x * y)
-            + torch.exp(2 * torch.pi * y / h)
-            * torch.sin(2 * torch.pi * x / h - 2 * x * y)
-        )
-    ) / (
-        1
-        + torch.exp(4 * torch.pi * y / h)
-        - 2 * torch.exp(2 * torch.pi * y / h) * torch.cos(2 * torch.pi * x / h)
-    )
+        * (torch.sin(2 * x * y) * expy + torch.sin(2 * torch.pi * x / h - 2 * x * y))
+    ) / (expy + 1 / expy - 2 * torch.cos(2 * torch.pi * x / h))
 
     w_mt_2 = (h * x) / (torch.pi * (x.pow(2) + y.pow(2)))
 
@@ -155,10 +119,6 @@ def _voigt_l(x, y, N: int = 11):
     )
 
 
-def _faddeeva_w_impl(z):
-    return _voigt_v(z.real, z.imag) + 1j * _voigt_l(z.real, z.imag)
-
-
 def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     r"""
     Faddeeva function.
@@ -175,6 +135,10 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     -------
     Tensor
     """
+
+    if not torch.is_complex(input):
+        input = input + 0j
+
     # use symmetries to map to upper right quadrant of complex plane
     imag_negative = input.imag < 0.0
     input = torch.where(input.imag < 0.0, -input, input)
@@ -187,7 +151,7 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     assert (a >= 0.0).all()
     assert (b >= 0.0).all()
 
-    output = _voigt_v(a, b) + 1j * _voigt_l(a, b)
+    output = _voigt_v(a, b, N=11) + 1j * _voigt_l(a, b, N=11)
 
     output = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - output, output)
     output = torch.where(real_negative, output.conj(), output, out=out)
