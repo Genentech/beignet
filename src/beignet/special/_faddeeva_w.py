@@ -145,15 +145,21 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     real_negative = input.real < 0.0
     input = torch.where(input.real < 0.0, -input.conj(), input)
 
-    a = input.real
-    b = input.imag
+    x = input.real
+    y = input.imag
 
-    assert (a >= 0.0).all()
-    assert (b >= 0.0).all()
+    assert (x >= 0.0).all()
+    assert (y >= 0.0).all()
 
-    output = _voigt_v(a, b, N=11) + 1j * _voigt_l(a, b, N=11)
+    output = _voigt_v(x, y, N=11) + 1j * _voigt_l(x, y, N=11)
 
-    output = torch.where(imag_negative, 2 * torch.exp(-input.pow(2)) - output, output)
+    # compute real and imaginary parts separately to so we handle infs
+    # without unnecessary nans
+    expz2 = torch.complex(
+        2 * torch.exp(-x.pow(2) + y.pow(2)) * torch.cos(-2 * x * y),
+        2 * torch.exp(-x.pow(2) + y.pow(2)) * torch.sin(-2 * x * y),
+    )
+    output = torch.where(imag_negative, expz2 - output, output)
     output = torch.where(real_negative, output.conj(), output, out=out)
 
     if out is not None:
