@@ -8,7 +8,7 @@ from beignet.datasets import UniProtDataset
 
 
 class TestUniProtDataset:
-    @pytest.mark.skipif(sys.platform == "win32")
+    @pytest.mark.skipif(sys.platform == "win32", "does not run on windows")
     def test___init__(self):
         with NamedTemporaryFile() as descriptor:
             with unittest.mock.patch(
