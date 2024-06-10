@@ -1,47 +1,45 @@
-import edlib
 import heapq
-import numpy as np
-from typing import Optional
+from typing import Any, Iterable, Optional
+
+import torch
 
 
-def edit_dist(x: str, y: str):
-    """
-    Computes the edit distance between two strings.
-    """
-    return edlib.align(x, y)["editDistance"]
-
-
-def ranked_fft(
-    library: np.ndarray,
-    ranking_scores: Optional[np.ndarray] = None,
+def farthest_first_traversal(
+    library: Iterable[Any],
+    distance_fn: callable,
+    ranking_scores: Optional[torch.Tensor] = None,
     n: int = 2,
     descending: bool = False,
-):
+) -> torch.Tensor:
     """
     Farthest-first traversal of a library of strings.
-    If `ranking_scores` is provided, the scores are used to pick the starting point and break ties
-    based on edit distance. If no scores are provided, whichever appears first in library will be prioritized for breaking ties
+    If `ranking_scores` is provided, the scores are used to pick the starting point
+    and to break ties based on edit distance.
+    If no scores are provided, ties are broken by the library index.
 
     Args:
         library: A numpy array of shape (N,) where N is the number of sequences.
-        ranking_scores: A numpy array of shape (N,) containing the ranking scores of the sequences in the library.
+        distance_fn: A callable that takes two arguments and
+            returns a distance between them.
+        ranking_scores: A tensor with shape (N,) containing the ranking scores
+            of the sequences in the library.
         n: The number of sequences to return.
 
     Returns:
-        A numpy array of shape (n,) containing the indices of the selected sequences.
+        A tensor with shape (n,) containing the indices of the selected sequences.
     """
     if ranking_scores is None:
-        ranking_scores = np.zeros(library.shape[0])
-        remaining_indices = list(range(library.shape[0]))
+        ranking_scores = torch.zeros(len(library))
+        remaining_indices = list(range(len(library)))
     else:
         if descending:
             ranking_scores = -ranking_scores
-        remaining_indices = list(np.argsort(ranking_scores))
+        remaining_indices = list(torch.argsort(ranking_scores))
 
     selected = [remaining_indices.pop(0)]
 
     if n == 1:
-        return np.array(selected)
+        return torch.tensor(selected)
 
     pq = []
     # First pass through library
@@ -51,7 +49,7 @@ def ranked_fft(
             heapq.heappush(
                 pq,
                 (
-                    -edit_dist(library[index], library[selected[0]]),
+                    -distance_fn(library[index], library[selected[0]]),
                     ranking_scores[index],
                     index,
                     1,
@@ -62,10 +60,11 @@ def ranked_fft(
     for _ in range(1, n):
         while True:
             neg_dist, score, idx, num_checked = heapq.heappop(pq)
-            # Check if the top of the heap has been checked against all currently selected sequences
+            # Check if the top of the heap has been checked
+            # against all currently selected sequences
             if num_checked < len(selected):
                 min_dist = min(
-                    edit_dist(library[idx], library[selected[i]])
+                    distance_fn(library[idx], library[selected[i]])
                     for i in range(num_checked, len(selected))
                 )
                 min_dist = min(min_dist, -neg_dist)
@@ -74,4 +73,4 @@ def ranked_fft(
                 selected.append(idx)
                 break
 
-    return np.array(selected)
+    return torch.tensor(selected)

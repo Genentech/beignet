@@ -9,7 +9,6 @@ requires = [
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
-    "edlib",
     "pooch",
     "torch",
     "tqdm",

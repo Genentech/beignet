@@ -24,6 +24,7 @@ from ._euler_angle_to_quaternion import (
 )
 from ._euler_angle_to_rotation_matrix import euler_angle_to_rotation_matrix
 from ._euler_angle_to_rotation_vector import euler_angle_to_rotation_vector
+from ._farthest_first_traversal import farthest_first_traversal
 from ._invert_euler_angle import invert_euler_angle
 from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
@@ -45,7 +46,6 @@ from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
 from ._random_rotation_vector import random_rotation_vector
-from ._ranked_fft import ranked_fft
 from ._rotation_matrix_identity import rotation_matrix_identity
 from ._rotation_matrix_magnitude import rotation_matrix_magnitude
 from ._rotation_matrix_mean import rotation_matrix_mean
@@ -83,6 +83,7 @@ __all__ = [
     "euler_angle_to_quaternion",
     "euler_angle_to_rotation_matrix",
     "euler_angle_to_rotation_vector",
+    "farthest_first_traversal",
     "invert_euler_angle",
     "invert_quaternion",
     "invert_rotation_matrix",
@@ -97,7 +98,6 @@ __all__ = [
     "random_quaternion",
     "random_rotation_matrix",
     "random_rotation_vector",
-    "ranked_fft",
     "rotation_matrix_identity",
     "rotation_matrix_magnitude",
     "rotation_matrix_mean",
