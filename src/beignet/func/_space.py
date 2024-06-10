@@ -3,8 +3,7 @@ from typing import Callable, TypeVar
 import torch
 from torch import Tensor
 
-from beignet._apply_transform import _apply_transform, apply_transform
-from beignet._invert_transform import invert_transform
+import beignet
 
 T = TypeVar("T")
 
@@ -126,7 +125,25 @@ def space(
                 raise ValueError
 
             if perturbation is not None:
-                return _apply_transform(perturbation, input - other)
+                transform = input - other
+
+                match transform.ndim:
+                    case 0:
+                        return perturbation * transform
+                    case 1:
+                        return torch.einsum(
+                            "i,...i->...i",
+                            transform,
+                            perturbation,
+                        )
+                    case 2:
+                        return torch.einsum(
+                            "ij,...j->...i",
+                            transform,
+                            perturbation,
+                        )
+                    case _:
+                        raise ValueError
 
             return input - other
 
@@ -136,7 +153,7 @@ def space(
         return displacement_fn, shift_fn
 
     if parallelepiped:
-        inverted_transform = invert_transform(dimensions)
+        inverted_transform = beignet.invert_transform(dimensions)
 
         if normalized:
 
@@ -154,8 +171,8 @@ def space(
                 if "transform" in kwargs:
                     _transform = kwargs["transform"]
 
-                if "updated_transformation" in kwargs:
-                    _transform = kwargs["updated_transformation"]
+                if "updated_transform" in kwargs:
+                    _transform = kwargs["updated_transform"]
 
                 if len(input.shape) != 1:
                     raise ValueError
@@ -163,13 +180,29 @@ def space(
                 if input.shape != other.shape:
                     raise ValueError
 
-                displacement = apply_transform(
+                displacement = beignet.apply_transform(
                     torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
                     _transform,
                 )
 
                 if perturbation is not None:
-                    return _apply_transform(perturbation, displacement)
+                    match displacement.ndim:
+                        case 0:
+                            return perturbation * displacement
+                        case 1:
+                            return torch.einsum(
+                                "i,...i->...i",
+                                displacement,
+                                perturbation,
+                            )
+                        case 2:
+                            return torch.einsum(
+                                "ij,...j->...i",
+                                displacement,
+                                perturbation,
+                            )
+                        case _:
+                            raise ValueError
 
                 return displacement
 
@@ -186,12 +219,12 @@ def space(
                     if "transform" in kwargs:
                         _transform = kwargs["transform"]
 
-                        _inverted_transform = invert_transform(_transform)
+                        _inverted_transform = beignet.invert_transform(_transform)
 
-                    if "updated_transformation" in kwargs:
-                        _transform = kwargs["updated_transformation"]
+                    if "updated_transform" in kwargs:
+                        _transform = kwargs["updated_transform"]
 
-                    return u(input, apply_transform(other, _inverted_transform))
+                    return u(input, beignet.apply_transform(other, _inverted_transform))
 
                 return displacement_fn, shift_fn
 
@@ -203,12 +236,12 @@ def space(
                 if "transform" in kwargs:
                     _transform = kwargs["transform"]
 
-                    _inverted_transform = invert_transform(_transform)
+                    _inverted_transform = beignet.invert_transform(_transform)
 
-                if "updated_transformation" in kwargs:
-                    _transform = kwargs["updated_transformation"]
+                if "updated_transform" in kwargs:
+                    _transform = kwargs["updated_transform"]
 
-                return input + apply_transform(other, _inverted_transform)
+                return input + beignet.apply_transform(other, _inverted_transform)
 
             return displacement_fn, shift_fn
 
@@ -226,13 +259,13 @@ def space(
             if "transform" in kwargs:
                 _transform = kwargs["transform"]
 
-                _inverted_transform = invert_transform(_transform)
+                _inverted_transform = beignet.invert_transform(_transform)
 
-            if "updated_transformation" in kwargs:
-                _transform = kwargs["updated_transformation"]
+            if "updated_transform" in kwargs:
+                _transform = kwargs["updated_transform"]
 
-            input = apply_transform(input, _inverted_transform)
-            other = apply_transform(other, _inverted_transform)
+            input = beignet.apply_transform(input, _inverted_transform)
+            other = beignet.apply_transform(other, _inverted_transform)
 
             if len(input.shape) != 1:
                 raise ValueError
@@ -240,13 +273,29 @@ def space(
             if input.shape != other.shape:
                 raise ValueError
 
-            displacement = apply_transform(
+            displacement = beignet.apply_transform(
                 torch.remainder(input - other + 1.0 * 0.5, 1.0) - 1.0 * 0.5,
                 _transform,
             )
 
             if perturbation is not None:
-                return _apply_transform(perturbation, displacement)
+                match displacement.ndim:
+                    case 0:
+                        return perturbation * displacement
+                    case 1:
+                        return torch.einsum(
+                            "i,...i->...i",
+                            displacement,
+                            perturbation,
+                        )
+                    case 2:
+                        return torch.einsum(
+                            "ij,...j->...i",
+                            displacement,
+                            perturbation,
+                        )
+                    case _:
+                        raise ValueError
 
             return displacement
 
@@ -263,17 +312,17 @@ def space(
                 if "transform" in kwargs:
                     _transform = kwargs["transform"]
 
-                    _inverted_transform = invert_transform(
+                    _inverted_transform = beignet.invert_transform(
                         _transform,
                     )
 
-                if "updated_transformation" in kwargs:
-                    _transform = kwargs["updated_transformation"]
+                if "updated_transform" in kwargs:
+                    _transform = kwargs["updated_transform"]
 
-                return apply_transform(
+                return beignet.apply_transform(
                     u(
-                        apply_transform(_inverted_transform, input),
-                        apply_transform(_inverted_transform, other),
+                        beignet.apply_transform(_inverted_transform, input),
+                        beignet.apply_transform(_inverted_transform, other),
                     ),
                     _transform,
                 )
@@ -298,10 +347,31 @@ def space(
         if input.shape != other.shape:
             raise ValueError
 
-        displacement = torch.remainder(input - other + dimensions * 0.5, dimensions)
+        displacement = torch.remainder(
+            input - other + dimensions * 0.5,
+            dimensions,
+        )
 
         if perturbation is not None:
-            return _apply_transform(perturbation, displacement - dimensions * 0.5)
+            transform = displacement - dimensions * 0.5
+
+            match transform.ndim:
+                case 0:
+                    return perturbation * transform
+                case 1:
+                    return torch.einsum(
+                        "i,...i->...i",
+                        transform,
+                        perturbation,
+                    )
+                case 2:
+                    return torch.einsum(
+                        "ij,...j->...i",
+                        transform,
+                        perturbation,
+                    )
+                case _:
+                    raise ValueError
 
         return displacement - dimensions * 0.5
 

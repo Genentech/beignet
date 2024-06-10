@@ -22,28 +22,15 @@ def _apply_transform(input: Tensor, transform: Tensor) -> Tensor:
         Affine transformed position vector, has the same shape as the
         position vector.
     """
-    if transform.ndim == 0:
-        return input * transform
-
-    indices = [chr(ord("a") + index) for index in range(input.ndim - 1)]
-
-    indices = "".join(indices)
-
-    if transform.ndim == 1:
-        return torch.einsum(
-            "i,...i->...i",
-            transform,
-            input,
-        )
-
-    if transform.ndim == 2:
-        return torch.einsum(
-            f"ij,...j->...i",
-            transform,
-            input,
-        )
-
-    raise ValueError
+    match transform.ndim:
+        case 0:
+            return input * transform
+        case 1:
+            return torch.einsum("i,...i->...i", transform, input)
+        case 2:
+            return torch.einsum("ij,...j->...i", transform, input)
+        case _:
+            raise ValueError
 
 
 class _ApplyTransform(Function):
