@@ -1,22 +1,23 @@
-from pathlib import Path
+from os import PathLike
 from typing import Callable
 
-from ..transforms import Transform
+from beignet.transforms import Transform
+
 from ._uniprot_dataset import UniProtDataset
 
 
-class UniRef100Dataset(UniProtDataset):
+class SwissProtDataset(UniProtDataset):
     def __init__(
         self,
-        root: str | Path,
+        root: str | PathLike | None = None,
         *,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ):
-        r"""
+        """
         Parameters
         ----------
-        root : str | Path
+        root : str | PathLike, optional
             Root directory where the dataset subdirectory exists or, if
             `download` is `True`, the directory where the dataset subdirectory
             will be created and the dataset downloaded.
@@ -26,13 +27,13 @@ class UniRef100Dataset(UniProtDataset):
             transformed sequence (default: `None`).
 
         target_transform : Callable, optional
-            A `Callable` or `Transform` that maps a target (a cluster
-            identifier) to a transformed target (default: `None`).
+            A `Callable` or `Transform` that maps a target to a transformed
+            target (default: `None`).
         """
         super().__init__(
-            "http://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz",
+            "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
             root,
-            "md5:0354240a56f4ca91ff426f8241cfeb7d",
+            "md5:0766df3e5785fc5f1cfc496aa89e86ad",
             transform=transform,
             target_transform=target_transform,
         )

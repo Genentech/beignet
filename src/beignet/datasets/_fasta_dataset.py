@@ -19,7 +19,7 @@ class FASTADataset(SizedSequenceDataset):
         root: str | PathLike,
         *,
         transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         if isinstance(root, str):
             self.root = Path(root)
 
