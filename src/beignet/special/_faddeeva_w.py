@@ -4,14 +4,14 @@ import torch
 from torch import Tensor
 
 
-def _voigt_v(x, y, N: int = 11):
+def _voigt_v(x, y, n: int = 11):
     assert (x >= 0.0).all()
     assert (y >= 0.0).all()
-    h = math.sqrt(math.pi / (N + 1))
+    h = math.sqrt(math.pi / (n + 1))
 
-    phi = (x / h) - (x / h).floor()
+    phi = (x / h) - torch.floor(x / h)
 
-    k = torch.arange(N + 1, dtype=x.dtype, device=x.device)
+    k = torch.arange(n + 1, dtype=x.dtype, device=x.device)
     t = (k + 0.5) * h
     tau = k[1:] * h
 
@@ -62,14 +62,14 @@ def _voigt_v(x, y, N: int = 11):
     )
 
 
-def _voigt_l(x, y, N: int = 11):
+def _voigt_l(x, y, n: int = 11):
     assert (x >= 0.0).all()
     assert (y >= 0.0).all()
-    h = math.sqrt(math.pi / (N + 1))
+    h = math.sqrt(math.pi / (n + 1))
 
-    phi = (x / h) - (x / h).floor()
+    phi = (x / h) - torch.floor(x / h)
 
-    k = torch.arange(N + 1, dtype=x.dtype, device=x.device)
+    k = torch.arange(n + 1, dtype=x.dtype, device=x.device)
     t = (k + 0.5) * h
     tau = k[1:] * h
 
@@ -151,7 +151,7 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     assert (x >= 0.0).all()
     assert (y >= 0.0).all()
 
-    output = _voigt_v(x, y, N=11) + 1j * _voigt_l(x, y, N=11)
+    output = _voigt_v(x, y, n=11) + 1j * _voigt_l(x, y, n=11)
 
     # compute real and imaginary parts separately to so we handle infs
     # without unnecessary nans
