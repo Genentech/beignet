@@ -29,7 +29,6 @@ def farthest_first_traversal(
         A tensor with shape (n,) containing the indices of the selected sequences.
     """
     if ranking_scores is None:
-        ranking_scores = torch.zeros(len(library))
         remaining_indices = list(range(len(library)))
     else:
         if descending:
@@ -45,21 +44,23 @@ def farthest_first_traversal(
     # First pass through library
     for index in remaining_indices:
         # Pushing with heapq, negate dist to simulate max-heap with min-heap
-        (
-            heapq.heappush(
-                pq,
-                (
-                    -distance_fn(library[index], library[selected[0]]),
-                    ranking_scores[index],
-                    index,
-                    1,
-                ),
-            ),
-        )
+        neg_dist = -distance_fn(library[index], library[selected[0]])
+
+        if ranking_scores is None:
+            item = (neg_dist, index, 1)
+        else:
+            item = (neg_dist, ranking_scores[index], index, 1)
+
+        heapq.heappush(pq, item)
 
     for _ in range(1, n):
         while True:
-            neg_dist, score, idx, num_checked = heapq.heappop(pq)
+            item = heapq.heappop(pq)
+            if ranking_scores is None:
+                neg_dist, idx, num_checked = item
+            else:
+                neg_dist, score, idx, num_checked = item
+
             # Check if the top of the heap has been checked
             # against all currently selected sequences
             if num_checked < len(selected):
@@ -68,7 +69,13 @@ def farthest_first_traversal(
                     for i in range(num_checked, len(selected))
                 )
                 min_dist = min(min_dist, -neg_dist)
-                heapq.heappush(pq, (-min_dist, score, idx, len(selected)))
+
+                if ranking_scores is None:
+                    item = (-min_dist, idx, len(selected))
+                else:
+                    item = (-min_dist, score, idx, len(selected))
+
+                heapq.heappush(pq, item)
             else:
                 selected.append(idx)
                 break
