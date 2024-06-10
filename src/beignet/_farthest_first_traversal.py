@@ -12,7 +12,7 @@ def farthest_first_traversal(
     descending: bool = False,
 ) -> torch.Tensor:
     """
-    Farthest-first traversal of a library of strings.
+    Farthest-first traversal of a library of N elements.
     If `ranking_scores` is provided, the scores are used to pick the starting point
     and to break ties based on edit distance.
     If no scores are provided, ties are broken by the library index.
