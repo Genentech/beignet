@@ -5,7 +5,7 @@ import torch
 
 
 def farthest_first_traversal(
-    library: list[Any],
+    library: list[Any] | torch.Tensor,
     distance_fn: callable,
     ranking_scores: torch.Tensor | None = None,
     n: int = 2,
@@ -18,7 +18,7 @@ def farthest_first_traversal(
     If no scores are provided, ties are broken by the library index.
 
     Args:
-        library: A list with N elements.
+        library: A list with N elements or a tensor with shape (N,).
         distance_fn: A callable that takes two arguments and
             returns a distance between them.
         ranking_scores: A tensor with shape (N,) containing the ranking scores
