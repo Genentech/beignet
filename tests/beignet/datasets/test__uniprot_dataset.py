@@ -7,7 +7,7 @@ from beignet.datasets import UniProtDataset
 
 class TestUniProtDataset:
     def test___init__(self):
-        with NamedTemporaryFile("w") as descriptor:
+        with NamedTemporaryFile("rw") as descriptor:
             with unittest.mock.patch(
                 "pooch.retrieve",
                 lambda a, b, c, d, **_: descriptor.name,
