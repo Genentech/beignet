@@ -59,17 +59,17 @@ class _ApplyTransform(Function):
 
     @staticmethod
     def setup_context(ctx, inputs, output):
-        transformation, input = inputs
+        transform, input = inputs
 
-        ctx.save_for_backward(transformation, input, output)
+        ctx.save_for_backward(transform, input, output)
 
     @staticmethod
     def jvp(ctx, grad_transform: Tensor, grad_input: Tensor) -> (Tensor, Tensor):
-        transformation, position, _ = ctx.saved_tensors
+        transform, input, _ = ctx.saved_tensors
 
-        output = _apply_transform(position, transformation)
+        output = _apply_transform(input, transform)
 
-        grad_output = grad_input + _apply_transform(position, grad_transform)
+        grad_output = grad_input + _apply_transform(input, grad_transform)
 
         return output, grad_output
 

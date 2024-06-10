@@ -9,7 +9,7 @@ T = TypeVar("T")
 
 
 def space(
-    dimensions: Tensor | None = None,
+    box: Tensor | None = None,
     *,
     normalized: bool = True,
     parallelepiped: bool = True,
@@ -21,7 +21,7 @@ def space(
     subsets of $\mathbb{R}^{D}$ (where $D = 1$, $2$, or $3$) and is
     instrumental in setting up simulation environments with specific
     characteristics (e.g., periodic boundary conditions). The function returns
-    a a displacement function and a shift function to compute particle
+    a displacement function and a shift function to compute particle
     interactions and movements in space.
 
     This function supports deformation of the simulation cell, crucial for
@@ -30,9 +30,7 @@ def space(
 
     Parameters
     ----------
-    dimensions : Tensor | None, default=None
-        Dimensions of the simulation space.
-
+    box : Tensor | None, default=None
         Interpretation varies based on the value of `parallelepiped`. If
         `parallelepiped` is `True`, must be an affine transformation, $T$,
         specified in one of three ways:
@@ -43,8 +41,7 @@ def space(
 
         If `parallelepiped` is `False`, must be the edge lengths.
 
-        If `dimensions` is `None`, the simulation space has free boundary
-        conditions.
+        If `box` is `None`, the simulation space has free boundary conditions.
 
     normalized : bool, default=True
         If `normalized` is `True`, positions are stored in the unit cube.
@@ -106,10 +103,10 @@ def space(
             ),
         )
     """
-    if isinstance(dimensions, (int, float)):
-        dimensions = torch.tensor([dimensions])
+    if isinstance(box, (int, float)):
+        box = torch.tensor([box])
 
-    if dimensions is None:
+    if box is None:
 
         def displacement_fn(
             input: Tensor,
@@ -153,7 +150,7 @@ def space(
         return displacement_fn, shift_fn
 
     if parallelepiped:
-        inverted_transform = beignet.invert_transform(dimensions)
+        inverted_transform = beignet.invert_transform(box)
 
         if normalized:
 
@@ -164,7 +161,7 @@ def space(
                 perturbation: Tensor | None = None,
                 **kwargs,
             ) -> Tensor:
-                _transform = dimensions
+                _transform = box
 
                 _inverted_transform = inverted_transform
 
@@ -212,7 +209,7 @@ def space(
                     return torch.remainder(input + other, 1.0)
 
                 def shift_fn(input: Tensor, other: Tensor, **kwargs) -> Tensor:
-                    _transform = dimensions
+                    _transform = box
 
                     _inverted_transform = inverted_transform
 
@@ -229,7 +226,7 @@ def space(
                 return displacement_fn, shift_fn
 
             def shift_fn(input: Tensor, other: Tensor, **kwargs) -> Tensor:
-                _transform = dimensions
+                _transform = box
 
                 _inverted_transform = inverted_transform
 
@@ -252,7 +249,7 @@ def space(
             perturbation: Tensor | None = None,
             **kwargs,
         ) -> Tensor:
-            _transform = dimensions
+            _transform = box
 
             _inverted_transform = inverted_transform
 
@@ -305,7 +302,7 @@ def space(
                 return torch.remainder(input + other, 1.0)
 
             def shift_fn(input: Tensor, other: Tensor, **kwargs) -> Tensor:
-                _transform = dimensions
+                _transform = box
 
                 _inverted_transform = inverted_transform
 
@@ -348,12 +345,12 @@ def space(
             raise ValueError
 
         displacement = torch.remainder(
-            input - other + dimensions * 0.5,
-            dimensions,
+            input - other + box * 0.5,
+            box,
         )
 
         if perturbation is not None:
-            transform = displacement - dimensions * 0.5
+            transform = displacement - box * 0.5
 
             match transform.ndim:
                 case 0:
@@ -373,12 +370,12 @@ def space(
                 case _:
                     raise ValueError
 
-        return displacement - dimensions * 0.5
+        return displacement - box * 0.5
 
     if remapped:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
-            return torch.remainder(input + other, dimensions)
+            return torch.remainder(input + other, box)
     else:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
