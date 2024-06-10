@@ -13,12 +13,12 @@ def root(
     rtol: Optional[float] = None,
     atol: Optional[float] = None,
     maxiter: int = 100,
-    method: Literal["Chandrupatla", "Newton"] = "Chandrupatla",
+    method: Literal["chandrupatla", "newton"] = "chandrupatla",
     **kwargs,
 ):
     r""" """
     match method:
-        case "Chandrupatla":
+        case "chandrupatla":
             return beignet.chandrupatla(
                 func,
                 x0,
@@ -28,7 +28,7 @@ def root(
                 maxiter=maxiter,
                 **kwargs,
             )
-        case "Newton":
+        case "newton":
             return beignet.newton(
                 func,
                 x0,
