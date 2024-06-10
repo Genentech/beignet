@@ -6,11 +6,12 @@ from torch import Tensor
 
 def newton(
     func: Callable,
-    a: Tensor | None = None,
+    x0: Tensor | None = None,
     *,
     atol: float = 0.000001,
     rtol: float = 0.000001,
     maxiter: int = 50,
+    **_,
 ) -> (Tensor, (bool, int)):
     r"""
     Find the root of a function using Newton’s method.
@@ -20,7 +21,7 @@ def newton(
     func : Callable
         The function for which to find the root.
 
-    a : Tensor, optional
+    x0 : Tensor, optional
         Initial guess. If not provided, a zero tensor is used.
 
     atol : float, optional
@@ -37,15 +38,15 @@ def newton(
     output : Tensor
         Root of the function.
     """
-    if a is None:
-        a = torch.zeros([0])
+    if x0 is None:
+        x0 = torch.zeros([0])
 
     for iteration in range(maxiter):
-        b = a - torch.linalg.solve(torch.func.jacfwd(func)(a), func(a))
+        b = x0 - torch.linalg.solve(torch.func.jacfwd(func)(x0), func(x0))
 
-        if torch.linalg.norm(b - a) < atol + rtol * torch.linalg.norm(b):
+        if torch.linalg.norm(b - x0) < atol + rtol * torch.linalg.norm(b):
             return b, (True, iteration)
 
-        a = b
+        x0 = b
 
     return b, (False, maxiter)
