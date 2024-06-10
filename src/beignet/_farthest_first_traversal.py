@@ -24,6 +24,8 @@ def farthest_first_traversal(
         ranking_scores: A tensor with shape (N,) containing the ranking scores
             of the sequences in the library.
         n: The number of sequences to return.
+        descending: If False and ranking_scores is provided, the sequences with
+            the lowest scores are selected first in a tie (default: False).
 
     Returns:
         A tensor with shape (n,) containing the indices of the selected sequences.
