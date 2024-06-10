@@ -5,8 +5,9 @@ from torch import Tensor
 
 
 def _voigt_v(x, y, n: int = 11):
-    assert (x >= 0.0).all()
-    assert (y >= 0.0).all()
+    if not ((x >= 0.0) & (y >= 0.0)).all():
+        raise ValueError("_voigt_v only defined for x >= 0 and y >= 0")
+
     h = math.sqrt(math.pi / (n + 1))
 
     phi = (x / h) - torch.floor(x / h)
@@ -63,8 +64,9 @@ def _voigt_v(x, y, n: int = 11):
 
 
 def _voigt_l(x, y, n: int = 11):
-    assert (x >= 0.0).all()
-    assert (y >= 0.0).all()
+    if not ((x >= 0.0) & (y >= 0.0)).all():
+        raise ValueError("_voigt_l only defined for x >= 0 and y >= 0")
+
     h = math.sqrt(math.pi / (n + 1))
 
     phi = (x / h) - torch.floor(x / h)
@@ -148,8 +150,8 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     x = input.real
     y = input.imag
 
-    assert (x >= 0.0).all()
-    assert (y >= 0.0).all()
+    if not ((x >= 0.0) & (y >= 0.0)).all():
+        raise ValueError("failed to map input to x >= 0, y >= 0")
 
     output = _voigt_v(x, y, n=11) + 1j * _voigt_l(x, y, n=11)
 
