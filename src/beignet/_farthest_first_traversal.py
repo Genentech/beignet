@@ -18,7 +18,7 @@ def farthest_first_traversal(
     If no scores are provided, ties are broken by the library index.
 
     Args:
-        library: A list with length N, where N is the number of sequences.
+        library: A finite iterable with length N, where N is the number of sequences.
         distance_fn: A callable that takes two arguments and
             returns a distance between them.
         ranking_scores: A tensor with shape (N,) containing the ranking scores
