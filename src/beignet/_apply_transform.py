@@ -37,7 +37,7 @@ class _ApplyTransform(Function):
     generate_vmap_rule = True
 
     @staticmethod
-    def forward(transform: Tensor, position: Tensor) -> Tensor:
+    def forward(transform: Tensor, input: Tensor) -> Tensor:
         """
         Return affine transformed position.
 
@@ -47,7 +47,7 @@ class _ApplyTransform(Function):
             Affine transformation matrix, must have shape
             `(dimension, dimension)`.
 
-        position : Tensor
+        input : Tensor
             Position, must have shape `(..., dimension)`.
 
         Returns
@@ -55,21 +55,21 @@ class _ApplyTransform(Function):
         Tensor
             Affine transformed position of shape `(..., dimension)`.
         """
-        return _apply_transform(position, transform)
+        return _apply_transform(input, transform)
 
     @staticmethod
     def setup_context(ctx, inputs, output):
-        transformation, position = inputs
+        transformation, input = inputs
 
-        ctx.save_for_backward(transformation, position, output)
+        ctx.save_for_backward(transformation, input, output)
 
     @staticmethod
-    def jvp(ctx, grad_transform: Tensor, grad_position: Tensor) -> (Tensor, Tensor):
+    def jvp(ctx, grad_transform: Tensor, grad_input: Tensor) -> (Tensor, Tensor):
         transformation, position, _ = ctx.saved_tensors
 
         output = _apply_transform(position, transformation)
 
-        grad_output = grad_position + _apply_transform(position, grad_transform)
+        grad_output = grad_input + _apply_transform(position, grad_transform)
 
         return output, grad_output
 
