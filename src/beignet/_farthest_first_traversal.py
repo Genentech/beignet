@@ -1,5 +1,5 @@
 import heapq
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 import torch
 
@@ -7,7 +7,7 @@ import torch
 def farthest_first_traversal(
     library: Iterable[Any],
     distance_fn: callable,
-    ranking_scores: Optional[torch.Tensor] = None,
+    ranking_scores: torch.Tensor | None = None,
     n: int = 2,
     descending: bool = False,
 ) -> torch.Tensor:
