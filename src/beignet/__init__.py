@@ -12,6 +12,7 @@ from ._apply_quaternion import (
 )
 from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
+from ._chandrupatla import chandrupatla
 from ._compose_euler_angle import compose_euler_angle
 from ._compose_quaternion import compose_quaternion
 from ._compose_rotation_matrix import compose_rotation_matrix
@@ -28,6 +29,7 @@ from ._invert_euler_angle import invert_euler_angle
 from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
+from ._newton import newton
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -45,6 +47,7 @@ from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
 from ._random_rotation_vector import random_rotation_vector
+from ._root import root
 from ._rotation_matrix_identity import rotation_matrix_identity
 from ._rotation_matrix_magnitude import rotation_matrix_magnitude
 from ._rotation_matrix_mean import rotation_matrix_mean
@@ -73,6 +76,7 @@ __all__ = [
     "apply_quaternion",
     "apply_rotation_matrix",
     "apply_rotation_vector",
+    "chandrupatla",
     "compose_euler_angle",
     "compose_quaternion",
     "compose_rotation_matrix",
@@ -87,6 +91,7 @@ __all__ = [
     "invert_quaternion",
     "invert_rotation_matrix",
     "invert_rotation_vector",
+    "newton",
     "quaternion_identity",
     "quaternion_magnitude",
     "quaternion_mean",
@@ -111,4 +116,5 @@ __all__ = [
     "rotation_vector_to_rotation_matrix",
     "quaternion_slerp",
     "translation_identity",
+    "root",
 ]
