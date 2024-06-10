@@ -1,6 +1,24 @@
+import unittest.mock
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+from beignet.datasets import UniProtDataset
+
+
 class TestUniProtDataset:
     def test___init__(self):
-        assert True
+        with NamedTemporaryFile() as descriptor:
+            with unittest.mock.patch(
+                "pooch.retrieve",
+                lambda a, b, c, d, **_: descriptor.name,
+            ):
+                dataset = UniProtDataset(
+                    "https://example.com",
+                    descriptor.name,
+                )
 
-    def test___getitem__(self):
-        assert True
+                assert dataset.root == Path(descriptor.name).resolve()
+
+                assert dataset.transform is None
+
+                assert dataset.target_transform is None

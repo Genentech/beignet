@@ -10,7 +10,7 @@ from beignet.transforms import Transform
 from ._fasta_dataset import FASTADataset
 
 
-class _UniRefDataset(FASTADataset):
+class UniProtDataset(FASTADataset):
     def __init__(
         self,
         url: str,
@@ -46,7 +46,7 @@ class _UniRefDataset(FASTADataset):
         if isinstance(root, str):
             root = Path(root)
 
-        root = root.resolve()
+        self.root = root.resolve()
 
         name = self.__class__.__name__.replace("Dataset", "")
 

@@ -3,10 +3,10 @@ from typing import Callable
 
 from beignet.transforms import Transform
 
-from .__uniprot_dataset import _UniRefDataset
+from ._uniprot_dataset import UniProtDataset
 
 
-class SwissProtDataset(_UniRefDataset):
+class SwissProtDataset(UniProtDataset):
     def __init__(
         self,
         root: str | PathLike | None = None,
