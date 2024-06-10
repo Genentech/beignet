@@ -44,3 +44,9 @@ def test_faddeeva_w(data):
     torch.testing.assert_close(
         beignet.special.faddeeva_w(input), output, rtol=rtol, atol=atol
     )
+
+
+def test_faddeeva_w_propagates_nan():
+    input = torch.complex(torch.tensor(torch.nan), torch.tensor(torch.nan))
+    output = beignet.special.faddeeva_w(input)
+    torch.testing.assert_close(input, output, equal_nan=True)
