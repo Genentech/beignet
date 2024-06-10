@@ -11,11 +11,6 @@ import torch
 def _strategy(function):
     dtype = function(hypothesis.strategies.sampled_from([torch.float64, torch.float32]))
 
-    if dtype == torch.float64:
-        rtol, atol = 1e-10, 1e-10
-    elif dtype == torch.float64:
-        rtol, atol = 1e-5, 1e-5
-
     # avoid overflow of exp(y^2)
     limit = math.sqrt(math.log(torch.finfo(dtype).max)) - 0.2
 
