@@ -1,11 +1,11 @@
 import heapq
-from typing import Any, Iterable
+from typing import Any
 
 import torch
 
 
 def farthest_first_traversal(
-    library: Iterable[Any],
+    library: list[Any],
     distance_fn: callable,
     ranking_scores: torch.Tensor | None = None,
     n: int = 2,
