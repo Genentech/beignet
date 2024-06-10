@@ -137,7 +137,7 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
     """
 
     if not torch.is_complex(input):
-        input = input + 0j
+        input = torch.complex(input, torch.zeros_like(input))
 
     # use symmetries to map to upper right quadrant of complex plane
     imag_negative = input.imag < 0.0
