@@ -22,13 +22,13 @@ def farthest_first_traversal(
         distance_fn: A callable that takes two arguments and
             returns a distance between them.
         ranking_scores: A tensor with shape (N,) containing the ranking scores
-            of the sequences in the library.
-        n: The number of sequences to return.
-        descending: If False and ranking_scores is provided, the sequences with
+            of the elements in the library.
+        n: The number of library elements to return.
+        descending: If False and ranking_scores is provided, the elements with
             the lowest scores are selected first in a tie (default: False).
 
     Returns:
-        A tensor with shape (n,) containing the indices of the selected sequences.
+        A tensor with shape (n,) containing the indices of the selected elements.
     """
     if ranking_scores is None:
         remaining_indices = list(range(len(library)))
