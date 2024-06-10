@@ -1,3 +1,5 @@
+import math
+
 import beignet.special
 import hypothesis
 import hypothesis.strategies
@@ -7,43 +9,28 @@ import torch
 
 @hypothesis.strategies.composite
 def _strategy(function):
-    x, y = torch.meshgrid(
-        torch.linspace(
-            function(
-                hypothesis.strategies.floats(
-                    min_value=-10,
-                    max_value=-10,
-                ),
-            ),
-            function(
-                hypothesis.strategies.floats(
-                    min_value=10,
-                    max_value=10,
-                ),
-            ),
-            steps=128,
-            dtype=torch.float64,
-        ),
-        torch.linspace(
-            function(
-                hypothesis.strategies.floats(
-                    min_value=-10,
-                    max_value=-10,
-                ),
-            ),
-            function(
-                hypothesis.strategies.floats(
-                    min_value=10,
-                    max_value=10,
-                ),
-            ),
-            steps=128,
-            dtype=torch.float64,
-        ),
-        indexing="xy",
+    dtype = function(hypothesis.strategies.sampled_from([torch.float64, torch.float32]))
+
+    if dtype == torch.float64:
+        rtol, atol = 1e-10, 1e-10
+    elif dtype == torch.float64:
+        rtol, atol = 1e-5, 1e-5
+
+    # avoid overflow of exp(y^2)
+    limit = math.sqrt(math.log(torch.finfo(dtype).max)) - 0.2
+
+    x = function(
+        hypothesis.strategies.floats(
+            min_value=-limit, max_value=limit, allow_nan=False, allow_infinity=False
+        )
+    )
+    y = function(
+        hypothesis.strategies.floats(
+            min_value=-limit, max_value=limit, allow_nan=False, allow_infinity=False
+        )
     )
 
-    input = x + 1.0j * y
+    input = torch.complex(torch.tensor(x, dtype=dtype), torch.tensor(y, dtype=dtype))
 
     return input, scipy.special.wofz(input)
 
@@ -52,4 +39,13 @@ def _strategy(function):
 def test_faddeeva_w(data):
     input, output = data
 
-    torch.testing.assert_close(beignet.special.faddeeva_w(input), output)
+    if input.dtype == torch.complex64:
+        rtol, atol = 1e-5, 1e-5
+    elif input.dtype == torch.complex128:
+        rtol, atol = 1e-10, 1e-10
+    else:
+        rtol, atol = None, None
+
+    torch.testing.assert_close(
+        beignet.special.faddeeva_w(input), output, rtol=rtol, atol=atol
+    )
