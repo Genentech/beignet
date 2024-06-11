@@ -3,8 +3,7 @@ from torch import Tensor
 
 
 def _shift(a: Tensor, b: Tensor) -> Tensor:
-    """
-    Shifts a tensor `a` along dimensions specified in `b`.
+    r"""Shifts a tensor `a` along dimensions specified in `b`.
 
     The shift can be applied in up to three dimensions (x, y, z).
     Positive values in `b` indicate a forward shift, while negative values indicate
@@ -22,5 +21,4 @@ def _shift(a: Tensor, b: Tensor) -> Tensor:
     Tensor
       The shifted tensor.
     """
-
     return torch.roll(a, shifts=tuple(b), dims=tuple(range(len(b))))

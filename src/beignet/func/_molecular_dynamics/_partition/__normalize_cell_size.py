@@ -3,8 +3,7 @@ from torch import Tensor
 
 
 def _normalize_cell_size(box: Tensor, cutoff: float) -> Tensor:
-    """
-    Normalize the cell size given the bounding box dimensions and a cutoff value.
+    r"""Normalize the cell size given the bounding box dimensions and a cutoff value.
 
     Parameters
     ----------

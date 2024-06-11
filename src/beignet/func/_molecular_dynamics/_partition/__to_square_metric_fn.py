@@ -7,8 +7,7 @@ from torch import Tensor
 def _to_square_metric_fn(
     fn: Callable[[Tensor, Tensor, Any], Tensor],
 ) -> Callable[[Tensor, Tensor, Any], Tensor]:
-    """
-    Converts a given distance function to a squared distance metric.
+    r"""Converts a given distance function to a squared distance metric.
 
     The function tries to apply the given distance function `fn` to positions in
     one to three dimensions to determine if the output is scalar or vector.
@@ -40,8 +39,10 @@ def _to_square_metric_fn(
                     return torch.sum(torch.square(fn(a, b, **kwargs)), dim=-1)
 
             return square_metric
+
         except TypeError:
             continue
+
         except ValueError:
             continue
 

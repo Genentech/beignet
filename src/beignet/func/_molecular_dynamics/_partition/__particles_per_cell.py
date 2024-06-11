@@ -11,8 +11,7 @@ def _particles_per_cell(
     size: Tensor,
     minimum_size: float,
 ) -> Tensor:
-    """
-    Computes the number of particles per cell given a defined cell size and minimum size.
+    r"""Computes the number of particles per cell given a defined cell size and minimum size.
 
     Parameters
     ----------
