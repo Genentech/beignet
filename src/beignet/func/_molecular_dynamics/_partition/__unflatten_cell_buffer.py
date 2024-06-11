@@ -38,27 +38,7 @@ def _unflatten_cell_buffer(buffer: Tensor, cells_per_side: [int, float, Tensor],
     else:
         raise ValueError()
 
-    # creates a tuple (cells_per_side[0], ..., cells_per_side[n], -1, buffer.shape[1], ..., buffer.shape[m])
     new_shape = cells_per_side + (-1,) + buffer.shape[1:]
-
-    # Calculate the total number of elements
-    total_elements = buffer.numel()
-
-    # Calculate the inferred dimension manually
-    known_dims_product = 1
-    for dim in new_shape:
-        if dim != -1:
-            known_dims_product *= dim
-
-    # Infer the -1 dimension
-    inferred_dim = total_elements // known_dims_product
-
-    if total_elements % known_dims_product != 0:
-        raise ValueError(
-            f"Inferred dimension {-1} mismatch size! Ensure correct element distribution aligning devices")
-
-    # Replace -1 with the inferred dimension
-    new_shape = tuple(inferred_dim if dim == -1 else dim for dim in new_shape)
 
     # Reshape the buffer with the new shape
     reshaped_buffer = buffer.reshape(new_shape)
