@@ -3,8 +3,7 @@ from torch import Tensor
 
 
 def _iota(shape: tuple[int, ...], dim: int = 0, **kwargs) -> Tensor:
-    """
-    Generate a tensor with a specified shape where elements along the given dimension
+    r"""Generate a tensor with a specified shape where elements along the given dimension
     are sequential integers starting from 0.
 
     Parameters

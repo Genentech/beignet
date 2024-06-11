@@ -11,8 +11,7 @@ def _segment_sum(
     n: Optional[int] = None,
     **kwargs,
 ) -> Tensor:
-    """
-    Computes the sum of segments of a tensor along the first dimension.
+    r"""Computes the sum of segments of a tensor along the first dimension.
 
     Parameters
     ----------

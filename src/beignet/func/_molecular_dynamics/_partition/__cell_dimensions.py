@@ -11,8 +11,7 @@ def _cell_dimensions(
     box_size: Tensor,
     minimum_cell_size: float,
 ) -> (Tensor, Tensor, Tensor, int):
-    """
-    Compute the number of cells-per-side and total number of cells in a box.
+    r"""Compute the number of cells-per-side and total number of cells in a box.
 
     Parameters:
     -----------

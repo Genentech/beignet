@@ -3,8 +3,7 @@ from torch import Tensor
 
 
 def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
-    """
-    Compute constants used for hashing in a spatial partitioning scheme.
+    r"""Compute constants used for hashing in a spatial partitioning scheme.
 
     The function calculates constants that help in determining the hash value
     for a given cell in an N-dimensional grid, based on the number of cells

@@ -3,8 +3,7 @@ from torch import Tensor
 
 
 def _unflatten_cell_buffer(buffer: Tensor, cells_per_side: [int, float, Tensor], dim: int):
-    """
-    Reshape a flat buffer into a multidimensional cell buffer.
+    r"""Reshape a flat buffer into a multidimensional cell buffer.
 
     Parameters
     ----------

@@ -87,6 +87,7 @@ def cell_list(
             exceeded_maximum_size = False
 
             update_fn = fn
+
         else:
             buffer_size, exceeded_maximum_size, update_fn = excess
 
@@ -245,23 +246,3 @@ def cell_list(
         )
 
     return _CellListFunctionList(setup_fn=setup_fn, update_fn=update_fn)
-
-
-if __name__ == '__main__':
-    dtype = torch.float32
-    box_size = torch.tensor([8.65, 8.0], dtype=torch.float32)
-    cell_size = 1.0
-
-    # Test particle positions
-    R = torch.tensor([
-        [0.25, 0.25],
-        [8.5, 1.95],
-        [8.1, 1.5],
-        [3.7, 7.9]
-    ], dtype=dtype)
-
-    cell_fn = cell_list(box_size, cell_size)
-
-    cell_list_instance = cell_fn.setup_fn(R)
-
-    print(cell_list_instance.positions_buffer[7, 3, 0])
