@@ -76,7 +76,6 @@ def cell_list(
             size,
             minimum_unit_size,
         )
-
         if excess is None:
             buffer_size = int(
                 torch.max(_particles_per_cell(positions, size, unit_size))
@@ -160,17 +159,11 @@ def cell_list(
             [(positions.shape[0]), 1],
         )
 
-        print("Positions Buffer Before Unflattening:")
-        print(positions_buffer)
-
         positions_buffer = _unflatten_cell_buffer(
             positions_buffer, units_per_side, spatial_dimension
         )
 
         indexes = _unflatten_cell_buffer(indexes, units_per_side, spatial_dimension)
-
-        print("Positions Buffer After Unflattening:")
-        print(positions_buffer)
 
         for name, parameter in sorted_parameters.items():
             if parameter.ndim == 1:
@@ -242,6 +235,7 @@ def cell_list(
             The updated cell list.
         """
         if isinstance(buffer, int):
+            print(f"cell list: {buffer}")
             return fn(positions, (buffer, False, fn), **kwargs)
 
         return fn(

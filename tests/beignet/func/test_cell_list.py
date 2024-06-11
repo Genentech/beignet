@@ -28,12 +28,12 @@ class CellListTest(unittest.TestCase):
         assert_allclose(R[0], cell_list_instance.positions_buffer[0, 0, 0])
         assert_allclose(R[1], cell_list_instance.positions_buffer[1, 7, 1])
         assert_allclose(R[2], cell_list_instance.positions_buffer[1, 7, 0])
-        assert_allclose(R[3], cell_list_instance.positions_buffer[7, 3, 0])
+        assert_allclose(R[3], cell_list_instance.positions_buffer[7, 3, 1])
 
         self.assertEqual(0, cell_list_instance.indexes[0, 0, 0])
         self.assertEqual(1, cell_list_instance.indexes[1, 7, 1])
         self.assertEqual(2, cell_list_instance.indexes[1, 7, 0])
-        self.assertEqual(3, cell_list_instance.indexes[7, 3, 0])
+        self.assertEqual(3, cell_list_instance.indexes[7, 3, 1])
 
         id_flat = cell_list_instance.indexes.view(-1)
         R_flat = cell_list_instance.positions_buffer.view(-1, 2)
