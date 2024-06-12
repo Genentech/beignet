@@ -25,6 +25,7 @@ from ._euler_angle_to_quaternion import (
 )
 from ._euler_angle_to_rotation_matrix import euler_angle_to_rotation_matrix
 from ._euler_angle_to_rotation_vector import euler_angle_to_rotation_vector
+from ._farthest_first_traversal import farthest_first_traversal
 from ._invert_euler_angle import invert_euler_angle
 from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
@@ -87,6 +88,7 @@ __all__ = [
     "euler_angle_to_quaternion",
     "euler_angle_to_rotation_matrix",
     "euler_angle_to_rotation_vector",
+    "farthest_first_traversal",
     "invert_euler_angle",
     "invert_quaternion",
     "invert_rotation_matrix",
