@@ -7,9 +7,21 @@ import warnings
 
 import numpy
 import numpy.linalg
+from numpy.exceptions import AxisError
 
-from ._normalize_axis_index import normalize_axis_index
-from ._rank_warning import RankWarning
+
+def normalize_axis_index(axis, ndim):
+    if axis < -ndim or axis >= ndim:
+        msg = f"axis {axis} is out of bounds for array of dimension {ndim}"
+        raise AxisError(msg)
+
+    if axis < 0:
+        axis = axis + ndim
+    return axis
+
+
+class RankWarning(UserWarning):
+    pass
 
 
 class ABCPolyBase(abc.ABC):
