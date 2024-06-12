@@ -1,2 +1,0 @@
-class RankWarning(UserWarning):
-    pass
