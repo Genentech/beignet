@@ -56,8 +56,8 @@ def farthest_first_traversal(
         heapq.heappush(pq, item)
 
     for _ in range(1, n):
+        item = heapq.heappop(pq)
         while True:
-            item = heapq.heappop(pq)
             if ranking_scores is None:
                 neg_dist, idx, num_checked = item
             else:
@@ -77,7 +77,7 @@ def farthest_first_traversal(
                 else:
                     item = (-min_dist, score, idx, len(selected))
 
-                heapq.heappush(pq, item)
+                item = heapq.heappushpop(pq, item)
             else:
                 selected.append(idx)
                 break
