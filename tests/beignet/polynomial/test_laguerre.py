@@ -1,7 +1,6 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial.laguerre
 import numpy
 import numpy.testing
 
@@ -17,21 +16,21 @@ Llist = [L0, L1, L2, L3, L4, L5, L6]
 
 
 def trim(x):
-    return beignet.polynomial.laguerre.lagtrim(x, tol=1e-6)
+    return beignet.polynomial.lagtrim(x, tol=1e-6)
 
 
 class TestConstants:
     def test_lagdomain(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagdomain, [0, 1])
+        numpy.testing.assert_equal(beignet.polynomial.lagdomain, [0, 1])
 
     def test_lagzero(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagzero, [0])
+        numpy.testing.assert_equal(beignet.polynomial.lagzero, [0])
 
     def test_lagone(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagone, [1])
+        numpy.testing.assert_equal(beignet.polynomial.lagone, [1])
 
     def test_lagx(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagx, [1, -1])
+        numpy.testing.assert_equal(beignet.polynomial.lagx, [1, -1])
 
 
 class TestArithmetic:
@@ -44,7 +43,7 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial.laguerre.lagadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial.lagadd([0] * i + [1], [0] * j + [1])
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_lagsub(self):
@@ -54,30 +53,28 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] -= 1
-                res = beignet.polynomial.laguerre.lagsub([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial.lagsub([0] * i + [1], [0] * j + [1])
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_lagmulx(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagmulx([0]), [0])
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagmulx([1]), [1, -1])
+        numpy.testing.assert_equal(beignet.polynomial.lagmulx([0]), [0])
+        numpy.testing.assert_equal(beignet.polynomial.lagmulx([1]), [1, -1])
         for i in range(1, 5):
             ser = [0] * i + [1]
             tgt = [0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.laguerre.lagmulx(ser), tgt
-            )
+            numpy.testing.assert_almost_equal(beignet.polynomial.lagmulx(ser), tgt)
 
     def test_lagmul(self):
         # check values of result
         for i in range(5):
             pol1 = [0] * i + [1]
-            val1 = beignet.polynomial.laguerre.lagval(self.x, pol1)
+            val1 = beignet.polynomial.lagval(self.x, pol1)
             for j in range(5):
                 msg = f"At i={i}, j={j}"
                 pol2 = [0] * j + [1]
-                val2 = beignet.polynomial.laguerre.lagval(self.x, pol2)
-                pol3 = beignet.polynomial.laguerre.lagmul(pol1, pol2)
-                val3 = beignet.polynomial.laguerre.lagval(self.x, pol3)
+                val2 = beignet.polynomial.lagval(self.x, pol2)
+                pol3 = beignet.polynomial.lagmul(pol1, pol2)
+                val3 = beignet.polynomial.lagval(self.x, pol3)
                 numpy.testing.assert_(len(pol3) == i + j + 1, msg)
                 numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
@@ -87,11 +84,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.polynomial.laguerre.lagadd(ci, cj)
-                quo, rem = beignet.polynomial.laguerre.lagdiv(tgt, ci)
-                res = beignet.polynomial.laguerre.lagadd(
-                    beignet.polynomial.laguerre.lagmul(quo, ci), rem
-                )
+                tgt = beignet.polynomial.lagadd(ci, cj)
+                quo, rem = beignet.polynomial.lagdiv(tgt, ci)
+                res = beignet.polynomial.lagadd(beignet.polynomial.lagmul(quo, ci), rem)
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_lagpow(self):
@@ -100,9 +95,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 c = numpy.arange(i + 1)
                 tgt = functools.reduce(
-                    beignet.polynomial.laguerre.lagmul, [c] * j, numpy.array([1])
+                    beignet.polynomial.lagmul, [c] * j, numpy.array([1])
                 )
-                res = beignet.polynomial.laguerre.lagpow(c, j)
+                res = beignet.polynomial.lagpow(c, j)
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
 
@@ -118,7 +113,7 @@ class TestEvaluation:
 
     def test_lagval(self):
         # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagval([], [1]).size, 0)
+        numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
 
         # check normal input)
         x = numpy.linspace(-1, 1)
@@ -126,21 +121,17 @@ class TestEvaluation:
         for i in range(7):
             msg = f"At i={i}"
             tgt = y[i]
-            res = beignet.polynomial.laguerre.lagval(x, [0] * i + [1])
+            res = beignet.polynomial.lagval(x, [0] * i + [1])
             numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
 
         # check that shape is preserved
         for i in range(3):
             dims = [2] * i
             x = numpy.zeros(dims)
+            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
+            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
             numpy.testing.assert_equal(
-                beignet.polynomial.laguerre.lagval(x, [1]).shape, dims
-            )
-            numpy.testing.assert_equal(
-                beignet.polynomial.laguerre.lagval(x, [1, 0]).shape, dims
-            )
-            numpy.testing.assert_equal(
-                beignet.polynomial.laguerre.lagval(x, [1, 0, 0]).shape, dims
+                beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims
             )
 
     def test_lagval2d(self):
@@ -149,17 +140,17 @@ class TestEvaluation:
 
         # test exceptions
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagval2d, x1, x2[:2], self.c2d
+            ValueError, beignet.polynomial.lagval2d, x1, x2[:2], self.c2d
         )
 
         # test values
         tgt = y1 * y2
-        res = beignet.polynomial.laguerre.lagval2d(x1, x2, self.c2d)
+        res = beignet.polynomial.lagval2d(x1, x2, self.c2d)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial.laguerre.lagval2d(z, z, self.c2d)
+        res = beignet.polynomial.lagval2d(z, z, self.c2d)
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_lagval3d(self):
@@ -168,17 +159,17 @@ class TestEvaluation:
 
         # test exceptions
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagval3d, x1, x2, x3[:2], self.c3d
+            ValueError, beignet.polynomial.lagval3d, x1, x2, x3[:2], self.c3d
         )
 
         # test values
         tgt = y1 * y2 * y3
-        res = beignet.polynomial.laguerre.lagval3d(x1, x2, x3, self.c3d)
+        res = beignet.polynomial.lagval3d(x1, x2, x3, self.c3d)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial.laguerre.lagval3d(z, z, z, self.c3d)
+        res = beignet.polynomial.lagval3d(z, z, z, self.c3d)
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_laggrid2d(self):
@@ -187,12 +178,12 @@ class TestEvaluation:
 
         # test values
         tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.laguerre.laggrid2d(x1, x2, self.c2d)
+        res = beignet.polynomial.laggrid2d(x1, x2, self.c2d)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial.laguerre.laggrid2d(z, z, self.c2d)
+        res = beignet.polynomial.laggrid2d(z, z, self.c2d)
         numpy.testing.assert_(res.shape == (2, 3) * 2)
 
     def test_laggrid3d(self):
@@ -201,41 +192,33 @@ class TestEvaluation:
 
         # test values
         tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.laguerre.laggrid3d(x1, x2, x3, self.c3d)
+        res = beignet.polynomial.laggrid3d(x1, x2, x3, self.c3d)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial.laguerre.laggrid3d(z, z, z, self.c3d)
+        res = beignet.polynomial.laggrid3d(z, z, z, self.c3d)
         numpy.testing.assert_(res.shape == (2, 3) * 3)
 
 
 class TestIntegral:
     def test_lagint(self):
         # check exceptions
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagint, [0], 0.5)
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagint, [0], -1)
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagint, [0], 0.5
+            ValueError, beignet.polynomial.lagint, [0], 1, [0, 0]
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagint, [0], -1
+            ValueError, beignet.polynomial.lagint, [0], lbnd=[0]
         )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagint, [0], 1, [0, 0]
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagint, [0], lbnd=[0]
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagint, [0], scl=[0]
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagint, [0], axis=0.5
-        )
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagint, [0], scl=[0])
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagint, [0], axis=0.5)
 
         # test integration of zero polynomial
         for i in range(2, 5):
             k = [0] * (i - 2) + [1]
-            res = beignet.polynomial.laguerre.lagint([0], m=i, k=k)
+            res = beignet.polynomial.lagint([0], m=i, k=k)
             numpy.testing.assert_almost_equal(res, [1, -1])
 
         # check single integration with integration constant
@@ -243,29 +226,27 @@ class TestIntegral:
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [1 / scl]
-            lagpol = beignet.polynomial.laguerre.poly2lag(pol)
-            lagint = beignet.polynomial.laguerre.lagint(lagpol, m=1, k=[i])
-            res = beignet.polynomial.laguerre.lag2poly(lagint)
+            lagpol = beignet.polynomial.poly2lag(pol)
+            lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i])
+            res = beignet.polynomial.lag2poly(lagint)
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check single integration with integration constant and lbnd
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
-            lagpol = beignet.polynomial.laguerre.poly2lag(pol)
-            lagint = beignet.polynomial.laguerre.lagint(lagpol, m=1, k=[i], lbnd=-1)
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.laguerre.lagval(-1, lagint), i
-            )
+            lagpol = beignet.polynomial.poly2lag(pol)
+            lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i], lbnd=-1)
+            numpy.testing.assert_almost_equal(beignet.polynomial.lagval(-1, lagint), i)
 
         # check single integration with integration constant and scaling
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [2 / scl]
-            lagpol = beignet.polynomial.laguerre.poly2lag(pol)
-            lagint = beignet.polynomial.laguerre.lagint(lagpol, m=1, k=[i], scl=2)
-            res = beignet.polynomial.laguerre.lag2poly(lagint)
+            lagpol = beignet.polynomial.poly2lag(pol)
+            lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i], scl=2)
+            res = beignet.polynomial.lag2poly(lagint)
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with default k
@@ -274,8 +255,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for _ in range(j):
-                    tgt = beignet.polynomial.laguerre.lagint(tgt, m=1)
-                res = beignet.polynomial.laguerre.lagint(pol, m=j)
+                    tgt = beignet.polynomial.lagint(tgt, m=1)
+                res = beignet.polynomial.lagint(pol, m=j)
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with defined k
@@ -284,8 +265,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial.laguerre.lagint(tgt, m=1, k=[k])
-                res = beignet.polynomial.laguerre.lagint(pol, m=j, k=list(range(j)))
+                    tgt = beignet.polynomial.lagint(tgt, m=1, k=[k])
+                res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)))
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with lbnd
@@ -294,10 +275,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial.laguerre.lagint(tgt, m=1, k=[k], lbnd=-1)
-                res = beignet.polynomial.laguerre.lagint(
-                    pol, m=j, k=list(range(j)), lbnd=-1
-                )
+                    tgt = beignet.polynomial.lagint(tgt, m=1, k=[k], lbnd=-1)
+                res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)), lbnd=-1)
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with scaling
@@ -306,51 +285,45 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial.laguerre.lagint(tgt, m=1, k=[k], scl=2)
-                res = beignet.polynomial.laguerre.lagint(
-                    pol, m=j, k=list(range(j)), scl=2
-                )
+                    tgt = beignet.polynomial.lagint(tgt, m=1, k=[k], scl=2)
+                res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)), scl=2)
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
     def test_lagint_axis(self):
         # check that axis keyword works
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.polynomial.laguerre.lagint(c) for c in c2d.T]).T
-        res = beignet.polynomial.laguerre.lagint(c2d, axis=0)
+        tgt = numpy.vstack([beignet.polynomial.lagint(c) for c in c2d.T]).T
+        res = beignet.polynomial.lagint(c2d, axis=0)
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.laguerre.lagint(c) for c in c2d])
-        res = beignet.polynomial.laguerre.lagint(c2d, axis=1)
+        tgt = numpy.vstack([beignet.polynomial.lagint(c) for c in c2d])
+        res = beignet.polynomial.lagint(c2d, axis=1)
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.laguerre.lagint(c, k=3) for c in c2d])
-        res = beignet.polynomial.laguerre.lagint(c2d, k=3, axis=1)
+        tgt = numpy.vstack([beignet.polynomial.lagint(c, k=3) for c in c2d])
+        res = beignet.polynomial.lagint(c2d, k=3, axis=1)
         numpy.testing.assert_almost_equal(res, tgt)
 
 
 class TestDerivative:
     def test_lagder(self):
         # check exceptions
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagder, [0], 0.5
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagder, [0], -1
-        )
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagder, [0], 0.5)
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagder, [0], -1)
 
         # check that zeroth derivative does nothing
         for i in range(5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.laguerre.lagder(tgt, m=0)
+            res = beignet.polynomial.lagder(tgt, m=0)
             numpy.testing.assert_equal(trim(res), trim(tgt))
 
         # check that derivation is the inverse of integration
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.polynomial.laguerre.lagder(
-                    beignet.polynomial.laguerre.lagint(tgt, m=j), m=j
+                res = beignet.polynomial.lagder(
+                    beignet.polynomial.lagint(tgt, m=j), m=j
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
@@ -358,8 +331,8 @@ class TestDerivative:
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.polynomial.laguerre.lagder(
-                    beignet.polynomial.laguerre.lagint(tgt, m=j, scl=2), m=j, scl=0.5
+                res = beignet.polynomial.lagder(
+                    beignet.polynomial.lagint(tgt, m=j, scl=2), m=j, scl=0.5
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
@@ -367,12 +340,12 @@ class TestDerivative:
         # check that axis keyword works
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.polynomial.laguerre.lagder(c) for c in c2d.T]).T
-        res = beignet.polynomial.laguerre.lagder(c2d, axis=0)
+        tgt = numpy.vstack([beignet.polynomial.lagder(c) for c in c2d.T]).T
+        res = beignet.polynomial.lagder(c2d, axis=0)
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.laguerre.lagder(c) for c in c2d])
-        res = beignet.polynomial.laguerre.lagder(c2d, axis=1)
+        tgt = numpy.vstack([beignet.polynomial.lagder(c) for c in c2d])
+        res = beignet.polynomial.lagder(c2d, axis=1)
         numpy.testing.assert_almost_equal(res, tgt)
 
 
@@ -383,48 +356,48 @@ class TestVander:
     def test_lagvander(self):
         # check for 1d x
         x = numpy.arange(3)
-        v = beignet.polynomial.laguerre.lagvander(x, 3)
+        v = beignet.polynomial.lagvander(x, 3)
         numpy.testing.assert_(v.shape == (3, 4))
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.laguerre.lagval(x, coef)
+                v[..., i], beignet.polynomial.lagval(x, coef)
             )
 
         # check for 2d x
         x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.polynomial.laguerre.lagvander(x, 3)
+        v = beignet.polynomial.lagvander(x, 3)
         numpy.testing.assert_(v.shape == (3, 2, 4))
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.laguerre.lagval(x, coef)
+                v[..., i], beignet.polynomial.lagval(x, coef)
             )
 
     def test_lagvander2d(self):
         # also tests lagval2d for non-square coefficient array
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3))
-        van = beignet.polynomial.laguerre.lagvander2d(x1, x2, [1, 2])
-        tgt = beignet.polynomial.laguerre.lagval2d(x1, x2, c)
+        van = beignet.polynomial.lagvander2d(x1, x2, [1, 2])
+        tgt = beignet.polynomial.lagval2d(x1, x2, c)
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # check shape
-        van = beignet.polynomial.laguerre.lagvander2d([x1], [x2], [1, 2])
+        van = beignet.polynomial.lagvander2d([x1], [x2], [1, 2])
         numpy.testing.assert_(van.shape == (1, 5, 6))
 
     def test_lagvander3d(self):
         # also tests lagval3d for non-square coefficient array
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3, 4))
-        van = beignet.polynomial.laguerre.lagvander3d(x1, x2, x3, [1, 2, 3])
-        tgt = beignet.polynomial.laguerre.lagval3d(x1, x2, x3, c)
+        van = beignet.polynomial.lagvander3d(x1, x2, x3, [1, 2, 3])
+        tgt = beignet.polynomial.lagval3d(x1, x2, x3, c)
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # check shape
-        van = beignet.polynomial.laguerre.lagvander3d([x1], [x2], [x3], [1, 2, 3])
+        van = beignet.polynomial.lagvander3d([x1], [x2], [x3], [1, 2, 3])
         numpy.testing.assert_(van.shape == (1, 5, 24))
 
 
@@ -434,33 +407,27 @@ class TestFitting:
             return x * (x - 1) * (x - 2)
 
         # Test exceptions
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagfit, [1], [1], -1)
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagfit, [[1]], [1], 0)
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagfit, [], [1], 0)
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagfit, [1], [1], -1
+            TypeError, beignet.polynomial.lagfit, [1], [[[1]]], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [[1]], [1], 0
+            TypeError, beignet.polynomial.lagfit, [1, 2], [1], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [], [1], 0
+            TypeError, beignet.polynomial.lagfit, [1], [1, 2], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1], [[[1]]], 0
+            TypeError, beignet.polynomial.lagfit, [1], [1], 0, w=[[1]]
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1, 2], [1], 0
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1], [1, 2], 0
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1], [1], 0, w=[[1]]
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1], [1], 0, w=[1, 1]
+            TypeError, beignet.polynomial.lagfit, [1], [1], 0, w=[1, 1]
         )
         numpy.testing.assert_raises(
             ValueError,
-            beignet.polynomial.laguerre.lagfit,
+            beignet.polynomial.lagfit,
             [1],
             [1],
             [
@@ -468,101 +435,79 @@ class TestFitting:
             ],
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagfit, [1], [1], [2, -1, 6]
+            ValueError, beignet.polynomial.lagfit, [1], [1], [2, -1, 6]
         )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.laguerre.lagfit, [1], [1], []
-        )
+        numpy.testing.assert_raises(TypeError, beignet.polynomial.lagfit, [1], [1], [])
 
         # Test fit
         x = numpy.linspace(0, 2)
         y = f(x)
         #
-        coef3 = beignet.polynomial.laguerre.lagfit(x, y, 3)
+        coef3 = beignet.polynomial.lagfit(x, y, 3)
         numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagval(x, coef3), y
-        )
-        coef3 = beignet.polynomial.laguerre.lagfit(x, y, [0, 1, 2, 3])
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef3), y)
+        coef3 = beignet.polynomial.lagfit(x, y, [0, 1, 2, 3])
         numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagval(x, coef3), y
-        )
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef3), y)
         #
-        coef4 = beignet.polynomial.laguerre.lagfit(x, y, 4)
+        coef4 = beignet.polynomial.lagfit(x, y, 4)
         numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagval(x, coef4), y
-        )
-        coef4 = beignet.polynomial.laguerre.lagfit(x, y, [0, 1, 2, 3, 4])
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef4), y)
+        coef4 = beignet.polynomial.lagfit(x, y, [0, 1, 2, 3, 4])
         numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagval(x, coef4), y
-        )
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef4), y)
         #
-        coef2d = beignet.polynomial.laguerre.lagfit(x, numpy.array([y, y]).T, 3)
+        coef2d = beignet.polynomial.lagfit(x, numpy.array([y, y]).T, 3)
         numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.polynomial.laguerre.lagfit(
-            x, numpy.array([y, y]).T, [0, 1, 2, 3]
-        )
+        coef2d = beignet.polynomial.lagfit(x, numpy.array([y, y]).T, [0, 1, 2, 3])
         numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
         # test weighting
         w = numpy.zeros_like(x)
         yw = y.copy()
         w[1::2] = 1
         y[0::2] = 0
-        wcoef3 = beignet.polynomial.laguerre.lagfit(x, yw, 3, w=w)
+        wcoef3 = beignet.polynomial.lagfit(x, yw, 3, w=w)
         numpy.testing.assert_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.polynomial.laguerre.lagfit(x, yw, [0, 1, 2, 3], w=w)
+        wcoef3 = beignet.polynomial.lagfit(x, yw, [0, 1, 2, 3], w=w)
         numpy.testing.assert_almost_equal(wcoef3, coef3)
         #
-        wcoef2d = beignet.polynomial.laguerre.lagfit(x, numpy.array([yw, yw]).T, 3, w=w)
+        wcoef2d = beignet.polynomial.lagfit(x, numpy.array([yw, yw]).T, 3, w=w)
         numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.polynomial.laguerre.lagfit(
+        wcoef2d = beignet.polynomial.lagfit(
             x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
         )
         numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
         # test scaling with complex values x points whose square
         # is zero when summed.
         x = [1, 1j, -1, -1j]
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagfit(x, x, 1), [1, -1])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagfit(x, x, 1), [1, -1]
-        )
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagfit(x, x, [0, 1]), [1, -1]
+            beignet.polynomial.lagfit(x, x, [0, 1]), [1, -1]
         )
 
 
 class TestCompanion:
     def test_raises(self):
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagcompanion, []
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagcompanion, [1]
-        )
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagcompanion, [])
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagcompanion, [1])
 
     def test_dimensions(self):
         for i in range(1, 5):
             coef = [0] * i + [1]
-            numpy.testing.assert_(
-                beignet.polynomial.laguerre.lagcompanion(coef).shape == (i, i)
-            )
+            numpy.testing.assert_(beignet.polynomial.lagcompanion(coef).shape == (i, i))
 
     def test_linear_root(self):
-        numpy.testing.assert_(
-            beignet.polynomial.laguerre.lagcompanion([1, 2])[0, 0] == 1.5
-        )
+        numpy.testing.assert_(beignet.polynomial.lagcompanion([1, 2])[0, 0] == 1.5)
 
 
 class TestGauss:
     def test_100(self):
-        x, w = beignet.polynomial.laguerre.laggauss(100)
+        x, w = beignet.polynomial.laggauss(100)
 
         # test orthogonality. Note that the results need to be normalized,
         # otherwise the huge values that can arise from fast growing
         # functions like Laguerre can be very confusing.
-        v = beignet.polynomial.laguerre.lagvander(x, 99)
+        v = beignet.polynomial.lagvander(x, 99)
         vv = numpy.dot(v.T * w, v)
         vd = 1 / numpy.sqrt(vv.diagonal())
         vv = vd[:, None] * vv * vd
@@ -575,63 +520,53 @@ class TestGauss:
 
 class TestMisc:
     def test_lagfromroots(self):
-        res = beignet.polynomial.laguerre.lagfromroots([])
+        res = beignet.polynomial.lagfromroots([])
         numpy.testing.assert_almost_equal(trim(res), [1])
         for i in range(1, 5):
             roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.polynomial.laguerre.lagfromroots(roots)
-            res = beignet.polynomial.laguerre.lagval(roots, pol)
+            pol = beignet.polynomial.lagfromroots(roots)
+            res = beignet.polynomial.lagval(roots, pol)
             tgt = 0
             numpy.testing.assert_(len(pol) == i + 1)
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.laguerre.lag2poly(pol)[-1], 1
-            )
+            numpy.testing.assert_almost_equal(beignet.polynomial.lag2poly(pol)[-1], 1)
             numpy.testing.assert_almost_equal(res, tgt)
 
     def test_lagroots(self):
-        numpy.testing.assert_almost_equal(beignet.polynomial.laguerre.lagroots([1]), [])
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.laguerre.lagroots([0, 1]), [1]
-        )
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagroots([1]), [])
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagroots([0, 1]), [1])
         for i in range(2, 5):
             tgt = numpy.linspace(0, 3, i)
-            res = beignet.polynomial.laguerre.lagroots(
-                beignet.polynomial.laguerre.lagfromroots(tgt)
-            )
+            res = beignet.polynomial.lagroots(beignet.polynomial.lagfromroots(tgt))
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
     def test_lagtrim(self):
         coef = [2, -1, 1, 0]
 
         # Test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.laguerre.lagtrim, coef, -1
-        )
+        numpy.testing.assert_raises(ValueError, beignet.polynomial.lagtrim, coef, -1)
 
         # Test results
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagtrim(coef), coef[:-1])
-        numpy.testing.assert_equal(
-            beignet.polynomial.laguerre.lagtrim(coef, 1), coef[:-3]
-        )
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagtrim(coef, 2), [0])
+        numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef), coef[:-1])
+        numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef, 1), coef[:-3])
+        numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef, 2), [0])
 
     def test_lagline(self):
-        numpy.testing.assert_equal(beignet.polynomial.laguerre.lagline(3, 4), [7, -4])
+        numpy.testing.assert_equal(beignet.polynomial.lagline(3, 4), [7, -4])
 
     def test_lag2poly(self):
         for i in range(7):
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.laguerre.lag2poly([0] * i + [1]), Llist[i]
+                beignet.polynomial.lag2poly([0] * i + [1]), Llist[i]
             )
 
     def test_poly2lag(self):
         for i in range(7):
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.laguerre.poly2lag(Llist[i]), [0] * i + [1]
+                beignet.polynomial.poly2lag(Llist[i]), [0] * i + [1]
             )
 
     def test_weight(self):
         x = numpy.linspace(0, 10, 11)
         tgt = numpy.exp(-x)
-        res = beignet.polynomial.laguerre.lagweight(x)
+        res = beignet.polynomial.lagweight(x)
         numpy.testing.assert_almost_equal(res, tgt)
