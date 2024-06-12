@@ -30,6 +30,7 @@ from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
+from ._lennard_jones_potential import lennard_jones_potential
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -91,6 +92,7 @@ __all__ = [
     "invert_rotation_matrix",
     "invert_rotation_vector",
     "invert_transform",
+    "lennard_jones_potential",
     "quaternion_identity",
     "quaternion_magnitude",
     "quaternion_mean",
