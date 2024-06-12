@@ -18,6 +18,7 @@
 ::: beignet.invert_quaternion
 ::: beignet.invert_rotation_matrix
 ::: beignet.invert_rotation_vector
+::: beignet.lennard_jones_potential
 ::: beignet.quaternion_identity
 ::: beignet.quaternion_magnitude
 ::: beignet.quaternion_mean
