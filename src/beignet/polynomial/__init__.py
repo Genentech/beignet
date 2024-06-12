@@ -1,58 +1,796 @@
+import abc
+import functools
+import numbers
+import operator
+import os
+import warnings
+
 import numpy
 import numpy.linalg
 
 from ._normalize_axis_index import normalize_axis_index
-from ._polybase import ABCPolyBase
+from ._rank_warning import RankWarning
 
-# from .polynomial import (
-#     Polynomial,
-#     polyadd,
-#     polycompanion,
-#     polyder,
-#     polydiv,
-#     polydomain,
-#     polyfit,
-#     polyfromroots,
-#     polygrid2d,
-#     polygrid3d,
-#     polyint,
-#     polyline,
-#     polymul,
-#     polymulx,
-#     polyone,
-#     polypow,
-#     polyroots,
-#     polysub,
-#     polytrim,
-#     polyval,
-#     polyval2d,
-#     polyval3d,
-#     polyvalfromroots,
-#     polyvander,
-#     polyvander2d,
-#     polyvander3d,
-#     polyx,
-#     polyzero,
-# )
-from .polyutils import (
-    _add,
-    _deprecate_as_int,
-    _div,
-    _fit,
-    _fromroots,
-    _gridnd,
-    _pow,
-    _sub,
-    _valnd,
-    _vander_nd,
-    _vander_nd_flat,
-    as_series,
-    getdomain,
-    mapdomain,
-    mapparms,
-    trimcoef,
-    trimseq,
-)
+
+class ABCPolyBase(abc.ABC):
+    __hash__ = None
+
+    __array_ufunc__ = None
+
+    maxpower = 100
+
+    _superscript_mapping = str.maketrans(
+        {
+            "0": "⁰",
+            "1": "¹",
+            "2": "²",
+            "3": "³",
+            "4": "⁴",
+            "5": "⁵",
+            "6": "⁶",
+            "7": "⁷",
+            "8": "⁸",
+            "9": "⁹",
+        }
+    )
+    _subscript_mapping = str.maketrans(
+        {
+            "0": "₀",
+            "1": "₁",
+            "2": "₂",
+            "3": "₃",
+            "4": "₄",
+            "5": "₅",
+            "6": "₆",
+            "7": "₇",
+            "8": "₈",
+            "9": "₉",
+        }
+    )
+
+    _use_unicode = not os.name == "nt"
+
+    @property
+    def symbol(self):
+        return self._symbol
+
+    @property
+    @abc.abstractmethod
+    def domain(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def window(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def basis_name(self):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _add(c1, c2):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _sub(c1, c2):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _mul(c1, c2):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _div(c1, c2):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _pow(c, pow, maxpower=None):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _val(x, c):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _int(c, m, k, lbnd, scl):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _der(c, m, scl):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _fit(x, y, deg, rcond, full):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _line(off, scl):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _roots(c):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def _fromroots(r):
+        pass
+
+    def has_samecoef(self, other):
+        if len(self.coef) != len(other.coef):
+            return False
+        elif not numpy.all(self.coef == other.coef):
+            return False
+        else:
+            return True
+
+    def has_samedomain(self, other):
+        return numpy.all(self.domain == other.domain)
+
+    def has_samewindow(self, other):
+        return numpy.all(self.window == other.window)
+
+    def has_sametype(self, other):
+        return isinstance(other, self.__class__)
+
+    def _get_coefficients(self, other):
+        if isinstance(other, ABCPolyBase):
+            if not isinstance(other, self.__class__):
+                raise TypeError("Polynomial types differ")
+            elif not numpy.all(self.domain == other.domain):
+                raise TypeError("Domains differ")
+            elif not numpy.all(self.window == other.window):
+                raise TypeError("Windows differ")
+            elif self.symbol != other.symbol:
+                raise ValueError("Polynomial symbols differ")
+            return other.coef
+        return other
+
+    def __init__(self, coef, domain=None, window=None, symbol="x"):
+        [coef] = as_series([coef], trim=False)
+        self.coef = coef
+
+        if domain is not None:
+            [domain] = as_series([domain], trim=False)
+            if len(domain) != 2:
+                raise ValueError("Domain has wrong number of elements.")
+            self.domain = domain
+
+        if window is not None:
+            [window] = as_series([window], trim=False)
+            if len(window) != 2:
+                raise ValueError("Window has wrong number of elements.")
+            self.window = window
+
+        try:
+            if not symbol.isidentifier():
+                raise ValueError("Symbol string must be a valid Python identifier")
+
+        except AttributeError as error:
+            raise TypeError("Symbol must be a non-empty string") from error
+
+        self._symbol = symbol
+
+    def __repr__(self):
+        coef = repr(self.coef)[6:-1]
+        domain = repr(self.domain)[6:-1]
+        window = repr(self.window)[6:-1]
+        name = self.__class__.__name__
+        return (
+            f"{name}({coef}, domain={domain}, window={window}, "
+            f"symbol='{self.symbol}')"
+        )
+
+    def __getstate__(self):
+        ret = self.__dict__.copy()
+        ret["coef"] = self.coef.copy()
+        ret["domain"] = self.domain.copy()
+        ret["window"] = self.window.copy()
+        ret["symbol"] = self.symbol
+        return ret
+
+    def __setstate__(self, dict):
+        self.__dict__ = dict
+
+    def __call__(self, arg):
+        off, scl = mapparms(self.domain, self.window)
+        arg = off + scl * arg
+        return self._val(arg, self.coef)
+
+    def __iter__(self):
+        return iter(self.coef)
+
+    def __len__(self):
+        return len(self.coef)
+
+    def __neg__(self):
+        return self.__class__(-self.coef, self.domain, self.window, self.symbol)
+
+    def __pos__(self):
+        return self
+
+    def __add__(self, other):
+        othercoef = self._get_coefficients(other)
+        try:
+            coef = self._add(self.coef, othercoef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __sub__(self, other):
+        othercoef = self._get_coefficients(other)
+        try:
+            coef = self._sub(self.coef, othercoef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __mul__(self, other):
+        othercoef = self._get_coefficients(other)
+        try:
+            coef = self._mul(self.coef, othercoef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __truediv__(self, other):
+        if not isinstance(other, numbers.Number) or isinstance(other, bool):
+            raise TypeError(
+                f"unsupported types for true division: "
+                f"'{type(self)}', '{type(other)}'"
+            )
+        return self.__floordiv__(other)
+
+    def __floordiv__(self, other):
+        res = self.__divmod__(other)
+        if res is NotImplemented:
+            return res
+        return res[0]
+
+    def __mod__(self, other):
+        res = self.__divmod__(other)
+        if res is NotImplemented:
+            return res
+        return res[1]
+
+    def __divmod__(self, other):
+        othercoef = self._get_coefficients(other)
+        try:
+            quo, rem = self._div(self.coef, othercoef)
+        except ZeroDivisionError:
+            raise
+        except Exception:
+            return NotImplemented
+        quo = self.__class__(quo, self.domain, self.window, self.symbol)
+        rem = self.__class__(rem, self.domain, self.window, self.symbol)
+        return quo, rem
+
+    def __pow__(self, other):
+        coef = self._pow(self.coef, other, maxpower=self.maxpower)
+        res = self.__class__(coef, self.domain, self.window, self.symbol)
+        return res
+
+    def __radd__(self, other):
+        try:
+            coef = self._add(other, self.coef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __rsub__(self, other):
+        try:
+            coef = self._sub(other, self.coef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __rmul__(self, other):
+        try:
+            coef = self._mul(other, self.coef)
+        except Exception:
+            return NotImplemented
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def __rdiv__(self, other):
+        return self.__rfloordiv__(other)
+
+    def __rtruediv__(self, other):
+        return NotImplemented
+
+    def __rfloordiv__(self, other):
+        res = self.__rdivmod__(other)
+        if res is NotImplemented:
+            return res
+        return res[0]
+
+    def __rmod__(self, other):
+        res = self.__rdivmod__(other)
+        if res is NotImplemented:
+            return res
+        return res[1]
+
+    def __rdivmod__(self, other):
+        try:
+            quo, rem = self._div(other, self.coef)
+        except ZeroDivisionError:
+            raise
+        except Exception:
+            return NotImplemented
+        quo = self.__class__(quo, self.domain, self.window, self.symbol)
+        rem = self.__class__(rem, self.domain, self.window, self.symbol)
+        return quo, rem
+
+    def __eq__(self, other):
+        res = (
+            isinstance(other, self.__class__)
+            and numpy.all(self.domain == other.domain)
+            and numpy.all(self.window == other.window)
+            and (self.coef.shape == other.coef.shape)
+            and numpy.all(self.coef == other.coef)
+            and (self.symbol == other.symbol)
+        )
+        return res
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def copy(self):
+        return self.__class__(self.coef, self.domain, self.window, self.symbol)
+
+    def degree(self):
+        return len(self) - 1
+
+    def cutdeg(self, deg):
+        return self.truncate(deg + 1)
+
+    def trim(self, tol=0):
+        coef = trimcoef(self.coef, tol)
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def truncate(self, size):
+        isize = int(size)
+        if isize != size or isize < 1:
+            raise ValueError("size must be a positive integer")
+        if isize >= len(self.coef):
+            coef = self.coef
+        else:
+            coef = self.coef[:isize]
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def convert(self, domain=None, kind=None, window=None):
+        if kind is None:
+            kind = self.__class__
+        if domain is None:
+            domain = kind.domain
+        if window is None:
+            window = kind.window
+        return self(kind.identity(domain, window=window, symbol=self.symbol))
+
+    def mapparms(self):
+        return mapparms(self.domain, self.window)
+
+    def integ(self, m=1, k=None, lbnd=None):
+        if k is None:
+            k = []
+
+        off, scl = self.mapparms()
+        if lbnd is None:
+            lbnd = 0
+        else:
+            lbnd = off + scl * lbnd
+        coef = self._int(self.coef, m, k, lbnd, 1.0 / scl)
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def deriv(self, m=1):
+        off, scl = self.mapparms()
+        coef = self._der(self.coef, m, scl)
+        return self.__class__(coef, self.domain, self.window, self.symbol)
+
+    def roots(self):
+        roots = self._roots(self.coef)
+        return mapdomain(roots, self.window, self.domain)
+
+    def linspace(self, n=100, domain=None):
+        if domain is None:
+            domain = self.domain
+        x = numpy.linspace(domain[0], domain[1], n)
+        y = self(x)
+        return x, y
+
+    @classmethod
+    def fit(
+        cls,
+        x,
+        y,
+        deg,
+        domain=None,
+        rcond=None,
+        full=False,
+        w=None,
+        window=None,
+        symbol="x",
+    ):
+        if domain is None:
+            domain = getdomain(x)
+        elif isinstance(domain, list) and len(domain) == 0:
+            domain = cls.domain
+
+        if window is None:
+            window = cls.window
+
+        xnew = mapdomain(x, domain, window)
+        res = cls._fit(xnew, y, deg, w=w, rcond=rcond, full=full)
+        if full:
+            [coef, status] = res
+            return (cls(coef, domain=domain, window=window, symbol=symbol), status)
+        else:
+            coef = res
+            return cls(coef, domain=domain, window=window, symbol=symbol)
+
+    @classmethod
+    def fromroots(cls, roots, domain=None, window=None, symbol="x"):
+        if domain is None:
+            domain = []
+        [roots] = as_series([roots], trim=False)
+        if domain is None:
+            domain = getdomain(roots)
+        elif isinstance(domain, list) and len(domain) == 0:
+            domain = cls.domain
+
+        if window is None:
+            window = cls.window
+
+        deg = len(roots)
+        off, scl = mapparms(domain, window)
+        rnew = off + scl * roots
+        coef = cls._fromroots(rnew) / scl**deg
+        return cls(coef, domain=domain, window=window, symbol=symbol)
+
+    @classmethod
+    def identity(cls, domain=None, window=None, symbol="x"):
+        if domain is None:
+            domain = cls.domain
+        if window is None:
+            window = cls.window
+        off, scl = mapparms(window, domain)
+        coef = cls._line(off, scl)
+        return cls(coef, domain, window, symbol)
+
+    @classmethod
+    def basis(cls, deg, domain=None, window=None, symbol="x"):
+        if domain is None:
+            domain = cls.domain
+        if window is None:
+            window = cls.window
+        ideg = int(deg)
+
+        if ideg != deg or ideg < 0:
+            raise ValueError("deg must be non-negative integer")
+        return cls([0] * ideg + [1], domain, window, symbol)
+
+    @classmethod
+    def cast(cls, series, domain=None, window=None):
+        if domain is None:
+            domain = cls.domain
+        if window is None:
+            window = cls.window
+        return series.convert(domain, cls, window)
+
+
+def trimseq(seq):
+    if len(seq) == 0:
+        return seq
+    else:
+        for i in range(len(seq) - 1, -1, -1):
+            if seq[i] != 0:
+                break
+        return seq[: i + 1]
+
+
+def as_series(alist, trim=True):
+    arrays = [numpy.array(a, ndmin=1, copy=False) for a in alist]
+    if min([a.size for a in arrays]) == 0:
+        raise ValueError("Coefficient array is empty")
+    if any(a.ndim != 1 for a in arrays):
+        raise ValueError("Coefficient array is not 1-d")
+    if trim:
+        arrays = [trimseq(a) for a in arrays]
+
+    if any(a.dtype == numpy.dtype(object) for a in arrays):
+        ret = []
+        for a in arrays:
+            if a.dtype != numpy.dtype(object):
+                tmp = numpy.empty(len(a), dtype=numpy.dtype(object))
+                tmp[:] = a[:]
+                ret.append(tmp)
+            else:
+                ret.append(a.copy())
+    else:
+        try:
+            dtype = numpy.common_type(*arrays)
+        except Exception as e:
+            raise ValueError("Coefficient arrays have no common type") from e
+        ret = [numpy.array(a, copy=True, dtype=dtype) for a in arrays]
+    return ret
+
+
+def trimcoef(c, tol=0):
+    if tol < 0:
+        raise ValueError("tol must be non-negative")
+
+    [c] = as_series([c])
+    [ind] = numpy.nonzero(numpy.abs(c) > tol)
+    if len(ind) == 0:
+        return c[:1] * 0
+    else:
+        return c[: ind[-1] + 1].copy()
+
+
+def getdomain(x):
+    [x] = as_series([x], trim=False)
+    if x.dtype.char in numpy.typecodes["Complex"]:
+        rmin, rmax = x.real.min(), x.real.max()
+        imin, imax = x.imag.min(), x.imag.max()
+        return numpy.array((complex(rmin, imin), complex(rmax, imax)))
+    else:
+        return numpy.array((x.min(), x.max()))
+
+
+def mapparms(old, new):
+    oldlen = old[1] - old[0]
+    newlen = new[1] - new[0]
+    off = (old[1] * new[0] - old[0] * new[1]) / oldlen
+    scl = newlen / oldlen
+    return off, scl
+
+
+def mapdomain(x, old, new):
+    x = numpy.asanyarray(x)
+    off, scl = mapparms(old, new)
+    return off + scl * x
+
+
+def _nth_slice(i, ndim):
+    sl = [numpy.newaxis] * ndim
+    sl[i] = slice(None)
+    return tuple(sl)
+
+
+def _vander_nd(vander_fs, points, degrees):
+    n_dims = len(vander_fs)
+    if n_dims != len(points):
+        raise ValueError(
+            f"Expected {n_dims} dimensions of sample points, got {len(points)}"
+        )
+    if n_dims != len(degrees):
+        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
+    if n_dims == 0:
+        raise ValueError("Unable to guess a dtype or shape when no points are given")
+
+    points = tuple(numpy.array(tuple(points), copy=False) + 0.0)
+
+    vander_arrays = (
+        vander_fs[i](points[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
+        for i in range(n_dims)
+    )
+
+    return functools.reduce(operator.mul, vander_arrays)
+
+
+def _vander_nd_flat(vander_fs, points, degrees):
+    v = _vander_nd(vander_fs, points, degrees)
+    return v.reshape(v.shape[: -len(degrees)] + (-1,))
+
+
+def _fromroots(line_f, mul_f, roots):
+    if len(roots) == 0:
+        return numpy.ones(1)
+    else:
+        [roots] = as_series([roots], trim=False)
+        roots.sort()
+        p = [line_f(-r, 1) for r in roots]
+        n = len(p)
+        while n > 1:
+            m, r = divmod(n, 2)
+            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
+            if r:
+                tmp[0] = mul_f(tmp[0], p[-1])
+            p = tmp
+            n = m
+        return p[0]
+
+
+def _valnd(val_f, c, *args):
+    args = [numpy.asanyarray(a) for a in args]
+    shape0 = args[0].shape
+    if not all((a.shape == shape0 for a in args[1:])):
+        if len(args) == 3:
+            raise ValueError("x, y, z are incompatible")
+        elif len(args) == 2:
+            raise ValueError("x, y are incompatible")
+        else:
+            raise ValueError("ordinates are incompatible")
+    it = iter(args)
+    x0 = next(it)
+
+    c = val_f(x0, c)
+    for xi in it:
+        c = val_f(xi, c, tensor=False)
+    return c
+
+
+def _gridnd(val_f, c, *args):
+    for xi in args:
+        c = val_f(xi, c)
+    return c
+
+
+def _div(mul_f, c1, c2):
+    [c1, c2] = as_series([c1, c2])
+    if c2[-1] == 0:
+        raise ZeroDivisionError()
+
+    lc1 = len(c1)
+    lc2 = len(c2)
+    if lc1 < lc2:
+        return c1[:1] * 0, c1
+    elif lc2 == 1:
+        return c1 / c2[-1], c1[:1] * 0
+    else:
+        quo = numpy.empty(lc1 - lc2 + 1, dtype=c1.dtype)
+        rem = c1
+        for i in range(lc1 - lc2, -1, -1):
+            p = mul_f([0] * i + [1], c2)
+            q = rem[-1] / p[-1]
+            rem = rem[:-1] - q * p[:-1]
+            quo[i] = q
+        return quo, trimseq(rem)
+
+
+def _add(c1, c2):
+    [c1, c2] = as_series([c1, c2])
+    if len(c1) > len(c2):
+        c1[: c2.size] += c2
+        ret = c1
+    else:
+        c2[: c1.size] += c1
+        ret = c2
+    return trimseq(ret)
+
+
+def _sub(c1, c2):
+    [c1, c2] = as_series([c1, c2])
+    if len(c1) > len(c2):
+        c1[: c2.size] -= c2
+        ret = c1
+    else:
+        c2 = -c2
+        c2[: c1.size] += c1
+        ret = c2
+    return trimseq(ret)
+
+
+def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):
+    x = numpy.asarray(x) + 0.0
+    y = numpy.asarray(y) + 0.0
+    deg = numpy.asarray(deg)
+
+    if deg.ndim > 1 or deg.dtype.kind not in "iu" or deg.size == 0:
+        raise TypeError("deg must be an int or non-empty 1-D array of int")
+    if deg.min() < 0:
+        raise ValueError("expected deg >= 0")
+    if x.ndim != 1:
+        raise TypeError("expected 1D vector for x")
+    if x.size == 0:
+        raise TypeError("expected non-empty vector for x")
+    if y.ndim < 1 or y.ndim > 2:
+        raise TypeError("expected 1D or 2D array for y")
+    if len(x) != len(y):
+        raise TypeError("expected x and y to have same length")
+
+    if deg.ndim == 0:
+        lmax = deg
+        order = lmax + 1
+        van = vander_f(x, lmax)
+    else:
+        deg = numpy.sort(deg)
+        lmax = deg[-1]
+        order = len(deg)
+        van = vander_f(x, lmax)[:, deg]
+
+    lhs = van.T
+    rhs = y.T
+    if w is not None:
+        w = numpy.asarray(w) + 0.0
+        if w.ndim != 1:
+            raise TypeError("expected 1D vector for w")
+        if len(x) != len(w):
+            raise TypeError("expected x and w to have same length")
+
+        lhs = lhs * w
+        rhs = rhs * w
+
+    if rcond is None:
+        rcond = len(x) * numpy.finfo(x.dtype).eps
+
+    if issubclass(lhs.dtype.type, numpy.complexfloating):
+        scl = numpy.sqrt((numpy.square(lhs.real) + numpy.square(lhs.imag)).sum(1))
+    else:
+        scl = numpy.sqrt(numpy.square(lhs).sum(1))
+    scl[scl == 0] = 1
+
+    c, resids, rank, s = numpy.linalg.lstsq(lhs.T / scl, rhs.T, rcond)
+    c = (c.T / scl).T
+
+    if deg.ndim > 0:
+        if c.ndim == 2:
+            cc = numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
+        else:
+            cc = numpy.zeros(lmax + 1, dtype=c.dtype)
+        cc[deg] = c
+        c = cc
+
+    if rank != order and not full:
+        msg = "The fit may be poorly conditioned"
+        warnings.warn(msg, RankWarning, stacklevel=2)
+
+    if full:
+        return c, [resids, rank, s, rcond]
+    else:
+        return c
+
+
+def _pow(mul_f, c, pow, maxpower):
+    [c] = as_series([c])
+    power = int(pow)
+    if power != pow or power < 0:
+        raise ValueError("Power must be a non-negative integer.")
+    elif maxpower is not None and power > maxpower:
+        raise ValueError("Power is too large")
+    elif power == 0:
+        return numpy.array([1], dtype=c.dtype)
+    elif power == 1:
+        return c
+    else:
+        prd = c
+        for _ in range(2, power + 1):
+            prd = mul_f(prd, c)
+        return prd
+
+
+def _deprecate_as_int(x, desc):
+    try:
+        return operator.index(x)
+    except TypeError as e:
+        try:
+            ix = int(x)
+        except TypeError:
+            pass
+        else:
+            if ix == x:
+                warnings.warn(
+                    f"In future, this will raise TypeError, as {desc} will "
+                    "need to be an integer not just an integral float.",
+                    DeprecationWarning,
+                    stacklevel=3,
+                )
+                return ix
+
+        raise TypeError(f"{desc} must be an integer") from e
+
 
 polytrim = trimcoef
 
