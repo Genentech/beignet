@@ -198,3 +198,17 @@ from .polynomial import (
     polyx,
     polyzero,
 )
+from .polyutils import (
+    _div,
+    _pow,
+    _sub,
+    _valnd,
+    _vander_nd,
+    _vander_nd_flat,
+    as_series,
+    getdomain,
+    mapdomain,
+    mapparms,
+    trimcoef,
+    trimseq,
+)
