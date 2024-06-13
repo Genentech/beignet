@@ -1,6 +1,9 @@
+from beignet._evaluate_physicists_hermite_series import (
+    evaluate_physicists_hermite_series,
+)
+
 from .__gridnd import _gridnd
-from ._hermval import hermval
 
 
 def hermgrid2d(x, y, c):
-    return _gridnd(hermval, c, x, y)
+    return _gridnd(evaluate_physicists_hermite_series, c, x, y)

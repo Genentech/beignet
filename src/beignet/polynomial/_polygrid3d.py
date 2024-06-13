@@ -1,6 +1,7 @@
+from beignet._evaluate_power_series import evaluate_power_series
+
 from .__gridnd import _gridnd
-from ._polyval import polyval
 
 
 def polygrid3d(x, y, z, c):
-    return _gridnd(polyval, c, x, y, z)
+    return _gridnd(evaluate_power_series, c, x, y, z)

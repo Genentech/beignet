@@ -1,6 +1,7 @@
+from beignet._evaluate_laguerre_series import evaluate_laguerre_series
+
 from .__gridnd import _gridnd
-from ._lagval import lagval
 
 
 def laggrid2d(x, y, c):
-    return _gridnd(lagval, c, x, y)
+    return _gridnd(evaluate_laguerre_series, c, x, y)

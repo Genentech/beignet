@@ -1,6 +1,7 @@
+from beignet._multiply_legendre_series import multiply_legendre_series
+
 from .__pow import _pow
-from ._legmul import legmul
 
 
 def legpow(c, pow, maxpower=16):
-    return _pow(legmul, c, pow, maxpower)
+    return _pow(multiply_legendre_series, c, pow, maxpower)

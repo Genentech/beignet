@@ -1,6 +1,9 @@
+from beignet._evaluate_probabilists_hermite_series import (
+    evaluate_probabilists_hermite_series,
+)
+
 from .__gridnd import _gridnd
-from ._hermeval import hermeval
 
 
 def hermegrid3d(x, y, z, c):
-    return _gridnd(hermeval, c, x, y, z)
+    return _gridnd(evaluate_probabilists_hermite_series, c, x, y, z)

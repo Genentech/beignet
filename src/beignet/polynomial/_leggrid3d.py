@@ -1,6 +1,7 @@
+from beignet._evaluate_legendre_series import evaluate_legendre_series
+
 from .__gridnd import _gridnd
-from ._legval import legval
 
 
 def leggrid3d(x, y, z, c):
-    return _gridnd(legval, c, x, y, z)
+    return _gridnd(evaluate_legendre_series, c, x, y, z)

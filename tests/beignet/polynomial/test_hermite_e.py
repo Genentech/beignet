@@ -1,37 +1,37 @@
 import functools
 
+import beignet._add_probabilists_hermite_series
+import beignet._differentiate_probabilists_hermite_series
+import beignet._divide_probabilists_hermite_series
+import beignet._evaluate_2d_probabilists_hermite_series
+import beignet._evaluate_3d_probabilists_hermite_series
+import beignet._evaluate_power_series
+import beignet._evaluate_probabilists_hermite_series
+import beignet._fit_probabilists_hermite_series
+import beignet._integrate_probabilists_hermite_series
+import beignet._multiply_probabilists_hermite_series
+import beignet._power_series_to_probabilists_hermite_series
+import beignet._probabilists_hermite_series_from_roots
+import beignet._probabilists_hermite_series_roots
+import beignet._probabilists_hermite_series_to_power_series
+import beignet._subtract_probabilists_hermite_series
+import beignet._trim_probabilists_hermite_series
 import beignet.polynomial
-import beignet.polynomial._add_probabilists_hermite_series
-import beignet.polynomial._herme2poly
 import beignet.polynomial._hermecompanion
-import beignet.polynomial._hermeder
-import beignet.polynomial._hermediv
 import beignet.polynomial._hermedomain
-import beignet.polynomial._hermefit
-import beignet.polynomial._hermefromroots
 import beignet.polynomial._hermegauss
 import beignet.polynomial._hermegrid2d
 import beignet.polynomial._hermegrid3d
-import beignet.polynomial._hermeint
 import beignet.polynomial._hermeline
-import beignet.polynomial._hermemul
 import beignet.polynomial._hermemulx
 import beignet.polynomial._hermeone
 import beignet.polynomial._hermepow
-import beignet.polynomial._hermeroots
-import beignet.polynomial._hermesub
-import beignet.polynomial._hermetrim
-import beignet.polynomial._hermeval
-import beignet.polynomial._hermeval2d
-import beignet.polynomial._hermeval3d
 import beignet.polynomial._hermevander
 import beignet.polynomial._hermevander2d
 import beignet.polynomial._hermevander3d
 import beignet.polynomial._hermeweight
 import beignet.polynomial._hermex
 import beignet.polynomial._hermezero
-import beignet.polynomial._poly2herme
-import beignet.polynomial._polyval
 import numpy
 import numpy.testing
 
@@ -50,7 +50,7 @@ Helist = [He0, He1, He2, He3, He4, He5, He6, He7, He8, He9]
 
 
 def trim(x):
-    return beignet.polynomial._hermetrim.hermetrim(x, tol=1e-6)
+    return beignet.polynomial._hermetrim.trim_probabilists_hermite_series(x, tol=1e-6)
 
 
 class TestConstants:
@@ -89,7 +89,7 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] -= 1
-                res = beignet.polynomial._hermesub.hermesub(
+                res = beignet.polynomial._hermesub.subtract_probabilists_hermite_series(
                     [0] * i + [1], [0] * j + [1]
                 )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
@@ -108,13 +108,27 @@ class TestArithmetic:
         # check values of result
         for i in range(5):
             pol1 = [0] * i + [1]
-            val1 = beignet.polynomial._hermeval.hermeval(self.x, pol1)
+            val1 = beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                self.x, pol1
+            )
             for j in range(5):
                 msg = f"At i={i}, j={j}"
                 pol2 = [0] * j + [1]
-                val2 = beignet.polynomial._hermeval.hermeval(self.x, pol2)
-                pol3 = beignet.polynomial._hermemul.hermemul(pol1, pol2)
-                val3 = beignet.polynomial._hermeval.hermeval(self.x, pol3)
+                val2 = (
+                    beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                        self.x, pol2
+                    )
+                )
+                pol3 = (
+                    beignet.polynomial._hermemul.multiply_probabilists_hermite_series(
+                        pol1, pol2
+                    )
+                )
+                val3 = (
+                    beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                        self.x, pol3
+                    )
+                )
                 numpy.testing.assert_(len(pol3) == i + j + 1, msg)
                 numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
@@ -127,9 +141,16 @@ class TestArithmetic:
                 tgt = beignet.polynomial._hermeadd.add_probabilists_hermite_series(
                     ci, cj
                 )
-                quo, rem = beignet.polynomial._hermediv.hermediv(tgt, ci)
+                quo, rem = (
+                    beignet.polynomial._hermediv.divide_probabilists_hermite_series(
+                        tgt, ci
+                    )
+                )
                 res = beignet.polynomial._hermeadd.add_probabilists_hermite_series(
-                    beignet.polynomial._hermemul.hermemul(quo, ci), rem
+                    beignet.polynomial._hermemul.multiply_probabilists_hermite_series(
+                        quo, ci
+                    ),
+                    rem,
                 )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
@@ -139,7 +160,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 c = numpy.arange(i + 1)
                 tgt = functools.reduce(
-                    beignet.polynomial._hermemul.hermemul, [c] * j, numpy.array([1])
+                    beignet.polynomial._hermemul.multiply_probabilists_hermite_series,
+                    [c] * j,
+                    numpy.array([1]),
                 )
                 res = beignet.polynomial._hermepow.hermepow(c, j)
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
@@ -153,21 +176,26 @@ class TestEvaluation:
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial._polyval.polyval(x, [1.0, 2.0, 3.0])
+    y = beignet.polynomial._polyval.evaluate_power_series(x, [1.0, 2.0, 3.0])
 
     def test_hermeval(self):
         # check empty input
         numpy.testing.assert_equal(
-            beignet.polynomial._hermeval.hermeval([], [1]).size, 0
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                [], [1]
+            ).size,
+            0,
         )
 
         # check normal input)
         x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial._polyval.polyval(x, c) for c in Helist]
+        y = [beignet.polynomial._polyval.evaluate_power_series(x, c) for c in Helist]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
-            res = beignet.polynomial._hermeval.hermeval(x, [0] * i + [1])
+            res = beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                x, [0] * i + [1]
+            )
             numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
 
         # check that shape is preserved
@@ -175,13 +203,22 @@ class TestEvaluation:
             dims = [2] * i
             x = numpy.zeros(dims)
             numpy.testing.assert_equal(
-                beignet.polynomial._hermeval.hermeval(x, [1]).shape, dims
+                beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                    x, [1]
+                ).shape,
+                dims,
             )
             numpy.testing.assert_equal(
-                beignet.polynomial._hermeval.hermeval(x, [1, 0]).shape, dims
+                beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                    x, [1, 0]
+                ).shape,
+                dims,
             )
             numpy.testing.assert_equal(
-                beignet.polynomial._hermeval.hermeval(x, [1, 0, 0]).shape, dims
+                beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                    x, [1, 0, 0]
+                ).shape,
+                dims,
             )
 
     def test_hermeval2d(self):
@@ -190,17 +227,25 @@ class TestEvaluation:
 
         # test exceptions
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeval2d.hermeval2d, x1, x2[:2], self.c2d
+            ValueError,
+            beignet.polynomial._hermeval2d.evaluate_2d_probabilists_hermite_series,
+            x1,
+            x2[:2],
+            self.c2d,
         )
 
         # test values
         tgt = y1 * y2
-        res = beignet.polynomial._hermeval2d.hermeval2d(x1, x2, self.c2d)
+        res = beignet.polynomial._hermeval2d.evaluate_2d_probabilists_hermite_series(
+            x1, x2, self.c2d
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial._hermeval2d.hermeval2d(z, z, self.c2d)
+        res = beignet.polynomial._hermeval2d.evaluate_2d_probabilists_hermite_series(
+            z, z, self.c2d
+        )
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_hermeval3d(self):
@@ -210,7 +255,7 @@ class TestEvaluation:
         # test exceptions
         numpy.testing.assert_raises(
             ValueError,
-            beignet.polynomial._hermeval3d.hermeval3d,
+            beignet.polynomial._hermeval3d.evaluate_3d_probabilists_hermite_series,
             x1,
             x2,
             x3[:2],
@@ -219,12 +264,16 @@ class TestEvaluation:
 
         # test values
         tgt = y1 * y2 * y3
-        res = beignet.polynomial._hermeval3d.hermeval3d(x1, x2, x3, self.c3d)
+        res = beignet.polynomial._hermeval3d.evaluate_3d_probabilists_hermite_series(
+            x1, x2, x3, self.c3d
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test shape
         z = numpy.ones((2, 3))
-        res = beignet.polynomial._hermeval3d.hermeval3d(z, z, z, self.c3d)
+        res = beignet.polynomial._hermeval3d.evaluate_3d_probabilists_hermite_series(
+            z, z, z, self.c3d
+        )
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_hermegrid2d(self):
@@ -260,28 +309,49 @@ class TestIntegral:
     def test_hermeint(self):
         # check exceptions
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermeint.hermeint, [0], 0.5
+            TypeError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            0.5,
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeint.hermeint, [0], -1
+            ValueError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            -1,
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeint.hermeint, [0], 1, [0, 0]
+            ValueError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            1,
+            [0, 0],
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeint.hermeint, [0], lbnd=[0]
+            ValueError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            lbnd=[0],
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeint.hermeint, [0], scl=[0]
+            ValueError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            scl=[0],
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermeint.hermeint, [0], axis=0.5
+            TypeError,
+            beignet.polynomial._hermeint.integrate_probabilists_hermite_series,
+            [0],
+            axis=0.5,
         )
 
         # test integration of zero polynomial
         for i in range(2, 5):
             k = [0] * (i - 2) + [1]
-            res = beignet.polynomial._hermeint.hermeint([0], m=i, k=k)
+            res = beignet.polynomial._hermeint.integrate_probabilists_hermite_series(
+                [0], m=i, k=k
+            )
             numpy.testing.assert_almost_equal(res, [0, 1])
 
         # check single integration with integration constant
@@ -289,21 +359,24 @@ class TestIntegral:
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [1 / scl]
-            hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
-            hermeint = beignet.polynomial._hermeint.hermeint(hermepol, m=1, k=[i])
-            res = beignet.polynomial._herme2poly.herme2poly(hermeint)
+            hermepol = beignet.power_series_to_probabilists_hermite_series(pol)
+            hermeint = beignet.integrate_probabilists_hermite_series(
+                hermepol, m=1, k=[i]
+            )
+            res = beignet.herme_to_power_series(hermeint)
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check single integration with integration constant and lbnd
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
-            hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
-            hermeint = beignet.polynomial._hermeint.hermeint(
+            hermepol = beignet.power_series_to_probabilists_hermite_series(pol)
+            hermeint = beignet.integrate_probabilists_hermite_series(
                 hermepol, m=1, k=[i], lbnd=-1
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermeval.hermeval(-1, hermeint), i
+                beignet.evaluate_probabilists_hermite_series(-1, hermeint),
+                i,
             )
 
         # check single integration with integration constant and scaling
@@ -311,11 +384,11 @@ class TestIntegral:
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [2 / scl]
-            hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
-            hermeint = beignet.polynomial._hermeint.hermeint(
+            hermepol = beignet.power_series_to_probabilists_hermite_series(pol)
+            hermeint = beignet.integrate_probabilists_hermite_series(
                 hermepol, m=1, k=[i], scl=2
             )
-            res = beignet.polynomial._herme2poly.herme2poly(hermeint)
+            res = beignet.herme_to_power_series(hermeint)
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with default k
@@ -324,8 +397,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for _ in range(j):
-                    tgt = beignet.polynomial._hermeint.hermeint(tgt, m=1)
-                res = beignet.polynomial._hermeint.hermeint(pol, m=j)
+                    tgt = beignet.integrate_probabilists_hermite_series(tgt, m=1)
+                res = beignet.integrate_probabilists_hermite_series(pol, m=j)
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with defined k
@@ -334,8 +407,10 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial._hermeint.hermeint(tgt, m=1, k=[k])
-                res = beignet.polynomial._hermeint.hermeint(pol, m=j, k=list(range(j)))
+                    tgt = beignet.integrate_probabilists_hermite_series(tgt, m=1, k=[k])
+                res = beignet.integrate_probabilists_hermite_series(
+                    pol, m=j, k=list(range(j))
+                )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
         # check multiple integrations with lbnd
@@ -344,10 +419,10 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial._hermeint.hermeint(
+                    tgt = beignet.integrate_probabilists_hermite_series(
                         tgt, m=1, k=[k], lbnd=-1
                     )
-                res = beignet.polynomial._hermeint.hermeint(
+                res = beignet.integrate_probabilists_hermite_series(
                     pol, m=j, k=list(range(j)), lbnd=-1
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
@@ -358,8 +433,10 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.polynomial._hermeint.hermeint(tgt, m=1, k=[k], scl=2)
-                res = beignet.polynomial._hermeint.hermeint(
+                    tgt = beignet.integrate_probabilists_hermite_series(
+                        tgt, m=1, k=[k], scl=2
+                    )
+                res = beignet.integrate_probabilists_hermite_series(
                     pol, m=j, k=list(range(j)), scl=2
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
@@ -368,16 +445,39 @@ class TestIntegral:
         # check that axis keyword works
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.polynomial._hermeint.hermeint(c) for c in c2d.T]).T
-        res = beignet.polynomial._hermeint.hermeint(c2d, axis=0)
+        tgt = numpy.vstack(
+            [
+                beignet.polynomial._hermeint.integrate_probabilists_hermite_series(c)
+                for c in c2d.T
+            ]
+        ).T
+        res = beignet.polynomial._hermeint.integrate_probabilists_hermite_series(
+            c2d, axis=0
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial._hermeint.hermeint(c) for c in c2d])
-        res = beignet.polynomial._hermeint.hermeint(c2d, axis=1)
+        tgt = numpy.vstack(
+            [
+                beignet.polynomial._hermeint.integrate_probabilists_hermite_series(c)
+                for c in c2d
+            ]
+        )
+        res = beignet.polynomial._hermeint.integrate_probabilists_hermite_series(
+            c2d, axis=1
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial._hermeint.hermeint(c, k=3) for c in c2d])
-        res = beignet.polynomial._hermeint.hermeint(c2d, k=3, axis=1)
+        tgt = numpy.vstack(
+            [
+                beignet.polynomial._hermeint.integrate_probabilists_hermite_series(
+                    c, k=3
+                )
+                for c in c2d
+            ]
+        )
+        res = beignet.polynomial._hermeint.integrate_probabilists_hermite_series(
+            c2d, k=3, axis=1
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
 
@@ -385,24 +485,35 @@ class TestDerivative:
     def test_hermeder(self):
         # check exceptions
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermeder.hermeder, [0], 0.5
+            TypeError,
+            beignet.polynomial._hermeder.differentiate_probabilists_hermite_series,
+            [0],
+            0.5,
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermeder.hermeder, [0], -1
+            ValueError,
+            beignet.polynomial._hermeder.differentiate_probabilists_hermite_series,
+            [0],
+            -1,
         )
 
         # check that zeroth derivative does nothing
         for i in range(5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial._hermeder.hermeder(tgt, m=0)
+            res = (
+                beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
+                    tgt, m=0
+                )
+            )
             numpy.testing.assert_equal(trim(res), trim(tgt))
 
         # check that derivation is the inverse of integration
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.polynomial._hermeder.hermeder(
-                    beignet.polynomial._hermeint.hermeint(tgt, m=j), m=j
+                res = beignet.differentiate_probabilists_hermite_series(
+                    beignet.integrate_probabilists_hermite_series(tgt, m=j),
+                    m=j,
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
@@ -410,8 +521,10 @@ class TestDerivative:
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.polynomial._hermeder.hermeder(
-                    beignet.polynomial._hermeint.hermeint(tgt, m=j, scl=2), m=j, scl=0.5
+                res = beignet.differentiate_probabilists_hermite_series(
+                    beignet.integrate_probabilists_hermite_series(tgt, m=j, scl=2),
+                    m=j,
+                    scl=0.5,
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
@@ -419,12 +532,30 @@ class TestDerivative:
         # check that axis keyword works
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.polynomial._hermeder.hermeder(c) for c in c2d.T]).T
-        res = beignet.polynomial._hermeder.hermeder(c2d, axis=0)
+        tgt = numpy.vstack(
+            [
+                beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
+                    c
+                )
+                for c in c2d.T
+            ]
+        ).T
+        res = beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
+            c2d, axis=0
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial._hermeder.hermeder(c) for c in c2d])
-        res = beignet.polynomial._hermeder.hermeder(c2d, axis=1)
+        tgt = numpy.vstack(
+            [
+                beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
+                    c
+                )
+                for c in c2d
+            ]
+        )
+        res = beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
+            c2d, axis=1
+        )
         numpy.testing.assert_almost_equal(res, tgt)
 
 
@@ -440,7 +571,10 @@ class TestVander:
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial._hermeval.hermeval(x, coef)
+                v[..., i],
+                beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                    x, coef
+                ),
             )
 
         # check for 2d x
@@ -450,7 +584,10 @@ class TestVander:
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial._hermeval.hermeval(x, coef)
+                v[..., i],
+                beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(
+                    x, coef
+                ),
             )
 
     def test_hermevander2d(self):
@@ -458,7 +595,9 @@ class TestVander:
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3))
         van = beignet.polynomial._hermevander2d.hermevander2d(x1, x2, [1, 2])
-        tgt = beignet.polynomial._hermeval2d.hermeval2d(x1, x2, c)
+        tgt = beignet.polynomial._hermeval2d.evaluate_2d_probabilists_hermite_series(
+            x1, x2, c
+        )
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_almost_equal(res, tgt)
 
@@ -471,7 +610,9 @@ class TestVander:
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3, 4))
         van = beignet.polynomial._hermevander3d.hermevander3d(x1, x2, x3, [1, 2, 3])
-        tgt = beignet.polynomial._hermeval3d.hermeval3d(x1, x2, x3, c)
+        tgt = beignet.polynomial._hermeval3d.evaluate_3d_probabilists_hermite_series(
+            x1, x2, x3, c
+        )
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_almost_equal(res, tgt)
 
@@ -492,32 +633,66 @@ class TestFitting:
 
         # Test exceptions
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermefit.hermefit, [1], [1], -1
+            ValueError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1],
+            -1,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [[1]], [1], 0
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [[1]],
+            [1],
+            0,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [], [1], 0
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [],
+            [1],
+            0,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1], [[[1]]], 0
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [[[1]]],
+            0,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1, 2], [1], 0
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1, 2],
+            [1],
+            0,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1], [1, 2], 0
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1, 2],
+            0,
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1], [1], 0, w=[[1]]
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1],
+            0,
+            w=[[1]],
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1], [1], 0, w=[1, 1]
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1],
+            0,
+            w=[1, 1],
         )
         numpy.testing.assert_raises(
             ValueError,
-            beignet.polynomial._hermefit.hermefit,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
             [1],
             [1],
             [
@@ -525,47 +700,68 @@ class TestFitting:
             ],
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermefit.hermefit, [1], [1], [2, -1, 6]
+            ValueError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1],
+            [2, -1, 6],
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.polynomial._hermefit.hermefit, [1], [1], []
+            TypeError,
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series,
+            [1],
+            [1],
+            [],
         )
 
         # Test fit
         x = numpy.linspace(0, 2)
         y = f(x)
         #
-        coef3 = beignet.polynomial._hermefit.hermefit(x, y, 3)
+        coef3 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(x, y, 3)
         numpy.testing.assert_equal(len(coef3), 4)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef3), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef3),
+            y,
         )
-        coef3 = beignet.polynomial._hermefit.hermefit(x, y, [0, 1, 2, 3])
+        coef3 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, y, [0, 1, 2, 3]
+        )
         numpy.testing.assert_equal(len(coef3), 4)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef3), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef3),
+            y,
         )
         #
-        coef4 = beignet.polynomial._hermefit.hermefit(x, y, 4)
+        coef4 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(x, y, 4)
         numpy.testing.assert_equal(len(coef4), 5)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef4), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef4),
+            y,
         )
-        coef4 = beignet.polynomial._hermefit.hermefit(x, y, [0, 1, 2, 3, 4])
+        coef4 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, y, [0, 1, 2, 3, 4]
+        )
         numpy.testing.assert_equal(len(coef4), 5)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef4), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef4),
+            y,
         )
         # check things still work if deg is not in strict increasing
-        coef4 = beignet.polynomial._hermefit.hermefit(x, y, [2, 3, 4, 1, 0])
+        coef4 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, y, [2, 3, 4, 1, 0]
+        )
         numpy.testing.assert_equal(len(coef4), 5)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef4), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef4),
+            y,
         )
         #
-        coef2d = beignet.polynomial._hermefit.hermefit(x, numpy.array([y, y]).T, 3)
+        coef2d = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, numpy.array([y, y]).T, 3
+        )
         numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.polynomial._hermefit.hermefit(
+        coef2d = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
             x, numpy.array([y, y]).T, [0, 1, 2, 3]
         )
         numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
@@ -574,16 +770,20 @@ class TestFitting:
         yw = y.copy()
         w[1::2] = 1
         y[0::2] = 0
-        wcoef3 = beignet.polynomial._hermefit.hermefit(x, yw, 3, w=w)
+        wcoef3 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, yw, 3, w=w
+        )
         numpy.testing.assert_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.polynomial._hermefit.hermefit(x, yw, [0, 1, 2, 3], w=w)
+        wcoef3 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, yw, [0, 1, 2, 3], w=w
+        )
         numpy.testing.assert_almost_equal(wcoef3, coef3)
         #
-        wcoef2d = beignet.polynomial._hermefit.hermefit(
+        wcoef2d = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
             x, numpy.array([yw, yw]).T, 3, w=w
         )
         numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.polynomial._hermefit.hermefit(
+        wcoef2d = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
             x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
         )
         numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
@@ -591,21 +791,27 @@ class TestFitting:
         # is zero when summed.
         x = [1, 1j, -1, -1j]
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermefit.hermefit(x, x, 1), [0, 1]
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series(x, x, 1),
+            [0, 1],
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermefit.hermefit(x, x, [0, 1]), [0, 1]
+            beignet.polynomial._hermefit.fit_probabilists_hermite_series(x, x, [0, 1]),
+            [0, 1],
         )
         # test fitting only even Legendre polynomials
         x = numpy.linspace(-1, 1)
         y = f2(x)
-        coef1 = beignet.polynomial._hermefit.hermefit(x, y, 4)
+        coef1 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(x, y, 4)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef1), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef1),
+            y,
         )
-        coef2 = beignet.polynomial._hermefit.hermefit(x, y, [0, 2, 4])
+        coef2 = beignet.polynomial._hermefit.fit_probabilists_hermite_series(
+            x, y, [0, 2, 4]
+        )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.hermeval(x, coef2), y
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series(x, coef2),
+            y,
         )
         numpy.testing.assert_almost_equal(coef1, coef2)
 
@@ -652,30 +858,33 @@ class TestGauss:
 
 class TestMisc:
     def test_hermefromroots(self):
-        res = beignet.polynomial._hermefromroots.hermefromroots([])
+        res = beignet.polynomial._hermefromroots.probabilists_hermite_series_from_roots(
+            []
+        )
         numpy.testing.assert_almost_equal(trim(res), [1])
         for i in range(1, 5):
             roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.polynomial._hermefromroots.hermefromroots(roots)
-            res = beignet.polynomial._hermeval.hermeval(roots, pol)
+            pol = beignet.probabilists_hermite_series_from_roots(roots)
+            res = beignet.evaluate_probabilists_hermite_series(roots, pol)
             tgt = 0
             numpy.testing.assert_(len(pol) == i + 1)
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial._herme2poly.herme2poly(pol)[-1], 1
-            )
+            numpy.testing.assert_almost_equal(beignet.herme_to_power_series(pol)[-1], 1)
             numpy.testing.assert_almost_equal(res, tgt)
 
     def test_hermeroots(self):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeroots.hermeroots([1]), []
+            beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1]), []
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeroots.hermeroots([1, 1]), [-1]
+            beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1, 1]),
+            [-1],
         )
         for i in range(2, 5):
             tgt = numpy.linspace(-1, 1, i)
-            res = beignet.polynomial._hermeroots.hermeroots(
-                beignet.polynomial._hermefromroots.hermefromroots(tgt)
+            res = beignet.polynomial._hermeroots.probabilists_hermite_series_roots(
+                beignet.polynomial._hermefromroots.probabilists_hermite_series_from_roots(
+                    tgt
+                )
             )
             numpy.testing.assert_almost_equal(trim(res), trim(tgt))
 
@@ -684,18 +893,23 @@ class TestMisc:
 
         # Test exceptions
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial._hermetrim.hermetrim, coef, -1
+            ValueError,
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series,
+            coef,
+            -1,
         )
 
         # Test results
         numpy.testing.assert_equal(
-            beignet.polynomial._hermetrim.hermetrim(coef), coef[:-1]
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(coef),
+            coef[:-1],
         )
         numpy.testing.assert_equal(
-            beignet.polynomial._hermetrim.hermetrim(coef, 1), coef[:-3]
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(coef, 1),
+            coef[:-3],
         )
         numpy.testing.assert_equal(
-            beignet.polynomial._hermetrim.hermetrim(coef, 2), [0]
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(coef, 2), [0]
         )
 
     def test_hermeline(self):
@@ -706,13 +920,17 @@ class TestMisc:
     def test_herme2poly(self):
         for i in range(10):
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._herme2poly.herme2poly([0] * i + [1]), Helist[i]
+                beignet.polynomial._herme2poly.herme_to_power_series([0] * i + [1]),
+                Helist[i],
             )
 
     def test_poly2herme(self):
         for i in range(10):
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._poly2herme.poly2herme(Helist[i]), [0] * i + [1]
+                beignet.polynomial._poly2herme.power_series_to_probabilists_hermite_series(
+                    Helist[i]
+                ),
+                [0] * i + [1],
             )
 
     def test_weight(self):
