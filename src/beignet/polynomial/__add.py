@@ -1,5 +1,5 @@
-from beignet.polynomial._as_series import as_series
-from beignet.polynomial._trimseq import trimseq
+from ._as_series import as_series
+from ._trimseq import trimseq
 
 
 def _add(c1, c2):
