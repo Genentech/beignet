@@ -1,5 +1,5 @@
+from ._add_laguerre_series import add_laguerre_series
 from ._as_series import as_series
-from ._lagadd import lagadd
 from ._lagmulx import lagmulx
 from ._lagsub import lagsub
 
@@ -28,5 +28,5 @@ def lagmul(c1, c2):
             tmp = c0
             nd = nd - 1
             c0 = lagsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1)) / nd)
-    return lagadd(c0, lagsub(c1, lagmulx(c1)))
+            c1 = add_laguerre_series(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1)) / nd)
+    return add_laguerre_series(c0, lagsub(c1, lagmulx(c1)))

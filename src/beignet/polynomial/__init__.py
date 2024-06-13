@@ -14,9 +14,14 @@ from .__vander_nd_flat import _vander_nd_flat
 from .__zseries_der import _zseries_der
 from .__zseries_int import _zseries_int
 from .__zseries_to_cseries import _zseries_to_cseries
+from ._add_chebyshev_series import add_chebyshev_polynomial
+from ._add_laguerre_series import add_laguerre_series
+from ._add_legendre_series import add_legendre_series
+from ._add_physicists_hermite_series import add_physicists_hermite_series
+from ._add_power_series import add_power_series
+from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._as_series import as_series
 from ._cheb2poly import cheb2poly
-from ._chebadd import chebadd
 from ._chebcompanion import chebcompanion
 from ._chebder import chebder
 from ._chebdiv import chebdiv
@@ -49,13 +54,11 @@ from ._chebx import chebx
 from ._chebzero import chebzero
 from ._getdomain import getdomain
 from ._herm2poly import herm2poly
-from ._hermadd import hermadd
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
 from ._hermdiv import hermdiv
 from ._hermdomain import hermdomain
 from ._herme2poly import herme2poly
-from ._hermeadd import hermeadd
 from ._hermecompanion import hermecompanion
 from ._hermeder import hermeder
 from ._hermediv import hermediv
@@ -107,7 +110,6 @@ from ._hermweight import hermweight
 from ._hermx import hermx
 from ._hermzero import hermzero
 from ._lag2poly import lag2poly
-from ._lagadd import lagadd
 from ._lagcompanion import lagcompanion
 from ._lagder import lagder
 from ._lagdiv import lagdiv
@@ -136,7 +138,6 @@ from ._lagweight import lagweight
 from ._lagx import lagx
 from ._lagzero import lagzero
 from ._leg2poly import leg2poly
-from ._legadd import legadd
 from ._legcompanion import legcompanion
 from ._legder import legder
 from ._legdiv import legdiv
@@ -171,7 +172,6 @@ from ._poly2herm import poly2herm
 from ._poly2herme import poly2herme
 from ._poly2lag import poly2lag
 from ._poly2leg import poly2leg
-from ._polyadd import polyadd
 from ._polycompanion import polycompanion
 from ._polyder import polyder
 from ._polydiv import polydiv

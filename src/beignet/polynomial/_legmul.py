@@ -1,5 +1,5 @@
+from ._add_legendre_series import add_legendre_series
 from ._as_series import as_series
-from ._legadd import legadd
 from ._legmulx import legmulx
 from ._legsub import legsub
 
@@ -28,5 +28,5 @@ def legmul(c1, c2):
             tmp = c0
             nd = nd - 1
             c0 = legsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = legadd(tmp, (legmulx(c1) * (2 * nd - 1)) / nd)
-    return legadd(c0, legmulx(c1))
+            c1 = add_legendre_series(tmp, (legmulx(c1) * (2 * nd - 1)) / nd)
+    return add_legendre_series(c0, legmulx(c1))

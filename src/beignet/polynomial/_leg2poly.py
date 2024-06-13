@@ -1,5 +1,5 @@
+from ._add_power_series import add_power_series
 from ._as_series import as_series
-from ._polyadd import polyadd
 from ._polymulx import polymulx
 from ._polysub import polysub
 
@@ -16,5 +16,5 @@ def leg2poly(c):
         for i in range(n - 1, 1, -1):
             tmp = c0
             c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
-            c1 = polyadd(tmp, (polymulx(c1) * (2 * i - 1)) / i)
-        return polyadd(c0, polymulx(c1))
+            c1 = add_power_series(tmp, (polymulx(c1) * (2 * i - 1)) / i)
+        return add_power_series(c0, polymulx(c1))

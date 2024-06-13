@@ -3,7 +3,7 @@ import functools
 import pickle
 
 import beignet.polynomial
-import beignet.polynomial._polyadd
+import beignet.polynomial._add_power_series
 import beignet.polynomial._polycompanion
 import beignet.polynomial._polyder
 import beignet.polynomial._polydiv
@@ -84,7 +84,9 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial._polyadd.polyadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial._polyadd.add_power_series(
+                    [0] * i + [1], [0] * j + [1]
+                )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_polysub(self):
@@ -132,9 +134,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1, 2]
                 cj = [0] * j + [1, 2]
-                tgt = beignet.polynomial._polyadd.polyadd(ci, cj)
+                tgt = beignet.polynomial._polyadd.add_power_series(ci, cj)
                 quo, rem = beignet.polynomial._polydiv.polydiv(tgt, ci)
-                res = beignet.polynomial._polyadd.polyadd(
+                res = beignet.polynomial._polyadd.add_power_series(
                     beignet.polynomial._polymul.polymul(quo, ci), rem
                 )
                 numpy.testing.assert_equal(res, tgt, err_msg=msg)

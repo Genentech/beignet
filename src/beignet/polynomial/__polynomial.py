@@ -6,8 +6,13 @@ from abc import ABC
 import numpy
 import numpy.linalg
 
+from ._add_chebyshev_series import add_chebyshev_polynomial
+from ._add_laguerre_series import add_laguerre_series
+from ._add_legendre_series import add_legendre_series
+from ._add_physicists_hermite_series import add_physicists_hermite_series
+from ._add_power_series import add_power_series
+from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._as_series import as_series
-from ._chebadd import chebadd
 from ._chebder import chebder
 from ._chebdiv import chebdiv
 from ._chebdomain import chebdomain
@@ -22,11 +27,9 @@ from ._chebroots import chebroots
 from ._chebsub import chebsub
 from ._chebval import chebval
 from ._getdomain import getdomain
-from ._hermadd import hermadd
 from ._hermder import hermder
 from ._hermdiv import hermdiv
 from ._hermdomain import hermdomain
-from ._hermeadd import hermeadd
 from ._hermeder import hermeder
 from ._hermediv import hermediv
 from ._hermedomain import hermedomain
@@ -48,7 +51,6 @@ from ._hermpow import hermpow
 from ._hermroots import hermroots
 from ._hermsub import hermsub
 from ._hermval import hermval
-from ._lagadd import lagadd
 from ._lagder import lagder
 from ._lagdiv import lagdiv
 from ._lagdomain import lagdomain
@@ -61,7 +63,6 @@ from ._lagpow import lagpow
 from ._lagroots import lagroots
 from ._lagsub import lagsub
 from ._lagval import lagval
-from ._legadd import legadd
 from ._legder import legder
 from ._legdiv import legdiv
 from ._legdomain import legdomain
@@ -76,7 +77,6 @@ from ._legsub import legsub
 from ._legval import legval
 from ._mapdomain import mapdomain
 from ._mapparms import mapparms
-from ._polyadd import polyadd
 from ._polyder import polyder
 from ._polydiv import polydiv
 from ._polydomain import polydomain
@@ -571,7 +571,7 @@ class _Polynomial(ABC):
 
 
 class ChebyshevPolynomial(_Polynomial):
-    _add = staticmethod(chebadd)
+    _add = staticmethod(add_chebyshev_polynomial)
     _sub = staticmethod(chebsub)
     _mul = staticmethod(chebmul)
     _div = staticmethod(chebdiv)
@@ -601,7 +601,7 @@ class ChebyshevPolynomial(_Polynomial):
 
 
 class Hermite(_Polynomial):
-    _add = staticmethod(hermadd)
+    _add = staticmethod(add_physicists_hermite_series)
     _sub = staticmethod(hermsub)
     _mul = staticmethod(hermmul)
     _div = staticmethod(hermdiv)
@@ -620,7 +620,7 @@ class Hermite(_Polynomial):
 
 
 class HermiteE(_Polynomial):
-    _add = staticmethod(hermeadd)
+    _add = staticmethod(add_probabilists_hermite_series)
     _sub = staticmethod(hermesub)
     _mul = staticmethod(hermemul)
     _div = staticmethod(hermediv)
@@ -639,7 +639,7 @@ class HermiteE(_Polynomial):
 
 
 class LaguerrePolynomial(_Polynomial):
-    _add = staticmethod(lagadd)
+    _add = staticmethod(add_laguerre_series)
     _sub = staticmethod(lagsub)
     _mul = staticmethod(lagmul)
     _div = staticmethod(lagdiv)
@@ -658,7 +658,7 @@ class LaguerrePolynomial(_Polynomial):
 
 
 class LegendrePolynomial(_Polynomial):
-    _add = staticmethod(legadd)
+    _add = staticmethod(add_legendre_series)
     _sub = staticmethod(legsub)
     _mul = staticmethod(legmul)
     _div = staticmethod(legdiv)
@@ -677,7 +677,7 @@ class LegendrePolynomial(_Polynomial):
 
 
 class Polynomial(_Polynomial):
-    _add = staticmethod(polyadd)
+    _add = staticmethod(add_power_series)
     _sub = staticmethod(polysub)
     _mul = staticmethod(polymul)
     _div = staticmethod(polydiv)

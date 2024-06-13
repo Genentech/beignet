@@ -3,8 +3,8 @@ import functools
 import beignet.polynomial
 import beignet.polynomial.__cseries_to_zseries
 import beignet.polynomial.__zseries_to_cseries
+import beignet.polynomial._add_chebyshev_series
 import beignet.polynomial._cheb2poly
-import beignet.polynomial._chebadd
 import beignet.polynomial._chebcompanion
 import beignet.polynomial._chebder
 import beignet.polynomial._chebdiv
@@ -97,7 +97,9 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial._chebadd.chebadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial.add_chebyshev_polynomial(
+                    [0] * i + [1], [0] * j + [1]
+                )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_chebsub(self):
@@ -134,9 +136,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.polynomial._chebadd.chebadd(ci, cj)
+                tgt = beignet.polynomial.add_chebyshev_polynomial(ci, cj)
                 quo, rem = beignet.polynomial._chebdiv.chebdiv(tgt, ci)
-                res = beignet.polynomial._chebadd.chebadd(
+                res = beignet.polynomial.add_chebyshev_polynomial(
                     beignet.polynomial._chebmul.chebmul(quo, ci), rem
                 )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)

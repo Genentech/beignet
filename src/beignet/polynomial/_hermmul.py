@@ -1,5 +1,5 @@
+from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._as_series import as_series
-from ._hermadd import hermadd
 from ._hermmulx import hermmulx
 from ._hermsub import hermsub
 
@@ -28,5 +28,5 @@ def hermmul(c1, c2):
             tmp = c0
             nd = nd - 1
             c0 = hermsub(c[-i] * xs, c1 * (2 * (nd - 1)))
-            c1 = hermadd(tmp, hermmulx(c1) * 2)
-    return hermadd(c0, hermmulx(c1) * 2)
+            c1 = add_physicists_hermite_series(tmp, hermmulx(c1) * 2)
+    return add_physicists_hermite_series(c0, hermmulx(c1) * 2)

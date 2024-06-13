@@ -1,5 +1,5 @@
+from ._add_power_series import add_power_series
 from ._as_series import as_series
-from ._polyadd import polyadd
 from ._polymulx import polymulx
 from ._polysub import polysub
 
@@ -21,6 +21,6 @@ def cheb2poly(c):
 
             c0 = polysub(c[i - 2], c1)
 
-            c1 = polyadd(tmp, polymulx(c1) * 2)
+            c1 = add_power_series(tmp, polymulx(c1) * 2)
 
-        return polyadd(c0, polymulx(c1))
+        return add_power_series(c0, polymulx(c1))

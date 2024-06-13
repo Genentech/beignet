@@ -1,5 +1,5 @@
+from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._as_series import as_series
-from ._hermeadd import hermeadd
 from ._hermemulx import hermemulx
 from ._hermesub import hermesub
 
@@ -28,5 +28,5 @@ def hermemul(c1, c2):
             tmp = c0
             nd = nd - 1
             c0 = hermesub(c[-i] * xs, c1 * (nd - 1))
-            c1 = hermeadd(tmp, hermemulx(c1))
-    return hermeadd(c0, hermemulx(c1))
+            c1 = add_probabilists_hermite_series(tmp, hermemulx(c1))
+    return add_probabilists_hermite_series(c0, hermemulx(c1))

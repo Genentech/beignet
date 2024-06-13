@@ -1,8 +1,8 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._add_legendre_series
 import beignet.polynomial._leg2poly
-import beignet.polynomial._legadd
 import beignet.polynomial._legcompanion
 import beignet.polynomial._legder
 import beignet.polynomial._legdiv
@@ -77,7 +77,9 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial._legadd.legadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial._legadd.add_legendre_series(
+                    [0] * i + [1], [0] * j + [1]
+                )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_legsub(self):
@@ -119,9 +121,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.polynomial._legadd.legadd(ci, cj)
+                tgt = beignet.polynomial._legadd.add_legendre_series(ci, cj)
                 quo, rem = beignet.polynomial._legdiv.legdiv(tgt, ci)
-                res = beignet.polynomial._legadd.legadd(
+                res = beignet.polynomial._legadd.add_legendre_series(
                     beignet.polynomial._legmul.legmul(quo, ci), rem
                 )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)

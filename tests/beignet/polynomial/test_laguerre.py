@@ -1,8 +1,8 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._add_laguerre_series
 import beignet.polynomial._lag2poly
-import beignet.polynomial._lagadd
 import beignet.polynomial._lagcompanion
 import beignet.polynomial._lagder
 import beignet.polynomial._lagdiv
@@ -74,7 +74,9 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial._lagadd.lagadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial._lagadd.add_laguerre_series(
+                    [0] * i + [1], [0] * j + [1]
+                )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_lagsub(self):
@@ -117,9 +119,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.polynomial._lagadd.lagadd(ci, cj)
+                tgt = beignet.polynomial._lagadd.add_laguerre_series(ci, cj)
                 quo, rem = beignet.polynomial._lagdiv.lagdiv(tgt, ci)
-                res = beignet.polynomial._lagadd.lagadd(
+                res = beignet.polynomial._lagadd.add_laguerre_series(
                     beignet.polynomial._lagmul.lagmul(quo, ci), rem
                 )
                 numpy.testing.assert_almost_equal(trim(res), trim(tgt), err_msg=msg)

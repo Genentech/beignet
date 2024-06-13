@@ -3,8 +3,8 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._add_physicists_hermite_series
 import beignet.polynomial._herm2poly
-import beignet.polynomial._hermadd
 import beignet.polynomial._hermcompanion
 import beignet.polynomial._hermder
 import beignet.polynomial._hermdiv
@@ -79,7 +79,9 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.polynomial._hermadd.hermadd([0] * i + [1], [0] * j + [1])
+                res = beignet.polynomial.add_physicists_hermite_series(
+                    [0] * i + [1], [0] * j + [1]
+                )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_hermsub(self):
@@ -120,9 +122,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.polynomial._hermadd.hermadd(ci, cj)
+                tgt = beignet.polynomial.add_physicists_hermite_series(ci, cj)
                 quo, rem = beignet.polynomial._hermdiv.hermdiv(tgt, ci)
-                res = beignet.polynomial._hermadd.hermadd(
+                res = beignet.polynomial.add_physicists_hermite_series(
                     beignet.polynomial._hermmul.hermmul(quo, ci), rem
                 )
                 numpy.testing.assert_equal(trim(res), trim(tgt), err_msg=msg)
