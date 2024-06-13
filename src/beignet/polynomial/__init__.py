@@ -7,41 +7,6 @@ from .__polynomial import (
     LaguerrePolynomial,
     LegendrePolynomial,
     Polynomial,
-    _zseries_der,
-    _zseries_int,
-    _zseries_to_cseries,
-    cheb2poly,
-    chebadd,
-    chebcompanion,
-    chebder,
-    chebdiv,
-    chebdomain,
-    chebfit,
-    chebfromroots,
-    chebgauss,
-    chebgrid2d,
-    chebgrid3d,
-    chebint,
-    chebinterpolate,
-    chebline,
-    chebmul,
-    chebmulx,
-    chebone,
-    chebpow,
-    chebpts1,
-    chebpts2,
-    chebroots,
-    chebsub,
-    chebtrim,
-    chebval,
-    chebval2d,
-    chebval3d,
-    chebvander,
-    chebvander2d,
-    chebvander3d,
-    chebweight,
-    chebx,
-    chebzero,
     herm2poly,
     hermadd,
     hermcompanion,
@@ -158,7 +123,6 @@ from .__polynomial import (
     legweight,
     legx,
     legzero,
-    poly2cheb,
     poly2herm,
     poly2herme,
     poly2lag,
@@ -167,10 +131,46 @@ from .__polynomial import (
 from .__pow import _pow
 from .__vander_nd import _vander_nd
 from .__vander_nd_flat import _vander_nd_flat
+from .__zseries_der import _zseries_der
+from .__zseries_int import _zseries_int
+from .__zseries_to_cseries import _zseries_to_cseries
 from ._as_series import as_series
+from ._cheb2poly import cheb2poly
+from ._chebadd import chebadd
+from ._chebcompanion import chebcompanion
+from ._chebder import chebder
+from ._chebdiv import chebdiv
+from ._chebdomain import chebdomain
+from ._chebfit import chebfit
+from ._chebfromroots import chebfromroots
+from ._chebgauss import chebgauss
+from ._chebgrid2d import chebgrid2d
+from ._chebgrid3d import chebgrid3d
+from ._chebint import chebint
+from ._chebinterpolate import chebinterpolate
+from ._chebline import chebline
+from ._chebmul import chebmul
+from ._chebmulx import chebmulx
+from ._chebone import chebone
+from ._chebpow import chebpow
+from ._chebpts1 import chebpts1
+from ._chebpts2 import chebpts2
+from ._chebroots import chebroots
+from ._chebsub import chebsub
+from ._chebtrim import chebtrim
+from ._chebval import chebval
+from ._chebval2d import chebval2d
+from ._chebval3d import chebval3d
+from ._chebvander import chebvander
+from ._chebvander2d import chebvander2d
+from ._chebvander3d import chebvander3d
+from ._chebweight import chebweight
+from ._chebx import chebx
+from ._chebzero import chebzero
 from ._getdomain import getdomain
 from ._mapdomain import mapdomain
 from ._mapparms import mapparms
+from ._poly2cheb import poly2cheb
 from ._polyadd import polyadd
 from ._polycompanion import polycompanion
 from ._polyder import polyder
