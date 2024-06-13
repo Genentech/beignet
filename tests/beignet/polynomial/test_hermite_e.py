@@ -1,6 +1,7 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._polyval
 import numpy
 import numpy.testing
 
@@ -114,7 +115,7 @@ class TestEvaluation:
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+    y = beignet.polynomial._polyval.polyval(x, [1.0, 2.0, 3.0])
 
     def test_hermeval(self):
         # check empty input
@@ -122,7 +123,7 @@ class TestEvaluation:
 
         # check normal input)
         x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in Helist]
+        y = [beignet.polynomial._polyval.polyval(x, c) for c in Helist]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]

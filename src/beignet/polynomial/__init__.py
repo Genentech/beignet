@@ -42,7 +42,6 @@ from .__polynomial import (
     chebweight,
     chebx,
     chebzero,
-    getdomain,
     herm2poly,
     hermadd,
     hermcompanion,
@@ -159,44 +158,45 @@ from .__polynomial import (
     legweight,
     legx,
     legzero,
-    mapdomain,
-    mapparms,
     poly2cheb,
     poly2herm,
     poly2herme,
     poly2lag,
     poly2leg,
-    polyadd,
-    polycompanion,
-    polyder,
-    polydiv,
-    polydomain,
-    polyfit,
-    polyfromroots,
-    polygrid2d,
-    polygrid3d,
-    polyint,
-    polyline,
-    polymul,
-    polymulx,
-    polyone,
-    polypow,
-    polyroots,
-    polysub,
-    polytrim,
-    polyval,
-    polyval2d,
-    polyval3d,
-    polyvalfromroots,
-    polyvander,
-    polyvander2d,
-    polyvander3d,
-    polyx,
-    polyzero,
 )
 from .__pow import _pow
 from .__vander_nd import _vander_nd
 from .__vander_nd_flat import _vander_nd_flat
 from ._as_series import as_series
+from ._getdomain import getdomain
+from ._mapdomain import mapdomain
+from ._mapparms import mapparms
+from ._polyadd import polyadd
+from ._polycompanion import polycompanion
+from ._polyder import polyder
+from ._polydiv import polydiv
+from ._polydomain import polydomain
+from ._polyfit import polyfit
+from ._polyfromroots import polyfromroots
+from ._polygrid2d import polygrid2d
+from ._polygrid3d import polygrid3d
+from ._polyint import polyint
+from ._polyline import polyline
+from ._polymul import polymul
+from ._polymulx import polymulx
+from ._polyone import polyone
+from ._polypow import polypow
+from ._polyroots import polyroots
+from ._polysub import polysub
+from ._polytrim import polytrim
+from ._polyval import polyval
+from ._polyval2d import polyval2d
+from ._polyval3d import polyval3d
+from ._polyvalfromroots import polyvalfromroots
+from ._polyvander import polyvander
+from ._polyvander2d import polyvander2d
+from ._polyvander3d import polyvander3d
+from ._polyx import polyx
+from ._polyzero import polyzero
 from ._trimcoef import trimcoef
 from ._trimseq import trimseq

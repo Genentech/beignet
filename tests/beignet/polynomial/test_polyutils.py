@@ -3,6 +3,9 @@ import beignet.polynomial.__div
 import beignet.polynomial.__pow
 import beignet.polynomial.__vander_nd
 import beignet.polynomial._as_series
+import beignet.polynomial._getdomain
+import beignet.polynomial._mapdomain
+import beignet.polynomial._mapparms
 import beignet.polynomial._trimcoef
 import beignet.polynomial._trimseq
 import numpy
@@ -88,13 +91,13 @@ class TestDomain:
         # test for real values
         x = [1, 10, 3, -1]
         tgt = [-1, 10]
-        res = beignet.polynomial.getdomain(x)
+        res = beignet.polynomial._getdomain.getdomain(x)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test for complex values
         x = [1 + 1j, 1 - 1j, 0, 2]
         tgt = [-1j, 2 + 1j]
-        res = beignet.polynomial.getdomain(x)
+        res = beignet.polynomial._getdomain.getdomain(x)
         numpy.testing.assert_almost_equal(res, tgt)
 
     def test_mapdomain(self):
@@ -102,7 +105,7 @@ class TestDomain:
         dom1 = [0, 4]
         dom2 = [1, 3]
         tgt = dom2
-        res = beignet.polynomial.mapdomain(dom1, dom1, dom2)
+        res = beignet.polynomial._mapdomain.mapdomain(dom1, dom1, dom2)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test for complex values
@@ -110,7 +113,7 @@ class TestDomain:
         dom2 = [-2, 2]
         tgt = dom2
         x = dom1
-        res = beignet.polynomial.mapdomain(x, dom1, dom2)
+        res = beignet.polynomial._mapdomain.mapdomain(x, dom1, dom2)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test for multidimensional arrays
@@ -118,7 +121,7 @@ class TestDomain:
         dom2 = [1, 3]
         tgt = numpy.array([dom2, dom2])
         x = numpy.array([dom1, dom1])
-        res = beignet.polynomial.mapdomain(x, dom1, dom2)
+        res = beignet.polynomial._mapdomain.mapdomain(x, dom1, dom2)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test that subtypes are preserved.
@@ -128,7 +131,7 @@ class TestDomain:
         dom1 = [0, 4]
         dom2 = [1, 3]
         x = numpy.array([dom1, dom1]).view(MyNDArray)
-        res = beignet.polynomial.mapdomain(x, dom1, dom2)
+        res = beignet.polynomial._mapdomain.mapdomain(x, dom1, dom2)
         numpy.testing.assert_(isinstance(res, MyNDArray))
 
     def test_mapparms(self):
@@ -136,12 +139,12 @@ class TestDomain:
         dom1 = [0, 4]
         dom2 = [1, 3]
         tgt = [1, 0.5]
-        res = beignet.polynomial.mapparms(dom1, dom2)
+        res = beignet.polynomial._mapparms.mapparms(dom1, dom2)
         numpy.testing.assert_almost_equal(res, tgt)
 
         # test for complex values
         dom1 = [0 - 1j, 2 + 1j]
         dom2 = [-2, 2]
         tgt = [-1 + 1j, 1 - 1j]
-        res = beignet.polynomial.mapparms(dom1, dom2)
+        res = beignet.polynomial._mapparms.mapparms(dom1, dom2)
         numpy.testing.assert_almost_equal(res, tgt)
