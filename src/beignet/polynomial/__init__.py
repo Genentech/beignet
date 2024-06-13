@@ -7,126 +7,6 @@ from .__polynomial import (
     LaguerrePolynomial,
     LegendrePolynomial,
     Polynomial,
-    herm2poly,
-    hermadd,
-    hermcompanion,
-    hermder,
-    hermdiv,
-    hermdomain,
-    herme2poly,
-    hermeadd,
-    hermecompanion,
-    hermeder,
-    hermediv,
-    hermedomain,
-    hermefit,
-    hermefromroots,
-    hermegauss,
-    hermegrid2d,
-    hermegrid3d,
-    hermeint,
-    hermeline,
-    hermemul,
-    hermemulx,
-    hermeone,
-    hermepow,
-    hermeroots,
-    hermesub,
-    hermetrim,
-    hermeval,
-    hermeval2d,
-    hermeval3d,
-    hermevander,
-    hermevander2d,
-    hermevander3d,
-    hermeweight,
-    hermex,
-    hermezero,
-    hermfit,
-    hermfromroots,
-    hermgauss,
-    hermgrid2d,
-    hermgrid3d,
-    hermint,
-    hermline,
-    hermmul,
-    hermmulx,
-    hermone,
-    hermpow,
-    hermroots,
-    hermsub,
-    hermtrim,
-    hermval,
-    hermval2d,
-    hermval3d,
-    hermvander,
-    hermvander2d,
-    hermvander3d,
-    hermweight,
-    hermx,
-    hermzero,
-    lag2poly,
-    lagadd,
-    lagcompanion,
-    lagder,
-    lagdiv,
-    lagdomain,
-    lagfit,
-    lagfromroots,
-    laggauss,
-    laggrid2d,
-    laggrid3d,
-    lagint,
-    lagline,
-    lagmul,
-    lagmulx,
-    lagone,
-    lagpow,
-    lagroots,
-    lagsub,
-    lagtrim,
-    lagval,
-    lagval2d,
-    lagval3d,
-    lagvander,
-    lagvander2d,
-    lagvander3d,
-    lagweight,
-    lagx,
-    lagzero,
-    leg2poly,
-    legadd,
-    legcompanion,
-    legder,
-    legdiv,
-    legdomain,
-    legfit,
-    legfromroots,
-    leggauss,
-    leggrid2d,
-    leggrid3d,
-    legint,
-    legline,
-    legmul,
-    legmulx,
-    legone,
-    legpow,
-    legroots,
-    legsub,
-    legtrim,
-    legval,
-    legval2d,
-    legval3d,
-    legvander,
-    legvander2d,
-    legvander3d,
-    legweight,
-    legx,
-    legzero,
-    poly2herm,
-    poly2herme,
-    poly2lag,
-    poly2leg,
 )
 from .__pow import _pow
 from .__vander_nd import _vander_nd
@@ -168,9 +48,129 @@ from ._chebweight import chebweight
 from ._chebx import chebx
 from ._chebzero import chebzero
 from ._getdomain import getdomain
+from ._herm2poly import herm2poly
+from ._hermadd import hermadd
+from ._hermcompanion import hermcompanion
+from ._hermder import hermder
+from ._hermdiv import hermdiv
+from ._hermdomain import hermdomain
+from ._herme2poly import herme2poly
+from ._hermeadd import hermeadd
+from ._hermecompanion import hermecompanion
+from ._hermeder import hermeder
+from ._hermediv import hermediv
+from ._hermedomain import hermedomain
+from ._hermefit import hermefit
+from ._hermefromroots import hermefromroots
+from ._hermegauss import hermegauss
+from ._hermegrid2d import hermegrid2d
+from ._hermegrid3d import hermegrid3d
+from ._hermeint import hermeint
+from ._hermeline import hermeline
+from ._hermemul import hermemul
+from ._hermemulx import hermemulx
+from ._hermeone import hermeone
+from ._hermepow import hermepow
+from ._hermeroots import hermeroots
+from ._hermesub import hermesub
+from ._hermetrim import hermetrim
+from ._hermeval import hermeval
+from ._hermeval2d import hermeval2d
+from ._hermeval3d import hermeval3d
+from ._hermevander import hermevander
+from ._hermevander2d import hermevander2d
+from ._hermevander3d import hermevander3d
+from ._hermeweight import hermeweight
+from ._hermex import hermex
+from ._hermezero import hermezero
+from ._hermfit import hermfit
+from ._hermfromroots import hermfromroots
+from ._hermgauss import hermgauss
+from ._hermgrid2d import hermgrid2d
+from ._hermgrid3d import hermgrid3d
+from ._hermint import hermint
+from ._hermline import hermline
+from ._hermmul import hermmul
+from ._hermmulx import hermmulx
+from ._hermone import hermone
+from ._hermpow import hermpow
+from ._hermroots import hermroots
+from ._hermsub import hermsub
+from ._hermtrim import hermtrim
+from ._hermval import hermval
+from ._hermval2d import hermval2d
+from ._hermval3d import hermval3d
+from ._hermvander import hermvander
+from ._hermvander2d import hermvander2d
+from ._hermvander3d import hermvander3d
+from ._hermweight import hermweight
+from ._hermx import hermx
+from ._hermzero import hermzero
+from ._lag2poly import lag2poly
+from ._lagadd import lagadd
+from ._lagcompanion import lagcompanion
+from ._lagder import lagder
+from ._lagdiv import lagdiv
+from ._lagdomain import lagdomain
+from ._lagfit import lagfit
+from ._lagfromroots import lagfromroots
+from ._laggauss import laggauss
+from ._laggrid2d import laggrid2d
+from ._laggrid3d import laggrid3d
+from ._lagint import lagint
+from ._lagline import lagline
+from ._lagmul import lagmul
+from ._lagmulx import lagmulx
+from ._lagone import lagone
+from ._lagpow import lagpow
+from ._lagroots import lagroots
+from ._lagsub import lagsub
+from ._lagtrim import lagtrim
+from ._lagval import lagval
+from ._lagval2d import lagval2d
+from ._lagval3d import lagval3d
+from ._lagvander import lagvander
+from ._lagvander2d import lagvander2d
+from ._lagvander3d import lagvander3d
+from ._lagweight import lagweight
+from ._lagx import lagx
+from ._lagzero import lagzero
+from ._leg2poly import leg2poly
+from ._legadd import legadd
+from ._legcompanion import legcompanion
+from ._legder import legder
+from ._legdiv import legdiv
+from ._legdomain import legdomain
+from ._legfit import legfit
+from ._legfromroots import legfromroots
+from ._leggauss import leggauss
+from ._leggrid2d import leggrid2d
+from ._leggrid3d import leggrid3d
+from ._legint import legint
+from ._legline import legline
+from ._legmul import legmul
+from ._legmulx import legmulx
+from ._legone import legone
+from ._legpow import legpow
+from ._legroots import legroots
+from ._legsub import legsub
+from ._legtrim import legtrim
+from ._legval import legval
+from ._legval2d import legval2d
+from ._legval3d import legval3d
+from ._legvander import legvander
+from ._legvander2d import legvander2d
+from ._legvander3d import legvander3d
+from ._legweight import legweight
+from ._legx import legx
+from ._legzero import legzero
 from ._mapdomain import mapdomain
 from ._mapparms import mapparms
 from ._poly2cheb import poly2cheb
+from ._poly2herm import poly2herm
+from ._poly2herme import poly2herme
+from ._poly2lag import poly2lag
+from ._poly2leg import poly2leg
 from ._polyadd import polyadd
 from ._polycompanion import polycompanion
 from ._polyder import polyder
