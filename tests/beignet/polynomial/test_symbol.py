@@ -174,7 +174,7 @@ class TestExtraMethods:
         (
             {"domain": [-10, 10]},
             {"window": [-10, 10]},
-            {"kind": beignet.polynomial.Chebyshev},
+            {"kind": beignet.polynomial.ChebyshevPolynomial},
         ),
     )
     def test_convert(self, kwarg):

@@ -1,9 +1,9 @@
 from .__polynomial import (
-    Chebyshev,
+    ChebyshevPolynomial,
     Hermite,
     HermiteE,
-    Laguerre,
-    Legendre,
+    LaguerrePolynomial,
+    LegendrePolynomial,
     Polynomial,
     _cseries_to_zseries,
     _div,
