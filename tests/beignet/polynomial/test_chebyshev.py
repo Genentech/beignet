@@ -1,6 +1,7 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial.__cseries_to_zseries
 import numpy
 import numpy.testing
 

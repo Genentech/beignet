@@ -1,3 +1,5 @@
+from .__cseries_to_zseries import _cseries_to_zseries
+from .__div import _div
 from .__polynomial import (
     ChebyshevPolynomial,
     Hermite,
@@ -5,15 +7,9 @@ from .__polynomial import (
     LaguerrePolynomial,
     LegendrePolynomial,
     Polynomial,
-    _cseries_to_zseries,
-    _div,
-    _pow,
-    _vander_nd,
-    _vander_nd_flat,
     _zseries_der,
     _zseries_int,
     _zseries_to_cseries,
-    as_series,
     cheb2poly,
     chebadd,
     chebcompanion,
@@ -197,6 +193,10 @@ from .__polynomial import (
     polyvander3d,
     polyx,
     polyzero,
-    trimcoef,
-    trimseq,
 )
+from .__pow import _pow
+from .__vander_nd import _vander_nd
+from .__vander_nd_flat import _vander_nd_flat
+from ._as_series import as_series
+from ._trimcoef import trimcoef
+from ._trimseq import trimseq

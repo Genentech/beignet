@@ -1,13 +1,26 @@
 import abc
-import functools
 import numbers
-import operator
 import os
-import warnings
+from abc import ABC
 
 import numpy
 import numpy.linalg
 from numpy.exceptions import AxisError
+
+from .__add import _add
+from .__cseries_to_zseries import _cseries_to_zseries
+from .__deprecate_as_int import _deprecate_as_int
+from .__div import _div
+from .__fit import _fit
+from .__fromroots import _fromroots
+from .__gridnd import _gridnd
+from .__pow import _pow
+from .__sub import _sub
+from .__valnd import _valnd
+from .__vander_nd_flat import _vander_nd_flat
+from ._as_series import as_series
+from ._trimcoef import trimcoef
+from ._trimseq import trimseq
 
 
 def normalize_axis_index(axis, ndim):
@@ -18,59 +31,6 @@ def normalize_axis_index(axis, ndim):
     if axis < 0:
         axis = axis + ndim
     return axis
-
-
-class RankWarning(UserWarning):
-    pass
-
-
-def trimseq(seq):
-    if len(seq) == 0:
-        return seq
-    else:
-        for i in range(len(seq) - 1, -1, -1):
-            if seq[i] != 0:
-                break
-        return seq[: i + 1]
-
-
-def as_series(alist, trim=True):
-    arrays = [numpy.array(a, ndmin=1, copy=False) for a in alist]
-    if min([a.size for a in arrays]) == 0:
-        raise ValueError("Coefficient array is empty")
-    if any(a.ndim != 1 for a in arrays):
-        raise ValueError("Coefficient array is not 1-d")
-    if trim:
-        arrays = [trimseq(a) for a in arrays]
-
-    if any(a.dtype == numpy.dtype(object) for a in arrays):
-        ret = []
-        for a in arrays:
-            if a.dtype != numpy.dtype(object):
-                tmp = numpy.empty(len(a), dtype=numpy.dtype(object))
-                tmp[:] = a[:]
-                ret.append(tmp)
-            else:
-                ret.append(a.copy())
-    else:
-        try:
-            dtype = numpy.common_type(*arrays)
-        except Exception as e:
-            raise ValueError("Coefficient arrays have no common type") from e
-        ret = [numpy.array(a, copy=True, dtype=dtype) for a in arrays]
-    return ret
-
-
-def trimcoef(c, tol=0):
-    if tol < 0:
-        raise ValueError("tol must be non-negative")
-
-    [c] = as_series([c])
-    [ind] = numpy.nonzero(numpy.abs(c) > tol)
-    if len(ind) == 0:
-        return c[:1] * 0
-    else:
-        return c[: ind[-1] + 1].copy()
 
 
 def getdomain(x):
@@ -95,235 +55,6 @@ def mapdomain(x, old, new):
     x = numpy.asanyarray(x)
     off, scl = mapparms(old, new)
     return off + scl * x
-
-
-def _nth_slice(i, ndim):
-    sl = [numpy.newaxis] * ndim
-    sl[i] = slice(None)
-    return tuple(sl)
-
-
-def _vander_nd(vander_fs, points, degrees):
-    n_dims = len(vander_fs)
-    if n_dims != len(points):
-        raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(points)}"
-        )
-    if n_dims != len(degrees):
-        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
-    if n_dims == 0:
-        raise ValueError("Unable to guess a dtype or shape when no points are given")
-
-    points = tuple(numpy.array(tuple(points), copy=False) + 0.0)
-
-    vander_arrays = (
-        vander_fs[i](points[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
-        for i in range(n_dims)
-    )
-
-    return functools.reduce(operator.mul, vander_arrays)
-
-
-def _vander_nd_flat(vander_fs, points, degrees):
-    v = _vander_nd(vander_fs, points, degrees)
-    return v.reshape(v.shape[: -len(degrees)] + (-1,))
-
-
-def _fromroots(line_f, mul_f, roots):
-    if len(roots) == 0:
-        return numpy.ones(1)
-    else:
-        [roots] = as_series([roots], trim=False)
-        roots.sort()
-        p = [line_f(-r, 1) for r in roots]
-        n = len(p)
-        while n > 1:
-            m, r = divmod(n, 2)
-            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
-            if r:
-                tmp[0] = mul_f(tmp[0], p[-1])
-            p = tmp
-            n = m
-        return p[0]
-
-
-def _valnd(val_f, c, *args):
-    args = [numpy.asanyarray(a) for a in args]
-    shape0 = args[0].shape
-    if not all((a.shape == shape0 for a in args[1:])):
-        if len(args) == 3:
-            raise ValueError("x, y, z are incompatible")
-        elif len(args) == 2:
-            raise ValueError("x, y are incompatible")
-        else:
-            raise ValueError("ordinates are incompatible")
-    it = iter(args)
-    x0 = next(it)
-
-    c = val_f(x0, c)
-    for xi in it:
-        c = val_f(xi, c, tensor=False)
-    return c
-
-
-def _gridnd(val_f, c, *args):
-    for xi in args:
-        c = val_f(xi, c)
-    return c
-
-
-def _div(mul_f, c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    if c2[-1] == 0:
-        raise ZeroDivisionError()
-
-    lc1 = len(c1)
-    lc2 = len(c2)
-    if lc1 < lc2:
-        return c1[:1] * 0, c1
-    elif lc2 == 1:
-        return c1 / c2[-1], c1[:1] * 0
-    else:
-        quo = numpy.empty(lc1 - lc2 + 1, dtype=c1.dtype)
-        rem = c1
-        for i in range(lc1 - lc2, -1, -1):
-            p = mul_f([0] * i + [1], c2)
-            q = rem[-1] / p[-1]
-            rem = rem[:-1] - q * p[:-1]
-            quo[i] = q
-        return quo, trimseq(rem)
-
-
-def _add(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    if len(c1) > len(c2):
-        c1[: c2.size] += c2
-        ret = c1
-    else:
-        c2[: c1.size] += c1
-        ret = c2
-    return trimseq(ret)
-
-
-def _sub(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    if len(c1) > len(c2):
-        c1[: c2.size] -= c2
-        ret = c1
-    else:
-        c2 = -c2
-        c2[: c1.size] += c1
-        ret = c2
-    return trimseq(ret)
-
-
-def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):
-    x = numpy.asarray(x) + 0.0
-    y = numpy.asarray(y) + 0.0
-    deg = numpy.asarray(deg)
-
-    if deg.ndim > 1 or deg.dtype.kind not in "iu" or deg.size == 0:
-        raise TypeError("deg must be an int or non-empty 1-D array of int")
-    if deg.min() < 0:
-        raise ValueError("expected deg >= 0")
-    if x.ndim != 1:
-        raise TypeError("expected 1D vector for x")
-    if x.size == 0:
-        raise TypeError("expected non-empty vector for x")
-    if y.ndim < 1 or y.ndim > 2:
-        raise TypeError("expected 1D or 2D array for y")
-    if len(x) != len(y):
-        raise TypeError("expected x and y to have same length")
-
-    if deg.ndim == 0:
-        lmax = deg
-        order = lmax + 1
-        van = vander_f(x, lmax)
-    else:
-        deg = numpy.sort(deg)
-        lmax = deg[-1]
-        order = len(deg)
-        van = vander_f(x, lmax)[:, deg]
-
-    lhs = van.T
-    rhs = y.T
-    if w is not None:
-        w = numpy.asarray(w) + 0.0
-        if w.ndim != 1:
-            raise TypeError("expected 1D vector for w")
-        if len(x) != len(w):
-            raise TypeError("expected x and w to have same length")
-
-        lhs = lhs * w
-        rhs = rhs * w
-
-    if rcond is None:
-        rcond = len(x) * numpy.finfo(x.dtype).eps
-
-    if issubclass(lhs.dtype.type, numpy.complexfloating):
-        scl = numpy.sqrt((numpy.square(lhs.real) + numpy.square(lhs.imag)).sum(1))
-    else:
-        scl = numpy.sqrt(numpy.square(lhs).sum(1))
-    scl[scl == 0] = 1
-
-    c, resids, rank, s = numpy.linalg.lstsq(lhs.T / scl, rhs.T, rcond)
-    c = (c.T / scl).T
-
-    if deg.ndim > 0:
-        if c.ndim == 2:
-            cc = numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
-        else:
-            cc = numpy.zeros(lmax + 1, dtype=c.dtype)
-        cc[deg] = c
-        c = cc
-
-    if rank != order and not full:
-        msg = "The fit may be poorly conditioned"
-        warnings.warn(msg, RankWarning, stacklevel=2)
-
-    if full:
-        return c, [resids, rank, s, rcond]
-    else:
-        return c
-
-
-def _pow(mul_f, c, pow, maxpower):
-    [c] = as_series([c])
-    power = int(pow)
-    if power != pow or power < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maxpower is not None and power > maxpower:
-        raise ValueError("Power is too large")
-    elif power == 0:
-        return numpy.array([1], dtype=c.dtype)
-    elif power == 1:
-        return c
-    else:
-        prd = c
-        for _ in range(2, power + 1):
-            prd = mul_f(prd, c)
-        return prd
-
-
-def _deprecate_as_int(x, desc):
-    try:
-        return operator.index(x)
-    except TypeError as e:
-        try:
-            ix = int(x)
-        except TypeError:
-            pass
-        else:
-            if ix == x:
-                warnings.warn(
-                    f"In future, this will raise TypeError, as {desc} will "
-                    "need to be an integer not just an integral float.",
-                    DeprecationWarning,
-                    stacklevel=3,
-                )
-                return ix
-
-        raise TypeError(f"{desc} must be an integer") from e
 
 
 polytrim = trimcoef
@@ -592,13 +323,6 @@ def polyroots(c):
 
 
 chebtrim = trimcoef
-
-
-def _cseries_to_zseries(c):
-    n = c.size
-    zs = numpy.zeros(2 * n - 1, dtype=c.dtype)
-    zs[n - 1 :] = c / 2
-    return zs + zs[::-1]
 
 
 def _zseries_to_cseries(zs):
@@ -2334,7 +2058,7 @@ def legweight(x):
     return x * 0.0 + 1.0
 
 
-class _Polynomial(abc.ABC):
+class _Polynomial(ABC):
     __hash__ = None
 
     __array_ufunc__ = None

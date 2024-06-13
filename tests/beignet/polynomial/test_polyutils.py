@@ -1,4 +1,10 @@
 import beignet.polynomial
+import beignet.polynomial.__div
+import beignet.polynomial.__pow
+import beignet.polynomial.__vander_nd
+import beignet.polynomial._as_series
+import beignet.polynomial._trimcoef
+import beignet.polynomial._trimseq
 import numpy
 import numpy.testing
 
@@ -7,17 +13,19 @@ class TestMisc:
     def test_trimseq(self):
         for _ in range(5):
             tgt = [1]
-            res = beignet.polynomial.trimseq([1] + [0] * 5)
+            res = beignet.polynomial._trimseq.trimseq([1] + [0] * 5)
             numpy.testing.assert_equal(res, tgt)
 
     def test_as_series(self):
         # check exceptions
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.as_series, [[]])
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.as_series, [[[1, 2]]]
+            ValueError, beignet.polynomial._as_series.as_series, [[]]
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.as_series, [[1], ["a"]]
+            ValueError, beignet.polynomial._as_series.as_series, [[[1, 2]]]
+        )
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial._as_series.as_series, [[1], ["a"]]
         )
         # check common types
         types = ["i", "d", "O"]
@@ -25,17 +33,23 @@ class TestMisc:
             for j in range(i):
                 ci = numpy.ones(1, types[i])
                 cj = numpy.ones(1, types[j])
-                [resi, resj] = beignet.polynomial.as_series([ci, cj])
+                [resi, resj] = beignet.polynomial._as_series.as_series([ci, cj])
                 numpy.testing.assert_(resi.dtype.char == resj.dtype.char)
                 numpy.testing.assert_(resj.dtype.char == types[i])
 
     def test_trimcoef(self):
         coef = [2, -1, 1, 0]
         # Test exceptions
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.trimcoef, coef, -1)
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial._trimcoef.trimcoef, coef, -1
+        )
         # Test results
-        numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef), coef[:-1])
-        numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef, 1), coef[:-3])
+        numpy.testing.assert_equal(
+            beignet.polynomial._trimcoef.trimcoef(coef), coef[:-1]
+        )
+        numpy.testing.assert_equal(
+            beignet.polynomial._trimcoef.trimcoef(coef, 1), coef[:-3]
+        )
         numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef, 2), [0])
 
     def test_vander_nd_exception(self):
