@@ -8,7 +8,9 @@ def trimcoef(c, tol=0):
         raise ValueError("tol must be non-negative")
 
     [c] = as_series([c])
+
     [ind] = numpy.nonzero(numpy.abs(c) > tol)
+
     if len(ind) == 0:
         return c[:1] * 0
     else:

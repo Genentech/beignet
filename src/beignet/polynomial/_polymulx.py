@@ -10,6 +10,9 @@ def polymulx(c):
         return c
 
     prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+
     prd[0] = c[0] * 0
+
     prd[1:] = c
+
     return prd

@@ -5,4 +5,5 @@ def trimseq(seq):
         for i in range(len(seq) - 1, -1, -1):
             if seq[i] != 0:
                 break
+
         return seq[: i + 1]
