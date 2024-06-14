@@ -35,14 +35,16 @@ def _particles_per_cell(
         corresponds to a cell in the grid defined by the `size` and `minimum_size`
         parameters. The value at each position is the count of particles in that cell.
     """
+    dim = positions.shape[1]
+
     size, unit_size, per_side, n = _cell_dimensions(
-        positions.shape[1], size, minimum_size
+        dim, size, minimum_size
     )
 
-    indexes = torch.sum(
-        (positions / unit_size).to(dtype=torch.int32)
-        * _hash_constants(positions.shape[1], per_side).to(device=positions.device),
-        dim=1,
-    )
+    hash_multipliers = _hash_constants(positions.shape[1], per_side)
+    particle_index = torch.tensor(positions / unit_size, dtype=torch.int32)
+    particle_hash = torch.sum(particle_index * hash_multipliers, dim=1)
 
-    return _segment_sum(torch.ones_like(indexes), indexes, n)
+    filling = _segment_sum(torch.ones_like(particle_hash), particle_hash, n)
+
+    return filling

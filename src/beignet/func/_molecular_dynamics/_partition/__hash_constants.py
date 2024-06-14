@@ -35,8 +35,8 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
         cells_per_side = cells_per_side.view(-1)
 
     if cells_per_side.numel() == 1:
-        constants = [cells_per_side ** dim for dim in
-                     range(spatial_dimensions)]
+        constants = [[cells_per_side ** dim for dim in
+                     range(spatial_dimensions)]]
         return torch.tensor([constants], dtype=torch.int32)
 
     elif cells_per_side.numel() == spatial_dimensions:

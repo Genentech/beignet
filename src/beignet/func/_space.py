@@ -171,6 +171,8 @@ def space(
                 if "updated_transform" in kwargs:
                     _transform = kwargs["updated_transform"]
 
+                print(f"input: {input}")
+                print(f"input shape: {input.shape}")
                 if len(input.shape) != 1:
                     raise ValueError
 
@@ -338,12 +340,6 @@ def space(
         perturbation: Tensor | None = None,
         **_,
     ) -> Tensor:
-        if len(input.shape) != 1:
-            raise ValueError
-
-        if input.shape != other.shape:
-            raise ValueError
-
         displacement = torch.remainder(
             input - other + box * 0.5,
             box,
