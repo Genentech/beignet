@@ -345,26 +345,30 @@ def space(
             box,
         )
 
-        if perturbation is not None:
-            transform = displacement - box * 0.5
+        print(f"displacement: {displacement.shape}")
 
-            match transform.ndim:
-                case 0:
-                    return perturbation * transform
-                case 1:
-                    return torch.einsum(
-                        "i,...i->...i",
-                        transform,
-                        perturbation,
-                    )
-                case 2:
-                    return torch.einsum(
-                        "ij,...j->...i",
-                        transform,
-                        perturbation,
-                    )
-                case _:
-                    raise ValueError
+        print(f"perturbation: {perturbation}")
+
+        # if perturbation is not None:
+        #     transform = displacement - box * 0.5
+        #
+        #     match transform.ndim:
+        #         case 0:
+        #             return perturbation * transform
+        #         case 1:
+        #             return torch.einsum(
+        #                 "i,...i->...i",
+        #                 transform,
+        #                 perturbation,
+        #             )
+        #         case 2:
+        #             return torch.einsum(
+        #                 "ij,...j->...i",
+        #                 transform,
+        #                 perturbation,
+        #             )
+        #         case _:
+        #             raise ValueError
 
         return displacement - box * 0.5
 

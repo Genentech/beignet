@@ -5,6 +5,8 @@ import torch
 from functorch import vmap
 
 from src.beignet.func import space
+from src.beignet.func._molecular_dynamics._partition.__clamp_indices import \
+    clamp_indices
 from src.beignet.func._molecular_dynamics._partition._neighbor_list import \
     neighbor_list
 from src.beignet.func._molecular_dynamics._partition.__metric import metric
@@ -45,25 +47,27 @@ def test_neighbor_list_build(dim):
 
     mask = idx < N # mask.shape == torch.Size([1000, 85])
 
-    d = vmap(vmap(metric_fn, in_dims=(None, 0)), in_dims=(0, 0))
+    d = vmap(vmap(metric_fn, in_dims=(None, 0)))
 
     assert R.shape == (1000, 2)
     assert R_neigh.shape == (1000, 479, 2)
 
     dR = d(R, R_neigh) # dR.shape = torch.Size([1000, 479, 2, 2])
 
-    assert dR.shape == (1000, 1)
+    # assert torch.equal(dR, torch.tensor([1, 2, 3]))
+
+    assert dR.shape == (1000, 479)
 
     d_exact = map_product(metric_fn)
     dR_exact = d_exact(R, R)
 
-
-
     multiplier = torch.where(dR < cutoff, dR, torch.tensor(0))
 
-    assert multiplier.shape == (1) # multiplier.shape = torch.Size([1000, 85, 2, 2])
+    # assert multiplier.shape == (1) # multiplier.shape = torch.Size([1000, 85, 2, 2])
 
-    dR = multiplier * mask
+    dR = multiplier * mask # turns it to torch.zeros i think
+
+    assert torch.equal(dR, torch.tensor([1, 2, 3]))
 
     mask_exact = 1. - torch.eye(dR_exact.shape[0])
     dR_exact = torch.where(dR_exact < cutoff, dR_exact, torch.tensor(0)) * mask_exact
@@ -73,7 +77,16 @@ def test_neighbor_list_build(dim):
 
     for i in range(dR.shape[0]):
         dR_row = dR[i]
+
+        # assert dR_row.shape == (479)
+
+        assert torch.equal(dR, torch.tensor([1, 2, 3]))
+
+
+
         dR_row = dR_row[dR_row > 0.]
+
+        assert dR_row.shape == (10, 12)
 
         dR_exact_row = dR_exact[i]
         dR_exact_row = torch.tensor(dR_exact_row[dR_exact_row > 0.])
