@@ -24,7 +24,7 @@ def _hash_constants_strategy(draw):
 @pytest.mark.parametrize(
     "spatial_dimensions, cells_per_side, expected_result, expected_exception",
     [
-        (3, torch.tensor([4], dtype=torch.int32), torch.tensor([[1, 4, 16]], dtype=torch.int32), None),
+        (3, torch.tensor([4], dtype=torch.int32), torch.tensor([[[1, 4, 16]]], dtype=torch.int32), None),
         (3, torch.tensor([4, 4, 4], dtype=torch.int32), torch.tensor([[1, 4, 16]], dtype=torch.int32), None),
         (3, torch.tensor([4, 4], dtype=torch.int32), None, ValueError),
     ],
@@ -45,7 +45,8 @@ def test__hash_constants(data):
     spatial_dimensions, cells_per_side = data
 
     if cells_per_side.numel() == 1:
-        expected_result = torch.tensor([[cells_per_side.item() ** i for i in range(spatial_dimensions)]], dtype=torch.int32)
+        constants = [[cells_per_side.item() ** i for i in range(spatial_dimensions)]]
+        expected_result = torch.tensor([constants], dtype=torch.int32)
     else:
         if cells_per_side.numel() != spatial_dimensions:
             with pytest.raises(ValueError):

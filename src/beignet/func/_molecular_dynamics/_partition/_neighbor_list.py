@@ -39,11 +39,7 @@ def neighbor_list(
 ) -> _NeighborListFunctionList:
     _is_neighbor_list_format_valid(neighbor_list_format)
 
-    # space = stop_gradient(space)
-
-    # neighborhood_radius = stop_gradient(neighborhood_radius)
-
-    # maximum_distance = stop_gradient(maximum_distance)
+    space = space.detach()
 
     cutoff = neighborhood_radius + maximum_distance
 
@@ -114,7 +110,13 @@ def neighbor_list(
 
         displacement_fn = _map_neighbor(displacement_fn)
 
-        displacements = displacement_fn(positions, positions[indexes])
+        try:
+            neighbor_positions = positions[indexes]
+
+        except:
+            neighbor_positions = torch.zeros(indexes.shape[0], indexes.shape[1], positions.shape[1])
+
+        displacements = displacement_fn(positions, neighbor_positions)
 
         mask = (displacements < squared_cutoff) & (indexes < positions.shape[0])
 
@@ -128,7 +130,7 @@ def neighbor_list(
 
         p_index = torch.arange(indexes.shape[0])[:, None]
 
-        output_indexes = output_indexes.at[p_index, index].set(indexes)
+        output_indexes[p_index, index] = indexes
 
         maximum_occupancy = torch.max(cumsum[:, -1])
 
@@ -187,10 +189,12 @@ def neighbor_list(
     def _neighbors_fn(
         positions: Tensor, neighbors=None, extra_capacity: int = 0, **kwargs
     ) -> _NeighborList:
+        # print(f"extra_capacity: {extra_capacity}")
         def _fn(position_and_error, maximum_size=None):
             reference_positions, err = position_and_error
 
             n = reference_positions.shape[0]
+            # print(f"n: {n}")
 
             buffer_fn = None
 
@@ -198,12 +202,14 @@ def neighbor_list(
 
             item_size = None
 
+            # print(f"disable_unit_list: {disable_unit_list}")
+
             if not disable_unit_list:
                 if neighbors is None:
                     _space = kwargs.get("space", space)
 
                     item_size = cutoff
-
+                    # print(f"normalized: {normalized}")
                     if normalized:
                         if not torch.all(positions < 1):
                             raise ValueError(
@@ -219,12 +225,15 @@ def neighbor_list(
 
                         _space = 1.0
 
-                    if item_size < _space / 3.0:
+                    if torch.all(item_size < _space / 3.0):
+                        # print("here")
                         buffer_fn = cell_list(_space, item_size, buffer_size_multiplier)
 
                         unit_list = buffer_fn.setup_fn(
                             reference_positions, excess_buffer_size=extra_capacity
                         )
+                        # print(f"positions: {unit_list.positions_buffer.shape[0]}")
+                        # print(f"indexes: {unit_list.indexes.shape[0]}")
                 else:
                     item_size = neighbors.item_size
 
@@ -251,6 +260,9 @@ def neighbor_list(
 
                 units_buffer_size = unit_list.size
 
+                print(f"idx: {indexes.shape[0]}")
+                print(f"cl capacity: {units_buffer_size}")
+
             if mask_self:
                 indexes = mask_self_fn(indexes)
             if mask_fn is not None:
@@ -261,6 +273,8 @@ def neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
             else:
+                # print(f"position: {reference_positions}")
+
                 indexes, occupancy = prune_dense_neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
@@ -311,6 +325,8 @@ def neighbor_list(
             )
 
         updated_neighbors = neighbors
+
+        # print(f"nbrs: {updated_neighbors}")
 
         if updated_neighbors is None:
             return _fn(

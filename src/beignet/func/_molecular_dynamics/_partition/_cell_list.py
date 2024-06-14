@@ -76,11 +76,11 @@ def cell_list(
             size,
             minimum_unit_size,
         )
+
         if excess is None:
-            buffer_size = int(
-                torch.max(_particles_per_cell(positions, size, unit_size))
-                * buffer_size_multiplier
-            )
+            cell_capacity= torch.max(_particles_per_cell(positions, size, unit_size))
+
+            buffer_size = int(cell_capacity * buffer_size_multiplier)
 
             buffer_size = buffer_size + excess_buffer_size
 
@@ -181,6 +181,8 @@ def cell_list(
             > buffer_size
         )
 
+        print(f"cell_capacity: {buffer_size}")
+
         return _CellList(
             exceeded_maximum_size=exceeded_maximum_size,
             indexes=indexes,
@@ -236,7 +238,6 @@ def cell_list(
             The updated cell list.
         """
         if isinstance(buffer, int):
-            print(f"cell list: {buffer}")
             return fn(positions, (buffer, False, fn), **kwargs)
 
         return fn(
