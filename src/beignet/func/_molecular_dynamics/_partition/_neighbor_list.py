@@ -7,6 +7,7 @@ import torch
 from torch import Tensor
 
 from .__cell_size import _cell_size
+from .__clamp_indices import clamp_indices
 from .__is_neighbor_list_format_valid import _is_neighbor_list_format_valid
 from .__is_neighbor_list_sparse import _is_neighbor_list_sparse
 from .__is_space_valid import _is_space_valid
