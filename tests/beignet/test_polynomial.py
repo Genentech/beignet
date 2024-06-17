@@ -147,10 +147,12 @@ polynomial_Tlist = [
 
 def test__cseries_to_zseries():
     for i in range(5):
-        inp = numpy.array([2] + [1] * i, numpy.double)
-        tgt = numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double)
-        res = beignet.polynomial._cseries_to_zseries(inp)
-        numpy.testing.assert_equal(res, tgt)
+        numpy.testing.assert_equal(
+            beignet.polynomial._cseries_to_zseries(
+                numpy.array([2] + [1] * i, numpy.double)
+            ),
+            numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double),
+        )
 
 
 def test__div():
@@ -183,10 +185,12 @@ def test__vander_nd():
 
 def test__zseries_to_cseries():
     for i in range(5):
-        inp = numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double)
-        tgt = numpy.array([2] + [1] * i, numpy.double)
-        res = beignet.polynomial._zseries_to_cseries(inp)
-        numpy.testing.assert_equal(res, tgt)
+        numpy.testing.assert_equal(
+            beignet.polynomial._zseries_to_cseries(
+                numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double)
+            ),
+            numpy.array([2] + [1] * i, numpy.double),
+        )
 
 
 def test_as_series():
@@ -197,9 +201,9 @@ def test_as_series():
     types = ["i", "d", "O"]
     for i in range(len(types)):
         for j in range(i):
-            ci = numpy.ones(1, types[i])
-            cj = numpy.ones(1, types[j])
-            [resi, resj] = beignet.polynomial.as_series([ci, cj])
+            [resi, resj] = beignet.polynomial.as_series(
+                [(numpy.ones(1, types[i])), (numpy.ones(1, types[j]))]
+            )
             numpy.testing.assert_(resi.dtype.char == resj.dtype.char)
             numpy.testing.assert_(resj.dtype.char == types[i])
 
@@ -219,9 +223,10 @@ def test_chebadd():
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] += 1
-            res = beignet.polynomial.chebadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebadd([0] * i + [1], [0] * j + [1]), tol=1e-6
+                ),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
                 err_msg=msg,
             )
@@ -232,8 +237,9 @@ def test_chebcompanion():
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebcompanion, [1])
 
     for i in range(1, 5):
-        coef = [0] * i + [1]
-        numpy.testing.assert_(beignet.polynomial.chebcompanion(coef).shape == (i, i))
+        numpy.testing.assert_(
+            beignet.polynomial.chebcompanion([0] * i + [1]).shape == (i, i)
+        )
 
     numpy.testing.assert_(beignet.polynomial.chebcompanion([1, 2])[0, 0] == -0.5)
 
@@ -244,41 +250,48 @@ def test_chebder():
 
     for i in range(5):
         tgt = [0] * i + [1]
-        res = beignet.polynomial.chebder(tgt, m=0)
         numpy.testing.assert_equal(
-            beignet.polynomial.chebtrim(res, tol=1e-6),
+            beignet.polynomial.chebtrim(beignet.polynomial.chebder(tgt, m=0), tol=1e-6),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.chebder(beignet.polynomial.chebint(tgt, m=j), m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebder(
+                        beignet.polynomial.chebint(tgt, m=j), m=j
+                    ),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.chebder(
-                beignet.polynomial.chebint(tgt, m=j, scl=2), m=j, scl=0.5
-            )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebder(
+                        beignet.polynomial.chebint(tgt, m=j, scl=2), m=j, scl=0.5
+                    ),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
 
-    tgt = numpy.vstack([beignet.polynomial.chebder(c) for c in c2d.T]).T
-    res = beignet.polynomial.chebder(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebder(c2d, axis=0),
+        numpy.vstack([beignet.polynomial.chebder(c) for c in c2d.T]).T,
+    )
 
-    tgt = numpy.vstack([beignet.polynomial.chebder(c) for c in c2d])
-    res = beignet.polynomial.chebder(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebder(c2d, axis=1),
+        numpy.vstack([beignet.polynomial.chebder(c) for c in c2d]),
+    )
 
 
 def test_chebdiv():
@@ -286,12 +299,15 @@ def test_chebdiv():
         for j in range(5):
             msg = f"At i={i}, j={j}"
             ci = [0] * i + [1]
-            cj = [0] * j + [1]
-            tgt = beignet.polynomial.chebadd(ci, cj)
+            tgt = beignet.polynomial.chebadd(ci, [0] * j + [1])
             quo, rem = beignet.polynomial.chebdiv(tgt, ci)
-            res = beignet.polynomial.chebadd(beignet.polynomial.chebmul(quo, ci), rem)
             numpy.testing.assert_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebadd(
+                        beignet.polynomial.chebmul(quo, ci), rem
+                    ),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
                 err_msg=msg,
             )
@@ -388,14 +404,16 @@ def test_chebfit():
 
 
 def test_chebfromroots():
-    res = beignet.polynomial.chebfromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebtrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebtrim(beignet.polynomial.chebfromroots([]), tol=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         tgt = [0] * i + [1]
-        res = beignet.polynomial.chebfromroots(roots) * 2 ** (i - 1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebtrim(res, tol=1e-6),
+            beignet.polynomial.chebtrim(
+                beignet.polynomial.chebfromroots(roots) * 2 ** (i - 1), tol=1e-6
+            ),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
         )
 
@@ -418,18 +436,15 @@ def test_chebgrid2d():
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    tgt = numpy.einsum("i,j->ij", y1, y2)
-    res = beignet.polynomial.chebgrid2d(x1, x2, c2d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebgrid2d(x1, x2, c2d), numpy.einsum("i,j->ij", y1, y2)
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.chebgrid2d(z, z, c2d)
-    numpy.testing.assert_(res.shape == (2, 3) * 2)
+    numpy.testing.assert_(beignet.polynomial.chebgrid2d(z, z, c2d).shape == (2, 3) * 2)
 
 
 def test_chebgrid3d():
@@ -444,12 +459,14 @@ def test_chebgrid3d():
     y1, y2, y3 = y
 
     tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-    res = beignet.polynomial.chebgrid3d(x1, x2, x3, c3d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebgrid3d(x1, x2, x3, c3d), tgt
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.chebgrid3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3) * 3)
+    numpy.testing.assert_(
+        beignet.polynomial.chebgrid3d(z, z, z, c3d).shape == (2, 3) * 3
+    )
 
 
 def test_chebint():
