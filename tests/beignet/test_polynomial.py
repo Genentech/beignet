@@ -28,6 +28,122 @@ chebyshev_polynomial_Tlist = [
     chebyshev_polynomial_T9,
 ]
 
+hermite_polynomial_H0 = numpy.array([1])
+hermite_polynomial_H1 = numpy.array([0, 2])
+hermite_polynomial_H2 = numpy.array([-2, 0, 4])
+hermite_polynomial_H3 = numpy.array([0, -12, 0, 8])
+hermite_polynomial_H4 = numpy.array([12, 0, -48, 0, 16])
+hermite_polynomial_H5 = numpy.array([0, 120, 0, -160, 0, 32])
+hermite_polynomial_H6 = numpy.array([-120, 0, 720, 0, -480, 0, 64])
+hermite_polynomial_H7 = numpy.array([0, -1680, 0, 3360, 0, -1344, 0, 128])
+hermite_polynomial_H8 = numpy.array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])
+hermite_polynomial_H9 = numpy.array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])
+
+hermite_polynomial_Hlist = [
+    hermite_polynomial_H0,
+    hermite_polynomial_H1,
+    hermite_polynomial_H2,
+    hermite_polynomial_H3,
+    hermite_polynomial_H4,
+    hermite_polynomial_H5,
+    hermite_polynomial_H6,
+    hermite_polynomial_H7,
+    hermite_polynomial_H8,
+    hermite_polynomial_H9,
+]
+
+hermite_e_polynomial_He0 = numpy.array([1])
+hermite_e_polynomial_He1 = numpy.array([0, 1])
+hermite_e_polynomial_He2 = numpy.array([-1, 0, 1])
+hermite_e_polynomial_He3 = numpy.array([0, -3, 0, 1])
+hermite_e_polynomial_He4 = numpy.array([3, 0, -6, 0, 1])
+hermite_e_polynomial_He5 = numpy.array([0, 15, 0, -10, 0, 1])
+hermite_e_polynomial_He6 = numpy.array([-15, 0, 45, 0, -15, 0, 1])
+hermite_e_polynomial_He7 = numpy.array([0, -105, 0, 105, 0, -21, 0, 1])
+hermite_e_polynomial_He8 = numpy.array([105, 0, -420, 0, 210, 0, -28, 0, 1])
+hermite_e_polynomial_He9 = numpy.array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])
+
+hermite_e_polynomial_Helist = [
+    hermite_e_polynomial_He0,
+    hermite_e_polynomial_He1,
+    hermite_e_polynomial_He2,
+    hermite_e_polynomial_He3,
+    hermite_e_polynomial_He4,
+    hermite_e_polynomial_He5,
+    hermite_e_polynomial_He6,
+    hermite_e_polynomial_He7,
+    hermite_e_polynomial_He8,
+    hermite_e_polynomial_He9,
+]
+
+laguerre_polynomial_L0 = numpy.array([1]) / 1
+laguerre_polynomial_L1 = numpy.array([1, -1]) / 1
+laguerre_polynomial_L2 = numpy.array([2, -4, 1]) / 2
+laguerre_polynomial_L3 = numpy.array([6, -18, 9, -1]) / 6
+laguerre_polynomial_L4 = numpy.array([24, -96, 72, -16, 1]) / 24
+laguerre_polynomial_L5 = numpy.array([120, -600, 600, -200, 25, -1]) / 120
+laguerre_polynomial_L6 = numpy.array([720, -4320, 5400, -2400, 450, -36, 1]) / 720
+
+laguerre_polynomial_Llist = [
+    laguerre_polynomial_L0,
+    laguerre_polynomial_L1,
+    laguerre_polynomial_L2,
+    laguerre_polynomial_L3,
+    laguerre_polynomial_L4,
+    laguerre_polynomial_L5,
+    laguerre_polynomial_L6,
+]
+
+legendre_polynomial_L0 = numpy.array([1])
+legendre_polynomial_L1 = numpy.array([0, 1])
+legendre_polynomial_L2 = numpy.array([-1, 0, 3]) / 2
+legendre_polynomial_L3 = numpy.array([0, -3, 0, 5]) / 2
+legendre_polynomial_L4 = numpy.array([3, 0, -30, 0, 35]) / 8
+legendre_polynomial_L5 = numpy.array([0, 15, 0, -70, 0, 63]) / 8
+legendre_polynomial_L6 = numpy.array([-5, 0, 105, 0, -315, 0, 231]) / 16
+legendre_polynomial_L7 = numpy.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16
+legendre_polynomial_L8 = numpy.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128
+legendre_polynomial_L9 = (
+    numpy.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128
+)
+
+legendre_polynomial_Llist = [
+    legendre_polynomial_L0,
+    legendre_polynomial_L1,
+    legendre_polynomial_L2,
+    legendre_polynomial_L3,
+    legendre_polynomial_L4,
+    legendre_polynomial_L5,
+    legendre_polynomial_L6,
+    legendre_polynomial_L7,
+    legendre_polynomial_L8,
+    legendre_polynomial_L9,
+]
+
+polynomial_T0 = [1]
+polynomial_T1 = [0, 1]
+polynomial_T2 = [-1, 0, 2]
+polynomial_T3 = [0, -3, 0, 4]
+polynomial_T4 = [1, 0, -8, 0, 8]
+polynomial_T5 = [0, 5, 0, -20, 0, 16]
+polynomial_T6 = [-1, 0, 18, 0, -48, 0, 32]
+polynomial_T7 = [0, -7, 0, 56, 0, -112, 0, 64]
+polynomial_T8 = [1, 0, -32, 0, 160, 0, -256, 0, 128]
+polynomial_T9 = [0, 9, 0, -120, 0, 432, 0, -576, 0, 256]
+
+polynomial_Tlist = [
+    polynomial_T0,
+    polynomial_T1,
+    polynomial_T2,
+    polynomial_T3,
+    polynomial_T4,
+    polynomial_T5,
+    polynomial_T6,
+    polynomial_T7,
+    polynomial_T8,
+    polynomial_T9,
+]
+
 
 def test__cseries_to_zseries():
     for i in range(5):
@@ -715,31 +831,6 @@ class TestChebyshevPolynomialMisc:
         numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(5), tgt)
 
 
-hermite_polynomial_H0 = numpy.array([1])
-hermite_polynomial_H1 = numpy.array([0, 2])
-hermite_polynomial_H2 = numpy.array([-2, 0, 4])
-hermite_polynomial_H3 = numpy.array([0, -12, 0, 8])
-hermite_polynomial_H4 = numpy.array([12, 0, -48, 0, 16])
-hermite_polynomial_H5 = numpy.array([0, 120, 0, -160, 0, 32])
-hermite_polynomial_H6 = numpy.array([-120, 0, 720, 0, -480, 0, 64])
-hermite_polynomial_H7 = numpy.array([0, -1680, 0, 3360, 0, -1344, 0, 128])
-hermite_polynomial_H8 = numpy.array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])
-hermite_polynomial_H9 = numpy.array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])
-
-hermite_polynomial_Hlist = [
-    hermite_polynomial_H0,
-    hermite_polynomial_H1,
-    hermite_polynomial_H2,
-    hermite_polynomial_H3,
-    hermite_polynomial_H4,
-    hermite_polynomial_H5,
-    hermite_polynomial_H6,
-    hermite_polynomial_H7,
-    hermite_polynomial_H8,
-    hermite_polynomial_H9,
-]
-
-
 class TestHermitePolynomialConstants:
     def test_hermdomain(self):
         numpy.testing.assert_equal(beignet.polynomial.hermdomain, [-1, 1])
@@ -1370,31 +1461,6 @@ class TestHermitePolynomialMisc:
         tgt = numpy.exp(-(x**2))
         res = beignet.polynomial.hermweight(x)
         numpy.testing.assert_almost_equal(res, tgt)
-
-
-hermite_e_polynomial_He0 = numpy.array([1])
-hermite_e_polynomial_He1 = numpy.array([0, 1])
-hermite_e_polynomial_He2 = numpy.array([-1, 0, 1])
-hermite_e_polynomial_He3 = numpy.array([0, -3, 0, 1])
-hermite_e_polynomial_He4 = numpy.array([3, 0, -6, 0, 1])
-hermite_e_polynomial_He5 = numpy.array([0, 15, 0, -10, 0, 1])
-hermite_e_polynomial_He6 = numpy.array([-15, 0, 45, 0, -15, 0, 1])
-hermite_e_polynomial_He7 = numpy.array([0, -105, 0, 105, 0, -21, 0, 1])
-hermite_e_polynomial_He8 = numpy.array([105, 0, -420, 0, 210, 0, -28, 0, 1])
-hermite_e_polynomial_He9 = numpy.array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])
-
-hermite_e_polynomial_Helist = [
-    hermite_e_polynomial_He0,
-    hermite_e_polynomial_He1,
-    hermite_e_polynomial_He2,
-    hermite_e_polynomial_He3,
-    hermite_e_polynomial_He4,
-    hermite_e_polynomial_He5,
-    hermite_e_polynomial_He6,
-    hermite_e_polynomial_He7,
-    hermite_e_polynomial_He8,
-    hermite_e_polynomial_He9,
-]
 
 
 class TestHermiteEPolynomialConstants:
@@ -2038,25 +2104,6 @@ class TestHermiteEPolynomialMisc:
         numpy.testing.assert_almost_equal(res, tgt)
 
 
-laguerre_polynomial_L0 = numpy.array([1]) / 1
-laguerre_polynomial_L1 = numpy.array([1, -1]) / 1
-laguerre_polynomial_L2 = numpy.array([2, -4, 1]) / 2
-laguerre_polynomial_L3 = numpy.array([6, -18, 9, -1]) / 6
-laguerre_polynomial_L4 = numpy.array([24, -96, 72, -16, 1]) / 24
-laguerre_polynomial_L5 = numpy.array([120, -600, 600, -200, 25, -1]) / 120
-laguerre_polynomial_L6 = numpy.array([720, -4320, 5400, -2400, 450, -36, 1]) / 720
-
-laguerre_polynomial_Llist = [
-    laguerre_polynomial_L0,
-    laguerre_polynomial_L1,
-    laguerre_polynomial_L2,
-    laguerre_polynomial_L3,
-    laguerre_polynomial_L4,
-    laguerre_polynomial_L5,
-    laguerre_polynomial_L6,
-]
-
-
 class TestLaguerrePolynomialConstants:
     def test_lagdomain(self):
         numpy.testing.assert_equal(beignet.polynomial.lagdomain, [0, 1])
@@ -2658,130 +2705,107 @@ class TestLaguerrePolynomialMisc:
         numpy.testing.assert_almost_equal(res, tgt)
 
 
-legendre_polynomial_L0 = numpy.array([1])
-legendre_polynomial_L1 = numpy.array([0, 1])
-legendre_polynomial_L2 = numpy.array([-1, 0, 3]) / 2
-legendre_polynomial_L3 = numpy.array([0, -3, 0, 5]) / 2
-legendre_polynomial_L4 = numpy.array([3, 0, -30, 0, 35]) / 8
-legendre_polynomial_L5 = numpy.array([0, 15, 0, -70, 0, 63]) / 8
-legendre_polynomial_L6 = numpy.array([-5, 0, 105, 0, -315, 0, 231]) / 16
-legendre_polynomial_L7 = numpy.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16
-legendre_polynomial_L8 = numpy.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128
-legendre_polynomial_L9 = (
-    numpy.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128
-)
-
-legendre_polynomial_Llist = [
-    legendre_polynomial_L0,
-    legendre_polynomial_L1,
-    legendre_polynomial_L2,
-    legendre_polynomial_L3,
-    legendre_polynomial_L4,
-    legendre_polynomial_L5,
-    legendre_polynomial_L6,
-    legendre_polynomial_L7,
-    legendre_polynomial_L8,
-    legendre_polynomial_L9,
-]
+def test_legdomain():
+    numpy.testing.assert_equal(beignet.polynomial.legdomain, [-1, 1])
 
 
-class TestLegendrePolynomialConstants:
-    def test_legdomain(self):
-        numpy.testing.assert_equal(beignet.polynomial.legdomain, [-1, 1])
-
-    def test_legzero(self):
-        numpy.testing.assert_equal(beignet.polynomial.legzero, [0])
-
-    def test_legone(self):
-        numpy.testing.assert_equal(beignet.polynomial.legone, [1])
-
-    def test_legx(self):
-        numpy.testing.assert_equal(beignet.polynomial.legx, [0, 1])
+def test_legzero():
+    numpy.testing.assert_equal(beignet.polynomial.legzero, [0])
 
 
-class TestLegendrePolynomialArithmetic:
+def test_legone():
+    numpy.testing.assert_equal(beignet.polynomial.legone, [1])
+
+
+def test_legx():
+    numpy.testing.assert_equal(beignet.polynomial.legx, [0, 1])
+
+
+def test_legadd():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] += 1
+            res = beignet.polynomial.legadd([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
+
+
+def test_legsub():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] -= 1
+            res = beignet.polynomial.legsub([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
+
+
+def test_legmulx():
+    numpy.testing.assert_equal(beignet.polynomial.legmulx([0]), [0])
+    numpy.testing.assert_equal(beignet.polynomial.legmulx([1]), [0, 1])
+    for i in range(1, 5):
+        tmp = 2 * i + 1
+        ser = [0] * i + [1]
+        tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
+        numpy.testing.assert_equal(beignet.polynomial.legmulx(ser), tgt)
+
+
+def test_legmul():
     x = numpy.linspace(-1, 1, 100)
 
-    def test_legadd(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] += 1
-                res = beignet.polynomial.legadd([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
+    # check values of result
+    for i in range(5):
+        pol1 = [0] * i + [1]
+        val1 = beignet.polynomial.legval(x, pol1)
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            pol2 = [0] * j + [1]
+            val2 = beignet.polynomial.legval(x, pol2)
+            pol3 = beignet.polynomial.legmul(pol1, pol2)
+            val3 = beignet.polynomial.legval(x, pol3)
+            numpy.testing.assert_(len(pol3) == i + j + 1, msg)
+            numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
-    def test_legsub(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] -= 1
-                res = beignet.polynomial.legsub([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
 
-    def test_legmulx(self):
-        numpy.testing.assert_equal(beignet.polynomial.legmulx([0]), [0])
-        numpy.testing.assert_equal(beignet.polynomial.legmulx([1]), [0, 1])
-        for i in range(1, 5):
-            tmp = 2 * i + 1
-            ser = [0] * i + [1]
-            tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
-            numpy.testing.assert_equal(beignet.polynomial.legmulx(ser), tgt)
+def test_legdiv():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            ci = [0] * i + [1]
+            cj = [0] * j + [1]
+            tgt = beignet.polynomial.legadd(ci, cj)
+            quo, rem = beignet.polynomial.legdiv(tgt, ci)
+            res = beignet.polynomial.legadd(beignet.polynomial.legmul(quo, ci), rem)
+            numpy.testing.assert_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
 
-    def test_legmul(self):
-        # check values of result
-        for i in range(5):
-            pol1 = [0] * i + [1]
-            val1 = beignet.polynomial.legval(self.x, pol1)
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                pol2 = [0] * j + [1]
-                val2 = beignet.polynomial.legval(self.x, pol2)
-                pol3 = beignet.polynomial.legmul(pol1, pol2)
-                val3 = beignet.polynomial.legval(self.x, pol3)
-                numpy.testing.assert_(len(pol3) == i + j + 1, msg)
-                numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
-    def test_legdiv(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                ci = [0] * i + [1]
-                cj = [0] * j + [1]
-                tgt = beignet.polynomial.legadd(ci, cj)
-                quo, rem = beignet.polynomial.legdiv(tgt, ci)
-                res = beignet.polynomial.legadd(beignet.polynomial.legmul(quo, ci), rem)
-                numpy.testing.assert_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
-
-    def test_legpow(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                c = numpy.arange(i + 1)
-                tgt = functools.reduce(
-                    beignet.polynomial.legmul, [c] * j, numpy.array([1])
-                )
-                res = beignet.polynomial.legpow(c, j)
-                numpy.testing.assert_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
+def test_legpow():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            c = numpy.arange(i + 1)
+            tgt = functools.reduce(beignet.polynomial.legmul, [c] * j, numpy.array([1]))
+            res = beignet.polynomial.legpow(c, j)
+            numpy.testing.assert_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
 
 
 class TestLegendrePolynomialEvaluation:
@@ -2884,186 +2908,174 @@ class TestLegendrePolynomialEvaluation:
         numpy.testing.assert_(res.shape == (2, 3) * 3)
 
 
-class TestLegendrePolynomialIntegral:
-    def test_legint(self):
-        # check exceptions
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legint, [0], 0.5)
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], -1)
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legint, [0], 1, [0, 0]
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legint, [0], lbnd=[0]
-        )
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], scl=[0])
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legint, [0], axis=0.5)
+def test_legint():
+    # check exceptions
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legint, [0], 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], -1)
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], 1, [0, 0])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], lbnd=[0])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legint, [0], scl=[0])
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legint, [0], axis=0.5)
 
-        # test integration of zero polynomial
-        for i in range(2, 5):
-            k = [0] * (i - 2) + [1]
-            res = beignet.polynomial.legint([0], m=i, k=k)
-            numpy.testing.assert_almost_equal(res, [0, 1])
+    # test integration of zero polynomial
+    for i in range(2, 5):
+        k = [0] * (i - 2) + [1]
+        res = beignet.polynomial.legint([0], m=i, k=k)
+        numpy.testing.assert_almost_equal(res, [0, 1])
 
-        # check single integration with integration constant
-        for i in range(5):
-            scl = i + 1
+    # check single integration with integration constant
+    for i in range(5):
+        scl = i + 1
+        pol = [0] * i + [1]
+        tgt = [i] + [0] * i + [1 / scl]
+        legpol = beignet.polynomial.poly2leg(pol)
+        legint = beignet.polynomial.legint(legpol, m=1, k=[i])
+        res = beignet.polynomial.leg2poly(legint)
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.legtrim(res, tol=1e-6),
+            beignet.polynomial.legtrim(tgt, tol=1e-6),
+        )
+
+    # check single integration with integration constant and lbnd
+    for i in range(5):
+        scl = i + 1
+        pol = [0] * i + [1]
+        legpol = beignet.polynomial.poly2leg(pol)
+        legint = beignet.polynomial.legint(legpol, m=1, k=[i], lbnd=-1)
+        numpy.testing.assert_almost_equal(beignet.polynomial.legval(-1, legint), i)
+
+    # check single integration with integration constant and scaling
+    for i in range(5):
+        scl = i + 1
+        pol = [0] * i + [1]
+        tgt = [i] + [0] * i + [2 / scl]
+        legpol = beignet.polynomial.poly2leg(pol)
+        legint = beignet.polynomial.legint(legpol, m=1, k=[i], scl=2)
+        res = beignet.polynomial.leg2poly(legint)
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.legtrim(res, tol=1e-6),
+            beignet.polynomial.legtrim(tgt, tol=1e-6),
+        )
+
+    # check multiple integrations with default k
+    for i in range(5):
+        for j in range(2, 5):
             pol = [0] * i + [1]
-            tgt = [i] + [0] * i + [1 / scl]
-            legpol = beignet.polynomial.poly2leg(pol)
-            legint = beignet.polynomial.legint(legpol, m=1, k=[i])
-            res = beignet.polynomial.leg2poly(legint)
+            tgt = pol[:]
+            for _ in range(j):
+                tgt = beignet.polynomial.legint(tgt, m=1)
+            res = beignet.polynomial.legint(pol, m=j)
             numpy.testing.assert_almost_equal(
                 beignet.polynomial.legtrim(res, tol=1e-6),
                 beignet.polynomial.legtrim(tgt, tol=1e-6),
             )
 
-        # check single integration with integration constant and lbnd
-        for i in range(5):
-            scl = i + 1
+    # check multiple integrations with defined k
+    for i in range(5):
+        for j in range(2, 5):
             pol = [0] * i + [1]
-            legpol = beignet.polynomial.poly2leg(pol)
-            legint = beignet.polynomial.legint(legpol, m=1, k=[i], lbnd=-1)
-            numpy.testing.assert_almost_equal(beignet.polynomial.legval(-1, legint), i)
-
-        # check single integration with integration constant and scaling
-        for i in range(5):
-            scl = i + 1
-            pol = [0] * i + [1]
-            tgt = [i] + [0] * i + [2 / scl]
-            legpol = beignet.polynomial.poly2leg(pol)
-            legint = beignet.polynomial.legint(legpol, m=1, k=[i], scl=2)
-            res = beignet.polynomial.leg2poly(legint)
+            tgt = pol[:]
+            for k in range(j):
+                tgt = beignet.polynomial.legint(tgt, m=1, k=[k])
+            res = beignet.polynomial.legint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
                 beignet.polynomial.legtrim(res, tol=1e-6),
                 beignet.polynomial.legtrim(tgt, tol=1e-6),
             )
 
-        # check multiple integrations with default k
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for _ in range(j):
-                    tgt = beignet.polynomial.legint(tgt, m=1)
-                res = beignet.polynomial.legint(pol, m=j)
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    # check multiple integrations with lbnd
+    for i in range(5):
+        for j in range(2, 5):
+            pol = [0] * i + [1]
+            tgt = pol[:]
+            for k in range(j):
+                tgt = beignet.polynomial.legint(tgt, m=1, k=[k], lbnd=-1)
+            res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), lbnd=-1)
+            numpy.testing.assert_almost_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+            )
 
-        # check multiple integrations with defined k
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = beignet.polynomial.legint(tgt, m=1, k=[k])
-                res = beignet.polynomial.legint(pol, m=j, k=list(range(j)))
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    # check multiple integrations with scaling
+    for i in range(5):
+        for j in range(2, 5):
+            pol = [0] * i + [1]
+            tgt = pol[:]
+            for k in range(j):
+                tgt = beignet.polynomial.legint(tgt, m=1, k=[k], scl=2)
+            res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2)
+            numpy.testing.assert_almost_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+            )
 
-        # check multiple integrations with lbnd
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = beignet.polynomial.legint(tgt, m=1, k=[k], lbnd=-1)
-                res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), lbnd=-1)
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    # check that axis keyword works
+    c2d = numpy.random.random((3, 4))
 
-        # check multiple integrations with scaling
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = beignet.polynomial.legint(tgt, m=1, k=[k], scl=2)
-                res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2)
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d.T]).T
+    res = beignet.polynomial.legint(c2d, axis=0)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_legint_axis(self):
-        # check that axis keyword works
-        c2d = numpy.random.random((3, 4))
+    tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d])
+    res = beignet.polynomial.legint(c2d, axis=1)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d.T]).T
-        res = beignet.polynomial.legint(c2d, axis=0)
-        numpy.testing.assert_almost_equal(res, tgt)
+    tgt = numpy.vstack([beignet.polynomial.legint(c, k=3) for c in c2d])
+    res = beignet.polynomial.legint(c2d, k=3, axis=1)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d])
-        res = beignet.polynomial.legint(c2d, axis=1)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        tgt = numpy.vstack([beignet.polynomial.legint(c, k=3) for c in c2d])
-        res = beignet.polynomial.legint(c2d, k=3, axis=1)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-    def test_legint_zerointord(self):
-        numpy.testing.assert_equal(beignet.polynomial.legint((1, 2, 3), 0), (1, 2, 3))
+    numpy.testing.assert_equal(beignet.polynomial.legint((1, 2, 3), 0), (1, 2, 3))
 
 
-class TestLegendrePolynomialDerivative:
-    def test_legder(self):
-        # check exceptions
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legder, [0], 0.5)
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legder, [0], -1)
+def test_legder():
+    # check exceptions
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legder, [0], 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legder, [0], -1)
 
-        # check that zeroth derivative does nothing
-        for i in range(5):
+    # check that zeroth derivative does nothing
+    for i in range(5):
+        tgt = [0] * i + [1]
+        res = beignet.polynomial.legder(tgt, m=0)
+        numpy.testing.assert_equal(
+            beignet.polynomial.legtrim(res, tol=1e-6),
+            beignet.polynomial.legtrim(tgt, tol=1e-6),
+        )
+
+    # check that derivation is the inverse of integration
+    for i in range(5):
+        for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.legder(tgt, m=0)
-            numpy.testing.assert_equal(
+            res = beignet.polynomial.legder(beignet.polynomial.legint(tgt, m=j), m=j)
+            numpy.testing.assert_almost_equal(
                 beignet.polynomial.legtrim(res, tol=1e-6),
                 beignet.polynomial.legtrim(tgt, tol=1e-6),
             )
 
-        # check that derivation is the inverse of integration
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.polynomial.legder(
-                    beignet.polynomial.legint(tgt, m=j), m=j
-                )
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    # check derivation with scaling
+    for i in range(5):
+        for j in range(2, 5):
+            tgt = [0] * i + [1]
+            res = beignet.polynomial.legder(
+                beignet.polynomial.legint(tgt, m=j, scl=2), m=j, scl=0.5
+            )
+            numpy.testing.assert_almost_equal(
+                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tol=1e-6),
+            )
 
-        # check derivation with scaling
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.polynomial.legder(
-                    beignet.polynomial.legint(tgt, m=j, scl=2), m=j, scl=0.5
-                )
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.legtrim(res, tol=1e-6),
-                    beignet.polynomial.legtrim(tgt, tol=1e-6),
-                )
+    # check that axis keyword works
+    c2d = numpy.random.random((3, 4))
 
-    def test_legder_axis(self):
-        # check that axis keyword works
-        c2d = numpy.random.random((3, 4))
+    tgt = numpy.vstack([beignet.polynomial.legder(c) for c in c2d.T]).T
+    res = beignet.polynomial.legder(c2d, axis=0)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.legder(c) for c in c2d.T]).T
-        res = beignet.polynomial.legder(c2d, axis=0)
-        numpy.testing.assert_almost_equal(res, tgt)
+    tgt = numpy.vstack([beignet.polynomial.legder(c) for c in c2d])
+    res = beignet.polynomial.legder(c2d, axis=1)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.polynomial.legder(c) for c in c2d])
-        res = beignet.polynomial.legder(c2d, axis=1)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-    def test_legder_orderhigherthancoeff(self):
-        c = (1, 2, 3, 4)
-        numpy.testing.assert_equal(beignet.polynomial.legder(c, 4), [0])
+    c = (1, 2, 3, 4)
+    numpy.testing.assert_equal(beignet.polynomial.legder(c, 4), [0])
 
 
 class TestLegendrePolynomialVander:
@@ -3123,223 +3135,185 @@ class TestLegendrePolynomialVander:
         )
 
 
-class TestLegendrePolynomialFitting:
-    def test_legfit(self):
-        def f(x):
-            return x * (x - 1) * (x - 2)
+def test_legfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
 
-        def f2(x):
-            return x**4 + x**2 + 1
+    def f2(x):
+        return x**4 + x**2 + 1
 
-        # Test exceptions
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legfit, [1], [1], -1)
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [[1]], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [], [1], 0)
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.legfit, [1], [[[1]]], 0
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.legfit, [1, 2], [1], 0
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.legfit, [1], [1, 2], 0
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.legfit, [1], [1], 0, w=[[1]]
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.legfit, [1], [1], 0, w=[1, 1]
-        )
-        numpy.testing.assert_raises(
-            ValueError,
-            beignet.polynomial.legfit,
-            [1],
-            [1],
-            [
-                -1,
-            ],
-        )
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legfit, [1], [1], [2, -1, 6]
-        )
-        numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [1], [1], [])
+    # Test exceptions
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legfit, [1], [1], -1)
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [[1]], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [1], [[[1]]], 0)
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [1, 2], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.polynomial.legfit, [1], [1], 0, w=[[1]]
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.polynomial.legfit, [1], [1], 0, w=[1, 1]
+    )
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.polynomial.legfit,
+        [1],
+        [1],
+        [
+            -1,
+        ],
+    )
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.legfit, [1], [1], [2, -1, 6]
+    )
+    numpy.testing.assert_raises(TypeError, beignet.polynomial.legfit, [1], [1], [])
 
-        # Test fit
-        x = numpy.linspace(0, 2)
-        y = f(x)
-        #
-        coef3 = beignet.polynomial.legfit(x, y, 3)
-        numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
-        coef3 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3])
-        numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
-        #
-        coef4 = beignet.polynomial.legfit(x, y, 4)
-        numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
-        coef4 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3, 4])
-        numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
-        # check things still work if deg is not in strict increasing
-        coef4 = beignet.polynomial.legfit(x, y, [2, 3, 4, 1, 0])
-        numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
-        #
-        coef2d = beignet.polynomial.legfit(x, numpy.array([y, y]).T, 3)
-        numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.polynomial.legfit(x, numpy.array([y, y]).T, [0, 1, 2, 3])
-        numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        # test weighting
-        w = numpy.zeros_like(x)
-        yw = y.copy()
-        w[1::2] = 1
-        y[0::2] = 0
-        wcoef3 = beignet.polynomial.legfit(x, yw, 3, w=w)
-        numpy.testing.assert_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.polynomial.legfit(x, yw, [0, 1, 2, 3], w=w)
-        numpy.testing.assert_almost_equal(wcoef3, coef3)
-        #
-        wcoef2d = beignet.polynomial.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
-        numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.polynomial.legfit(
-            x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
-        )
-        numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        # test scaling with complex values x points whose square
-        # is zero when summed.
-        x = [1, 1j, -1, -1j]
-        numpy.testing.assert_almost_equal(beignet.polynomial.legfit(x, x, 1), [0, 1])
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.legfit(x, x, [0, 1]), [0, 1]
-        )
-        # test fitting only even Legendre polynomials
-        x = numpy.linspace(-1, 1)
-        y = f2(x)
-        coef1 = beignet.polynomial.legfit(x, y, 4)
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef1), y)
-        coef2 = beignet.polynomial.legfit(x, y, [0, 2, 4])
-        numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef2), y)
-        numpy.testing.assert_almost_equal(coef1, coef2)
+    # Test fit
+    x = numpy.linspace(0, 2)
+    y = f(x)
+    #
+    coef3 = beignet.polynomial.legfit(x, y, 3)
+    numpy.testing.assert_equal(len(coef3), 4)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
+    coef3 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3])
+    numpy.testing.assert_equal(len(coef3), 4)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
+    #
+    coef4 = beignet.polynomial.legfit(x, y, 4)
+    numpy.testing.assert_equal(len(coef4), 5)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
+    coef4 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3, 4])
+    numpy.testing.assert_equal(len(coef4), 5)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
+    # check things still work if deg is not in strict increasing
+    coef4 = beignet.polynomial.legfit(x, y, [2, 3, 4, 1, 0])
+    numpy.testing.assert_equal(len(coef4), 5)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
+    #
+    coef2d = beignet.polynomial.legfit(x, numpy.array([y, y]).T, 3)
+    numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+    coef2d = beignet.polynomial.legfit(x, numpy.array([y, y]).T, [0, 1, 2, 3])
+    numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+    # test weighting
+    w = numpy.zeros_like(x)
+    yw = y.copy()
+    w[1::2] = 1
+    y[0::2] = 0
+    wcoef3 = beignet.polynomial.legfit(x, yw, 3, w=w)
+    numpy.testing.assert_almost_equal(wcoef3, coef3)
+    wcoef3 = beignet.polynomial.legfit(x, yw, [0, 1, 2, 3], w=w)
+    numpy.testing.assert_almost_equal(wcoef3, coef3)
+    #
+    wcoef2d = beignet.polynomial.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
+    numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+    wcoef2d = beignet.polynomial.legfit(x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w)
+    numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+    # test scaling with complex values x points whose square
+    # is zero when summed.
+    x = [1, 1j, -1, -1j]
+    numpy.testing.assert_almost_equal(beignet.polynomial.legfit(x, x, 1), [0, 1])
+    numpy.testing.assert_almost_equal(beignet.polynomial.legfit(x, x, [0, 1]), [0, 1])
+    # test fitting only even Legendre polynomials
+    x = numpy.linspace(-1, 1)
+    y = f2(x)
+    coef1 = beignet.polynomial.legfit(x, y, 4)
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef1), y)
+    coef2 = beignet.polynomial.legfit(x, y, [0, 2, 4])
+    numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef2), y)
+    numpy.testing.assert_almost_equal(coef1, coef2)
 
 
-class TestLegendrePolynomialCompanion:
-    def test_raises(self):
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legcompanion, [])
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legcompanion, [1])
+def test_legcompanion():
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legcompanion, [])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legcompanion, [1])
 
-    def test_dimensions(self):
-        for i in range(1, 5):
-            coef = [0] * i + [1]
-            numpy.testing.assert_(beignet.polynomial.legcompanion(coef).shape == (i, i))
+    for i in range(1, 5):
+        coef = [0] * i + [1]
+        numpy.testing.assert_(beignet.polynomial.legcompanion(coef).shape == (i, i))
 
-    def test_linear_root(self):
-        numpy.testing.assert_(beignet.polynomial.legcompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.polynomial.legcompanion([1, 2])[0, 0] == -0.5)
 
 
-class TestLegendrePolynomialGauss:
-    def test_100(self):
-        x, w = beignet.polynomial.leggauss(100)
+def test_leggauss():
+    x, w = beignet.polynomial.leggauss(100)
 
-        # test orthogonality. Note that the results need to be normalized,
-        # otherwise the huge values that can arise from fast growing
-        # functions like Laguerre can be very confusing.
-        v = beignet.polynomial.legvander(x, 99)
-        vv = numpy.dot(v.T * w, v)
-        vd = 1 / numpy.sqrt(vv.diagonal())
-        vv = vd[:, None] * vv * vd
-        numpy.testing.assert_almost_equal(vv, numpy.eye(100))
+    # test orthogonality. Note that the results need to be normalized,
+    # otherwise the huge values that can arise from fast growing
+    # functions like Laguerre can be very confusing.
+    v = beignet.polynomial.legvander(x, 99)
+    vv = numpy.dot(v.T * w, v)
+    vd = 1 / numpy.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    numpy.testing.assert_almost_equal(vv, numpy.eye(100))
 
-        # check that the integral of 1 is correct
-        tgt = 2.0
-        numpy.testing.assert_almost_equal(w.sum(), tgt)
+    # check that the integral of 1 is correct
+    tgt = 2.0
+    numpy.testing.assert_almost_equal(w.sum(), tgt)
 
 
-class TestLegendrePolynomialMisc:
-    def test_legfromroots(self):
-        res = beignet.polynomial.legfromroots([])
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tol=1e-6), [1]
-        )
-        for i in range(1, 5):
-            roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.polynomial.legfromroots(roots)
-            res = beignet.polynomial.legval(roots, pol)
-            tgt = 0
-            numpy.testing.assert_(len(pol) == i + 1)
-            numpy.testing.assert_almost_equal(beignet.polynomial.leg2poly(pol)[-1], 1)
-            numpy.testing.assert_almost_equal(res, tgt)
-
-    def test_legroots(self):
-        numpy.testing.assert_almost_equal(beignet.polynomial.legroots([1]), [])
-        numpy.testing.assert_almost_equal(beignet.polynomial.legroots([1, 2]), [-0.5])
-        for i in range(2, 5):
-            tgt = numpy.linspace(-1, 1, i)
-            res = beignet.polynomial.legroots(beignet.polynomial.legfromroots(tgt))
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
-            )
-
-    def test_legtrim(self):
-        coef = [2, -1, 1, 0]
-
-        # Test exceptions
-        numpy.testing.assert_raises(ValueError, beignet.polynomial.legtrim, coef, -1)
-
-        # Test results
-        numpy.testing.assert_equal(beignet.polynomial.legtrim(coef), coef[:-1])
-        numpy.testing.assert_equal(beignet.polynomial.legtrim(coef, 1), coef[:-3])
-        numpy.testing.assert_equal(beignet.polynomial.legtrim(coef, 2), [0])
-
-    def test_legline(self):
-        numpy.testing.assert_equal(beignet.polynomial.legline(3, 4), [3, 4])
-
-    def test_legline_zeroscl(self):
-        numpy.testing.assert_equal(beignet.polynomial.legline(3, 0), [3])
-
-    def test_leg2poly(self):
-        for i in range(10):
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.leg2poly([0] * i + [1]), legendre_polynomial_Llist[i]
-            )
-
-    def test_poly2leg(self):
-        for i in range(10):
-            numpy.testing.assert_almost_equal(
-                beignet.polynomial.poly2leg(legendre_polynomial_Llist[i]), [0] * i + [1]
-            )
-
-    def test_weight(self):
-        x = numpy.linspace(-1, 1, 11)
-        tgt = 1.0
-        res = beignet.polynomial.legweight(x)
+def test_legfromroots():
+    res = beignet.polynomial.legfromroots([])
+    numpy.testing.assert_almost_equal(beignet.polynomial.legtrim(res, tol=1e-6), [1])
+    for i in range(1, 5):
+        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
+        pol = beignet.polynomial.legfromroots(roots)
+        res = beignet.polynomial.legval(roots, pol)
+        tgt = 0
+        numpy.testing.assert_(len(pol) == i + 1)
+        numpy.testing.assert_almost_equal(beignet.polynomial.leg2poly(pol)[-1], 1)
         numpy.testing.assert_almost_equal(res, tgt)
 
 
-polynomial_T0 = [1]
-polynomial_T1 = [0, 1]
-polynomial_T2 = [-1, 0, 2]
-polynomial_T3 = [0, -3, 0, 4]
-polynomial_T4 = [1, 0, -8, 0, 8]
-polynomial_T5 = [0, 5, 0, -20, 0, 16]
-polynomial_T6 = [-1, 0, 18, 0, -48, 0, 32]
-polynomial_T7 = [0, -7, 0, 56, 0, -112, 0, 64]
-polynomial_T8 = [1, 0, -32, 0, 160, 0, -256, 0, 128]
-polynomial_T9 = [0, 9, 0, -120, 0, 432, 0, -576, 0, 256]
+def test_legroots():
+    numpy.testing.assert_almost_equal(beignet.polynomial.legroots([1]), [])
+    numpy.testing.assert_almost_equal(beignet.polynomial.legroots([1, 2]), [-0.5])
+    for i in range(2, 5):
+        tgt = numpy.linspace(-1, 1, i)
+        res = beignet.polynomial.legroots(beignet.polynomial.legfromroots(tgt))
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.legtrim(res, tol=1e-6),
+            beignet.polynomial.legtrim(tgt, tol=1e-6),
+        )
 
-polynomial_Tlist = [
-    polynomial_T0,
-    polynomial_T1,
-    polynomial_T2,
-    polynomial_T3,
-    polynomial_T4,
-    polynomial_T5,
-    polynomial_T6,
-    polynomial_T7,
-    polynomial_T8,
-    polynomial_T9,
-]
+
+def test_legtrim():
+    coef = [2, -1, 1, 0]
+
+    # Test exceptions
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legtrim, coef, -1)
+
+    # Test results
+    numpy.testing.assert_equal(beignet.polynomial.legtrim(coef), coef[:-1])
+    numpy.testing.assert_equal(beignet.polynomial.legtrim(coef, 1), coef[:-3])
+    numpy.testing.assert_equal(beignet.polynomial.legtrim(coef, 2), [0])
+
+
+def test_legline():
+    numpy.testing.assert_equal(beignet.polynomial.legline(3, 4), [3, 4])
+
+    numpy.testing.assert_equal(beignet.polynomial.legline(3, 0), [3])
+
+
+def test_leg2poly():
+    for i in range(10):
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.leg2poly([0] * i + [1]), legendre_polynomial_Llist[i]
+        )
+
+
+def test_poly2leg():
+    for i in range(10):
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.poly2leg(legendre_polynomial_Llist[i]), [0] * i + [1]
+        )
+
+
+def test_legweight():
+    x = numpy.linspace(-1, 1, 11)
+    tgt = 1.0
+    res = beignet.polynomial.legweight(x)
+    numpy.testing.assert_almost_equal(res, tgt)
 
 
 def test_polydomain():
