@@ -3784,50 +3784,45 @@ def test_polyvander():
     v = beignet.polynomial.polyvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))
     for i in range(4):
-        coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial.polyval(x, coef)
+            v[..., i], beignet.polynomial.polyval(x, [0] * i + [1])
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
     v = beignet.polynomial.polyvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
     for i in range(4):
-        coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial.polyval(x, coef)
+            v[..., i], beignet.polynomial.polyval(x, [0] * i + [1])
         )
 
-    x = numpy.arange(3)
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.polyvander, x, -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.polyvander, numpy.arange(3), -1
+    )
 
 
 def test_polyvander2d():
-    x = numpy.random.random((3, 5)) * 2 - 1
-
-    x1, x2, x3 = x
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3))
-    van = beignet.polynomial.polyvander2d(x1, x2, [1, 2])
-    tgt = beignet.polynomial.polyval2d(x1, x2, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    van = beignet.polynomial.polyvander2d([x1], [x2], [1, 2])
-    numpy.testing.assert_(van.shape == (1, 5, 6))
+    numpy.testing.assert_almost_equal(
+        numpy.dot(beignet.polynomial.polyvander2d(x1, x2, [1, 2]), c.flat),
+        beignet.polynomial.polyval2d(x1, x2, c),
+    )
+    numpy.testing.assert_(
+        beignet.polynomial.polyvander2d([x1], [x2], [1, 2]).shape == (1, 5, 6)
+    )
 
 
 def test_polyvander3d():
-    x = numpy.random.random((3, 5)) * 2 - 1
-
-    x1, x2, x3 = x
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3, 4))
-    van = beignet.polynomial.polyvander3d(x1, x2, x3, [1, 2, 3])
-    tgt = beignet.polynomial.polyval3d(x1, x2, x3, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    van = beignet.polynomial.polyvander3d([x1], [x2], [x3], [1, 2, 3])
-    numpy.testing.assert_(van.shape == (1, 5, 24))
+    numpy.testing.assert_almost_equal(
+        numpy.dot(beignet.polynomial.polyvander3d(x1, x2, x3, [1, 2, 3]), c.flat),
+        beignet.polynomial.polyval3d(x1, x2, x3, c),
+    )
+    numpy.testing.assert_(
+        beignet.polynomial.polyvander3d([x1], [x2], [x3], [1, 2, 3]).shape == (1, 5, 24)
+    )
 
 
 def test_polyx():
@@ -3849,10 +3844,10 @@ def test_trimcoef():
 
 
 def test_trimseq():
-    tgt = [1]
     for num_trailing_zeros in range(5):
-        res = beignet.polynomial.trimseq([1] + [0] * num_trailing_zeros)
-        numpy.testing.assert_equal(res, tgt)
+        numpy.testing.assert_equal(
+            beignet.polynomial.trimseq([1] + [0] * num_trailing_zeros), [1]
+        )
 
     for empty_seq in [[], numpy.array([], dtype=numpy.int32)]:
         numpy.testing.assert_equal(beignet.polynomial.trimseq(empty_seq), empty_seq)
