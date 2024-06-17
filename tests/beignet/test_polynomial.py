@@ -3538,512 +3538,693 @@ def test_mapparms():
     numpy.testing.assert_almost_equal(res, tgt)
 
 
-class TestChebyshevPolynomialEvaluation:
+def test_chebval():
+    # coefficients of 1 + 2*x + 3*x**2
+    # c1d = numpy.array([2.5, 2.0, 1.5])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    # x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    # check empty input
+    numpy.testing.assert_equal(beignet.polynomial.chebval([], [1]).size, 0)
+
+    # check normal input)
+    x = numpy.linspace(-1, 1)
+    y = [beignet.polynomial.polyval(x, c) for c in chebyshev_polynomial_Tlist]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.polynomial.chebval(x, [0] * i + [1])
+        numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+    # check that shape is preserved
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1, 0, 0]).shape, dims)
+
+
+def test_chebval2d():
     # coefficients of 1 + 2*x + 3*x**2
     c1d = numpy.array([2.5, 2.0, 1.5])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.chebval2d, x1, x2[:2], c2d
+    )
+
+    # test values
+    tgt = y1 * y2
+    res = beignet.polynomial.chebval2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.chebval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_chebval3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_chebval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.chebval([], [1]).size, 0)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in chebyshev_polynomial_Tlist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.chebval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.chebval3d, x1, x2, x3[:2], c3d
+    )
 
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.chebval(x, [1, 0]).shape, dims
-            )
-            numpy.testing.assert_equal(
-                beignet.polynomial.chebval(x, [1, 0, 0]).shape, dims
-            )
+    # test values
+    tgt = y1 * y2 * y3
+    res = beignet.polynomial.chebval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_chebval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.chebval2d, x1, x2[:2], self.c2d
-        )
-
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.chebval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.chebval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_chebval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.chebval3d, x1, x2, x3[:2], self.c3d
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.chebval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.chebval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_chebgrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.chebgrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.chebgrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_chebgrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.chebgrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.chebgrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.chebval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
 
 
-class TestHermitePolynomialEvaluation:
+def test_chebgrid2d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.chebgrid2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.chebgrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_chebgrid3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.polynomial.chebgrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.chebgrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_hermval():
+    # coefficients of 1 + 2*x + 3*x**2
+    # c1d = numpy.array([2.5, 1.0, 0.75])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    # check empty input
+    numpy.testing.assert_equal(beignet.polynomial.hermval([], [1]).size, 0)
+
+    # check normal input)
+    x = numpy.linspace(-1, 1)
+    y = [beignet.polynomial.polyval(x, c) for c in hermite_polynomial_Hlist]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.polynomial.hermval(x, [0] * i + [1])
+        numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+    # check that shape is preserved
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1, 0, 0]).shape, dims)
+
+
+def test_hermval2d():
     # coefficients of 1 + 2*x + 3*x**2
     c1d = numpy.array([2.5, 1.0, 0.75])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.hermval2d, x1, x2[:2], c2d
+    )
+
+    # test values
+    tgt = y1 * y2
+    res = beignet.polynomial.hermval2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_hermval3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_hermval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.hermval([], [1]).size, 0)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in hermite_polynomial_Hlist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.hermval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.hermval3d, x1, x2, x3[:2], c3d
+    )
 
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.hermval(x, [1, 0]).shape, dims
-            )
-            numpy.testing.assert_equal(
-                beignet.polynomial.hermval(x, [1, 0, 0]).shape, dims
-            )
+    # test values
+    tgt = y1 * y2 * y3
+    res = beignet.polynomial.hermval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_hermval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
 
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.hermval2d, x1, x2[:2], self.c2d
+
+def test_hermgrid2d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.hermgrid2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermgrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_hermgrid3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.polynomial.hermgrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermgrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_hermeval():
+    # coefficients of 1 + 2*x + 3*x**2
+    # c1d = numpy.array([4.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    # check empty input
+    numpy.testing.assert_equal(beignet.polynomial.hermeval([], [1]).size, 0)
+
+    # check normal input)
+    x = numpy.linspace(-1, 1)
+    y = [beignet.polynomial.polyval(x, c) for c in hermite_e_polynomial_Helist]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.polynomial.hermeval(x, [0] * i + [1])
+        numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+    # check that shape is preserved
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.polynomial.hermeval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.hermeval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(
+            beignet.polynomial.hermeval(x, [1, 0, 0]).shape, dims
         )
 
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.hermval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
 
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_hermval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.hermval3d, x1, x2, x3[:2], self.c3d
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.hermval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_hermgrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.hermgrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermgrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_hermgrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.hermgrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermgrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
-
-
-class TestHermiteEPolynomialEvaluation:
+def test_hermeval2d():
     # coefficients of 1 + 2*x + 3*x**2
     c1d = numpy.array([4.0, 2.0, 3.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.hermeval2d, x1, x2[:2], c2d
+    )
+
+    # test values
+    tgt = y1 * y2
+    res = beignet.polynomial.hermeval2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermeval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_hermeval3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([4.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_hermeval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.hermeval([], [1]).size, 0)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in hermite_e_polynomial_Helist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.hermeval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.polynomial.hermeval3d,
+        x1,
+        x2,
+        x3[:2],
+        c3d,
+    )
 
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.hermeval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.hermeval(x, [1, 0]).shape, dims
-            )
-            numpy.testing.assert_equal(
-                beignet.polynomial.hermeval(x, [1, 0, 0]).shape, dims
-            )
+    # test values
+    tgt = y1 * y2 * y3
+    res = beignet.polynomial.hermeval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_hermeval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.hermeval2d, x1, x2[:2], self.c2d
-        )
-
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.hermeval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermeval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_hermeval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError,
-            beignet.polynomial.hermeval3d,
-            x1,
-            x2,
-            x3[:2],
-            self.c3d,
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.hermeval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermeval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_hermegrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.hermegrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermegrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_hermegrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.hermegrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.hermegrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermeval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
 
 
-class TestLaguerrePolynomialEvaluation:
+def test_hermegrid2d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([4.0, 2.0, 3.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.hermegrid2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermegrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_hermegrid3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([4.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.polynomial.hermegrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.hermegrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_lagval():
+    # coefficients of 1 + 2*x + 3*x**2
+    # c1d = numpy.array([9.0, -14.0, 6.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    # check empty input
+    numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
+
+    # check normal input)
+    x = numpy.linspace(-1, 1)
+    y = [beignet.polynomial.polyval(x, c) for c in laguerre_polynomial_Llist]
+    for i in range(7):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.polynomial.lagval(x, [0] * i + [1])
+        numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+    # check that shape is preserved
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims)
+
+
+def test_lagval2d():
     # coefficients of 1 + 2*x + 3*x**2
     c1d = numpy.array([9.0, -14.0, 6.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.lagval2d, x1, x2[:2], c2d
+    )
+
+    # test values
+    tgt = y1 * y2
+    res = beignet.polynomial.lagval2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.lagval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_lagval3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([9.0, -14.0, 6.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_lagval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in laguerre_polynomial_Llist]
-        for i in range(7):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.lagval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.lagval3d, x1, x2, x3[:2], c3d
+    )
 
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims
-            )
+    # test values
+    tgt = y1 * y2 * y3
+    res = beignet.polynomial.lagval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_lagval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.lagval2d, x1, x2[:2], self.c2d
-        )
-
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.lagval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.lagval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_lagval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.lagval3d, x1, x2, x3[:2], self.c3d
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.lagval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.lagval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_laggrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.laggrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.laggrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_laggrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.laggrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.laggrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.lagval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
 
 
-class TestLegendrePolynomialEvaluation:
+def test_laggrid2d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([9.0, -14.0, 6.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.laggrid2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.laggrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_laggrid3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([9.0, -14.0, 6.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test values
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.polynomial.laggrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.laggrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_legval():
+    # coefficients of 1 + 2*x + 3*x**2
+    # c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    # check empty input
+    numpy.testing.assert_equal(beignet.polynomial.legval([], [1]).size, 0)
+
+    # check normal input)
+    x = numpy.linspace(-1, 1)
+    y = [beignet.polynomial.polyval(x, c) for c in legendre_polynomial_Llist]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.polynomial.legval(x, [0] * i + [1])
+        numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+    # check that shape is preserved
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.polynomial.legval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.legval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.polynomial.legval(x, [1, 0, 0]).shape, dims)
+
+
+def test_legval2d():
     # coefficients of 1 + 2*x + 3*x**2
     c1d = numpy.array([2.0, 2.0, 2.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.legval2d, x1, x2[:2], c2d
+    )
+
+    # test values
+    tgt = y1 * y2
+    res = beignet.polynomial.legval2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.legval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_legval3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_legval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.legval([], [1]).size, 0)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in legendre_polynomial_Llist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.legval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+    # test exceptions
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.legval3d, x1, x2, x3[:2], c3d
+    )
 
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1, 0]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.legval(x, [1, 0, 0]).shape, dims
-            )
+    # test values
+    tgt = y1 * y2 * y3
+    res = beignet.polynomial.legval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_legval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.legval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
 
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legval2d, x1, x2[:2], self.c2d
-        )
 
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.legval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
+def test_leggrid2d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.legval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    def test_legval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legval3d, x1, x2, x3[:2], self.c3d
-        )
+    # test values
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.leggrid2d(x1, x2, c2d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.legval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.leggrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
 
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.legval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
 
-    def test_leggrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
+def test_leggrid3d():
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.leggrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.leggrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
+    x1, x2, x3 = x
+    y1, y2, y3 = y
 
-    def test_leggrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
+    # test values
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.polynomial.leggrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.leggrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.leggrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
+    # test shape
+    z = numpy.ones((2, 3))
+    res = beignet.polynomial.leggrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
