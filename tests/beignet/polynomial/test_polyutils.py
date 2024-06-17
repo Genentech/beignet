@@ -1,4 +1,4 @@
-import beignet.polynomial.polyutils
+import beignet.polynomial
 import numpy
 import numpy.testing
 

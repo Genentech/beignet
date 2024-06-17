@@ -1,7 +1,6 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial.chebyshev
 import numpy
 import numpy.testing
 
@@ -29,14 +28,14 @@ class TestPrivate:
         for i in range(5):
             inp = numpy.array([2] + [1] * i, numpy.double)
             tgt = numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double)
-            res = beignet.polynomial.chebyshev._cseries_to_zseries(inp)
+            res = beignet.polynomial._cseries_to_zseries(inp)
             numpy.testing.assert_equal(res, tgt)
 
     def test__zseries_to_cseries(self):
         for i in range(5):
             inp = numpy.array([0.5] * i + [2] + [0.5] * i, numpy.double)
             tgt = numpy.array([2] + [1] * i, numpy.double)
-            res = beignet.polynomial.chebyshev._zseries_to_cseries(inp)
+            res = beignet.polynomial._zseries_to_cseries(inp)
             numpy.testing.assert_equal(res, tgt)
 
 
@@ -126,7 +125,7 @@ class TestEvaluation:
 
     # some random values in [-1, 1)
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
     def test_chebval(self):
         # check empty input
@@ -134,7 +133,7 @@ class TestEvaluation:
 
         # check normal input)
         x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polynomial.polyval(x, c) for c in Tlist]
+        y = [beignet.polynomial.polyval(x, c) for c in Tlist]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]

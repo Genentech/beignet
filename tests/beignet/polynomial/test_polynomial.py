@@ -3,7 +3,7 @@ import functools
 import pickle
 from fractions import Fraction
 
-import beignet.polynomial.polynomial
+import beignet.polynomial
 import numpy
 import numpy.testing
 
