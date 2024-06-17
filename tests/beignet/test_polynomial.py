@@ -567,35 +567,32 @@ def test_chebfit():
     numpy.testing.assert_almost_equal(coef1, coef2)
 
 
-class TestChebyshevPolynomialInterpolate:
-    def f(self, x):
+def test_chebinterpolate():
+    def func(x):
         return x * (x - 1) * (x - 2)
 
-    def test_raises(self):
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.chebinterpolate, self.f, -1
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.polynomial.chebinterpolate, self.f, 10.0
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial.chebinterpolate, func, -1
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.polynomial.chebinterpolate, func, 10.0
+    )
+
+    for deg in range(1, 5):
+        numpy.testing.assert_(
+            beignet.polynomial.chebinterpolate(func, deg).shape == (deg + 1,)
         )
 
-    def test_dimensions(self):
-        for deg in range(1, 5):
-            numpy.testing.assert_(
-                beignet.polynomial.chebinterpolate(self.f, deg).shape == (deg + 1,)
+    def powx(x, p):
+        return x**p
+
+    x = numpy.linspace(-1, 1, 10)
+    for deg in range(0, 10):
+        for p in range(0, deg + 1):
+            c = beignet.polynomial.chebinterpolate(powx, deg, (p,))
+            numpy.testing.assert_almost_equal(
+                beignet.polynomial.chebval(x, c), powx(x, p), decimal=12
             )
-
-    def test_approximation(self):
-        def powx(x, p):
-            return x**p
-
-        x = numpy.linspace(-1, 1, 10)
-        for deg in range(0, 10):
-            for p in range(0, deg + 1):
-                c = beignet.polynomial.chebinterpolate(powx, deg, (p,))
-                numpy.testing.assert_almost_equal(
-                    beignet.polynomial.chebval(x, c), powx(x, p), decimal=12
-                )
 
 
 def test_chebcompanion():
@@ -991,56 +988,54 @@ def test_hermder():
     numpy.testing.assert_almost_equal(res, tgt)
 
 
-class TestHermitePolynomialVander:
-    # some random values in [-1, 1)
-    x = numpy.random.random((3, 5)) * 2 - 1
+def test_hermvander():
+    # check for 1d x
+    x = numpy.arange(3)
+    v = beignet.polynomial.hermvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(
+            v[..., i], beignet.polynomial.hermval(x, coef)
+        )
 
-    def test_hermvander(self):
-        # check for 1d x
-        x = numpy.arange(3)
-        v = beignet.polynomial.hermvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.hermval(x, coef)
-            )
+    # check for 2d x
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.polynomial.hermvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(
+            v[..., i], beignet.polynomial.hermval(x, coef)
+        )
 
-        # check for 2d x
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.polynomial.hermvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.hermval(x, coef)
-            )
 
-    def test_hermvander2d(self):
-        # also tests hermval2d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.polynomial.hermvander2d(x1, x2, [1, 2])
-        tgt = beignet.polynomial.hermval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
+def test_hermvander2d():
+    # also tests hermval2d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.polynomial.hermvander2d(x1, x2, [1, 2])
+    tgt = beignet.polynomial.hermval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        # check shape
-        van = beignet.polynomial.hermvander2d([x1], [x2], [1, 2])
-        numpy.testing.assert_(van.shape == (1, 5, 6))
+    # check shape
+    van = beignet.polynomial.hermvander2d([x1], [x2], [1, 2])
+    numpy.testing.assert_(van.shape == (1, 5, 6))
 
-    def test_hermvander3d(self):
-        # also tests hermval3d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.polynomial.hermvander3d(x1, x2, x3, [1, 2, 3])
-        tgt = beignet.polynomial.hermval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
 
-        # check shape
-        van = beignet.polynomial.hermvander3d([x1], [x2], [x3], [1, 2, 3])
-        numpy.testing.assert_(van.shape == (1, 5, 24))
+def test_hermvander3d():
+    # also tests hermval3d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.polynomial.hermvander3d(x1, x2, x3, [1, 2, 3])
+    tgt = beignet.polynomial.hermval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # check shape
+    van = beignet.polynomial.hermvander3d([x1], [x2], [x3], [1, 2, 3])
+    numpy.testing.assert_(van.shape == (1, 5, 24))
 
 
 def test_hermfit():
