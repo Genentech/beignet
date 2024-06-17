@@ -2180,106 +2180,6 @@ class TestLaguerrePolynomialArithmetic:
                 )
 
 
-class TestLaguerrePolynomialEvaluation:
-    # coefficients of 1 + 2*x + 3*x**2
-    c1d = numpy.array([9.0, -14.0, 6.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
-
-    # some random values in [-1, 1)
-    x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
-    def test_lagval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
-
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in laguerre_polynomial_Llist]
-        for i in range(7):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.lagval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
-
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims
-            )
-
-    def test_lagval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.lagval2d, x1, x2[:2], self.c2d
-        )
-
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.lagval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.lagval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_lagval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.lagval3d, x1, x2, x3[:2], self.c3d
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.lagval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.lagval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_laggrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.laggrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.laggrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_laggrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.laggrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.laggrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
-
-
 def test_lagint():
     # check exceptions
     numpy.testing.assert_raises(TypeError, beignet.polynomial.lagint, [0], 0.5)
@@ -2445,56 +2345,50 @@ def test_lagder():
     numpy.testing.assert_almost_equal(res, tgt)
 
 
-class TestLaguerrePolynomialVander:
-    # some random values in [-1, 1)
-    x = numpy.random.random((3, 5)) * 2 - 1
+def test_lagvander():
+    # check for 1d x
+    x = numpy.arange(3)
+    v = beignet.polynomial.lagvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(v[..., i], beignet.polynomial.lagval(x, coef))
 
-    def test_lagvander(self):
-        # check for 1d x
-        x = numpy.arange(3)
-        v = beignet.polynomial.lagvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.lagval(x, coef)
-            )
+    # check for 2d x
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.polynomial.lagvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(v[..., i], beignet.polynomial.lagval(x, coef))
 
-        # check for 2d x
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.polynomial.lagvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.lagval(x, coef)
-            )
 
-    def test_lagvander2d(self):
-        # also tests lagval2d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.polynomial.lagvander2d(x1, x2, [1, 2])
-        tgt = beignet.polynomial.lagval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
+def test_lagvander2d():
+    # also tests lagval2d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.polynomial.lagvander2d(x1, x2, [1, 2])
+    tgt = beignet.polynomial.lagval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-        # check shape
-        van = beignet.polynomial.lagvander2d([x1], [x2], [1, 2])
-        numpy.testing.assert_(van.shape == (1, 5, 6))
+    # check shape
+    van = beignet.polynomial.lagvander2d([x1], [x2], [1, 2])
+    numpy.testing.assert_(van.shape == (1, 5, 6))
 
-    def test_lagvander3d(self):
-        # also tests lagval3d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.polynomial.lagvander3d(x1, x2, x3, [1, 2, 3])
-        tgt = beignet.polynomial.lagval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
 
-        # check shape
-        van = beignet.polynomial.lagvander3d([x1], [x2], [x3], [1, 2, 3])
-        numpy.testing.assert_(van.shape == (1, 5, 24))
+def test_lagvander3d():
+    # also tests lagval3d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.polynomial.lagvander3d(x1, x2, x3, [1, 2, 3])
+    tgt = beignet.polynomial.lagval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # check shape
+    van = beignet.polynomial.lagvander3d([x1], [x2], [x3], [1, 2, 3])
+    numpy.testing.assert_(van.shape == (1, 5, 24))
 
 
 def test_lagfit():
@@ -2582,22 +2476,21 @@ def test_lagcompanion():
     numpy.testing.assert_(beignet.polynomial.lagcompanion([1, 2])[0, 0] == 1.5)
 
 
-class TestLaguerrePolynomialGauss:
-    def test_100(self):
-        x, w = beignet.polynomial.laggauss(100)
+def test_laggauss():
+    x, w = beignet.polynomial.laggauss(100)
 
-        # test orthogonality. Note that the results need to be normalized,
-        # otherwise the huge values that can arise from fast growing
-        # functions like Laguerre can be very confusing.
-        v = beignet.polynomial.lagvander(x, 99)
-        vv = numpy.dot(v.T * w, v)
-        vd = 1 / numpy.sqrt(vv.diagonal())
-        vv = vd[:, None] * vv * vd
-        numpy.testing.assert_almost_equal(vv, numpy.eye(100))
+    # test orthogonality. Note that the results need to be normalized,
+    # otherwise the huge values that can arise from fast growing
+    # functions like Laguerre can be very confusing.
+    v = beignet.polynomial.lagvander(x, 99)
+    vv = numpy.dot(v.T * w, v)
+    vd = 1 / numpy.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    numpy.testing.assert_almost_equal(vv, numpy.eye(100))
 
-        # check that the integral of 1 is correct
-        tgt = 1.0
-        numpy.testing.assert_almost_equal(w.sum(), tgt)
+    # check that the integral of 1 is correct
+    tgt = 1.0
+    numpy.testing.assert_almost_equal(w.sum(), tgt)
 
 
 def test_lagfromroots():
@@ -2763,106 +2656,6 @@ def test_legpow():
                 beignet.polynomial.legtrim(tgt, tol=1e-6),
                 err_msg=msg,
             )
-
-
-class TestLegendrePolynomialEvaluation:
-    # coefficients of 1 + 2*x + 3*x**2
-    c1d = numpy.array([2.0, 2.0, 2.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
-
-    # some random values in [-1, 1)
-    x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
-    def test_legval(self):
-        # check empty input
-        numpy.testing.assert_equal(beignet.polynomial.legval([], [1]).size, 0)
-
-        # check normal input)
-        x = numpy.linspace(-1, 1)
-        y = [beignet.polynomial.polyval(x, c) for c in legendre_polynomial_Llist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = beignet.polynomial.legval(x, [0] * i + [1])
-            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
-
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = numpy.zeros(dims)
-            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1]).shape, dims)
-            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1, 0]).shape, dims)
-            numpy.testing.assert_equal(
-                beignet.polynomial.legval(x, [1, 0, 0]).shape, dims
-            )
-
-    def test_legval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legval2d, x1, x2[:2], self.c2d
-        )
-
-        # test values
-        tgt = y1 * y2
-        res = beignet.polynomial.legval2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.legval2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_legval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legval3d, x1, x2, x3[:2], self.c3d
-        )
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = beignet.polynomial.legval3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.legval3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3))
-
-    def test_leggrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.polynomial.leggrid2d(x1, x2, self.c2d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.leggrid2d(z, z, self.c2d)
-        numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-    def test_leggrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.polynomial.leggrid3d(x1, x2, x3, self.c3d)
-        numpy.testing.assert_almost_equal(res, tgt)
-
-        # test shape
-        z = numpy.ones((2, 3))
-        res = beignet.polynomial.leggrid3d(z, z, z, self.c3d)
-        numpy.testing.assert_(res.shape == (2, 3) * 3)
 
 
 def test_legint():
@@ -3035,61 +2828,52 @@ def test_legder():
     numpy.testing.assert_equal(beignet.polynomial.legder(c, 4), [0])
 
 
-class TestLegendrePolynomialVander:
-    # some random values in [-1, 1)
-    x = numpy.random.random((3, 5)) * 2 - 1
+def test_legvander():
+    # check for 1d x
+    x = numpy.arange(3)
+    v = beignet.polynomial.legvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(v[..., i], beignet.polynomial.legval(x, coef))
 
-    def test_legvander(self):
-        # check for 1d x
-        x = numpy.arange(3)
-        v = beignet.polynomial.legvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.legval(x, coef)
-            )
+    # check for 2d x
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.polynomial.legvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_almost_equal(v[..., i], beignet.polynomial.legval(x, coef))
 
-        # check for 2d x
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.polynomial.legvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
-                v[..., i], beignet.polynomial.legval(x, coef)
-            )
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.legvander, (1, 2, 3), -1)
 
-    def test_legvander2d(self):
-        # also tests polyval2d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.polynomial.legvander2d(x1, x2, [1, 2])
-        tgt = beignet.polynomial.legval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
 
-        # check shape
-        van = beignet.polynomial.legvander2d([x1], [x2], [1, 2])
-        numpy.testing.assert_(van.shape == (1, 5, 6))
+def test_legvander2d():
+    # also tests polyval2d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.polynomial.legvander2d(x1, x2, [1, 2])
+    tgt = beignet.polynomial.legval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
 
-    def test_legvander3d(self):
-        # also tests polyval3d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.polynomial.legvander3d(x1, x2, x3, [1, 2, 3])
-        tgt = beignet.polynomial.legval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_almost_equal(res, tgt)
+    # check shape
+    van = beignet.polynomial.legvander2d([x1], [x2], [1, 2])
+    numpy.testing.assert_(van.shape == (1, 5, 6))
 
-        # check shape
-        van = beignet.polynomial.legvander3d([x1], [x2], [x3], [1, 2, 3])
-        numpy.testing.assert_(van.shape == (1, 5, 24))
 
-    def test_legvander_negdeg(self):
-        numpy.testing.assert_raises(
-            ValueError, beignet.polynomial.legvander, (1, 2, 3), -1
-        )
+def test_legvander3d():
+    # also tests polyval3d for non-square coefficient array
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.polynomial.legvander3d(x1, x2, x3, [1, 2, 3])
+    tgt = beignet.polynomial.legval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_almost_equal(res, tgt)
+
+    # check shape
+    van = beignet.polynomial.legvander3d([x1], [x2], [x3], [1, 2, 3])
+    numpy.testing.assert_(van.shape == (1, 5, 24))
 
 
 def test_legfit():
@@ -4109,3 +3893,203 @@ def test_mapparms():
     tgt = [-1 + 1j, 1 - 1j]
     res = beignet.polynomial.mapparms(dom1, dom2)
     numpy.testing.assert_almost_equal(res, tgt)
+
+
+class TestLaguerrePolynomialEvaluation:
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([9.0, -14.0, 6.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    def test_lagval(self):
+        # check empty input
+        numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
+
+        # check normal input)
+        x = numpy.linspace(-1, 1)
+        y = [beignet.polynomial.polyval(x, c) for c in laguerre_polynomial_Llist]
+        for i in range(7):
+            msg = f"At i={i}"
+            tgt = y[i]
+            res = beignet.polynomial.lagval(x, [0] * i + [1])
+            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+        # check that shape is preserved
+        for i in range(3):
+            dims = [2] * i
+            x = numpy.zeros(dims)
+            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
+            numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
+            numpy.testing.assert_equal(
+                beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims
+            )
+
+    def test_lagval2d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test exceptions
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial.lagval2d, x1, x2[:2], self.c2d
+        )
+
+        # test values
+        tgt = y1 * y2
+        res = beignet.polynomial.lagval2d(x1, x2, self.c2d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.lagval2d(z, z, self.c2d)
+        numpy.testing.assert_(res.shape == (2, 3))
+
+    def test_lagval3d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test exceptions
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial.lagval3d, x1, x2, x3[:2], self.c3d
+        )
+
+        # test values
+        tgt = y1 * y2 * y3
+        res = beignet.polynomial.lagval3d(x1, x2, x3, self.c3d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.lagval3d(z, z, z, self.c3d)
+        numpy.testing.assert_(res.shape == (2, 3))
+
+    def test_laggrid2d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test values
+        tgt = numpy.einsum("i,j->ij", y1, y2)
+        res = beignet.polynomial.laggrid2d(x1, x2, self.c2d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.laggrid2d(z, z, self.c2d)
+        numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+    def test_laggrid3d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test values
+        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+        res = beignet.polynomial.laggrid3d(x1, x2, x3, self.c3d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.laggrid3d(z, z, z, self.c3d)
+        numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+class TestLegendrePolynomialEvaluation:
+    # coefficients of 1 + 2*x + 3*x**2
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    # some random values in [-1, 1)
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    def test_legval(self):
+        # check empty input
+        numpy.testing.assert_equal(beignet.polynomial.legval([], [1]).size, 0)
+
+        # check normal input)
+        x = numpy.linspace(-1, 1)
+        y = [beignet.polynomial.polyval(x, c) for c in legendre_polynomial_Llist]
+        for i in range(10):
+            msg = f"At i={i}"
+            tgt = y[i]
+            res = beignet.polynomial.legval(x, [0] * i + [1])
+            numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
+
+        # check that shape is preserved
+        for i in range(3):
+            dims = [2] * i
+            x = numpy.zeros(dims)
+            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1]).shape, dims)
+            numpy.testing.assert_equal(beignet.polynomial.legval(x, [1, 0]).shape, dims)
+            numpy.testing.assert_equal(
+                beignet.polynomial.legval(x, [1, 0, 0]).shape, dims
+            )
+
+    def test_legval2d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test exceptions
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial.legval2d, x1, x2[:2], self.c2d
+        )
+
+        # test values
+        tgt = y1 * y2
+        res = beignet.polynomial.legval2d(x1, x2, self.c2d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.legval2d(z, z, self.c2d)
+        numpy.testing.assert_(res.shape == (2, 3))
+
+    def test_legval3d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test exceptions
+        numpy.testing.assert_raises(
+            ValueError, beignet.polynomial.legval3d, x1, x2, x3[:2], self.c3d
+        )
+
+        # test values
+        tgt = y1 * y2 * y3
+        res = beignet.polynomial.legval3d(x1, x2, x3, self.c3d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.legval3d(z, z, z, self.c3d)
+        numpy.testing.assert_(res.shape == (2, 3))
+
+    def test_leggrid2d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test values
+        tgt = numpy.einsum("i,j->ij", y1, y2)
+        res = beignet.polynomial.leggrid2d(x1, x2, self.c2d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.leggrid2d(z, z, self.c2d)
+        numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+    def test_leggrid3d(self):
+        x1, x2, x3 = self.x
+        y1, y2, y3 = self.y
+
+        # test values
+        tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+        res = beignet.polynomial.leggrid3d(x1, x2, x3, self.c3d)
+        numpy.testing.assert_almost_equal(res, tgt)
+
+        # test shape
+        z = numpy.ones((2, 3))
+        res = beignet.polynomial.leggrid3d(z, z, z, self.c3d)
+        numpy.testing.assert_(res.shape == (2, 3) * 3)
