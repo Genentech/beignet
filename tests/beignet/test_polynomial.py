@@ -1235,90 +1235,92 @@ def test_hermex():
     numpy.testing.assert_equal(beignet.polynomial.hermex, [0, 1])
 
 
-class TestHermiteEPolynomialArithmetic:
+def test_hermeadd():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] += 1
+            res = beignet.polynomial.hermeadd([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_equal(
+                beignet.polynomial.hermetrim(res, tol=1e-6),
+                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
+
+
+def test_hermesub():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] -= 1
+            res = beignet.polynomial.hermesub([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_equal(
+                beignet.polynomial.hermetrim(res, tol=1e-6),
+                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
+
+
+def test_hermemulx():
+    numpy.testing.assert_equal(beignet.polynomial.hermemulx([0]), [0])
+    numpy.testing.assert_equal(beignet.polynomial.hermemulx([1]), [0, 1])
+    for i in range(1, 5):
+        ser = [0] * i + [1]
+        tgt = [0] * (i - 1) + [i, 0, 1]
+        numpy.testing.assert_equal(beignet.polynomial.hermemulx(ser), tgt)
+
+
+def test_hermemul():
     x = numpy.linspace(-3, 3, 100)
 
-    def test_hermeadd(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] += 1
-                res = beignet.polynomial.hermeadd([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_equal(
-                    beignet.polynomial.hermetrim(res, tol=1e-6),
-                    beignet.polynomial.hermetrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
+    # check values of result
+    for i in range(5):
+        pol1 = [0] * i + [1]
+        val1 = beignet.polynomial.hermeval(x, pol1)
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            pol2 = [0] * j + [1]
+            val2 = beignet.polynomial.hermeval(x, pol2)
+            pol3 = beignet.polynomial.hermemul(pol1, pol2)
+            val3 = beignet.polynomial.hermeval(x, pol3)
+            numpy.testing.assert_(len(pol3) == i + j + 1, msg)
+            numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
-    def test_hermesub(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] -= 1
-                res = beignet.polynomial.hermesub([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_equal(
-                    beignet.polynomial.hermetrim(res, tol=1e-6),
-                    beignet.polynomial.hermetrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
 
-    def test_hermemulx(self):
-        numpy.testing.assert_equal(beignet.polynomial.hermemulx([0]), [0])
-        numpy.testing.assert_equal(beignet.polynomial.hermemulx([1]), [0, 1])
-        for i in range(1, 5):
-            ser = [0] * i + [1]
-            tgt = [0] * (i - 1) + [i, 0, 1]
-            numpy.testing.assert_equal(beignet.polynomial.hermemulx(ser), tgt)
+def test_hermediv():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            ci = [0] * i + [1]
+            cj = [0] * j + [1]
+            tgt = beignet.polynomial.hermeadd(ci, cj)
+            quo, rem = beignet.polynomial.hermediv(tgt, ci)
+            res = beignet.polynomial.hermeadd(beignet.polynomial.hermemul(quo, ci), rem)
+            numpy.testing.assert_equal(
+                beignet.polynomial.hermetrim(res, tol=1e-6),
+                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
 
-    def test_hermemul(self):
-        # check values of result
-        for i in range(5):
-            pol1 = [0] * i + [1]
-            val1 = beignet.polynomial.hermeval(self.x, pol1)
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                pol2 = [0] * j + [1]
-                val2 = beignet.polynomial.hermeval(self.x, pol2)
-                pol3 = beignet.polynomial.hermemul(pol1, pol2)
-                val3 = beignet.polynomial.hermeval(self.x, pol3)
-                numpy.testing.assert_(len(pol3) == i + j + 1, msg)
-                numpy.testing.assert_almost_equal(val3, val1 * val2, err_msg=msg)
 
-    def test_hermediv(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                ci = [0] * i + [1]
-                cj = [0] * j + [1]
-                tgt = beignet.polynomial.hermeadd(ci, cj)
-                quo, rem = beignet.polynomial.hermediv(tgt, ci)
-                res = beignet.polynomial.hermeadd(
-                    beignet.polynomial.hermemul(quo, ci), rem
-                )
-                numpy.testing.assert_equal(
-                    beignet.polynomial.hermetrim(res, tol=1e-6),
-                    beignet.polynomial.hermetrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
-
-    def test_hermepow(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                c = numpy.arange(i + 1)
-                tgt = functools.reduce(
-                    beignet.polynomial.hermemul, [c] * j, numpy.array([1])
-                )
-                res = beignet.polynomial.hermepow(c, j)
-                numpy.testing.assert_equal(
-                    beignet.polynomial.hermetrim(res, tol=1e-6),
-                    beignet.polynomial.hermetrim(tgt, tol=1e-6),
-                    err_msg=msg,
-                )
+def test_hermepow():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            c = numpy.arange(i + 1)
+            tgt = functools.reduce(
+                beignet.polynomial.hermemul, [c] * j, numpy.array([1])
+            )
+            res = beignet.polynomial.hermepow(c, j)
+            numpy.testing.assert_equal(
+                beignet.polynomial.hermetrim(res, tol=1e-6),
+                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                err_msg=msg,
+            )
 
 
 def test_hermeint():
