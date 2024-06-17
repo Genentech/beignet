@@ -17,15 +17,15 @@ class RankWarning(RuntimeWarning):
     pass
 
 
-def trimseq(seq):
-    if len(seq) == 0 or seq[-1] != 0:
-        return seq
+def trim_sequence(input):
+    if len(input) == 0 or input[-1] != 0:
+        return input
     else:
-        for i in range(len(seq) - 1, -1, -1):
-            if seq[i] != 0:
+        for index in range(len(input) - 1, -1, -1):
+            if input[index] != 0:
                 break
 
-        return seq[: i + 1]
+        return input[: index + 1]
 
 
 def as_series(alist, trim=True):
@@ -36,7 +36,7 @@ def as_series(alist, trim=True):
     if any(a.ndim != 1 for a in arrays):
         raise ValueError("Coefficient array is not 1-d")
     if trim:
-        arrays = [trimseq(a) for a in arrays]
+        arrays = [trim_sequence(a) for a in arrays]
 
     if any(a.dtype == numpy.dtype(object) for a in arrays):
         ret = []
@@ -70,6 +70,7 @@ def trimcoef(c, tol=0):
 
 def getdomain(x):
     [x] = as_series([x], trim=False)
+
     if x.dtype.char in numpy.typecodes["Complex"]:
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
@@ -78,7 +79,7 @@ def getdomain(x):
         return numpy.array((x.min(), x.max()))
 
 
-def mapparms(old, new):
+def mapping_parameters(old, new):
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -88,35 +89,35 @@ def mapparms(old, new):
 
 def mapdomain(x, old, new):
     x = numpy.asanyarray(x)
-    off, scl = mapparms(old, new)
+    off, scl = mapping_parameters(old, new)
     return off + scl * x
 
 
-def _nth_slice(i, ndim):
-    sl = [numpy.newaxis] * ndim
-    sl[i] = slice(None)
-    return tuple(sl)
-
-
-def _vander_nd(vander_fs, points, degrees):
-    n_dims = len(vander_fs)
-    if n_dims != len(points):
+def _vander_nd(func, input, degrees):
+    n_dims = len(func)
+    if n_dims != len(input):
         raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(points)}"
+            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
         )
     if n_dims != len(degrees):
         raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
     if n_dims == 0:
         raise ValueError("Unable to guess a dtype or shape when no points are given")
 
-    points = tuple(numpy.asarray(tuple(points)) + 0.0)
+    input = tuple(numpy.asarray(tuple(input)) + 0.0)
 
-    vander_arrays = (
-        vander_fs[i](points[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
-        for i in range(n_dims)
-    )
+    ys = []
 
-    return functools.reduce(operator.mul, vander_arrays)
+    for index in range(n_dims):
+        output = [None] * n_dims
+
+        output[index] = slice(None)
+
+        y = func[index](input[index], degrees[index])[(...,) + (*output,)]
+
+        ys = [*ys, y]
+
+    return functools.reduce(operator.mul, ys)
 
 
 def _vander_nd_flat(vander_fs, points, degrees):
@@ -151,29 +152,33 @@ def _from_roots(line_f: callable, mul_f: callable, roots):
         return p[0]
 
 
-def _valnd(val_f, c, *args):
-    args = [numpy.asanyarray(a) for a in args]
-    shape0 = args[0].shape
-    if not all((a.shape == shape0 for a in args[1:])):
-        if len(args) == 3:
-            raise ValueError("x, y, z are incompatible")
-        elif len(args) == 2:
-            raise ValueError("x, y are incompatible")
-        else:
-            raise ValueError("ordinates are incompatible")
-    it = iter(args)
-    x0 = next(it)
+def _evaluate(func, input, *xs):
+    xs = [numpy.asanyarray(a) for a in xs]
 
-    c = val_f(x0, c)
-    for xi in it:
-        c = val_f(xi, c, tensor=False)
-    return c
+    if not all((a.shape == xs[0].shape for a in xs[1:])):
+        match len(xs):
+            case 2:
+                raise ValueError("x, y are incompatible")
+            case 3:
+                raise ValueError("x, y, z are incompatible")
+            case _:
+                raise ValueError("ordinates are incompatible")
+
+    xs = iter(xs)
+
+    output = func(next(xs), input)
+
+    for x in xs:
+        output = func(x, output, tensor=False)
+
+    return output
 
 
-def _gridnd(val_f, c, *args):
-    for xi in args:
-        c = val_f(xi, c)
-    return c
+def _grid(func, input, *xs):
+    for x in xs:
+        input = func(x, input)
+
+    return input
 
 
 def _div(func, input, other):
@@ -197,7 +202,7 @@ def _div(func, input, other):
             q = rem[-1] / p[-1]
             rem = rem[:-1] - q * p[:-1]
             quo[i] = q
-        return quo, trimseq(rem)
+        return quo, trim_sequence(rem)
 
 
 def _add(input, other):
@@ -212,7 +217,14 @@ def _add(input, other):
 
         output = other
 
-    return trimseq(output)
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
+
+        output = output[: index + 1]
+
+    return output
 
 
 def _sub(input, other):
@@ -229,7 +241,14 @@ def _sub(input, other):
 
         output = other
 
-    return trimseq(output)
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
+
+        output = output[: index + 1]
+
+    return output
 
 
 def _fit(
@@ -337,13 +356,6 @@ def _pow(
             output = func(output, input)
 
         return output
-
-
-def _as_int(x, desc):
-    try:
-        return operator.index(x)
-    except TypeError as e:
-        raise TypeError(f"{desc} must be an integer, received {x}") from e
 
 
 class ABCPolyBase(ABC):
@@ -703,7 +715,7 @@ class ABCPolyBase(ABC):
         return self(kind.identity(domain, window=window, symbol=self.symbol))
 
     def mapparms(self):
-        return mapparms(self.domain, self.window)
+        return mapping_parameters(self.domain, self.window)
 
     def integ(self, m=1, k=None, lbnd=None):
         if k is None:
@@ -776,7 +788,7 @@ class ABCPolyBase(ABC):
             window = cls.window
 
         deg = len(roots)
-        off, scl = mapparms(domain, window)
+        off, scl = mapping_parameters(domain, window)
         rnew = off + scl * roots
         coef = cls._fromroots(rnew) / scl**deg
         return cls(coef, domain=domain, window=window, symbol=symbol)
@@ -787,7 +799,7 @@ class ABCPolyBase(ABC):
             domain = cls.domain
         if window is None:
             window = cls.window
-        off, scl = mapparms(window, domain)
+        off, scl = mapping_parameters(window, domain)
         coef = cls._line(off, scl)
         return cls(coef, domain, window, symbol)
 
@@ -832,22 +844,18 @@ del PytestTester
 chebtrim = trimcoef
 
 
-def _cseries_to_zseries(c):
-    n = c.size
-    zs = numpy.zeros(2 * n - 1, dtype=c.dtype)
-    zs[n - 1 :] = c / 2
-    return zs + zs[::-1]
+def _c_series_to_z_series(input):
+    n = input.size
+    output = numpy.zeros(2 * n - 1, dtype=input.dtype)
+    output[n - 1 :] = input / 2
+    return output + output[::-1]
 
 
-def _zseries_to_cseries(zs):
-    n = (zs.size + 1) // 2
-    c = zs[n - 1 :].copy()
-    c[1:n] *= 2
-    return c
-
-
-def _zseries_mul(z1, z2):
-    return numpy.convolve(z1, z2)
+def _z_series_to_c_series(input):
+    n = (input.size + 1) // 2
+    output = input[n - 1 :]
+    output[1:n] = output[1:n] * 2
+    return output
 
 
 def _zseries_div(z1, z2):
@@ -885,18 +893,10 @@ def _zseries_div(z1, z2):
         return quo, rem
 
 
-def _zseries_der(zs):
-    n = len(zs) // 2
-    ns = numpy.array([-1, 0, 1], dtype=zs.dtype)
-    zs *= numpy.arange(-n, n + 1) * 2
-    d, r = _zseries_div(zs, ns)
-    return d
-
-
 def _zseries_int(zs):
     n = 1 + len(zs) // 2
     ns = numpy.array([-1, 0, 1], dtype=zs.dtype)
-    zs = _zseries_mul(zs, ns)
+    zs = numpy.convolve(zs, ns)
     div = numpy.arange(-n, n + 1) * 2
     zs[:n] /= div[:n]
     zs[n + 1 :] /= div[n + 1 :]
@@ -904,27 +904,32 @@ def _zseries_int(zs):
     return zs
 
 
-def poly2cheb(pol):
-    [pol] = as_series([pol])
-    deg = len(pol) - 1
-    res = 0
-    for i in range(deg, -1, -1):
-        res = chebadd(chebmulx(res), pol[i])
-    return res
+def polynomial_to_chebyshev_polynomial(input):
+    [input] = as_series([input])
+
+    output = 0
+
+    for index in range(len(input) - 1, -1, -1):
+        output = chebmulx(output)
+
+        output = _add(output, input[index])
+
+    return output
 
 
-def cheb2poly(c):
-    [c] = as_series([c])
-    n = len(c)
+def chebyshev_polynomial_to_polynomial(input):
+    [input] = as_series([input])
+
+    n = len(input)
     if n < 3:
-        return c
+        return input
     else:
-        c0 = c[-2]
-        c1 = c[-1]
+        c0 = input[-2]
+        c1 = input[-1]
 
         for i in range(n - 1, 1, -1):
             tmp = c0
-            c0 = polysub(c[i - 2], c1)
+            c0 = polysub(input[i - 2], c1)
             c1 = polyadd(tmp, polymulx(c1) * 2)
         return polyadd(c0, polymulx(c1))
 
@@ -945,15 +950,15 @@ def chebline(off, scl):
         return numpy.array([off])
 
 
-def chebfromroots(roots):
-    return _from_roots(chebline, chebmul, roots)
+def chebyshev_polynomial_from_roots(input):
+    return _from_roots(chebline, chebmul, input)
 
 
-def chebadd(c1, c2):
-    return _add(c1, c2)
+def add_chebyshev_polynomial(input, other):
+    return _add(input, other)
 
 
-def chebsub(c1, c2):
+def sub_chebyshev_polynomial(c1, c2):
     return _sub(c1, c2)
 
 
@@ -973,13 +978,28 @@ def chebmulx(c):
     return prd
 
 
-def chebmul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    z1 = _cseries_to_zseries(c1)
-    z2 = _cseries_to_zseries(c2)
-    prd = _zseries_mul(z1, z2)
-    ret = _zseries_to_cseries(prd)
-    return trimseq(ret)
+def chebmul(input, other):
+    [input, other] = as_series([input, other])
+
+    input = _c_series_to_z_series(input)
+    other = _c_series_to_z_series(other)
+
+    output = numpy.convolve(input, other)
+
+    n = (output.size + 1) // 2
+
+    output = output[n - 1 :]
+
+    output[1:n] = output[1:n] * 2
+
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
+
+        output = output[: index + 1]
+
+    return output
 
 
 def chebdiv(c1, c2):
@@ -994,11 +1014,11 @@ def chebdiv(c1, c2):
     elif lc2 == 1:
         return c1 / c2[-1], c1[:1] * 0
     else:
-        z1 = _cseries_to_zseries(c1)
-        z2 = _cseries_to_zseries(c2)
+        z1 = _c_series_to_z_series(c1)
+        z2 = _c_series_to_z_series(c2)
         quo, rem = _zseries_div(z1, z2)
-        quo = trimseq(_zseries_to_cseries(quo))
-        rem = trimseq(_zseries_to_cseries(rem))
+        quo = trim_sequence(_z_series_to_c_series(quo))
+        rem = trim_sequence(_z_series_to_c_series(rem))
         return quo, rem
 
 
@@ -1014,19 +1034,19 @@ def chebpow(c, pow, maxpower=16):
     elif power == 1:
         return c
     else:
-        zs = _cseries_to_zseries(c)
+        zs = _c_series_to_z_series(c)
         prd = zs
         for _ in range(2, power + 1):
             prd = numpy.convolve(prd, zs)
-        return _zseries_to_cseries(prd)
+        return _z_series_to_c_series(prd)
 
 
 def chebder(c, m=1, scl=1, axis=0):
     c = numpy.array(c, ndmin=1, copy=True)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -1062,8 +1082,8 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -1126,23 +1146,23 @@ def chebval(x, c, tensor=True):
 
 
 def chebval2d(x, y, c):
-    return _valnd(chebval, c, x, y)
+    return _evaluate(chebval, c, x, y)
 
 
 def chebgrid2d(x, y, c):
-    return _gridnd(chebval, c, x, y)
+    return _grid(chebval, c, x, y)
 
 
 def chebval3d(x, y, z, c):
-    return _valnd(chebval, c, x, y, z)
+    return _evaluate(chebval, c, x, y, z)
 
 
 def chebgrid3d(x, y, z, c):
-    return _gridnd(chebval, c, x, y, z)
+    return _grid(chebval, c, x, y, z)
 
 
 def chebvander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -1223,15 +1243,21 @@ def chebinterpolate(func, deg, args=()):
     return c
 
 
-def chebgauss(deg):
-    ideg = _as_int(deg, "deg")
+def chebyshev_gauss_quadrature(input):
+    ideg = operator.index(input)
+
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
 
-    x = numpy.cos(numpy.pi * numpy.arange(1, 2 * ideg, 2) / (2.0 * ideg))
-    w = numpy.ones(ideg) * (numpy.pi / ideg)
+    output = numpy.arange(1, 2 * ideg, 2) / (2.0 * ideg)
 
-    return x, w
+    output = output * numpy.pi
+
+    output = numpy.cos(output)
+
+    weight = numpy.ones(ideg) * (numpy.pi / ideg)
+
+    return output, weight
 
 
 def chebweight(x):
@@ -1262,8 +1288,8 @@ def chebpts2(npts):
 
 
 class Chebyshev(ABCPolyBase):
-    _add = staticmethod(chebadd)
-    _sub = staticmethod(chebsub)
+    _add = staticmethod(add_chebyshev_polynomial)
+    _sub = staticmethod(sub_chebyshev_polynomial)
     _mul = staticmethod(chebmul)
     _div = staticmethod(chebdiv)
     _pow = staticmethod(chebpow)
@@ -1273,7 +1299,7 @@ class Chebyshev(ABCPolyBase):
     _fit = staticmethod(chebfit)
     _line = staticmethod(chebline)
     _roots = staticmethod(chebroots)
-    _fromroots = staticmethod(chebfromroots)
+    _fromroots = staticmethod(chebyshev_polynomial_from_roots)
 
     @classmethod
     def interpolate(cls, func, deg, domain=None, args=()):
@@ -1405,8 +1431,8 @@ def hermder(c, m=1, scl=1, axis=0):
     c = numpy.array(c, ndmin=1, copy=True)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -1438,8 +1464,8 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -1501,23 +1527,23 @@ def hermval(x, c, tensor=True):
 
 
 def hermval2d(x, y, c):
-    return _valnd(hermval, c, x, y)
+    return _evaluate(hermval, c, x, y)
 
 
 def hermgrid2d(x, y, c):
-    return _gridnd(hermval, c, x, y)
+    return _grid(hermval, c, x, y)
 
 
 def hermval3d(x, y, z, c):
-    return _valnd(hermval, c, x, y, z)
+    return _evaluate(hermval, c, x, y, z)
 
 
 def hermgrid3d(x, y, z, c):
-    return _gridnd(hermval, c, x, y, z)
+    return _grid(hermval, c, x, y, z)
 
 
 def hermvander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -1593,29 +1619,29 @@ def _normed_hermite_n(x, n):
     return c0 + c1 * x * numpy.sqrt(2)
 
 
-def hermgauss(deg):
-    ideg = _as_int(deg, "deg")
+def gauss_physicists_hermite_quadrature(input):
+    ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
 
-    c = numpy.array([0] * deg + [1], dtype=numpy.float64)
+    c = numpy.array([0] * input + [1], dtype=numpy.float64)
     m = hermcompanion(c)
-    x = numpy.linalg.eigvalsh(m)
+    output = numpy.linalg.eigvalsh(m)
 
-    dy = _normed_hermite_n(x, ideg)
-    df = _normed_hermite_n(x, ideg - 1) * numpy.sqrt(2 * ideg)
-    x -= dy / df
+    dy = _normed_hermite_n(output, ideg)
+    df = _normed_hermite_n(output, ideg - 1) * numpy.sqrt(2 * ideg)
+    output -= dy / df
 
-    fm = _normed_hermite_n(x, ideg - 1)
+    fm = _normed_hermite_n(output, ideg - 1)
     fm /= numpy.abs(fm).max()
-    w = 1 / (fm * fm)
+    weight = 1 / (fm * fm)
 
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
+    weight = (weight + weight[::-1]) / 2
+    output = (output - output[::-1]) / 2
 
-    w *= numpy.sqrt(numpy.pi) / w.sum()
+    weight = weight * (numpy.sqrt(numpy.pi) / numpy.sum(weight))
 
-    return x, w
+    return output, weight
 
 
 def hermweight(x):
@@ -1755,8 +1781,8 @@ def hermeder(c, m=1, scl=1, axis=0):
     c = numpy.array(c, ndmin=1, copy=True)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -1788,8 +1814,8 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -1850,23 +1876,23 @@ def hermeval(x, c, tensor=True):
 
 
 def hermeval2d(x, y, c):
-    return _valnd(hermeval, c, x, y)
+    return _evaluate(hermeval, c, x, y)
 
 
 def hermegrid2d(x, y, c):
-    return _gridnd(hermeval, c, x, y)
+    return _grid(hermeval, c, x, y)
 
 
 def hermeval3d(x, y, z, c):
-    return _valnd(hermeval, c, x, y, z)
+    return _evaluate(hermeval, c, x, y, z)
 
 
 def hermegrid3d(x, y, z, c):
-    return _gridnd(hermeval, c, x, y, z)
+    return _grid(hermeval, c, x, y, z)
 
 
 def hermevander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -1941,12 +1967,12 @@ def _normed_hermite_e_n(x, n):
     return c0 + c1 * x
 
 
-def hermegauss(deg):
-    ideg = _as_int(deg, "deg")
+def gauss_probabilists_hermite_quadrature(input):
+    ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
 
-    c = numpy.array([0] * deg + [1])
+    c = numpy.array([0] * input + [1])
     m = hermecompanion(c)
     x = numpy.linalg.eigvalsh(m)
 
@@ -2102,8 +2128,8 @@ def lagder(c, m=1, scl=1, axis=0):
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
 
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -2137,8 +2163,8 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -2200,23 +2226,23 @@ def lagval(x, c, tensor=True):
 
 
 def lagval2d(x, y, c):
-    return _valnd(lagval, c, x, y)
+    return _evaluate(lagval, c, x, y)
 
 
 def laggrid2d(x, y, c):
-    return _gridnd(lagval, c, x, y)
+    return _grid(lagval, c, x, y)
 
 
 def lagval3d(x, y, z, c):
-    return _valnd(lagval, c, x, y, z)
+    return _evaluate(lagval, c, x, y, z)
 
 
 def laggrid3d(x, y, z, c):
-    return _gridnd(lagval, c, x, y, z)
+    return _grid(lagval, c, x, y, z)
 
 
 def lagvander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -2276,12 +2302,12 @@ def lagroots(c):
     return r
 
 
-def laggauss(deg):
-    ideg = _as_int(deg, "deg")
+def gauss_laguerre_quadrature(input):
+    ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
 
-    c = numpy.array([0] * deg + [1])
+    c = numpy.array([0] * input + [1])
     m = lagcompanion(c)
     x = numpy.linalg.eigvalsh(m)
 
@@ -2290,13 +2316,15 @@ def laggauss(deg):
     x -= dy / df
 
     fm = lagval(x, c[1:])
-    fm /= numpy.abs(fm).max()
-    df /= numpy.abs(df).max()
-    w = 1 / (fm * df)
 
-    w /= w.sum()
+    fm = fm / numpy.max(numpy.abs(fm))
+    df = df / numpy.max(numpy.abs(df))
 
-    return x, w
+    weight = 1.0 / (fm * df)
+
+    weight = weight / numpy.sum(weight)
+
+    return x, weight
 
 
 def lagweight(x):
@@ -2437,8 +2465,8 @@ def legder(c, m=1, scl=1, axis=0):
     c = numpy.array(c, ndmin=1, copy=True)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -2474,8 +2502,8 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -2540,23 +2568,23 @@ def legval(x, c, tensor=True):
 
 
 def legval2d(x, y, c):
-    return _valnd(legval, c, x, y)
+    return _evaluate(legval, c, x, y)
 
 
 def leggrid2d(x, y, c):
-    return _gridnd(legval, c, x, y)
+    return _grid(legval, c, x, y)
 
 
 def legval3d(x, y, z, c):
-    return _valnd(legval, c, x, y, z)
+    return _evaluate(legval, c, x, y, z)
 
 
 def leggrid3d(x, y, z, c):
-    return _gridnd(legval, c, x, y, z)
+    return _grid(legval, c, x, y, z)
 
 
 def legvander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -2616,12 +2644,12 @@ def legroots(c):
     return r
 
 
-def leggauss(deg):
-    ideg = _as_int(deg, "deg")
+def gauss_legendre_quadrature(input):
+    ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
 
-    c = numpy.array([0] * deg + [1])
+    c = numpy.array([0] * input + [1])
     m = legcompanion(c)
     x = numpy.linalg.eigvalsh(m)
 
@@ -2632,14 +2660,14 @@ def leggauss(deg):
     fm = legval(x, c[1:])
     fm /= numpy.abs(fm).max()
     df /= numpy.abs(df).max()
-    w = 1 / (fm * df)
+    weights = 1 / (fm * df)
 
-    w = (w + w[::-1]) / 2
+    weights = (weights + weights[::-1]) / 2
     x = (x - x[::-1]) / 2
 
-    w *= 2.0 / w.sum()
+    weights = weights * (2.0 / weights.sum())
 
-    return x, w
+    return x, weights
 
 
 def legweight(x):
@@ -2711,7 +2739,7 @@ def polymulx(c):
 def polymul(c1, c2):
     [c1, c2] = as_series([c1, c2])
     ret = numpy.convolve(c1, c2)
-    return trimseq(ret)
+    return trim_sequence(ret)
 
 
 def polydiv(c1, c2):
@@ -2735,7 +2763,7 @@ def polydiv(c1, c2):
             c1[i:j] -= c2 * c1[j]
             i -= 1
             j -= 1
-        return c1[j + 1 :] / scl, trimseq(c1[: j + 1])
+        return c1[j + 1 :] / scl, trim_sequence(c1[: j + 1])
 
 
 def polypow(c, pow, maxpower=None):
@@ -2747,8 +2775,8 @@ def polyder(c, m=1, scl=1, axis=0):
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c + 0.0
     cdt = c.dtype
-    cnt = _as_int(m, "the order of derivation")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
     iaxis = normalize_axis_index(iaxis, c.ndim)
@@ -2781,8 +2809,8 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     cdt = c.dtype
     if not numpy.iterable(k):
         k = [k]
-    cnt = _as_int(m, "the order of integration")
-    iaxis = _as_int(axis, "the axis")
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of integration must be non-negative")
     if len(k) > cnt:
@@ -2845,23 +2873,23 @@ def polyvalfromroots(x, r, tensor=True):
 
 
 def polyval2d(x, y, c):
-    return _valnd(polyval, c, x, y)
+    return _evaluate(polyval, c, x, y)
 
 
 def polygrid2d(x, y, c):
-    return _gridnd(polyval, c, x, y)
+    return _grid(polyval, c, x, y)
 
 
 def polyval3d(x, y, z, c):
-    return _valnd(polyval, c, x, y, z)
+    return _evaluate(polyval, c, x, y, z)
 
 
 def polygrid3d(x, y, z, c):
-    return _gridnd(polyval, c, x, y, z)
+    return _grid(polyval, c, x, y, z)
 
 
 def polyvander(x, deg):
-    ideg = _as_int(deg, "deg")
+    ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
@@ -2948,15 +2976,15 @@ __all__ = [
     "_vander_nd",
     "_vander_nd_flat",
     "as_series",
-    "cheb2poly",
-    "chebadd",
+    "chebyshev_polynomial_to_polynomial",
+    "add_chebyshev_polynomial",
     "chebcompanion",
     "chebder",
     "chebdiv",
     "chebdomain",
     "chebfit",
-    "chebfromroots",
-    "chebgauss",
+    "chebyshev_polynomial_from_roots",
+    "chebyshev_gauss_quadrature",
     "chebgrid2d",
     "chebgrid3d",
     "chebint",
@@ -2969,7 +2997,7 @@ __all__ = [
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "chebsub",
+    "sub_chebyshev_polynomial",
     "chebtrim",
     "chebval",
     "chebval2d",
@@ -2995,7 +3023,7 @@ __all__ = [
     "hermedomain",
     "hermefit",
     "hermefromroots",
-    "hermegauss",
+    "gauss_probabilists_hermite_quadrature",
     "hermegrid2d",
     "hermegrid3d",
     "hermeint",
@@ -3018,7 +3046,7 @@ __all__ = [
     "hermezero",
     "hermfit",
     "hermfromroots",
-    "hermgauss",
+    "gauss_physicists_hermite_quadrature",
     "hermgrid2d",
     "hermgrid3d",
     "hermint",
@@ -3047,7 +3075,7 @@ __all__ = [
     "lagdomain",
     "lagfit",
     "lagfromroots",
-    "laggauss",
+    "gauss_laguerre_quadrature",
     "laggrid2d",
     "laggrid3d",
     "lagint",
@@ -3076,7 +3104,7 @@ __all__ = [
     "legdomain",
     "legfit",
     "legfromroots",
-    "leggauss",
+    "gauss_legendre_quadrature",
     "leggrid2d",
     "leggrid3d",
     "legint",
@@ -3098,8 +3126,8 @@ __all__ = [
     "legx",
     "legzero",
     "mapdomain",
-    "mapparms",
-    "poly2cheb",
+    "mapping_parameters",
+    "polynomial_to_chebyshev_polynomial",
     "poly2herm",
     "poly2herme",
     "poly2lag",
@@ -3133,5 +3161,5 @@ __all__ = [
     "polyzero",
     "set_default_printstyle",
     "trimcoef",
-    "trimseq",
+    "trim_sequence",
 ]
