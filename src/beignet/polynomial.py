@@ -6,7 +6,7 @@ import numpy
 import numpy.linalg
 
 
-def common_type(*arrays):
+def _common_type(*xs):
     dtypes = [
         [
             numpy.float16,
@@ -32,16 +32,14 @@ def common_type(*arrays):
 
     precision = 0
 
-    for a in arrays:
-        t = a.dtype.type
-
-        if numpy.iscomplexobj(a):
+    for x in xs:
+        if numpy.iscomplexobj(x):
             is_complex = True
 
-        if issubclass(t, numpy.integer):
+        if issubclass(x.dtype.type, numpy.integer):
             score = precisions[numpy.float64]
         else:
-            score = precisions.get(t, None)
+            score = precisions.get(x.dtype.type, None)
 
             if score is None:
                 raise TypeError
@@ -78,36 +76,33 @@ def _trim_sequence(x):
     return output
 
 
-def _as_series(xs, trim=True):
-    arrays = []
+def _as_series(inputs, trim=True):
+    outputs = []
 
-    for x in xs:
-        arrays.append(numpy.array(x, ndmin=1))
+    for input in inputs:
+        outputs = [*outputs, numpy.array(input, ndmin=1)]
 
-    for array in arrays:
-        if array.size == 0:
+    for index, output in enumerate(outputs):
+        if output.ndim != 1:
             raise ValueError
 
-    if any(a.ndim != 1 for a in arrays):
-        raise ValueError
+        if output.size == 0:
+            raise ValueError
 
-    if trim:
-        arrays = [_trim_sequence(a) for a in arrays]
+        if trim:
+            output = _trim_sequence(output)
+
+        outputs[index] = output
 
     try:
-        dtype = common_type(*arrays)
+        dtype = _common_type(*outputs)
     except Exception as error:
         raise ValueError from error
 
-    output = []
+    for index, output in enumerate(outputs):
+        outputs[index] = numpy.array(output, dtype=dtype)
 
-    for array in arrays:
-        output = [
-            *output,
-            numpy.array(array, dtype=dtype),
-        ]
-
-    return output
+    return outputs
 
 
 def _trim_coefficients(input, tolerance: float = 0.0):
