@@ -213,14 +213,14 @@ def test__zseries_to_cseries():
 
 
 def test_as_series():
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.as_series, [[]])
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.as_series, [[[1, 2]]])
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.as_series, [[1], ["a"]])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[]])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[[1, 2]]])
+    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[1], ["a"]])
 
     types = ["i", "d", "O"]
     for i in range(len(types)):
         for j in range(i):
-            [resi, resj] = beignet.polynomial.as_series(
+            [resi, resj] = beignet.polynomial._as_series(
                 [(numpy.ones(1, types[i])), (numpy.ones(1, types[j]))]
             )
             numpy.testing.assert_(resi.dtype.char == resj.dtype.char)
@@ -245,9 +245,9 @@ def test_chebadd():
             numpy.testing.assert_equal(
                 beignet.polynomial.chebtrim(
                     beignet.polynomial.chebadd([0] * i + [1], [0] * j + [1]),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -271,8 +271,10 @@ def test_chebder():
     for i in range(5):
         tgt = [0] * i + [1]
         numpy.testing.assert_equal(
-            beignet.polynomial.chebtrim(beignet.polynomial.chebder(tgt, m=0), tol=1e-6),
-            beignet.polynomial.chebtrim(tgt, tol=1e-6),
+            beignet.polynomial.chebtrim(
+                beignet.polynomial.chebder(tgt, m=0), tolerance=1e-6
+            ),
+            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -283,9 +285,9 @@ def test_chebder():
                     beignet.polynomial.chebder(
                         beignet.polynomial.chebint(tgt, m=j), m=j
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -296,9 +298,9 @@ def test_chebder():
                     beignet.polynomial.chebder(
                         beignet.polynomial.chebint(tgt, m=j, scl=2), m=j, scl=0.5
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -326,9 +328,9 @@ def test_chebdiv():
                     beignet.polynomial.chebadd(
                         beignet.polynomial.chebmul(quo, ci), rem
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -425,7 +427,9 @@ def test_chebfit():
 
 def test_chebfromroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.chebtrim(beignet.polynomial.chebfromroots([]), tol=1e-6),
+        beignet.polynomial.chebtrim(
+            beignet.polynomial.chebfromroots([]), tolerance=1e-6
+        ),
         [1],
     )
     for i in range(1, 5):
@@ -434,9 +438,9 @@ def test_chebfromroots():
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(
                 beignet.polynomial.chebfromroots(roots) * 2 ** (i - 1),
-                tol=1e-6,
+                tolerance=1e-6,
             ),
-            beignet.polynomial.chebtrim(tgt, tol=1e-6),
+            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
         )
 
 
@@ -510,8 +514,8 @@ def test_chebint():
         chebint = beignet.polynomial.chebint(chebpol, m=1, k=[i])
         res = beignet.polynomial.cheb2poly(chebint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebtrim(res, tol=1e-6),
-            beignet.polynomial.chebtrim(tgt, tol=1e-6),
+            beignet.polynomial.chebtrim(res, tolerance=1e-6),
+            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -529,8 +533,8 @@ def test_chebint():
         chebint = beignet.polynomial.chebint(chebpol, m=1, k=[i], scl=2)
         res = beignet.polynomial.cheb2poly(chebint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebtrim(res, tol=1e-6),
-            beignet.polynomial.chebtrim(tgt, tol=1e-6),
+            beignet.polynomial.chebtrim(res, tolerance=1e-6),
+            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -541,8 +545,8 @@ def test_chebint():
                 tgt = beignet.polynomial.chebint(tgt, m=1)
             res = beignet.polynomial.chebint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -553,8 +557,8 @@ def test_chebint():
                 tgt = beignet.polynomial.chebint(tgt, m=1, k=[k])
             res = beignet.polynomial.chebint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -565,8 +569,8 @@ def test_chebint():
                 tgt = beignet.polynomial.chebint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.chebint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -577,8 +581,8 @@ def test_chebint():
                 tgt = beignet.polynomial.chebint(tgt, m=1, k=[k], scl=2)
             res = beignet.polynomial.chebint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -637,8 +641,8 @@ def test_chebmul():
             tgt[abs(i - j)] += 0.5
             res = beignet.polynomial.chebmul([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -666,8 +670,8 @@ def test_chebpow():
             )
             res = beignet.polynomial.chebpow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -709,9 +713,9 @@ def test_chebroots():
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(
                 beignet.polynomial.chebroots(beignet.polynomial.chebfromroots(tgt)),
-                tol=1e-6,
+                tolerance=1e-6,
             ),
-            beignet.polynomial.chebtrim(tgt, tol=1e-6),
+            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
         )
 
 
@@ -724,8 +728,8 @@ def test_chebsub():
             tgt[j] -= 1
             res = beignet.polynomial.chebsub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.chebtrim(res, tol=1e-6),
-                beignet.polynomial.chebtrim(tgt, tol=1e-6),
+                beignet.polynomial.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -877,8 +881,8 @@ def test_hermadd():
             tgt[j] += 1
             res = beignet.polynomial.hermadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -901,8 +905,10 @@ def test_hermder():
     for i in range(5):
         tgt = [0] * i + [1]
         numpy.testing.assert_equal(
-            beignet.polynomial.hermtrim(beignet.polynomial.hermder(tgt, m=0), tol=1e-6),
-            beignet.polynomial.hermtrim(tgt, tol=1e-6),
+            beignet.polynomial.hermtrim(
+                beignet.polynomial.hermder(tgt, m=0), tolerance=1e-6
+            ),
+            beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -913,9 +919,9 @@ def test_hermder():
                     beignet.polynomial.hermder(
                         beignet.polynomial.hermint(tgt, m=j), m=j
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -926,9 +932,9 @@ def test_hermder():
                     beignet.polynomial.hermder(
                         beignet.polynomial.hermint(tgt, m=j, scl=2), m=j, scl=0.5
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -950,8 +956,8 @@ def test_hermdiv():
             quo, rem = beignet.polynomial.hermdiv(tgt, ci)
             res = beignet.polynomial.hermadd(beignet.polynomial.hermmul(quo, ci), rem)
             numpy.testing.assert_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -977,8 +983,8 @@ def test_hermeadd():
             tgt[j] += 1
             res = beignet.polynomial.hermeadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -1002,8 +1008,8 @@ def test_hermeder():
         tgt = [0] * i + [1]
         res = beignet.polynomial.hermeder(tgt, m=0)
         numpy.testing.assert_equal(
-            beignet.polynomial.hermetrim(res, tol=1e-6),
-            beignet.polynomial.hermetrim(tgt, tol=1e-6),
+            beignet.polynomial.hermetrim(res, tolerance=1e-6),
+            beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -1013,8 +1019,8 @@ def test_hermeder():
                 beignet.polynomial.hermeint(tgt, m=j), m=j
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1024,8 +1030,8 @@ def test_hermeder():
                 beignet.polynomial.hermeint(tgt, m=j, scl=2), m=j, scl=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -1049,8 +1055,8 @@ def test_hermediv():
             quo, rem = beignet.polynomial.hermediv(tgt, ci)
             res = beignet.polynomial.hermeadd(beignet.polynomial.hermemul(quo, ci), rem)
             numpy.testing.assert_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -1147,7 +1153,9 @@ def test_hermefit():
 
 def test_hermefromroots():
     res = beignet.polynomial.hermefromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.hermetrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.hermetrim(res, tolerance=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.polynomial.hermefromroots(roots)
@@ -1229,8 +1237,8 @@ def test_hermeint():
         hermeint = beignet.polynomial.hermeint(hermepol, m=1, k=[i])
         res = beignet.polynomial.herme2poly(hermeint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermetrim(res, tol=1e-6),
-            beignet.polynomial.hermetrim(tgt, tol=1e-6),
+            beignet.polynomial.hermetrim(res, tolerance=1e-6),
+            beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -1248,8 +1256,8 @@ def test_hermeint():
         hermeint = beignet.polynomial.hermeint(hermepol, m=1, k=[i], scl=2)
         res = beignet.polynomial.herme2poly(hermeint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermetrim(res, tol=1e-6),
-            beignet.polynomial.hermetrim(tgt, tol=1e-6),
+            beignet.polynomial.hermetrim(res, tolerance=1e-6),
+            beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -1260,8 +1268,8 @@ def test_hermeint():
                 tgt = beignet.polynomial.hermeint(tgt, m=1)
             res = beignet.polynomial.hermeint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1272,8 +1280,8 @@ def test_hermeint():
                 tgt = beignet.polynomial.hermeint(tgt, m=1, k=[k])
             res = beignet.polynomial.hermeint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1284,8 +1292,8 @@ def test_hermeint():
                 tgt = beignet.polynomial.hermeint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.hermeint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1296,8 +1304,8 @@ def test_hermeint():
                 tgt = beignet.polynomial.hermeint(tgt, m=1, k=[k], scl=2)
             res = beignet.polynomial.hermeint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -1358,8 +1366,8 @@ def test_hermepow():
             )
             res = beignet.polynomial.hermepow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -1371,8 +1379,8 @@ def test_hermeroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.hermeroots(beignet.polynomial.hermefromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermetrim(res, tol=1e-6),
-            beignet.polynomial.hermetrim(tgt, tol=1e-6),
+            beignet.polynomial.hermetrim(res, tolerance=1e-6),
+            beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
         )
 
 
@@ -1385,8 +1393,8 @@ def test_hermesub():
             tgt[j] -= 1
             res = beignet.polynomial.hermesub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.hermetrim(res, tol=1e-6),
-                beignet.polynomial.hermetrim(tgt, tol=1e-6),
+                beignet.polynomial.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -1625,7 +1633,9 @@ def test_hermfit():
 
 def test_hermfromroots():
     res = beignet.polynomial.hermfromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.hermtrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.hermtrim(res, tolerance=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.polynomial.hermfromroots(roots)
@@ -1709,8 +1719,8 @@ def test_hermint():
         hermint = beignet.polynomial.hermint(hermpol, m=1, k=[i])
         res = beignet.polynomial.herm2poly(hermint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermtrim(res, tol=1e-6),
-            beignet.polynomial.hermtrim(tgt, tol=1e-6),
+            beignet.polynomial.hermtrim(res, tolerance=1e-6),
+            beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -1728,8 +1738,8 @@ def test_hermint():
         hermint = beignet.polynomial.hermint(hermpol, m=1, k=[i], scl=2)
         res = beignet.polynomial.herm2poly(hermint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermtrim(res, tol=1e-6),
-            beignet.polynomial.hermtrim(tgt, tol=1e-6),
+            beignet.polynomial.hermtrim(res, tolerance=1e-6),
+            beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -1740,8 +1750,8 @@ def test_hermint():
                 tgt = beignet.polynomial.hermint(tgt, m=1)
             res = beignet.polynomial.hermint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1752,8 +1762,8 @@ def test_hermint():
                 tgt = beignet.polynomial.hermint(tgt, m=1, k=[k])
             res = beignet.polynomial.hermint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1764,8 +1774,8 @@ def test_hermint():
                 tgt = beignet.polynomial.hermint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.hermint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -1776,8 +1786,8 @@ def test_hermint():
                 tgt = beignet.polynomial.hermint(tgt, m=1, k=[k], scl=2)
             res = beignet.polynomial.hermint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -1838,8 +1848,8 @@ def test_hermpow():
             )
             res = beignet.polynomial.hermpow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -1851,8 +1861,8 @@ def test_hermroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.hermroots(beignet.polynomial.hermfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermtrim(res, tol=1e-6),
-            beignet.polynomial.hermtrim(tgt, tol=1e-6),
+            beignet.polynomial.hermtrim(res, tolerance=1e-6),
+            beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
         )
 
 
@@ -1865,8 +1875,8 @@ def test_hermsub():
             tgt[j] -= 1
             res = beignet.polynomial.hermsub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
-                beignet.polynomial.hermtrim(tgt, tol=1e-6),
+                beignet.polynomial.hermtrim(res, tolerance=1e-6),
+                beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2022,8 +2032,8 @@ def test_lagadd():
             tgt[j] += 1
             res = beignet.polynomial.lagadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2047,8 +2057,8 @@ def test_lagder():
         tgt = [0] * i + [1]
         res = beignet.polynomial.lagder(tgt, m=0)
         numpy.testing.assert_equal(
-            beignet.polynomial.lagtrim(res, tol=1e-6),
-            beignet.polynomial.lagtrim(tgt, tol=1e-6),
+            beignet.polynomial.lagtrim(res, tolerance=1e-6),
+            beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2056,8 +2066,8 @@ def test_lagder():
             tgt = [0] * i + [1]
             res = beignet.polynomial.lagder(beignet.polynomial.lagint(tgt, m=j), m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2067,8 +2077,8 @@ def test_lagder():
                 beignet.polynomial.lagint(tgt, m=j, scl=2), m=j, scl=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -2092,8 +2102,8 @@ def test_lagdiv():
             quo, rem = beignet.polynomial.lagdiv(tgt, ci)
             res = beignet.polynomial.lagadd(beignet.polynomial.lagmul(quo, ci), rem)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2175,7 +2185,8 @@ def test_lagfit():
 
 def test_lagfromroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.lagtrim(beignet.polynomial.lagfromroots([]), tol=1e-6), [1]
+        beignet.polynomial.lagtrim(beignet.polynomial.lagfromroots([]), tolerance=1e-6),
+        [1],
     )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
@@ -2253,9 +2264,9 @@ def test_lagint():
                         beignet.polynomial.poly2lag([0] * i + [1]), m=1, k=[i]
                     )
                 ),
-                tol=1e-6,
+                tolerance=1e-6,
             ),
-            beignet.polynomial.lagtrim([i] + [0] * i + [1 / (i + 1)], tol=1e-6),
+            beignet.polynomial.lagtrim([i] + [0] * i + [1 / (i + 1)], tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2279,9 +2290,9 @@ def test_lagint():
                         beignet.polynomial.poly2lag([0] * i + [1]), m=1, k=[i], scl=2
                     )
                 ),
-                tol=1e-6,
+                tolerance=1e-6,
             ),
-            beignet.polynomial.lagtrim([i] + [0] * i + [2 / scl], tol=1e-6),
+            beignet.polynomial.lagtrim([i] + [0] * i + [2 / scl], tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2292,8 +2303,8 @@ def test_lagint():
                 tgt = beignet.polynomial.lagint(tgt, m=1)
             res = beignet.polynomial.lagint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2304,8 +2315,8 @@ def test_lagint():
                 tgt = beignet.polynomial.lagint(tgt, m=1, k=[k])
             res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2316,8 +2327,8 @@ def test_lagint():
                 tgt = beignet.polynomial.lagint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2328,8 +2339,8 @@ def test_lagint():
                 tgt = beignet.polynomial.lagint(tgt, m=1, k=[k], scl=2)
             res = beignet.polynomial.lagint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -2391,8 +2402,8 @@ def test_lagpow():
             tgt = functools.reduce(beignet.polynomial.lagmul, [c] * j, numpy.array([1]))
             res = beignet.polynomial.lagpow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2404,8 +2415,8 @@ def test_lagroots():
         tgt = numpy.linspace(0, 3, i)
         res = beignet.polynomial.lagroots(beignet.polynomial.lagfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.lagtrim(res, tol=1e-6),
-            beignet.polynomial.lagtrim(tgt, tol=1e-6),
+            beignet.polynomial.lagtrim(res, tolerance=1e-6),
+            beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
         )
 
 
@@ -2418,8 +2429,8 @@ def test_lagsub():
             tgt[j] -= 1
             res = beignet.polynomial.lagsub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.lagtrim(res, tol=1e-6),
-                beignet.polynomial.lagtrim(tgt, tol=1e-6),
+                beignet.polynomial.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2573,8 +2584,8 @@ def test_legadd():
             tgt[j] += 1
             res = beignet.polynomial.legadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2598,8 +2609,8 @@ def test_legder():
         tgt = [0] * i + [1]
         res = beignet.polynomial.legder(tgt, m=0)
         numpy.testing.assert_equal(
-            beignet.polynomial.legtrim(res, tol=1e-6),
-            beignet.polynomial.legtrim(tgt, tol=1e-6),
+            beignet.polynomial.legtrim(res, tolerance=1e-6),
+            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2607,8 +2618,8 @@ def test_legder():
             tgt = [0] * i + [1]
             res = beignet.polynomial.legder(beignet.polynomial.legint(tgt, m=j), m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2618,8 +2629,8 @@ def test_legder():
                 beignet.polynomial.legint(tgt, m=j, scl=2), m=j, scl=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -2646,8 +2657,8 @@ def test_legdiv():
             quo, rem = beignet.polynomial.legdiv(tgt, ci)
             res = beignet.polynomial.legadd(beignet.polynomial.legmul(quo, ci), rem)
             numpy.testing.assert_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2744,7 +2755,9 @@ def test_legfit():
 
 def test_legfromroots():
     res = beignet.polynomial.legfromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.legtrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.legtrim(res, tolerance=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.polynomial.legfromroots(roots)
@@ -2828,8 +2841,10 @@ def test_legint():
         legpol = beignet.polynomial.poly2leg(pol)
         legint = beignet.polynomial.legint(legpol, m=1, k=[i])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(beignet.polynomial.leg2poly(legint), tol=1e-6),
-            beignet.polynomial.legtrim(tgt, tol=1e-6),
+            beignet.polynomial.legtrim(
+                beignet.polynomial.leg2poly(legint), tolerance=1e-6
+            ),
+            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2847,8 +2862,8 @@ def test_legint():
         legint = beignet.polynomial.legint(legpol, m=1, k=[i], scl=2)
         res = beignet.polynomial.leg2poly(legint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tol=1e-6),
-            beignet.polynomial.legtrim(tgt, tol=1e-6),
+            beignet.polynomial.legtrim(res, tolerance=1e-6),
+            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -2859,8 +2874,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1)
             res = beignet.polynomial.legint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2871,8 +2886,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k])
             res = beignet.polynomial.legint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2883,8 +2898,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -2896,9 +2911,9 @@ def test_legint():
             numpy.testing.assert_almost_equal(
                 beignet.polynomial.legtrim(
                     beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -2960,8 +2975,8 @@ def test_legpow():
             tgt = functools.reduce(beignet.polynomial.legmul, [c] * j, numpy.array([1]))
             res = beignet.polynomial.legpow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -2973,8 +2988,8 @@ def test_legroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.legroots(beignet.polynomial.legfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tol=1e-6),
-            beignet.polynomial.legtrim(tgt, tol=1e-6),
+            beignet.polynomial.legtrim(res, tolerance=1e-6),
+            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
         )
 
 
@@ -2987,8 +3002,8 @@ def test_legsub():
             tgt[j] -= 1
             res = beignet.polynomial.legsub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
-                beignet.polynomial.legtrim(tgt, tol=1e-6),
+                beignet.polynomial.legtrim(res, tolerance=1e-6),
+                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -3202,8 +3217,8 @@ def test_polyadd():
             tgt[j] += 1
             res = beignet.polynomial.polyadd([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -3226,28 +3241,32 @@ def test_polyder():
     for i in range(5):
         tgt = [0] * i + [1]
         numpy.testing.assert_equal(
-            beignet.polynomial.polytrim(beignet.polynomial.polyder(tgt, m=0), tol=1e-6),
-            beignet.polynomial.polytrim(tgt, tol=1e-6),
+            beignet.polynomial.polytrim(
+                beignet.polynomial.polyder(tgt, order=0), tolerance=1e-6
+            ),
+            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.polyder(beignet.polynomial.polyint(tgt, m=j), m=j)
+            res = beignet.polynomial.polyder(
+                beignet.polynomial.polyint(tgt, m=j), order=j
+            )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             res = beignet.polynomial.polyder(
-                beignet.polynomial.polyint(tgt, m=j, scl=2), m=j, scl=0.5
+                beignet.polynomial.polyint(tgt, m=j, scl=2), order=j, scale=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -3369,14 +3388,16 @@ def test_polyfit():
 
 def test_polyfromroots():
     res = beignet.polynomial.polyfromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.polytrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.polytrim(res, tolerance=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         tgt = polynomial_Tlist[i]
         res = beignet.polynomial.polyfromroots(roots) * 2 ** (i - 1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tol=1e-6),
-            beignet.polynomial.polytrim(tgt, tol=1e-6),
+            beignet.polynomial.polytrim(res, tolerance=1e-6),
+            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
         )
 
 
@@ -3435,8 +3456,8 @@ def test_polyint():
         tgt = [i] + [0] * i + [1 / scl]
         res = beignet.polynomial.polyint(pol, m=1, k=[i])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tol=1e-6),
-            beignet.polynomial.polytrim(tgt, tol=1e-6),
+            beignet.polynomial.polytrim(res, tolerance=1e-6),
+            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -3451,8 +3472,8 @@ def test_polyint():
         tgt = [i] + [0] * i + [2 / scl]
         res = beignet.polynomial.polyint(pol, m=1, k=[i], scl=2)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tol=1e-6),
-            beignet.polynomial.polytrim(tgt, tol=1e-6),
+            beignet.polynomial.polytrim(res, tolerance=1e-6),
+            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -3463,8 +3484,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1)
             res = beignet.polynomial.polyint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -3475,8 +3496,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1, k=[k])
             res = beignet.polynomial.polyint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -3487,8 +3508,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.polyint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -3506,9 +3527,9 @@ def test_polyint():
                         k=list(range(j)),
                         scl=2,
                     ),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
@@ -3542,8 +3563,8 @@ def test_polymul():
             tgt[i + j] += 1
             res = beignet.polynomial.polymul([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -3571,8 +3592,8 @@ def test_polypow():
             )
             res = beignet.polynomial.polypow(c, j)
             numpy.testing.assert_equal(
-                beignet.polynomial.polytrim(res, tol=1e-6),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(res, tolerance=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -3584,8 +3605,8 @@ def test_polyroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.polyroots(beignet.polynomial.polyfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tol=1e-6),
-            beignet.polynomial.polytrim(tgt, tol=1e-6),
+            beignet.polynomial.polytrim(res, tolerance=1e-6),
+            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
         )
 
 
@@ -3599,9 +3620,9 @@ def test_polysub():
             numpy.testing.assert_equal(
                 beignet.polynomial.polytrim(
                     beignet.polynomial.polysub([0] * i + [1], [0] * j + [1]),
-                    tol=1e-6,
+                    tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(tgt, tol=1e-6),
+                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
 
@@ -3837,18 +3858,24 @@ def test_polyzero():
 def test_trimcoef():
     coef = [2, -1, 1, 0]
 
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.trimcoef, coef, -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.polynomial._trim_coefficients, coef, -1
+    )
 
-    numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.polynomial.trimcoef(coef, 2), [0])
+    numpy.testing.assert_equal(beignet.polynomial._trim_coefficients(coef), coef[:-1])
+    numpy.testing.assert_equal(
+        beignet.polynomial._trim_coefficients(coef, 1), coef[:-3]
+    )
+    numpy.testing.assert_equal(beignet.polynomial._trim_coefficients(coef, 2), [0])
 
 
 def test_trimseq():
     for num_trailing_zeros in range(5):
         numpy.testing.assert_equal(
-            beignet.polynomial.trimseq([1] + [0] * num_trailing_zeros), [1]
+            beignet.polynomial._trim_sequence([1] + [0] * num_trailing_zeros), [1]
         )
 
     for empty_seq in [[], numpy.array([], dtype=numpy.int32)]:
-        numpy.testing.assert_equal(beignet.polynomial.trimseq(empty_seq), empty_seq)
+        numpy.testing.assert_equal(
+            beignet.polynomial._trim_sequence(empty_seq), empty_seq
+        )

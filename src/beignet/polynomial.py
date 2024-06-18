@@ -1,19 +1,24 @@
 import functools
 import operator
 import warnings
-from typing import Sequence
 
 import numpy
 import numpy.linalg
 from torch import Tensor
-from torch._numpy._util import normalize_axis_index
+
+
+def normalize_axis_index(axis, ndim):
+    if axis < 0:
+        axis = axis + ndim
+
+    return axis
 
 
 class RankWarning(RuntimeWarning):
     pass
 
 
-def trimseq(input: Tensor) -> Tensor:
+def _trim_sequence(input: Tensor):
     if len(input) == 0 or input[-1] != 0:
         return input
     else:
@@ -24,7 +29,7 @@ def trimseq(input: Tensor) -> Tensor:
         return input[: index + 1]
 
 
-def as_series(xs, trim=True) -> Sequence[Tensor]:
+def _as_series(xs, trim=True):
     arrays = []
 
     for x in xs:
@@ -38,7 +43,7 @@ def as_series(xs, trim=True) -> Sequence[Tensor]:
         raise ValueError
 
     if trim:
-        arrays = [trimseq(a) for a in arrays]
+        arrays = [_trim_sequence(a) for a in arrays]
 
     if any(a.dtype == numpy.dtype(object) for a in arrays):
         output = []
@@ -69,143 +74,68 @@ def as_series(xs, trim=True) -> Sequence[Tensor]:
     return output
 
 
-def trimcoef(input, tol=0):
-    if tol < 0:
-        raise ValueError("tol must be non-negative")
+def _trim_coefficients(input, tolerance: float = 0.0):
+    if tolerance < 0:
+        raise ValueError
 
-    [input] = as_series([input])
+    (input,) = _as_series([input])
 
-    [ind] = numpy.nonzero(numpy.abs(input) > tol)
+    [indices] = numpy.nonzero(numpy.abs(input) > tolerance)
 
-    if len(ind) == 0:
-        return input[:1] * 0
+    if len(indices) == 0:
+        return input[:1] * 0.0
     else:
-        return input[: ind[-1] + 1].copy()
+        return input[: indices[-1] + 1]
 
 
-chebtrim = trimcoef
-hermetrim = trimcoef
-hermtrim = trimcoef
-lagtrim = trimcoef
-legtrim = trimcoef
-polytrim = trimcoef
+chebtrim = _trim_coefficients
+hermetrim = _trim_coefficients
+hermtrim = _trim_coefficients
+lagtrim = _trim_coefficients
+legtrim = _trim_coefficients
+polytrim = _trim_coefficients
 
 
-def getdomain(x):
-    [x] = as_series([x], trim=False)
+chebdomain = numpy.array([-1.0, 1.0])
 
-    if x.dtype.char in numpy.typecodes["Complex"]:
-        rmin, rmax = x.real.min(), x.real.max()
-        imin, imax = x.imag.min(), x.imag.max()
-        return numpy.array((complex(rmin, imin), complex(rmax, imax)))
+chebone = numpy.array([1])
+
+chebx = numpy.array([0, 1])
+
+chebzero = numpy.array([0])
+
+
+def _add(input, other):
+    [input, other] = _as_series([input, other])
+
+    if len(input) > len(other):
+        input[: other.size] = input[: other.size] + other
+
+        output = input
     else:
-        return numpy.array((x.min(), x.max()))
+        other[: input.size] = other[: input.size] + input
 
+        output = other
 
-def mapparms(old, new):
-    oldlen = old[1] - old[0]
-    newlen = new[1] - new[0]
-    off = (old[1] * new[0] - old[0] * new[1]) / oldlen
-    scl = newlen / oldlen
-    return off, scl
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
 
-
-def mapdomain(x, old, new):
-    x = numpy.asanyarray(x)
-    off, scl = mapparms(old, new)
-    return off + scl * x
-
-
-def _vander_nd(func, input, degrees):
-    n_dims = len(func)
-    if n_dims != len(input):
-        raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
-        )
-    if n_dims != len(degrees):
-        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
-    if n_dims == 0:
-        raise ValueError("Unable to guess a dtype or shape when no points are given")
-
-    input = tuple(numpy.asarray(tuple(input)) + 0.0)
-
-    ys = []
-
-    for index in range(n_dims):
-        output = [None] * n_dims
-
-        output[index] = slice(None)
-
-        y = func[index](input[index], degrees[index])[(...,) + (*output,)]
-
-        ys = [*ys, y]
-
-    return functools.reduce(operator.mul, ys)
-
-
-def _vander_nd_flat(vander_fs, points, degrees):
-    v = _vander_nd(vander_fs, points, degrees)
-    return v.reshape(v.shape[: -len(degrees)] + (-1,))
-
-
-def _from_roots(line_f: callable, mul_f: callable, roots):
-    if len(roots) == 0:
-        return numpy.ones(1)
-    else:
-        [roots] = as_series([roots], trim=False)
-
-        roots.sort()
-
-        p = [line_f(-r, 1) for r in roots]
-
-        n = len(p)
-
-        while n > 1:
-            m, r = divmod(n, 2)
-
-            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
-
-            if r:
-                tmp[0] = mul_f(tmp[0], p[-1])
-
-            p = tmp
-
-            n = m
-
-        return p[0]
-
-
-def _evaluate(func, input, *xs):
-    xs = [numpy.asanyarray(a) for a in xs]
-
-    if not all((a.shape == xs[0].shape for a in xs[1:])):
-        match len(xs):
-            case 2:
-                raise ValueError("x, y are incompatible")
-            case 3:
-                raise ValueError("x, y, z are incompatible")
-            case _:
-                raise ValueError("ordinates are incompatible")
-
-    xs = iter(xs)
-
-    output = func(next(xs), input)
-
-    for x in xs:
-        output = func(x, output, tensor=False)
+        output = output[: index + 1]
 
     return output
 
 
-def _grid(func, input, *xs):
-    for x in xs:
-        input = func(x, input)
-
-    return input
+def _c_series_to_z_series(input):
+    n = input.size
+    output = numpy.zeros(2 * n - 1, dtype=input.dtype)
+    output[n - 1 :] = input / 2
+    return output + output[::-1]
 
 
 def _div(func, input, other):
-    [input, other] = as_series([input, other])
+    [input, other] = _as_series([input, other])
 
     if other[-1] == 0:
         raise ZeroDivisionError()
@@ -231,64 +161,32 @@ def _div(func, input, other):
 
             quo[i] = q
 
-        return quo, trimseq(rem)
+        return quo, _trim_sequence(rem)
 
 
-def _add(input, other):
-    [input, other] = as_series([input, other])
+def _evaluate(func, input, *xs):
+    xs = [numpy.asanyarray(a) for a in xs]
 
-    if len(input) > len(other):
-        input[: other.size] = input[: other.size] + other
+    if not all((a.shape == xs[0].shape for a in xs[1:])):
+        match len(xs):
+            case 2:
+                raise ValueError("x, y are incompatible")
+            case 3:
+                raise ValueError("x, y, z are incompatible")
+            case _:
+                raise ValueError("ordinates are incompatible")
 
-        output = input
-    else:
-        other[: input.size] = other[: input.size] + input
+    xs = iter(xs)
 
-        output = other
+    output = func(next(xs), input)
 
-    if len(output) != 0 and output[-1] == 0:
-        for index in range(len(output) - 1, -1, -1):
-            if output[index] != 0:
-                break
-
-        output = output[: index + 1]
-
-    return output
-
-
-def _sub(input, other):
-    [input, other] = as_series([input, other])
-
-    if len(input) > len(other):
-        input[: other.size] = input[: other.size] - other
-
-        output = input
-    else:
-        other = -other
-
-        other[: input.size] = other[: input.size] + input
-
-        output = other
-
-    if len(output) != 0 and output[-1] == 0:
-        for index in range(len(output) - 1, -1, -1):
-            if output[index] != 0:
-                break
-
-        output = output[: index + 1]
+    for x in xs:
+        output = func(x, output, tensor=False)
 
     return output
 
 
-def _fit(
-    func,
-    x,
-    y,
-    degree,
-    relative_condition=None,
-    full=False,
-    weight=None,
-):
+def _fit(func, x, y, degree, relative_condition=None, full=False, weight=None):
     x = numpy.asarray(x) + 0.0
     y = numpy.asarray(y) + 0.0
     degree = numpy.asarray(degree)
@@ -358,15 +256,72 @@ def _fit(
         return c
 
 
-def _pow(
-    func: callable,
-    input: Tensor,
-    exponent: int | Tensor,
-    maximum_exponent: int | Tensor = 16,
-    *,
-    out: Tensor | None = None,
-) -> Tensor:
-    [input] = as_series([input])
+def _from_roots(line_f: callable, mul_f: callable, roots):
+    if len(roots) == 0:
+        return numpy.ones(1)
+    else:
+        [roots] = _as_series([roots], trim=False)
+
+        roots.sort()
+
+        p = [line_f(-r, 1) for r in roots]
+
+        n = len(p)
+
+        while n > 1:
+            m, r = divmod(n, 2)
+
+            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
+
+            if r:
+                tmp[0] = mul_f(tmp[0], p[-1])
+
+            p = tmp
+
+            n = m
+
+        return p[0]
+
+
+def _grid(func, input, *xs):
+    for x in xs:
+        input = func(x, input)
+
+    return input
+
+
+def _normed_hermite_e_n(x, n):
+    if n == 0:
+        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(2 * numpy.pi)))
+
+    c0 = 0.0
+    c1 = 1.0 / numpy.sqrt(numpy.sqrt(2 * numpy.pi))
+    nd = float(n)
+    for _ in range(n - 1):
+        tmp = c0
+        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
+        c1 = tmp + c1 * x * numpy.sqrt(1.0 / nd)
+        nd = nd - 1.0
+    return c0 + c1 * x
+
+
+def _normed_hermite_n(x, n):
+    if n == 0:
+        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(numpy.pi)))
+
+    c0 = 0.0
+    c1 = 1.0 / numpy.sqrt(numpy.sqrt(numpy.pi))
+    nd = float(n)
+    for _ in range(n - 1):
+        tmp = c0
+        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
+        c1 = tmp + c1 * x * numpy.sqrt(2.0 / nd)
+        nd = nd - 1.0
+    return c0 + c1 * x * numpy.sqrt(2)
+
+
+def _pow(func, input, exponent, maximum_exponent):
+    [input] = _as_series([input])
 
     exponent = int(exponent)
 
@@ -387,60 +342,60 @@ def _pow(
         return output
 
 
-chebdomain = numpy.array([-1.0, 1.0])
+def _sub(input, other):
+    [input, other] = _as_series([input, other])
 
-chebone = numpy.array([1])
+    if len(input) > len(other):
+        input[: other.size] = input[: other.size] - other
 
-chebx = numpy.array([0, 1])
+        output = input
+    else:
+        other = -other
 
-chebzero = numpy.array([0])
+        other[: input.size] = other[: input.size] + input
 
-hermdomain = numpy.array([-1.0, 1.0])
+        output = other
 
-hermedomain = numpy.array([-1.0, 1.0])
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
 
-hermeone = numpy.array([1])
+        output = output[: index + 1]
 
-hermex = numpy.array([0, 1])
-
-hermezero = numpy.array([0])
-
-hermone = numpy.array([1])
-
-hermx = numpy.array([0, 1 / 2])
-
-hermzero = numpy.array([0])
-
-lagdomain = numpy.array([0.0, 1.0])
-
-lagone = numpy.array([1])
-
-lagx = numpy.array([1, -1])
-
-lagzero = numpy.array([0])
-
-legdomain = numpy.array([-1.0, 1.0])
-
-legone = numpy.array([1])
-
-legx = numpy.array([0, 1])
-
-legzero = numpy.array([0])
-
-polydomain = numpy.array([-1.0, 1.0])
-
-polyone = numpy.array([1])
-
-polyx = numpy.array([0, 1])
-
-polyzero = numpy.array([0])
+    return output
 
 
-def _c_series_to_z_series(input):
-    n = input.size
-    output = numpy.zeros(2 * n - 1, dtype=input.dtype)
-    output[n - 1 :] = input / 2
-    return output + output[::-1]
+def _vander_nd(func, input, degrees):
+    n_dims = len(func)
+    if n_dims != len(input):
+        raise ValueError(
+            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
+        )
+    if n_dims != len(degrees):
+        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
+    if n_dims == 0:
+        raise ValueError("Unable to guess a dtype or shape when no points are given")
+
+    input = tuple(numpy.asarray(tuple(input)) + 0.0)
+
+    ys = []
+
+    for index in range(n_dims):
+        output = [None] * n_dims
+
+        output[index] = slice(None)
+
+        y = func[index](input[index], degrees[index])[(...,) + (*output,)]
+
+        ys = [*ys, y]
+
+    return functools.reduce(operator.mul, ys)
+
+
+def _vander_nd_flat(vander_fs, points, degrees):
+    v = _vander_nd(vander_fs, points, degrees)
+    return v.reshape(v.shape[: -len(degrees)] + (-1,))
 
 
 def _z_series_to_c_series(input):
@@ -451,8 +406,6 @@ def _z_series_to_c_series(input):
 
 
 def _zseries_div(z1, z2):
-    z1 = z1.copy()
-    z2 = z2.copy()
     lc1 = len(z1)
     lc2 = len(z2)
     if lc2 == 1:
@@ -481,25 +434,12 @@ def _zseries_div(z1, z2):
         tmp = r * z2
         z1[i : i + lc2] -= tmp
         quo /= scl
-        rem = z1[i + 1 : i - 1 + lc2].copy()
+        rem = z1[i + 1 : i - 1 + lc2]
         return quo, rem
 
 
-def poly2cheb(input):
-    [input] = as_series([input])
-
-    output = 0
-
-    for index in range(len(input) - 1, -1, -1):
-        output = chebmulx(output)
-
-        output = _add(output, input[index])
-
-    return output
-
-
 def cheb2poly(input):
-    [input] = as_series([input])
+    [input] = _as_series([input])
 
     n = len(input)
     if n < 3:
@@ -515,110 +455,31 @@ def cheb2poly(input):
         return polyadd(c0, polymulx(c1))
 
 
-def chebline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
-    else:
-        return numpy.array([off])
-
-
-def chebfromroots(input):
-    return _from_roots(chebline, chebmul, input)
-
-
 def chebadd(input, other):
     return _add(input, other)
 
 
-def chebsub(c1, c2):
-    return _sub(c1, c2)
+def chebcompanion(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+    if len(c) == 2:
+        return numpy.array([[-c[0] / c[1]]])
 
-
-def chebmulx(c):
-    [c] = as_series([c])
-
-    if len(c) == 1 and c[0] == 0:
-        return c
-
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0]
-    if len(c) > 1:
-        tmp = c[1:] / 2
-        prd[2:] = tmp
-        prd[0:-2] += tmp
-    return prd
-
-
-def chebmul(input, other):
-    [input, other] = as_series([input, other])
-
-    input = _c_series_to_z_series(input)
-    other = _c_series_to_z_series(other)
-
-    output = numpy.convolve(input, other)
-
-    n = (output.size + 1) // 2
-
-    output = output[n - 1 :]
-
-    output[1:n] = output[1:n] * 2
-
-    if len(output) != 0 and output[-1] == 0:
-        for index in range(len(output) - 1, -1, -1):
-            if output[index] != 0:
-                break
-
-        output = output[: index + 1]
-
-    return output
-
-
-def chebdiv(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    if c2[-1] == 0:
-        raise ZeroDivisionError()
-
-    lc1 = len(c1)
-    lc2 = len(c2)
-
-    if lc1 < lc2:
-        return c1[:1] * 0, c1
-    elif lc2 == 1:
-        return c1 / c2[-1], c1[:1] * 0
-    else:
-        z1 = _c_series_to_z_series(c1)
-        z2 = _c_series_to_z_series(c2)
-
-        quo, rem = _zseries_div(z1, z2)
-
-        quo = trimseq(_z_series_to_c_series(quo))
-        rem = trimseq(_z_series_to_c_series(rem))
-
-        return quo, rem
-
-
-def chebpow(c, pow, maxpower=16):
-    [c] = as_series([c])
-    power = int(pow)
-    if power != pow or power < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maxpower is not None and power > maxpower:
-        raise ValueError("Power is too large")
-    elif power == 0:
-        return numpy.array([1], dtype=c.dtype)
-    elif power == 1:
-        return c
-    else:
-        zs = _c_series_to_z_series(c)
-        prd = zs
-        for _ in range(2, power + 1):
-            prd = numpy.convolve(prd, zs)
-        return _z_series_to_c_series(prd)
+    n = len(c) - 1
+    mat = numpy.zeros((n, n), dtype=c.dtype)
+    scl = numpy.array([1.0] + [numpy.sqrt(0.5)] * (n - 1))
+    top = mat.reshape(-1)[1 :: n + 1]
+    bot = mat.reshape(-1)[n :: n + 1]
+    top[0] = numpy.sqrt(0.5)
+    top[1:] = 1 / 2
+    bot[...] = top
+    mat[:, -1] -= (c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5
+    return mat
 
 
 def chebder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     cnt = operator.index(m)
@@ -650,10 +511,67 @@ def chebder(c, m=1, scl=1, axis=0):
     return c
 
 
+def chebdiv(c1, c2):
+    [c1, c2] = _as_series([c1, c2])
+    if c2[-1] == 0:
+        raise ZeroDivisionError()
+
+    lc1 = len(c1)
+    lc2 = len(c2)
+
+    if lc1 < lc2:
+        return c1[:1] * 0, c1
+    elif lc2 == 1:
+        return c1 / c2[-1], c1[:1] * 0
+    else:
+        z1 = _c_series_to_z_series(c1)
+        z2 = _c_series_to_z_series(c2)
+
+        quo, rem = _zseries_div(z1, z2)
+
+        quo = _trim_sequence(_z_series_to_c_series(quo))
+        rem = _trim_sequence(_z_series_to_c_series(rem))
+
+        return quo, rem
+
+
+def chebfit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(chebvander, x, y, deg, rcond, full, w)
+
+
+def chebfromroots(input):
+    return _from_roots(chebline, chebmul, input)
+
+
+def chebgauss(input):
+    ideg = operator.index(input)
+
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    output = numpy.arange(1, 2 * ideg, 2) / (2.0 * ideg)
+
+    output = output * numpy.pi
+
+    output = numpy.cos(output)
+
+    weight = numpy.ones(ideg) * (numpy.pi / ideg)
+
+    return output, weight
+
+
+def chebgrid2d(x, y, c):
+    return _grid(chebval, c, x, y)
+
+
+def chebgrid3d(x, y, z, c):
+    return _grid(chebval, c, x, y, z)
+
+
 def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
@@ -695,8 +613,132 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
+def chebinterpolate(func, deg, args=()):
+    deg = numpy.asarray(deg)
+
+    if deg.ndim > 0 or deg.dtype.kind not in "iu" or deg.size == 0:
+        raise TypeError("deg must be an int")
+    if deg < 0:
+        raise ValueError("expected deg >= 0")
+
+    order = deg + 1
+    xcheb = chebpts1(order)
+    yfunc = func(xcheb, *args)
+    m = chebvander(xcheb, deg)
+    c = numpy.dot(m.T, yfunc)
+    c[0] /= order
+    c[1:] /= 0.5 * order
+
+    return c
+
+
+def chebline(off, scl):
+    if scl != 0:
+        return numpy.array([off, scl])
+    else:
+        return numpy.array([off])
+
+
+def chebmul(input, other):
+    [input, other] = _as_series([input, other])
+
+    input = _c_series_to_z_series(input)
+    other = _c_series_to_z_series(other)
+
+    output = numpy.convolve(input, other)
+
+    n = (output.size + 1) // 2
+
+    output = output[n - 1 :]
+
+    output[1:n] = output[1:n] * 2
+
+    if len(output) != 0 and output[-1] == 0:
+        for index in range(len(output) - 1, -1, -1):
+            if output[index] != 0:
+                break
+
+        output = output[: index + 1]
+
+    return output
+
+
+def chebmulx(c):
+    [c] = _as_series([c])
+
+    if len(c) == 1 and c[0] == 0:
+        return c
+
+    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd[0] = c[0] * 0
+    prd[1] = c[0]
+    if len(c) > 1:
+        tmp = c[1:] / 2
+        prd[2:] = tmp
+        prd[0:-2] += tmp
+    return prd
+
+
+def chebpow(c, pow, maxpower=16):
+    [c] = _as_series([c])
+    power = int(pow)
+    if power != pow or power < 0:
+        raise ValueError("Power must be a non-negative integer.")
+    elif maxpower is not None and power > maxpower:
+        raise ValueError("Power is too large")
+    elif power == 0:
+        return numpy.array([1], dtype=c.dtype)
+    elif power == 1:
+        return c
+    else:
+        zs = _c_series_to_z_series(c)
+        prd = zs
+        for _ in range(2, power + 1):
+            prd = numpy.convolve(prd, zs)
+        return _z_series_to_c_series(prd)
+
+
+def chebpts1(npts):
+    _npts = int(npts)
+    if _npts != npts:
+        raise ValueError("npts must be integer")
+    if _npts < 1:
+        raise ValueError("npts must be >= 1")
+
+    x = 0.5 * numpy.pi / _npts * numpy.arange(-_npts + 1, _npts + 1, 2)
+    return numpy.sin(x)
+
+
+def chebpts2(npts):
+    _npts = int(npts)
+    if _npts != npts:
+        raise ValueError("npts must be integer")
+    if _npts < 2:
+        raise ValueError("npts must be >= 2")
+
+    x = numpy.linspace(-numpy.pi, 0, _npts)
+    return numpy.cos(x)
+
+
+def chebroots(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        return numpy.array([], dtype=c.dtype)
+    if len(c) == 2:
+        return numpy.array([-c[0] / c[1]])
+
+    m = chebcompanion(c)[::-1, ::-1]
+    r = numpy.linalg.eigvals(m)
+    r.sort()
+    return r
+
+
+def chebsub(c1, c2):
+    return _sub(c1, c2)
+
+
 def chebval(x, c, tensor=True):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if isinstance(x, (tuple, list)):
@@ -725,16 +767,8 @@ def chebval2d(x, y, c):
     return _evaluate(chebval, c, x, y)
 
 
-def chebgrid2d(x, y, c):
-    return _grid(chebval, c, x, y)
-
-
 def chebval3d(x, y, z, c):
     return _evaluate(chebval, c, x, y, z)
-
-
-def chebgrid3d(x, y, z, c):
-    return _grid(chebval, c, x, y, z)
 
 
 def chebvander(x, deg):
@@ -764,116 +798,24 @@ def chebvander3d(x, y, z, deg):
     return _vander_nd_flat((chebvander, chebvander, chebvander), (x, y, z), deg)
 
 
-def chebfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(chebvander, x, y, deg, rcond, full, w)
-
-
-def chebcompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
-
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = numpy.array([1.0] + [numpy.sqrt(0.5)] * (n - 1))
-    top = mat.reshape(-1)[1 :: n + 1]
-    bot = mat.reshape(-1)[n :: n + 1]
-    top[0] = numpy.sqrt(0.5)
-    top[1:] = 1 / 2
-    bot[...] = top
-    mat[:, -1] -= (c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5
-    return mat
-
-
-def chebroots(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        return numpy.array([], dtype=c.dtype)
-    if len(c) == 2:
-        return numpy.array([-c[0] / c[1]])
-
-    m = chebcompanion(c)[::-1, ::-1]
-    r = numpy.linalg.eigvals(m)
-    r.sort()
-    return r
-
-
-def chebinterpolate(func, deg, args=()):
-    deg = numpy.asarray(deg)
-
-    if deg.ndim > 0 or deg.dtype.kind not in "iu" or deg.size == 0:
-        raise TypeError("deg must be an int")
-    if deg < 0:
-        raise ValueError("expected deg >= 0")
-
-    order = deg + 1
-    xcheb = chebpts1(order)
-    yfunc = func(xcheb, *args)
-    m = chebvander(xcheb, deg)
-    c = numpy.dot(m.T, yfunc)
-    c[0] /= order
-    c[1:] /= 0.5 * order
-
-    return c
-
-
-def chebgauss(input):
-    ideg = operator.index(input)
-
-    if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
-
-    output = numpy.arange(1, 2 * ideg, 2) / (2.0 * ideg)
-
-    output = output * numpy.pi
-
-    output = numpy.cos(output)
-
-    weight = numpy.ones(ideg) * (numpy.pi / ideg)
-
-    return output, weight
-
-
 def chebweight(x):
     w = 1.0 / (numpy.sqrt(1.0 + x) * numpy.sqrt(1.0 - x))
     return w
 
 
-def chebpts1(npts):
-    _npts = int(npts)
-    if _npts != npts:
-        raise ValueError("npts must be integer")
-    if _npts < 1:
-        raise ValueError("npts must be >= 1")
+def getdomain(x):
+    [x] = _as_series([x], trim=False)
 
-    x = 0.5 * numpy.pi / _npts * numpy.arange(-_npts + 1, _npts + 1, 2)
-    return numpy.sin(x)
-
-
-def chebpts2(npts):
-    _npts = int(npts)
-    if _npts != npts:
-        raise ValueError("npts must be integer")
-    if _npts < 2:
-        raise ValueError("npts must be >= 2")
-
-    x = numpy.linspace(-numpy.pi, 0, _npts)
-    return numpy.cos(x)
-
-
-def poly2herm(input):
-    [input] = as_series([input])
-    deg = len(input) - 1
-    res = 0
-    for i in range(deg, -1, -1):
-        res = hermadd(hermmulx(res), input[i])
-    return res
+    if x.dtype.char in numpy.typecodes["Complex"]:
+        rmin, rmax = x.real.min(), x.real.max()
+        imin, imax = x.imag.min(), x.imag.max()
+        return numpy.array((complex(rmin, imin), complex(rmax, imax)))
+    else:
+        return numpy.array((x.min(), x.max()))
 
 
 def herm2poly(input):
-    [input] = as_series([input])
+    [input] = _as_series([input])
     n = len(input)
     if n == 1:
         return input
@@ -891,78 +833,31 @@ def herm2poly(input):
         return polyadd(c0, polymulx(c1) * 2)
 
 
-def hermline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl / 2])
-    else:
-        return numpy.array([off])
-
-
-def hermfromroots(input):
-    return _from_roots(hermline, hermmul, input)
-
-
 def hermadd(c1, c2):
     return _add(c1, c2)
 
 
-def hermsub(c1, c2):
-    return _sub(c1, c2)
+def hermcompanion(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+    if len(c) == 2:
+        return numpy.array([[-0.5 * c[0] / c[1]]])
 
-
-def hermmulx(c):
-    [c] = as_series([c])
-
-    if len(c) == 1 and c[0] == 0:
-        return c
-
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0] / 2
-    for i in range(1, len(c)):
-        prd[i + 1] = c[i] / 2
-        prd[i - 1] += c[i] * i
-    return prd
-
-
-def hermmul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-
-    if len(c1) > len(c2):
-        c = c2
-        xs = c1
-    else:
-        c = c1
-        xs = c2
-
-    if len(c) == 1:
-        c0 = c[0] * xs
-        c1 = 0
-    elif len(c) == 2:
-        c0 = c[0] * xs
-        c1 = c[1] * xs
-    else:
-        nd = len(c)
-        c0 = c[-2] * xs
-        c1 = c[-1] * xs
-        for i in range(3, len(c) + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = hermsub(c[-i] * xs, c1 * (2 * (nd - 1)))
-            c1 = hermadd(tmp, hermmulx(c1) * 2)
-    return hermadd(c0, hermmulx(c1) * 2)
-
-
-def hermdiv(c1, c2):
-    return _div(hermmul, c1, c2)
-
-
-def hermpow(c, pow, maxpower=16):
-    return _pow(hermmul, c, pow, maxpower)
+    n = len(c) - 1
+    mat = numpy.zeros((n, n), dtype=c.dtype)
+    scl = numpy.hstack((1.0, 1.0 / numpy.sqrt(2.0 * numpy.arange(n - 1, 0, -1))))
+    scl = numpy.multiply.accumulate(scl)[::-1]
+    top = mat.reshape(-1)[1 :: n + 1]
+    bot = mat.reshape(-1)[n :: n + 1]
+    top[...] = numpy.sqrt(0.5 * numpy.arange(1, n))
+    bot[...] = top
+    mat[:, -1] -= scl * c[:-1] / (2.0 * c[-1])
+    return mat
 
 
 def hermder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     cnt = operator.index(m)
@@ -990,210 +885,12 @@ def hermder(c, m=1, scl=1, axis=0):
     return c
 
 
-def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
-    if k is None:
-        k = []
-    c = numpy.array(c, ndmin=1, copy=True)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
-    if not numpy.iterable(k):
-        k = [k]
-    cnt = operator.index(m)
-    iaxis = operator.index(axis)
-    if cnt < 0:
-        raise ValueError("The order of integration must be non-negative")
-    if len(k) > cnt:
-        raise ValueError("Too many integration constants")
-    if numpy.ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
-    if numpy.ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
-
-    if cnt == 0:
-        return c
-
-    c = numpy.moveaxis(c, iaxis, 0)
-    k = list(k) + [0] * (cnt - len(k))
-    for i in range(cnt):
-        n = len(c)
-        c *= scl
-        if n == 1 and numpy.all(c[0] == 0):
-            c[0] += k[i]
-        else:
-            tmp = numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-            tmp[0] = c[0] * 0
-            tmp[1] = c[0] / 2
-            for j in range(1, n):
-                tmp[j + 1] = c[j] / (2 * (j + 1))
-            tmp[0] += k[i] - hermval(lbnd, tmp)
-            c = tmp
-    c = numpy.moveaxis(c, 0, iaxis)
-    return c
-
-
-def hermval(x, c, tensor=True):
-    c = numpy.array(c, ndmin=1)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
-    if isinstance(x, (tuple, list)):
-        x = numpy.asarray(x)
-    if isinstance(x, numpy.ndarray) and tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
-
-    x2 = x * 2
-    if len(c) == 1:
-        c0 = c[0]
-        c1 = 0
-    elif len(c) == 2:
-        c0 = c[0]
-        c1 = c[1]
-    else:
-        nd = len(c)
-        c0 = c[-2]
-        c1 = c[-1]
-        for i in range(3, len(c) + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = c[-i] - c1 * (2 * (nd - 1))
-            c1 = tmp + c1 * x2
-    return c0 + c1 * x2
-
-
-def hermval2d(x, y, c):
-    return _evaluate(hermval, c, x, y)
-
-
-def hermgrid2d(x, y, c):
-    return _grid(hermval, c, x, y)
-
-
-def hermval3d(x, y, z, c):
-    return _evaluate(hermval, c, x, y, z)
-
-
-def hermgrid3d(x, y, z, c):
-    return _grid(hermval, c, x, y, z)
-
-
-def hermvander(x, deg):
-    ideg = operator.index(deg)
-    if ideg < 0:
-        raise ValueError("deg must be non-negative")
-
-    x = numpy.array(x, ndmin=1) + 0.0
-    dims = (ideg + 1,) + x.shape
-    dtyp = x.dtype
-    v = numpy.empty(dims, dtype=dtyp)
-    v[0] = x * 0 + 1
-    if ideg > 0:
-        x2 = x * 2
-        v[1] = x2
-        for i in range(2, ideg + 1):
-            v[i] = v[i - 1] * x2 - v[i - 2] * (2 * (i - 1))
-    return numpy.moveaxis(v, 0, -1)
-
-
-def hermvander2d(x, y, deg):
-    return _vander_nd_flat((hermvander, hermvander), (x, y), deg)
-
-
-def hermvander3d(x, y, z, deg):
-    return _vander_nd_flat((hermvander, hermvander, hermvander), (x, y, z), deg)
-
-
-def hermfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(hermvander, x, y, deg, rcond, full, w)
-
-
-def hermcompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[-0.5 * c[0] / c[1]]])
-
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = numpy.hstack((1.0, 1.0 / numpy.sqrt(2.0 * numpy.arange(n - 1, 0, -1))))
-    scl = numpy.multiply.accumulate(scl)[::-1]
-    top = mat.reshape(-1)[1 :: n + 1]
-    bot = mat.reshape(-1)[n :: n + 1]
-    top[...] = numpy.sqrt(0.5 * numpy.arange(1, n))
-    bot[...] = top
-    mat[:, -1] -= scl * c[:-1] / (2.0 * c[-1])
-    return mat
-
-
-def hermroots(input):
-    [input] = as_series([input])
-    if len(input) <= 1:
-        return numpy.array([], dtype=input.dtype)
-    if len(input) == 2:
-        return numpy.array([-0.5 * input[0] / input[1]])
-
-    m = hermcompanion(input)[::-1, ::-1]
-    r = numpy.linalg.eigvals(m)
-    r.sort()
-    return r
-
-
-def _normed_hermite_n(x, n):
-    if n == 0:
-        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(numpy.pi)))
-
-    c0 = 0.0
-    c1 = 1.0 / numpy.sqrt(numpy.sqrt(numpy.pi))
-    nd = float(n)
-    for _ in range(n - 1):
-        tmp = c0
-        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
-        c1 = tmp + c1 * x * numpy.sqrt(2.0 / nd)
-        nd = nd - 1.0
-    return c0 + c1 * x * numpy.sqrt(2)
-
-
-def hermgauss(input):
-    ideg = operator.index(input)
-    if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
-
-    c = numpy.array([0] * input + [1], dtype=numpy.float64)
-    m = hermcompanion(c)
-    output = numpy.linalg.eigvalsh(m)
-
-    dy = _normed_hermite_n(output, ideg)
-    df = _normed_hermite_n(output, ideg - 1) * numpy.sqrt(2 * ideg)
-    output -= dy / df
-
-    fm = _normed_hermite_n(output, ideg - 1)
-    fm /= numpy.abs(fm).max()
-    weight = 1 / (fm * fm)
-
-    weight = (weight + weight[::-1]) / 2
-    output = (output - output[::-1]) / 2
-
-    weight = weight * (numpy.sqrt(numpy.pi) / numpy.sum(weight))
-
-    return output, weight
-
-
-def hermweight(x):
-    w = numpy.exp(-(x**2))
-    return w
-
-
-def poly2herme(input):
-    [input] = as_series([input])
-    deg = len(input) - 1
-    res = 0
-    for i in range(deg, -1, -1):
-        res = hermeadd(hermemulx(res), input[i])
-    return res
+def hermdiv(c1, c2):
+    return _div(hermmul, c1, c2)
 
 
 def herme2poly(input):
-    [input] = as_series([input])
+    [input] = _as_series([input])
     n = len(input)
     if n == 1:
         return input
@@ -1210,78 +907,31 @@ def herme2poly(input):
         return polyadd(c0, polymulx(c1))
 
 
-def hermeline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
-    else:
-        return numpy.array([off])
-
-
-def hermefromroots(input):
-    return _from_roots(hermeline, hermemul, input)
-
-
 def hermeadd(c1, c2):
     return _add(c1, c2)
 
 
-def hermesub(c1, c2):
-    return _sub(c1, c2)
+def hermecompanion(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+    if len(c) == 2:
+        return numpy.array([[-c[0] / c[1]]])
 
-
-def hermemulx(c):
-    [c] = as_series([c])
-
-    if len(c) == 1 and c[0] == 0:
-        return c
-
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0]
-    for i in range(1, len(c)):
-        prd[i + 1] = c[i]
-        prd[i - 1] += c[i] * i
-    return prd
-
-
-def hermemul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-
-    if len(c1) > len(c2):
-        c = c2
-        xs = c1
-    else:
-        c = c1
-        xs = c2
-
-    if len(c) == 1:
-        c0 = c[0] * xs
-        c1 = 0
-    elif len(c) == 2:
-        c0 = c[0] * xs
-        c1 = c[1] * xs
-    else:
-        nd = len(c)
-        c0 = c[-2] * xs
-        c1 = c[-1] * xs
-        for i in range(3, len(c) + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = hermesub(c[-i] * xs, c1 * (nd - 1))
-            c1 = hermeadd(tmp, hermemulx(c1))
-    return hermeadd(c0, hermemulx(c1))
-
-
-def hermediv(c1, c2):
-    return _div(hermemul, c1, c2)
-
-
-def hermepow(c, pow, maxpower=16):
-    return _pow(hermemul, c, pow, maxpower)
+    n = len(c) - 1
+    mat = numpy.zeros((n, n), dtype=c.dtype)
+    scl = numpy.hstack((1.0, 1.0 / numpy.sqrt(numpy.arange(n - 1, 0, -1))))
+    scl = numpy.multiply.accumulate(scl)[::-1]
+    top = mat.reshape(-1)[1 :: n + 1]
+    bot = mat.reshape(-1)[n :: n + 1]
+    top[...] = numpy.sqrt(numpy.arange(1, n))
+    bot[...] = top
+    mat[:, -1] -= scl * c[:-1] / c[-1]
+    return mat
 
 
 def hermeder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     cnt = operator.index(m)
@@ -1309,10 +959,55 @@ def hermeder(c, m=1, scl=1, axis=0):
     return c
 
 
+def hermediv(c1, c2):
+    return _div(hermemul, c1, c2)
+
+
+def hermefit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(hermevander, x, y, deg, rcond, full, w)
+
+
+def hermefromroots(input):
+    return _from_roots(hermeline, hermemul, input)
+
+
+def hermegauss(input):
+    ideg = operator.index(input)
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    c = numpy.array([0] * input + [1])
+    m = hermecompanion(c)
+    x = numpy.linalg.eigvalsh(m)
+
+    dy = _normed_hermite_e_n(x, ideg)
+    df = _normed_hermite_e_n(x, ideg - 1) * numpy.sqrt(ideg)
+    x -= dy / df
+
+    fm = _normed_hermite_e_n(x, ideg - 1)
+    fm /= numpy.abs(fm).max()
+    w = 1 / (fm * fm)
+
+    w = (w + w[::-1]) / 2
+    x = (x - x[::-1]) / 2
+
+    w *= numpy.sqrt(2 * numpy.pi) / w.sum()
+
+    return x, w
+
+
+def hermegrid2d(x, y, c):
+    return _grid(hermeval, c, x, y)
+
+
+def hermegrid3d(x, y, z, c):
+    return _grid(hermeval, c, x, y, z)
+
+
 def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
@@ -1351,6 +1046,77 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
+def hermeline(off, scl):
+    if scl != 0:
+        return numpy.array([off, scl])
+    else:
+        return numpy.array([off])
+
+
+def hermemul(c1, c2):
+    [c1, c2] = _as_series([c1, c2])
+
+    if len(c1) > len(c2):
+        c = c2
+        xs = c1
+    else:
+        c = c1
+        xs = c2
+
+    if len(c) == 1:
+        c0 = c[0] * xs
+        c1 = 0
+    elif len(c) == 2:
+        c0 = c[0] * xs
+        c1 = c[1] * xs
+    else:
+        nd = len(c)
+        c0 = c[-2] * xs
+        c1 = c[-1] * xs
+        for i in range(3, len(c) + 1):
+            tmp = c0
+            nd = nd - 1
+            c0 = hermesub(c[-i] * xs, c1 * (nd - 1))
+            c1 = hermeadd(tmp, hermemulx(c1))
+    return hermeadd(c0, hermemulx(c1))
+
+
+def hermemulx(c):
+    [c] = _as_series([c])
+
+    if len(c) == 1 and c[0] == 0:
+        return c
+
+    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd[0] = c[0] * 0
+    prd[1] = c[0]
+    for i in range(1, len(c)):
+        prd[i + 1] = c[i]
+        prd[i - 1] += c[i] * i
+    return prd
+
+
+def hermepow(c, pow, maxpower=16):
+    return _pow(hermemul, c, pow, maxpower)
+
+
+def hermeroots(input):
+    [input] = _as_series([input])
+    if len(input) <= 1:
+        return numpy.array([], dtype=input.dtype)
+    if len(input) == 2:
+        return numpy.array([-input[0] / input[1]])
+
+    m = hermecompanion(input)[::-1, ::-1]
+    r = numpy.linalg.eigvals(m)
+    r.sort()
+    return r
+
+
+def hermesub(c1, c2):
+    return _sub(c1, c2)
+
+
 def hermeval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -1382,16 +1148,8 @@ def hermeval2d(x, y, c):
     return _evaluate(hermeval, c, x, y)
 
 
-def hermegrid2d(x, y, c):
-    return _grid(hermeval, c, x, y)
-
-
 def hermeval3d(x, y, z, c):
     return _evaluate(hermeval, c, x, y, z)
-
-
-def hermegrid3d(x, y, z, c):
-    return _grid(hermeval, c, x, y, z)
 
 
 def hermevander(x, deg):
@@ -1419,148 +1177,103 @@ def hermevander3d(x, y, z, deg):
     return _vander_nd_flat((hermevander, hermevander, hermevander), (x, y, z), deg)
 
 
-def hermefit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(hermevander, x, y, deg, rcond, full, w)
-
-
-def hermecompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
-
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = numpy.hstack((1.0, 1.0 / numpy.sqrt(numpy.arange(n - 1, 0, -1))))
-    scl = numpy.multiply.accumulate(scl)[::-1]
-    top = mat.reshape(-1)[1 :: n + 1]
-    bot = mat.reshape(-1)[n :: n + 1]
-    top[...] = numpy.sqrt(numpy.arange(1, n))
-    bot[...] = top
-    mat[:, -1] -= scl * c[:-1] / c[-1]
-    return mat
-
-
-def hermeroots(input):
-    [input] = as_series([input])
-    if len(input) <= 1:
-        return numpy.array([], dtype=input.dtype)
-    if len(input) == 2:
-        return numpy.array([-input[0] / input[1]])
-
-    m = hermecompanion(input)[::-1, ::-1]
-    r = numpy.linalg.eigvals(m)
-    r.sort()
-    return r
-
-
-def _normed_hermite_e_n(x, n):
-    if n == 0:
-        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(2 * numpy.pi)))
-
-    c0 = 0.0
-    c1 = 1.0 / numpy.sqrt(numpy.sqrt(2 * numpy.pi))
-    nd = float(n)
-    for _ in range(n - 1):
-        tmp = c0
-        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
-        c1 = tmp + c1 * x * numpy.sqrt(1.0 / nd)
-        nd = nd - 1.0
-    return c0 + c1 * x
-
-
-def hermegauss(input):
-    ideg = operator.index(input)
-    if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
-
-    c = numpy.array([0] * input + [1])
-    m = hermecompanion(c)
-    x = numpy.linalg.eigvalsh(m)
-
-    dy = _normed_hermite_e_n(x, ideg)
-    df = _normed_hermite_e_n(x, ideg - 1) * numpy.sqrt(ideg)
-    x -= dy / df
-
-    fm = _normed_hermite_e_n(x, ideg - 1)
-    fm /= numpy.abs(fm).max()
-    w = 1 / (fm * fm)
-
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
-
-    w *= numpy.sqrt(2 * numpy.pi) / w.sum()
-
-    return x, w
-
-
 def hermeweight(x):
     w = numpy.exp(-0.5 * x**2)
     return w
 
 
-def poly2lag(pol):
-    [pol] = as_series([pol])
-    res = 0
-    for p in pol[::-1]:
-        res = lagadd(lagmulx(res), p)
-    return res
+def hermfit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(hermvander, x, y, deg, rcond, full, w)
 
 
-def lag2poly(c):
-    [c] = as_series([c])
-    n = len(c)
-    if n == 1:
+def hermfromroots(input):
+    return _from_roots(hermline, hermmul, input)
+
+
+def hermgauss(input):
+    ideg = operator.index(input)
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    c = numpy.array([0] * input + [1], dtype=numpy.float64)
+    m = hermcompanion(c)
+    output = numpy.linalg.eigvalsh(m)
+
+    dy = _normed_hermite_n(output, ideg)
+    df = _normed_hermite_n(output, ideg - 1) * numpy.sqrt(2 * ideg)
+    output -= dy / df
+
+    fm = _normed_hermite_n(output, ideg - 1)
+    fm /= numpy.abs(fm).max()
+    weight = 1 / (fm * fm)
+
+    weight = (weight + weight[::-1]) / 2
+    output = (output - output[::-1]) / 2
+
+    weight = weight * (numpy.sqrt(numpy.pi) / numpy.sum(weight))
+
+    return output, weight
+
+
+def hermgrid2d(x, y, c):
+    return _grid(hermval, c, x, y)
+
+
+def hermgrid3d(x, y, z, c):
+    return _grid(hermval, c, x, y, z)
+
+
+def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+    if k is None:
+        k = []
+    c = numpy.array(c, ndmin=1)
+    if c.dtype.char in "?bBhHiIlLqQpP":
+        c = c.astype(numpy.double)
+    if not numpy.iterable(k):
+        k = [k]
+    cnt = operator.index(m)
+    iaxis = operator.index(axis)
+    if cnt < 0:
+        raise ValueError("The order of integration must be non-negative")
+    if len(k) > cnt:
+        raise ValueError("Too many integration constants")
+    if numpy.ndim(lbnd) != 0:
+        raise ValueError("lbnd must be a scalar.")
+    if numpy.ndim(scl) != 0:
+        raise ValueError("scl must be a scalar.")
+    iaxis = normalize_axis_index(iaxis, c.ndim)
+
+    if cnt == 0:
         return c
-    else:
-        c0 = c[-2]
-        c1 = c[-1]
 
-        for i in range(n - 1, 1, -1):
-            tmp = c0
-            c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
-            c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1)) / i)
-        return polyadd(c0, polysub(c1, polymulx(c1)))
+    c = numpy.moveaxis(c, iaxis, 0)
+    k = list(k) + [0] * (cnt - len(k))
+    for i in range(cnt):
+        n = len(c)
+        c *= scl
+        if n == 1 and numpy.all(c[0] == 0):
+            c[0] += k[i]
+        else:
+            tmp = numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+            tmp[0] = c[0] * 0
+            tmp[1] = c[0] / 2
+            for j in range(1, n):
+                tmp[j + 1] = c[j] / (2 * (j + 1))
+            tmp[0] += k[i] - hermval(lbnd, tmp)
+            c = tmp
+    c = numpy.moveaxis(c, 0, iaxis)
+    return c
 
 
-def lagline(off, scl):
+def hermline(off, scl):
     if scl != 0:
-        return numpy.array([off + scl, -scl])
+        return numpy.array([off, scl / 2])
     else:
         return numpy.array([off])
 
 
-def lagfromroots(roots):
-    return _from_roots(lagline, lagmul, roots)
-
-
-def lagadd(c1, c2):
-    return _add(c1, c2)
-
-
-def lagsub(c1, c2):
-    return _sub(c1, c2)
-
-
-def lagmulx(c):
-    [c] = as_series([c])
-
-    if len(c) == 1 and c[0] == 0:
-        return c
-
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0]
-    prd[1] = -c[0]
-    for i in range(1, len(c)):
-        prd[i + 1] = -c[i] * (i + 1)
-        prd[i] += c[i] * (2 * i + 1)
-        prd[i - 1] -= c[i] * i
-    return prd
-
-
-def lagmul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
+def hermmul(c1, c2):
+    [c1, c2] = _as_series([c1, c2])
 
     if len(c1) > len(c2):
         c = c2
@@ -1582,21 +1295,155 @@ def lagmul(c1, c2):
         for i in range(3, len(c) + 1):
             tmp = c0
             nd = nd - 1
-            c0 = lagsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1)) / nd)
-    return lagadd(c0, lagsub(c1, lagmulx(c1)))
+            c0 = hermsub(c[-i] * xs, c1 * (2 * (nd - 1)))
+            c1 = hermadd(tmp, hermmulx(c1) * 2)
+    return hermadd(c0, hermmulx(c1) * 2)
 
 
-def lagdiv(c1, c2):
-    return _div(lagmul, c1, c2)
+def hermmulx(c):
+    [c] = _as_series([c])
+
+    if len(c) == 1 and c[0] == 0:
+        return c
+
+    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd[0] = c[0] * 0
+    prd[1] = c[0] / 2
+    for i in range(1, len(c)):
+        prd[i + 1] = c[i] / 2
+        prd[i - 1] += c[i] * i
+    return prd
 
 
-def lagpow(c, pow, maxpower=16):
-    return _pow(lagmul, c, pow, maxpower)
+def hermpow(c, pow, maxpower=16):
+    return _pow(hermmul, c, pow, maxpower)
+
+
+def hermroots(input):
+    [input] = _as_series([input])
+    if len(input) <= 1:
+        return numpy.array([], dtype=input.dtype)
+    if len(input) == 2:
+        return numpy.array([-0.5 * input[0] / input[1]])
+
+    m = hermcompanion(input)[::-1, ::-1]
+    r = numpy.linalg.eigvals(m)
+    r.sort()
+    return r
+
+
+def hermsub(c1, c2):
+    return _sub(c1, c2)
+
+
+def hermval(x, c, tensor=True):
+    c = numpy.array(c, ndmin=1)
+    if c.dtype.char in "?bBhHiIlLqQpP":
+        c = c.astype(numpy.double)
+    if isinstance(x, (tuple, list)):
+        x = numpy.asarray(x)
+    if isinstance(x, numpy.ndarray) and tensor:
+        c = c.reshape(c.shape + (1,) * x.ndim)
+
+    x2 = x * 2
+    if len(c) == 1:
+        c0 = c[0]
+        c1 = 0
+    elif len(c) == 2:
+        c0 = c[0]
+        c1 = c[1]
+    else:
+        nd = len(c)
+        c0 = c[-2]
+        c1 = c[-1]
+        for i in range(3, len(c) + 1):
+            tmp = c0
+            nd = nd - 1
+            c0 = c[-i] - c1 * (2 * (nd - 1))
+            c1 = tmp + c1 * x2
+    return c0 + c1 * x2
+
+
+def hermval2d(x, y, c):
+    return _evaluate(hermval, c, x, y)
+
+
+def hermval3d(x, y, z, c):
+    return _evaluate(hermval, c, x, y, z)
+
+
+def hermvander(x, deg):
+    ideg = operator.index(deg)
+    if ideg < 0:
+        raise ValueError("deg must be non-negative")
+
+    x = numpy.array(x, ndmin=1) + 0.0
+    dims = (ideg + 1,) + x.shape
+    dtyp = x.dtype
+    v = numpy.empty(dims, dtype=dtyp)
+    v[0] = x * 0 + 1
+    if ideg > 0:
+        x2 = x * 2
+        v[1] = x2
+        for i in range(2, ideg + 1):
+            v[i] = v[i - 1] * x2 - v[i - 2] * (2 * (i - 1))
+    return numpy.moveaxis(v, 0, -1)
+
+
+def hermvander2d(x, y, deg):
+    return _vander_nd_flat((hermvander, hermvander), (x, y), deg)
+
+
+def hermvander3d(x, y, z, deg):
+    return _vander_nd_flat((hermvander, hermvander, hermvander), (x, y, z), deg)
+
+
+def hermweight(x):
+    w = numpy.exp(-(x**2))
+    return w
+
+
+def lag2poly(c):
+    [c] = _as_series([c])
+    n = len(c)
+    if n == 1:
+        return c
+    else:
+        c0 = c[-2]
+        c1 = c[-1]
+
+        for i in range(n - 1, 1, -1):
+            tmp = c0
+            c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
+            c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1)) / i)
+        return polyadd(c0, polysub(c1, polymulx(c1)))
+
+
+def lagadd(c1, c2):
+    return _add(c1, c2)
+
+
+def lagcompanion(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+    if len(c) == 2:
+        return numpy.array([[1 + c[0] / c[1]]])
+
+    n = len(c) - 1
+    mat = numpy.zeros((n, n), dtype=c.dtype)
+    top = mat.reshape(-1)[1 :: n + 1]
+    mid = mat.reshape(-1)[0 :: n + 1]
+    bot = mat.reshape(-1)[n :: n + 1]
+    top[...] = -numpy.arange(1, n)
+    mid[...] = 2.0 * numpy.arange(n) + 1.0
+    bot[...] = top
+    mat[:, -1] += (c[:-1] / c[-1]) * n
+    return mat
 
 
 def lagder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
 
@@ -1627,10 +1474,55 @@ def lagder(c, m=1, scl=1, axis=0):
     return c
 
 
+def lagdiv(c1, c2):
+    return _div(lagmul, c1, c2)
+
+
+def lagfit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(lagvander, x, y, deg, rcond, full, w)
+
+
+def lagfromroots(roots):
+    return _from_roots(lagline, lagmul, roots)
+
+
+def laggauss(input):
+    ideg = operator.index(input)
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    c = numpy.array([0] * input + [1])
+    m = lagcompanion(c)
+    x = numpy.linalg.eigvalsh(m)
+
+    dy = lagval(x, c)
+    df = lagval(x, lagder(c))
+    x -= dy / df
+
+    fm = lagval(x, c[1:])
+
+    fm = fm / numpy.max(numpy.abs(fm))
+    df = df / numpy.max(numpy.abs(df))
+
+    weight = 1.0 / (fm * df)
+
+    weight = weight / numpy.sum(weight)
+
+    return x, weight
+
+
+def laggrid2d(x, y, c):
+    return _grid(lagval, c, x, y)
+
+
+def laggrid3d(x, y, z, c):
+    return _grid(lagval, c, x, y, z)
+
+
 def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
@@ -1670,6 +1562,78 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
+def lagline(off, scl):
+    if scl != 0:
+        return numpy.array([off + scl, -scl])
+    else:
+        return numpy.array([off])
+
+
+def lagmul(c1, c2):
+    [c1, c2] = _as_series([c1, c2])
+
+    if len(c1) > len(c2):
+        c = c2
+        xs = c1
+    else:
+        c = c1
+        xs = c2
+
+    if len(c) == 1:
+        c0 = c[0] * xs
+        c1 = 0
+    elif len(c) == 2:
+        c0 = c[0] * xs
+        c1 = c[1] * xs
+    else:
+        nd = len(c)
+        c0 = c[-2] * xs
+        c1 = c[-1] * xs
+        for i in range(3, len(c) + 1):
+            tmp = c0
+            nd = nd - 1
+            c0 = lagsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
+            c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1)) / nd)
+    return lagadd(c0, lagsub(c1, lagmulx(c1)))
+
+
+def lagmulx(c):
+    [c] = _as_series([c])
+
+    if len(c) == 1 and c[0] == 0:
+        return c
+
+    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd[0] = c[0]
+    prd[1] = -c[0]
+    for i in range(1, len(c)):
+        prd[i + 1] = -c[i] * (i + 1)
+        prd[i] += c[i] * (2 * i + 1)
+        prd[i - 1] -= c[i] * i
+    return prd
+
+
+def lagpow(c, pow, maxpower=16):
+    return _pow(lagmul, c, pow, maxpower)
+
+
+def lagroots(c):
+    [c] = _as_series([c])
+    if len(c) <= 1:
+        return numpy.array([], dtype=c.dtype)
+    if len(c) == 2:
+        return numpy.array([1 + c[0] / c[1]])
+
+    m = lagcompanion(c)[::-1, ::-1]
+    r = numpy.linalg.eigvals(m)
+    r.sort()
+    return r
+
+
+def lagsub(c1, c2):
+    return _sub(c1, c2)
+
+
 def lagval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -1701,16 +1665,8 @@ def lagval2d(x, y, c):
     return _evaluate(lagval, c, x, y)
 
 
-def laggrid2d(x, y, c):
-    return _grid(lagval, c, x, y)
-
-
 def lagval3d(x, y, z, c):
     return _evaluate(lagval, c, x, y, z)
-
-
-def laggrid3d(x, y, z, c):
-    return _grid(lagval, c, x, y, z)
 
 
 def lagvander(x, deg):
@@ -1738,83 +1694,13 @@ def lagvander3d(x, y, z, deg):
     return _vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), deg)
 
 
-def lagfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(lagvander, x, y, deg, rcond, full, w)
-
-
-def lagcompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[1 + c[0] / c[1]]])
-
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    top = mat.reshape(-1)[1 :: n + 1]
-    mid = mat.reshape(-1)[0 :: n + 1]
-    bot = mat.reshape(-1)[n :: n + 1]
-    top[...] = -numpy.arange(1, n)
-    mid[...] = 2.0 * numpy.arange(n) + 1.0
-    bot[...] = top
-    mat[:, -1] += (c[:-1] / c[-1]) * n
-    return mat
-
-
-def lagroots(c):
-    [c] = as_series([c])
-    if len(c) <= 1:
-        return numpy.array([], dtype=c.dtype)
-    if len(c) == 2:
-        return numpy.array([1 + c[0] / c[1]])
-
-    m = lagcompanion(c)[::-1, ::-1]
-    r = numpy.linalg.eigvals(m)
-    r.sort()
-    return r
-
-
-def laggauss(input):
-    ideg = operator.index(input)
-    if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
-
-    c = numpy.array([0] * input + [1])
-    m = lagcompanion(c)
-    x = numpy.linalg.eigvalsh(m)
-
-    dy = lagval(x, c)
-    df = lagval(x, lagder(c))
-    x -= dy / df
-
-    fm = lagval(x, c[1:])
-
-    fm = fm / numpy.max(numpy.abs(fm))
-    df = df / numpy.max(numpy.abs(df))
-
-    weight = 1.0 / (fm * df)
-
-    weight = weight / numpy.sum(weight)
-
-    return x, weight
-
-
 def lagweight(x):
     w = numpy.exp(-x)
     return w
 
 
-def poly2leg(pol):
-    [pol] = as_series([pol])
-    deg = len(pol) - 1
-    res = 0
-    for i in range(deg, -1, -1):
-        res = legadd(legmulx(res), pol[i])
-    return res
-
-
 def leg2poly(c):
-    [c] = as_series([c])
+    [c] = _as_series([c])
     n = len(c)
     if n < 3:
         return c
@@ -1829,81 +1715,30 @@ def leg2poly(c):
         return polyadd(c0, polymulx(c1))
 
 
-def legline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
-    else:
-        return numpy.array([off])
-
-
-def legfromroots(roots):
-    return _from_roots(legline, legmul, roots)
-
-
 def legadd(c1, c2):
     return _add(c1, c2)
 
 
-def legsub(c1, c2):
-    return _sub(c1, c2)
+def legcompanion(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+    if len(c) == 2:
+        return numpy.array([[-c[0] / c[1]]])
 
-
-def legmulx(c):
-    [c] = as_series([c])
-
-    if len(c) == 1 and c[0] == 0:
-        return c
-
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0]
-    for i in range(1, len(c)):
-        j = i + 1
-        k = i - 1
-        s = i + j
-        prd[j] = (c[i] * j) / s
-        prd[k] += (c[i] * i) / s
-    return prd
-
-
-def legmul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-
-    if len(c1) > len(c2):
-        c = c2
-        xs = c1
-    else:
-        c = c1
-        xs = c2
-
-    if len(c) == 1:
-        c0 = c[0] * xs
-        c1 = 0
-    elif len(c) == 2:
-        c0 = c[0] * xs
-        c1 = c[1] * xs
-    else:
-        nd = len(c)
-        c0 = c[-2] * xs
-        c1 = c[-1] * xs
-        for i in range(3, len(c) + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = legsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = legadd(tmp, (legmulx(c1) * (2 * nd - 1)) / nd)
-    return legadd(c0, legmulx(c1))
-
-
-def legdiv(c1, c2):
-    return _div(legmul, c1, c2)
-
-
-def legpow(c, pow, maxpower=16):
-    return _pow(legmul, c, pow, maxpower)
+    n = len(c) - 1
+    mat = numpy.zeros((n, n), dtype=c.dtype)
+    scl = 1.0 / numpy.sqrt(2 * numpy.arange(n) + 1)
+    top = mat.reshape(-1)[1 :: n + 1]
+    bot = mat.reshape(-1)[n :: n + 1]
+    top[...] = numpy.arange(1, n) * scl[: n - 1] * scl[1:n]
+    bot[...] = top
+    mat[:, -1] -= (c[:-1] / c[-1]) * (scl / scl[-1]) * (n / (2 * n - 1))
+    return mat
 
 
 def legder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     cnt = operator.index(m)
@@ -1935,10 +1770,56 @@ def legder(c, m=1, scl=1, axis=0):
     return c
 
 
+def legdiv(c1, c2):
+    return _div(legmul, c1, c2)
+
+
+def legfit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(legvander, x, y, deg, rcond, full, w)
+
+
+def legfromroots(roots):
+    return _from_roots(legline, legmul, roots)
+
+
+def leggauss(input):
+    ideg = operator.index(input)
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    c = numpy.array([0] * input + [1])
+    m = legcompanion(c)
+    x = numpy.linalg.eigvalsh(m)
+
+    dy = legval(x, c)
+    df = legval(x, legder(c))
+    x -= dy / df
+
+    fm = legval(x, c[1:])
+    fm /= numpy.abs(fm).max()
+    df /= numpy.abs(df).max()
+    weights = 1 / (fm * df)
+
+    weights = (weights + weights[::-1]) / 2
+    x = (x - x[::-1]) / 2
+
+    weights = weights * (2.0 / weights.sum())
+
+    return x, weights
+
+
+def leggrid2d(x, y, c):
+    return _grid(legval, c, x, y)
+
+
+def leggrid3d(x, y, z, c):
+    return _grid(legval, c, x, y, z)
+
+
 def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if not numpy.iterable(k):
@@ -1981,6 +1862,80 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
+def legline(off, scl):
+    if scl != 0:
+        return numpy.array([off, scl])
+    else:
+        return numpy.array([off])
+
+
+def legmul(c1, c2):
+    [c1, c2] = _as_series([c1, c2])
+
+    if len(c1) > len(c2):
+        c = c2
+        xs = c1
+    else:
+        c = c1
+        xs = c2
+
+    if len(c) == 1:
+        c0 = c[0] * xs
+        c1 = 0
+    elif len(c) == 2:
+        c0 = c[0] * xs
+        c1 = c[1] * xs
+    else:
+        nd = len(c)
+        c0 = c[-2] * xs
+        c1 = c[-1] * xs
+        for i in range(3, len(c) + 1):
+            tmp = c0
+            nd = nd - 1
+            c0 = legsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
+            c1 = legadd(tmp, (legmulx(c1) * (2 * nd - 1)) / nd)
+    return legadd(c0, legmulx(c1))
+
+
+def legmulx(c):
+    [c] = _as_series([c])
+
+    if len(c) == 1 and c[0] == 0:
+        return c
+
+    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd[0] = c[0] * 0
+    prd[1] = c[0]
+    for i in range(1, len(c)):
+        j = i + 1
+        k = i - 1
+        s = i + j
+        prd[j] = (c[i] * j) / s
+        prd[k] += (c[i] * i) / s
+    return prd
+
+
+def legpow(c, pow, maxpower=16):
+    return _pow(legmul, c, pow, maxpower)
+
+
+def legroots(c):
+    [c] = _as_series([c])
+    if len(c) < 2:
+        return numpy.array([], dtype=c.dtype)
+    if len(c) == 2:
+        return numpy.array([-c[0] / c[1]])
+
+    m = legcompanion(c)[::-1, ::-1]
+    r = numpy.linalg.eigvals(m)
+    r.sort()
+    return r
+
+
+def legsub(c1, c2):
+    return _sub(c1, c2)
+
+
 def legval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -2012,16 +1967,8 @@ def legval2d(x, y, c):
     return _evaluate(legval, c, x, y)
 
 
-def leggrid2d(x, y, c):
-    return _grid(legval, c, x, y)
-
-
 def legval3d(x, y, z, c):
     return _evaluate(legval, c, x, y, z)
-
-
-def leggrid3d(x, y, z, c):
-    return _grid(legval, c, x, y, z)
 
 
 def legvander(x, deg):
@@ -2050,111 +1997,144 @@ def legvander3d(x, y, z, deg):
     return _vander_nd_flat((legvander, legvander, legvander), (x, y, z), deg)
 
 
-def legfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(legvander, x, y, deg, rcond, full, w)
-
-
-def legcompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
-
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = 1.0 / numpy.sqrt(2 * numpy.arange(n) + 1)
-    top = mat.reshape(-1)[1 :: n + 1]
-    bot = mat.reshape(-1)[n :: n + 1]
-    top[...] = numpy.arange(1, n) * scl[: n - 1] * scl[1:n]
-    bot[...] = top
-    mat[:, -1] -= (c[:-1] / c[-1]) * (scl / scl[-1]) * (n / (2 * n - 1))
-    return mat
-
-
-def legroots(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        return numpy.array([], dtype=c.dtype)
-    if len(c) == 2:
-        return numpy.array([-c[0] / c[1]])
-
-    m = legcompanion(c)[::-1, ::-1]
-    r = numpy.linalg.eigvals(m)
-    r.sort()
-    return r
-
-
-def leggauss(input):
-    ideg = operator.index(input)
-    if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
-
-    c = numpy.array([0] * input + [1])
-    m = legcompanion(c)
-    x = numpy.linalg.eigvalsh(m)
-
-    dy = legval(x, c)
-    df = legval(x, legder(c))
-    x -= dy / df
-
-    fm = legval(x, c[1:])
-    fm /= numpy.abs(fm).max()
-    df /= numpy.abs(df).max()
-    weights = 1 / (fm * df)
-
-    weights = (weights + weights[::-1]) / 2
-    x = (x - x[::-1]) / 2
-
-    weights = weights * (2.0 / weights.sum())
-
-    return x, weights
-
-
 def legweight(x):
-    w = x * 0.0 + 1.0
-    return w
+    return x * 0.0 + 1.0
 
 
-def polyline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
-    else:
-        return numpy.array([off])
+def mapdomain(x, old, new):
+    x = numpy.asanyarray(x)
+    off, scl = mapparms(old, new)
+    return off + scl * x
 
 
-def polyfromroots(roots):
-    return _from_roots(polyline, polymul, roots)
+def mapparms(old, new):
+    oldlen = old[1] - old[0]
+    newlen = new[1] - new[0]
+    off = (old[1] * new[0] - old[0] * new[1]) / oldlen
+    scl = newlen / oldlen
+    return off, scl
+
+
+def poly2cheb(input):
+    [input] = _as_series([input])
+
+    output = 0
+
+    for index in range(len(input) - 1, -1, -1):
+        output = chebmulx(output)
+
+        output = _add(output, input[index])
+
+    return output
+
+
+def poly2herm(input):
+    [input] = _as_series([input])
+    deg = len(input) - 1
+    res = 0
+    for i in range(deg, -1, -1):
+        res = hermadd(hermmulx(res), input[i])
+    return res
+
+
+def poly2herme(input):
+    [input] = _as_series([input])
+    deg = len(input) - 1
+    res = 0
+    for i in range(deg, -1, -1):
+        res = hermeadd(hermemulx(res), input[i])
+    return res
+
+
+def poly2lag(pol):
+    [pol] = _as_series([pol])
+    res = 0
+    for p in pol[::-1]:
+        res = lagadd(lagmulx(res), p)
+    return res
+
+
+def poly2leg(pol):
+    [pol] = _as_series([pol])
+    deg = len(pol) - 1
+    res = 0
+    for i in range(deg, -1, -1):
+        res = legadd(legmulx(res), pol[i])
+    return res
 
 
 def polyadd(c1, c2):
     return _add(c1, c2)
 
 
-def polysub(c1, c2):
-    return _sub(c1, c2)
+def polycompanion(series):
+    (series,) = _as_series([series])
+
+    if len(series) < 2:
+        raise ValueError
+
+    if len(series) == 2:
+        output = numpy.array([[-series[0] / series[1]]])
+    else:
+        n = series.shape[-1] - 1
+
+        output = numpy.zeros([n, n], dtype=series.dtype)
+
+        bot = numpy.reshape(output, -1)[n :: n + 1]
+
+        bot[...] = 1
+
+        output[:, -1] = output[:, -1] - (series[:-1] / series[-1])
+
+    return output
 
 
-def polymulx(c):
-    [c] = as_series([c])
+def polyder(input, order: int = 1, scale: float = 1, axis: int = 0):
+    output = numpy.array(input, ndmin=1)
 
-    if len(c) == 1 and c[0] == 0:
-        return c
+    if output.dtype.char in "?bBhHiIlLqQpP":
+        output = output + 0.0
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1:] = c
-    return prd
+    dtype = output.dtype
 
+    cnt = operator.index(order)
 
-def polymul(c1, c2):
-    [c1, c2] = as_series([c1, c2])
-    ret = numpy.convolve(c1, c2)
-    return trimseq(ret)
+    axis = operator.index(axis)
+
+    if cnt < 0:
+        raise ValueError
+
+    axis = normalize_axis_index(axis, output.ndim)
+
+    if cnt == 0:
+        return output
+
+    output = numpy.moveaxis(output, axis, 0)
+
+    n = len(output)
+
+    if cnt >= n:
+        output = output[:1] * 0
+    else:
+        for _ in range(cnt):
+            n = n - 1
+
+            output = output * scale
+
+            der = numpy.empty((n,) + output.shape[1:], dtype=dtype)
+
+            for j in range(n, 0, -1):
+                der[j - 1] = j * output[j]
+
+            output = der
+
+    output = numpy.moveaxis(output, 0, axis)
+
+    return output
 
 
 def polydiv(c1, c2):
-    [c1, c2] = as_series([c1, c2])
+    [c1, c2] = _as_series([c1, c2])
     if c2[-1] == 0:
         raise ZeroDivisionError()
 
@@ -2174,47 +2154,29 @@ def polydiv(c1, c2):
             c1[i:j] -= c2 * c1[j]
             i -= 1
             j -= 1
-        return c1[j + 1 :] / scl, trimseq(c1[: j + 1])
+        return c1[j + 1 :] / scl, _trim_sequence(c1[: j + 1])
 
 
-def polypow(c, pow, maxpower=None):
-    return _pow(numpy.convolve, c, pow, maxpower)
+def polyfit(x, y, deg, rcond=None, full=False, w=None):
+    return _fit(polyvander, x, y, deg, rcond, full, w)
 
 
-def polyder(c, m=1, scl=1, axis=0):
-    c = numpy.array(c, ndmin=1, copy=True)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c + 0.0
-    cdt = c.dtype
-    cnt = operator.index(m)
-    iaxis = operator.index(axis)
-    if cnt < 0:
-        raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+def polyfromroots(roots):
+    return _from_roots(polyline, polymul, roots)
 
-    if cnt == 0:
-        return c
 
-    c = numpy.moveaxis(c, iaxis, 0)
-    n = len(c)
-    if cnt >= n:
-        c = c[:1] * 0
-    else:
-        for _ in range(cnt):
-            n = n - 1
-            c *= scl
-            der = numpy.empty((n,) + c.shape[1:], dtype=cdt)
-            for j in range(n, 0, -1):
-                der[j - 1] = j * c[j]
-            c = der
-    c = numpy.moveaxis(c, 0, iaxis)
-    return c
+def polygrid2d(x, y, c):
+    return _grid(polyval, c, x, y)
+
+
+def polygrid3d(x, y, z, c):
+    return _grid(polyval, c, x, y, z)
 
 
 def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1, copy=True)
+    c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c + 0.0
     cdt = c.dtype
@@ -2254,66 +2216,136 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
+def polyline(off, scl):
+    if scl != 0:
+        return numpy.array([off, scl])
+    else:
+        return numpy.array([off])
+
+
+def polymul(input, other):
+    input, other = _as_series([input, other])
+
+    output = numpy.convolve(input, other)
+
+    output = _trim_sequence(output)
+
+    return output
+
+
+def polymulx(input):
+    (input,) = _as_series([input])
+
+    if len(input) == 1 and input[0] == 0:
+        return input
+
+    output = numpy.empty(len(input) + 1, dtype=input.dtype)
+
+    output[0] = input[0] * 0.0
+
+    output[1:] = input
+
+    return output
+
+
+def polypow(c, pow, maxpower=None):
+    return _pow(numpy.convolve, c, pow, maxpower)
+
+
+def polyroots(series):
+    (series,) = _as_series([series])
+
+    if len(series) < 2:
+        return numpy.array([], dtype=series.dtype)
+
+    if len(series) == 2:
+        return numpy.array([-series[0] / series[1]])
+
+    output = polycompanion(series)
+
+    output = numpy.flip(output, axis=0)
+    output = numpy.flip(output, axis=1)
+
+    output = numpy.linalg.eigvals(output)
+
+    output = numpy.sort(output)
+
+    return output
+
+
+def polysub(c1, c2):
+    return _sub(c1, c2)
+
+
 def polyval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
+
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c + 0.0
+
     if isinstance(x, (tuple, list)):
         x = numpy.asarray(x)
+
     if isinstance(x, numpy.ndarray) and tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
     c0 = c[-1] + x * 0
+
     for i in range(2, len(c) + 1):
         c0 = c[-i] + c0 * x
+
     return c0
-
-
-def polyvalfromroots(x, r, tensor=True):
-    r = numpy.array(r, ndmin=1)
-    if r.dtype.char in "?bBhHiIlLqQpP":
-        r = r.astype(numpy.double)
-    if isinstance(x, (tuple, list)):
-        x = numpy.asarray(x)
-    if isinstance(x, numpy.ndarray):
-        if tensor:
-            r = r.reshape(r.shape + (1,) * x.ndim)
-        elif x.ndim >= r.ndim:
-            raise ValueError("x.ndim must be < r.ndim when tensor == False")
-    return numpy.prod(x - r, axis=0)
 
 
 def polyval2d(x, y, c):
     return _evaluate(polyval, c, x, y)
 
 
-def polygrid2d(x, y, c):
-    return _grid(polyval, c, x, y)
-
-
 def polyval3d(x, y, z, c):
     return _evaluate(polyval, c, x, y, z)
 
 
-def polygrid3d(x, y, z, c):
-    return _grid(polyval, c, x, y, z)
+def polyvalfromroots(x, output, tensor=True):
+    output = numpy.array(output, ndmin=1)
+
+    if output.dtype.char in "?bBhHiIlLqQpP":
+        output = output.astype(numpy.float64)
+
+    if isinstance(x, (tuple, list)):
+        x = numpy.asarray(x)
+
+    if isinstance(x, numpy.ndarray):
+        if tensor:
+            shape = (1,) * x.ndim
+
+            output = numpy.reshape(output, [*output.shape, *shape])
+        elif x.ndim >= output.ndim:
+            raise ValueError
+
+    return numpy.prod(x - output, axis=0)
 
 
-def polyvander(x, deg):
-    ideg = operator.index(deg)
-    if ideg < 0:
-        raise ValueError("deg must be non-negative")
+def polyvander(input, degree):
+    degree = operator.index(degree)
 
-    x = numpy.array(x, ndmin=1) + 0.0
-    dims = (ideg + 1,) + x.shape
-    dtyp = x.dtype
-    v = numpy.empty(dims, dtype=dtyp)
-    v[0] = x * 0 + 1
-    if ideg > 0:
-        v[1] = x
-        for i in range(2, ideg + 1):
-            v[i] = v[i - 1] * x
-    return numpy.moveaxis(v, 0, -1)
+    if degree < 0:
+        raise ValueError
+
+    input = numpy.array(input, ndmin=1) + 0.0
+
+    output = numpy.empty([degree + 1, *input.shape], dtype=input.dtype)
+
+    output[0] = input * 0.0 + 1.0
+
+    if degree > 0:
+        output[1] = input
+
+        for i in range(2, degree + 1):
+            output[i] = output[i - 1] * input
+
+    output = numpy.moveaxis(output, 0, -1)
+
+    return output
 
 
 def polyvander2d(x, y, deg):
@@ -2324,48 +2356,45 @@ def polyvander3d(x, y, z, deg):
     return _vander_nd_flat((polyvander, polyvander, polyvander), (x, y, z), deg)
 
 
-def polyfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(polyvander, x, y, deg, rcond, full, w)
+hermdomain = numpy.array([-1.0, 1.0])
 
+hermedomain = numpy.array([-1.0, 1.0])
 
-def polycompanion(input):
-    [input] = as_series([input])
+hermeone = numpy.array([1])
 
-    if len(input) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+hermex = numpy.array([0, 1])
 
-    if len(input) == 2:
-        return numpy.array([[-input[0] / input[1]]])
+hermezero = numpy.array([0])
 
-    n = len(input) - 1
+hermone = numpy.array([1])
 
-    mat = numpy.zeros((n, n), dtype=input.dtype)
+hermx = numpy.array([0, 1 / 2])
 
-    bot = mat.reshape(-1)[n :: n + 1]
+hermzero = numpy.array([0])
 
-    bot[...] = 1
+lagdomain = numpy.array([0.0, 1.0])
 
-    mat[:, -1] -= input[:-1] / input[-1]
+lagone = numpy.array([1])
 
-    return mat
+lagx = numpy.array([1, -1])
 
+lagzero = numpy.array([0])
 
-def polyroots(input):
-    [input] = as_series([input])
+legdomain = numpy.array([-1.0, 1.0])
 
-    if len(input) < 2:
-        return numpy.array([], dtype=input.dtype)
+legone = numpy.array([1])
 
-    if len(input) == 2:
-        return numpy.array([-input[0] / input[1]])
+legx = numpy.array([0, 1])
 
-    m = polycompanion(input)[::-1, ::-1]
+legzero = numpy.array([0])
 
-    r = numpy.linalg.eigvals(m)
+polydomain = numpy.array([-1.0, 1.0])
 
-    r.sort()
+polyone = numpy.array([1])
 
-    return r
+polyx = numpy.array([0, 1])
+
+polyzero = numpy.array([0])
 
 
 __all__ = [
@@ -2373,7 +2402,7 @@ __all__ = [
     "_pow",
     "_vander_nd",
     "_vander_nd_flat",
-    "as_series",
+    "_as_series",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
@@ -2557,6 +2586,6 @@ __all__ = [
     "polyvander3d",
     "polyx",
     "polyzero",
-    "trimcoef",
-    "trimseq",
+    "_trim_coefficients",
+    "_trim_sequence",
 ]
