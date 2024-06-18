@@ -64,6 +64,14 @@ def trimcoef(c, tol=0):
         return c[: ind[-1] + 1].copy()
 
 
+chebtrim = trimcoef
+hermetrim = trimcoef
+hermtrim = trimcoef
+lagtrim = trimcoef
+legtrim = trimcoef
+polytrim = trimcoef
+
+
 def getdomain(x):
     [x] = as_series([x], trim=False)
 
@@ -75,7 +83,7 @@ def getdomain(x):
         return numpy.array((x.min(), x.max()))
 
 
-def mapping_parameters(old, new):
+def mapparms(old, new):
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -85,7 +93,7 @@ def mapping_parameters(old, new):
 
 def mapdomain(x, old, new):
     x = numpy.asanyarray(x)
-    off, scl = mapping_parameters(old, new)
+    off, scl = mapparms(old, new)
     return off + scl * x
 
 
@@ -375,7 +383,6 @@ chebdomain = numpy.array([-1.0, 1.0])
 
 chebone = numpy.array([1])
 
-chebtrim = trimcoef
 
 chebx = numpy.array([0, 1])
 
@@ -387,7 +394,6 @@ hermedomain = numpy.array([-1.0, 1.0])
 
 hermeone = numpy.array([1])
 
-hermetrim = trimcoef
 
 hermex = numpy.array([0, 1])
 
@@ -395,7 +401,6 @@ hermezero = numpy.array([0])
 
 hermone = numpy.array([1])
 
-hermtrim = trimcoef
 
 hermx = numpy.array([0, 1 / 2])
 
@@ -405,7 +410,6 @@ lagdomain = numpy.array([0.0, 1.0])
 
 lagone = numpy.array([1])
 
-lagtrim = trimcoef
 
 lagx = numpy.array([1, -1])
 
@@ -423,7 +427,6 @@ polydomain = numpy.array([-1.0, 1.0])
 
 polyone = numpy.array([1])
 
-polytrim = trimcoef
 
 polyx = numpy.array([0, 1])
 
@@ -1805,9 +1808,6 @@ def lagweight(x):
     return w
 
 
-legtrim = trimcoef
-
-
 def poly2leg(pol):
     [pol] = as_series([pol])
     deg = len(pol) - 1
@@ -2516,7 +2516,7 @@ __all__ = [
     "legx",
     "legzero",
     "mapdomain",
-    "mapping_parameters",
+    "mapparms",
     "poly2cheb",
     "poly2herm",
     "poly2herme",

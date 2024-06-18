@@ -3173,13 +3173,13 @@ def test_mapparms():
     dom1 = [0, 4]
     dom2 = [1, 3]
     tgt = [1, 0.5]
-    res = beignet.polynomial.mapping_parameters(dom1, dom2)
+    res = beignet.polynomial.mapparms(dom1, dom2)
     numpy.testing.assert_almost_equal(res, tgt)
 
     dom1 = [0 - 1j, 2 + 1j]
     dom2 = [-2, 2]
     tgt = [-1 + 1j, 1 - 1j]
-    res = beignet.polynomial.mapping_parameters(dom1, dom2)
+    res = beignet.polynomial.mapparms(dom1, dom2)
     numpy.testing.assert_almost_equal(res, tgt)
 
 
