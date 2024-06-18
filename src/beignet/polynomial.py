@@ -4,7 +4,6 @@ import warnings
 
 import numpy
 import numpy.linalg
-from numpy._pytesttester import PytestTester
 from torch import Tensor
 from torch._numpy._util import normalize_axis_index
 
@@ -13,7 +12,7 @@ class RankWarning(RuntimeWarning):
     pass
 
 
-def trimseq(input):
+def trimseq(input: Tensor) -> Tensor:
     if len(input) == 0 or input[-1] != 0:
         return input
     else:
@@ -26,42 +25,52 @@ def trimseq(input):
 
 def as_series(alist, trim=True):
     arrays = [numpy.array(a, ndmin=1) for a in alist]
+
     for a in arrays:
         if a.size == 0:
             raise ValueError("Coefficient array is empty")
+
     if any(a.ndim != 1 for a in arrays):
         raise ValueError("Coefficient array is not 1-d")
+
     if trim:
         arrays = [trimseq(a) for a in arrays]
 
     if any(a.dtype == numpy.dtype(object) for a in arrays):
-        ret = []
+        output = []
+
         for a in arrays:
             if a.dtype != numpy.dtype(object):
                 tmp = numpy.empty(len(a), dtype=numpy.dtype(object))
+
                 tmp[:] = a[:]
-                ret.append(tmp)
+
+                output.append(tmp)
             else:
-                ret.append(a.copy())
+                output.append(a.copy())
     else:
         try:
             dtype = numpy.common_type(*arrays)
         except Exception as e:
             raise ValueError("Coefficient arrays have no common type") from e
-        ret = [numpy.array(a, copy=True, dtype=dtype) for a in arrays]
-    return ret
+
+        output = [numpy.array(a, copy=True, dtype=dtype) for a in arrays]
+
+    return output
 
 
-def trimcoef(c, tol=0):
+def trimcoef(input, tol=0):
     if tol < 0:
         raise ValueError("tol must be non-negative")
 
-    [c] = as_series([c])
-    [ind] = numpy.nonzero(numpy.abs(c) > tol)
+    [input] = as_series([input])
+
+    [ind] = numpy.nonzero(numpy.abs(input) > tol)
+
     if len(ind) == 0:
-        return c[:1] * 0
+        return input[:1] * 0
     else:
-        return c[: ind[-1] + 1].copy()
+        return input[: ind[-1] + 1].copy()
 
 
 chebtrim = trimcoef
@@ -200,12 +209,18 @@ def _div(func, input, other):
         return input / other[-1], input[:1] * 0
     else:
         quo = numpy.empty(lc1 - lc2 + 1, dtype=input.dtype)
+
         rem = input
+
         for i in range(lc1 - lc2, -1, -1):
             p = func([0] * i + [1], other)
+
             q = rem[-1] / p[-1]
+
             rem = rem[:-1] - q * p[:-1]
+
             quo[i] = q
+
         return quo, trimseq(rem)
 
 
@@ -362,27 +377,9 @@ def _pow(
         return output
 
 
-# def set_default_printstyle(style):
-#     if style not in ("unicode", "ascii"):
-#         raise ValueError(
-#             f"Unsupported format string '{style}'. Valid options are 'ascii' "
-#             f"and 'unicode'"
-#         )
-#     _use_unicode = True
-#     if style == "ascii":
-#         _use_unicode = False
-#
-#     ABCPolyBase._use_unicode = _use_unicode
-
-
-test = PytestTester(__name__)
-
-del PytestTester
-
 chebdomain = numpy.array([-1.0, 1.0])
 
 chebone = numpy.array([1])
-
 
 chebx = numpy.array([0, 1])
 
@@ -394,13 +391,11 @@ hermedomain = numpy.array([-1.0, 1.0])
 
 hermeone = numpy.array([1])
 
-
 hermex = numpy.array([0, 1])
 
 hermezero = numpy.array([0])
 
 hermone = numpy.array([1])
-
 
 hermx = numpy.array([0, 1 / 2])
 
@@ -409,7 +404,6 @@ hermzero = numpy.array([0])
 lagdomain = numpy.array([0.0, 1.0])
 
 lagone = numpy.array([1])
-
 
 lagx = numpy.array([1, -1])
 
@@ -426,7 +420,6 @@ legzero = numpy.array([0])
 polydomain = numpy.array([-1.0, 1.0])
 
 polyone = numpy.array([1])
-
 
 polyx = numpy.array([0, 1])
 
@@ -2332,31 +2325,43 @@ def polyfit(x, y, deg, rcond=None, full=False, w=None):
     return _fit(polyvander, x, y, deg, rcond, full, w)
 
 
-def polycompanion(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
+def polycompanion(input):
+    [input] = as_series([input])
 
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
+    if len(input) < 2:
+        raise ValueError("Series must have maximum degree of at least 1.")
+
+    if len(input) == 2:
+        return numpy.array([[-input[0] / input[1]]])
+
+    n = len(input) - 1
+
+    mat = numpy.zeros((n, n), dtype=input.dtype)
+
     bot = mat.reshape(-1)[n :: n + 1]
+
     bot[...] = 1
-    mat[:, -1] -= c[:-1] / c[-1]
+
+    mat[:, -1] -= input[:-1] / input[-1]
+
     return mat
 
 
-def polyroots(c):
-    [c] = as_series([c])
-    if len(c) < 2:
-        return numpy.array([], dtype=c.dtype)
-    if len(c) == 2:
-        return numpy.array([-c[0] / c[1]])
+def polyroots(input):
+    [input] = as_series([input])
 
-    m = polycompanion(c)[::-1, ::-1]
+    if len(input) < 2:
+        return numpy.array([], dtype=input.dtype)
+
+    if len(input) == 2:
+        return numpy.array([-input[0] / input[1]])
+
+    m = polycompanion(input)[::-1, ::-1]
+
     r = numpy.linalg.eigvals(m)
+
     r.sort()
+
     return r
 
 
