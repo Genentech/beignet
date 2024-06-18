@@ -803,7 +803,7 @@ def chebweight(x):
     return w
 
 
-def getdomain(x):
+def _get_domain(x):
     [x] = _as_series([x], trim=False)
 
     if x.dtype.char in numpy.typecodes["Complex"]:
@@ -2216,11 +2216,11 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def polyline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
+def polyline(input, other):
+    if other != 0:
+        return numpy.array([input, other])
     else:
-        return numpy.array([off])
+        return numpy.array([input])
 
 
 def polymul(input, other):
@@ -2435,7 +2435,7 @@ __all__ = [
     "chebweight",
     "chebx",
     "chebzero",
-    "getdomain",
+    "_get_domain",
     "herm2poly",
     "hermadd",
     "hermcompanion",

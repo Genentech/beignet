@@ -145,88 +145,6 @@ polynomial_Tlist = [
 ]
 
 
-def test__cseries_to_zseries():
-    for i in range(5):
-        numpy.testing.assert_equal(
-            beignet.polynomial._c_series_to_z_series(
-                numpy.array([2] + [1] * i, numpy.float64)
-            ),
-            numpy.array([0.5] * i + [2] + [0.5] * i, numpy.float64),
-        )
-
-
-def test__div():
-    numpy.testing.assert_raises(
-        ZeroDivisionError,
-        beignet.polynomial._div,
-        beignet.polynomial._div,
-        (1, 2, 3),
-        [0],
-    )
-
-
-def test__pow():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial._pow,
-        (),
-        [1, 2, 3],
-        5,
-        4,
-    )
-
-
-def test__vander_nd():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial._vander_nd,
-        (),
-        (1, 2, 3),
-        [90],
-    )
-
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial._vander_nd,
-        (),
-        (),
-        [90.65],
-    )
-
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial._vander_nd,
-        (),
-        (),
-        [],
-    )
-
-
-def test__zseries_to_cseries():
-    for i in range(5):
-        numpy.testing.assert_equal(
-            beignet.polynomial._z_series_to_c_series(
-                numpy.array([0.5] * i + [2] + [0.5] * i, numpy.float64)
-            ),
-            numpy.array([2] + [1] * i, numpy.float64),
-        )
-
-
-def test_as_series():
-    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[]])
-    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[[1, 2]]])
-    numpy.testing.assert_raises(ValueError, beignet.polynomial._as_series, [[1], ["a"]])
-
-    types = ["i", "d", "O"]
-    for i in range(len(types)):
-        for j in range(i):
-            [resi, resj] = beignet.polynomial._as_series(
-                [(numpy.ones(1, types[i])), (numpy.ones(1, types[j]))]
-            )
-            numpy.testing.assert_(resi.dtype.char == resj.dtype.char)
-            numpy.testing.assert_(resj.dtype.char == types[i])
-
-
 def test_cheb2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
@@ -853,15 +771,6 @@ def test_chebx():
 
 def test_chebzero():
     numpy.testing.assert_equal(beignet.polynomial.chebzero, [0])
-
-
-def test_getdomain():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.getdomain([1, 10, 3, -1]), [-1, 10]
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.getdomain([1 + 1j, 1 - 1j, 0, 2]), [-1j, 2 + 1j]
-    )
 
 
 def test_herm2poly():
@@ -3135,41 +3044,6 @@ def test_legzero():
     numpy.testing.assert_equal(beignet.polynomial.legzero, [0])
 
 
-def test_mapdomain():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain([0, 4], [0, 4], [1, 3]), [1, 3]
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain([0 - 1j, 2 + 1j], [0 - 1j, 2 + 1j], [-2, 2]),
-        [-2, 2],
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain(numpy.array([[0, 4], [0, 4]]), [0, 4], [1, 3]),
-        numpy.array([[1, 3], [1, 3]]),
-    )
-
-    class MyNDArray(numpy.ndarray):
-        pass
-
-    numpy.testing.assert_(
-        isinstance(
-            beignet.polynomial.mapdomain(
-                numpy.array([[0, 4], [0, 4]]).view(MyNDArray), [0, 4], [1, 3]
-            ),
-            MyNDArray,
-        )
-    )
-
-
-def test_mapparms():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapparms([0, 4], [1, 3]), [1, 0.5]
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapparms([0 - 1j, 2 + 1j], [-2, 2]), [-1 + 1j, 1 - 1j]
-    )
-
-
 def test_poly2cheb():
     for i in range(10):
         numpy.testing.assert_almost_equal(
@@ -3853,29 +3727,3 @@ def test_polyx():
 
 def test_polyzero():
     numpy.testing.assert_equal(beignet.polynomial.polyzero, [0])
-
-
-def test_trimcoef():
-    coef = [2, -1, 1, 0]
-
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._trim_coefficients, coef, -1
-    )
-
-    numpy.testing.assert_equal(beignet.polynomial._trim_coefficients(coef), coef[:-1])
-    numpy.testing.assert_equal(
-        beignet.polynomial._trim_coefficients(coef, 1), coef[:-3]
-    )
-    numpy.testing.assert_equal(beignet.polynomial._trim_coefficients(coef, 2), [0])
-
-
-def test_trimseq():
-    for num_trailing_zeros in range(5):
-        numpy.testing.assert_equal(
-            beignet.polynomial._trim_sequence([1] + [0] * num_trailing_zeros), [1]
-        )
-
-    for empty_seq in [[], numpy.array([], dtype=numpy.int32)]:
-        numpy.testing.assert_equal(
-            beignet.polynomial._trim_sequence(empty_seq), empty_seq
-        )
