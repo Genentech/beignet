@@ -4,7 +4,6 @@ import warnings
 
 import numpy
 import numpy.linalg
-from torch import Tensor
 
 
 def normalize_axis_index(axis, ndim):
@@ -18,15 +17,17 @@ class RankWarning(RuntimeWarning):
     pass
 
 
-def _trim_sequence(input: Tensor):
-    if len(input) == 0 or input[-1] != 0:
-        return input
+def _trim_sequence(x):
+    if len(x) == 0 or x[-1] != 0:
+        output = x
     else:
-        for index in range(len(input) - 1, -1, -1):
-            if input[index] != 0:
+        for index in range(len(x) - 1, -1, -1):
+            if x[index] != 0:
                 break
 
-        return input[: index + 1]
+        output = x[: index + 1]
+
+    return output
 
 
 def _as_series(xs, trim=True):
@@ -134,34 +135,41 @@ def _c_series_to_z_series(input):
     return output + output[::-1]
 
 
-def _div(func, input, other):
-    [input, other] = _as_series([input, other])
+def _div(func, a, b):
+    (
+        a,
+        b,
+    ) = _as_series([a, b])
 
-    if other[-1] == 0:
-        raise ZeroDivisionError()
+    if b[-1] == 0:
+        raise ZeroDivisionError
 
-    lc1 = len(input)
-    lc2 = len(other)
+    m = a.shape[-1]
+    n = b.shape[-1]
 
-    if lc1 < lc2:
-        return input[:1] * 0, input
-    elif lc2 == 1:
-        return input / other[-1], input[:1] * 0
+    if m < n:
+        quotient, remainder = a[:1] * 0.0, a
+    elif n == 1:
+        quotient, remainder = a / b[-1], a[:1] * 0.0
     else:
-        quo = numpy.empty(lc1 - lc2 + 1, dtype=input.dtype)
+        quotient = numpy.empty(m - n + 1, dtype=a.dtype)
 
-        rem = input
+        remainder = a
 
-        for i in range(lc1 - lc2, -1, -1):
-            p = func([0] * i + [1], other)
+        for index in range(m - n, -1, -1):
+            shape = [0] * index
 
-            q = rem[-1] / p[-1]
+            p = func([*shape, 1], b)
 
-            rem = rem[:-1] - q * p[:-1]
+            q = remainder[-1] / p[-1]
 
-            quo[i] = q
+            remainder = remainder[:-1] - q * p[:-1]
 
-        return quo, _trim_sequence(rem)
+            quotient[index] = q
+
+        remainder = _trim_sequence(remainder)
+
+    return quotient, remainder
 
 
 def _evaluate(func, input, *xs):

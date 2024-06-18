@@ -1,14 +1,20 @@
 import beignet.polynomial
-import numpy
+import torch.testing
 
 
 def test__trim_sequence():
-    for num_trailing_zeros in range(5):
-        numpy.testing.assert_equal(
-            beignet.polynomial._trim_sequence([1] + [0] * num_trailing_zeros), [1]
+    for index in range(5):
+        x = [0.0] * index
+
+        torch.testing.assert_close(
+            beignet.polynomial._trim_sequence(
+                torch.tensor([1.0, *x]),
+            ),
+            torch.tensor([1.0]),
         )
 
-    for empty_seq in [[], numpy.array([], dtype=numpy.int32)]:
-        numpy.testing.assert_equal(
-            beignet.polynomial._trim_sequence(empty_seq), empty_seq
+    for x in [[], torch.tensor([], dtype=torch.int32)]:
+        torch.testing.assert_close(
+            beignet.polynomial._trim_sequence(x),
+            x,
         )
