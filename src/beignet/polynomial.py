@@ -485,17 +485,6 @@ def _zseries_div(z1, z2):
         return quo, rem
 
 
-def _zseries_int(zs):
-    n = 1 + len(zs) // 2
-    ns = numpy.array([-1, 0, 1], dtype=zs.dtype)
-    zs = numpy.convolve(zs, ns)
-    div = numpy.arange(-n, n + 1) * 2
-    zs[:n] /= div[:n]
-    zs[n + 1 :] /= div[n + 1 :]
-    zs[n] = 0
-    return zs
-
-
 def poly2cheb(input):
     [input] = as_series([input])
 
@@ -592,6 +581,7 @@ def chebdiv(c1, c2):
 
     lc1 = len(c1)
     lc2 = len(c2)
+
     if lc1 < lc2:
         return c1[:1] * 0, c1
     elif lc2 == 1:
@@ -599,9 +589,12 @@ def chebdiv(c1, c2):
     else:
         z1 = _c_series_to_z_series(c1)
         z2 = _c_series_to_z_series(c2)
+
         quo, rem = _zseries_div(z1, z2)
+
         quo = trimseq(_z_series_to_c_series(quo))
         rem = trimseq(_z_series_to_c_series(rem))
+
         return quo, rem
 
 
