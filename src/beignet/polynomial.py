@@ -1,6 +1,7 @@
 import functools
 import operator
 import warnings
+from typing import Sequence
 
 import numpy
 import numpy.linalg
@@ -23,15 +24,18 @@ def trimseq(input: Tensor) -> Tensor:
         return input[: index + 1]
 
 
-def as_series(alist, trim=True):
-    arrays = [numpy.array(a, ndmin=1) for a in alist]
+def as_series(xs, trim=True) -> Sequence[Tensor]:
+    arrays = []
 
-    for a in arrays:
-        if a.size == 0:
-            raise ValueError("Coefficient array is empty")
+    for x in xs:
+        arrays.append(numpy.array(x, ndmin=1))
+
+    for array in arrays:
+        if array.size == 0:
+            raise ValueError
 
     if any(a.ndim != 1 for a in arrays):
-        raise ValueError("Coefficient array is not 1-d")
+        raise ValueError
 
     if trim:
         arrays = [trimseq(a) for a in arrays]
@@ -39,22 +43,28 @@ def as_series(alist, trim=True):
     if any(a.dtype == numpy.dtype(object) for a in arrays):
         output = []
 
-        for a in arrays:
-            if a.dtype != numpy.dtype(object):
-                tmp = numpy.empty(len(a), dtype=numpy.dtype(object))
+        for array in arrays:
+            if array.dtype != numpy.dtype(object):
+                tmp = numpy.empty(len(array), dtype=numpy.dtype(object))
 
-                tmp[:] = a[:]
+                tmp[:] = array[:]
 
-                output.append(tmp)
+                output = [*output, tmp]
             else:
-                output.append(a.copy())
+                output = [*output, array]
     else:
         try:
             dtype = numpy.common_type(*arrays)
-        except Exception as e:
-            raise ValueError("Coefficient arrays have no common type") from e
+        except Exception as error:
+            raise ValueError from error
 
-        output = [numpy.array(a, copy=True, dtype=dtype) for a in arrays]
+        output = []
+
+        for array in arrays:
+            output = [
+                *output,
+                numpy.array(array, dtype=dtype),
+            ]
 
     return output
 
