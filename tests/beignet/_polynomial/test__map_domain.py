@@ -4,7 +4,7 @@ import numpy
 
 def test__map_domain():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain(
+        beignet.polynomial._map_domain(
             [0, 4],
             [0, 4],
             [1, 3],
@@ -13,7 +13,7 @@ def test__map_domain():
     )
 
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain(
+        beignet.polynomial._map_domain(
             [0 - 1j, 2 + 1j],
             [0 - 1j, 2 + 1j],
             [-2, 2],
@@ -21,7 +21,7 @@ def test__map_domain():
         [-2, 2],
     )
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.mapdomain(
+        beignet.polynomial._map_domain(
             numpy.array([[0, 4], [0, 4]]),
             [0, 4],
             [1, 3],
@@ -34,7 +34,7 @@ def test__map_domain():
 
     numpy.testing.assert_(
         isinstance(
-            beignet.polynomial.mapdomain(
+            beignet.polynomial._map_domain(
                 numpy.array([[0, 4], [0, 4]]).view(Foo), [0, 4], [1, 3]
             ),
             Foo,

@@ -2039,13 +2039,13 @@ def legweight(x):
     return x * 0.0 + 1.0
 
 
-def mapdomain(x, old, new):
+def _map_domain(x, old, new):
     x = numpy.asanyarray(x)
-    off, scl = mapparms(old, new)
+    off, scl = _map_parameters(old, new)
     return off + scl * x
 
 
-def mapparms(old, new):
+def _map_parameters(old, new):
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -2590,8 +2590,8 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "mapdomain",
-    "mapparms",
+    "_map_domain",
+    "_map_parameters",
     "poly2cheb",
     "poly2herm",
     "poly2herme",
