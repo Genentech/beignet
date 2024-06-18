@@ -230,7 +230,7 @@ def test_as_series():
 def test_cheb2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebyshev_series_to_polynomial([0] * i + [1]),
+            beignet.polynomial.cheb2poly([0] * i + [1]),
             chebyshev_polynomial_Tlist[i],
         )
 
@@ -244,9 +244,7 @@ def test_chebadd():
             tgt[j] += 1
             numpy.testing.assert_equal(
                 beignet.polynomial.chebtrim(
-                    beignet.polynomial.add_chebyshev_series(
-                        [0] * i + [1], [0] * j + [1]
-                    ),
+                    beignet.polynomial.chebadd([0] * i + [1], [0] * j + [1]),
                     tol=1e-6,
                 ),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -321,11 +319,11 @@ def test_chebdiv():
         for j in range(5):
             msg = f"At i={i}, j={j}"
             ci = [0] * i + [1]
-            tgt = beignet.polynomial.add_chebyshev_series(ci, [0] * j + [1])
+            tgt = beignet.polynomial.chebadd(ci, [0] * j + [1])
             quo, rem = beignet.polynomial.chebdiv(tgt, ci)
             numpy.testing.assert_equal(
                 beignet.polynomial.chebtrim(
-                    beignet.polynomial.add_chebyshev_series(
+                    beignet.polynomial.chebadd(
                         beignet.polynomial.chebmul(quo, ci), rem
                     ),
                     tol=1e-6,
@@ -427,9 +425,7 @@ def test_chebfit():
 
 def test_chebfromroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.chebtrim(
-            beignet.polynomial.chebyshev_series_from_roots([]), tol=1e-6
-        ),
+        beignet.polynomial.chebtrim(beignet.polynomial.chebfromroots([]), tol=1e-6),
         [1],
     )
     for i in range(1, 5):
@@ -437,7 +433,7 @@ def test_chebfromroots():
         tgt = [0] * i + [1]
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(
-                beignet.polynomial.chebyshev_series_from_roots(roots) * 2 ** (i - 1),
+                beignet.polynomial.chebfromroots(roots) * 2 ** (i - 1),
                 tol=1e-6,
             ),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -445,7 +441,7 @@ def test_chebfromroots():
 
 
 def test_chebgauss():
-    x, w = beignet.polynomial.chebyshev_gauss_quadrature(100)
+    x, w = beignet.polynomial.chebgauss(100)
 
     v = beignet.polynomial.chebvander(x, 99)
     vv = numpy.dot(v.T * w, v)
@@ -512,9 +508,9 @@ def test_chebint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        chebpol = beignet.polynomial.polynomial_to_chebyshev_series(pol)
+        chebpol = beignet.polynomial.poly2cheb(pol)
         chebint = beignet.polynomial.chebint(chebpol, m=1, k=[i])
-        res = beignet.polynomial.chebyshev_series_to_polynomial(chebint)
+        res = beignet.polynomial.cheb2poly(chebint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(res, tol=1e-6),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -523,7 +519,7 @@ def test_chebint():
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        chebpol = beignet.polynomial.polynomial_to_chebyshev_series(pol)
+        chebpol = beignet.polynomial.poly2cheb(pol)
         chebint = beignet.polynomial.chebint(chebpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(beignet.polynomial.chebval(-1, chebint), i)
 
@@ -531,9 +527,9 @@ def test_chebint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        chebpol = beignet.polynomial.polynomial_to_chebyshev_series(pol)
+        chebpol = beignet.polynomial.poly2cheb(pol)
         chebint = beignet.polynomial.chebint(chebpol, m=1, k=[i], scl=2)
-        res = beignet.polynomial.chebyshev_series_to_polynomial(chebint)
+        res = beignet.polynomial.cheb2poly(chebint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(res, tol=1e-6),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -711,9 +707,7 @@ def test_chebroots():
     numpy.testing.assert_almost_equal(beignet.polynomial.chebroots([1, 2]), [-0.5])
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial.chebroots(
-            beignet.polynomial.chebyshev_series_from_roots(tgt)
-        )
+        res = beignet.polynomial.chebroots(beignet.polynomial.chebfromroots(tgt))
         numpy.testing.assert_almost_equal(
             beignet.polynomial.chebtrim(res, tol=1e-6),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -727,9 +721,7 @@ def test_chebsub():
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] -= 1
-            res = beignet.polynomial.subtract_chebyshev_series(
-                [0] * i + [1], [0] * j + [1]
-            )
+            res = beignet.polynomial.chebsub([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_equal(
                 beignet.polynomial.chebtrim(res, tol=1e-6),
                 beignet.polynomial.chebtrim(tgt, tol=1e-6),
@@ -887,7 +879,7 @@ def test_getdomain():
 def test_herm2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.physicists_hermite_series_to_polynomial([0] * i + [1]),
+            beignet.polynomial.herm2poly([0] * i + [1]),
             hermite_polynomial_Hlist[i],
         )
 
@@ -984,7 +976,7 @@ def test_hermdomain():
 def test_herme2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.probabilists_hermite_series_to_polynomial([0] * i + [1]),
+            beignet.polynomial.herme2poly([0] * i + [1]),
             hermite_e_polynomial_Helist[i],
         )
 
@@ -1167,22 +1159,20 @@ def test_hermefit():
 
 
 def test_hermefromroots():
-    res = beignet.polynomial.probabilists_hermite_series_from_roots([])
+    res = beignet.polynomial.hermefromroots([])
     numpy.testing.assert_almost_equal(beignet.polynomial.hermetrim(res, tol=1e-6), [1])
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        pol = beignet.polynomial.probabilists_hermite_series_from_roots(roots)
+        pol = beignet.polynomial.hermefromroots(roots)
         res = beignet.polynomial.hermeval(roots, pol)
         tgt = 0
         numpy.testing.assert_(len(pol) == i + 1)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.probabilists_hermite_series_to_polynomial(pol)[-1], 1
-        )
+        numpy.testing.assert_almost_equal(beignet.polynomial.herme2poly(pol)[-1], 1)
         numpy.testing.assert_almost_equal(res, tgt)
 
 
 def test_hermegauss():
-    x, w = beignet.polynomial.gauss_probabilists_hermite_quadrature(100)
+    x, w = beignet.polynomial.hermegauss(100)
 
     v = beignet.polynomial.hermevander(x, 99)
     vv = numpy.dot(v.T * w, v)
@@ -1250,9 +1240,9 @@ def test_hermeint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        hermepol = beignet.polynomial.polynomial_to_probabilists_hermite_series(pol)
+        hermepol = beignet.polynomial.poly2herme(pol)
         hermeint = beignet.polynomial.hermeint(hermepol, m=1, k=[i])
-        res = beignet.polynomial.probabilists_hermite_series_to_polynomial(hermeint)
+        res = beignet.polynomial.herme2poly(hermeint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermetrim(res, tol=1e-6),
             beignet.polynomial.hermetrim(tgt, tol=1e-6),
@@ -1261,7 +1251,7 @@ def test_hermeint():
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        hermepol = beignet.polynomial.polynomial_to_probabilists_hermite_series(pol)
+        hermepol = beignet.polynomial.poly2herme(pol)
         hermeint = beignet.polynomial.hermeint(hermepol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(-1, hermeint), i)
 
@@ -1269,9 +1259,9 @@ def test_hermeint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        hermepol = beignet.polynomial.polynomial_to_probabilists_hermite_series(pol)
+        hermepol = beignet.polynomial.poly2herme(pol)
         hermeint = beignet.polynomial.hermeint(hermepol, m=1, k=[i], scl=2)
-        res = beignet.polynomial.probabilists_hermite_series_to_polynomial(hermeint)
+        res = beignet.polynomial.herme2poly(hermeint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermetrim(res, tol=1e-6),
             beignet.polynomial.hermetrim(tgt, tol=1e-6),
@@ -1390,17 +1380,11 @@ def test_hermepow():
 
 
 def test_hermeroots():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.probabilists_hermite_series_roots([1]), []
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.probabilists_hermite_series_roots([1, 1]), [-1]
-    )
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermeroots([1]), [])
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermeroots([1, 1]), [-1])
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial.probabilists_hermite_series_roots(
-            beignet.polynomial.probabilists_hermite_series_from_roots(tgt)
-        )
+        res = beignet.polynomial.hermeroots(beignet.polynomial.hermefromroots(tgt))
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermetrim(res, tol=1e-6),
             beignet.polynomial.hermetrim(tgt, tol=1e-6),
@@ -1655,22 +1639,20 @@ def test_hermfit():
 
 
 def test_hermfromroots():
-    res = beignet.polynomial.physicists_hermite_series_from_roots([])
+    res = beignet.polynomial.hermfromroots([])
     numpy.testing.assert_almost_equal(beignet.polynomial.hermtrim(res, tol=1e-6), [1])
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        pol = beignet.polynomial.physicists_hermite_series_from_roots(roots)
+        pol = beignet.polynomial.hermfromroots(roots)
         res = beignet.polynomial.hermval(roots, pol)
         tgt = 0
         numpy.testing.assert_(len(pol) == i + 1)
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial.physicists_hermite_series_to_polynomial(pol)[-1], 1
-        )
+        numpy.testing.assert_almost_equal(beignet.polynomial.herm2poly(pol)[-1], 1)
         numpy.testing.assert_almost_equal(res, tgt)
 
 
 def test_hermgauss():
-    x, w = beignet.polynomial.gauss_physicists_hermite_quadrature(100)
+    x, w = beignet.polynomial.hermgauss(100)
 
     v = beignet.polynomial.hermvander(x, 99)
     vv = numpy.dot(v.T * w, v)
@@ -1738,9 +1720,9 @@ def test_hermint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        hermpol = beignet.polynomial.polynomial_to_physicists_hermite_series(pol)
+        hermpol = beignet.polynomial.poly2herm(pol)
         hermint = beignet.polynomial.hermint(hermpol, m=1, k=[i])
-        res = beignet.polynomial.physicists_hermite_series_to_polynomial(hermint)
+        res = beignet.polynomial.herm2poly(hermint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermtrim(res, tol=1e-6),
             beignet.polynomial.hermtrim(tgt, tol=1e-6),
@@ -1749,7 +1731,7 @@ def test_hermint():
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        hermpol = beignet.polynomial.polynomial_to_physicists_hermite_series(pol)
+        hermpol = beignet.polynomial.poly2herm(pol)
         hermint = beignet.polynomial.hermint(hermpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(beignet.polynomial.hermval(-1, hermint), i)
 
@@ -1757,9 +1739,9 @@ def test_hermint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        hermpol = beignet.polynomial.polynomial_to_physicists_hermite_series(pol)
+        hermpol = beignet.polynomial.poly2herm(pol)
         hermint = beignet.polynomial.hermint(hermpol, m=1, k=[i], scl=2)
-        res = beignet.polynomial.physicists_hermite_series_to_polynomial(hermint)
+        res = beignet.polynomial.herm2poly(hermint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermtrim(res, tol=1e-6),
             beignet.polynomial.hermtrim(tgt, tol=1e-6),
@@ -1878,17 +1860,11 @@ def test_hermpow():
 
 
 def test_hermroots():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.physicists_hermite_series_roots([1]), []
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.physicists_hermite_series_roots([1, 1]), [-0.5]
-    )
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermroots([1]), [])
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermroots([1, 1]), [-0.5])
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial.physicists_hermite_series_roots(
-            beignet.polynomial.physicists_hermite_series_from_roots(tgt)
-        )
+        res = beignet.polynomial.hermroots(beignet.polynomial.hermfromroots(tgt))
         numpy.testing.assert_almost_equal(
             beignet.polynomial.hermtrim(res, tol=1e-6),
             beignet.polynomial.hermtrim(tgt, tol=1e-6),
@@ -2226,7 +2202,7 @@ def test_lagfromroots():
 
 
 def test_laggauss():
-    x, w = beignet.polynomial.gauss_laguerre_quadrature(100)
+    x, w = beignet.polynomial.laggauss(100)
 
     v = beignet.polynomial.lagvander(x, 99)
     vv = numpy.dot(v.T * w, v)
@@ -2790,7 +2766,7 @@ def test_legfromroots():
 
 
 def test_leggauss():
-    x, w = beignet.polynomial.gauss_legendre_quadrature(100)
+    x, w = beignet.polynomial.leggauss(100)
 
     v = beignet.polynomial.legvander(x, 99)
     vv = numpy.dot(v.T * w, v)
@@ -3210,9 +3186,7 @@ def test_mapparms():
 def test_poly2cheb():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polynomial_to_chebyshev_series(
-                chebyshev_polynomial_Tlist[i]
-            ),
+            beignet.polynomial.poly2cheb(chebyshev_polynomial_Tlist[i]),
             [0] * i + [1],
         )
 
@@ -3220,9 +3194,7 @@ def test_poly2cheb():
 def test_poly2herm():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polynomial_to_physicists_hermite_series(
-                hermite_polynomial_Hlist[i]
-            ),
+            beignet.polynomial.poly2herm(hermite_polynomial_Hlist[i]),
             [0] * i + [1],
         )
 
@@ -3230,9 +3202,7 @@ def test_poly2herm():
 def test_poly2herme():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polynomial_to_probabilists_hermite_series(
-                hermite_e_polynomial_Helist[i]
-            ),
+            beignet.polynomial.poly2herme(hermite_e_polynomial_Helist[i]),
             [0] * i + [1],
         )
 
@@ -3900,10 +3870,8 @@ def test_trimcoef():
 def test_trimseq():
     for num_trailing_zeros in range(5):
         numpy.testing.assert_equal(
-            beignet.polynomial.trim_sequence([1] + [0] * num_trailing_zeros), [1]
+            beignet.polynomial.trimseq([1] + [0] * num_trailing_zeros), [1]
         )
 
     for empty_seq in [[], numpy.array([], dtype=numpy.int32)]:
-        numpy.testing.assert_equal(
-            beignet.polynomial.trim_sequence(empty_seq), empty_seq
-        )
+        numpy.testing.assert_equal(beignet.polynomial.trimseq(empty_seq), empty_seq)

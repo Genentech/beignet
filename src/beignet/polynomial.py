@@ -1,10 +1,6 @@
-import abc
 import functools
 import operator
-import os
 import warnings
-from abc import ABC
-from numbers import Number
 
 import numpy
 import numpy.linalg
@@ -17,7 +13,7 @@ class RankWarning(RuntimeWarning):
     pass
 
 
-def trim_sequence(input):
+def trimseq(input):
     if len(input) == 0 or input[-1] != 0:
         return input
     else:
@@ -36,7 +32,7 @@ def as_series(alist, trim=True):
     if any(a.ndim != 1 for a in arrays):
         raise ValueError("Coefficient array is not 1-d")
     if trim:
-        arrays = [trim_sequence(a) for a in arrays]
+        arrays = [trimseq(a) for a in arrays]
 
     if any(a.dtype == numpy.dtype(object) for a in arrays):
         ret = []
@@ -202,7 +198,7 @@ def _div(func, input, other):
             q = rem[-1] / p[-1]
             rem = rem[:-1] - q * p[:-1]
             quo[i] = q
-        return quo, trim_sequence(rem)
+        return quo, trimseq(rem)
 
 
 def _add(input, other):
@@ -375,7 +371,63 @@ test = PytestTester(__name__)
 
 del PytestTester
 
+chebdomain = numpy.array([-1.0, 1.0])
+
+chebone = numpy.array([1])
+
 chebtrim = trimcoef
+
+chebx = numpy.array([0, 1])
+
+chebzero = numpy.array([0])
+
+hermdomain = numpy.array([-1.0, 1.0])
+
+hermedomain = numpy.array([-1.0, 1.0])
+
+hermeone = numpy.array([1])
+
+hermetrim = trimcoef
+
+hermex = numpy.array([0, 1])
+
+hermezero = numpy.array([0])
+
+hermone = numpy.array([1])
+
+hermtrim = trimcoef
+
+hermx = numpy.array([0, 1 / 2])
+
+hermzero = numpy.array([0])
+
+lagdomain = numpy.array([0.0, 1.0])
+
+lagone = numpy.array([1])
+
+lagtrim = trimcoef
+
+lagx = numpy.array([1, -1])
+
+lagzero = numpy.array([0])
+
+legdomain = numpy.array([-1.0, 1.0])
+
+legone = numpy.array([1])
+
+legx = numpy.array([0, 1])
+
+legzero = numpy.array([0])
+
+polydomain = numpy.array([-1.0, 1.0])
+
+polyone = numpy.array([1])
+
+polytrim = trimcoef
+
+polyx = numpy.array([0, 1])
+
+polyzero = numpy.array([0])
 
 
 def _c_series_to_z_series(input):
@@ -438,7 +490,7 @@ def _zseries_int(zs):
     return zs
 
 
-def polynomial_to_chebyshev_series(input):
+def poly2cheb(input):
     [input] = as_series([input])
 
     output = 0
@@ -451,7 +503,7 @@ def polynomial_to_chebyshev_series(input):
     return output
 
 
-def chebyshev_series_to_polynomial(input):
+def cheb2poly(input):
     [input] = as_series([input])
 
     n = len(input)
@@ -468,15 +520,6 @@ def chebyshev_series_to_polynomial(input):
         return polyadd(c0, polymulx(c1))
 
 
-chebdomain = numpy.array([-1.0, 1.0])
-
-chebzero = numpy.array([0])
-
-chebone = numpy.array([1])
-
-chebx = numpy.array([0, 1])
-
-
 def chebline(off, scl):
     if scl != 0:
         return numpy.array([off, scl])
@@ -484,15 +527,15 @@ def chebline(off, scl):
         return numpy.array([off])
 
 
-def chebyshev_series_from_roots(input):
+def chebfromroots(input):
     return _from_roots(chebline, chebmul, input)
 
 
-def add_chebyshev_series(input, other):
+def chebadd(input, other):
     return _add(input, other)
 
 
-def subtract_chebyshev_series(c1, c2):
+def chebsub(c1, c2):
     return _sub(c1, c2)
 
 
@@ -551,8 +594,8 @@ def chebdiv(c1, c2):
         z1 = _c_series_to_z_series(c1)
         z2 = _c_series_to_z_series(c2)
         quo, rem = _zseries_div(z1, z2)
-        quo = trim_sequence(_z_series_to_c_series(quo))
-        rem = trim_sequence(_z_series_to_c_series(rem))
+        quo = trimseq(_z_series_to_c_series(quo))
+        rem = trimseq(_z_series_to_c_series(rem))
         return quo, rem
 
 
@@ -777,7 +820,7 @@ def chebinterpolate(func, deg, args=()):
     return c
 
 
-def chebyshev_gauss_quadrature(input):
+def chebgauss(input):
     ideg = operator.index(input)
 
     if ideg <= 0:
@@ -821,10 +864,7 @@ def chebpts2(npts):
     return numpy.cos(x)
 
 
-hermtrim = trimcoef
-
-
-def polynomial_to_physicists_hermite_series(input):
+def poly2herm(input):
     [input] = as_series([input])
     deg = len(input) - 1
     res = 0
@@ -833,7 +873,7 @@ def polynomial_to_physicists_hermite_series(input):
     return res
 
 
-def physicists_hermite_series_to_polynomial(input):
+def herm2poly(input):
     [input] = as_series([input])
     n = len(input)
     if n == 1:
@@ -852,15 +892,6 @@ def physicists_hermite_series_to_polynomial(input):
         return polyadd(c0, polymulx(c1) * 2)
 
 
-hermdomain = numpy.array([-1.0, 1.0])
-
-hermzero = numpy.array([0])
-
-hermone = numpy.array([1])
-
-hermx = numpy.array([0, 1 / 2])
-
-
 def hermline(off, scl):
     if scl != 0:
         return numpy.array([off, scl / 2])
@@ -868,7 +899,7 @@ def hermline(off, scl):
         return numpy.array([off])
 
 
-def physicists_hermite_series_from_roots(input):
+def hermfromroots(input):
     return _from_roots(hermline, hermmul, input)
 
 
@@ -1095,7 +1126,7 @@ def hermcompanion(c):
     return mat
 
 
-def physicists_hermite_series_roots(input):
+def hermroots(input):
     [input] = as_series([input])
     if len(input) <= 1:
         return numpy.array([], dtype=input.dtype)
@@ -1123,7 +1154,7 @@ def _normed_hermite_n(x, n):
     return c0 + c1 * x * numpy.sqrt(2)
 
 
-def gauss_physicists_hermite_quadrature(input):
+def hermgauss(input):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
@@ -1153,10 +1184,7 @@ def hermweight(x):
     return w
 
 
-hermetrim = trimcoef
-
-
-def polynomial_to_probabilists_hermite_series(input):
+def poly2herme(input):
     [input] = as_series([input])
     deg = len(input) - 1
     res = 0
@@ -1165,7 +1193,7 @@ def polynomial_to_probabilists_hermite_series(input):
     return res
 
 
-def probabilists_hermite_series_to_polynomial(input):
+def herme2poly(input):
     [input] = as_series([input])
     n = len(input)
     if n == 1:
@@ -1183,15 +1211,6 @@ def probabilists_hermite_series_to_polynomial(input):
         return polyadd(c0, polymulx(c1))
 
 
-hermedomain = numpy.array([-1.0, 1.0])
-
-hermezero = numpy.array([0])
-
-hermeone = numpy.array([1])
-
-hermex = numpy.array([0, 1])
-
-
 def hermeline(off, scl):
     if scl != 0:
         return numpy.array([off, scl])
@@ -1199,7 +1218,7 @@ def hermeline(off, scl):
         return numpy.array([off])
 
 
-def probabilists_hermite_series_from_roots(input):
+def hermefromroots(input):
     return _from_roots(hermeline, hermemul, input)
 
 
@@ -1424,7 +1443,7 @@ def hermecompanion(c):
     return mat
 
 
-def probabilists_hermite_series_roots(input):
+def hermeroots(input):
     [input] = as_series([input])
     if len(input) <= 1:
         return numpy.array([], dtype=input.dtype)
@@ -1452,7 +1471,7 @@ def _normed_hermite_e_n(x, n):
     return c0 + c1 * x
 
 
-def gauss_probabilists_hermite_quadrature(input):
+def hermegauss(input):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
@@ -1482,9 +1501,6 @@ def hermeweight(x):
     return w
 
 
-lagtrim = trimcoef
-
-
 def poly2lag(pol):
     [pol] = as_series([pol])
     res = 0
@@ -1507,15 +1523,6 @@ def lag2poly(c):
             c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
             c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1)) / i)
         return polyadd(c0, polysub(c1, polymulx(c1)))
-
-
-lagdomain = numpy.array([0.0, 1.0])
-
-lagzero = numpy.array([0])
-
-lagone = numpy.array([1])
-
-lagx = numpy.array([1, -1])
 
 
 def lagline(off, scl):
@@ -1768,7 +1775,7 @@ def lagroots(c):
     return r
 
 
-def gauss_laguerre_quadrature(input):
+def laggauss(input):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
@@ -1824,15 +1831,6 @@ def leg2poly(c):
             c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
             c1 = polyadd(tmp, (polymulx(c1) * (2 * i - 1)) / i)
         return polyadd(c0, polymulx(c1))
-
-
-legdomain = numpy.array([-1.0, 1.0])
-
-legzero = numpy.array([0])
-
-legone = numpy.array([1])
-
-legx = numpy.array([0, 1])
 
 
 def legline(off, scl):
@@ -2091,7 +2089,7 @@ def legroots(c):
     return r
 
 
-def gauss_legendre_quadrature(input):
+def leggauss(input):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
@@ -2120,17 +2118,6 @@ def gauss_legendre_quadrature(input):
 def legweight(x):
     w = x * 0.0 + 1.0
     return w
-
-
-polytrim = trimcoef
-
-polydomain = numpy.array([-1.0, 1.0])
-
-polyzero = numpy.array([0])
-
-polyone = numpy.array([1])
-
-polyx = numpy.array([0, 1])
 
 
 def polyline(off, scl):
@@ -2167,7 +2154,7 @@ def polymulx(c):
 def polymul(c1, c2):
     [c1, c2] = as_series([c1, c2])
     ret = numpy.convolve(c1, c2)
-    return trim_sequence(ret)
+    return trimseq(ret)
 
 
 def polydiv(c1, c2):
@@ -2191,7 +2178,7 @@ def polydiv(c1, c2):
             c1[i:j] -= c2 * c1[j]
             i -= 1
             j -= 1
-        return c1[j + 1 :] / scl, trim_sequence(c1[: j + 1])
+        return c1[j + 1 :] / scl, trimseq(c1[: j + 1])
 
 
 def polypow(c, pow, maxpower=None):
@@ -2373,618 +2360,21 @@ def polyroots(c):
     return r
 
 
-class ABCPolyBase(ABC):
-    __hash__ = None
-
-    __array_ufunc__ = None
-
-    maxpower = 100
-
-    _superscript_mapping = str.maketrans(
-        {
-            "0": "⁰",
-            "1": "¹",
-            "2": "²",
-            "3": "³",
-            "4": "⁴",
-            "5": "⁵",
-            "6": "⁶",
-            "7": "⁷",
-            "8": "⁸",
-            "9": "⁹",
-        }
-    )
-    _subscript_mapping = str.maketrans(
-        {
-            "0": "₀",
-            "1": "₁",
-            "2": "₂",
-            "3": "₃",
-            "4": "₄",
-            "5": "₅",
-            "6": "₆",
-            "7": "₇",
-            "8": "₈",
-            "9": "₉",
-        }
-    )
-
-    _use_unicode = not os.name == "nt"
-
-    @property
-    def symbol(self):
-        return self._symbol
-
-    @property
-    @abc.abstractmethod
-    def domain(self):
-        pass
-
-    @property
-    @abc.abstractmethod
-    def window(self):
-        pass
-
-    @property
-    @abc.abstractmethod
-    def basis_name(self):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _add(c1, c2):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _sub(c1, c2):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _mul(c1, c2):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _div(c1, c2):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _pow(c, pow, maxpower=None):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _val(x, c):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _int(c, m, k, lbnd, scl):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _der(c, m, scl):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _fit(x, y, deg, rcond, full):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _line(off, scl):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _roots(c):
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def _fromroots(r):
-        pass
-
-    def has_samecoef(self, other):
-        if len(self.coef) != len(other.coef):
-            return False
-        elif not numpy.all(self.coef == other.coef):
-            return False
-        else:
-            return True
-
-    def has_samedomain(self, other):
-        return numpy.all(self.domain == other.domain)
-
-    def has_samewindow(self, other):
-        return numpy.all(self.window == other.window)
-
-    def has_sametype(self, other):
-        return isinstance(other, self.__class__)
-
-    def _get_coefficients(self, other):
-        if isinstance(other, ABCPolyBase):
-            if not isinstance(other, self.__class__):
-                raise TypeError("Polynomial types differ")
-            elif not numpy.all(self.domain == other.domain):
-                raise TypeError("Domains differ")
-            elif not numpy.all(self.window == other.window):
-                raise TypeError("Windows differ")
-            elif self.symbol != other.symbol:
-                raise ValueError("Polynomial symbols differ")
-            return other.coef
-        return other
-
-    def __init__(self, coef, domain=None, window=None, symbol="x"):
-        [coef] = as_series([coef], trim=False)
-        self.coef = coef
-
-        if domain is not None:
-            [domain] = as_series([domain], trim=False)
-            if len(domain) != 2:
-                raise ValueError("Domain has wrong number of elements.")
-            self.domain = domain
-
-        if window is not None:
-            [window] = as_series([window], trim=False)
-            if len(window) != 2:
-                raise ValueError("Window has wrong number of elements.")
-            self.window = window
-
-        try:
-            if not symbol.isidentifier():
-                raise ValueError("Symbol string must be a valid Python identifier")
-
-        except AttributeError as error:
-            raise TypeError("Symbol must be a non-empty string") from error
-
-        self._symbol = symbol
-
-    def __getstate__(self):
-        ret = self.__dict__.copy()
-        ret["coef"] = self.coef.copy()
-        ret["domain"] = self.domain.copy()
-        ret["window"] = self.window.copy()
-        ret["symbol"] = self.symbol
-        return ret
-
-    def __setstate__(self, dict):
-        self.__dict__ = dict
-
-    def __call__(self, arg):
-        arg = mapdomain(arg, self.domain, self.window)
-        return self._val(arg, self.coef)
-
-    def __iter__(self):
-        return iter(self.coef)
-
-    def __len__(self):
-        return len(self.coef)
-
-    def __neg__(self):
-        return self.__class__(-self.coef, self.domain, self.window, self.symbol)
-
-    def __pos__(self):
-        return self
-
-    def __add__(self, other):
-        othercoef = self._get_coefficients(other)
-        try:
-            coef = self._add(self.coef, othercoef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __sub__(self, other):
-        othercoef = self._get_coefficients(other)
-        try:
-            coef = self._sub(self.coef, othercoef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __mul__(self, other):
-        othercoef = self._get_coefficients(other)
-        try:
-            coef = self._mul(self.coef, othercoef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __truediv__(self, other):
-        if not isinstance(other, Number) or isinstance(other, bool):
-            raise TypeError(
-                f"unsupported types for true division: "
-                f"'{type(self)}', '{type(other)}'"
-            )
-        return self.__floordiv__(other)
-
-    def __floordiv__(self, other):
-        res = self.__divmod__(other)
-        if res is NotImplemented:
-            return res
-        return res[0]
-
-    def __mod__(self, other):
-        res = self.__divmod__(other)
-        if res is NotImplemented:
-            return res
-        return res[1]
-
-    def __divmod__(self, other):
-        othercoef = self._get_coefficients(other)
-        try:
-            quo, rem = self._div(self.coef, othercoef)
-        except ZeroDivisionError:
-            raise
-        except Exception:
-            return NotImplemented
-        quo = self.__class__(quo, self.domain, self.window, self.symbol)
-        rem = self.__class__(rem, self.domain, self.window, self.symbol)
-        return quo, rem
-
-    def __pow__(self, other):
-        coef = self._pow(self.coef, other, maxpower=self.maxpower)
-        res = self.__class__(coef, self.domain, self.window, self.symbol)
-        return res
-
-    def __radd__(self, other):
-        try:
-            coef = self._add(other, self.coef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __rsub__(self, other):
-        try:
-            coef = self._sub(other, self.coef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __rmul__(self, other):
-        try:
-            coef = self._mul(other, self.coef)
-        except Exception:
-            return NotImplemented
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def __rdiv__(self, other):
-        return self.__rfloordiv__(other)
-
-    def __rtruediv__(self, other):
-        return NotImplemented
-
-    def __rfloordiv__(self, other):
-        res = self.__rdivmod__(other)
-        if res is NotImplemented:
-            return res
-        return res[0]
-
-    def __rmod__(self, other):
-        res = self.__rdivmod__(other)
-        if res is NotImplemented:
-            return res
-        return res[1]
-
-    def __rdivmod__(self, other):
-        try:
-            quo, rem = self._div(other, self.coef)
-        except ZeroDivisionError:
-            raise
-        except Exception:
-            return NotImplemented
-        quo = self.__class__(quo, self.domain, self.window, self.symbol)
-        rem = self.__class__(rem, self.domain, self.window, self.symbol)
-        return quo, rem
-
-    def __eq__(self, other):
-        res = (
-            isinstance(other, self.__class__)
-            and numpy.all(self.domain == other.domain)
-            and numpy.all(self.window == other.window)
-            and (self.coef.shape == other.coef.shape)
-            and numpy.all(self.coef == other.coef)
-            and (self.symbol == other.symbol)
-        )
-        return res
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def copy(self):
-        return self.__class__(self.coef, self.domain, self.window, self.symbol)
-
-    def degree(self):
-        return len(self) - 1
-
-    def cutdeg(self, deg):
-        return self.truncate(deg + 1)
-
-    def trim(self, tol=0):
-        coef = trimcoef(self.coef, tol)
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def truncate(self, size):
-        isize = int(size)
-        if isize != size or isize < 1:
-            raise ValueError("size must be a positive integer")
-        if isize >= len(self.coef):
-            coef = self.coef
-        else:
-            coef = self.coef[:isize]
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def convert(self, domain=None, kind=None, window=None):
-        if kind is None:
-            kind = self.__class__
-        if domain is None:
-            domain = kind.domain
-        if window is None:
-            window = kind.window
-        return self(kind.identity(domain, window=window, symbol=self.symbol))
-
-    def mapparms(self):
-        return mapping_parameters(self.domain, self.window)
-
-    def integ(self, m=1, k=None, lbnd=None):
-        if k is None:
-            k = []
-        off, scl = self.mapparms()
-        if lbnd is None:
-            lbnd = 0
-        else:
-            lbnd = off + scl * lbnd
-        coef = self._int(self.coef, m, k, lbnd, 1.0 / scl)
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def deriv(self, m=1):
-        off, scl = self.mapparms()
-        coef = self._der(self.coef, m, scl)
-        return self.__class__(coef, self.domain, self.window, self.symbol)
-
-    def roots(self):
-        roots = self._roots(self.coef)
-        return mapdomain(roots, self.window, self.domain)
-
-    def linspace(self, n=100, domain=None):
-        if domain is None:
-            domain = self.domain
-        x = numpy.linspace(domain[0], domain[1], n)
-        y = self(x)
-        return x, y
-
-    @classmethod
-    def fit(
-        cls,
-        x,
-        y,
-        deg,
-        domain=None,
-        rcond=None,
-        full=False,
-        w=None,
-        window=None,
-        symbol="x",
-    ):
-        if domain is None:
-            domain = getdomain(x)
-        elif isinstance(domain, list) and len(domain) == 0:
-            domain = cls.domain
-
-        if window is None:
-            window = cls.window
-
-        xnew = mapdomain(x, domain, window)
-        res = cls._fit(xnew, y, deg, w=w, rcond=rcond, full=full)
-        if full:
-            [coef, status] = res
-            return (cls(coef, domain=domain, window=window, symbol=symbol), status)
-        else:
-            coef = res
-            return cls(coef, domain=domain, window=window, symbol=symbol)
-
-    @classmethod
-    def fromroots(cls, roots, domain=None, window=None, symbol="x"):
-        if domain is None:
-            domain = []
-        [roots] = as_series([roots], trim=False)
-        if domain is None:
-            domain = getdomain(roots)
-        elif isinstance(domain, list) and len(domain) == 0:
-            domain = cls.domain
-
-        if window is None:
-            window = cls.window
-
-        deg = len(roots)
-        off, scl = mapping_parameters(domain, window)
-        rnew = off + scl * roots
-        coef = cls._fromroots(rnew) / scl**deg
-        return cls(coef, domain=domain, window=window, symbol=symbol)
-
-    @classmethod
-    def identity(cls, domain=None, window=None, symbol="x"):
-        if domain is None:
-            domain = cls.domain
-        if window is None:
-            window = cls.window
-        off, scl = mapping_parameters(window, domain)
-        coef = cls._line(off, scl)
-        return cls(coef, domain, window, symbol)
-
-    @classmethod
-    def basis(cls, deg, domain=None, window=None, symbol="x"):
-        if domain is None:
-            domain = cls.domain
-        if window is None:
-            window = cls.window
-        ideg = int(deg)
-
-        if ideg != deg or ideg < 0:
-            raise ValueError("deg must be non-negative integer")
-        return cls([0] * ideg + [1], domain, window, symbol)
-
-    @classmethod
-    def cast(cls, series, domain=None, window=None):
-        if domain is None:
-            domain = cls.domain
-        if window is None:
-            window = cls.window
-        return series.convert(domain, cls, window)
-
-
-class Chebyshev(ABCPolyBase):
-    _add = staticmethod(add_chebyshev_series)
-    _sub = staticmethod(subtract_chebyshev_series)
-    _mul = staticmethod(chebmul)
-    _div = staticmethod(chebdiv)
-    _pow = staticmethod(chebpow)
-    _val = staticmethod(chebval)
-    _int = staticmethod(chebint)
-    _der = staticmethod(chebder)
-    _fit = staticmethod(chebfit)
-    _line = staticmethod(chebline)
-    _roots = staticmethod(chebroots)
-    _fromroots = staticmethod(chebyshev_series_from_roots)
-
-    @classmethod
-    def interpolate(cls, func, deg, domain=None, args=()):
-        if domain is None:
-            domain = cls.domain
-
-        def xfunc(x):
-            return func(mapdomain(x, cls.window, domain), *args)
-
-        coef = chebinterpolate(xfunc, deg)
-        return cls(coef, domain=domain)
-
-    domain = numpy.array(chebdomain)
-    window = numpy.array(chebdomain)
-    basis_name = "T"
-
-
-class Hermite(ABCPolyBase):
-    _add = staticmethod(hermadd)
-    _sub = staticmethod(hermsub)
-    _mul = staticmethod(hermmul)
-    _div = staticmethod(hermdiv)
-    _pow = staticmethod(hermpow)
-    _val = staticmethod(hermval)
-    _int = staticmethod(hermint)
-    _der = staticmethod(hermder)
-    _fit = staticmethod(hermfit)
-    _line = staticmethod(hermline)
-    _roots = staticmethod(physicists_hermite_series_roots)
-    _fromroots = staticmethod(physicists_hermite_series_from_roots)
-
-    domain = numpy.array(hermdomain)
-    window = numpy.array(hermdomain)
-    basis_name = "H"
-
-
-class HermiteE(ABCPolyBase):
-    _add = staticmethod(hermeadd)
-    _sub = staticmethod(hermesub)
-    _mul = staticmethod(hermemul)
-    _div = staticmethod(hermediv)
-    _pow = staticmethod(hermepow)
-    _val = staticmethod(hermeval)
-    _int = staticmethod(hermeint)
-    _der = staticmethod(hermeder)
-    _fit = staticmethod(hermefit)
-    _line = staticmethod(hermeline)
-    _roots = staticmethod(probabilists_hermite_series_roots)
-    _fromroots = staticmethod(probabilists_hermite_series_from_roots)
-
-    domain = numpy.array(hermedomain)
-    window = numpy.array(hermedomain)
-    basis_name = "He"
-
-
-class Laguerre(ABCPolyBase):
-    _add = staticmethod(lagadd)
-    _sub = staticmethod(lagsub)
-    _mul = staticmethod(lagmul)
-    _div = staticmethod(lagdiv)
-    _pow = staticmethod(lagpow)
-    _val = staticmethod(lagval)
-    _int = staticmethod(lagint)
-    _der = staticmethod(lagder)
-    _fit = staticmethod(lagfit)
-    _line = staticmethod(lagline)
-    _roots = staticmethod(lagroots)
-    _fromroots = staticmethod(lagfromroots)
-
-    domain = numpy.array(lagdomain)
-    window = numpy.array(lagdomain)
-    basis_name = "L"
-
-
-class Legendre(ABCPolyBase):
-    _add = staticmethod(legadd)
-    _sub = staticmethod(legsub)
-    _mul = staticmethod(legmul)
-    _div = staticmethod(legdiv)
-    _pow = staticmethod(legpow)
-    _val = staticmethod(legval)
-    _int = staticmethod(legint)
-    _der = staticmethod(legder)
-    _fit = staticmethod(legfit)
-    _line = staticmethod(legline)
-    _roots = staticmethod(legroots)
-    _fromroots = staticmethod(legfromroots)
-
-    domain = numpy.array(legdomain)
-    window = numpy.array(legdomain)
-    basis_name = "P"
-
-
-class Polynomial(ABCPolyBase):
-    _add = staticmethod(polyadd)
-    _sub = staticmethod(polysub)
-    _mul = staticmethod(polymul)
-    _div = staticmethod(polydiv)
-    _pow = staticmethod(polypow)
-    _val = staticmethod(polyval)
-    _int = staticmethod(polyint)
-    _der = staticmethod(polyder)
-    _fit = staticmethod(polyfit)
-    _line = staticmethod(polyline)
-    _roots = staticmethod(polyroots)
-    _fromroots = staticmethod(polyfromroots)
-
-    domain = numpy.array(polydomain)
-    window = numpy.array(polydomain)
-    basis_name = None
-
-
 __all__ = [
-    "Chebyshev",
-    "Hermite",
-    "HermiteE",
-    "Laguerre",
-    "Legendre",
-    "Polynomial",
     "_div",
     "_pow",
     "_vander_nd",
     "_vander_nd_flat",
     "as_series",
-    "chebyshev_series_to_polynomial",
-    "add_chebyshev_series",
+    "cheb2poly",
+    "chebadd",
     "chebcompanion",
     "chebder",
     "chebdiv",
     "chebdomain",
     "chebfit",
-    "chebyshev_series_from_roots",
-    "chebyshev_gauss_quadrature",
+    "chebfromroots",
+    "chebgauss",
     "chebgrid2d",
     "chebgrid3d",
     "chebint",
@@ -2997,7 +2387,7 @@ __all__ = [
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "subtract_chebyshev_series",
+    "chebsub",
     "chebtrim",
     "chebval",
     "chebval2d",
@@ -3009,21 +2399,21 @@ __all__ = [
     "chebx",
     "chebzero",
     "getdomain",
-    "physicists_hermite_series_to_polynomial",
+    "herm2poly",
     "hermadd",
     "hermcompanion",
     "hermder",
     "hermdiv",
     "hermdomain",
-    "probabilists_hermite_series_to_polynomial",
+    "herme2poly",
     "hermeadd",
     "hermecompanion",
     "hermeder",
     "hermediv",
     "hermedomain",
     "hermefit",
-    "probabilists_hermite_series_from_roots",
-    "gauss_probabilists_hermite_quadrature",
+    "hermefromroots",
+    "hermegauss",
     "hermegrid2d",
     "hermegrid3d",
     "hermeint",
@@ -3032,7 +2422,7 @@ __all__ = [
     "hermemulx",
     "hermeone",
     "hermepow",
-    "probabilists_hermite_series_roots",
+    "hermeroots",
     "hermesub",
     "hermetrim",
     "hermeval",
@@ -3045,8 +2435,8 @@ __all__ = [
     "hermex",
     "hermezero",
     "hermfit",
-    "physicists_hermite_series_from_roots",
-    "gauss_physicists_hermite_quadrature",
+    "hermfromroots",
+    "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
     "hermint",
@@ -3055,7 +2445,7 @@ __all__ = [
     "hermmulx",
     "hermone",
     "hermpow",
-    "physicists_hermite_series_roots",
+    "hermroots",
     "hermsub",
     "hermtrim",
     "hermval",
@@ -3075,7 +2465,7 @@ __all__ = [
     "lagdomain",
     "lagfit",
     "lagfromroots",
-    "gauss_laguerre_quadrature",
+    "laggauss",
     "laggrid2d",
     "laggrid3d",
     "lagint",
@@ -3104,7 +2494,7 @@ __all__ = [
     "legdomain",
     "legfit",
     "legfromroots",
-    "gauss_legendre_quadrature",
+    "leggauss",
     "leggrid2d",
     "leggrid3d",
     "legint",
@@ -3127,9 +2517,9 @@ __all__ = [
     "legzero",
     "mapdomain",
     "mapping_parameters",
-    "polynomial_to_chebyshev_series",
-    "polynomial_to_physicists_hermite_series",
-    "polynomial_to_probabilists_hermite_series",
+    "poly2cheb",
+    "poly2herm",
+    "poly2herme",
     "poly2lag",
     "poly2leg",
     "polyadd",
@@ -3160,5 +2550,5 @@ __all__ = [
     "polyx",
     "polyzero",
     "trimcoef",
-    "trim_sequence",
+    "trimseq",
 ]
