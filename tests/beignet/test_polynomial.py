@@ -446,11 +446,9 @@ def test_chebgauss():
     v = beignet.polynomial.chebvander(x, 99)
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-    numpy.testing.assert_almost_equal(vv, numpy.eye(100))
+    numpy.testing.assert_almost_equal(vd[:, None] * vv * vd, numpy.eye(100))
 
-    tgt = numpy.pi
-    numpy.testing.assert_almost_equal(w.sum(), tgt)
+    numpy.testing.assert_almost_equal(numpy.sum(w), numpy.pi)
 
 
 def test_chebgrid2d():
@@ -677,29 +675,30 @@ def test_chebpow():
 def test_chebpts1():
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebpts1, 1.5)
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebpts1, 0)
-
-    tgt = [0]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts1(1), tgt)
-    tgt = [-0.70710678118654746, 0.70710678118654746]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts1(2), tgt)
-    tgt = [-0.86602540378443871, 0, 0.86602540378443871]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts1(3), tgt)
-    tgt = [-0.9238795325, -0.3826834323, 0.3826834323, 0.9238795325]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts1(4), tgt)
+    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts1(1), [0])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebpts1(2), [-0.70710678118654746, 0.70710678118654746]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebpts1(3), [-0.86602540378443871, 0, 0.86602540378443871]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebpts1(4),
+        [-0.9238795325, -0.3826834323, 0.3826834323, 0.9238795325],
+    )
 
 
 def test_chebpts2():
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebpts2, 1.5)
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebpts2, 1)
-
-    tgt = [-1, 1]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(2), tgt)
-    tgt = [-1, 0, 1]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(3), tgt)
-    tgt = [-1, -0.5, 0.5, 1]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(4), tgt)
-    tgt = [-1.0, -0.707106781187, 0, 0.707106781187, 1.0]
-    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(5), tgt)
+    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(2), [-1, 1])
+    numpy.testing.assert_almost_equal(beignet.polynomial.chebpts2(3), [-1, 0, 1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebpts2(4), [-1, -0.5, 0.5, 1]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebpts2(5), [-1.0, -0.707106781187, 0, 0.707106781187, 1.0]
+    )
 
 
 def test_chebroots():
@@ -707,9 +706,11 @@ def test_chebroots():
     numpy.testing.assert_almost_equal(beignet.polynomial.chebroots([1, 2]), [-0.5])
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial.chebroots(beignet.polynomial.chebfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebtrim(res, tol=1e-6),
+            beignet.polynomial.chebtrim(
+                beignet.polynomial.chebroots(beignet.polynomial.chebfromroots(tgt)),
+                tol=1e-6,
+            ),
             beignet.polynomial.chebtrim(tgt, tol=1e-6),
         )
 
@@ -731,9 +732,7 @@ def test_chebsub():
 
 def test_chebtrim():
     coef = [2, -1, 1, 0]
-
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebtrim, coef, -1)
-
     numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef), coef[:-1])
     numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef, 1), coef[:-3])
     numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef, 2), [0])
@@ -763,46 +762,34 @@ def test_chebval2d():
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
     numpy.testing.assert_raises(
         ValueError, beignet.polynomial.chebval2d, x1, x2[:2], c2d
     )
 
-    tgt = y1 * y2
-    res = beignet.polynomial.chebval2d(x1, x2, c2d)
-    numpy.testing.assert_almost_equal(res, tgt)
-
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebval2d(x1, x2, c2d), y1 * y2
+    )
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.chebval2d(z, z, c2d)
-    numpy.testing.assert_(res.shape == (2, 3))
+    numpy.testing.assert_(beignet.polynomial.chebval2d(z, z, c2d).shape == (2, 3))
 
 
 def test_chebval3d():
     c1d = numpy.array([2.5, 2.0, 1.5])
-
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
-
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
-
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
     numpy.testing.assert_raises(
         ValueError, beignet.polynomial.chebval3d, x1, x2, x3[:2], c3d
     )
-
-    tgt = y1 * y2 * y3
-    res = beignet.polynomial.chebval3d(x1, x2, x3, c3d)
-    numpy.testing.assert_almost_equal(res, tgt)
-
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebval3d(x1, x2, x3, c3d), y1 * y2 * y3
+    )
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.chebval3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3))
+    numpy.testing.assert_(beignet.polynomial.chebval3d(z, z, z, c3d).shape == (2, 3))
 
 
 def test_chebvander():
@@ -840,20 +827,20 @@ def test_chebvander2d():
 def test_chebvander3d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3, 4))
-    van = beignet.polynomial.chebvander3d(x1, x2, x3, [1, 2, 3])
-    tgt = beignet.polynomial.chebval3d(x1, x2, x3, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    van = beignet.polynomial.chebvander3d([x1], [x2], [x3], [1, 2, 3])
-    numpy.testing.assert_(van.shape == (1, 5, 24))
+    numpy.testing.assert_almost_equal(
+        numpy.dot(beignet.polynomial.chebvander3d(x1, x2, x3, [1, 2, 3]), c.flat),
+        beignet.polynomial.chebval3d(x1, x2, x3, c),
+    )
+    numpy.testing.assert_(
+        beignet.polynomial.chebvander3d([x1], [x2], [x3], [1, 2, 3]).shape == (1, 5, 24)
+    )
 
 
 def test_chebweight():
     x = numpy.linspace(-1, 1, 11)[1:-1]
-    tgt = 1.0 / (numpy.sqrt(1 + x) * numpy.sqrt(1 - x))
-    res = beignet.polynomial.chebweight(x)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.chebweight(x), 1.0 / (numpy.sqrt(1 + x) * numpy.sqrt(1 - x))
+    )
 
 
 def test_chebx():
@@ -865,15 +852,12 @@ def test_chebzero():
 
 
 def test_getdomain():
-    x = [1, 10, 3, -1]
-    tgt = [-1, 10]
-    res = beignet.polynomial.getdomain(x)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    x = [1 + 1j, 1 - 1j, 0, 2]
-    tgt = [-1j, 2 + 1j]
-    res = beignet.polynomial.getdomain(x)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.getdomain([1, 10, 3, -1]), [-1, 10]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.getdomain([1 + 1j, 1 - 1j, 0, 2]), [-1j, 2 + 1j]
+    )
 
 
 def test_herm2poly():
@@ -916,41 +900,44 @@ def test_hermder():
 
     for i in range(5):
         tgt = [0] * i + [1]
-        res = beignet.polynomial.hermder(tgt, m=0)
         numpy.testing.assert_equal(
-            beignet.polynomial.hermtrim(res, tol=1e-6),
+            beignet.polynomial.hermtrim(beignet.polynomial.hermder(tgt, m=0), tol=1e-6),
             beignet.polynomial.hermtrim(tgt, tol=1e-6),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.hermder(beignet.polynomial.hermint(tgt, m=j), m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
+                beignet.polynomial.hermtrim(
+                    beignet.polynomial.hermder(
+                        beignet.polynomial.hermint(tgt, m=j), m=j
+                    ),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.hermtrim(tgt, tol=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial.hermder(
-                beignet.polynomial.hermint(tgt, m=j, scl=2), m=j, scl=0.5
-            )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.hermtrim(res, tol=1e-6),
+                beignet.polynomial.hermtrim(
+                    beignet.polynomial.hermder(
+                        beignet.polynomial.hermint(tgt, m=j, scl=2), m=j, scl=0.5
+                    ),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.hermtrim(tgt, tol=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
 
     tgt = numpy.vstack([beignet.polynomial.hermder(c) for c in c2d.T]).T
-    res = beignet.polynomial.hermder(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermder(c2d, axis=0), tgt)
 
     tgt = numpy.vstack([beignet.polynomial.hermder(c) for c in c2d])
-    res = beignet.polynomial.hermder(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(beignet.polynomial.hermder(c2d, axis=1), tgt)
 
 
 def test_hermdiv():
@@ -1189,10 +1176,8 @@ def test_hermegrid2d():
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
     tgt = numpy.einsum("i,j->ij", y1, y2)
     res = beignet.polynomial.hermegrid2d(x1, x2, c2d)
@@ -2189,16 +2174,15 @@ def test_lagfit():
 
 
 def test_lagfromroots():
-    res = beignet.polynomial.lagfromroots([])
-    numpy.testing.assert_almost_equal(beignet.polynomial.lagtrim(res, tol=1e-6), [1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.lagtrim(beignet.polynomial.lagfromroots([]), tol=1e-6), [1]
+    )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.polynomial.lagfromroots(roots)
-        res = beignet.polynomial.lagval(roots, pol)
-        tgt = 0
         numpy.testing.assert_(len(pol) == i + 1)
         numpy.testing.assert_almost_equal(beignet.polynomial.lag2poly(pol)[-1], 1)
-        numpy.testing.assert_almost_equal(res, tgt)
+        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(roots, pol), 0)
 
 
 def test_laggauss():
@@ -2209,9 +2193,7 @@ def test_laggauss():
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     numpy.testing.assert_almost_equal(vv, numpy.eye(100))
-
-    tgt = 1.0
-    numpy.testing.assert_almost_equal(w.sum(), tgt)
+    numpy.testing.assert_almost_equal(w.sum(), 1.0)
 
 
 def test_laggrid2d():
@@ -2219,18 +2201,15 @@ def test_laggrid2d():
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    tgt = numpy.einsum("i,j->ij", y1, y2)
-    res = beignet.polynomial.laggrid2d(x1, x2, c2d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.laggrid2d(x1, x2, c2d), numpy.einsum("i,j->ij", y1, y2)
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.laggrid2d(z, z, c2d)
-    numpy.testing.assert_(res.shape == (2, 3) * 2)
+    numpy.testing.assert_(beignet.polynomial.laggrid2d(z, z, c2d).shape == (2, 3) * 2)
 
 
 def test_laggrid3d():
@@ -2239,18 +2218,18 @@ def test_laggrid3d():
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-    res = beignet.polynomial.laggrid3d(x1, x2, x3, c3d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.laggrid3d(x1, x2, x3, c3d),
+        numpy.einsum("i,j,k->ijk", y1, y2, y3),
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.laggrid3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3) * 3)
+    numpy.testing.assert_(
+        beignet.polynomial.laggrid3d(z, z, z, c3d).shape == (2, 3) * 3
+    )
 
 
 def test_lagint():
@@ -2262,39 +2241,47 @@ def test_lagint():
     numpy.testing.assert_raises(TypeError, beignet.polynomial.lagint, [0], axis=0.5)
 
     for i in range(2, 5):
-        k = [0] * (i - 2) + [1]
-        res = beignet.polynomial.lagint([0], m=i, k=k)
-        numpy.testing.assert_almost_equal(res, [1, -1])
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.lagint([0], m=i, k=([0] * (i - 2) + [1])), [1, -1]
+        )
 
     for i in range(5):
-        scl = i + 1
-        pol = [0] * i + [1]
-        tgt = [i] + [0] * i + [1 / scl]
-        lagpol = beignet.polynomial.poly2lag(pol)
-        lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i])
-        res = beignet.polynomial.lag2poly(lagint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.lagtrim(res, tol=1e-6),
-            beignet.polynomial.lagtrim(tgt, tol=1e-6),
+            beignet.polynomial.lagtrim(
+                beignet.polynomial.lag2poly(
+                    beignet.polynomial.lagint(
+                        beignet.polynomial.poly2lag([0] * i + [1]), m=1, k=[i]
+                    )
+                ),
+                tol=1e-6,
+            ),
+            beignet.polynomial.lagtrim([i] + [0] * i + [1 / (i + 1)], tol=1e-6),
         )
 
     for i in range(5):
         scl = i + 1
-        pol = [0] * i + [1]
-        lagpol = beignet.polynomial.poly2lag(pol)
-        lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i], lbnd=-1)
-        numpy.testing.assert_almost_equal(beignet.polynomial.lagval(-1, lagint), i)
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.lagval(
+                -1,
+                beignet.polynomial.lagint(
+                    beignet.polynomial.poly2lag([0] * i + [1]), m=1, k=[i], lbnd=-1
+                ),
+            ),
+            i,
+        )
 
     for i in range(5):
         scl = i + 1
-        pol = [0] * i + [1]
-        tgt = [i] + [0] * i + [2 / scl]
-        lagpol = beignet.polynomial.poly2lag(pol)
-        lagint = beignet.polynomial.lagint(lagpol, m=1, k=[i], scl=2)
-        res = beignet.polynomial.lag2poly(lagint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.lagtrim(res, tol=1e-6),
-            beignet.polynomial.lagtrim(tgt, tol=1e-6),
+            beignet.polynomial.lagtrim(
+                beignet.polynomial.lag2poly(
+                    beignet.polynomial.lagint(
+                        beignet.polynomial.poly2lag([0] * i + [1]), m=1, k=[i], scl=2
+                    )
+                ),
+                tol=1e-6,
+            ),
+            beignet.polynomial.lagtrim([i] + [0] * i + [2 / scl], tol=1e-6),
         )
 
     for i in range(5):
@@ -2347,17 +2334,20 @@ def test_lagint():
 
     c2d = numpy.random.random((3, 4))
 
-    tgt = numpy.vstack([beignet.polynomial.lagint(c) for c in c2d.T]).T
-    res = beignet.polynomial.lagint(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.lagint(c2d, axis=0),
+        numpy.vstack([beignet.polynomial.lagint(c) for c in c2d.T]).T,
+    )
 
-    tgt = numpy.vstack([beignet.polynomial.lagint(c) for c in c2d])
-    res = beignet.polynomial.lagint(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.lagint(c2d, axis=1),
+        numpy.vstack([beignet.polynomial.lagint(c) for c in c2d]),
+    )
 
-    tgt = numpy.vstack([beignet.polynomial.lagint(c, k=3) for c in c2d])
-    res = beignet.polynomial.lagint(c2d, k=3, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.lagint(c2d, k=3, axis=1),
+        numpy.vstack([beignet.polynomial.lagint(c, k=3) for c in c2d]),
+    )
 
 
 def test_lagline():
@@ -2827,8 +2817,9 @@ def test_legint():
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
-        res = beignet.polynomial.legint([0], m=i, k=k)
-        numpy.testing.assert_almost_equal(res, [0, 1])
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.legint([0], m=i, k=k), [0, 1]
+        )
 
     for i in range(5):
         scl = i + 1
@@ -2836,9 +2827,8 @@ def test_legint():
         tgt = [i] + [0] * i + [1 / scl]
         legpol = beignet.polynomial.poly2leg(pol)
         legint = beignet.polynomial.legint(legpol, m=1, k=[i])
-        res = beignet.polynomial.leg2poly(legint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tol=1e-6),
+            beignet.polynomial.legtrim(beignet.polynomial.leg2poly(legint), tol=1e-6),
             beignet.polynomial.legtrim(tgt, tol=1e-6),
         )
 
@@ -2903,32 +2893,32 @@ def test_legint():
             tgt = pol[:]
             for k in range(j):
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k], scl=2)
-            res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tol=1e-6),
+                beignet.polynomial.legtrim(
+                    beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2),
+                    tol=1e-6,
+                ),
                 beignet.polynomial.legtrim(tgt, tol=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
-
-    tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d.T]).T
-    res = beignet.polynomial.legint(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    tgt = numpy.vstack([beignet.polynomial.legint(c) for c in c2d])
-    res = beignet.polynomial.legint(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    tgt = numpy.vstack([beignet.polynomial.legint(c, k=3) for c in c2d])
-    res = beignet.polynomial.legint(c2d, k=3, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
-
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.legint(c2d, axis=0),
+        numpy.vstack([beignet.polynomial.legint(c) for c in c2d.T]).T,
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.legint(c2d, axis=1),
+        numpy.vstack([beignet.polynomial.legint(c) for c in c2d]),
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.legint(c2d, k=3, axis=1),
+        numpy.vstack([beignet.polynomial.legint(c, k=3) for c in c2d]),
+    )
     numpy.testing.assert_equal(beignet.polynomial.legint((1, 2, 3), 0), (1, 2, 3))
 
 
 def test_legline():
     numpy.testing.assert_equal(beignet.polynomial.legline(3, 4), [3, 4])
-
     numpy.testing.assert_equal(beignet.polynomial.legline(3, 0), [3])
 
 
@@ -3014,8 +3004,6 @@ def test_legtrim():
 
 
 def test_legval():
-    x = numpy.random.random((3, 5)) * 2 - 1
-
     numpy.testing.assert_equal(beignet.polynomial.legval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
@@ -3133,48 +3121,38 @@ def test_legzero():
 
 
 def test_mapdomain():
-    dom1 = [0, 4]
-    dom2 = [1, 3]
-    tgt = dom2
-    res = beignet.polynomial.mapdomain(dom1, dom1, dom2)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    dom1 = [0 - 1j, 2 + 1j]
-    dom2 = [-2, 2]
-    tgt = dom2
-    x = dom1
-    res = beignet.polynomial.mapdomain(x, dom1, dom2)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    dom1 = [0, 4]
-    dom2 = [1, 3]
-    tgt = numpy.array([dom2, dom2])
-    x = numpy.array([dom1, dom1])
-    res = beignet.polynomial.mapdomain(x, dom1, dom2)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.mapdomain([0, 4], [0, 4], [1, 3]), [1, 3]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.mapdomain([0 - 1j, 2 + 1j], [0 - 1j, 2 + 1j], [-2, 2]),
+        [-2, 2],
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.mapdomain(numpy.array([[0, 4], [0, 4]]), [0, 4], [1, 3]),
+        numpy.array([[1, 3], [1, 3]]),
+    )
 
     class MyNDArray(numpy.ndarray):
         pass
 
-    dom1 = [0, 4]
-    dom2 = [1, 3]
-    x = numpy.array([dom1, dom1]).view(MyNDArray)
-    res = beignet.polynomial.mapdomain(x, dom1, dom2)
-    numpy.testing.assert_(isinstance(res, MyNDArray))
+    numpy.testing.assert_(
+        isinstance(
+            beignet.polynomial.mapdomain(
+                numpy.array([[0, 4], [0, 4]]).view(MyNDArray), [0, 4], [1, 3]
+            ),
+            MyNDArray,
+        )
+    )
 
 
 def test_mapparms():
-    dom1 = [0, 4]
-    dom2 = [1, 3]
-    tgt = [1, 0.5]
-    res = beignet.polynomial.mapparms(dom1, dom2)
-    numpy.testing.assert_almost_equal(res, tgt)
-
-    dom1 = [0 - 1j, 2 + 1j]
-    dom2 = [-2, 2]
-    tgt = [-1 + 1j, 1 - 1j]
-    res = beignet.polynomial.mapparms(dom1, dom2)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.mapparms([0, 4], [1, 3]), [1, 0.5]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.mapparms([0 - 1j, 2 + 1j], [-2, 2]), [-1 + 1j, 1 - 1j]
+    )
 
 
 def test_poly2cheb():
@@ -3296,8 +3274,11 @@ def test_polydiv():
             cj = [0] * j + [1, 2]
             tgt = beignet.polynomial.polyadd(ci, cj)
             quo, rem = beignet.polynomial.polydiv(tgt, ci)
-            res = beignet.polynomial.polyadd(beignet.polynomial.polymul(quo, ci), rem)
-            numpy.testing.assert_equal(res, tgt, err_msg=msg)
+            numpy.testing.assert_equal(
+                beignet.polynomial.polyadd(beignet.polynomial.polymul(quo, ci), rem),
+                tgt,
+                err_msg=msg,
+            )
 
 
 def test_polydomain():
@@ -3550,7 +3531,6 @@ def test_polyint():
 
 def test_polyline():
     numpy.testing.assert_equal(beignet.polynomial.polyline(3, 4), [3, 4])
-
     numpy.testing.assert_equal(beignet.polynomial.polyline(3, 0), [3])
 
 
@@ -3572,9 +3552,9 @@ def test_polymulx():
     numpy.testing.assert_equal(beignet.polynomial.polymulx([0]), [0])
     numpy.testing.assert_equal(beignet.polynomial.polymulx([1]), [0, 1])
     for i in range(1, 5):
-        ser = [0] * i + [1]
-        tgt = [0] * (i + 1) + [1]
-        numpy.testing.assert_equal(beignet.polynomial.polymulx(ser), tgt)
+        numpy.testing.assert_equal(
+            beignet.polynomial.polymulx([0] * i + [1]), [0] * (i + 1) + [1]
+        )
 
 
 def test_polyone():
@@ -3700,10 +3680,8 @@ def test_polyval3d():
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
     x1, x2, x3 = x
-    y1, y2, y3 = y
+    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
     numpy.testing.assert_raises_regex(
         ValueError,
@@ -3716,12 +3694,12 @@ def test_polyval3d():
     )
 
     tgt = y1 * y2 * y3
-    res = beignet.polynomial.polyval3d(x1, x2, x3, c3d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.polyval3d(x1, x2, x3, c3d), tgt
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.polyval3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3))
+    numpy.testing.assert_(beignet.polynomial.polyval3d(z, z, z, c3d).shape == (2, 3))
 
 
 def test_polyvalfromroots():
@@ -3791,17 +3769,16 @@ def test_polyvalfromroots():
     numpy.testing.assert_equal(res, tgt)
 
     x = numpy.vstack([x, 2 * x])
-    res = beignet.polynomial.polyvalfromroots(x, r, tensor=True)
     tgt = numpy.empty(r.shape[1:] + x.shape)
     for ii in range(r.shape[1]):
         for jj in range(x.shape[0]):
             tgt[ii, jj, :] = beignet.polynomial.polyvalfromroots(x[jj], r[:, ii])
-    numpy.testing.assert_equal(res, tgt)
+    numpy.testing.assert_equal(
+        beignet.polynomial.polyvalfromroots(x, r, tensor=True), tgt
+    )
 
 
 def test_polyvander():
-    x = numpy.random.random((3, 5)) * 2 - 1
-
     x = numpy.arange(3)
     v = beignet.polynomial.polyvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))
@@ -3809,7 +3786,6 @@ def test_polyvander():
         numpy.testing.assert_almost_equal(
             v[..., i], beignet.polynomial.polyval(x, [0] * i + [1])
         )
-
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
     v = beignet.polynomial.polyvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
@@ -3817,7 +3793,6 @@ def test_polyvander():
         numpy.testing.assert_almost_equal(
             v[..., i], beignet.polynomial.polyval(x, [0] * i + [1])
         )
-
     numpy.testing.assert_raises(
         ValueError, beignet.polynomial.polyvander, numpy.arange(3), -1
     )
@@ -3840,14 +3815,11 @@ def test_polyvander2d():
 
 def test_polyvander3d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
-
     c = numpy.random.random([2, 3, 4])
-
     numpy.testing.assert_almost_equal(
         numpy.dot(beignet.polynomial.polyvander3d(x1, x2, x3, [1, 2, 3]), c.flat),
         beignet.polynomial.polyval3d(x1, x2, x3, c),
     )
-
     numpy.testing.assert_(
         beignet.polynomial.polyvander3d([x1], [x2], [x3], [1, 2, 3]).shape == (1, 5, 24)
     )
