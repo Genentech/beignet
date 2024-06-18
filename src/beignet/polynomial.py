@@ -6,6 +6,54 @@ import numpy
 import numpy.linalg
 
 
+def common_type(*arrays):
+    dtypes = [
+        [
+            numpy.float16,
+            numpy.float32,
+            numpy.float64,
+        ],
+        [
+            None,
+            numpy.complex64,
+            numpy.complex128,
+        ],
+    ]
+
+    precisions = {
+        numpy.float16: 0,
+        numpy.float32: 1,
+        numpy.float64: 2,
+        numpy.complex64: 1,
+        numpy.complex128: 2,
+    }
+
+    is_complex = False
+
+    precision = 0
+
+    for a in arrays:
+        t = a.dtype.type
+
+        if numpy.iscomplexobj(a):
+            is_complex = True
+
+        if issubclass(t, numpy.integer):
+            score = precisions[numpy.float64]
+        else:
+            score = precisions.get(t, None)
+
+            if score is None:
+                raise TypeError
+
+        precision = max(precision, score)
+
+    if is_complex:
+        return dtypes[1][precision]
+    else:
+        return dtypes[0][precision]
+
+
 def normalize_axis_index(axis, ndim):
     if axis < 0:
         axis = axis + ndim
@@ -46,31 +94,18 @@ def _as_series(xs, trim=True):
     if trim:
         arrays = [_trim_sequence(a) for a in arrays]
 
-    if any(a.dtype == numpy.dtype(object) for a in arrays):
-        output = []
+    try:
+        dtype = common_type(*arrays)
+    except Exception as error:
+        raise ValueError from error
 
-        for array in arrays:
-            if array.dtype != numpy.dtype(object):
-                tmp = numpy.empty(len(array), dtype=numpy.dtype(object))
+    output = []
 
-                tmp[:] = array[:]
-
-                output = [*output, tmp]
-            else:
-                output = [*output, array]
-    else:
-        try:
-            dtype = numpy.common_type(*arrays)
-        except Exception as error:
-            raise ValueError from error
-
-        output = []
-
-        for array in arrays:
-            output = [
-                *output,
-                numpy.array(array, dtype=dtype),
-            ]
+    for array in arrays:
+        output = [
+            *output,
+            numpy.array(array, dtype=dtype),
+        ]
 
     return output
 
