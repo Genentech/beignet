@@ -1,12 +1,31 @@
 import beignet.polynomial
-import numpy
 import torch
 
 
 def test_lagmulx():
-    torch.testing.assert_close(beignet.polynomial.lagmulx([0]), [0])
-    torch.testing.assert_close(beignet.polynomial.lagmulx([1]), [1, -1])
-    for i in range(1, 5):
-        ser = [0] * i + [1]
-        tgt = [0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]
-        numpy.testing.assert_almost_equal(beignet.polynomial.lagmulx(ser), tgt)
+    torch.testing.assert_close(
+        beignet.polynomial.lagmulx(
+            torch.tensor([0]),
+        ),
+        torch.tensor([0], dtype=torch.float64),
+    )
+
+    torch.testing.assert_close(
+        beignet.polynomial.lagmulx(
+            torch.tensor([1]),
+        ),
+        torch.tensor([1, -1], dtype=torch.float64),
+    )
+
+    for index in range(1, 5):
+        torch.testing.assert_close(
+            beignet.polynomial.lagmulx(
+                torch.tensor(
+                    [0] * index + [1],
+                ),
+            ),
+            torch.tensor(
+                [0] * (index - 1) + [-index, 2 * index + 1, -(index + 1)],
+                dtype=torch.float64,
+            ),
+        )

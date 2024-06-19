@@ -3,6 +3,7 @@ import operator
 import numpy
 import numpy.linalg
 import torch
+import torchaudio
 
 from .__add import _add
 from .__as_series import _as_series
@@ -305,7 +306,7 @@ def chebmulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd = torch.empty(len(c) + 1, dtype=c.dtype)
     prd[0] = c[0] * 0
     prd[1] = c[0]
     if len(c) > 1:
@@ -695,7 +696,7 @@ def hermemulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd = torch.empty(len(c) + 1, dtype=c.dtype)
     prd[0] = c[0] * 0
     prd[1] = c[0]
     for i in range(1, len(c)):
@@ -898,7 +899,7 @@ def hermmulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd = torch.empty(len(c) + 1, dtype=c.dtype)
     prd[0] = c[0] * 0
     prd[1] = c[0] / 2
     for i in range(1, len(c)):
@@ -1175,7 +1176,7 @@ def lagmulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd = torch.empty(len(c) + 1, dtype=c.dtype)
     prd[0] = c[0]
     prd[1] = -c[0]
     for i in range(1, len(c)):
@@ -1455,15 +1456,19 @@ def legmulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = numpy.empty(len(c) + 1, dtype=c.dtype)
+    prd = torch.empty(len(c) + 1, dtype=c.dtype)
+
     prd[0] = c[0] * 0
+
     prd[1] = c[0]
+
     for i in range(1, len(c)):
         j = i + 1
         k = i - 1
         s = i + j
         prd[j] = (c[i] * j) / s
         prd[k] += (c[i] * i) / s
+
     return prd
 
 
@@ -1745,7 +1750,7 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 def polymul(input, other):
     input, other = _as_series([input, other])
 
-    output = numpy.convolve(input, other)
+    output = torchaudio.functional.convolve(input, other)
 
     output = _trim_sequence(output)
 
@@ -1758,7 +1763,7 @@ def polymulx(input):
     if len(input) == 1 and input[0] == 0:
         return input
 
-    output = numpy.empty(len(input) + 1, dtype=input.dtype)
+    output = torch.empty(len(input) + 1, dtype=input.dtype)
 
     output[0] = input[0] * 0.0
 

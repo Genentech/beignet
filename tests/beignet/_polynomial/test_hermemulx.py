@@ -3,9 +3,29 @@ import torch
 
 
 def test_hermemulx():
-    torch.testing.assert_close(beignet.polynomial.hermemulx([0]), [0])
-    torch.testing.assert_close(beignet.polynomial.hermemulx([1]), [0, 1])
-    for i in range(1, 5):
-        ser = [0] * i + [1]
-        tgt = [0] * (i - 1) + [i, 0, 1]
-        torch.testing.assert_close(beignet.polynomial.hermemulx(ser), tgt)
+    torch.testing.assert_close(
+        beignet.polynomial.hermemulx(
+            torch.tensor([0]),
+        ),
+        torch.tensor([0], dtype=torch.float64),
+    )
+
+    torch.testing.assert_close(
+        beignet.polynomial.hermemulx(
+            torch.tensor([1]),
+        ),
+        torch.tensor([0, 1], dtype=torch.float64),
+    )
+
+    for index in range(1, 5):
+        torch.testing.assert_close(
+            beignet.polynomial.hermemulx(
+                torch.tensor(
+                    [0] * index + [1],
+                ),
+            ),
+            torch.tensor(
+                [0] * (index - 1) + [index, 0, 1],
+                dtype=torch.float64,
+            ),
+        )
