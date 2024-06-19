@@ -1,9 +1,12 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_lagweight():
-    x = numpy.linspace(0, 10, 11)
-    tgt = numpy.exp(-x)
-    res = beignet.polynomial.lagweight(x)
-    numpy.testing.assert_almost_equal(res, tgt)
+    x = torch.linspace(0, 10, 11)
+
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.lagweight(x),
+        torch.exp(-x),
+    )

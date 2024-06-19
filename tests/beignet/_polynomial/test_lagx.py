@@ -3,4 +3,7 @@ import torch
 
 
 def test_lagx():
-    torch.testing.assert_close(beignet.polynomial.lagx, [1, -1])
+    torch.testing.assert_close(
+        beignet.polynomial.lagx,
+        torch.tensor([1, -1]),
+    )

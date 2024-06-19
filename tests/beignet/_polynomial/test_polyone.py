@@ -3,4 +3,7 @@ import torch
 
 
 def test_polyone():
-    torch.testing.assert_close(beignet.polynomial.polyone, [1])
+    torch.testing.assert_close(
+        beignet.polynomial.polyone,
+        torch.tensor([1]),
+    )
