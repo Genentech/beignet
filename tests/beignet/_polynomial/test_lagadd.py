@@ -1,18 +1,23 @@
 import beignet.polynomial
-import numpy
 import torch
 
 
 def test_lagadd():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
-            tgt = numpy.zeros(max(i, j) + 1)
+            tgt = torch.zeros(max(i, j) + 1, dtype=torch.float64)
             tgt[i] += 1
             tgt[j] += 1
-            res = beignet.polynomial.lagadd([0] * i + [1], [0] * j + [1])
             torch.testing.assert_close(
-                beignet.polynomial.lagtrim(res, tolerance=1e-6),
-                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
-                err_msg=msg,
+                beignet.polynomial.lagtrim(
+                    beignet.polynomial.lagadd(
+                        torch.tensor([0] * i + [1]),
+                        torch.tensor([0] * j + [1]),
+                    ),
+                    tolerance=1e-6,
+                ),
+                beignet.polynomial.lagtrim(
+                    tgt,
+                    tolerance=1e-6,
+                ),
             )
