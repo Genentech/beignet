@@ -1,4 +1,4 @@
-from beignet.polynomial import _add
+from .__add import _add
 
 
 def legadd(c1, c2):

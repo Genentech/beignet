@@ -2,9 +2,10 @@ import operator
 
 import numpy
 
-from beignet.polynomial import legval
 from beignet.polynomial._legcompanion import legcompanion
 from beignet.polynomial._legder import legder
+
+from ._legval import legval
 
 
 def leggauss(input):

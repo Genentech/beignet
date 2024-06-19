@@ -1,4 +1,5 @@
-from beignet.polynomial import _grid, lagval
+from .__grid import _grid
+from ._lagval import lagval
 
 
 def laggrid3d(x, y, z, c):

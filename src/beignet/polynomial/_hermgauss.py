@@ -2,7 +2,8 @@ import operator
 
 import numpy
 
-from beignet.polynomial import _normed_hermite_n, hermcompanion
+from .__normed_hermite_n import _normed_hermite_n
+from ._hermcompanion import hermcompanion
 
 
 def hermgauss(input):

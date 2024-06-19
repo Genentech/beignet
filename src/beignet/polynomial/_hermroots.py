@@ -1,6 +1,7 @@
 import numpy
 
-from beignet.polynomial import _as_series, hermcompanion
+from .__as_series import _as_series
+from ._hermcompanion import hermcompanion
 
 
 def hermroots(input):

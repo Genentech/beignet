@@ -1,6 +1,6 @@
 import numpy
 
-from beignet.polynomial import _pow
+from .__pow import _pow
 
 
 def polypow(c, pow, maxpower=None):

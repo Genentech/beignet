@@ -1,4 +1,5 @@
-from beignet.polynomial import _vander_nd_flat, chebvander
+from .__vander_nd_flat import _vander_nd_flat
+from ._chebvander import chebvander
 
 
 def chebvander2d(x, y, deg):

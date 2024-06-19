@@ -1,4 +1,5 @@
-from beignet.polynomial import _grid, hermeval
+from .__grid import _grid
+from ._hermeval import hermeval
 
 
 def hermegrid3d(x, y, z, c):

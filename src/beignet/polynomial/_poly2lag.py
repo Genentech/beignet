@@ -1,4 +1,6 @@
-from beignet.polynomial import _as_series, lagadd, lagmulx
+from .__as_series import _as_series
+from ._lagadd import lagadd
+from ._lagmulx import lagmulx
 
 
 def poly2lag(pol):

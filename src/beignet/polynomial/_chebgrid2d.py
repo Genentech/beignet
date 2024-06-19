@@ -1,4 +1,5 @@
-from beignet.polynomial import _grid, chebval
+from .__grid import _grid
+from ._chebval import chebval
 
 
 def chebgrid2d(x, y, c):

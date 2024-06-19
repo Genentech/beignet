@@ -1,7 +1,8 @@
 import numpy
 
-from beignet.polynomial import _as_series
 from beignet.polynomial._lagcompanion import lagcompanion
+
+from .__as_series import _as_series
 
 
 def lagroots(c):

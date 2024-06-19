@@ -1,4 +1,7 @@
-from beignet.polynomial import _as_series, legadd, legmulx, legsub
+from .__as_series import _as_series
+from ._legadd import legadd
+from ._legmulx import legmulx
+from ._legsub import legsub
 
 
 def legmul(c1, c2):

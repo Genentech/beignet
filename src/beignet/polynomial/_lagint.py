@@ -2,7 +2,8 @@ import operator
 
 import numpy
 
-from beignet.polynomial import _normalize_axis_index, lagval
+from .__normalize_axis_index import _normalize_axis_index
+from ._lagval import lagval
 
 
 def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):

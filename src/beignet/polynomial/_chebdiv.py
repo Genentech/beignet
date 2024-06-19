@@ -1,10 +1,8 @@
-from beignet.polynomial import (
-    _as_series,
-    _c_series_to_z_series,
-    _trim_sequence,
-    _z_series_to_c_series,
-    _zseries_div,
-)
+from .__as_series import _as_series
+from .__c_series_to_z_series import _c_series_to_z_series
+from .__trim_sequence import _trim_sequence
+from .__z_series_to_c_series import _z_series_to_c_series
+from .__zseries_div import _zseries_div
 
 
 def chebdiv(c1, c2):

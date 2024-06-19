@@ -1,4 +1,5 @@
-from beignet.polynomial import _fit, hermvander
+from .__fit import _fit
+from ._hermvander import hermvander
 
 
 def hermfit(x, y, deg, rcond=None, full=False, w=None):

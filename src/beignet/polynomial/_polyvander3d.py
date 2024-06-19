@@ -1,4 +1,5 @@
-from beignet.polynomial import _vander_nd_flat, polyvander
+from .__vander_nd_flat import _vander_nd_flat
+from ._polyvander import polyvander
 
 
 def polyvander3d(x, y, z, deg):

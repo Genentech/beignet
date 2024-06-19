@@ -2,9 +2,10 @@ import operator
 
 import numpy
 
-from beignet.polynomial import lagval
 from beignet.polynomial._lagcompanion import lagcompanion
 from beignet.polynomial._lagder import lagder
+
+from ._lagval import lagval
 
 
 def laggauss(input):

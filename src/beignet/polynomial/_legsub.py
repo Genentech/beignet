@@ -1,4 +1,4 @@
-from beignet.polynomial import _sub
+from .__sub import _sub
 
 
 def legsub(c1, c2):

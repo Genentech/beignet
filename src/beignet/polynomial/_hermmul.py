@@ -1,4 +1,7 @@
-from beignet.polynomial import _as_series, hermadd, hermmulx, hermsub
+from .__as_series import _as_series
+from ._hermadd import hermadd
+from ._hermmulx import hermmulx
+from ._hermsub import hermsub
 
 
 def hermmul(c1, c2):

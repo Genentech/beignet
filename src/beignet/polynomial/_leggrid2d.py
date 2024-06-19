@@ -1,4 +1,5 @@
-from beignet.polynomial import _grid, legval
+from .__grid import _grid
+from ._legval import legval
 
 
 def leggrid2d(x, y, c):

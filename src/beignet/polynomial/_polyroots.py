@@ -1,7 +1,8 @@
 import numpy
 
-from beignet.polynomial import _as_series
 from beignet.polynomial._polycompanion import polycompanion
+
+from .__as_series import _as_series
 
 
 def polyroots(series):

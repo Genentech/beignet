@@ -2,7 +2,8 @@ import operator
 
 import numpy
 
-from beignet.polynomial import _normalize_axis_index, legval
+from .__normalize_axis_index import _normalize_axis_index
+from ._legval import legval
 
 
 def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):

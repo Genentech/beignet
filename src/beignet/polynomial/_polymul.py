@@ -1,6 +1,7 @@
 import torchaudio
 
-from beignet.polynomial import _as_series, _trim_sequence
+from .__as_series import _as_series
+from .__trim_sequence import _trim_sequence
 
 
 def polymul(input, other):

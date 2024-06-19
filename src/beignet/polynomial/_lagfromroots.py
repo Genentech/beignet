@@ -1,4 +1,6 @@
-from beignet.polynomial import _from_roots, lagline, lagmul
+from .__from_roots import _from_roots
+from ._lagline import lagline
+from ._lagmul import lagmul
 
 
 def lagfromroots(roots):

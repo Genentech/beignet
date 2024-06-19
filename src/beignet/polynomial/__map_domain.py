@@ -1,6 +1,6 @@
 import numpy
 
-from beignet.polynomial import _map_parameters
+from .__map_parameters import _map_parameters
 
 
 def _map_domain(x, old, new):

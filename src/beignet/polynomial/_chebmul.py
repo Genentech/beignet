@@ -1,7 +1,8 @@
 import numpy
 import torch
 
-from beignet.polynomial import _as_series, _c_series_to_z_series
+from .__as_series import _as_series
+from .__c_series_to_z_series import _c_series_to_z_series
 
 
 def chebmul(input, other):

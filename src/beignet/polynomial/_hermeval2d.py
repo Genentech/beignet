@@ -1,4 +1,5 @@
-from beignet.polynomial import _evaluate, hermeval
+from .__evaluate import _evaluate
+from ._hermeval import hermeval
 
 
 def hermeval2d(x, y, c):

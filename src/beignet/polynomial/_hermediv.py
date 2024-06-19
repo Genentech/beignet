@@ -1,4 +1,5 @@
-from beignet.polynomial import _div, hermemul
+from .__div import _div
+from ._hermemul import hermemul
 
 
 def hermediv(c1, c2):

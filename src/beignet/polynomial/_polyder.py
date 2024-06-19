@@ -2,7 +2,7 @@ import operator
 
 import numpy
 
-from beignet.polynomial import _normalize_axis_index
+from .__normalize_axis_index import _normalize_axis_index
 
 
 def polyder(input, order: int = 1, scale: float = 1, axis: int = 0):

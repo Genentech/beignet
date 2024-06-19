@@ -1,4 +1,6 @@
-from beignet.polynomial import _add, _as_series, chebmulx
+from .__add import _add
+from .__as_series import _as_series
+from ._chebmulx import chebmulx
 
 
 def poly2cheb(input):

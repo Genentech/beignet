@@ -1,4 +1,5 @@
-from beignet.polynomial import _pow, lagmul
+from .__pow import _pow
+from ._lagmul import lagmul
 
 
 def lagpow(c, pow, maxpower=16):

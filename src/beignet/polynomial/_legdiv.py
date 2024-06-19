@@ -1,4 +1,5 @@
-from beignet.polynomial import _div, legmul
+from .__div import _div
+from ._legmul import legmul
 
 
 def legdiv(c1, c2):

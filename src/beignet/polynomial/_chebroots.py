@@ -1,8 +1,8 @@
 import numpy
 import torch
 
-from beignet.polynomial import _as_series
-from beignet.polynomial._chebcompanion import chebcompanion
+from .__as_series import _as_series
+from ._chebcompanion import chebcompanion
 
 
 def chebroots(c):

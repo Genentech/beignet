@@ -1,4 +1,5 @@
-from beignet.polynomial import _pow, hermemul
+from .__pow import _pow
+from ._hermemul import hermemul
 
 
 def hermepow(c, pow, maxpower=16):

@@ -1,4 +1,5 @@
-from beignet.polynomial import _evaluate, polyval
+from .__evaluate import _evaluate
+from ._polyval import polyval
 
 
 def polyval2d(x, y, c):

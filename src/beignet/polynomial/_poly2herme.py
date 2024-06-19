@@ -1,4 +1,6 @@
-from beignet.polynomial import _as_series, hermeadd, hermemulx
+from .__as_series import _as_series
+from ._hermeadd import hermeadd
+from ._hermemulx import hermemulx
 
 
 def poly2herme(input):

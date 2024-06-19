@@ -1,7 +1,7 @@
 import numpy
 import torch
 
-from beignet.polynomial import _as_series
+from .__as_series import _as_series
 
 
 def hermecompanion(c):

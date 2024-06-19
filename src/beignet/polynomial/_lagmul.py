@@ -1,4 +1,7 @@
-from beignet.polynomial import _as_series, lagadd, lagmulx, lagsub
+from .__as_series import _as_series
+from ._lagadd import lagadd
+from ._lagmulx import lagmulx
+from ._lagsub import lagsub
 
 
 def lagmul(c1, c2):

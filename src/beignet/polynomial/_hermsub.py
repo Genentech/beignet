@@ -1,4 +1,4 @@
-from beignet.polynomial import _sub
+from .__sub import _sub
 
 
 def hermsub(c1, c2):

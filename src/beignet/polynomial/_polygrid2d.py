@@ -1,4 +1,5 @@
-from beignet.polynomial import _grid, polyval
+from .__grid import _grid
+from ._polyval import polyval
 
 
 def polygrid2d(x, y, c):
