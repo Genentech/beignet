@@ -1,6 +1,9 @@
 import beignet.polynomial
-import numpy
+import torch
 
 
 def test_polydomain():
-    numpy.testing.assert_equal(beignet.polynomial.polydomain, [-1, 1])
+    torch.testing.assert_close(
+        beignet.polynomial.polydomain,
+        torch.tensor([-1, 1]),
+    )

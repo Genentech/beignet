@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polyder():
@@ -8,7 +9,7 @@ def test_polyder():
 
     for i in range(5):
         tgt = [0] * i + [1]
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.polytrim(
                 beignet.polynomial.polyder(tgt, order=0), tolerance=1e-6
             ),

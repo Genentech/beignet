@@ -1,6 +1,9 @@
 import beignet.polynomial
-import numpy
+import torch
 
 
 def test_legx():
-    numpy.testing.assert_equal(beignet.polynomial.legx, [0, 1])
+    torch.testing.assert_close(
+        beignet.polynomial.legx,
+        torch.tensor([0, 1]),
+    )

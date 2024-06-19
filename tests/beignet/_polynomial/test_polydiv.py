@@ -1,14 +1,15 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polydiv():
     numpy.testing.assert_raises(ZeroDivisionError, beignet.polynomial.polydiv, [1], [0])
 
     quo, rem = beignet.polynomial.polydiv([2], [2])
-    numpy.testing.assert_equal((quo, rem), (1, 0))
+    torch.testing.assert_close((quo, rem), (1, 0))
     quo, rem = beignet.polynomial.polydiv([2, 2], [2])
-    numpy.testing.assert_equal((quo, rem), ((1, 1), 0))
+    torch.testing.assert_close((quo, rem), ((1, 1), 0))
 
     for i in range(5):
         for j in range(5):
@@ -17,7 +18,7 @@ def test_polydiv():
             cj = [0] * j + [1, 2]
             tgt = beignet.polynomial.polyadd(ci, cj)
             quo, rem = beignet.polynomial.polydiv(tgt, ci)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.polyadd(beignet.polynomial.polymul(quo, ci), rem),
                 tgt,
                 err_msg=msg,

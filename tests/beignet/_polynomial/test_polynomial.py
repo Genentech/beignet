@@ -3,6 +3,7 @@ import functools
 import beignet.polynomial
 import numpy
 import numpy.testing
+import torch
 
 chebyshev_polynomial_T0 = [1]
 chebyshev_polynomial_T1 = [0, 1]
@@ -160,7 +161,7 @@ def test_chebadd():
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] += 1
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.chebtrim(
                     beignet.polynomial.chebadd([0] * i + [1], [0] * j + [1]),
                     tolerance=1e-6,
@@ -188,7 +189,7 @@ def test_chebder():
 
     for i in range(5):
         tgt = [0] * i + [1]
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.chebtrim(
                 beignet.polynomial.chebder(tgt, m=0), tolerance=1e-6
             ),
@@ -241,7 +242,7 @@ def test_chebdiv():
             ci = [0] * i + [1]
             tgt = beignet.polynomial.chebadd(ci, [0] * j + [1])
             quo, rem = beignet.polynomial.chebdiv(tgt, ci)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.chebtrim(
                     beignet.polynomial.chebadd(
                         beignet.polynomial.chebmul(quo, ci), rem
@@ -254,7 +255,7 @@ def test_chebdiv():
 
 
 def test_chebdomain():
-    numpy.testing.assert_equal(beignet.polynomial.chebdomain, [-1, 1])
+    torch.testing.assert_close(beignet.polynomial.chebdomain, [-1, 1])
 
 
 def test_chebfit():
@@ -294,21 +295,21 @@ def test_chebfit():
     y = f(x)
 
     coef3 = beignet.polynomial.chebfit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.chebval(x, coef3), y)
     coef3 = beignet.polynomial.chebfit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.chebval(x, coef3), y)
 
     coef4 = beignet.polynomial.chebfit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.chebval(x, coef4), y)
     coef4 = beignet.polynomial.chebfit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.chebval(x, coef4), y)
 
     coef4 = beignet.polynomial.chebfit(x, y, [2, 3, 4, 1, 0])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.chebval(x, coef4), y)
 
     coef2d = beignet.polynomial.chebfit(x, numpy.array([y, y]).T, 3)
@@ -547,7 +548,7 @@ def test_chebinterpolate():
 
 
 def test_chebline():
-    numpy.testing.assert_equal(beignet.polynomial.chebline(3, 4), [3, 4])
+    torch.testing.assert_close(beignet.polynomial.chebline(3, 4), [3, 4])
 
 
 def test_chebmul():
@@ -558,7 +559,7 @@ def test_chebmul():
             tgt[i + j] += 0.5
             tgt[abs(i - j)] += 0.5
             res = beignet.polynomial.chebmul([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.chebtrim(res, tolerance=1e-6),
                 beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -566,16 +567,16 @@ def test_chebmul():
 
 
 def test_chebmulx():
-    numpy.testing.assert_equal(beignet.polynomial.chebmulx([0]), [0])
-    numpy.testing.assert_equal(beignet.polynomial.chebmulx([1]), [0, 1])
+    torch.testing.assert_close(beignet.polynomial.chebmulx([0]), [0])
+    torch.testing.assert_close(beignet.polynomial.chebmulx([1]), [0, 1])
     for i in range(1, 5):
         ser = [0] * i + [1]
         tgt = [0] * (i - 1) + [0.5, 0, 0.5]
-        numpy.testing.assert_equal(beignet.polynomial.chebmulx(ser), tgt)
+        torch.testing.assert_close(beignet.polynomial.chebmulx(ser), tgt)
 
 
 def test_chebone():
-    numpy.testing.assert_equal(beignet.polynomial.chebone, [1])
+    torch.testing.assert_close(beignet.polynomial.chebone, [1])
 
 
 def test_chebpow():
@@ -587,7 +588,7 @@ def test_chebpow():
                 beignet.polynomial.chebmul, [c] * j, numpy.array([1])
             )
             res = beignet.polynomial.chebpow(c, j)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.chebtrim(res, tolerance=1e-6),
                 beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -645,7 +646,7 @@ def test_chebsub():
             tgt[i] += 1
             tgt[j] -= 1
             res = beignet.polynomial.chebsub([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.chebtrim(res, tolerance=1e-6),
                 beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -655,13 +656,13 @@ def test_chebsub():
 def test_chebtrim():
     coef = [2, -1, 1, 0]
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebtrim, coef, -1)
-    numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.polynomial.chebtrim(coef, 2), [0])
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef), coef[:-1])
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef, 1), coef[:-3])
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef, 2), [0])
 
 
 def test_chebval():
-    numpy.testing.assert_equal(beignet.polynomial.chebval([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.chebval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
     y = [beignet.polynomial.polyval(x, c) for c in chebyshev_polynomial_Tlist]
@@ -674,9 +675,9 @@ def test_chebval():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1, 0]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.chebval(x, [1, 0, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.chebval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.chebval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.chebval(x, [1, 0, 0]).shape, dims)
 
 
 def test_chebval2d():
@@ -766,11 +767,11 @@ def test_chebweight():
 
 
 def test_chebx():
-    numpy.testing.assert_equal(beignet.polynomial.chebx, [0, 1])
+    torch.testing.assert_close(beignet.polynomial.chebx, [0, 1])
 
 
 def test_chebzero():
-    numpy.testing.assert_equal(beignet.polynomial.chebzero, [0])
+    torch.testing.assert_close(beignet.polynomial.chebzero, [0])
 
 
 def test_herm2poly():
@@ -789,7 +790,7 @@ def test_hermadd():
             tgt[i] += 1
             tgt[j] += 1
             res = beignet.polynomial.hermadd([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermtrim(res, tolerance=1e-6),
                 beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -813,7 +814,7 @@ def test_hermder():
 
     for i in range(5):
         tgt = [0] * i + [1]
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.hermtrim(
                 beignet.polynomial.hermder(tgt, m=0), tolerance=1e-6
             ),
@@ -864,7 +865,7 @@ def test_hermdiv():
             tgt = beignet.polynomial.hermadd(ci, cj)
             quo, rem = beignet.polynomial.hermdiv(tgt, ci)
             res = beignet.polynomial.hermadd(beignet.polynomial.hermmul(quo, ci), rem)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermtrim(res, tolerance=1e-6),
                 beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -872,7 +873,7 @@ def test_hermdiv():
 
 
 def test_hermdomain():
-    numpy.testing.assert_equal(beignet.polynomial.hermdomain, [-1, 1])
+    torch.testing.assert_close(beignet.polynomial.hermdomain, [-1, 1])
 
 
 def test_herme2poly():
@@ -891,7 +892,7 @@ def test_hermeadd():
             tgt[i] += 1
             tgt[j] += 1
             res = beignet.polynomial.hermeadd([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermetrim(res, tolerance=1e-6),
                 beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -916,7 +917,7 @@ def test_hermeder():
     for i in range(5):
         tgt = [0] * i + [1]
         res = beignet.polynomial.hermeder(tgt, m=0)
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.hermetrim(res, tolerance=1e-6),
             beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
         )
@@ -963,7 +964,7 @@ def test_hermediv():
             tgt = beignet.polynomial.hermeadd(ci, cj)
             quo, rem = beignet.polynomial.hermediv(tgt, ci)
             res = beignet.polynomial.hermeadd(beignet.polynomial.hermemul(quo, ci), rem)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermetrim(res, tolerance=1e-6),
                 beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -971,7 +972,7 @@ def test_hermediv():
 
 
 def test_hermedomain():
-    numpy.testing.assert_equal(beignet.polynomial.hermedomain, [-1, 1])
+    torch.testing.assert_close(beignet.polynomial.hermedomain, [-1, 1])
 
 
 def test_hermefit():
@@ -1011,21 +1012,21 @@ def test_hermefit():
     y = f(x)
 
     coef3 = beignet.polynomial.hermefit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(x, coef3), y)
     coef3 = beignet.polynomial.hermefit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(x, coef3), y)
 
     coef4 = beignet.polynomial.hermefit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(x, coef4), y)
     coef4 = beignet.polynomial.hermefit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(x, coef4), y)
 
     coef4 = beignet.polynomial.hermefit(x, y, [2, 3, 4, 1, 0])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermeval(x, coef4), y)
 
     coef2d = beignet.polynomial.hermefit(x, numpy.array([y, y]).T, 3)
@@ -1233,7 +1234,7 @@ def test_hermeint():
 
 
 def test_hermeline():
-    numpy.testing.assert_equal(beignet.polynomial.hermeline(3, 4), [3, 4])
+    torch.testing.assert_close(beignet.polynomial.hermeline(3, 4), [3, 4])
 
 
 def test_hermemul():
@@ -1253,16 +1254,16 @@ def test_hermemul():
 
 
 def test_hermemulx():
-    numpy.testing.assert_equal(beignet.polynomial.hermemulx([0]), [0])
-    numpy.testing.assert_equal(beignet.polynomial.hermemulx([1]), [0, 1])
+    torch.testing.assert_close(beignet.polynomial.hermemulx([0]), [0])
+    torch.testing.assert_close(beignet.polynomial.hermemulx([1]), [0, 1])
     for i in range(1, 5):
         ser = [0] * i + [1]
         tgt = [0] * (i - 1) + [i, 0, 1]
-        numpy.testing.assert_equal(beignet.polynomial.hermemulx(ser), tgt)
+        torch.testing.assert_close(beignet.polynomial.hermemulx(ser), tgt)
 
 
 def test_hermeone():
-    numpy.testing.assert_equal(beignet.polynomial.hermeone, [1])
+    torch.testing.assert_close(beignet.polynomial.hermeone, [1])
 
 
 def test_hermepow():
@@ -1274,7 +1275,7 @@ def test_hermepow():
                 beignet.polynomial.hermemul, [c] * j, numpy.array([1])
             )
             res = beignet.polynomial.hermepow(c, j)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermetrim(res, tolerance=1e-6),
                 beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -1301,7 +1302,7 @@ def test_hermesub():
             tgt[i] += 1
             tgt[j] -= 1
             res = beignet.polynomial.hermesub([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermetrim(res, tolerance=1e-6),
                 beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -1313,15 +1314,15 @@ def test_hermetrim():
 
     numpy.testing.assert_raises(ValueError, beignet.polynomial.hermetrim, coef, -1)
 
-    numpy.testing.assert_equal(beignet.polynomial.hermetrim(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.polynomial.hermetrim(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.polynomial.hermetrim(coef, 2), [0])
+    torch.testing.assert_close(beignet.polynomial.hermetrim(coef), coef[:-1])
+    torch.testing.assert_close(beignet.polynomial.hermetrim(coef, 1), coef[:-3])
+    torch.testing.assert_close(beignet.polynomial.hermetrim(coef, 2), [0])
 
 
 def test_hermeval():
     x = numpy.random.random((3, 5)) * 2 - 1
 
-    numpy.testing.assert_equal(beignet.polynomial.hermeval([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.hermeval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
     y = [beignet.polynomial.polyval(x, c) for c in hermite_e_polynomial_Helist]
@@ -1334,9 +1335,9 @@ def test_hermeval():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(beignet.polynomial.hermeval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.hermeval(x, [1, 0]).shape, dims)
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(beignet.polynomial.hermeval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.hermeval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(
             beignet.polynomial.hermeval(x, [1, 0, 0]).shape, dims
         )
 
@@ -1445,11 +1446,11 @@ def test_hermeweight():
 
 
 def test_hermex():
-    numpy.testing.assert_equal(beignet.polynomial.hermex, [0, 1])
+    torch.testing.assert_close(beignet.polynomial.hermex, [0, 1])
 
 
 def test_hermezero():
-    numpy.testing.assert_equal(beignet.polynomial.hermezero, [0])
+    torch.testing.assert_close(beignet.polynomial.hermezero, [0])
 
 
 def test_hermfit():
@@ -1489,21 +1490,21 @@ def test_hermfit():
     y = f(x)
 
     coef3 = beignet.polynomial.hermfit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermval(x, coef3), y)
     coef3 = beignet.polynomial.hermfit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermval(x, coef3), y)
 
     coef4 = beignet.polynomial.hermfit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermval(x, coef4), y)
     coef4 = beignet.polynomial.hermfit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermval(x, coef4), y)
 
     coef4 = beignet.polynomial.hermfit(x, y, [2, 3, 4, 1, 0])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.hermval(x, coef4), y)
 
     coef2d = beignet.polynomial.hermfit(x, numpy.array([y, y]).T, 3)
@@ -1715,7 +1716,7 @@ def test_hermint():
 
 
 def test_hermline():
-    numpy.testing.assert_equal(beignet.polynomial.hermline(3, 4), [3, 2])
+    torch.testing.assert_close(beignet.polynomial.hermline(3, 4), [3, 2])
 
 
 def test_hermmul():
@@ -1735,16 +1736,16 @@ def test_hermmul():
 
 
 def test_hermmulx():
-    numpy.testing.assert_equal(beignet.polynomial.hermmulx([0]), [0])
-    numpy.testing.assert_equal(beignet.polynomial.hermmulx([1]), [0, 0.5])
+    torch.testing.assert_close(beignet.polynomial.hermmulx([0]), [0])
+    torch.testing.assert_close(beignet.polynomial.hermmulx([1]), [0, 0.5])
     for i in range(1, 5):
         ser = [0] * i + [1]
         tgt = [0] * (i - 1) + [i, 0, 0.5]
-        numpy.testing.assert_equal(beignet.polynomial.hermmulx(ser), tgt)
+        torch.testing.assert_close(beignet.polynomial.hermmulx(ser), tgt)
 
 
 def test_hermone():
-    numpy.testing.assert_equal(beignet.polynomial.hermone, [1])
+    torch.testing.assert_close(beignet.polynomial.hermone, [1])
 
 
 def test_hermpow():
@@ -1756,7 +1757,7 @@ def test_hermpow():
                 beignet.polynomial.hermmul, [c] * j, numpy.array([1])
             )
             res = beignet.polynomial.hermpow(c, j)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermtrim(res, tolerance=1e-6),
                 beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -1783,7 +1784,7 @@ def test_hermsub():
             tgt[i] += 1
             tgt[j] -= 1
             res = beignet.polynomial.hermsub([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.hermtrim(res, tolerance=1e-6),
                 beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -1795,13 +1796,13 @@ def test_hermtrim():
 
     numpy.testing.assert_raises(ValueError, beignet.polynomial.hermtrim, coef, -1)
 
-    numpy.testing.assert_equal(beignet.polynomial.hermtrim(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.polynomial.hermtrim(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.polynomial.hermtrim(coef, 2), [0])
+    torch.testing.assert_close(beignet.polynomial.hermtrim(coef), coef[:-1])
+    torch.testing.assert_close(beignet.polynomial.hermtrim(coef, 1), coef[:-3])
+    torch.testing.assert_close(beignet.polynomial.hermtrim(coef, 2), [0])
 
 
 def test_hermval():
-    numpy.testing.assert_equal(beignet.polynomial.hermval([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.hermval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
     y = [beignet.polynomial.polyval(x, c) for c in hermite_polynomial_Hlist]
@@ -1814,9 +1815,9 @@ def test_hermval():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1, 0]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.hermval(x, [1, 0, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.hermval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.hermval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.hermval(x, [1, 0, 0]).shape, dims)
 
 
 def test_hermval2d():
@@ -1918,11 +1919,11 @@ def test_hermweight():
 
 
 def test_hermx():
-    numpy.testing.assert_equal(beignet.polynomial.hermx, [0, 0.5])
+    torch.testing.assert_close(beignet.polynomial.hermx, [0, 0.5])
 
 
 def test_hermzero():
-    numpy.testing.assert_equal(beignet.polynomial.hermzero, [0])
+    torch.testing.assert_close(beignet.polynomial.hermzero, [0])
 
 
 def test_lag2poly():
@@ -1940,7 +1941,7 @@ def test_lagadd():
             tgt[i] += 1
             tgt[j] += 1
             res = beignet.polynomial.lagadd([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.lagtrim(res, tolerance=1e-6),
                 beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -1965,7 +1966,7 @@ def test_lagder():
     for i in range(5):
         tgt = [0] * i + [1]
         res = beignet.polynomial.lagder(tgt, m=0)
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.lagtrim(res, tolerance=1e-6),
             beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
         )
@@ -2018,7 +2019,7 @@ def test_lagdiv():
 
 
 def test_lagdomain():
-    numpy.testing.assert_equal(beignet.polynomial.lagdomain, [0, 1])
+    torch.testing.assert_close(beignet.polynomial.lagdomain, [0, 1])
 
 
 def test_lagfit():
@@ -2055,17 +2056,17 @@ def test_lagfit():
     y = f(x)
 
     coef3 = beignet.polynomial.lagfit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef3), y)
     coef3 = beignet.polynomial.lagfit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef3), y)
 
     coef4 = beignet.polynomial.lagfit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef4), y)
     coef4 = beignet.polynomial.lagfit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.lagval(x, coef4), y)
 
     coef2d = beignet.polynomial.lagfit(x, numpy.array([y, y]).T, 3)
@@ -2271,7 +2272,7 @@ def test_lagint():
 
 
 def test_lagline():
-    numpy.testing.assert_equal(beignet.polynomial.lagline(3, 4), [7, -4])
+    torch.testing.assert_close(beignet.polynomial.lagline(3, 4), [7, -4])
 
 
 def test_lagmul():
@@ -2291,8 +2292,8 @@ def test_lagmul():
 
 
 def test_lagmulx():
-    numpy.testing.assert_equal(beignet.polynomial.lagmulx([0]), [0])
-    numpy.testing.assert_equal(beignet.polynomial.lagmulx([1]), [1, -1])
+    torch.testing.assert_close(beignet.polynomial.lagmulx([0]), [0])
+    torch.testing.assert_close(beignet.polynomial.lagmulx([1]), [1, -1])
     for i in range(1, 5):
         ser = [0] * i + [1]
         tgt = [0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]
@@ -2300,7 +2301,7 @@ def test_lagmulx():
 
 
 def test_lagone():
-    numpy.testing.assert_equal(beignet.polynomial.lagone, [1])
+    torch.testing.assert_close(beignet.polynomial.lagone, [1])
 
 
 def test_lagpow():
@@ -2310,7 +2311,7 @@ def test_lagpow():
             c = numpy.arange(i + 1)
             tgt = functools.reduce(beignet.polynomial.lagmul, [c] * j, numpy.array([1]))
             res = beignet.polynomial.lagpow(c, j)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.lagtrim(res, tolerance=1e-6),
                 beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -2337,7 +2338,7 @@ def test_lagsub():
             tgt[i] += 1
             tgt[j] -= 1
             res = beignet.polynomial.lagsub([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.lagtrim(res, tolerance=1e-6),
                 beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -2349,15 +2350,15 @@ def test_lagtrim():
 
     numpy.testing.assert_raises(ValueError, beignet.polynomial.lagtrim, coef, -1)
 
-    numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.polynomial.lagtrim(coef, 2), [0])
+    torch.testing.assert_close(beignet.polynomial.lagtrim(coef), coef[:-1])
+    torch.testing.assert_close(beignet.polynomial.lagtrim(coef, 1), coef[:-3])
+    torch.testing.assert_close(beignet.polynomial.lagtrim(coef, 2), [0])
 
 
 def test_lagval():
     x = numpy.random.random((3, 5)) * 2 - 1
 
-    numpy.testing.assert_equal(beignet.polynomial.lagval([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.lagval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
     y = [beignet.polynomial.polyval(x, c) for c in laguerre_polynomial_Llist]
@@ -2370,9 +2371,9 @@ def test_lagval():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.lagval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.lagval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.lagval(x, [1, 0, 0]).shape, dims)
 
 
 def test_lagval2d():
@@ -2470,11 +2471,11 @@ def test_lagweight():
 
 
 def test_lagx():
-    numpy.testing.assert_equal(beignet.polynomial.lagx, [1, -1])
+    torch.testing.assert_close(beignet.polynomial.lagx, [1, -1])
 
 
 def test_lagzero():
-    numpy.testing.assert_equal(beignet.polynomial.lagzero, [0])
+    torch.testing.assert_close(beignet.polynomial.lagzero, [0])
 
 
 def test_leg2poly():
@@ -2492,7 +2493,7 @@ def test_legadd():
             tgt[i] += 1
             tgt[j] += 1
             res = beignet.polynomial.legadd([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.legtrim(res, tolerance=1e-6),
                 beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -2517,7 +2518,7 @@ def test_legder():
     for i in range(5):
         tgt = [0] * i + [1]
         res = beignet.polynomial.legder(tgt, m=0)
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.legtrim(res, tolerance=1e-6),
             beignet.polynomial.legtrim(tgt, tolerance=1e-6),
         )
@@ -2553,7 +2554,7 @@ def test_legder():
     numpy.testing.assert_almost_equal(res, tgt)
 
     c = (1, 2, 3, 4)
-    numpy.testing.assert_equal(beignet.polynomial.legder(c, 4), [0])
+    torch.testing.assert_close(beignet.polynomial.legder(c, 4), [0])
 
 
 def test_legdiv():
@@ -2565,7 +2566,7 @@ def test_legdiv():
             tgt = beignet.polynomial.legadd(ci, cj)
             quo, rem = beignet.polynomial.legdiv(tgt, ci)
             res = beignet.polynomial.legadd(beignet.polynomial.legmul(quo, ci), rem)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.legtrim(res, tolerance=1e-6),
                 beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
@@ -2573,7 +2574,7 @@ def test_legdiv():
 
 
 def test_legdomain():
-    numpy.testing.assert_equal(beignet.polynomial.legdomain, [-1, 1])
+    torch.testing.assert_close(beignet.polynomial.legdomain, [-1, 1])
 
 
 def test_legfit():
@@ -2613,21 +2614,21 @@ def test_legfit():
     y = f(x)
 
     coef3 = beignet.polynomial.legfit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
     coef3 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef3), y)
 
     coef4 = beignet.polynomial.legfit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
     coef4 = beignet.polynomial.legfit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
 
     coef4 = beignet.polynomial.legfit(x, y, [2, 3, 4, 1, 0])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.legval(x, coef4), y)
 
     coef2d = beignet.polynomial.legfit(x, numpy.array([y, y]).T, 3)
@@ -2838,9 +2839,9 @@ def test_legint():
         beignet.polynomial.legint(c2d, k=3, axis=1),
         numpy.vstack([beignet.polynomial.legint(c, k=3) for c in c2d]),
     )
-    numpy.testing.assert_equal(beignet.polynomial.legint((1, 2, 3), 0), (1, 2, 3))
+    torch.testing.assert_close(beignet.polynomial.legint((1, 2, 3), 0), (1, 2, 3))
 
 
 def test_legline():
-    numpy.testing.assert_equal(beignet.polynomial.legline(3, 4), [3, 4])
-    numpy.testing.assert_equal(beignet.polynomial.legline(3, 0), [3])
+    torch.testing.assert_close(beignet.polynomial.legline(3, 4), [3, 4])
+    torch.testing.assert_close(beignet.polynomial.legline(3, 0), [3])

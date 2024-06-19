@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polysub():
@@ -9,7 +10,7 @@ def test_polysub():
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] -= 1
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.polytrim(
                     beignet.polynomial.polysub([0] * i + [1], [0] * j + [1]),
                     tolerance=1e-6,

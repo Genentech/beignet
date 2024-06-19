@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polyvalfromroots():
@@ -13,17 +14,17 @@ def test_polyvalfromroots():
         tensor=False,
     )
 
-    numpy.testing.assert_equal(beignet.polynomial.polyvalfromroots([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.polyvalfromroots([], [1]).size, 0)
     numpy.testing.assert_(beignet.polynomial.polyvalfromroots([], [1]).shape == (0,))
 
-    numpy.testing.assert_equal(
+    torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots([], [[1] * 5]).size, 0
     )
     numpy.testing.assert_(
         beignet.polynomial.polyvalfromroots([], [[1] * 5]).shape == (5, 0)
     )
 
-    numpy.testing.assert_equal(beignet.polynomial.polyvalfromroots(1, 1), 0)
+    torch.testing.assert_close(beignet.polynomial.polyvalfromroots(1, 1), 0)
     numpy.testing.assert_(
         beignet.polynomial.polyvalfromroots(1, numpy.ones((3, 3))).shape == (3,)
     )
@@ -42,13 +43,13 @@ def test_polyvalfromroots():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.polyvalfromroots(x, [1]).shape, dims
         )
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.polyvalfromroots(x, [1, 0]).shape, dims
         )
-        numpy.testing.assert_equal(
+        torch.testing.assert_close(
             beignet.polynomial.polyvalfromroots(x, [1, 0, 0]).shape, dims
         )
 
@@ -65,7 +66,7 @@ def test_polyvalfromroots():
     tgt = numpy.empty(r.shape[1:])
     for ii in range(tgt.size):
         tgt[ii] = beignet.polynomial.polyvalfromroots(x[ii], r[:, ii])
-    numpy.testing.assert_equal(
+    torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots(x, r, tensor=False), tgt
     )
 
@@ -74,6 +75,6 @@ def test_polyvalfromroots():
     for ii in range(r.shape[1]):
         for jj in range(x.shape[0]):
             tgt[ii, jj, :] = beignet.polynomial.polyvalfromroots(x[jj], r[:, ii])
-    numpy.testing.assert_equal(
+    torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots(x, r, tensor=True), tgt
     )

@@ -1,6 +1,6 @@
 import beignet.polynomial
-import numpy
+import torch
 
 
 def test_polyone():
-    numpy.testing.assert_equal(beignet.polynomial.polyone, [1])
+    torch.testing.assert_close(beignet.polynomial.polyone, [1])

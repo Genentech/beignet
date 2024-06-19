@@ -4,6 +4,7 @@ import warnings
 
 import numpy
 import numpy.linalg
+import torch
 
 from ._polynomial.__as_series import _as_series
 from ._polynomial.__div import _div
@@ -25,13 +26,13 @@ legtrim = _trim_coefficients
 polytrim = _trim_coefficients
 
 
-chebdomain = numpy.array([-1.0, 1.0])
+chebdomain = torch.tensor([-1.0, 1.0])
 
-chebone = numpy.array([1])
+chebone = torch.tensor([1])
 
-chebx = numpy.array([0, 1])
+chebx = torch.tensor([0, 1])
 
-chebzero = numpy.array([0])
+chebzero = torch.tensor([0])
 
 
 def _add(input, other):
@@ -341,11 +342,11 @@ def chebcompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
+        return torch.tensor([[-c[0] / c[1]]])
 
     n = len(c) - 1
     mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = numpy.array([1.0] + [numpy.sqrt(0.5)] * (n - 1))
+    scl = torch.tensor([1.0] + [numpy.sqrt(0.5)] * (n - 1))
     top = mat.reshape(-1)[1 :: n + 1]
     bot = mat.reshape(-1)[n :: n + 1]
     top[0] = numpy.sqrt(0.5)
@@ -511,9 +512,9 @@ def chebinterpolate(func, deg, args=()):
 
 def chebline(off, scl):
     if scl != 0:
-        return numpy.array([off, scl])
+        return torch.tensor([off, scl])
     else:
-        return numpy.array([off])
+        return torch.tensor([off])
 
 
 def chebmul(input, other):
@@ -600,9 +601,9 @@ def chebpts2(npts):
 def chebroots(c):
     [c] = _as_series([c])
     if len(c) < 2:
-        return numpy.array([], dtype=c.dtype)
+        return torch.tensor([], dtype=c.dtype)
     if len(c) == 2:
-        return numpy.array([-c[0] / c[1]])
+        return torch.tensor([-c[0] / c[1]])
 
     m = chebcompanion(c)[::-1, ::-1]
     r = numpy.linalg.eigvals(m)
@@ -708,7 +709,7 @@ def hermcompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return numpy.array([[-0.5 * c[0] / c[1]]])
+        return torch.tensor([[-0.5 * c[0] / c[1]]])
 
     n = len(c) - 1
     mat = numpy.zeros((n, n), dtype=c.dtype)
@@ -782,7 +783,7 @@ def hermecompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return numpy.array([[-c[0] / c[1]]])
+        return torch.tensor([[-c[0] / c[1]]])
 
     n = len(c) - 1
     mat = numpy.zeros((n, n), dtype=c.dtype)
@@ -2222,45 +2223,45 @@ def polyvander3d(x, y, z, deg):
     return _vander_nd_flat((polyvander, polyvander, polyvander), (x, y, z), deg)
 
 
-hermdomain = numpy.array([-1.0, 1.0])
+hermdomain = torch.tensor([-1.0, 1.0])
 
-hermedomain = numpy.array([-1.0, 1.0])
+hermedomain = torch.tensor([-1.0, 1.0])
 
-hermeone = numpy.array([1])
+hermeone = torch.tensor([1])
 
-hermex = numpy.array([0, 1])
+hermex = torch.tensor([0, 1])
 
-hermezero = numpy.array([0])
+hermezero = torch.tensor([0])
 
-hermone = numpy.array([1])
+hermone = torch.tensor([1])
 
-hermx = numpy.array([0, 1 / 2])
+hermx = torch.tensor([0, 1 / 2])
 
-hermzero = numpy.array([0])
+hermzero = torch.tensor([0])
 
-lagdomain = numpy.array([0.0, 1.0])
+lagdomain = torch.tensor([0.0, 1.0])
 
-lagone = numpy.array([1])
+lagone = torch.tensor([1])
 
-lagx = numpy.array([1, -1])
+lagx = torch.tensor([1, -1])
 
-lagzero = numpy.array([0])
+lagzero = torch.tensor([0])
 
-legdomain = numpy.array([-1.0, 1.0])
+legdomain = torch.tensor([-1.0, 1.0])
 
-legone = numpy.array([1])
+legone = torch.tensor([1])
 
-legx = numpy.array([0, 1])
+legx = torch.tensor([0, 1])
 
-legzero = numpy.array([0])
+legzero = torch.tensor([0])
 
-polydomain = numpy.array([-1.0, 1.0])
+polydomain = torch.tensor([-1.0, 1.0])
 
-polyone = numpy.array([1])
+polyone = torch.tensor([1])
 
-polyx = numpy.array([0, 1])
+polyx = torch.tensor([0, 1])
 
-polyzero = numpy.array([0])
+polyzero = torch.tensor([0])
 
 
 __all__ = [

@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polyfit():
@@ -39,17 +40,17 @@ def test_polyfit():
     y = f(x)
 
     coef3 = beignet.polynomial.polyfit(x, y, 3)
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef3), y)
     coef3 = beignet.polynomial.polyfit(x, y, [0, 1, 2, 3])
-    numpy.testing.assert_equal(len(coef3), 4)
+    torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef3), y)
 
     coef4 = beignet.polynomial.polyfit(x, y, 4)
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef4), y)
     coef4 = beignet.polynomial.polyfit(x, y, [0, 1, 2, 3, 4])
-    numpy.testing.assert_equal(len(coef4), 5)
+    torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef4), y)
 
     coef2d = beignet.polynomial.polyfit(x, numpy.array([y, y]).T, 3)

@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_legsub():
@@ -10,7 +11,7 @@ def test_legsub():
             tgt[i] += 1
             tgt[j] -= 1
             res = beignet.polynomial.legsub([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.legtrim(res, tolerance=1e-6),
                 beignet.polynomial.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,

@@ -1,9 +1,10 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polyval():
-    numpy.testing.assert_equal(beignet.polynomial.polyval([], [1]).size, 0)
+    torch.testing.assert_close(beignet.polynomial.polyval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
     y = [x**i for i in range(5)]
@@ -18,18 +19,6 @@ def test_polyval():
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
-        numpy.testing.assert_equal(beignet.polynomial.polyval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.polyval(x, [1, 0]).shape, dims)
-        numpy.testing.assert_equal(beignet.polynomial.polyval(x, [1, 0, 0]).shape, dims)
-
-    mask = [False, True, False]
-    numpy.testing.assert_array_equal(
-        numpy.polyval([7, 5, 3], numpy.ma.array([1, 2, 3], mask=mask)).mask, mask
-    )
-
-    class C(numpy.ndarray):
-        pass
-
-    numpy.testing.assert_equal(
-        type(numpy.polyval([2, 3, 4], numpy.array([1, 2, 3]).view(C))), C
-    )
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1, 0, 0]).shape, dims)

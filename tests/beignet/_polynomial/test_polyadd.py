@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polyadd():
@@ -10,7 +11,7 @@ def test_polyadd():
             tgt[i] += 1
             tgt[j] += 1
             res = beignet.polynomial.polyadd([0] * i + [1], [0] * j + [1])
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.polytrim(res, tolerance=1e-6),
                 beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,

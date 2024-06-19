@@ -1,6 +1,9 @@
 import beignet.polynomial
-import numpy
+import torch.testing
 
 
 def test_polyzero():
-    numpy.testing.assert_equal(beignet.polynomial.polyzero, [0])
+    torch.testing.assert_close(
+        beignet.polynomial.polyzero,
+        torch.tensor([0]),
+    )

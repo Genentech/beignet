@@ -2,6 +2,7 @@ import functools
 
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_polypow():
@@ -13,7 +14,7 @@ def test_polypow():
                 beignet.polynomial.polymul, [c] * j, numpy.array([1])
             )
             res = beignet.polynomial.polypow(c, j)
-            numpy.testing.assert_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.polytrim(res, tolerance=1e-6),
                 beignet.polynomial.polytrim(tgt, tolerance=1e-6),
                 err_msg=msg,
