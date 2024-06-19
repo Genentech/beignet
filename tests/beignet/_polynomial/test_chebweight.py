@@ -1,11 +1,11 @@
 import beignet.polynomial
 import beignet.polynomial._chebweight
-import numpy
+import torch
 
 
 def test_chebweight():
-    x = numpy.linspace(-1, 1, 11)[1:-1]
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._chebweight.chebweight(x),
-        1.0 / (numpy.sqrt(1 + x) * numpy.sqrt(1 - x)),
+    x = torch.linspace(-1, 1, 11)[1:-1]
+    torch.testing.assert_close(
+        beignet.polynomial.chebweight(x),
+        1.0 / (torch.sqrt(1 + x) * torch.sqrt(1 - x)),
     )

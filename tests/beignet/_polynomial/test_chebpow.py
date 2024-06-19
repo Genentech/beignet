@@ -2,21 +2,27 @@ import functools
 
 import beignet.polynomial
 import beignet.polynomial._chebtrim
-import numpy
 import torch
 
 
 def test_chebpow():
-    for i in range(5):
-        for j in range(5):
-            msg = f"At i={i}, j={j}"
-            c = numpy.arange(i + 1)
+    for j in range(5):
+        for k in range(5):
+            c = torch.arange(j + 1)
+
             tgt = functools.reduce(
-                beignet.polynomial.chebmul, [c] * j, numpy.array([1])
+                beignet.polynomial.chebmul,
+                torch.tensor([c] * k),
+                torch.tensor([1]),
             )
-            res = beignet.polynomial.chebpow(c, j)
+
             torch.testing.assert_close(
-                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
-                err_msg=msg,
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebpow(c, k),
+                    tolerance=1e-6,
+                ),
+                beignet.polynomial.chebtrim(
+                    tgt,
+                    tolerance=1e-6,
+                ),
             )
