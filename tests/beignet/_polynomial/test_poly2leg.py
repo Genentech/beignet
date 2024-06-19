@@ -1,13 +1,13 @@
 import beignet.polynomial
 import beignet.polynomial._poly2leg
-import numpy
+import torch.testing
 
-from tests.beignet._polynomial.test_polynomial import legendre_polynomial_Llist
+from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients
 
 
 def test_poly2leg():
     for i in range(10):
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._poly2leg.poly2leg(legendre_polynomial_Llist[i]),
+        torch.testing.assert_close(
+            beignet.polynomial.poly2leg(legendre_polynomial_coefficients[i]),
             [0] * i + [1],
         )

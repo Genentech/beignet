@@ -1,13 +1,14 @@
 import beignet.polynomial
-import beignet.polynomial._poly2lag
-import numpy
+import torch.testing
 
-from tests.beignet._polynomial.test_polynomial import laguerre_polynomial_Llist
+from .test_polynomial import laguerre_polynomial_coefficients
 
 
 def test_poly2lag():
-    for i in range(7):
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._poly2lag.poly2lag(laguerre_polynomial_Llist[i]),
-            [0] * i + [1],
+    for index in range(7):
+        torch.testing.assert_close(
+            beignet.polynomial.poly2lag(
+                laguerre_polynomial_coefficients[index],
+            ),
+            torch.tensor([0] * index + [1]),
         )

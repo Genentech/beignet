@@ -4,14 +4,17 @@ import beignet.polynomial._polyval
 import numpy
 import torch
 
-from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_Tlist
+from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_coefficients
 
 
 def test_chebval():
     torch.testing.assert_close(beignet.polynomial._chebval.chebval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
-    y = [beignet.polynomial._polyval.polyval(x, c) for c in chebyshev_polynomial_Tlist]
+    y = [
+        beignet.polynomial._polyval.polyval(x, c)
+        for c in chebyshev_polynomial_coefficients
+    ]
     for i in range(10):
         msg = f"At i={i}"
         tgt = y[i]

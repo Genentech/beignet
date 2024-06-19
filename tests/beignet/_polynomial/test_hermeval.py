@@ -4,7 +4,7 @@ import beignet.polynomial._polyval
 import numpy
 import torch
 
-from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_Helist
+from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coefficients
 
 
 def test_hermeval():
@@ -13,7 +13,10 @@ def test_hermeval():
     torch.testing.assert_close(beignet.polynomial._hermeval.hermeval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
-    y = [beignet.polynomial._polyval.polyval(x, c) for c in hermite_e_polynomial_Helist]
+    y = [
+        beignet.polynomial._polyval.polyval(x, c)
+        for c in hermite_e_polynomial_coefficients
+    ]
     for i in range(10):
         msg = f"At i={i}"
         tgt = y[i]

@@ -4,7 +4,7 @@ import beignet.polynomial._polyval
 import numpy
 import torch
 
-from tests.beignet._polynomial.test_polynomial import legendre_polynomial_Llist
+from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients
 
 
 def test_legval():
@@ -15,7 +15,10 @@ def test_legval():
 
     x = numpy.linspace(-1, 1)
 
-    y = [beignet.polynomial._polyval.polyval(x, c) for c in legendre_polynomial_Llist]
+    y = [
+        beignet.polynomial._polyval.polyval(x, c)
+        for c in legendre_polynomial_coefficients
+    ]
 
     for i in range(10):
         torch.testing.assert_close(

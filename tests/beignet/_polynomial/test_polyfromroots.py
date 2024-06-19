@@ -3,7 +3,7 @@ import beignet.polynomial._polyfromroots
 import beignet.polynomial._polytrim
 import numpy
 
-from tests.beignet._polynomial.test_polynomial import polynomial_Tlist
+from tests.beignet._polynomial.test_polynomial import polynomial_coefficients
 
 
 def test_polyfromroots():
@@ -13,7 +13,7 @@ def test_polyfromroots():
     )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        tgt = polynomial_Tlist[i]
+        tgt = polynomial_coefficients[i]
         res = beignet.polynomial._polyfromroots.polyfromroots(roots) * 2 ** (i - 1)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),

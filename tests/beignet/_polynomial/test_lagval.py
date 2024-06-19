@@ -4,7 +4,7 @@ import beignet.polynomial._polyval
 import numpy
 import torch
 
-from tests.beignet._polynomial.test_polynomial import laguerre_polynomial_Llist
+from tests.beignet._polynomial.test_polynomial import laguerre_polynomial_coefficients
 
 
 def test_lagval():
@@ -13,7 +13,10 @@ def test_lagval():
     torch.testing.assert_close(beignet.polynomial._lagval.lagval([], [1]).size, 0)
 
     x = numpy.linspace(-1, 1)
-    y = [beignet.polynomial._polyval.polyval(x, c) for c in laguerre_polynomial_Llist]
+    y = [
+        beignet.polynomial._polyval.polyval(x, c)
+        for c in laguerre_polynomial_coefficients
+    ]
     for i in range(7):
         msg = f"At i={i}"
         tgt = y[i]
