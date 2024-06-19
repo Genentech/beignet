@@ -3,16 +3,19 @@ import torch
 from .__as_series import _as_series
 
 
-def hermemulx(c):
-    [c] = _as_series([c])
+def hermemulx(input):
+    (input,) = _as_series([input])
 
-    if len(c) == 1 and c[0] == 0:
-        return c
+    if len(input) == 1 and input[0] == 0:
+        return input
 
-    prd = torch.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0]
-    for i in range(1, len(c)):
-        prd[i + 1] = c[i]
-        prd[i - 1] += c[i] * i
-    return prd
+    output = torch.empty(len(input) + 1, dtype=input.dtype)
+
+    output[0] = input[0] * 0
+    output[1] = input[0]
+
+    for index in range(1, len(input)):
+        output[index + 1] = input[index]
+        output[index - 1] = output[index - 1] + (input[index] * index)
+
+    return output
