@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polytrim
 import numpy
 
 
@@ -22,8 +23,8 @@ def test_polyint():
         tgt = [i] + [0] * i + [1 / scl]
         res = beignet.polynomial.polyint(pol, m=1, k=[i])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tolerance=1e-6),
-            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -38,8 +39,8 @@ def test_polyint():
         tgt = [i] + [0] * i + [2 / scl]
         res = beignet.polynomial.polyint(pol, m=1, k=[i], scl=2)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tolerance=1e-6),
-            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -50,8 +51,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1)
             res = beignet.polynomial.polyint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -62,8 +63,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1, k=[k])
             res = beignet.polynomial.polyint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -74,8 +75,8 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.polyint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -86,7 +87,7 @@ def test_polyint():
                 tgt = beignet.polynomial.polyint(tgt, m=1, k=[k], scl=2)
 
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(
+                beignet.polynomial._polytrim.polytrim(
                     beignet.polynomial.polyint(
                         pol,
                         m=j,
@@ -95,7 +96,7 @@ def test_polyint():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

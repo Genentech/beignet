@@ -1,11 +1,12 @@
 import beignet.polynomial
+import beignet.polynomial._hermetrim
 import numpy
 
 
 def test_hermefromroots():
     res = beignet.polynomial.hermefromroots([])
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.hermetrim(res, tolerance=1e-6), [1]
+        beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6), [1]
     )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])

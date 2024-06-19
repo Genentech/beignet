@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polytrim
 import numpy
 import torch
 
@@ -10,10 +11,10 @@ def test_polyder():
     for i in range(5):
         tgt = [0] * i + [1]
         torch.testing.assert_close(
-            beignet.polynomial.polytrim(
+            beignet.polynomial._polytrim.polytrim(
                 beignet.polynomial.polyder(tgt, order=0), tolerance=1e-6
             ),
-            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -23,8 +24,8 @@ def test_polyder():
                 beignet.polynomial.polyint(tgt, m=j), order=j
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -34,8 +35,8 @@ def test_polyder():
                 beignet.polynomial.polyint(tgt, m=j, scl=2), order=j, scale=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+                beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

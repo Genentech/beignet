@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._legtrim
 import numpy
 import torch
 
@@ -24,10 +25,10 @@ def test_legint():
         legpol = beignet.polynomial.poly2leg(pol)
         legint = beignet.polynomial.legint(legpol, m=1, k=[i])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(
+            beignet.polynomial._legtrim.legtrim(
                 beignet.polynomial.leg2poly(legint), tolerance=1e-6
             ),
-            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -45,8 +46,8 @@ def test_legint():
         legint = beignet.polynomial.legint(legpol, m=1, k=[i], scl=2)
         res = beignet.polynomial.leg2poly(legint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tolerance=1e-6),
-            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -57,8 +58,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1)
             res = beignet.polynomial.legint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -69,8 +70,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k])
             res = beignet.polynomial.legint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -81,8 +82,8 @@ def test_legint():
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial.legint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -92,11 +93,11 @@ def test_legint():
             for k in range(j):
                 tgt = beignet.polynomial.legint(tgt, m=1, k=[k], scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(
+                beignet.polynomial._legtrim.legtrim(
                     beignet.polynomial.legint(pol, m=j, k=list(range(j)), scl=2),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

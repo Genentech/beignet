@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._chebtrim
 import numpy
 import torch
 
@@ -10,36 +11,36 @@ def test_chebder():
     for i in range(5):
         tgt = [0] * i + [1]
         torch.testing.assert_close(
-            beignet.polynomial.chebtrim(
+            beignet.polynomial._chebtrim.chebtrim(
                 beignet.polynomial.chebder(tgt, m=0), tolerance=1e-6
             ),
-            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(
+                beignet.polynomial._chebtrim.chebtrim(
                     beignet.polynomial.chebder(
                         beignet.polynomial.chebint(tgt, m=j), m=j
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebtrim(
+                beignet.polynomial._chebtrim.chebtrim(
                     beignet.polynomial.chebder(
                         beignet.polynomial.chebint(tgt, m=j, scl=2), m=j, scl=0.5
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

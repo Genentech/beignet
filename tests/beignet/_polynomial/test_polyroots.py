@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polytrim
 import numpy
 
 
@@ -9,6 +10,6 @@ def test_polyroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.polyroots(beignet.polynomial.polyfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.polytrim(res, tolerance=1e-6),
-            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
+            beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
         )

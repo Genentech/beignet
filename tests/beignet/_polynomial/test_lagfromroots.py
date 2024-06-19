@@ -1,10 +1,13 @@
 import beignet.polynomial
+import beignet.polynomial._lagtrim
 import numpy
 
 
 def test_lagfromroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.lagtrim(beignet.polynomial.lagfromroots([]), tolerance=1e-6),
+        beignet.polynomial._lagtrim.lagtrim(
+            beignet.polynomial.lagfromroots([]), tolerance=1e-6
+        ),
         [1],
     )
     for i in range(1, 5):

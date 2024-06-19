@@ -1,6 +1,7 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._hermetrim
 import numpy
 import torch
 
@@ -15,7 +16,7 @@ def test_hermepow():
             )
             res = beignet.polynomial.hermepow(c, j)
             torch.testing.assert_close(
-                beignet.polynomial.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

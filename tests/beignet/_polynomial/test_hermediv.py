@@ -1,5 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._hermeadd
+import beignet.polynomial._hermetrim
 import torch
 
 
@@ -15,7 +16,7 @@ def test_hermediv():
                 beignet.polynomial.hermemul(quo, ci), rem
             )
             torch.testing.assert_close(
-                beignet.polynomial.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
+                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

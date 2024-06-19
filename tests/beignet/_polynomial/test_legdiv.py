@@ -1,5 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._legadd
+import beignet.polynomial._legtrim
 import torch
 
 
@@ -15,7 +16,7 @@ def test_legdiv():
                 beignet.polynomial.legmul(quo, ci), rem
             )
             torch.testing.assert_close(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

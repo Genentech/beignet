@@ -1,5 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._chebadd
+import beignet.polynomial._chebtrim
 import torch
 
 
@@ -11,12 +12,12 @@ def test_chebdiv():
             tgt = beignet.polynomial._chebadd.chebadd(ci, [0] * j + [1])
             quo, rem = beignet.polynomial.chebdiv(tgt, ci)
             torch.testing.assert_close(
-                beignet.polynomial.chebtrim(
+                beignet.polynomial._chebtrim.chebtrim(
                     beignet.polynomial._chebadd.chebadd(
                         beignet.polynomial.chebmul(quo, ci), rem
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

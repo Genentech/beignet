@@ -1,5 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._polyadd
+import beignet.polynomial._polytrim
 import torch
 
 
@@ -11,14 +12,14 @@ def test_polyadd():
             tgt[j] += 1
 
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(
+                beignet.polynomial._polytrim.polytrim(
                     beignet.polynomial._polyadd.polyadd(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(
+                beignet.polynomial._polytrim.polytrim(
                     tgt,
                     tolerance=1e-6,
                 ),

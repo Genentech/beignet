@@ -23,41 +23,59 @@ from .__trim_sequence import _trim_sequence
 from .__vander_nd_flat import _vander_nd_flat
 from .__z_series_to_c_series import _z_series_to_c_series
 from .__zseries_div import _zseries_div
+from ._chebdomain import chebdomain
+from ._chebone import chebone
+from ._chebtrim import chebtrim
+from ._chebweight import chebweight
+from ._chebx import chebx
+from ._chebzero import chebzero
 from ._hermadd import hermadd
+from ._hermdomain import hermdomain
 from ._hermeadd import hermeadd
+from ._hermedomain import hermedomain
+from ._hermeone import hermeone
 from ._hermesub import hermesub
+from ._hermetrim import hermetrim
+from ._hermeweight import hermeweight
+from ._hermex import hermex
+from ._hermezero import hermezero
 from ._hermline import hermline
+from ._hermone import hermone
 from ._hermsub import hermsub
+from ._hermtrim import hermtrim
+from ._hermweight import hermweight
+from ._hermx import hermx
+from ._hermzero import hermzero
 from ._lagadd import lagadd
+from ._lagdomain import lagdomain
 from ._lagline import lagline
+from ._lagone import lagone
 from ._lagsub import lagsub
+from ._lagtrim import lagtrim
+from ._lagweight import lagweight
+from ._lagx import lagx
+from ._lagzero import lagzero
 from ._legadd import legadd
+from ._legdomain import legdomain
 from ._legline import legline
+from ._legone import legone
 from ._legsub import legsub
+from ._legtrim import legtrim
+from ._legweight import legweight
+from ._legx import legx
+from ._legzero import legzero
 from ._polyadd import polyadd
+from ._polydomain import polydomain
 from ._polyline import polyline
+from ._polyone import polyone
 from ._polysub import polysub
+from ._polytrim import polytrim
+from ._polyx import polyx
+from ._polyzero import polyzero
 
 
 class RankWarning(RuntimeWarning):
     pass
-
-
-chebtrim = _trim_coefficients
-hermetrim = _trim_coefficients
-hermtrim = _trim_coefficients
-lagtrim = _trim_coefficients
-legtrim = _trim_coefficients
-polytrim = _trim_coefficients
-
-
-chebdomain = torch.tensor([-1.0, 1.0])
-
-chebone = torch.tensor([1])
-
-chebx = torch.tensor([0, 1])
-
-chebzero = torch.tensor([0])
 
 
 def cheb2poly(input):
@@ -410,11 +428,6 @@ def chebvander2d(x, y, deg):
 
 def chebvander3d(x, y, z, deg):
     return _vander_nd_flat((chebvander, chebvander, chebvander), (x, y, z), deg)
-
-
-def chebweight(x):
-    w = 1.0 / (numpy.sqrt(1.0 + x) * numpy.sqrt(1.0 - x))
-    return w
 
 
 def herm2poly(input):
@@ -1863,7 +1876,6 @@ __all__ = [
     "chebcompanion",
     "chebder",
     "chebdiv",
-    "chebdomain",
     "chebfit",
     "chebfromroots",
     "chebgauss",
@@ -1872,23 +1884,19 @@ __all__ = [
     "chebint",
     "chebinterpolate",
     "chebline",
+    "chebline",
     "chebmul",
     "chebmulx",
-    "chebone",
     "chebpow",
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "chebtrim",
     "chebval",
     "chebval2d",
     "chebval3d",
     "chebvander",
     "chebvander2d",
     "chebvander3d",
-    "chebweight",
-    "chebx",
-    "chebzero",
     "herm2poly",
     "hermcompanion",
     "hermder",
@@ -1904,11 +1912,11 @@ __all__ = [
     "hermegrid3d",
     "hermeint",
     "hermeline",
+    "hermeline",
     "hermemul",
     "hermemulx",
     "hermepow",
     "hermeroots",
-    "hermetrim",
     "hermeval",
     "hermeval2d",
     "hermeval3d",
@@ -1921,11 +1929,11 @@ __all__ = [
     "hermgrid2d",
     "hermgrid3d",
     "hermint",
+    "hermline",
     "hermmul",
     "hermmulx",
     "hermpow",
     "hermroots",
-    "hermtrim",
     "hermval",
     "hermval2d",
     "hermval3d",
@@ -1942,11 +1950,11 @@ __all__ = [
     "laggrid2d",
     "laggrid3d",
     "lagint",
+    "lagline",
     "lagmul",
     "lagmulx",
     "lagpow",
     "lagroots",
-    "lagtrim",
     "lagval",
     "lagval2d",
     "lagval3d",
@@ -1963,11 +1971,11 @@ __all__ = [
     "leggrid2d",
     "leggrid3d",
     "legint",
+    "legline",
     "legmul",
     "legmulx",
     "legpow",
     "legroots",
-    "legtrim",
     "legval",
     "legval2d",
     "legval3d",
@@ -1987,11 +1995,11 @@ __all__ = [
     "polygrid2d",
     "polygrid3d",
     "polyint",
+    "polyline",
     "polymul",
     "polymulx",
     "polypow",
     "polyroots",
-    "polytrim",
     "polyval",
     "polyval2d",
     "polyval3d",

@@ -1,11 +1,12 @@
 import beignet.polynomial
+import beignet.polynomial._legtrim
 import numpy
 
 
 def test_legfromroots():
     res = beignet.polynomial.legfromroots([])
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.legtrim(res, tolerance=1e-6), [1]
+        beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6), [1]
     )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])

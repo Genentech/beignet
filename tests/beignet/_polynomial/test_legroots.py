@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._legtrim
 import numpy
 
 
@@ -9,6 +10,6 @@ def test_legroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.legroots(beignet.polynomial.legfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.legtrim(res, tolerance=1e-6),
-            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
         )

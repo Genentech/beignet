@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._hermtrim
 import numpy
 
 
@@ -9,6 +10,6 @@ def test_hermroots():
         tgt = numpy.linspace(-1, 1, i)
         res = beignet.polynomial.hermroots(beignet.polynomial.hermfromroots(tgt))
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.hermtrim(res, tolerance=1e-6),
-            beignet.polynomial.hermtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._hermtrim.hermtrim(res, tolerance=1e-6),
+            beignet.polynomial._hermtrim.hermtrim(tgt, tolerance=1e-6),
         )

@@ -1,6 +1,7 @@
 import functools
 
 import beignet.polynomial
+import beignet.polynomial._chebtrim
 import numpy
 import torch
 
@@ -15,7 +16,7 @@ def test_chebpow():
             )
             res = beignet.polynomial.chebpow(c, j)
             torch.testing.assert_close(
-                beignet.polynomial.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
+                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

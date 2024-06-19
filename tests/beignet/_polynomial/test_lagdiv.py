@@ -1,5 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._lagadd
+import beignet.polynomial._lagtrim
 import numpy
 
 
@@ -15,7 +16,7 @@ def test_lagdiv():
                 beignet.polynomial.lagmul(quo, ci), rem
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.lagtrim(res, tolerance=1e-6),
-                beignet.polynomial.lagtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._lagtrim.lagtrim(res, tolerance=1e-6),
+                beignet.polynomial._lagtrim.lagtrim(tgt, tolerance=1e-6),
                 err_msg=msg,
             )

@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._chebtrim
 import numpy
 
 
@@ -8,9 +9,9 @@ def test_chebroots():
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial.chebtrim(
+            beignet.polynomial._chebtrim.chebtrim(
                 beignet.polynomial.chebroots(beignet.polynomial.chebfromroots(tgt)),
                 tolerance=1e-6,
             ),
-            beignet.polynomial.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
         )

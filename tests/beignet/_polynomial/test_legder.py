@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._legtrim
 import numpy
 import torch
 
@@ -11,8 +12,8 @@ def test_legder():
         tgt = [0] * i + [1]
         res = beignet.polynomial.legder(tgt, m=0)
         torch.testing.assert_close(
-            beignet.polynomial.legtrim(res, tolerance=1e-6),
-            beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -20,8 +21,8 @@ def test_legder():
             tgt = [0] * i + [1]
             res = beignet.polynomial.legder(beignet.polynomial.legint(tgt, m=j), m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -31,8 +32,8 @@ def test_legder():
                 beignet.polynomial.legint(tgt, m=j, scl=2), m=j, scl=0.5
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.legtrim(res, tolerance=1e-6),
-                beignet.polynomial.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
