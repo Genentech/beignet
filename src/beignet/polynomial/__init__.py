@@ -1,17 +1,27 @@
-import functools
 import operator
-import warnings
 
 import numpy
 import numpy.linalg
 import torch
 
+from .__add import _add
 from .__as_series import _as_series
+from .__c_series_to_z_series import _c_series_to_z_series
 from .__div import _div
+from .__evaluate import _evaluate
+from .__fit import _fit
+from .__from_roots import _from_roots
+from .__grid import _grid
 from .__normalize_axis_index import _normalize_axis_index
+from .__normed_hermite_e_n import _normed_hermite_e_n
+from .__normed_hermite_n import _normed_hermite_n
 from .__pow import _pow
+from .__sub import _sub
 from .__trim_coefficients import _trim_coefficients
 from .__trim_sequence import _trim_sequence
+from .__vander_nd_flat import _vander_nd_flat
+from .__z_series_to_c_series import _z_series_to_c_series
+from .__zseries_div import _zseries_div
 
 
 class RankWarning(RuntimeWarning):
@@ -33,287 +43,6 @@ chebone = torch.tensor([1])
 chebx = torch.tensor([0, 1])
 
 chebzero = torch.tensor([0])
-
-
-def _add(input, other):
-    [input, other] = _as_series([input, other])
-
-    if len(input) > len(other):
-        input[: other.size] = input[: other.size] + other
-
-        output = input
-    else:
-        other[: input.size] = other[: input.size] + input
-
-        output = other
-
-    if len(output) != 0 and output[-1] == 0:
-        for index in range(len(output) - 1, -1, -1):
-            if output[index] != 0:
-                break
-
-        output = output[: index + 1]
-
-    return output
-
-
-def _c_series_to_z_series(input):
-    n = input.size
-    output = numpy.zeros(2 * n - 1, dtype=input.dtype)
-    output[n - 1 :] = input / 2
-    return output + output[::-1]
-
-
-def _evaluate(func, input, *xs):
-    xs = [numpy.asanyarray(a) for a in xs]
-
-    if not all((a.shape == xs[0].shape for a in xs[1:])):
-        match len(xs):
-            case 2:
-                raise ValueError("x, y are incompatible")
-            case 3:
-                raise ValueError("x, y, z are incompatible")
-            case _:
-                raise ValueError("ordinates are incompatible")
-
-    xs = iter(xs)
-
-    output = func(next(xs), input)
-
-    for x in xs:
-        output = func(x, output, tensor=False)
-
-    return output
-
-
-def _fit(func, x, y, degree, relative_condition=None, full=False, weight=None):
-    x = numpy.asarray(x) + 0.0
-    y = numpy.asarray(y) + 0.0
-    degree = numpy.asarray(degree)
-
-    if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
-        raise TypeError("deg must be an int or non-empty 1-D array of int")
-    if degree.min() < 0:
-        raise ValueError("expected deg >= 0")
-    if x.ndim != 1:
-        raise TypeError("expected 1D vector for x")
-    if x.size == 0:
-        raise TypeError("expected non-empty vector for x")
-    if y.ndim < 1 or y.ndim > 2:
-        raise TypeError("expected 1D or 2D array for y")
-    if len(x) != len(y):
-        raise TypeError("expected x and y to have same length")
-
-    if degree.ndim == 0:
-        lmax = degree
-        order = lmax + 1
-        van = func(x, lmax)
-    else:
-        degree = numpy.sort(degree)
-        lmax = degree[-1]
-        order = len(degree)
-        van = func(x, lmax)[:, degree]
-
-    lhs = van.T
-    rhs = y.T
-    if weight is not None:
-        weight = numpy.asarray(weight) + 0.0
-        if weight.ndim != 1:
-            raise TypeError("expected 1D vector for w")
-        if len(x) != len(weight):
-            raise TypeError("expected x and w to have same length")
-
-        lhs = lhs * weight
-        rhs = rhs * weight
-
-    if relative_condition is None:
-        relative_condition = len(x) * numpy.finfo(x.dtype).eps
-
-    if issubclass(lhs.dtype.type, numpy.complexfloating):
-        scl = numpy.sqrt((numpy.square(lhs.real) + numpy.square(lhs.imag)).sum(1))
-    else:
-        scl = numpy.sqrt(numpy.square(lhs).sum(1))
-    scl[scl == 0] = 1
-
-    c, resids, rank, s = numpy.linalg.lstsq(lhs.T / scl, rhs.T, relative_condition)
-    c = (c.T / scl).T
-
-    if degree.ndim > 0:
-        if c.ndim == 2:
-            cc = numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
-        else:
-            cc = numpy.zeros(lmax + 1, dtype=c.dtype)
-        cc[degree] = c
-        c = cc
-
-    if rank != order and not full:
-        msg = "The fit may be poorly conditioned"
-        warnings.warn(msg, RankWarning, stacklevel=2)
-
-    if full:
-        return c, [resids, rank, s, relative_condition]
-    else:
-        return c
-
-
-def _from_roots(line_f: callable, mul_f: callable, roots):
-    if len(roots) == 0:
-        return numpy.ones(1)
-    else:
-        [roots] = _as_series([roots], trim=False)
-
-        roots.sort()
-
-        p = [line_f(-r, 1) for r in roots]
-
-        n = len(p)
-
-        while n > 1:
-            m, r = divmod(n, 2)
-
-            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
-
-            if r:
-                tmp[0] = mul_f(tmp[0], p[-1])
-
-            p = tmp
-
-            n = m
-
-        return p[0]
-
-
-def _grid(func, input, *xs):
-    for x in xs:
-        input = func(x, input)
-
-    return input
-
-
-def _normed_hermite_e_n(x, n):
-    if n == 0:
-        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(2 * numpy.pi)))
-
-    c0 = 0.0
-    c1 = 1.0 / numpy.sqrt(numpy.sqrt(2 * numpy.pi))
-    nd = float(n)
-    for _ in range(n - 1):
-        tmp = c0
-        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
-        c1 = tmp + c1 * x * numpy.sqrt(1.0 / nd)
-        nd = nd - 1.0
-    return c0 + c1 * x
-
-
-def _normed_hermite_n(x, n):
-    if n == 0:
-        return numpy.full(x.shape, 1 / numpy.sqrt(numpy.sqrt(numpy.pi)))
-
-    c0 = 0.0
-    c1 = 1.0 / numpy.sqrt(numpy.sqrt(numpy.pi))
-    nd = float(n)
-    for _ in range(n - 1):
-        tmp = c0
-        c0 = -c1 * numpy.sqrt((nd - 1.0) / nd)
-        c1 = tmp + c1 * x * numpy.sqrt(2.0 / nd)
-        nd = nd - 1.0
-    return c0 + c1 * x * numpy.sqrt(2)
-
-
-def _sub(input, other):
-    [input, other] = _as_series([input, other])
-
-    if len(input) > len(other):
-        input[: other.size] = input[: other.size] - other
-
-        output = input
-    else:
-        other = -other
-
-        other[: input.size] = other[: input.size] + input
-
-        output = other
-
-    if len(output) != 0 and output[-1] == 0:
-        for index in range(len(output) - 1, -1, -1):
-            if output[index] != 0:
-                break
-
-        output = output[: index + 1]
-
-    return output
-
-
-def _vander_nd(func, input, degrees):
-    n_dims = len(func)
-    if n_dims != len(input):
-        raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
-        )
-    if n_dims != len(degrees):
-        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
-    if n_dims == 0:
-        raise ValueError("Unable to guess a dtype or shape when no points are given")
-
-    input = tuple(numpy.asarray(tuple(input)) + 0.0)
-
-    ys = []
-
-    for index in range(n_dims):
-        output = [None] * n_dims
-
-        output[index] = slice(None)
-
-        y = func[index](input[index], degrees[index])[(...,) + (*output,)]
-
-        ys = [*ys, y]
-
-    return functools.reduce(operator.mul, ys)
-
-
-def _vander_nd_flat(vander_fs, points, degrees):
-    v = _vander_nd(vander_fs, points, degrees)
-    return v.reshape(v.shape[: -len(degrees)] + (-1,))
-
-
-def _z_series_to_c_series(input):
-    n = (input.size + 1) // 2
-    output = input[n - 1 :]
-    output[1:n] = output[1:n] * 2
-    return output
-
-
-def _zseries_div(z1, z2):
-    lc1 = len(z1)
-    lc2 = len(z2)
-    if lc2 == 1:
-        z1 /= z2
-        return z1, z1[:1] * 0
-    elif lc1 < lc2:
-        return z1[:1] * 0, z1
-    else:
-        dlen = lc1 - lc2
-        scl = z2[0]
-        z2 /= scl
-        quo = numpy.empty(dlen + 1, dtype=z1.dtype)
-        i = 0
-        j = dlen
-        while i < j:
-            r = z1[i]
-            quo[i] = z1[i]
-            quo[dlen - i] = r
-            tmp = r * z2
-            z1[i : i + lc2] -= tmp
-            z1[j : j + lc2] -= tmp
-            i += 1
-            j -= 1
-        r = z1[i]
-        quo[i] = r
-        tmp = r * z2
-        z1[i : i + lc2] -= tmp
-        quo /= scl
-        rem = z1[i + 1 : i - 1 + lc2]
-        return quo, rem
 
 
 def cheb2poly(input):
@@ -2265,8 +1994,6 @@ polyzero = torch.tensor([0])
 
 
 __all__ = [
-    "_vander_nd",
-    "_vander_nd_flat",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
