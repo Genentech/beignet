@@ -2,16 +2,19 @@ from .__as_series import _as_series
 
 
 def _sub(input, other):
-    [input, other] = _as_series([input, other])
+    (
+        input,
+        other,
+    ) = _as_series([input, other])
 
     if len(input) > len(other):
-        input[: other.size] = input[: other.size] - other
+        input[: other.shape[-1]] = input[: other.shape[-1]] - other
 
         output = input
     else:
         other = -other
 
-        other[: input.size] = other[: input.size] + input
+        other[: input.shape[-1]] = other[: input.shape[-1]] + input
 
         output = other
 
