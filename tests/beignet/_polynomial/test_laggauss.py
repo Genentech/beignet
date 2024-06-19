@@ -1,11 +1,13 @@
 import beignet.polynomial
+import beignet.polynomial._laggauss
+import beignet.polynomial._lagvander
 import numpy
 
 
 def test_laggauss():
-    x, w = beignet.polynomial.laggauss(100)
+    x, w = beignet.polynomial._laggauss.laggauss(100)
 
-    v = beignet.polynomial.lagvander(x, 99)
+    v = beignet.polynomial._lagvander.lagvander(x, 99)
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd

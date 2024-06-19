@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._chebmul
 import beignet.polynomial._chebtrim
 import torch
 
@@ -13,7 +14,7 @@ def test_chebmul():
 
             torch.testing.assert_close(
                 beignet.polynomial.chebtrim(
-                    beignet.polynomial.chebmul(
+                    beignet.polynomial._chebmul.chebmul(
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),

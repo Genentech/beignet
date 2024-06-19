@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polymul
 import torch
 
 
@@ -11,7 +12,7 @@ def test_polymul():
 
             torch.testing.assert_close(
                 beignet.polynomial.polytrim(
-                    beignet.polynomial.polymul(
+                    beignet.polynomial._polymul.polymul(
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),

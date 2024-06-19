@@ -1,4 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._polyval
+import beignet.polynomial._polyval2d
 import numpy
 
 
@@ -9,20 +11,22 @@ def test_polyval2d():
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = beignet.polynomial._polyval.polyval(x, [1.0, 2.0, 3.0])
 
     numpy.testing.assert_raises_regex(
         ValueError,
         "incompatible",
-        beignet.polynomial.polyval2d,
+        beignet.polynomial._polyval2d.polyval2d,
         x1,
         x2[:2],
         c2d,
     )
 
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.polyval2d(x1, x2, c2d), y1 * y2
+        beignet.polynomial._polyval2d.polyval2d(x1, x2, c2d), y1 * y2
     )
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(beignet.polynomial.polyval2d(z, z, c2d).shape == (2, 3))
+    numpy.testing.assert_(
+        beignet.polynomial._polyval2d.polyval2d(z, z, c2d).shape == (2, 3)
+    )

@@ -1,0 +1,32 @@
+import operator
+
+import numpy
+
+from beignet.polynomial import lagval
+from beignet.polynomial._lagcompanion import lagcompanion
+from beignet.polynomial._lagder import lagder
+
+
+def laggauss(input):
+    ideg = operator.index(input)
+    if ideg <= 0:
+        raise ValueError("deg must be a positive integer")
+
+    c = numpy.array([0] * input + [1])
+    m = lagcompanion(c)
+    x = numpy.linalg.eigvalsh(m)
+
+    dy = lagval(x, c)
+    df = lagval(x, lagder(c))
+    x -= dy / df
+
+    fm = lagval(x, c[1:])
+
+    fm = fm / numpy.max(numpy.abs(fm))
+    df = df / numpy.max(numpy.abs(df))
+
+    weight = 1.0 / (fm * df)
+
+    weight = weight / numpy.sum(weight)
+
+    return x, weight

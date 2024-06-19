@@ -1,4 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._chebinterpolate
+import beignet.polynomial._chebval
 import numpy
 
 
@@ -7,15 +9,16 @@ def test_chebinterpolate():
         return x * (x - 1) * (x - 2)
 
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial.chebinterpolate, func, -1
+        ValueError, beignet.polynomial._chebinterpolate.chebinterpolate, func, -1
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial.chebinterpolate, func, 10.0
+        TypeError, beignet.polynomial._chebinterpolate.chebinterpolate, func, 10.0
     )
 
     for deg in range(1, 5):
         numpy.testing.assert_(
-            beignet.polynomial.chebinterpolate(func, deg).shape == (deg + 1,)
+            beignet.polynomial._chebinterpolate.chebinterpolate(func, deg).shape
+            == (deg + 1,)
         )
 
     def powx(x, p):
@@ -24,7 +27,7 @@ def test_chebinterpolate():
     x = numpy.linspace(-1, 1, 10)
     for deg in range(0, 10):
         for p in range(0, deg + 1):
-            c = beignet.polynomial.chebinterpolate(powx, deg, (p,))
+            c = beignet.polynomial._chebinterpolate.chebinterpolate(powx, deg, (p,))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial.chebval(x, c), powx(x, p), decimal=12
+                beignet.polynomial._chebval.chebval(x, c), powx(x, p), decimal=12
             )

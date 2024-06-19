@@ -1,4 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._legmul
+import beignet.polynomial._legval
 import torch
 
 
@@ -6,23 +8,23 @@ def test_legmul():
     x = torch.linspace(-1, 1, 100)
 
     for j in range(5):
-        val1 = beignet.polynomial.legval(
+        val1 = beignet.polynomial._legval.legval(
             x,
             torch.tensor([0] * j + [1]),
         )
 
         for k in range(5):
-            val2 = beignet.polynomial.legval(
+            val2 = beignet.polynomial._legval.legval(
                 x,
                 torch.tensor([0] * k + [1]),
             )
 
-            pol3 = beignet.polynomial.legmul(
+            pol3 = beignet.polynomial._legmul.legmul(
                 torch.tensor([0] * j + [1]),
                 torch.tensor([0] * k + [1]),
             )
 
-            val3 = beignet.polynomial.legval(x, pol3)
+            val3 = beignet.polynomial._legval.legval(x, pol3)
 
             assert len(pol3) == j + k + 1
 
