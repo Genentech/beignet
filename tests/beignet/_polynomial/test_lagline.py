@@ -3,4 +3,7 @@ import torch
 
 
 def test_lagline():
-    torch.testing.assert_close(beignet.polynomial.lagline(3, 4), [7, -4])
+    torch.testing.assert_close(
+        beignet.polynomial.lagline(3, 4),
+        torch.tensor([7, -4]),
+    )

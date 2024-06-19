@@ -3,4 +3,7 @@ import torch
 
 
 def test_legdomain():
-    torch.testing.assert_close(beignet.polynomial.legdomain, [-1, 1])
+    torch.testing.assert_close(
+        beignet.polynomial.legdomain,
+        torch.tensor([-1, 1]),
+    )

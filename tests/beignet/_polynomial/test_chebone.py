@@ -3,4 +3,7 @@ import torch
 
 
 def test_chebone():
-    torch.testing.assert_close(beignet.polynomial.chebone, [1])
+    torch.testing.assert_close(
+        beignet.polynomial.chebone,
+        torch.tensor([1]),
+    )

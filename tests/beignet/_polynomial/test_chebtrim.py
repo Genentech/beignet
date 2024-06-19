@@ -4,7 +4,7 @@ import torch
 
 
 def test_chebtrim():
-    coef = [2, -1, 1, 0]
+    coef = torch.tensor([2, -1, 1, 0], dtype=torch.float64)
     numpy.testing.assert_raises(ValueError, beignet.polynomial.chebtrim, coef, -1)
     torch.testing.assert_close(beignet.polynomial.chebtrim(coef), coef[:-1])
     torch.testing.assert_close(beignet.polynomial.chebtrim(coef, 1), coef[:-3])

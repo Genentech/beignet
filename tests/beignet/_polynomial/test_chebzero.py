@@ -3,4 +3,7 @@ import torch
 
 
 def test_chebzero():
-    torch.testing.assert_close(beignet.polynomial.chebzero, [0])
+    torch.testing.assert_close(
+        beignet.polynomial.chebzero,
+        torch.tensor([0]),
+    )

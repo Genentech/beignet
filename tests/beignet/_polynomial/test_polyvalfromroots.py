@@ -75,6 +75,7 @@ def test_polyvalfromroots():
     for ii in range(r.shape[1]):
         for jj in range(x.shape[0]):
             tgt[ii, jj, :] = beignet.polynomial.polyvalfromroots(x[jj], r[:, ii])
+
     torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots(x, r, tensor=True), tgt
     )
