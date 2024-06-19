@@ -11,7 +11,7 @@ def polyval(x, c, tensor=True):
         x = numpy.asarray(x)
 
     if isinstance(x, numpy.ndarray) and tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = numpy.reshape(c, c.shape + (1,) * x.ndim)
 
     c0 = c[-1] + x * 0
 

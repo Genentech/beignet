@@ -1,33 +1,38 @@
 import beignet.polynomial
 import beignet.polynomial._polyval
-import numpy
 import torch
 
 
 def test_polyval():
-    torch.testing.assert_close(beignet.polynomial._polyval.polyval([], [1]).size, 0)
+    assert beignet.polynomial.polyval([], [1]).shape == (0,)
 
-    x = numpy.linspace(-1, 1)
-    y = [x**i for i in range(5)]
-    for i in range(5):
-        tgt = y[i]
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._polyval.polyval(x, [0] * i + [1]), tgt
+    x = torch.linspace(-1, 1, 50)
+
+    y = []
+
+    for index in range(5):
+        y = [*y, x**index]
+
+    for index in range(5):
+        torch.testing.assert_close(
+            beignet.polynomial.polyval(
+                x,
+                [0] * index + [1],
+            ),
+            y[index],
         )
-    tgt = x * (x**2 - 1)
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._polyval.polyval(x, [0, -1, 0, 1]), tgt
+
+    torch.testing.assert_close(
+        beignet.polynomial.polyval(
+            x,
+            [0, -1, 0, 1],
+        ),
+        x * (x**2 - 1),
     )
 
-    for i in range(3):
-        dims = [2] * i
-        x = numpy.zeros(dims)
-        torch.testing.assert_close(
-            beignet.polynomial._polyval.polyval(x, [1]).shape, dims
-        )
-        torch.testing.assert_close(
-            beignet.polynomial._polyval.polyval(x, [1, 0]).shape, dims
-        )
-        torch.testing.assert_close(
-            beignet.polynomial._polyval.polyval(x, [1, 0, 0]).shape, dims
-        )
+    for index in range(3):
+        dims = [2] * index
+        x = torch.zeros(dims)
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1, 0]).shape, dims)
+        torch.testing.assert_close(beignet.polynomial.polyval(x, [1, 0, 0]).shape, dims)
