@@ -8,6 +8,7 @@ import numpy.linalg
 from ._polynomial.__as_series import _as_series
 from ._polynomial.__div import _div
 from ._polynomial.__normalize_axis_index import _normalize_axis_index
+from ._polynomial.__pow import _pow
 from ._polynomial.__trim_coefficients import _trim_coefficients
 from ._polynomial.__trim_sequence import _trim_sequence
 
@@ -216,28 +217,6 @@ def _normed_hermite_n(x, n):
         c1 = tmp + c1 * x * numpy.sqrt(2.0 / nd)
         nd = nd - 1.0
     return c0 + c1 * x * numpy.sqrt(2)
-
-
-def _pow(func, input, exponent, maximum_exponent):
-    [input] = _as_series([input])
-
-    exponent = int(exponent)
-
-    if exponent != exponent or exponent < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maximum_exponent is not None and exponent > maximum_exponent:
-        raise ValueError("Power is too large")
-    elif exponent == 0:
-        return numpy.array([1], dtype=input.dtype)
-    elif exponent == 1:
-        return input
-    else:
-        output = input
-
-        for _ in range(2, exponent + 1):
-            output = func(output, input)
-
-        return output
 
 
 def _sub(input, other):
@@ -2285,7 +2264,6 @@ polyzero = numpy.array([0])
 
 
 __all__ = [
-    "_pow",
     "_vander_nd",
     "_vander_nd_flat",
     "cheb2poly",
