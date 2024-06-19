@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+import torch
 
 
 def polyvander(input, degree):
@@ -11,7 +12,7 @@ def polyvander(input, degree):
 
     input = numpy.array(input, ndmin=1) + 0.0
 
-    output = numpy.empty([degree + 1, *input.shape], dtype=input.dtype)
+    output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
     output[0] = input * 0.0 + 1.0
 
@@ -21,6 +22,6 @@ def polyvander(input, degree):
         for i in range(2, degree + 1):
             output[i] = output[i - 1] * input
 
-    output = numpy.moveaxis(output, 0, -1)
+    output = torch.moveaxis(output, 0, -1)
 
     return output

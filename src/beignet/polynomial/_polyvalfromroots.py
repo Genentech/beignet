@@ -1,4 +1,6 @@
 import numpy
+import torch
+from torch import Tensor
 
 
 def polyvalfromroots(x, output, tensor=True):
@@ -8,14 +10,14 @@ def polyvalfromroots(x, output, tensor=True):
         output = output.astype(numpy.float64)
 
     if isinstance(x, (tuple, list)):
-        x = numpy.asarray(x)
+        x = torch.tensor(x)
 
-    if isinstance(x, numpy.ndarray):
+    if isinstance(x, Tensor):
         if tensor:
             shape = (1,) * x.ndim
 
-            output = numpy.reshape(output, [*output.shape, *shape])
+            output = torch.reshape(output, [*output.shape, *shape])
         elif x.ndim >= output.ndim:
             raise ValueError
 
-    return numpy.prod(x - output, axis=0)
+    return torch.prod(x - output, dim=0)
