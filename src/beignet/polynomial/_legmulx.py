@@ -3,23 +3,23 @@ import torch
 from .__as_series import _as_series
 
 
-def legmulx(c):
-    [c] = _as_series([c])
+def legmulx(input):
+    (input,) = _as_series([input])
 
-    if len(c) == 1 and c[0] == 0:
-        return c
+    if len(input) == 1 and input[0] == 0:
+        return input
 
-    prd = torch.empty(len(c) + 1, dtype=c.dtype)
+    output = torch.empty(len(input) + 1, dtype=input.dtype)
 
-    prd[0] = c[0] * 0
+    output[0] = input[0] * 0
+    output[1] = input[0]
 
-    prd[1] = c[0]
-
-    for i in range(1, len(c)):
+    for i in range(1, len(input)):
         j = i + 1
         k = i - 1
         s = i + j
-        prd[j] = (c[i] * j) / s
-        prd[k] += (c[i] * i) / s
 
-    return prd
+        output[j] = (input[i] * j) / s
+        output[k] = output[k] + ((input[i] * i) / s)
+
+    return output

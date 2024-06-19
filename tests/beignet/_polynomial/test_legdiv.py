@@ -9,16 +9,32 @@ import torch
 def test_legdiv():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
-            ci = [0] * i + [1]
-            cj = [0] * j + [1]
-            tgt = beignet.polynomial._legadd.legadd(ci, cj)
-            quo, rem = beignet.polynomial._legdiv.legdiv(tgt, ci)
-            res = beignet.polynomial._legadd.legadd(
-                beignet.polynomial._legmul.legmul(quo, ci), rem
+            quotient, remainder = beignet.polynomial.legdiv(
+                beignet.polynomial.legadd(
+                    torch.tensor([0] * i + [1]),
+                    torch.tensor([0] * j + [1]),
+                ),
+                torch.tensor([0] * i + [1]),
             )
+
+            print(quotient)
+
             torch.testing.assert_close(
-                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
-                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
-                err_msg=msg,
+                beignet.polynomial.legtrim(
+                    beignet.polynomial.legadd(
+                        beignet.polynomial.legmul(
+                            quotient,
+                            torch.tensor([0] * i + [1]),
+                        ),
+                        remainder,
+                    ),
+                    tolerance=1e-6,
+                ),
+                beignet.polynomial.legtrim(
+                    beignet.polynomial.legadd(
+                        torch.tensor([0] * i + [1]),
+                        torch.tensor([0] * j + [1]),
+                    ),
+                    tolerance=1e-6,
+                ),
             )
