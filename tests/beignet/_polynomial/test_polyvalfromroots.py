@@ -1,0 +1,79 @@
+import beignet.polynomial
+import numpy
+
+
+def test_polyvalfromroots():
+    x = numpy.random.random((3, 5)) * 2 - 1
+
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.polynomial.polyvalfromroots,
+        [1],
+        [1],
+        tensor=False,
+    )
+
+    numpy.testing.assert_equal(beignet.polynomial.polyvalfromroots([], [1]).size, 0)
+    numpy.testing.assert_(beignet.polynomial.polyvalfromroots([], [1]).shape == (0,))
+
+    numpy.testing.assert_equal(
+        beignet.polynomial.polyvalfromroots([], [[1] * 5]).size, 0
+    )
+    numpy.testing.assert_(
+        beignet.polynomial.polyvalfromroots([], [[1] * 5]).shape == (5, 0)
+    )
+
+    numpy.testing.assert_equal(beignet.polynomial.polyvalfromroots(1, 1), 0)
+    numpy.testing.assert_(
+        beignet.polynomial.polyvalfromroots(1, numpy.ones((3, 3))).shape == (3,)
+    )
+
+    x = numpy.linspace(-1, 1)
+    y = [x**i for i in range(5)]
+    for i in range(1, 5):
+        numpy.testing.assert_almost_equal(
+            beignet.polynomial.polyvalfromroots(x, [0] * i), y[i]
+        )
+    tgt = x * (x - 1) * (x + 1)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.polyvalfromroots(x, [-1, 0, 1]), tgt
+    )
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(
+            beignet.polynomial.polyvalfromroots(x, [1]).shape, dims
+        )
+        numpy.testing.assert_equal(
+            beignet.polynomial.polyvalfromroots(x, [1, 0]).shape, dims
+        )
+        numpy.testing.assert_equal(
+            beignet.polynomial.polyvalfromroots(x, [1, 0, 0]).shape, dims
+        )
+
+    ptest = [15, 2, -16, -2, 1]
+    x = numpy.linspace(-1, 1)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.polyval(x, ptest),
+        beignet.polynomial.polyvalfromroots(x, beignet.polynomial.polyroots(ptest)),
+    )
+
+    rshape = (3, 5)
+    x = numpy.arange(-3, 2)
+    r = numpy.random.randint(-5, 5, size=rshape)
+    tgt = numpy.empty(r.shape[1:])
+    for ii in range(tgt.size):
+        tgt[ii] = beignet.polynomial.polyvalfromroots(x[ii], r[:, ii])
+    numpy.testing.assert_equal(
+        beignet.polynomial.polyvalfromroots(x, r, tensor=False), tgt
+    )
+
+    x = numpy.vstack([x, 2 * x])
+    tgt = numpy.empty(r.shape[1:] + x.shape)
+    for ii in range(r.shape[1]):
+        for jj in range(x.shape[0]):
+            tgt[ii, jj, :] = beignet.polynomial.polyvalfromroots(x[jj], r[:, ii])
+    numpy.testing.assert_equal(
+        beignet.polynomial.polyvalfromroots(x, r, tensor=True), tgt
+    )

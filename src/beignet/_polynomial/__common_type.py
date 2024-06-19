@@ -1,4 +1,3 @@
-import numpy
 import torch
 
 
@@ -29,7 +28,7 @@ def _common_type(*xs):
     precision = 0
 
     for x in xs:
-        if numpy.iscomplexobj(x):
+        if torch.is_complex(x):
             is_complex = True
 
         if torch.is_floating_point(x) or torch.is_complex(x):
