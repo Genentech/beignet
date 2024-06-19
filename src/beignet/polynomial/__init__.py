@@ -1,3 +1,4 @@
+import math
 import operator
 
 import numpy
@@ -104,11 +105,11 @@ def chebcompanion(c):
         return torch.tensor([[-c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
-    scl = torch.tensor([1.0] + [numpy.sqrt(0.5)] * (n - 1))
+    mat = torch.zeros((n, n), dtype=c.dtype)
+    scl = torch.tensor([1.0] + [math.sqrt(0.5)] * (n - 1))
     top = mat.reshape(-1)[1 :: n + 1]
     bot = mat.reshape(-1)[n :: n + 1]
-    top[0] = numpy.sqrt(0.5)
+    top[0] = math.sqrt(0.5)
     top[1:] = 1 / 2
     bot[...] = top
     mat[:, -1] -= (c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5
@@ -450,22 +451,33 @@ def herm2poly(input):
         return polyadd(c0, polymulx(c1) * 2)
 
 
-def hermcompanion(c):
-    [c] = _as_series([c])
-    if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
-    if len(c) == 2:
-        return torch.tensor([[-0.5 * c[0] / c[1]]])
+def hermcompanion(input):
+    (input,) = _as_series([input])
 
-    n = len(c) - 1
-    mat = numpy.zeros((n, n), dtype=c.dtype)
+    if len(input) < 2:
+        raise ValueError
+
+    if len(input) == 2:
+        return torch.tensor([[-0.5 * input[0] / input[1]]])
+
+    n = len(input) - 1
+
+    mat = numpy.zeros((n, n), dtype=input.dtype)
+
     scl = numpy.hstack((1.0, 1.0 / numpy.sqrt(2.0 * numpy.arange(n - 1, 0, -1))))
+
     scl = numpy.multiply.accumulate(scl)[::-1]
+
     top = mat.reshape(-1)[1 :: n + 1]
+
     bot = mat.reshape(-1)[n :: n + 1]
+
     top[...] = numpy.sqrt(0.5 * numpy.arange(1, n))
+
     bot[...] = top
-    mat[:, -1] -= scl * c[:-1] / (2.0 * c[-1])
+
+    mat[:, -1] = mat[:, -1] - (scl * input[:-1] / (2.0 * input[-1]))
+
     return mat
 
 

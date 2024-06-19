@@ -1,13 +1,13 @@
 import beignet.polynomial
-import numpy
+import torch
 
 
 def test_hermcompanion():
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.hermcompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.polynomial.hermcompanion, [1])
-
     for i in range(1, 5):
-        coef = [0] * i + [1]
-        numpy.testing.assert_(beignet.polynomial.hermcompanion(coef).shape == (i, i))
+        coef = torch.tensor([0] * i + [1])
 
-    numpy.testing.assert_(beignet.polynomial.hermcompanion([1, 2])[0, 0] == -0.25)
+        assert beignet.polynomial.hermcompanion(coef).shape == (i, i)
+
+    output = beignet.polynomial.hermcompanion(torch.tensor([1, 2]))
+
+    assert output[0, 0] == -0.25

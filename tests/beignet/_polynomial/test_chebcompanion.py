@@ -3,10 +3,11 @@ import torch
 
 
 def test_chebcompanion():
-    for i in range(1, 5):
-        assert beignet.polynomial.chebcompanion(torch.tensor([0] * i + [1])).shape == (
-            i,
-            i,
-        )
+    for index in range(1, 5):
+        output = beignet.polynomial.chebcompanion(torch.tensor([0] * index + [1]))
 
-    assert beignet.polynomial.chebcompanion([1, 2])[0, 0] == -0.5
+        assert output.shape == (index, index)
+
+    output = beignet.polynomial.chebcompanion(torch.tensor([1, 2]))
+
+    assert output[0, 0] == -0.5
