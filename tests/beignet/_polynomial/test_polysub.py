@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polysub
 import torch
 
 
@@ -12,7 +13,7 @@ def test_polysub():
 
             torch.testing.assert_close(
                 beignet.polynomial.polytrim(
-                    beignet.polynomial.polysub(
+                    beignet.polynomial._polysub.polysub(
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),

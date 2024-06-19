@@ -1,9 +1,10 @@
 import beignet.polynomial
+import beignet.polynomial._hermweight
 import numpy
 
 
 def test_hermweight():
     x = numpy.linspace(-5, 5, 11)
     tgt = numpy.exp(-(x**2))
-    res = beignet.polynomial.hermweight(x)
+    res = beignet.polynomial._hermweight.hermweight(x)
     numpy.testing.assert_almost_equal(res, tgt)

@@ -12,6 +12,7 @@ from .__evaluate import _evaluate
 from .__fit import _fit
 from .__from_roots import _from_roots
 from .__grid import _grid
+from .__map_parameters import _map_parameters
 from .__normalize_axis_index import _normalize_axis_index
 from .__normed_hermite_e_n import _normed_hermite_e_n
 from .__normed_hermite_n import _normed_hermite_n
@@ -24,9 +25,18 @@ from .__z_series_to_c_series import _z_series_to_c_series
 from .__zseries_div import _zseries_div
 from ._hermadd import hermadd
 from ._hermeadd import hermeadd
+from ._hermesub import hermesub
+from ._hermline import hermline
+from ._hermsub import hermsub
 from ._lagadd import lagadd
+from ._lagline import lagline
+from ._lagsub import lagsub
 from ._legadd import legadd
+from ._legline import legline
+from ._legsub import legsub
 from ._polyadd import polyadd
+from ._polyline import polyline
+from ._polysub import polysub
 
 
 class RankWarning(RuntimeWarning):
@@ -698,10 +708,6 @@ def hermeroots(input):
     return r
 
 
-def hermesub(c1, c2):
-    return _sub(c1, c2)
-
-
 def hermeval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -760,11 +766,6 @@ def hermevander2d(x, y, deg):
 
 def hermevander3d(x, y, z, deg):
     return _vander_nd_flat((hermevander, hermevander, hermevander), (x, y, z), deg)
-
-
-def hermeweight(x):
-    w = numpy.exp(-0.5 * x**2)
-    return w
 
 
 def hermfit(x, y, deg, rcond=None, full=False, w=None):
@@ -850,13 +851,6 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def hermline(input, other):
-    if other != 0:
-        return torch.tensor([input, other / 2])
-    else:
-        return torch.tensor([input])
-
-
 def hermmul(c1, c2):
     [c1, c2] = _as_series([c1, c2])
 
@@ -915,10 +909,6 @@ def hermroots(input):
     r = numpy.linalg.eigvals(m)
     r.sort()
     return r
-
-
-def hermsub(c1, c2):
-    return _sub(c1, c2)
 
 
 def hermval(x, c, tensor=True):
@@ -981,11 +971,6 @@ def hermvander2d(x, y, deg):
 
 def hermvander3d(x, y, z, deg):
     return _vander_nd_flat((hermvander, hermvander, hermvander), (x, y, z), deg)
-
-
-def hermweight(x):
-    w = numpy.exp(-(x**2))
-    return w
 
 
 def lag2poly(c):
@@ -1143,13 +1128,6 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def lagline(input, other):
-    if other != 0:
-        return torch.tensor([input + other, -other])
-    else:
-        return torch.tensor([input])
-
-
 def lagmul(c1, c2):
     [c1, c2] = _as_series([c1, c2])
 
@@ -1211,10 +1189,6 @@ def lagroots(c):
     return r
 
 
-def lagsub(c1, c2):
-    return _sub(c1, c2)
-
-
 def lagval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -1273,11 +1247,6 @@ def lagvander2d(x, y, deg):
 
 def lagvander3d(x, y, z, deg):
     return _vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), deg)
-
-
-def lagweight(x):
-    w = numpy.exp(-x)
-    return w
 
 
 def leg2poly(c):
@@ -1439,13 +1408,6 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def legline(input, other):
-    if other != 0:
-        return torch.tensor([input, other])
-    else:
-        return torch.tensor([input])
-
-
 def legmul(c1, c2):
     [c1, c2] = _as_series([c1, c2])
 
@@ -1509,10 +1471,6 @@ def legroots(c):
     return r
 
 
-def legsub(c1, c2):
-    return _sub(c1, c2)
-
-
 def legval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -1572,24 +1530,6 @@ def legvander2d(x, y, deg):
 
 def legvander3d(x, y, z, deg):
     return _vander_nd_flat((legvander, legvander, legvander), (x, y, z), deg)
-
-
-def legweight(x):
-    return x * 0.0 + 1.0
-
-
-def _map_domain(x, old, new):
-    x = numpy.asanyarray(x)
-    off, scl = _map_parameters(old, new)
-    return off + scl * x
-
-
-def _map_parameters(old, new):
-    oldlen = old[1] - old[0]
-    newlen = new[1] - new[0]
-    off = (old[1] * new[0] - old[0] * new[1]) / oldlen
-    scl = newlen / oldlen
-    return off, scl
 
 
 def poly2cheb(input):
@@ -1789,13 +1729,6 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def polyline(input, other):
-    if other != 0:
-        return torch.tensor([input, other])
-    else:
-        return torch.tensor([input])
-
-
 def polymul(input, other):
     input, other = _as_series([input, other])
 
@@ -1844,10 +1777,6 @@ def polyroots(series):
     output = numpy.sort(output)
 
     return output
-
-
-def polysub(c1, c2):
-    return _sub(c1, c2)
 
 
 def polyval(x, c, tensor=True):
@@ -1929,47 +1858,6 @@ def polyvander3d(x, y, z, deg):
     return _vander_nd_flat((polyvander, polyvander, polyvander), (x, y, z), deg)
 
 
-hermdomain = torch.tensor([-1.0, 1.0])
-
-hermedomain = torch.tensor([-1.0, 1.0])
-
-hermeone = torch.tensor([1])
-
-hermex = torch.tensor([0, 1])
-
-hermezero = torch.tensor([0])
-
-hermone = torch.tensor([1])
-
-hermx = torch.tensor([0, 1 / 2])
-
-hermzero = torch.tensor([0])
-
-lagdomain = torch.tensor([0.0, 1.0])
-
-lagone = torch.tensor([1])
-
-lagx = torch.tensor([1, -1])
-
-lagzero = torch.tensor([0])
-
-legdomain = torch.tensor([-1.0, 1.0])
-
-legone = torch.tensor([1])
-
-legx = torch.tensor([0, 1])
-
-legzero = torch.tensor([0])
-
-polydomain = torch.tensor([-1.0, 1.0])
-
-polyone = torch.tensor([1])
-
-polyx = torch.tensor([0, 1])
-
-polyzero = torch.tensor([0])
-
-
 __all__ = [
     "cheb2poly",
     "chebcompanion",
@@ -2005,12 +1893,10 @@ __all__ = [
     "hermcompanion",
     "hermder",
     "hermdiv",
-    "hermdomain",
     "herme2poly",
     "hermecompanion",
     "hermeder",
     "hermediv",
-    "hermedomain",
     "hermefit",
     "hermefromroots",
     "hermegauss",
@@ -2020,10 +1906,8 @@ __all__ = [
     "hermeline",
     "hermemul",
     "hermemulx",
-    "hermeone",
     "hermepow",
     "hermeroots",
-    "hermesub",
     "hermetrim",
     "hermeval",
     "hermeval2d",
@@ -2031,22 +1915,16 @@ __all__ = [
     "hermevander",
     "hermevander2d",
     "hermevander3d",
-    "hermeweight",
-    "hermex",
-    "hermezero",
     "hermfit",
     "hermfromroots",
     "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
     "hermint",
-    "hermline",
     "hermmul",
     "hermmulx",
-    "hermone",
     "hermpow",
     "hermroots",
-    "hermsub",
     "hermtrim",
     "hermval",
     "hermval2d",
@@ -2054,27 +1932,20 @@ __all__ = [
     "hermvander",
     "hermvander2d",
     "hermvander3d",
-    "hermweight",
-    "hermx",
-    "hermzero",
     "lag2poly",
     "lagcompanion",
     "lagder",
     "lagdiv",
-    "lagdomain",
     "lagfit",
     "lagfromroots",
     "laggauss",
     "laggrid2d",
     "laggrid3d",
     "lagint",
-    "lagline",
     "lagmul",
     "lagmulx",
-    "lagone",
     "lagpow",
     "lagroots",
-    "lagsub",
     "lagtrim",
     "lagval",
     "lagval2d",
@@ -2082,27 +1953,20 @@ __all__ = [
     "lagvander",
     "lagvander2d",
     "lagvander3d",
-    "lagweight",
-    "lagx",
-    "lagzero",
     "leg2poly",
     "legcompanion",
     "legder",
     "legdiv",
-    "legdomain",
     "legfit",
     "legfromroots",
     "leggauss",
     "leggrid2d",
     "leggrid3d",
     "legint",
-    "legline",
     "legmul",
     "legmulx",
-    "legone",
     "legpow",
     "legroots",
-    "legsub",
     "legtrim",
     "legval",
     "legval2d",
@@ -2110,11 +1974,6 @@ __all__ = [
     "legvander",
     "legvander2d",
     "legvander3d",
-    "legweight",
-    "legx",
-    "legzero",
-    "_map_domain",
-    "_map_parameters",
     "poly2cheb",
     "poly2herm",
     "poly2herme",
@@ -2123,19 +1982,15 @@ __all__ = [
     "polycompanion",
     "polyder",
     "polydiv",
-    "polydomain",
     "polyfit",
     "polyfromroots",
     "polygrid2d",
     "polygrid3d",
     "polyint",
-    "polyline",
     "polymul",
     "polymulx",
-    "polyone",
     "polypow",
     "polyroots",
-    "polysub",
     "polytrim",
     "polyval",
     "polyval2d",
@@ -2144,6 +1999,4 @@ __all__ = [
     "polyvander",
     "polyvander2d",
     "polyvander3d",
-    "polyx",
-    "polyzero",
 ]

@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._legsub
 import torch
 
 
@@ -10,7 +11,7 @@ def test_legsub():
             tgt[j] -= 1
             torch.testing.assert_close(
                 beignet.polynomial.legtrim(
-                    beignet.polynomial.legsub(
+                    beignet.polynomial._legsub.legsub(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),

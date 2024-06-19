@@ -1,9 +1,10 @@
 import beignet.polynomial
+import beignet.polynomial._legx
 import torch
 
 
 def test_legx():
     torch.testing.assert_close(
-        beignet.polynomial.legx,
+        beignet.polynomial._legx.legx,
         torch.tensor([0, 1]),
     )

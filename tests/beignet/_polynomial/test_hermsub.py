@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._hermsub
 import torch
 
 
@@ -10,7 +11,7 @@ def test_hermsub():
             tgt[j] -= 1
             torch.testing.assert_close(
                 beignet.polynomial.hermtrim(
-                    beignet.polynomial.hermsub(
+                    beignet.polynomial._hermsub.hermsub(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
