@@ -7,11 +7,11 @@ def _evaluate(func, input, *xs):
     if not all((a.shape == xs[0].shape for a in xs[1:])):
         match len(xs):
             case 2:
-                raise ValueError("x, y are incompatible")
+                raise ValueError
             case 3:
-                raise ValueError("x, y, z are incompatible")
+                raise ValueError
             case _:
-                raise ValueError("ordinates are incompatible")
+                raise ValueError
 
     xs = iter(xs)
 
