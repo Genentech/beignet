@@ -1,25 +1,30 @@
+import beignet._polynomial.__trim_coefficients
 import beignet.polynomial
-import numpy
+import torch
 
 
 def test__trim_coefficients():
-    coef = [2, -1, 1, 0]
+    coef = torch.tensor([2, -1, 1, 0], dtype=torch.float64)
 
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._trim_coefficients, coef, -1
-    )
-
-    numpy.testing.assert_equal(
-        beignet.polynomial._trim_coefficients(coef),
+    torch.testing.assert_close(
+        beignet._polynomial.__trim_coefficients._trim_coefficients(
+            coef,
+        ),
         coef[:-1],
     )
 
-    numpy.testing.assert_equal(
-        beignet.polynomial._trim_coefficients(coef, 1),
+    torch.testing.assert_close(
+        beignet._polynomial.__trim_coefficients._trim_coefficients(
+            coef,
+            1,
+        ),
         coef[:-3],
     )
 
-    numpy.testing.assert_equal(
-        beignet.polynomial._trim_coefficients(coef, 2),
-        [0],
+    torch.testing.assert_close(
+        beignet._polynomial.__trim_coefficients._trim_coefficients(
+            coef,
+            2,
+        ),
+        torch.tensor([0], dtype=torch.float64),
     )

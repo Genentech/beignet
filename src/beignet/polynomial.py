@@ -5,118 +5,14 @@ import warnings
 import numpy
 import numpy.linalg
 
-
-def _common_type(*xs):
-    dtypes = [
-        [
-            numpy.float16,
-            numpy.float32,
-            numpy.float64,
-        ],
-        [
-            None,
-            numpy.complex64,
-            numpy.complex128,
-        ],
-    ]
-
-    precisions = {
-        numpy.float16: 0,
-        numpy.float32: 1,
-        numpy.float64: 2,
-        numpy.complex64: 1,
-        numpy.complex128: 2,
-    }
-
-    is_complex = False
-
-    precision = 0
-
-    for x in xs:
-        if numpy.iscomplexobj(x):
-            is_complex = True
-
-        if issubclass(x.dtype.type, numpy.integer):
-            score = precisions[numpy.float64]
-        else:
-            score = precisions.get(x.dtype.type, None)
-
-            if score is None:
-                raise TypeError
-
-        precision = max(precision, score)
-
-    if is_complex:
-        return dtypes[1][precision]
-    else:
-        return dtypes[0][precision]
-
-
-def normalize_axis_index(axis, ndim):
-    if axis < 0:
-        axis = axis + ndim
-
-    return axis
+from ._polynomial.__as_series import _as_series
+from ._polynomial.__normalize_axis_index import _normalize_axis_index
+from ._polynomial.__trim_coefficients import _trim_coefficients
+from ._polynomial.__trim_sequence import _trim_sequence
 
 
 class RankWarning(RuntimeWarning):
     pass
-
-
-def _trim_sequence(x):
-    if len(x) == 0 or x[-1] != 0:
-        output = x
-    else:
-        for index in range(len(x) - 1, -1, -1):
-            if x[index] != 0:
-                break
-
-        output = x[: index + 1]
-
-    return output
-
-
-def _as_series(inputs, trim=True):
-    outputs = []
-
-    for input in inputs:
-        outputs = [*outputs, numpy.array(input, ndmin=1)]
-
-    for index, output in enumerate(outputs):
-        if output.ndim != 1:
-            raise ValueError
-
-        if output.size == 0:
-            raise ValueError
-
-        if trim:
-            output = _trim_sequence(output)
-
-        outputs[index] = output
-
-    try:
-        dtype = _common_type(*outputs)
-    except Exception as error:
-        raise ValueError from error
-
-    for index, output in enumerate(outputs):
-        outputs[index] = numpy.array(output, dtype=dtype)
-
-    return outputs
-
-
-def _trim_coefficients(input, tolerance: float = 0.0):
-    if tolerance < 0:
-        raise ValueError
-
-    (input,) = _as_series([input])
-
-    [indices] = numpy.nonzero(numpy.abs(input) > tolerance)
-
-    if len(indices) == 0:
-        return input[:1] * 0.0
-    else:
-        return input[: indices[-1] + 1]
 
 
 chebtrim = _trim_coefficients
@@ -524,7 +420,7 @@ def chebder(c, m=1, scl=1, axis=0):
     iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -624,7 +520,7 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -902,7 +798,7 @@ def hermder(c, m=1, scl=1, axis=0):
     iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -976,7 +872,7 @@ def hermeder(c, m=1, scl=1, axis=0):
     iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1060,7 +956,7 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1279,7 +1175,7 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1489,7 +1385,7 @@ def lagder(c, m=1, scl=1, axis=0):
     iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1575,7 +1471,7 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1783,7 +1679,7 @@ def legder(c, m=1, scl=1, axis=0):
     iaxis = operator.index(axis)
     if cnt < 0:
         raise ValueError("The order of derivation must be non-negative")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -1872,7 +1768,7 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -2142,7 +2038,7 @@ def polyder(input, order: int = 1, scale: float = 1, axis: int = 0):
     if cnt < 0:
         raise ValueError
 
-    axis = normalize_axis_index(axis, output.ndim)
+    axis = _normalize_axis_index(axis, output.ndim)
 
     if cnt == 0:
         return output
@@ -2230,7 +2126,7 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, c.ndim)
 
     if cnt == 0:
         return c
@@ -2440,7 +2336,6 @@ __all__ = [
     "_pow",
     "_vander_nd",
     "_vander_nd_flat",
-    "_as_series",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
@@ -2624,6 +2519,4 @@ __all__ = [
     "polyvander3d",
     "polyx",
     "polyzero",
-    "_trim_coefficients",
-    "_trim_sequence",
 ]
