@@ -1,0 +1,11 @@
+import beignet.polynomial
+import numpy
+import torch
+
+
+def test_chebtrim():
+    coef = [2, -1, 1, 0]
+    numpy.testing.assert_raises(ValueError, beignet.polynomial.chebtrim, coef, -1)
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef), coef[:-1])
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef, 1), coef[:-3])
+    torch.testing.assert_close(beignet.polynomial.chebtrim(coef, 2), [0])
