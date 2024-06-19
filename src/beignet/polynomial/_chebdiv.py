@@ -1,8 +1,8 @@
 from .__as_series import _as_series
 from .__c_series_to_z_series import _c_series_to_z_series
 from .__trim_sequence import _trim_sequence
+from .__z_series_div import _z_series_div
 from .__z_series_to_c_series import _z_series_to_c_series
-from .__zseries_div import _zseries_div
 
 
 def chebdiv(c1, c2):
@@ -21,7 +21,7 @@ def chebdiv(c1, c2):
         z1 = _c_series_to_z_series(c1)
         z2 = _c_series_to_z_series(c2)
 
-        quo, rem = _zseries_div(z1, z2)
+        quo, rem = _z_series_div(z1, z2)
 
         quo = _trim_sequence(_z_series_to_c_series(quo))
         rem = _trim_sequence(_z_series_to_c_series(rem))

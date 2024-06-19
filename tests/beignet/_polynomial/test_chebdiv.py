@@ -9,17 +9,29 @@ import torch
 def test_chebdiv():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
-            ci = [0] * i + [1]
-            tgt = beignet.polynomial._chebadd.chebadd(ci, [0] * j + [1])
-            quo, rem = beignet.polynomial._chebdiv.chebdiv(tgt, ci)
+            tgt = beignet.polynomial.chebadd(
+                torch.tensor([0] * i + [1]),
+                torch.tensor([0] * j + [1]),
+            )
+
+            quotient, remainder = beignet.polynomial.chebdiv(
+                tgt,
+                torch.tensor([0] * i + [1]),
+            )
+
             torch.testing.assert_close(
-                beignet.polynomial._chebtrim.chebtrim(
-                    beignet.polynomial._chebadd.chebadd(
-                        beignet.polynomial._chebmul.chebmul(quo, ci), rem
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebadd(
+                        beignet.polynomial.chebmul(
+                            quotient,
+                            torch.tensor([0] * i + [1]),
+                        ),
+                        remainder,
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
-                err_msg=msg,
+                beignet.polynomial.chebtrim(
+                    tgt,
+                    tolerance=1e-6,
+                ),
             )

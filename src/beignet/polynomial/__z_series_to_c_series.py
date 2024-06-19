@@ -1,5 +1,11 @@
+import math
+
+
 def _z_series_to_c_series(input):
-    n = (input.size + 1) // 2
-    output = input[n - 1 :]
-    output[1:n] = output[1:n] * 2
+    index = (math.prod(input.shape) + 1) // 2
+
+    output = input[index - 1 :]
+
+    output[1:index] = output[1:index] * 2
+
     return output

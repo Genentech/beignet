@@ -15,8 +15,8 @@ from .__sub import _sub
 from .__trim_coefficients import _trim_coefficients
 from .__trim_sequence import _trim_sequence
 from .__vander_nd_flat import _vander_nd_flat
+from .__z_series_div import _z_series_div
 from .__z_series_to_c_series import _z_series_to_c_series
-from .__zseries_div import _zseries_div
 from ._cheb2poly import cheb2poly
 from ._chebadd import chebadd
 from ._chebcompanion import chebcompanion
@@ -212,7 +212,7 @@ __all__ = [
     "_trim_sequence",
     "_vander_nd_flat",
     "_z_series_to_c_series",
-    "_zseries_div",
+    "_z_series_div",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
