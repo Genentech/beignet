@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._lagadd
 import numpy
 
 
@@ -8,9 +9,11 @@ def test_lagdiv():
             msg = f"At i={i}, j={j}"
             ci = [0] * i + [1]
             cj = [0] * j + [1]
-            tgt = beignet.polynomial.lagadd(ci, cj)
+            tgt = beignet.polynomial._lagadd.lagadd(ci, cj)
             quo, rem = beignet.polynomial.lagdiv(tgt, ci)
-            res = beignet.polynomial.lagadd(beignet.polynomial.lagmul(quo, ci), rem)
+            res = beignet.polynomial._lagadd.lagadd(
+                beignet.polynomial.lagmul(quo, ci), rem
+            )
             numpy.testing.assert_almost_equal(
                 beignet.polynomial.lagtrim(res, tolerance=1e-6),
                 beignet.polynomial.lagtrim(tgt, tolerance=1e-6),

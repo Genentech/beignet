@@ -22,6 +22,10 @@ from .__trim_sequence import _trim_sequence
 from .__vander_nd_flat import _vander_nd_flat
 from .__z_series_to_c_series import _z_series_to_c_series
 from .__zseries_div import _zseries_div
+from ._hermadd import hermadd
+from ._hermeadd import hermeadd
+from ._lagadd import lagadd
+from ._legadd import legadd
 from ._polyadd import polyadd
 
 
@@ -61,10 +65,6 @@ def cheb2poly(input):
             c0 = polysub(input[i - 2], c1)
             c1 = polyadd(tmp, polymulx(c1) * 2)
         return polyadd(c0, polymulx(c1))
-
-
-def chebadd(input, other):
-    return _add(input, other)
 
 
 def chebcompanion(c):
@@ -240,11 +240,11 @@ def chebinterpolate(func, deg, args=()):
     return c
 
 
-def chebline(off, scl):
-    if scl != 0:
-        return torch.tensor([off, scl])
+def chebline(input, other):
+    if other != 0:
+        return torch.tensor([input, other])
     else:
-        return torch.tensor([off])
+        return torch.tensor([input])
 
 
 def chebmul(input, other):
@@ -341,10 +341,6 @@ def chebroots(c):
     return r
 
 
-def chebsub(c1, c2):
-    return _sub(c1, c2)
-
-
 def chebval(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
@@ -430,10 +426,6 @@ def herm2poly(input):
         return polyadd(c0, polymulx(c1) * 2)
 
 
-def hermadd(c1, c2):
-    return _add(c1, c2)
-
-
 def hermcompanion(c):
     [c] = _as_series([c])
     if len(c) < 2:
@@ -502,10 +494,6 @@ def herme2poly(input):
             c0 = polysub(input[i - 2], c1 * (i - 1))
             c1 = polyadd(tmp, polymulx(c1))
         return polyadd(c0, polymulx(c1))
-
-
-def hermeadd(c1, c2):
-    return _add(c1, c2)
 
 
 def hermecompanion(c):
@@ -643,11 +631,11 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def hermeline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
+def hermeline(input, other):
+    if other != 0:
+        return torch.tensor([input, other])
     else:
-        return numpy.array([off])
+        return torch.tensor([input])
 
 
 def hermemul(c1, c2):
@@ -862,11 +850,11 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def hermline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl / 2])
+def hermline(input, other):
+    if other != 0:
+        return torch.tensor([input, other / 2])
     else:
-        return numpy.array([off])
+        return torch.tensor([input])
 
 
 def hermmul(c1, c2):
@@ -1016,10 +1004,6 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1)))
 
 
-def lagadd(c1, c2):
-    return _add(c1, c2)
-
-
 def lagcompanion(c):
     [c] = _as_series([c])
     if len(c) < 2:
@@ -1159,11 +1143,11 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def lagline(off, scl):
-    if scl != 0:
-        return numpy.array([off + scl, -scl])
+def lagline(input, other):
+    if other != 0:
+        return torch.tensor([input + other, -other])
     else:
-        return numpy.array([off])
+        return torch.tensor([input])
 
 
 def lagmul(c1, c2):
@@ -1312,10 +1296,6 @@ def leg2poly(c):
         return polyadd(c0, polymulx(c1))
 
 
-def legadd(c1, c2):
-    return _add(c1, c2)
-
-
 def legcompanion(c):
     [c] = _as_series([c])
     if len(c) < 2:
@@ -1459,11 +1439,11 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def legline(off, scl):
-    if scl != 0:
-        return numpy.array([off, scl])
+def legline(input, other):
+    if other != 0:
+        return torch.tensor([input, other])
     else:
-        return numpy.array([off])
+        return torch.tensor([input])
 
 
 def legmul(c1, c2):
@@ -1811,9 +1791,9 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
 def polyline(input, other):
     if other != 0:
-        return numpy.array([input, other])
+        return torch.tensor([input, other])
     else:
-        return numpy.array([input])
+        return torch.tensor([input])
 
 
 def polymul(input, other):
@@ -1992,7 +1972,6 @@ polyzero = torch.tensor([0])
 
 __all__ = [
     "cheb2poly",
-    "chebadd",
     "chebcompanion",
     "chebder",
     "chebdiv",
@@ -2012,7 +1991,6 @@ __all__ = [
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "chebsub",
     "chebtrim",
     "chebval",
     "chebval2d",
@@ -2024,13 +2002,11 @@ __all__ = [
     "chebx",
     "chebzero",
     "herm2poly",
-    "hermadd",
     "hermcompanion",
     "hermder",
     "hermdiv",
     "hermdomain",
     "herme2poly",
-    "hermeadd",
     "hermecompanion",
     "hermeder",
     "hermediv",
@@ -2082,7 +2058,6 @@ __all__ = [
     "hermx",
     "hermzero",
     "lag2poly",
-    "lagadd",
     "lagcompanion",
     "lagder",
     "lagdiv",
@@ -2111,7 +2086,6 @@ __all__ = [
     "lagx",
     "lagzero",
     "leg2poly",
-    "legadd",
     "legcompanion",
     "legder",
     "legdiv",

@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._hermadd
 import torch
 
 
@@ -10,7 +11,7 @@ def test_hermadd():
             tgt[j] += 1
             torch.testing.assert_close(
                 beignet.polynomial.hermtrim(
-                    beignet.polynomial.hermadd(
+                    beignet.polynomial._hermadd.hermadd(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),

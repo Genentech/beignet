@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._hermadd
 import torch
 
 
@@ -8,9 +9,11 @@ def test_hermdiv():
             msg = f"At i={i}, j={j}"
             ci = [0] * i + [1]
             cj = [0] * j + [1]
-            tgt = beignet.polynomial.hermadd(ci, cj)
+            tgt = beignet.polynomial._hermadd.hermadd(ci, cj)
             quo, rem = beignet.polynomial.hermdiv(tgt, ci)
-            res = beignet.polynomial.hermadd(beignet.polynomial.hermmul(quo, ci), rem)
+            res = beignet.polynomial._hermadd.hermadd(
+                beignet.polynomial.hermmul(quo, ci), rem
+            )
             torch.testing.assert_close(
                 beignet.polynomial.hermtrim(res, tolerance=1e-6),
                 beignet.polynomial.hermtrim(tgt, tolerance=1e-6),

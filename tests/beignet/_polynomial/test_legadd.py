@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._legadd
 import torch
 
 
@@ -10,7 +11,7 @@ def test_legadd():
             tgt[j] += 1
             torch.testing.assert_close(
                 beignet.polynomial.legtrim(
-                    beignet.polynomial.legadd(
+                    beignet.polynomial._legadd.legadd(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
