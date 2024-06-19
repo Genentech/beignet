@@ -1,17 +1,20 @@
-import numpy
+import torch
 
-from beignet.polynomial import _as_series
+from .__as_series import _as_series
 
 
-def _from_roots(line_f: callable, mul_f: callable, roots):
+def _from_roots(line_f, mul_f, roots):
     if len(roots) == 0:
-        return numpy.ones(1)
+        return torch.ones(1, dtype=roots.dtype)
     else:
         (roots,) = _as_series([roots], trim=False)
 
-        roots.sort()
+        roots = torch.sort(roots)
 
-        p = [line_f(-r, 1) for r in roots]
+        p = []
+
+        for r in roots:
+            p.append(line_f(-r, 1))
 
         n = len(p)
 

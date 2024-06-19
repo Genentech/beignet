@@ -1,22 +1,35 @@
 import beignet.polynomial
 import beignet.polynomial._chebtrim
-import numpy
+import torch.testing
 
 
 def test_chebfromroots():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._chebtrim.chebtrim(
-            beignet.polynomial.chebfromroots([]), tolerance=1e-6
+    torch.testing.assert_close(
+        beignet.polynomial.chebtrim(
+            beignet.polynomial.chebfromroots(
+                torch.tensor([]),
+            ),
+            tolerance=1e-6,
         ),
-        [1],
+        torch.tensor([1.0]),
     )
-    for i in range(1, 5):
-        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        tgt = [0] * i + [1]
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._chebtrim.chebtrim(
-                beignet.polynomial.chebfromroots(roots) * 2 ** (i - 1),
+
+    for index in range(1, 5):
+        roots = torch.linspace(-torch.pi, 0, 2 * index + 1)
+
+        roots = roots[1::2]
+
+        roots = torch.cos(roots)
+
+        output = beignet.polynomial.chebfromroots(roots)
+
+        torch.testing.assert_close(
+            beignet.polynomial.chebtrim(
+                output * 2 ** (index - 1),
                 tolerance=1e-6,
             ),
-            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial.chebtrim(
+                torch.tensor([0] * index + [1], dtype=torch.float32),
+                tolerance=1e-6,
+            ),
         )
