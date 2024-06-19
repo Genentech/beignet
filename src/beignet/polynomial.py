@@ -6,6 +6,7 @@ import numpy
 import numpy.linalg
 
 from ._polynomial.__as_series import _as_series
+from ._polynomial.__div import _div
 from ._polynomial.__normalize_axis_index import _normalize_axis_index
 from ._polynomial.__trim_coefficients import _trim_coefficients
 from ._polynomial.__trim_sequence import _trim_sequence
@@ -59,43 +60,6 @@ def _c_series_to_z_series(input):
     output = numpy.zeros(2 * n - 1, dtype=input.dtype)
     output[n - 1 :] = input / 2
     return output + output[::-1]
-
-
-def _div(func, a, b):
-    (
-        a,
-        b,
-    ) = _as_series([a, b])
-
-    if b[-1] == 0:
-        raise ZeroDivisionError
-
-    m = a.shape[-1]
-    n = b.shape[-1]
-
-    if m < n:
-        quotient, remainder = a[:1] * 0.0, a
-    elif n == 1:
-        quotient, remainder = a / b[-1], a[:1] * 0.0
-    else:
-        quotient = numpy.empty(m - n + 1, dtype=a.dtype)
-
-        remainder = a
-
-        for index in range(m - n, -1, -1):
-            shape = [0] * index
-
-            p = func([*shape, 1], b)
-
-            q = remainder[-1] / p[-1]
-
-            remainder = remainder[:-1] - q * p[:-1]
-
-            quotient[index] = q
-
-        remainder = _trim_sequence(remainder)
-
-    return quotient, remainder
 
 
 def _evaluate(func, input, *xs):
@@ -735,17 +699,6 @@ def chebvander3d(x, y, z, deg):
 def chebweight(x):
     w = 1.0 / (numpy.sqrt(1.0 + x) * numpy.sqrt(1.0 - x))
     return w
-
-
-def _get_domain(x):
-    [x] = _as_series([x], trim=False)
-
-    if x.dtype.char in numpy.typecodes["Complex"]:
-        rmin, rmax = x.real.min(), x.real.max()
-        imin, imax = x.imag.min(), x.imag.max()
-        return numpy.array((complex(rmin, imin), complex(rmax, imax)))
-    else:
-        return numpy.array((x.min(), x.max()))
 
 
 def herm2poly(input):
@@ -2332,7 +2285,6 @@ polyzero = numpy.array([0])
 
 
 __all__ = [
-    "_div",
     "_pow",
     "_vander_nd",
     "_vander_nd_flat",
@@ -2368,7 +2320,6 @@ __all__ = [
     "chebweight",
     "chebx",
     "chebzero",
-    "_get_domain",
     "herm2poly",
     "hermadd",
     "hermcompanion",
