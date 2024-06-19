@@ -7,7 +7,7 @@ def _from_roots(line_f: callable, mul_f: callable, roots):
     if len(roots) == 0:
         return numpy.ones(1)
     else:
-        [roots] = _as_series([roots], trim=False)
+        (roots,) = _as_series([roots], trim=False)
 
         roots.sort()
 

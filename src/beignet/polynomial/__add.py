@@ -2,7 +2,10 @@ from .__as_series import _as_series
 
 
 def _add(input, other):
-    [input, other] = _as_series([input, other])
+    (
+        input,
+        other,
+    ) = _as_series([input, other])
 
     if len(input) > len(other):
         input[: other.size] = input[: other.size] + other
