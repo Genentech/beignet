@@ -6,12 +6,12 @@ import numpy
 import numpy.linalg
 import torch
 
-from .polynomial.__as_series import _as_series
-from .polynomial.__div import _div
-from .polynomial.__normalize_axis_index import _normalize_axis_index
-from .polynomial.__pow import _pow
-from .polynomial.__trim_coefficients import _trim_coefficients
-from .polynomial.__trim_sequence import _trim_sequence
+from .__as_series import _as_series
+from .__div import _div
+from .__normalize_axis_index import _normalize_axis_index
+from .__pow import _pow
+from .__trim_coefficients import _trim_coefficients
+from .__trim_sequence import _trim_sequence
 
 
 class RankWarning(RuntimeWarning):
