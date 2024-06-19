@@ -1,21 +1,24 @@
 import functools
 
 import beignet.polynomial
-import numpy
 import torch
 
 
 def test_polypow():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
-            c = numpy.arange(i + 1)
-            tgt = functools.reduce(
-                beignet.polynomial.polymul, [c] * j, numpy.array([1])
-            )
-            res = beignet.polynomial.polypow(c, j)
+            c = torch.arange(i + 1)
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
-                err_msg=msg,
+                beignet.polynomial.polytrim(
+                    beignet.polynomial.polypow(c, j),
+                    tolerance=1e-6,
+                ),
+                beignet.polynomial.polytrim(
+                    functools.reduce(
+                        beignet.polynomial.polymul,
+                        torch.tensor([c] * j),
+                        torch.tensor([1]),
+                    ),
+                    tolerance=1e-6,
+                ),
             )

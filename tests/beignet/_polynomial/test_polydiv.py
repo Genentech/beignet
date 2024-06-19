@@ -1,4 +1,5 @@
 import beignet.polynomial
+import beignet.polynomial._polyadd
 import numpy
 import torch
 
@@ -16,10 +17,12 @@ def test_polydiv():
             msg = f"At i={i}, j={j}"
             ci = [0] * i + [1, 2]
             cj = [0] * j + [1, 2]
-            tgt = beignet.polynomial.polyadd(ci, cj)
+            tgt = beignet.polynomial._polyadd.polyadd(ci, cj)
             quo, rem = beignet.polynomial.polydiv(tgt, ci)
             torch.testing.assert_close(
-                beignet.polynomial.polyadd(beignet.polynomial.polymul(quo, ci), rem),
+                beignet.polynomial._polyadd.polyadd(
+                    beignet.polynomial.polymul(quo, ci), rem
+                ),
                 tgt,
                 err_msg=msg,
             )

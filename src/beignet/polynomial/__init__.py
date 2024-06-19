@@ -22,6 +22,7 @@ from .__trim_sequence import _trim_sequence
 from .__vander_nd_flat import _vander_nd_flat
 from .__z_series_to_c_series import _z_series_to_c_series
 from .__zseries_div import _zseries_div
+from ._polyadd import polyadd
 
 
 class RankWarning(RuntimeWarning):
@@ -1659,10 +1660,6 @@ def poly2leg(pol):
     return res
 
 
-def polyadd(c1, c2):
-    return _add(c1, c2)
-
-
 def polycompanion(series):
     (series,) = _as_series([series])
 
@@ -2149,7 +2146,6 @@ __all__ = [
     "poly2herme",
     "poly2lag",
     "poly2leg",
-    "polyadd",
     "polycompanion",
     "polyder",
     "polydiv",
