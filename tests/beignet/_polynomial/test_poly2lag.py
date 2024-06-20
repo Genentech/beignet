@@ -10,5 +10,5 @@ def test_poly2lag():
             beignet.polynomial.poly2lag(
                 laguerre_polynomial_coefficients[index],
             ),
-            torch.tensor([0] * index + [1], dtype=torch.float64),
+            torch.tensor([0] * index + [1], dtype=torch.float32),
         )

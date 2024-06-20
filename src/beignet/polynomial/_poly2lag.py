@@ -13,6 +13,9 @@ def poly2lag(input):
     for index in torch.flip(input, dims=[0]):
         output = lagmulx(output)
 
-        output = lagadd(output, index)
+        output = lagadd(
+            output,
+            torch.ravel(index),
+        )
 
     return output
