@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._polyval
-import beignet.polynomial._polyval2d
 import numpy
 import torch.testing
 
@@ -18,7 +16,7 @@ def test_polyval2d():
     numpy.testing.assert_raises_regex(
         ValueError,
         "incompatible",
-        beignet.polynomial._polyval2d.polyval2d,
+        beignet.polynomial.polyval2d,
         x1,
         x2[:2],
         c2d,

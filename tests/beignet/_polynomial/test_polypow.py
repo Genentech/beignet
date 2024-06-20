@@ -1,9 +1,6 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial._polymul
-import beignet.polynomial._polypow
-import beignet.polynomial._polytrim
 import torch
 
 
@@ -12,11 +9,11 @@ def test_polypow():
         for k in range(5):
             c = torch.arange(j + 1)
             torch.testing.assert_close(
-                beignet.polynomial._polytrim.polytrim(
-                    beignet.polynomial._polypow.polypow(c, k),
+                beignet.polynomial.polytrim(
+                    beignet.polynomial.polypow(c, k),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._polytrim.polytrim(
+                beignet.polynomial.polytrim(
                     functools.reduce(
                         beignet.polynomial.polymul,
                         torch.tensor([c] * k),

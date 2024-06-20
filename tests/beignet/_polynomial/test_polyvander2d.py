@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._polyval2d
-import beignet.polynomial._polyvander2d
 import numpy
 
 
@@ -10,13 +8,10 @@ def test_polyvander2d():
     c = numpy.random.random((2, 3))
 
     numpy.testing.assert_almost_equal(
-        numpy.dot(
-            beignet.polynomial._polyvander2d.polyvander2d(x1, x2, [1, 2]), c.flat
-        ),
-        beignet.polynomial._polyval2d.polyval2d(x1, x2, c),
+        numpy.dot(beignet.polynomial.polyvander2d(x1, x2, [1, 2]), c.flat),
+        beignet.polynomial.polyval2d(x1, x2, c),
     )
 
     numpy.testing.assert_(
-        beignet.polynomial._polyvander2d.polyvander2d([x1], [x2], [1, 2]).shape
-        == (1, 5, 6)
+        beignet.polynomial.polyvander2d([x1], [x2], [1, 2]).shape == (1, 5, 6)
     )
