@@ -1,6 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._evaluate_1d_power_series
 import beignet.polynomial._polyint
-import beignet.polynomial._polyval
 import beignet.polynomial._trim_power_series
 import numpy
 
@@ -48,7 +48,7 @@ def test_polyint():
         pol = [0] * i + [1]
         res = beignet.polynomial._polyint.polyint(pol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._polyval.polyval(-1, res), i
+            beignet.polynomial._polyval.evaluate_1d_power_series(-1, res), i
         )
 
     for i in range(5):

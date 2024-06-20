@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._chebfit
-import beignet.polynomial._chebval
+import beignet.polynomial._evaluate_1d_chebyshev_series
 import numpy
 import torch
 
@@ -57,21 +57,31 @@ def test_chebfit():
 
     coef3 = beignet.polynomial._chebfit.chebfit(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef3), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef3), y
+    )
     coef3 = beignet.polynomial._chebfit.chebfit(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef3), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef3), y
+    )
 
     coef4 = beignet.polynomial._chebfit.chebfit(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef4), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef4), y
+    )
     coef4 = beignet.polynomial._chebfit.chebfit(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef4), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef4), y
+    )
 
     coef4 = beignet.polynomial._chebfit.chebfit(x, y, [2, 3, 4, 1, 0])
     torch.testing.assert_close(len(coef4), 5)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef4), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef4), y
+    )
 
     coef2d = beignet.polynomial._chebfit.chebfit(x, numpy.array([y, y]).T, 3)
     numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
@@ -105,7 +115,11 @@ def test_chebfit():
     x = numpy.linspace(-1, 1)
     y = f2(x)
     coef1 = beignet.polynomial._chebfit.chebfit(x, y, 4)
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef1), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef1), y
+    )
     coef2 = beignet.polynomial._chebfit.chebfit(x, y, [0, 2, 4])
-    numpy.testing.assert_almost_equal(beignet.polynomial._chebval.chebval(x, coef2), y)
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef2), y
+    )
     numpy.testing.assert_almost_equal(coef1, coef2)

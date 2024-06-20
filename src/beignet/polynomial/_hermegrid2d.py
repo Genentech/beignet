@@ -1,6 +1,8 @@
 from .__grid import _grid
-from ._hermeval import hermeval
+from ._evaluate_1d_probabilists_hermite_series import (
+    evaluate_1d_probabilists_hermite_series,
+)
 
 
 def hermegrid2d(x, y, c):
-    return _grid(hermeval, c, x, y)
+    return _grid(evaluate_1d_probabilists_hermite_series, c, x, y)

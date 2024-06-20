@@ -1,7 +1,7 @@
 import numpy
 
 
-def lagval(x, c, tensor=True):
+def evaluate_1d_legendre_series(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
@@ -24,5 +24,5 @@ def lagval(x, c, tensor=True):
             tmp = c0
             nd = nd - 1
             c0 = c[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
-    return c0 + c1 * (1 - x)
+            c1 = tmp + (c1 * x * (2 * nd - 1)) / nd
+    return c0 + c1 * x

@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._hermeval
+import beignet.polynomial._evaluate_1d_probabilists_hermite_series
 import beignet.polynomial._hermevander
 import numpy
 
@@ -11,7 +11,10 @@ def test_hermevander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._hermeval.hermeval(x, coef)
+            v[..., i],
+            beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(
+                x, coef
+            ),
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
@@ -20,5 +23,8 @@ def test_hermevander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._hermeval.hermeval(x, coef)
+            v[..., i],
+            beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(
+                x, coef
+            ),
         )

@@ -1,6 +1,6 @@
 from .__grid import _grid
-from ._chebval import chebval
+from ._evaluate_1d_chebyshev_series import evaluate_1d_chebyshev_series
 
 
 def chebgrid3d(x, y, z, c):
-    return _grid(chebval, c, x, y, z)
+    return _grid(evaluate_1d_chebyshev_series, c, x, y, z)

@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legval
+import beignet.polynomial._evaluate_1d_legendre_series
 import beignet.polynomial._legvander
 import numpy
 
@@ -11,7 +11,7 @@ def test_legvander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._legval.legval(x, coef)
+            v[..., i], beignet.polynomial._legval.evaluate_1d_legendre_series(x, coef)
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
@@ -20,7 +20,7 @@ def test_legvander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._legval.legval(x, coef)
+            v[..., i], beignet.polynomial._legval.evaluate_1d_legendre_series(x, coef)
         )
 
     numpy.testing.assert_raises(

@@ -3,7 +3,9 @@ import operator
 import numpy
 
 from .__normalize_axis_index import _normalize_axis_index
-from ._hermval import hermval
+from ._evaluate_1d_physicists_hermite_series import (
+    evaluate_1d_physicists_hermite_series,
+)
 
 
 def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
@@ -42,7 +44,7 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
             tmp[1] = c[0] / 2
             for j in range(1, n):
                 tmp[j + 1] = c[j] / (2 * (j + 1))
-            tmp[0] += k[i] - hermval(lbnd, tmp)
+            tmp[0] += k[i] - evaluate_1d_physicists_hermite_series(lbnd, tmp)
             c = tmp
     c = numpy.moveaxis(c, 0, iaxis)
     return c

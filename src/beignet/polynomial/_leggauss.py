@@ -5,7 +5,7 @@ import numpy
 from beignet.polynomial._legcompanion import legcompanion
 from beignet.polynomial._legder import legder
 
-from ._legval import legval
+from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
 
 
 def leggauss(input):
@@ -17,11 +17,11 @@ def leggauss(input):
     m = legcompanion(c)
     x = numpy.linalg.eigvalsh(m)
 
-    dy = legval(x, c)
-    df = legval(x, legder(c))
+    dy = evaluate_1d_legendre_series(x, c)
+    df = evaluate_1d_legendre_series(x, legder(c))
     x -= dy / df
 
-    fm = legval(x, c[1:])
+    fm = evaluate_1d_legendre_series(x, c[1:])
     fm /= numpy.abs(fm).max()
     df /= numpy.abs(df).max()
     weights = 1 / (fm * df)

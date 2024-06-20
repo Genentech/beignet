@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._chebval3d
 import beignet.polynomial._chebvander3d
+import beignet.polynomial._evaluate_3d_chebyshev_series
 import numpy
 
 
@@ -11,7 +11,7 @@ def test_chebvander3d():
         numpy.dot(
             beignet.polynomial._chebvander3d.chebvander3d(x1, x2, x3, [1, 2, 3]), c.flat
         ),
-        beignet.polynomial._chebval3d.chebval3d(x1, x2, x3, c),
+        beignet.polynomial._chebval3d.evaluate_3d_chebyshev_series(x1, x2, x3, c),
     )
     numpy.testing.assert_(
         beignet.polynomial._chebvander3d.chebvander3d([x1], [x2], [x3], [1, 2, 3]).shape

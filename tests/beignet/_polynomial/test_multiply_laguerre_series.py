@@ -7,13 +7,13 @@ def test_multiply_laguerre_series():
 
     for i in range(5):
         pol1 = torch.tensor([0] * i + [1])
-        val1 = beignet.polynomial.lagval(x, pol1)
+        val1 = beignet.polynomial.evaluate_1d_laguerre_series(x, pol1)
 
         for j in range(5):
             pol2 = torch.tensor([0] * j + [1])
-            val2 = beignet.polynomial.lagval(x, pol2)
+            val2 = beignet.polynomial.evaluate_1d_laguerre_series(x, pol2)
             pol3 = beignet.polynomial.multiply_laguerre_series(pol1, pol2)
-            val3 = beignet.polynomial.lagval(x, pol3)
+            val3 = beignet.polynomial.evaluate_1d_laguerre_series(x, pol3)
 
             assert len(pol3) == i + j + 1
 

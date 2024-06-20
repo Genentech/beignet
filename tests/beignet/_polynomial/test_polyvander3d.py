@@ -8,7 +8,7 @@ def test_polyvander3d():
 
     numpy.testing.assert_almost_equal(
         numpy.dot(beignet.polynomial.polyvander3d(x1, x2, x3, [1, 2, 3]), c.flat),
-        beignet.polynomial.polyval3d(x1, x2, x3, c),
+        beignet.polynomial.evaluate_3d_power_series(x1, x2, x3, c),
     )
 
     output = beignet.polynomial.polyvander3d([x1], [x2], [x3], [1, 2, 3])

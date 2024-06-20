@@ -1,6 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._evaluate_1d_physicists_hermite_series
 import beignet.polynomial._hermint
-import beignet.polynomial._hermval
 import beignet.polynomial._physicists_hermite_series_to_power_series
 import beignet.polynomial._power_series_to_physicists_hermite_series
 import beignet.polynomial._trim_physicists_hermite_series
@@ -60,7 +60,10 @@ def test_hermint():
         )
         hermint = beignet.polynomial._hermint.hermint(hermpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermval.hermval(-1, hermint), i
+            beignet.polynomial._hermval.evaluate_1d_physicists_hermite_series(
+                -1, hermint
+            ),
+            i,
         )
 
     for i in range(5):

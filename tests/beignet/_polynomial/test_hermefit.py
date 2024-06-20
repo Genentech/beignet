@@ -1,6 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._evaluate_1d_probabilists_hermite_series
 import beignet.polynomial._hermefit
-import beignet.polynomial._hermeval
 import numpy
 import torch
 
@@ -58,29 +58,34 @@ def test_hermefit():
     coef3 = beignet.polynomial._hermefit.hermefit(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef3), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef3),
+        y,
     )
     coef3 = beignet.polynomial._hermefit.hermefit(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef3), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef3),
+        y,
     )
 
     coef4 = beignet.polynomial._hermefit.hermefit(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef4), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef4),
+        y,
     )
     coef4 = beignet.polynomial._hermefit.hermefit(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef4), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef4),
+        y,
     )
 
     coef4 = beignet.polynomial._hermefit.hermefit(x, y, [2, 3, 4, 1, 0])
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef4), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef4),
+        y,
     )
 
     coef2d = beignet.polynomial._hermefit.hermefit(x, numpy.array([y, y]).T, 3)
@@ -118,10 +123,12 @@ def test_hermefit():
     y = f2(x)
     coef1 = beignet.polynomial._hermefit.hermefit(x, y, 4)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef1), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef1),
+        y,
     )
     coef2 = beignet.polynomial._hermefit.hermefit(x, y, [0, 2, 4])
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeval.hermeval(x, coef2), y
+        beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(x, coef2),
+        y,
     )
     numpy.testing.assert_almost_equal(coef1, coef2)

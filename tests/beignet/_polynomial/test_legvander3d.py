@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legval3d
+import beignet.polynomial._evaluate_3d_legendre_series
 import beignet.polynomial._legvander3d
 import numpy
 
@@ -11,7 +11,7 @@ def test_legvander3d():
         numpy.dot(
             beignet.polynomial._legvander3d.legvander3d(x1, x2, x3, [1, 2, 3]), c.flat
         ),
-        beignet.polynomial._legval3d.legval3d(x1, x2, x3, c),
+        beignet.polynomial._legval3d.evaluate_3d_legendre_series(x1, x2, x3, c),
     )
 
     numpy.testing.assert_(

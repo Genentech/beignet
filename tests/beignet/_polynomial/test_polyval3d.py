@@ -8,12 +8,12 @@ def test_polyval3d():
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.polynomial.polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = beignet.polynomial.evaluate_1d_power_series(x, [1.0, 2.0, 3.0])
 
     numpy.testing.assert_raises_regex(
         ValueError,
         "incompatible",
-        beignet.polynomial.polyval3d,
+        beignet.polynomial.evaluate_3d_power_series,
         x1,
         x2,
         x3[:2],
@@ -22,8 +22,10 @@ def test_polyval3d():
 
     tgt = y1 * y2 * y3
     numpy.testing.assert_almost_equal(
-        beignet.polynomial.polyval3d(x1, x2, x3, c3d), tgt
+        beignet.polynomial.evaluate_3d_power_series(x1, x2, x3, c3d), tgt
     )
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(beignet.polynomial.polyval3d(z, z, z, c3d).shape == (2, 3))
+    numpy.testing.assert_(
+        beignet.polynomial.evaluate_3d_power_series(z, z, z, c3d).shape == (2, 3)
+    )

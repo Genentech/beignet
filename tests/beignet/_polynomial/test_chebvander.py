@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._chebval
 import beignet.polynomial._chebvander
+import beignet.polynomial._evaluate_1d_chebyshev_series
 import numpy
 
 
@@ -11,7 +11,7 @@ def test_chebvander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._chebval.chebval(x, coef)
+            v[..., i], beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef)
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
@@ -20,5 +20,5 @@ def test_chebvander():
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._chebval.chebval(x, coef)
+            v[..., i], beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, coef)
         )

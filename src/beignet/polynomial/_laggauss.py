@@ -5,7 +5,7 @@ import numpy
 from beignet.polynomial._lagcompanion import lagcompanion
 from beignet.polynomial._lagder import lagder
 
-from ._lagval import lagval
+from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
 
 
 def laggauss(input):
@@ -17,11 +17,11 @@ def laggauss(input):
     m = lagcompanion(c)
     x = numpy.linalg.eigvalsh(m)
 
-    dy = lagval(x, c)
-    df = lagval(x, lagder(c))
+    dy = evaluate_1d_laguerre_series(x, c)
+    df = evaluate_1d_laguerre_series(x, lagder(c))
     x -= dy / df
 
-    fm = lagval(x, c[1:])
+    fm = evaluate_1d_laguerre_series(x, c[1:])
 
     fm = fm / numpy.max(numpy.abs(fm))
     df = df / numpy.max(numpy.abs(df))

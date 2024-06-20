@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._chebval
-import beignet.polynomial._polyval
+import beignet.polynomial._evaluate_1d_chebyshev_series
+import beignet.polynomial._evaluate_1d_power_series
 import numpy
 import torch
 
@@ -8,28 +8,34 @@ from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_coeff
 
 
 def test_chebval():
-    torch.testing.assert_close(beignet.polynomial._chebval.chebval([], [1]).size, 0)
+    torch.testing.assert_close(
+        beignet.polynomial._chebval.evaluate_1d_chebyshev_series([], [1]).size, 0
+    )
 
     x = numpy.linspace(-1, 1)
     y = [
-        beignet.polynomial._polyval.polyval(x, c)
+        beignet.polynomial._polyval.evaluate_1d_power_series(x, c)
         for c in chebyshev_polynomial_coefficients
     ]
     for i in range(10):
         msg = f"At i={i}"
         tgt = y[i]
-        res = beignet.polynomial._chebval.chebval(x, [0] * i + [1])
+        res = beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, [0] * i + [1])
         numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
 
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
         torch.testing.assert_close(
-            beignet.polynomial._chebval.chebval(x, [1]).shape, dims
+            beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, [1]).shape, dims
         )
         torch.testing.assert_close(
-            beignet.polynomial._chebval.chebval(x, [1, 0]).shape, dims
+            beignet.polynomial._chebval.evaluate_1d_chebyshev_series(x, [1, 0]).shape,
+            dims,
         )
         torch.testing.assert_close(
-            beignet.polynomial._chebval.chebval(x, [1, 0, 0]).shape, dims
+            beignet.polynomial._chebval.evaluate_1d_chebyshev_series(
+                x, [1, 0, 0]
+            ).shape,
+            dims,
         )

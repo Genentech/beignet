@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._chebgrid3d
-import beignet.polynomial._polyval
+import beignet.polynomial._evaluate_1d_power_series
 import numpy
 
 
@@ -10,7 +10,7 @@ def test_chebgrid3d():
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial._polyval.polyval(x, [1.0, 2.0, 3.0])
+    y = beignet.polynomial._polyval.evaluate_1d_power_series(x, [1.0, 2.0, 3.0])
 
     x1, x2, x3 = x
     y1, y2, y3 = y

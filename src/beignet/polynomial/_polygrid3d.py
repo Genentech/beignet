@@ -1,6 +1,6 @@
 from .__grid import _grid
-from ._polyval import polyval
+from ._evaluate_1d_power_series import evaluate_1d_power_series
 
 
 def polygrid3d(x, y, z, c):
-    return _grid(polyval, c, x, y, z)
+    return _grid(evaluate_1d_power_series, c, x, y, z)

@@ -1,7 +1,7 @@
 import beignet.polynomial
+import beignet.polynomial._evaluate_1d_laguerre_series
 import beignet.polynomial._lagfromroots
 import beignet.polynomial._laguerre_series_to_power_series
-import beignet.polynomial._lagval
 import beignet.polynomial._trim_laguerre_series
 import numpy
 
@@ -21,5 +21,5 @@ def test_lagfromroots():
             beignet.polynomial._lag2poly.laguerre_series_to_power_series(pol)[-1], 1
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._lagval.lagval(roots, pol), 0
+            beignet.polynomial._lagval.evaluate_1d_laguerre_series(roots, pol), 0
         )

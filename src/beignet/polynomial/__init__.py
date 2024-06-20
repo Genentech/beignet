@@ -40,9 +40,6 @@ from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
 from ._chebroots import chebroots
-from ._chebval import chebval
-from ._chebval2d import chebval2d
-from ._chebval3d import chebval3d
 from ._chebvander import chebvander
 from ._chebvander2d import chebvander2d
 from ._chebvander3d import chebvander3d
@@ -56,6 +53,36 @@ from ._divide_legendre_series import divide_legendre_series
 from ._divide_physicists_hermite_series import divide_physicists_hermite_series
 from ._divide_power_series import divide_power_series
 from ._divide_probabilists_hermite_series import divide_probabilists_hermite_series
+from ._evaluate_1d_chebyshev_series import evaluate_1d_chebyshev_series
+from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
+from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
+from ._evaluate_1d_physicists_hermite_series import (
+    evaluate_1d_physicists_hermite_series,
+)
+from ._evaluate_1d_power_series import evaluate_1d_power_series
+from ._evaluate_1d_probabilists_hermite_series import (
+    evaluate_1d_probabilists_hermite_series,
+)
+from ._evaluate_2d_chebyshev_series import evaluate_2d_chebyshev_series
+from ._evaluate_2d_laguerre_series import evaluate_2d_laguerre_series
+from ._evaluate_2d_legendre_series import evaluate_2d_legendre_series
+from ._evaluate_2d_physicists_hermite_series import (
+    evaluate_2d_physicists_hermite_series,
+)
+from ._evaluate_2d_power_series import evaluate_2d_power_series
+from ._evaluate_2d_probabilists_hermite_series import (
+    evaluate_2d_probabilists_hermite_series,
+)
+from ._evaluate_3d_chebyshev_series import evaluate_3d_chebyshev_series
+from ._evaluate_3d_laguerre_series import evaluate_3d_laguerre_series
+from ._evaluate_3d_legendre_series import evaluate_3d_legendre_series
+from ._evaluate_3d_physicists_hermite_series import (
+    evaluate_3d_physicists_hermite_series,
+)
+from ._evaluate_3d_power_series import evaluate_3d_power_series
+from ._evaluate_3d_probabilists_hermite_series import (
+    evaluate_3d_probabilists_hermite_series,
+)
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
 from ._hermdomain import hermdomain
@@ -73,9 +100,6 @@ from ._hermemulx import hermemulx
 from ._hermeone import hermeone
 from ._hermepow import hermepow
 from ._hermeroots import hermeroots
-from ._hermeval import hermeval
-from ._hermeval2d import hermeval2d
-from ._hermeval3d import hermeval3d
 from ._hermevander import hermevander
 from ._hermevander2d import hermevander2d
 from ._hermevander3d import hermevander3d
@@ -92,9 +116,6 @@ from ._hermmulx import hermmulx
 from ._hermone import hermone
 from ._hermpow import hermpow
 from ._hermroots import hermroots
-from ._hermval import hermval
-from ._hermval2d import hermval2d
-from ._hermval3d import hermval3d
 from ._hermvander import hermvander
 from ._hermvander2d import hermvander2d
 from ._hermvander3d import hermvander3d
@@ -115,9 +136,6 @@ from ._lagone import lagone
 from ._lagpow import lagpow
 from ._lagroots import lagroots
 from ._laguerre_series_to_power_series import laguerre_series_to_power_series
-from ._lagval import lagval
-from ._lagval2d import lagval2d
-from ._lagval3d import lagval3d
 from ._lagvander import lagvander
 from ._lagvander2d import lagvander2d
 from ._lagvander3d import lagvander3d
@@ -138,9 +156,6 @@ from ._legmulx import legmulx
 from ._legone import legone
 from ._legpow import legpow
 from ._legroots import legroots
-from ._legval import legval
-from ._legval2d import legval2d
-from ._legval3d import legval3d
 from ._legvander import legvander
 from ._legvander2d import legvander2d
 from ._legvander3d import legvander3d
@@ -169,9 +184,6 @@ from ._polymulx import polymulx
 from ._polyone import polyone
 from ._polypow import polypow
 from ._polyroots import polyroots
-from ._polyval import polyval
-from ._polyval2d import polyval2d
-from ._polyval3d import polyval3d
 from ._polyvalfromroots import polyvalfromroots
 from ._polyvander import polyvander
 from ._polyvander2d import polyvander2d
@@ -246,9 +258,9 @@ __all__ = [
     "chebroots",
     "subtract_chebyshev_series",
     "trim_chebyshev_series",
-    "chebval",
-    "chebval2d",
-    "chebval3d",
+    "evaluate_1d_chebyshev_series",
+    "evaluate_2d_chebyshev_series",
+    "evaluate_3d_chebyshev_series",
     "chebvander",
     "chebvander2d",
     "chebvander3d",
@@ -281,9 +293,9 @@ __all__ = [
     "hermeroots",
     "subtract_probabilists_hermite_series",
     "trim_probabilists_hermite_series",
-    "hermeval",
-    "hermeval2d",
-    "hermeval3d",
+    "evaluate_1d_probabilists_hermite_series",
+    "evaluate_2d_probabilists_hermite_series",
+    "evaluate_3d_probabilists_hermite_series",
     "hermevander",
     "hermevander2d",
     "hermevander3d",
@@ -303,9 +315,9 @@ __all__ = [
     "hermroots",
     "subtract_physicists_hermite_series",
     "trim_physicists_hermite_series",
-    "hermval",
-    "hermval2d",
-    "hermval3d",
+    "evaluate_1d_physicists_hermite_series",
+    "evaluate_2d_physicists_hermite_series",
+    "evaluate_3d_physicists_hermite_series",
     "hermvander",
     "hermvander2d",
     "hermvander3d",
@@ -331,9 +343,9 @@ __all__ = [
     "lagroots",
     "subtract_laguerre_series",
     "trim_laguerre_series",
-    "lagval",
-    "lagval2d",
-    "lagval3d",
+    "evaluate_1d_laguerre_series",
+    "evaluate_2d_laguerre_series",
+    "evaluate_3d_laguerre_series",
     "lagvander",
     "lagvander2d",
     "lagvander3d",
@@ -359,9 +371,9 @@ __all__ = [
     "legroots",
     "subtract_legendre_series",
     "trim_legendre_series",
-    "legval",
-    "legval2d",
-    "legval3d",
+    "evaluate_1d_legendre_series",
+    "evaluate_2d_legendre_series",
+    "evaluate_3d_legendre_series",
     "legvander",
     "legvander2d",
     "legvander3d",
@@ -391,9 +403,9 @@ __all__ = [
     "polyroots",
     "subtract_power_series",
     "trim_power_series",
-    "polyval",
-    "polyval2d",
-    "polyval3d",
+    "evaluate_1d_power_series",
+    "evaluate_2d_power_series",
+    "evaluate_3d_power_series",
     "polyvalfromroots",
     "polyvander",
     "polyvander2d",

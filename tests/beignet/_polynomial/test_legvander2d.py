@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legval2d
+import beignet.polynomial._evaluate_2d_legendre_series
 import beignet.polynomial._legvander2d
 import numpy
 
@@ -9,7 +9,7 @@ def test_legvander2d():
     c = numpy.random.random((2, 3))
     numpy.testing.assert_almost_equal(
         numpy.dot(beignet.polynomial._legvander2d.legvander2d(x1, x2, [1, 2]), c.flat),
-        beignet.polynomial._legval2d.legval2d(x1, x2, c),
+        beignet.polynomial._legval2d.evaluate_2d_legendre_series(x1, x2, c),
     )
 
     numpy.testing.assert_(

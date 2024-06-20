@@ -3,7 +3,7 @@ import operator
 import numpy
 
 from .__normalize_axis_index import _normalize_axis_index
-from ._legval import legval
+from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
 
 
 def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
@@ -46,7 +46,7 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
                 t = c[j] / (2 * j + 1)
                 tmp[j + 1] = t
                 tmp[j - 1] -= t
-            tmp[0] += k[i] - legval(lbnd, tmp)
+            tmp[0] += k[i] - evaluate_1d_legendre_series(lbnd, tmp)
             c = tmp
     c = numpy.moveaxis(c, 0, iaxis)
     return c

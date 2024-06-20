@@ -9,7 +9,7 @@ def test_polyvander2d():
 
     numpy.testing.assert_almost_equal(
         numpy.dot(beignet.polynomial.polyvander2d(x1, x2, [1, 2]), c.flat),
-        beignet.polynomial.polyval2d(x1, x2, c),
+        beignet.polynomial.evaluate_2d_power_series(x1, x2, c),
     )
 
     numpy.testing.assert_(

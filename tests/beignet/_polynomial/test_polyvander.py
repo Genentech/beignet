@@ -11,7 +11,7 @@ def test_polyvander():
     for index in range(4):
         torch.testing.assert_close(
             v[..., index],
-            beignet.polynomial.polyval(
+            beignet.polynomial.evaluate_1d_power_series(
                 x,
                 torch.tensor([0] * index + [1]),
             ),
@@ -26,7 +26,7 @@ def test_polyvander():
     for index in range(4):
         torch.testing.assert_close(
             v[..., index],
-            beignet.polynomial.polyval(
+            beignet.polynomial.evaluate_1d_power_series(
                 x,
                 torch.tensor([0] * index + [1]),
             ),
