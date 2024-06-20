@@ -1,9 +1,6 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial._chebmul
-import beignet.polynomial._chebpow
-import beignet.polynomial._chebtrim
 import torch
 
 

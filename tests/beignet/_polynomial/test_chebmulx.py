@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebmulx
 import torch
 
 
