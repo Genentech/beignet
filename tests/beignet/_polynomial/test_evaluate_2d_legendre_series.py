@@ -1,13 +1,12 @@
 import beignet.polynomial
 import beignet.polynomial._evaluate_1d_power_series
-import beignet.polynomial._evaluate_3d_legendre_series
+import beignet.polynomial._evaluate_2d_legendre_series
 import numpy
 
 
-def test_legval3d():
+def test_evaluate_2d_legendre_series():
     c1d = numpy.array([2.0, 2.0, 2.0])
-
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -17,20 +16,19 @@ def test_legval3d():
 
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._legval3d.evaluate_3d_legendre_series,
+        beignet.polynomial._legval2d.evaluate_2d_legendre_series,
         x1,
-        x2,
-        x3[:2],
-        c3d,
+        x2[:2],
+        c2d,
     )
 
+    tgt = y1 * y2
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._legval3d.evaluate_3d_legendre_series(x1, x2, x3, c3d),
-        y1 * y2 * y3,
+        beignet.polynomial._legval2d.evaluate_2d_legendre_series(x1, x2, c2d), tgt
     )
 
     z = numpy.ones((2, 3))
     numpy.testing.assert_(
-        beignet.polynomial._legval3d.evaluate_3d_legendre_series(z, z, z, c3d).shape
+        beignet.polynomial._legval2d.evaluate_2d_legendre_series(z, z, c2d).shape
         == (2, 3)
     )

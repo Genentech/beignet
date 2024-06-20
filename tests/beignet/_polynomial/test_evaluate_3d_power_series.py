@@ -2,7 +2,7 @@ import beignet.polynomial
 import numpy
 
 
-def test_polyval3d():
+def test_evaluate_3d_power_series():
     c1d = numpy.array([1.0, 2.0, 3.0])
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
