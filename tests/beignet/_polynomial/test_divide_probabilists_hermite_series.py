@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_hermediv():
+def test_divide_probabilists_hermite_series():
     for i in range(5):
         for j in range(5):
             quotient, remainder = beignet.polynomial.divide_probabilists_hermite_series(

@@ -1,12 +1,8 @@
 import beignet.polynomial
-import beignet.polynomial._add_legendre_series
-import beignet.polynomial._divide_legendre_series
-import beignet.polynomial._multiply_legendre_series
-import beignet.polynomial._trim_legendre_series
 import torch
 
 
-def test_legdiv():
+def test_divide_legendre_series():
     for i in range(5):
         for j in range(5):
             quotient, remainder = beignet.polynomial.divide_legendre_series(

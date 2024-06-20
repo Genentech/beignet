@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_chebdiv():
+def test_divide_chebyshev_series():
     for i in range(5):
         for j in range(5):
             tgt = beignet.polynomial.add_chebyshev_series(

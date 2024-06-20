@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_polydiv():
+def test_divide_power_series():
     quotient, remainder = beignet.polynomial.divide_power_series(
         torch.tensor([2]),
         torch.tensor([2]),
