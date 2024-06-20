@@ -4,7 +4,7 @@ import torch.testing
 from .test_polynomial import laguerre_polynomial_coefficients
 
 
-def test_poly2lag():
+def test_power_series_to_laguerre_series():
     for index in range(7):
         torch.testing.assert_close(
             beignet.polynomial.power_series_to_laguerre_series(

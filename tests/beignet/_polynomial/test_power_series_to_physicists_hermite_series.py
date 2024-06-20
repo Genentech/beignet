@@ -4,7 +4,7 @@ import torch
 from .test_polynomial import hermite_polynomial_coefficients
 
 
-def test_poly2herm():
+def test_power_series_to_physicists_hermite_series():
     for index in range(10):
         torch.testing.assert_close(
             beignet.polynomial.power_series_to_physicists_hermite_series(

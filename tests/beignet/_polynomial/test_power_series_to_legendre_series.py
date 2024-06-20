@@ -4,7 +4,7 @@ import torch.testing
 from .test_polynomial import legendre_polynomial_coefficients
 
 
-def test_poly2leg():
+def test_power_series_to_legendre_series():
     for index in range(10):
         torch.testing.assert_close(
             beignet.polynomial.power_series_to_legendre_series(
