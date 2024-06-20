@@ -1,22 +1,22 @@
 import beignet.polynomial
-import beignet.polynomial._polycompanion
-import numpy
+import pytest
+import torch
 
 
 def test_polycompanion():
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._polycompanion.polycompanion, []
-    )
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._polycompanion.polycompanion, [1]
-    )
-
-    for i in range(1, 5):
-        coef = [0] * i + [1]
-        numpy.testing.assert_(
-            beignet.polynomial._polycompanion.polycompanion(coef).shape == (i, i)
+    with pytest.raises(ValueError):
+        beignet.polynomial.polycompanion(
+            torch.tensor([]),
         )
 
-    numpy.testing.assert_(
-        beignet.polynomial._polycompanion.polycompanion([1, 2])[0, 0] == -0.5
-    )
+    with pytest.raises(ValueError):
+        beignet.polynomial.polycompanion(
+            torch.tensor([1]),
+        )
+
+    for i in range(1, 5):
+        assert beignet.polynomial.polycompanion(
+            torch.tensor([0] * i + [1]),
+        ).shape == (i, i)
+
+    assert beignet.polynomial.polycompanion(torch.tensor([1, 2]))[0, 0] == -0.5

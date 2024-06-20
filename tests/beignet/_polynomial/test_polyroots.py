@@ -1,21 +1,34 @@
 import beignet.polynomial
-import beignet.polynomial._polyfromroots
-import beignet.polynomial._polyroots
-import beignet.polynomial._polytrim
-import numpy
+import torch.testing
 
 
 def test_polyroots():
-    numpy.testing.assert_almost_equal(beignet.polynomial._polyroots.polyroots([1]), [])
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._polyroots.polyroots([1, 2]), [-0.5]
+    torch.testing.assert_close(
+        beignet.polynomial.polyroots(
+            torch.tensor([1]),
+        ),
+        torch.tensor([], dtype=torch.float64),
     )
+
+    torch.testing.assert_close(
+        beignet.polynomial.polyroots(
+            torch.tensor([1, 2]),
+        ),
+        torch.tensor([-0.5], dtype=torch.float64),
+    )
+
     for i in range(2, 5):
-        tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial._polyroots.polyroots(
-            beignet.polynomial._polyfromroots.polyfromroots(tgt)
-        )
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._polytrim.polytrim(res, tolerance=1e-6),
-            beignet.polynomial._polytrim.polytrim(tgt, tolerance=1e-6),
+        torch.testing.assert_close(
+            beignet.polynomial.polytrim(
+                beignet.polynomial.polyroots(
+                    beignet.polynomial.polyfromroots(
+                        torch.linspace(-1, 1, i),
+                    )
+                ),
+                tolerance=1e-6,
+            ),
+            beignet.polynomial.polytrim(
+                torch.linspace(-1, 1, i),
+                tolerance=1e-6,
+            ),
         )

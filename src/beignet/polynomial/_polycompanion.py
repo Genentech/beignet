@@ -1,4 +1,5 @@
 import numpy
+import torch
 
 from .__as_series import _as_series
 
@@ -14,7 +15,7 @@ def polycompanion(series):
     else:
         n = series.shape[-1] - 1
 
-        output = numpy.zeros([n, n], dtype=series.dtype)
+        output = torch.zeros([n, n], dtype=series.dtype)
 
         bot = numpy.reshape(output, -1)[n :: n + 1]
 

@@ -1,8 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebadd
-import beignet.polynomial._chebdiv
-import beignet.polynomial._chebmul
-import beignet.polynomial._chebtrim
 import torch
 
 

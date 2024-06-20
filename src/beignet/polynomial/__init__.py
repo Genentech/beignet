@@ -168,6 +168,7 @@ from ._poly2herme import poly2herme
 from ._poly2lag import poly2lag
 from ._poly2leg import poly2leg
 from ._polyadd import polyadd
+from ._polycompanion import polycompanion
 from ._polydiv import polydiv
 from ._polydomain import polydomain
 from ._polyfit import polyfit
@@ -211,8 +212,8 @@ __all__ = [
     "_trim_coefficients",
     "_trim_sequence",
     "_vander_nd_flat",
-    "_z_series_to_c_series",
     "_z_series_div",
+    "_z_series_to_c_series",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
@@ -364,6 +365,7 @@ __all__ = [
     "poly2lag",
     "poly2leg",
     "polyadd",
+    "polycompanion",
     "polydiv",
     "polydomain",
     "polyfit",

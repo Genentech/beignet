@@ -18,7 +18,7 @@ def test_polypow():
                 ),
                 beignet.polynomial._polytrim.polytrim(
                     functools.reduce(
-                        beignet.polynomial._polymul.polymul,
+                        beignet.polynomial.polymul,
                         torch.tensor([c] * j),
                         torch.tensor([1]),
                     ),

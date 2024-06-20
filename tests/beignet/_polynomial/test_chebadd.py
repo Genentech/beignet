@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebadd
-import beignet.polynomial._chebtrim
 import torch
 
 
@@ -11,14 +9,14 @@ def test_chebadd():
             tgt[i] += 1
             tgt[j] += 1
             torch.testing.assert_close(
-                beignet.polynomial._chebtrim.chebtrim(
-                    beignet.polynomial._chebadd.chebadd(
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebadd(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._chebtrim.chebtrim(
+                beignet.polynomial.chebtrim(
                     tgt,
                     tolerance=1e-6,
                 ),
