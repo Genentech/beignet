@@ -7,7 +7,7 @@ import torch
 from tests.beignet._polynomial.test_polynomial import laguerre_polynomial_coefficients
 
 
-def test_lagval():
+def test_evaluate_1d_laguerre_series():
     x = numpy.random.random((3, 5)) * 2 - 1
 
     torch.testing.assert_close(
