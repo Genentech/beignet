@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._polyfit
-import beignet.polynomial._polyval
 import numpy
 import torch
 
@@ -78,30 +76,24 @@ def test_polyfit():
     yw = y.copy()
     w[1::2] = 1
     yw[0::2] = 0
-    wcoef3 = beignet.polynomial._polyfit.polyfit(x, yw, 3, w=w)
+    wcoef3 = beignet.polynomial.polyfit(x, yw, 3, w=w)
     numpy.testing.assert_almost_equal(wcoef3, coef3)
-    wcoef3 = beignet.polynomial._polyfit.polyfit(x, yw, [0, 1, 2, 3], w=w)
+    wcoef3 = beignet.polynomial.polyfit(x, yw, [0, 1, 2, 3], w=w)
     numpy.testing.assert_almost_equal(wcoef3, coef3)
 
-    wcoef2d = beignet.polynomial._polyfit.polyfit(x, numpy.array([yw, yw]).T, 3, w=w)
+    wcoef2d = beignet.polynomial.polyfit(x, numpy.array([yw, yw]).T, 3, w=w)
     numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-    wcoef2d = beignet.polynomial._polyfit.polyfit(
-        x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
-    )
+    wcoef2d = beignet.polynomial.polyfit(x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w)
     numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
 
     x = [1, 1j, -1, -1j]
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._polyfit.polyfit(x, x, 1), [0, 1]
-    )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._polyfit.polyfit(x, x, [0, 1]), [0, 1]
-    )
+    numpy.testing.assert_almost_equal(beignet.polynomial.polyfit(x, x, 1), [0, 1])
+    numpy.testing.assert_almost_equal(beignet.polynomial.polyfit(x, x, [0, 1]), [0, 1])
 
     x = numpy.linspace(-1, 1)
     y = f2(x)
-    coef1 = beignet.polynomial._polyfit.polyfit(x, y, 4)
-    numpy.testing.assert_almost_equal(beignet.polynomial._polyval.polyval(x, coef1), y)
-    coef2 = beignet.polynomial._polyfit.polyfit(x, y, [0, 2, 4])
-    numpy.testing.assert_almost_equal(beignet.polynomial._polyval.polyval(x, coef2), y)
+    coef1 = beignet.polynomial.polyfit(x, y, 4)
+    numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef1), y)
+    coef2 = beignet.polynomial.polyfit(x, y, [0, 2, 4])
+    numpy.testing.assert_almost_equal(beignet.polynomial.polyval(x, coef2), y)
     numpy.testing.assert_almost_equal(coef1, coef2)
