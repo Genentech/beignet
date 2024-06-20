@@ -40,7 +40,6 @@ from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
 from ._chebroots import chebroots
-from ._chebtrim import chebtrim
 from ._chebval import chebval
 from ._chebval2d import chebval2d
 from ._chebval3d import chebval3d
@@ -197,6 +196,7 @@ from ._subtract_legendre_series import subtract_legendre_series
 from ._subtract_physicists_hermite_series import subtract_physicists_hermite_series
 from ._subtract_power_series import subtract_power_series
 from ._subtract_probabilists_hermite_series import subtract_probabilists_hermite_series
+from ._trim_chebyshev_series import trim_chebyshev_series
 from ._trim_laguerre_series import trim_laguerre_series
 from ._trim_legendre_series import trim_legendre_series
 from ._trim_physicists_hermite_series import trim_physicists_hermite_series
@@ -245,7 +245,7 @@ __all__ = [
     "chebpts2",
     "chebroots",
     "subtract_chebyshev_series",
-    "chebtrim",
+    "trim_chebyshev_series",
     "chebval",
     "chebval2d",
     "chebval3d",

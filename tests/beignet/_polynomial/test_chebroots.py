@@ -1,7 +1,7 @@
 import beignet.polynomial
 import beignet.polynomial._chebfromroots
 import beignet.polynomial._chebroots
-import beignet.polynomial._chebtrim
+import beignet.polynomial._trim_chebyshev_series
 import numpy
 
 
@@ -13,11 +13,11 @@ def test_chebroots():
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._chebtrim.chebtrim(
+            beignet.polynomial._chebtrim.trim_chebyshev_series(
                 beignet.polynomial._chebroots.chebroots(
                     beignet.polynomial._chebfromroots.chebfromroots(tgt)
                 ),
                 tolerance=1e-6,
             ),
-            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
         )

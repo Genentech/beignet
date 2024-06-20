@@ -1,12 +1,12 @@
 import beignet.polynomial
 import beignet.polynomial._chebfromroots
-import beignet.polynomial._chebtrim
+import beignet.polynomial._trim_chebyshev_series
 import torch.testing
 
 
 def test_chebfromroots():
     torch.testing.assert_close(
-        beignet.polynomial.chebtrim(
+        beignet.polynomial.trim_chebyshev_series(
             beignet.polynomial._chebfromroots.chebfromroots(
                 torch.tensor([]),
             ),
@@ -25,11 +25,11 @@ def test_chebfromroots():
         output = beignet.polynomial._chebfromroots.chebfromroots(roots)
 
         torch.testing.assert_close(
-            beignet.polynomial.chebtrim(
+            beignet.polynomial.trim_chebyshev_series(
                 output * 2 ** (index - 1),
                 tolerance=1e-6,
             ),
-            beignet.polynomial.chebtrim(
+            beignet.polynomial.trim_chebyshev_series(
                 torch.tensor([0] * index + [1], dtype=torch.float32),
                 tolerance=1e-6,
             ),

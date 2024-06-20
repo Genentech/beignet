@@ -9,14 +9,14 @@ def test_add_chebyshev_series():
             tgt[i] += 1
             tgt[j] += 1
             torch.testing.assert_close(
-                beignet.polynomial.chebtrim(
+                beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.add_chebyshev_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(
+                beignet.polynomial.trim_chebyshev_series(
                     tgt,
                     tolerance=1e-6,
                 ),

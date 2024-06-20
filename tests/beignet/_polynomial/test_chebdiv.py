@@ -16,7 +16,7 @@ def test_chebdiv():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.chebtrim(
+                beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.add_chebyshev_series(
                         beignet.polynomial.multiply_chebyshev_series(
                             quotient,
@@ -26,7 +26,7 @@ def test_chebdiv():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.chebtrim(
+                beignet.polynomial.trim_chebyshev_series(
                     tgt,
                     tolerance=1e-6,
                 ),

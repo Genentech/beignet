@@ -1,9 +1,9 @@
 import beignet.polynomial
 import beignet.polynomial._chebint
-import beignet.polynomial._chebtrim
 import beignet.polynomial._chebval
 import beignet.polynomial._chebyshev_series_to_power_series
 import beignet.polynomial._power_series_to_chebyshev_series
+import beignet.polynomial._trim_chebyshev_series
 import numpy
 
 
@@ -40,8 +40,8 @@ def test_chebint():
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i])
         res = beignet.polynomial._cheb2poly.chebyshev_series_to_power_series(chebint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+            beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -61,8 +61,8 @@ def test_chebint():
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i], scl=2)
         res = beignet.polynomial._cheb2poly.chebyshev_series_to_power_series(chebint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-            beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+            beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -73,8 +73,8 @@ def test_chebint():
                 tgt = beignet.polynomial._chebint.chebint(tgt, m=1)
             res = beignet.polynomial._chebint.chebint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -85,8 +85,8 @@ def test_chebint():
                 tgt = beignet.polynomial._chebint.chebint(tgt, m=1, k=[k])
             res = beignet.polynomial._chebint.chebint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -99,8 +99,8 @@ def test_chebint():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -111,8 +111,8 @@ def test_chebint():
                 tgt = beignet.polynomial._chebint.chebint(tgt, m=1, k=[k], scl=2)
             res = beignet.polynomial._chebint.chebint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
-                beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(res, tolerance=1e-6),
+                beignet.polynomial._chebtrim.trim_chebyshev_series(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

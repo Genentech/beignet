@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_polytrim():
+def test_trim_power_series():
     coef = torch.tensor([2, -1, 1, 0], dtype=torch.float64)
 
     torch.testing.assert_allclose(

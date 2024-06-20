@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_polyadd():
+def test_add_power_series():
     for i in range(5):
         for j in range(5):
             tgt = torch.zeros(max(i, j) + 1, dtype=torch.float64)
