@@ -9,11 +9,15 @@ def chebmulx(c):
     if len(c) == 1 and c[0] == 0:
         return c
 
-    prd = torch.empty(len(c) + 1, dtype=c.dtype)
-    prd[0] = c[0] * 0
-    prd[1] = c[0]
+    output = torch.empty(len(c) + 1, dtype=c.dtype)
+
+    output[0] = c[0] * 0
+    output[1] = c[0]
+
     if len(c) > 1:
         tmp = c[1:] / 2
-        prd[2:] = tmp
-        prd[0:-2] += tmp
-    return prd
+
+        output[2:] = tmp
+        output[0:-2] += tmp
+
+    return output
