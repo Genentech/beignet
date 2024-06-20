@@ -1,10 +1,8 @@
 import beignet.polynomial
-import beignet.polynomial._hermval
-import beignet.polynomial._multiply_physicists_hermite_series
 import torch.testing
 
 
-def test_hermmul():
+def test_multiply_physicists_hermite_series():
     x = torch.linspace(-3, 3, 100)
 
     for j in range(5):

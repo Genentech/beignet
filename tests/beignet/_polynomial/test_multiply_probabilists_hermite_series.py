@@ -1,30 +1,29 @@
 import beignet.polynomial
-import beignet.polynomial._legval
-import beignet.polynomial._multiply_legendre_series
-import torch
+import numpy
+import torch.testing
 
 
-def test_legmul():
-    x = torch.linspace(-1, 1, 100)
+def test_multiply_probabilists_hermite_series():
+    x = numpy.linspace(-3, 3, 100)
 
     for j in range(5):
-        val1 = beignet.polynomial._legval.legval(
+        val1 = beignet.polynomial.hermeval(
             x,
             torch.tensor([0] * j + [1]),
         )
 
         for k in range(5):
-            val2 = beignet.polynomial._legval.legval(
+            val2 = beignet.polynomial.hermeval(
                 x,
                 torch.tensor([0] * k + [1]),
             )
 
-            pol3 = beignet.polynomial._legmul.multiply_legendre_series(
+            pol3 = beignet.polynomial.multiply_probabilists_hermite_series(
                 torch.tensor([0] * j + [1]),
                 torch.tensor([0] * k + [1]),
             )
 
-            val3 = beignet.polynomial._legval.legval(x, pol3)
+            val3 = beignet.polynomial.hermeval(x, pol3)
 
             assert len(pol3) == j + k + 1
 

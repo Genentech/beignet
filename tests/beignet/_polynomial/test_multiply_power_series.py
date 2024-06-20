@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_polymul():
+def test_multiply_power_series():
     for j in range(5):
         for k in range(5):
             output = torch.zeros(j + k + 1, dtype=torch.float64)
