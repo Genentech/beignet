@@ -25,7 +25,7 @@ def _div(func, a, b):
         for index in range(m - n, -1, -1):
             shape = [0] * index
 
-            p = func([*shape, 1], b)
+            p = func(torch.tensor([*shape, 1]), b)
 
             q = remainder[-1] / p[-1]
 
