@@ -4,7 +4,7 @@ import beignet.polynomial._evaluate_3d_chebyshev_series
 import numpy
 
 
-def test_chebval3d():
+def test_evaluate_3d_chebyshev_series():
     c1d = numpy.array([2.5, 2.0, 1.5])
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
     x = numpy.random.random((3, 5)) * 2 - 1

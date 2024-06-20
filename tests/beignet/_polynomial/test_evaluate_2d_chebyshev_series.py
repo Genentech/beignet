@@ -4,7 +4,7 @@ import beignet.polynomial._evaluate_2d_chebyshev_series
 import numpy
 
 
-def test_chebval2d():
+def test_evaluate_2d_chebyshev_series():
     c1d = numpy.array([2.5, 2.0, 1.5])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 

@@ -7,7 +7,7 @@ import torch
 from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_coefficients
 
 
-def test_chebval():
+def test_evaluate_1d_chebyshev_series():
     torch.testing.assert_close(
         beignet.polynomial._chebval.evaluate_1d_chebyshev_series([], [1]).size, 0
     )
