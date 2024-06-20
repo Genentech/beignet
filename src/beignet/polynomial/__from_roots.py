@@ -13,8 +13,8 @@ def _from_roots(line_f, mul_f, roots):
 
         p = []
 
-        for r in roots:
-            p.append(line_f(-r, 1))
+        for root in roots:
+            p.append(line_f(-root, 1))
 
         n = len(p)
 
