@@ -3,7 +3,7 @@ from .__neighbor_list_format import (
 )
 
 
-def _is_neighbor_list_sparse(
+def is_neighbor_list_sparse(
     neighbor_list_format: _NeighborListFormat,
 ) -> bool:
     r"""Determine if the given neighbor list format is sparse.

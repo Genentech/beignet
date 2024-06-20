@@ -7,9 +7,8 @@ import torch
 from torch import Tensor
 
 from .__cell_size import _cell_size
-from .__clamp_indices import clamp_indices
 from .__is_neighbor_list_format_valid import _is_neighbor_list_format_valid
-from .__is_neighbor_list_sparse import _is_neighbor_list_sparse
+from .__is_neighbor_list_sparse import is_neighbor_list_sparse
 from .__is_space_valid import _is_space_valid
 from .__map_bond import _map_bond
 from .__map_neighbor import _map_neighbor
@@ -20,6 +19,7 @@ from .__neighboring_cell_lists import _neighboring_cell_lists
 from .__normalize_cell_size import _normalize_cell_size
 from .__partition_error import _PartitionError
 from .__partition_error_kind import _PartitionErrorKind
+from .__safe_index import safe_index
 from .__shift import _shift
 from .__to_square_metric_fn import _to_square_metric_fn
 from ._cell_list import cell_list
@@ -111,11 +111,7 @@ def neighbor_list(
 
         displacement_fn = _map_neighbor(displacement_fn)
 
-        try:
-            neighbor_positions = positions[indexes]
-
-        except:
-            neighbor_positions = torch.zeros(indexes.shape[0], indexes.shape[1], positions.shape[1])
+        neighbor_positions = safe_index(positions, indexes)
 
         displacements = displacement_fn(positions, neighbor_positions)
 
@@ -149,22 +145,10 @@ def neighbor_list(
         )
 
         sender_idx = torch.reshape(sender_idx, (-1,))
-
         receiver_idx = torch.reshape(idx, (-1,))
-
-        mask_before_indexing = (receiver_idx < position.shape[0]) & (
-            sender_idx < position.shape[0]
-        )
-        sender_idx = sender_idx[mask_before_indexing]
-        receiver_idx = receiver_idx[mask_before_indexing]
-
         distances = displacement_fn(position[sender_idx], position[receiver_idx])
 
-        mask = (
-            (distances < squared_cutoff)
-            & (receiver_idx < position.shape[0])
-            & (sender_idx < position.shape[0])
-        )
+        mask = (distances < squared_cutoff) & (receiver_idx < position.shape[0])
 
         if neighbor_list_format is _NeighborListFormat.ORDERED_SPARSE:
             mask = mask & (receiver_idx < sender_idx)
@@ -190,27 +174,20 @@ def neighbor_list(
     def _neighbors_fn(
         positions: Tensor, neighbors=None, extra_capacity: int = 0, **kwargs
     ) -> _NeighborList:
-        # print(f"extra_capacity: {extra_capacity}")
         def _fn(position_and_error, maximum_size=None):
             reference_positions, err = position_and_error
 
             n = reference_positions.shape[0]
-            # print(f"n: {n}")
 
             buffer_fn = None
-
             unit_list = None
-
             item_size = None
-
-            # print(f"disable_unit_list: {disable_unit_list}")
 
             if not disable_unit_list:
                 if neighbors is None:
                     _space = kwargs.get("space", space)
 
                     item_size = cutoff
-                    # print(f"normalized: {normalized}")
                     if normalized:
                         if not torch.all(positions < 1):
                             raise ValueError(
@@ -227,14 +204,12 @@ def neighbor_list(
                         _space = 1.0
 
                     if torch.all(item_size < _space / 3.0):
-                        # print("here")
                         buffer_fn = cell_list(_space, item_size, buffer_size_multiplier)
 
                         unit_list = buffer_fn.setup_fn(
                             reference_positions, excess_buffer_size=extra_capacity
                         )
-                        # print(f"positions: {unit_list.positions_buffer.shape[0]}")
-                        # print(f"indexes: {unit_list.indexes.shape[0]}")
+
                 else:
                     item_size = neighbors.item_size
 
@@ -249,6 +224,7 @@ def neighbor_list(
                 units_buffer_size = None
 
                 indexes = _neighbor_candidate_fn(reference_positions.shape)
+
             else:
                 err = err.update(
                     _PartitionErrorKind.CELL_LIST_OVERFLOW,
@@ -261,27 +237,22 @@ def neighbor_list(
 
                 units_buffer_size = unit_list.size
 
-                print(f"idx: {indexes.shape[0]}")
-                print(f"cl capacity: {units_buffer_size}")
-
             if mask_self:
                 indexes = mask_self_fn(indexes)
             if mask_fn is not None:
                 indexes = mask_fn(indexes)
 
-            if _is_neighbor_list_sparse(neighbor_list_format):
+            if is_neighbor_list_sparse(neighbor_list_format):
                 indexes, occupancy = prune_sparse_neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
             else:
-                # print(f"position: {reference_positions}")
-
                 indexes, occupancy = prune_dense_neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
 
             if maximum_size is None:
-                if not _is_neighbor_list_sparse(neighbor_list_format):
+                if not is_neighbor_list_sparse(neighbor_list_format):
                     _extra_capacity = extra_capacity
                 else:
                     _extra_capacity = n * extra_capacity
@@ -291,10 +262,12 @@ def neighbor_list(
                 if maximum_size > indexes.shape[-1]:
                     maximum_size = indexes.shape[-1]
 
-                if not _is_neighbor_list_sparse(neighbor_list_format):
+                if not is_neighbor_list_sparse(neighbor_list_format):
                     capacity_limit = n - 1 if mask_self else n
+
                 elif neighbor_list_format is _NeighborListFormat.SPARSE:
                     capacity_limit = n * (n - 1) if mask_self else n**2
+
                 else:
                     capacity_limit = n * (n - 1) // 2
 
@@ -305,6 +278,7 @@ def neighbor_list(
 
             if neighbors is None:
                 update_fn = _neighbors_fn
+
             else:
                 update_fn = neighbors.update_fn
 
@@ -326,8 +300,6 @@ def neighbor_list(
             )
 
         updated_neighbors = neighbors
-
-        # print(f"nbrs: {updated_neighbors}")
 
         if updated_neighbors is None:
             return _fn(
