@@ -7,7 +7,7 @@ import torch
 from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coefficients
 
 
-def test_hermeval():
+def test_evaluate_1d_probabilists_hermite_series():
     x = numpy.random.random((3, 5)) * 2 - 1
 
     torch.testing.assert_close(

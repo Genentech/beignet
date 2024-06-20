@@ -4,7 +4,7 @@ import beignet.polynomial._evaluate_2d_probabilists_hermite_series
 import numpy
 
 
-def test_hermeval2d():
+def test_evaluate_2d_probabilists_hermite_series():
     c1d = numpy.array([4.0, 2.0, 3.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
