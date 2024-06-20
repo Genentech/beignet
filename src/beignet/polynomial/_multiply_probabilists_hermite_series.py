@@ -1,3 +1,5 @@
+import torch
+
 from .__as_series import _as_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._hermemulx import hermemulx
@@ -19,7 +21,7 @@ def multiply_probabilists_hermite_series(input, other):
 
     if len(c) == 1:
         c0 = c[0] * xs
-        input = 0
+        input = torch.tensor([0])
     elif len(c) == 2:
         c0 = c[0] * xs
         input = c[1] * xs
