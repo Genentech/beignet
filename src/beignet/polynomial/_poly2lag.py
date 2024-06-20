@@ -5,9 +5,14 @@ from ._lagadd import lagadd
 from ._lagmulx import lagmulx
 
 
-def poly2lag(pol):
-    [pol] = _as_series([pol])
-    res = 0
-    for p in torch.flip(pol, dims=[0]):
-        res = lagadd(lagmulx(res), p)
-    return res
+def poly2lag(input):
+    (input,) = _as_series([input])
+
+    output = torch.tensor([0.0])
+
+    for index in torch.flip(input, dims=[0]):
+        output = lagmulx(output)
+
+        output = lagadd(output, index)
+
+    return output

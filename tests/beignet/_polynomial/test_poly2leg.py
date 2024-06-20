@@ -10,5 +10,5 @@ def test_poly2leg():
             beignet.polynomial.poly2leg(
                 legendre_polynomial_coefficients[index],
             ),
-            torch.tensor([0] * index + [1]),
+            torch.tensor([0] * index + [1], dtype=torch.float64),
         )
