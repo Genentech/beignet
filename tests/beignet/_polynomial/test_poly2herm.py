@@ -1,13 +1,14 @@
 import beignet.polynomial
-import beignet.polynomial._poly2herm
-import numpy
+import torch
 
-from tests.beignet._polynomial.test_polynomial import hermite_polynomial_coefficients
+from .test_polynomial import hermite_polynomial_coefficients
 
 
 def test_poly2herm():
-    for i in range(10):
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._poly2herm.poly2herm(hermite_polynomial_coefficients[i]),
-            [0] * i + [1],
+    for index in range(10):
+        torch.testing.assert_close(
+            beignet.polynomial.poly2herm(
+                hermite_polynomial_coefficients[index],
+            ),
+            torch.tensor([0] * index + [1]),
         )
