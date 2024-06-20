@@ -1,7 +1,7 @@
 import beignet.polynomial
 import beignet.polynomial._hermder
 import beignet.polynomial._hermint
-import beignet.polynomial._hermtrim
+import beignet.polynomial._trim_physicists_hermite_series
 import numpy
 import torch
 
@@ -17,30 +17,34 @@ def test_hermder():
     for i in range(5):
         tgt = [0] * i + [1]
         torch.testing.assert_close(
-            beignet.polynomial._hermtrim.hermtrim(
+            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                 beignet.polynomial._hermder.hermder(tgt, m=0), tolerance=1e-6
             ),
-            beignet.polynomial._hermtrim.hermtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
+                tgt, tolerance=1e-6
+            ),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermtrim.hermtrim(
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     beignet.polynomial._hermder.hermder(
                         beignet.polynomial._hermint.hermint(tgt, m=j), m=j
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._hermtrim.hermtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermtrim.hermtrim(
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     beignet.polynomial._hermder.hermder(
                         beignet.polynomial._hermint.hermint(tgt, m=j, scl=2),
                         m=j,
@@ -48,7 +52,9 @@ def test_hermder():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._hermtrim.hermtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     c2d = numpy.random.random((3, 4))

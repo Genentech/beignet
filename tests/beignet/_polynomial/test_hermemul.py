@@ -18,7 +18,7 @@ def test_hermemul():
                 torch.tensor([0] * k + [1]),
             )
 
-            pol3 = beignet.polynomial.hermemul(
+            pol3 = beignet.polynomial.multiply_probabilists_hermite_series(
                 torch.tensor([0] * j + [1]),
                 torch.tensor([0] * k + [1]),
             )

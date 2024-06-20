@@ -10,10 +10,10 @@ def test_polyder():
     for i in range(5):
         tgt = [0] * i + [1]
         torch.testing.assert_close(
-            beignet.polynomial.polytrim(
+            beignet.polynomial.trim_power_series(
                 beignet.polynomial.polyder(tgt, order=0), tolerance=1e-6
             ),
-            beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -24,8 +24,8 @@ def test_polyder():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -36,8 +36,8 @@ def test_polyder():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(res, tolerance=1e-6),
-                beignet.polynomial.polytrim(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._legmul
 import beignet.polynomial._legval
+import beignet.polynomial._multiply_legendre_series
 import torch
 
 
@@ -19,7 +19,7 @@ def test_legmul():
                 torch.tensor([0] * k + [1]),
             )
 
-            pol3 = beignet.polynomial._legmul.legmul(
+            pol3 = beignet.polynomial._legmul.multiply_legendre_series(
                 torch.tensor([0] * j + [1]),
                 torch.tensor([0] * k + [1]),
             )

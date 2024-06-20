@@ -10,14 +10,14 @@ def test_polymul():
             output[j + k] = output[j + k] + 1
 
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(
-                    beignet.polynomial.polymul(
+                beignet.polynomial.trim_power_series(
+                    beignet.polynomial.multiply_power_series(
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(
+                beignet.polynomial.trim_power_series(
                     output,
                     tolerance=1e-6,
                 ),

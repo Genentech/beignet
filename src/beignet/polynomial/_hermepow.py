@@ -1,6 +1,6 @@
 from .__pow import _pow
-from ._hermemul import hermemul
+from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
 
 
 def hermepow(c, pow, maxpower=16):
-    return _pow(hermemul, c, pow, maxpower)
+    return _pow(multiply_probabilists_hermite_series, c, pow, maxpower)

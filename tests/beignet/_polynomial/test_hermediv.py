@@ -5,8 +5,8 @@ import torch
 def test_hermediv():
     for i in range(5):
         for j in range(5):
-            quotient, remainder = beignet.polynomial.hermediv(
-                beignet.polynomial.hermeadd(
+            quotient, remainder = beignet.polynomial.divide_probabilists_hermite_series(
+                beignet.polynomial.add_probabilists_hermite_series(
                     torch.tensor([0] * i + [1]),
                     torch.tensor([0] * j + [1]),
                 ),
@@ -14,9 +14,9 @@ def test_hermediv():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.hermetrim(
-                    beignet.polynomial.hermeadd(
-                        beignet.polynomial.hermemul(
+                beignet.polynomial.trim_probabilists_hermite_series(
+                    beignet.polynomial.add_probabilists_hermite_series(
+                        beignet.polynomial.multiply_probabilists_hermite_series(
                             quotient,
                             torch.tensor([0] * i + [1]),
                         ),
@@ -24,8 +24,8 @@ def test_hermediv():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.hermetrim(
-                    beignet.polynomial.hermeadd(
+                beignet.polynomial.trim_probabilists_hermite_series(
+                    beignet.polynomial.add_probabilists_hermite_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),

@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._lagsub
-import beignet.polynomial._lagtrim
+import beignet.polynomial._subtract_laguerre_series
+import beignet.polynomial._trim_laguerre_series
 import torch
 
 
@@ -11,14 +11,14 @@ def test_lagsub():
             tgt[i] += 1
             tgt[j] -= 1
             torch.testing.assert_close(
-                beignet.polynomial._lagtrim.lagtrim(
-                    beignet.polynomial._lagsub.lagsub(
+                beignet.polynomial._lagtrim.trim_laguerre_series(
+                    beignet.polynomial._lagsub.subtract_laguerre_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._lagtrim.lagtrim(
+                beignet.polynomial._lagtrim.trim_laguerre_series(
                     tgt,
                     tolerance=1e-6,
                 ),

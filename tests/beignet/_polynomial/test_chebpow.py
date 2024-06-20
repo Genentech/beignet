@@ -10,7 +10,7 @@ def test_chebpow():
             c = torch.arange(j + 1)
 
             tgt = functools.reduce(
-                beignet.polynomial._chebmul.chebmul,
+                beignet.polynomial._chebmul.multiply_chebyshev_series,
                 torch.tensor([c] * k),
                 torch.tensor([1]),
             )

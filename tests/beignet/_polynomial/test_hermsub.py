@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._hermsub
-import beignet.polynomial._hermtrim
+import beignet.polynomial._subtract_physicists_hermite_series
+import beignet.polynomial._trim_physicists_hermite_series
 import torch
 
 
@@ -11,14 +11,14 @@ def test_hermsub():
             tgt[i] += 1
             tgt[j] -= 1
             torch.testing.assert_close(
-                beignet.polynomial._hermtrim.hermtrim(
-                    beignet.polynomial._hermsub.hermsub(
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
+                    beignet.polynomial._hermsub.subtract_physicists_hermite_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._hermtrim.hermtrim(
+                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     tgt,
                     tolerance=1e-6,
                 ),

@@ -1,7 +1,7 @@
 import beignet.polynomial
 import beignet.polynomial._lagfromroots
 import beignet.polynomial._lagroots
-import beignet.polynomial._lagtrim
+import beignet.polynomial._trim_laguerre_series
 import numpy
 
 
@@ -16,6 +16,6 @@ def test_lagroots():
             beignet.polynomial._lagfromroots.lagfromroots(tgt)
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._lagtrim.lagtrim(res, tolerance=1e-6),
-            beignet.polynomial._lagtrim.lagtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
+            beignet.polynomial._lagtrim.trim_laguerre_series(tgt, tolerance=1e-6),
         )

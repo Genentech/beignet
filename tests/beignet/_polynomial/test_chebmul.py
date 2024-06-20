@@ -1,10 +1,10 @@
 import beignet.polynomial
-import beignet.polynomial._chebmul
 import beignet.polynomial._chebtrim
+import beignet.polynomial._multiply_chebyshev_series
 import torch
 
 
-def test_chebmul():
+def test_multiply_chebyshev_series():
     for j in range(5):
         for k in range(5):
             output = torch.zeros(j + k + 1, dtype=torch.float64)
@@ -14,7 +14,7 @@ def test_chebmul():
 
             torch.testing.assert_close(
                 beignet.polynomial.chebtrim(
-                    beignet.polynomial._chebmul.chebmul(
+                    beignet.polynomial.multiply_chebyshev_series(
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),

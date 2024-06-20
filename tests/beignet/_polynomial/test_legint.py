@@ -1,9 +1,9 @@
 import beignet.polynomial
-import beignet.polynomial._leg2poly
+import beignet.polynomial._legendre_series_to_power_series
 import beignet.polynomial._legint
-import beignet.polynomial._legtrim
 import beignet.polynomial._legval
-import beignet.polynomial._poly2leg
+import beignet.polynomial._power_series_to_legendre_series
+import beignet.polynomial._trim_legendre_series
 import numpy
 import torch
 
@@ -34,19 +34,20 @@ def test_legint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        legpol = beignet.polynomial._poly2leg.poly2leg(pol)
+        legpol = beignet.polynomial._poly2leg.power_series_to_legendre_series(pol)
         legint = beignet.polynomial._legint.legint(legpol, m=1, k=[i])
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._legtrim.legtrim(
-                beignet.polynomial._leg2poly.leg2poly(legint), tolerance=1e-6
+            beignet.polynomial._legtrim.trim_legendre_series(
+                beignet.polynomial._leg2poly.legendre_series_to_power_series(legint),
+                tolerance=1e-6,
             ),
-            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        legpol = beignet.polynomial._poly2leg.poly2leg(pol)
+        legpol = beignet.polynomial._poly2leg.power_series_to_legendre_series(pol)
         legint = beignet.polynomial._legint.legint(legpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._legval.legval(-1, legint), i
@@ -56,12 +57,12 @@ def test_legint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        legpol = beignet.polynomial._poly2leg.poly2leg(pol)
+        legpol = beignet.polynomial._poly2leg.power_series_to_legendre_series(pol)
         legint = beignet.polynomial._legint.legint(legpol, m=1, k=[i], scl=2)
-        res = beignet.polynomial._leg2poly.leg2poly(legint)
+        res = beignet.polynomial._leg2poly.legendre_series_to_power_series(legint)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
-            beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+            beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
+            beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
@@ -72,8 +73,8 @@ def test_legint():
                 tgt = beignet.polynomial._legint.legint(tgt, m=1)
             res = beignet.polynomial._legint.legint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
-                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -84,8 +85,8 @@ def test_legint():
                 tgt = beignet.polynomial._legint.legint(tgt, m=1, k=[k])
             res = beignet.polynomial._legint.legint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
-                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -96,8 +97,8 @@ def test_legint():
                 tgt = beignet.polynomial._legint.legint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.polynomial._legint.legint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._legtrim.legtrim(res, tolerance=1e-6),
-                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
@@ -107,13 +108,13 @@ def test_legint():
             for k in range(j):
                 tgt = beignet.polynomial._legint.legint(tgt, m=1, k=[k], scl=2)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._legtrim.legtrim(
+                beignet.polynomial._legtrim.trim_legendre_series(
                     beignet.polynomial._legint.legint(
                         pol, m=j, k=list(range(j)), scl=2
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._legtrim.legtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))

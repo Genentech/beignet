@@ -17,11 +17,14 @@ from .__trim_sequence import _trim_sequence
 from .__vander_nd_flat import _vander_nd_flat
 from .__z_series_div import _z_series_div
 from .__z_series_to_c_series import _z_series_to_c_series
-from ._cheb2poly import cheb2poly
-from ._chebadd import chebadd
+from ._add_chebyshev_series import add_chebyshev_series
+from ._add_laguerre_series import add_laguerre_series
+from ._add_legendre_series import add_legendre_series
+from ._add_physicists_hermite_series import add_physicists_hermite_series
+from ._add_power_series import add_power_series
+from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._chebcompanion import chebcompanion
 from ._chebder import chebder
-from ._chebdiv import chebdiv
 from ._chebdomain import chebdomain
 from ._chebfit import chebfit
 from ._chebfromroots import chebfromroots
@@ -31,14 +34,12 @@ from ._chebgrid3d import chebgrid3d
 from ._chebint import chebint
 from ._chebinterpolate import chebinterpolate
 from ._chebline import chebline
-from ._chebmul import chebmul
 from ._chebmulx import chebmulx
 from ._chebone import chebone
 from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
 from ._chebroots import chebroots
-from ._chebsub import chebsub
 from ._chebtrim import chebtrim
 from ._chebval import chebval
 from ._chebval2d import chebval2d
@@ -48,18 +49,19 @@ from ._chebvander2d import chebvander2d
 from ._chebvander3d import chebvander3d
 from ._chebweight import chebweight
 from ._chebx import chebx
+from ._chebyshev_series_to_power_series import chebyshev_series_to_power_series
 from ._chebzero import chebzero
-from ._herm2poly import herm2poly
-from ._hermadd import hermadd
+from ._divide_chebyshev_series import divide_chebyshev_series
+from ._divide_laguerre_series import divide_laguerre_series
+from ._divide_legendre_series import divide_legendre_series
+from ._divide_physicists_hermite_series import divide_physicists_hermite_series
+from ._divide_power_series import divide_power_series
+from ._divide_probabilists_hermite_series import divide_probabilists_hermite_series
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
-from ._hermdiv import hermdiv
 from ._hermdomain import hermdomain
-from ._herme2poly import herme2poly
-from ._hermeadd import hermeadd
 from ._hermecompanion import hermecompanion
 from ._hermeder import hermeder
-from ._hermediv import hermediv
 from ._hermedomain import hermedomain
 from ._hermefit import hermefit
 from ._hermefromroots import hermefromroots
@@ -68,13 +70,10 @@ from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
 from ._hermeint import hermeint
 from ._hermeline import hermeline
-from ._hermemul import hermemul
 from ._hermemulx import hermemulx
 from ._hermeone import hermeone
 from ._hermepow import hermepow
 from ._hermeroots import hermeroots
-from ._hermesub import hermesub
-from ._hermetrim import hermetrim
 from ._hermeval import hermeval
 from ._hermeval2d import hermeval2d
 from ._hermeval3d import hermeval3d
@@ -90,13 +89,10 @@ from ._hermgrid2d import hermgrid2d
 from ._hermgrid3d import hermgrid3d
 from ._hermint import hermint
 from ._hermline import hermline
-from ._hermmul import hermmul
 from ._hermmulx import hermmulx
 from ._hermone import hermone
 from ._hermpow import hermpow
 from ._hermroots import hermroots
-from ._hermsub import hermsub
-from ._hermtrim import hermtrim
 from ._hermval import hermval
 from ._hermval2d import hermval2d
 from ._hermval3d import hermval3d
@@ -105,11 +101,8 @@ from ._hermvander2d import hermvander2d
 from ._hermvander3d import hermvander3d
 from ._hermweight import hermweight
 from ._hermx import hermx
-from ._lag2poly import lag2poly
-from ._lagadd import lagadd
 from ._lagcompanion import lagcompanion
 from ._lagder import lagder
-from ._lagdiv import lagdiv
 from ._lagdomain import lagdomain
 from ._lagfit import lagfit
 from ._lagfromroots import lagfromroots
@@ -118,13 +111,11 @@ from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
 from ._lagint import lagint
 from ._lagline import lagline
-from ._lagmul import lagmul
 from ._lagmulx import lagmulx
 from ._lagone import lagone
 from ._lagpow import lagpow
 from ._lagroots import lagroots
-from ._lagsub import lagsub
-from ._lagtrim import lagtrim
+from ._laguerre_series_to_power_series import laguerre_series_to_power_series
 from ._lagval import lagval
 from ._lagval2d import lagval2d
 from ._lagval3d import lagval3d
@@ -133,12 +124,10 @@ from ._lagvander2d import lagvander2d
 from ._lagvander3d import lagvander3d
 from ._lagweight import lagweight
 from ._lagx import lagx
-from ._leg2poly import leg2poly
-from ._legadd import legadd
 from ._legcompanion import legcompanion
 from ._legder import legder
-from ._legdiv import legdiv
 from ._legdomain import legdomain
+from ._legendre_series_to_power_series import legendre_series_to_power_series
 from ._legfit import legfit
 from ._legfromroots import legfromroots
 from ._leggauss import leggauss
@@ -146,13 +135,10 @@ from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
 from ._legint import legint
 from ._legline import legline
-from ._legmul import legmul
 from ._legmulx import legmulx
 from ._legone import legone
 from ._legpow import legpow
 from ._legroots import legroots
-from ._legsub import legsub
-from ._legtrim import legtrim
 from ._legval import legval
 from ._legval2d import legval2d
 from ._legval3d import legval3d
@@ -162,15 +148,17 @@ from ._legvander3d import legvander3d
 from ._legweight import legweight
 from ._legx import legx
 from ._legzero import legzero
-from ._poly2cheb import poly2cheb
-from ._poly2herm import poly2herm
-from ._poly2herme import poly2herme
-from ._poly2lag import poly2lag
-from ._poly2leg import poly2leg
-from ._polyadd import polyadd
+from ._multiply_chebyshev_series import multiply_chebyshev_series
+from ._multiply_laguerre_series import multiply_laguerre_series
+from ._multiply_legendre_series import multiply_legendre_series
+from ._multiply_physicists_hermite_series import multiply_physicists_hermite_series
+from ._multiply_power_series import multiply_power_series
+from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
+from ._physicists_hermite_series_to_power_series import (
+    physicists_hermite_series_to_power_series,
+)
 from ._polycompanion import polycompanion
 from ._polyder import polyder
-from ._polydiv import polydiv
 from ._polydomain import polydomain
 from ._polyfit import polyfit
 from ._polyfromroots import polyfromroots
@@ -178,13 +166,10 @@ from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
 from ._polyint import polyint
 from ._polyline import polyline
-from ._polymul import polymul
 from ._polymulx import polymulx
 from ._polyone import polyone
 from ._polypow import polypow
 from ._polyroots import polyroots
-from ._polysub import polysub
-from ._polytrim import polytrim
 from ._polyval import polyval
 from ._polyval2d import polyval2d
 from ._polyval3d import polyval3d
@@ -194,6 +179,29 @@ from ._polyvander2d import polyvander2d
 from ._polyvander3d import polyvander3d
 from ._polyx import polyx
 from ._polyzero import polyzero
+from ._power_series_to_chebyshev_series import power_series_to_chebyshev_series
+from ._power_series_to_laguerre_series import power_series_to_laguerre_series
+from ._power_series_to_legendre_series import power_series_to_legendre_series
+from ._power_series_to_physicists_hermite_series import (
+    power_series_to_physicists_hermite_series,
+)
+from ._power_series_to_probabilists_hermite_series import (
+    power_series_to_probabilists_hermite_series,
+)
+from ._probabilists_hermite_series_to_power_series import (
+    probabilists_hermite_series_to_power_series,
+)
+from ._subtract_chebyshev_series import subtract_chebyshev_series
+from ._subtract_laguerre_series import subtract_laguerre_series
+from ._subtract_legendre_series import subtract_legendre_series
+from ._subtract_physicists_hermite_series import subtract_physicists_hermite_series
+from ._subtract_power_series import subtract_power_series
+from ._subtract_probabilists_hermite_series import subtract_probabilists_hermite_series
+from ._trim_laguerre_series import trim_laguerre_series
+from ._trim_legendre_series import trim_legendre_series
+from ._trim_physicists_hermite_series import trim_physicists_hermite_series
+from ._trim_power_series import trim_power_series
+from ._trim_probabilists_hermite_series import trim_probabilists_hermite_series
 
 __all__ = [
     "_add",
@@ -215,11 +223,11 @@ __all__ = [
     "_vander_nd_flat",
     "_z_series_div",
     "_z_series_to_c_series",
-    "cheb2poly",
-    "chebadd",
+    "chebyshev_series_to_power_series",
+    "add_chebyshev_series",
     "chebcompanion",
     "chebder",
-    "chebdiv",
+    "divide_chebyshev_series",
     "chebdomain",
     "chebfit",
     "chebfromroots",
@@ -229,14 +237,14 @@ __all__ = [
     "chebint",
     "chebinterpolate",
     "chebline",
-    "chebmul",
+    "multiply_chebyshev_series",
     "chebmulx",
     "chebone",
     "chebpow",
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "chebsub",
+    "subtract_chebyshev_series",
     "chebtrim",
     "chebval",
     "chebval2d",
@@ -247,17 +255,17 @@ __all__ = [
     "chebweight",
     "chebx",
     "chebzero",
-    "herm2poly",
-    "hermadd",
+    "physicists_hermite_series_to_power_series",
+    "add_physicists_hermite_series",
     "hermcompanion",
     "hermder",
-    "hermdiv",
+    "divide_physicists_hermite_series",
     "hermdomain",
-    "herme2poly",
-    "hermeadd",
+    "probabilists_hermite_series_to_power_series",
+    "add_probabilists_hermite_series",
     "hermecompanion",
     "hermeder",
-    "hermediv",
+    "divide_probabilists_hermite_series",
     "hermedomain",
     "hermefit",
     "hermefromroots",
@@ -266,13 +274,13 @@ __all__ = [
     "hermegrid3d",
     "hermeint",
     "hermeline",
-    "hermemul",
+    "multiply_probabilists_hermite_series",
     "hermemulx",
     "hermeone",
     "hermepow",
     "hermeroots",
-    "hermesub",
-    "hermetrim",
+    "subtract_probabilists_hermite_series",
+    "trim_probabilists_hermite_series",
     "hermeval",
     "hermeval2d",
     "hermeval3d",
@@ -288,13 +296,13 @@ __all__ = [
     "hermgrid3d",
     "hermint",
     "hermline",
-    "hermmul",
+    "multiply_physicists_hermite_series",
     "hermmulx",
     "hermone",
     "hermpow",
     "hermroots",
-    "hermsub",
-    "hermtrim",
+    "subtract_physicists_hermite_series",
+    "trim_physicists_hermite_series",
     "hermval",
     "hermval2d",
     "hermval3d",
@@ -303,11 +311,11 @@ __all__ = [
     "hermvander3d",
     "hermweight",
     "hermx",
-    "lag2poly",
-    "lagadd",
+    "laguerre_series_to_power_series",
+    "add_laguerre_series",
     "lagcompanion",
     "lagder",
-    "lagdiv",
+    "divide_laguerre_series",
     "lagdomain",
     "lagfit",
     "lagfromroots",
@@ -316,13 +324,13 @@ __all__ = [
     "laggrid3d",
     "lagint",
     "lagline",
-    "lagmul",
+    "multiply_laguerre_series",
     "lagmulx",
     "lagone",
     "lagpow",
     "lagroots",
-    "lagsub",
-    "lagtrim",
+    "subtract_laguerre_series",
+    "trim_laguerre_series",
     "lagval",
     "lagval2d",
     "lagval3d",
@@ -331,11 +339,11 @@ __all__ = [
     "lagvander3d",
     "lagweight",
     "lagx",
-    "leg2poly",
-    "legadd",
+    "legendre_series_to_power_series",
+    "add_legendre_series",
     "legcompanion",
     "legder",
-    "legdiv",
+    "divide_legendre_series",
     "legdomain",
     "legfit",
     "legfromroots",
@@ -344,13 +352,13 @@ __all__ = [
     "leggrid3d",
     "legint",
     "legline",
-    "legmul",
+    "multiply_legendre_series",
     "legmulx",
     "legone",
     "legpow",
     "legroots",
-    "legsub",
-    "legtrim",
+    "subtract_legendre_series",
+    "trim_legendre_series",
     "legval",
     "legval2d",
     "legval3d",
@@ -360,15 +368,15 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "poly2cheb",
-    "poly2herm",
-    "poly2herme",
-    "poly2lag",
-    "poly2leg",
-    "polyadd",
+    "power_series_to_chebyshev_series",
+    "power_series_to_physicists_hermite_series",
+    "power_series_to_probabilists_hermite_series",
+    "power_series_to_laguerre_series",
+    "power_series_to_legendre_series",
+    "add_power_series",
     "polycompanion",
     "polyder",
-    "polydiv",
+    "divide_power_series",
     "polydomain",
     "polyfit",
     "polyfromroots",
@@ -376,13 +384,13 @@ __all__ = [
     "polygrid3d",
     "polyint",
     "polyline",
-    "polymul",
+    "multiply_power_series",
     "polymulx",
     "polyone",
     "polypow",
     "polyroots",
-    "polysub",
-    "polytrim",
+    "subtract_power_series",
+    "trim_power_series",
     "polyval",
     "polyval2d",
     "polyval3d",

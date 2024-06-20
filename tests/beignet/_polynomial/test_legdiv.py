@@ -1,16 +1,16 @@
 import beignet.polynomial
-import beignet.polynomial._legadd
-import beignet.polynomial._legdiv
-import beignet.polynomial._legmul
-import beignet.polynomial._legtrim
+import beignet.polynomial._add_legendre_series
+import beignet.polynomial._divide_legendre_series
+import beignet.polynomial._multiply_legendre_series
+import beignet.polynomial._trim_legendre_series
 import torch
 
 
 def test_legdiv():
     for i in range(5):
         for j in range(5):
-            quotient, remainder = beignet.polynomial.legdiv(
-                beignet.polynomial.legadd(
+            quotient, remainder = beignet.polynomial.divide_legendre_series(
+                beignet.polynomial.add_legendre_series(
                     torch.tensor([0] * i + [1]),
                     torch.tensor([0] * j + [1]),
                 ),
@@ -20,9 +20,9 @@ def test_legdiv():
             print(quotient)
 
             torch.testing.assert_close(
-                beignet.polynomial.legtrim(
-                    beignet.polynomial.legadd(
-                        beignet.polynomial.legmul(
+                beignet.polynomial.trim_legendre_series(
+                    beignet.polynomial.add_legendre_series(
+                        beignet.polynomial.multiply_legendre_series(
                             quotient,
                             torch.tensor([0] * i + [1]),
                         ),
@@ -30,8 +30,8 @@ def test_legdiv():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.legtrim(
-                    beignet.polynomial.legadd(
+                beignet.polynomial.trim_legendre_series(
+                    beignet.polynomial.add_legendre_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),

@@ -1,27 +1,26 @@
 import beignet.polynomial
-import beignet.polynomial._legtrim
-import numpy
+import beignet.polynomial._trim_legendre_series
+import pytest
 import torch
 
 
-def test_legtrim():
+def test_trim_legendre_series():
     coef = torch.tensor([2, -1, 1, 0], dtype=torch.float64)
 
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._legtrim.legtrim, coef, -1
-    )
+    with pytest.raises(ValueError):
+        beignet.polynomial.trim_legendre_series(coef, -1)
 
     torch.testing.assert_close(
-        beignet.polynomial._legtrim.legtrim(coef),
+        beignet.polynomial.trim_legendre_series(coef),
         coef[:-1],
     )
 
     torch.testing.assert_close(
-        beignet.polynomial._legtrim.legtrim(coef, 1),
+        beignet.polynomial.trim_legendre_series(coef, 1),
         coef[:-3],
     )
 
     torch.testing.assert_close(
-        beignet.polynomial._legtrim.legtrim(coef, 2),
+        beignet.polynomial.trim_legendre_series(coef, 2),
         torch.tensor([0], dtype=torch.float64),
     )

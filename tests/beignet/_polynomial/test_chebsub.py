@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._chebsub
 import beignet.polynomial._chebtrim
+import beignet.polynomial._subtract_chebyshev_series
 import torch
 
 
@@ -12,7 +12,7 @@ def test_chebsub():
             tgt[j] -= 1
             torch.testing.assert_close(
                 beignet.polynomial._chebtrim.chebtrim(
-                    beignet.polynomial._chebsub.chebsub(
+                    beignet.polynomial._chebsub.subtract_chebyshev_series(
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),

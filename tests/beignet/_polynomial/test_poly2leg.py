@@ -7,7 +7,7 @@ from .test_polynomial import legendre_polynomial_coefficients
 def test_poly2leg():
     for index in range(10):
         torch.testing.assert_close(
-            beignet.polynomial.poly2leg(
+            beignet.polynomial.power_series_to_legendre_series(
                 legendre_polynomial_coefficients[index],
             ),
             torch.tensor([0] * index + [1], dtype=torch.float64),

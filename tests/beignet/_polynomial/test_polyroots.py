@@ -19,7 +19,7 @@ def test_polyroots():
 
     for i in range(2, 5):
         torch.testing.assert_close(
-            beignet.polynomial.polytrim(
+            beignet.polynomial.trim_power_series(
                 beignet.polynomial.polyroots(
                     beignet.polynomial.polyfromroots(
                         torch.linspace(-1, 1, i),
@@ -27,7 +27,7 @@ def test_polyroots():
                 ),
                 tolerance=1e-6,
             ),
-            beignet.polynomial.polytrim(
+            beignet.polynomial.trim_power_series(
                 torch.linspace(-1, 1, i),
                 tolerance=1e-6,
             ),

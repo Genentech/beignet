@@ -1,9 +1,9 @@
 import beignet.polynomial
-import beignet.polynomial._herme2poly
 import beignet.polynomial._hermeint
-import beignet.polynomial._hermetrim
 import beignet.polynomial._hermeval
-import beignet.polynomial._poly2herme
+import beignet.polynomial._power_series_to_probabilists_hermite_series
+import beignet.polynomial._probabilists_hermite_series_to_power_series
+import beignet.polynomial._trim_probabilists_hermite_series
 import numpy
 
 
@@ -36,18 +36,34 @@ def test_hermeint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
+        hermepol = (
+            beignet.polynomial._poly2herme.power_series_to_probabilists_hermite_series(
+                pol
+            )
+        )
         hermeint = beignet.polynomial._hermeint.hermeint(hermepol, m=1, k=[i])
-        res = beignet.polynomial._herme2poly.herme2poly(hermeint)
+        res = (
+            beignet.polynomial._herme2poly.probabilists_hermite_series_to_power_series(
+                hermeint
+            )
+        )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-            beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                res, tolerance=1e-6
+            ),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                tgt, tolerance=1e-6
+            ),
         )
 
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
+        hermepol = (
+            beignet.polynomial._poly2herme.power_series_to_probabilists_hermite_series(
+                pol
+            )
+        )
         hermeint = beignet.polynomial._hermeint.hermeint(hermepol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._hermeval.hermeval(-1, hermeint), i
@@ -57,12 +73,24 @@ def test_hermeint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        hermepol = beignet.polynomial._poly2herme.poly2herme(pol)
+        hermepol = (
+            beignet.polynomial._poly2herme.power_series_to_probabilists_hermite_series(
+                pol
+            )
+        )
         hermeint = beignet.polynomial._hermeint.hermeint(hermepol, m=1, k=[i], scl=2)
-        res = beignet.polynomial._herme2poly.herme2poly(hermeint)
+        res = (
+            beignet.polynomial._herme2poly.probabilists_hermite_series_to_power_series(
+                hermeint
+            )
+        )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-            beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                res, tolerance=1e-6
+            ),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                tgt, tolerance=1e-6
+            ),
         )
 
     for i in range(5):
@@ -73,8 +101,12 @@ def test_hermeint():
                 tgt = beignet.polynomial._hermeint.hermeint(tgt, m=1)
             res = beignet.polynomial._hermeint.hermeint(pol, m=j)
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    res, tolerance=1e-6
+                ),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     for i in range(5):
@@ -85,8 +117,12 @@ def test_hermeint():
                 tgt = beignet.polynomial._hermeint.hermeint(tgt, m=1, k=[k])
             res = beignet.polynomial._hermeint.hermeint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    res, tolerance=1e-6
+                ),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     for i in range(5):
@@ -99,8 +135,12 @@ def test_hermeint():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    res, tolerance=1e-6
+                ),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     for i in range(5):
@@ -113,8 +153,12 @@ def test_hermeint():
                 pol, m=j, k=list(range(j)), scl=2
             )
             numpy.testing.assert_almost_equal(
-                beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-                beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    res, tolerance=1e-6
+                ),
+                beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                    tgt, tolerance=1e-6
+                ),
             )
 
     c2d = numpy.random.random((3, 4))

@@ -1,9 +1,9 @@
 import beignet.polynomial
-import beignet.polynomial._cheb2poly
 import beignet.polynomial._chebint
 import beignet.polynomial._chebtrim
 import beignet.polynomial._chebval
-import beignet.polynomial._poly2cheb
+import beignet.polynomial._chebyshev_series_to_power_series
+import beignet.polynomial._power_series_to_chebyshev_series
 import numpy
 
 
@@ -36,9 +36,9 @@ def test_chebint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [1 / scl]
-        chebpol = beignet.polynomial._poly2cheb.poly2cheb(pol)
+        chebpol = beignet.polynomial._poly2cheb.power_series_to_chebyshev_series(pol)
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i])
-        res = beignet.polynomial._cheb2poly.cheb2poly(chebint)
+        res = beignet.polynomial._cheb2poly.chebyshev_series_to_power_series(chebint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
             beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),
@@ -47,7 +47,7 @@ def test_chebint():
     for i in range(5):
         scl = i + 1
         pol = [0] * i + [1]
-        chebpol = beignet.polynomial._poly2cheb.poly2cheb(pol)
+        chebpol = beignet.polynomial._poly2cheb.power_series_to_chebyshev_series(pol)
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._chebval.chebval(-1, chebint), i
@@ -57,9 +57,9 @@ def test_chebint():
         scl = i + 1
         pol = [0] * i + [1]
         tgt = [i] + [0] * i + [2 / scl]
-        chebpol = beignet.polynomial._poly2cheb.poly2cheb(pol)
+        chebpol = beignet.polynomial._poly2cheb.power_series_to_chebyshev_series(pol)
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i], scl=2)
-        res = beignet.polynomial._cheb2poly.cheb2poly(chebint)
+        res = beignet.polynomial._cheb2poly.chebyshev_series_to_power_series(chebint)
         numpy.testing.assert_almost_equal(
             beignet.polynomial._chebtrim.chebtrim(res, tolerance=1e-6),
             beignet.polynomial._chebtrim.chebtrim(tgt, tolerance=1e-6),

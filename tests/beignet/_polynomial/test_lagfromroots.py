@@ -1,14 +1,14 @@
 import beignet.polynomial
-import beignet.polynomial._lag2poly
 import beignet.polynomial._lagfromroots
-import beignet.polynomial._lagtrim
+import beignet.polynomial._laguerre_series_to_power_series
 import beignet.polynomial._lagval
+import beignet.polynomial._trim_laguerre_series
 import numpy
 
 
 def test_lagfromroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._lagtrim.lagtrim(
+        beignet.polynomial._lagtrim.trim_laguerre_series(
             beignet.polynomial._lagfromroots.lagfromroots([]), tolerance=1e-6
         ),
         [1],
@@ -18,7 +18,7 @@ def test_lagfromroots():
         pol = beignet.polynomial._lagfromroots.lagfromroots(roots)
         numpy.testing.assert_(len(pol) == i + 1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._lag2poly.lag2poly(pol)[-1], 1
+            beignet.polynomial._lag2poly.laguerre_series_to_power_series(pol)[-1], 1
         )
         numpy.testing.assert_almost_equal(
             beignet.polynomial._lagval.lagval(roots, pol), 0

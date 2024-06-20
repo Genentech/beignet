@@ -1,7 +1,7 @@
 import beignet.polynomial
 import beignet.polynomial._hermefromroots
 import beignet.polynomial._hermeroots
-import beignet.polynomial._hermetrim
+import beignet.polynomial._trim_probabilists_hermite_series
 import numpy
 
 
@@ -18,6 +18,10 @@ def test_hermeroots():
             beignet.polynomial._hermefromroots.hermefromroots(tgt)
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermetrim.hermetrim(res, tolerance=1e-6),
-            beignet.polynomial._hermetrim.hermetrim(tgt, tolerance=1e-6),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                res, tolerance=1e-6
+            ),
+            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
+                tgt, tolerance=1e-6
+            ),
         )

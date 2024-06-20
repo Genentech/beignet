@@ -9,13 +9,13 @@ def test_polypow():
         for k in range(5):
             c = torch.arange(j + 1)
             torch.testing.assert_close(
-                beignet.polynomial.polytrim(
+                beignet.polynomial.trim_power_series(
                     beignet.polynomial.polypow(c, k),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.polytrim(
+                beignet.polynomial.trim_power_series(
                     functools.reduce(
-                        beignet.polynomial.polymul,
+                        beignet.polynomial.multiply_power_series,
                         torch.tensor([c] * k),
                         torch.tensor([1]),
                     ),

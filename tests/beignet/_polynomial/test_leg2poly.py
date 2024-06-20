@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._leg2poly
+import beignet.polynomial._legendre_series_to_power_series
 import numpy
 
 from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients
@@ -8,6 +8,6 @@ from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coeffi
 def test_leg2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._leg2poly.leg2poly([0] * i + [1]),
+            beignet.polynomial._leg2poly.legendre_series_to_power_series([0] * i + [1]),
             legendre_polynomial_coefficients[i],
         )

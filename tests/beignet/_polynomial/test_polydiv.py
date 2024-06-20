@@ -3,7 +3,7 @@ import torch
 
 
 def test_polydiv():
-    quotient, remainder = beignet.polynomial.polydiv(
+    quotient, remainder = beignet.polynomial.divide_power_series(
         torch.tensor([2]),
         torch.tensor([2]),
     )
@@ -18,7 +18,7 @@ def test_polydiv():
         torch.tensor([0], dtype=torch.float64),
     )
 
-    quotient, remainder = beignet.polynomial.polydiv(
+    quotient, remainder = beignet.polynomial.divide_power_series(
         torch.tensor([2, 2]),
         torch.tensor([2]),
     )
@@ -35,8 +35,8 @@ def test_polydiv():
 
     for j in range(5):
         for k in range(5):
-            quotient, remainder = beignet.polynomial.polydiv(
-                beignet.polynomial.polyadd(
+            quotient, remainder = beignet.polynomial.divide_power_series(
+                beignet.polynomial.add_power_series(
                     torch.tensor([0] * j + [1, 2]),
                     torch.tensor([0] * k + [1, 2]),
                 ),
@@ -44,14 +44,14 @@ def test_polydiv():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.polyadd(
-                    beignet.polynomial.polymul(
+                beignet.polynomial.add_power_series(
+                    beignet.polynomial.multiply_power_series(
                         quotient,
                         torch.tensor([0] * j + [1, 2]),
                     ),
                     remainder,
                 ),
-                beignet.polynomial.polyadd(
+                beignet.polynomial.add_power_series(
                     torch.tensor([0] * j + [1, 2]),
                     torch.tensor([0] * k + [1, 2]),
                 ),

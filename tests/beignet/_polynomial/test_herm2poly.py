@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._herm2poly
+import beignet.polynomial._physicists_hermite_series_to_power_series
 import numpy
 
 from tests.beignet._polynomial.test_polynomial import hermite_polynomial_coefficients
@@ -8,6 +8,8 @@ from tests.beignet._polynomial.test_polynomial import hermite_polynomial_coeffic
 def test_herm2poly():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._herm2poly.herm2poly([0] * i + [1]),
+            beignet.polynomial._herm2poly.physicists_hermite_series_to_power_series(
+                [0] * i + [1]
+            ),
             hermite_polynomial_coefficients[i],
         )

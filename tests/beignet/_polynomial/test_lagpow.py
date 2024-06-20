@@ -1,9 +1,9 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial._lagmul
 import beignet.polynomial._lagpow
-import beignet.polynomial._lagtrim
+import beignet.polynomial._multiply_laguerre_series
+import beignet.polynomial._trim_laguerre_series
 import numpy
 import torch
 
@@ -14,11 +14,13 @@ def test_lagpow():
             msg = f"At i={i}, j={j}"
             c = numpy.arange(i + 1)
             tgt = functools.reduce(
-                beignet.polynomial._lagmul.lagmul, [c] * j, numpy.array([1])
+                beignet.polynomial._lagmul.multiply_laguerre_series,
+                [c] * j,
+                numpy.array([1]),
             )
             res = beignet.polynomial._lagpow.lagpow(c, j)
             torch.testing.assert_close(
-                beignet.polynomial._lagtrim.lagtrim(res, tolerance=1e-6),
-                beignet.polynomial._lagtrim.lagtrim(tgt, tolerance=1e-6),
+                beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
+                beignet.polynomial._lagtrim.trim_laguerre_series(tgt, tolerance=1e-6),
                 err_msg=msg,
             )
