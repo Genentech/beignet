@@ -169,6 +169,7 @@ from ._poly2lag import poly2lag
 from ._poly2leg import poly2leg
 from ._polyadd import polyadd
 from ._polycompanion import polycompanion
+from ._polyder import polyder
 from ._polydiv import polydiv
 from ._polydomain import polydomain
 from ._polyfit import polyfit
@@ -366,6 +367,7 @@ __all__ = [
     "poly2leg",
     "polyadd",
     "polycompanion",
+    "polyder",
     "polydiv",
     "polydomain",
     "polyfit",
