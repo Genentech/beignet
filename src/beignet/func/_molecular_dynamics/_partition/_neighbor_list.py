@@ -146,7 +146,9 @@ def neighbor_list(
 
         sender_idx = torch.reshape(sender_idx, (-1,))
         receiver_idx = torch.reshape(idx, (-1,))
-        distances = displacement_fn(position[sender_idx], position[receiver_idx])
+        distances = displacement_fn(safe_index(position, sender_idx), safe_index(position, receiver_idx))
+
+        print(f"distances: {distances}")
 
         mask = (distances < squared_cutoff) & (receiver_idx < position.shape[0])
 
@@ -155,21 +157,21 @@ def neighbor_list(
 
         out_idx = position.shape[0] * torch.ones(receiver_idx.shape, dtype=torch.int32)
 
-        cumsum = torch.cumsum(mask.reshape(-1), dim=0)
-
+        cumsum = torch.cumsum(torch.flatten(mask), dim=0)
         index = torch.where(mask, cumsum - 1, len(receiver_idx) - 1)
 
-        out_idx[index] = receiver_idx.int()
+        index = index.to(torch.int32)
+        sender_idx = sender_idx.to(torch.int32)
 
-        receiver_idx = out_idx[index]
+        out_idx[index] = receiver_idx
+        receiver_idx = out_idx
 
-        out_idx[index] = sender_idx.int()
-
-        sender_idx = out_idx[index]
+        out_idx[index] = sender_idx
+        sender_idx = out_idx
 
         max_occupancy = cumsum[-1]
 
-        return torch.stack([receiver_idx, sender_idx]), max_occupancy
+        return torch.stack((receiver_idx, sender_idx)), max_occupancy
 
     def _neighbors_fn(
         positions: Tensor, neighbors=None, extra_capacity: int = 0, **kwargs
@@ -243,9 +245,12 @@ def neighbor_list(
                 indexes = mask_fn(indexes)
 
             if is_neighbor_list_sparse(neighbor_list_format):
+                print(f"pre prune neighbors: {indexes}")
+                print(f"pre prune posititons: {reference_positions}")
                 indexes, occupancy = prune_sparse_neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
+                print(f"post prune neighbors: {indexes}")
             else:
                 indexes, occupancy = prune_dense_neighbor_list(
                     reference_positions, indexes, **kwargs
@@ -265,7 +270,7 @@ def neighbor_list(
                 if not is_neighbor_list_sparse(neighbor_list_format):
                     capacity_limit = n - 1 if mask_self else n
 
-                elif neighbor_list_format is _NeighborListFormat.SPARSE:
+                elif neighbor_list_format == _NeighborListFormat.SPARSE:
                     capacity_limit = n * (n - 1) if mask_self else n**2
 
                 else:
@@ -273,6 +278,8 @@ def neighbor_list(
 
                 if maximum_size > capacity_limit:
                     maximum_size = capacity_limit
+
+            print(f"max size: {maximum_size}")
 
             indexes = indexes[:, :maximum_size]
 
@@ -286,6 +293,8 @@ def neighbor_list(
                 _PartitionErrorKind.NEIGHBOR_LIST_OVERFLOW,
                 occupancy > maximum_size,
             )
+
+            print(f"neighbors: {indexes[0]}")
 
             return _NeighborList(
                 buffer_fn=buffer_fn,
