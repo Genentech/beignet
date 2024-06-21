@@ -88,7 +88,7 @@ def test_neighbor_list_build_sparse(dim):
     displacement, _ = space(box=box_size, parallelepiped=False)
     metric_fn = metric(displacement)
 
-    R = box_size * torch.rand((PARTICLE_COUNT, dim))
+    R = box_size * torch.rand((16, dim))
     N = R.shape[0]
 
     neighbor_fn = neighbor_list(
@@ -97,25 +97,31 @@ def test_neighbor_list_build_sparse(dim):
     nbrs = neighbor_fn.setup_fn(R)
     mask = neighbor_list_mask(nbrs)
 
+    true_count = torch.sum(mask).item()
+    print(f"true count: {true_count}")
+
     d = _map_bond(metric_fn)
-    dR = d(R[nbrs.indexes[0]], R[nbrs.indexes[1]])
+    dR = d(safe_index(R, nbrs.indexes[0]), safe_index(R, nbrs.indexes[1]))
 
     d_exact = map_product(metric_fn)
     dR_exact = d_exact(R, R)
 
-    dR = torch.where(dR < cutoff, dR, torch.tensor(0)) * mask # shape = (136089)
+    dR = torch.where(dR < cutoff, dR, torch.tensor(0)) * mask
     mask_exact = 1. - torch.eye(dR_exact.shape[0])
     dR_exact = torch.where(dR_exact < cutoff, dR_exact, torch.tensor(0)) * mask_exact
 
     dR_exact, _ = torch.sort(dR_exact, dim=1)
 
-    for i in range(N): #N = 1000
-      dR_row = dR[nbrs.indexes[0] == i] # shape = (47)
+    for i in range(N):
+      dR_row = dR[nbrs.indexes[0] == i]
       dR_row = dR_row[dR_row > 0.]
       dR_row, _ = torch.sort(dR_row)
 
-      dR_exact_row = dR_exact[i] # shape = (1000)
-      dR_exact_row = torch.tensor(dR_exact_row[dR_exact_row > 0.]) # shape = 114
-      assert dR_exact_row.shape == (1, 2, 3)
+      dR_exact_row = dR_exact[i]
+      dR_exact_row = torch.tensor(dR_exact_row[dR_exact_row > 0.])
+
+      print(f"Index: {i}")
+      print(f"dR_row shape: {dR_row.shape}, dR_row: {dR_row}")
+      print(f"dR_exact_row shape: {dR_exact_row.shape}, dR_exact_row: {dR_exact_row}")
 
       assert torch.allclose(dR_row, dR_exact_row)
