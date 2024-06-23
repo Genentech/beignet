@@ -2,7 +2,9 @@ import torch
 
 from .__as_series import _as_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._hermemulx import hermemulx
+from ._multiply_probabilists_hermite_series_by_x import (
+    multiply_probabilists_hermite_series_by_x,
+)
 from ._subtract_probabilists_hermite_series import subtract_probabilists_hermite_series
 
 
@@ -34,9 +36,11 @@ def multiply_probabilists_hermite_series(input, other):
             tmp = c0
             nd = nd - 1
             c0 = subtract_probabilists_hermite_series(c[-i] * xs, input * (nd - 1))
-            input = add_probabilists_hermite_series(tmp, hermemulx(input))
+            input = add_probabilists_hermite_series(
+                tmp, multiply_probabilists_hermite_series_by_x(input)
+            )
 
-    output = hermemulx(input)
+    output = multiply_probabilists_hermite_series_by_x(input)
 
     output = add_probabilists_hermite_series(c0, output)
 

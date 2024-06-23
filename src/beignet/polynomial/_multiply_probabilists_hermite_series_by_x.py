@@ -1,9 +1,10 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 
 
-def hermemulx(input):
+def multiply_probabilists_hermite_series_by_x(input: Tensor) -> Tensor:
     (input,) = _as_series([input])
 
     if len(input) == 1 and input[0] == 0:

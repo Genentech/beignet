@@ -4,14 +4,14 @@ import torch
 
 def test_hermemulx():
     torch.testing.assert_close(
-        beignet.polynomial._hermemulx.hermemulx(
+        beignet.polynomial._hermemulx.multiply_probabilists_hermite_series_by_x(
             torch.tensor([0]),
         ),
         torch.tensor([0], dtype=torch.float64),
     )
 
     torch.testing.assert_close(
-        beignet.polynomial._hermemulx.hermemulx(
+        beignet.polynomial._hermemulx.multiply_probabilists_hermite_series_by_x(
             torch.tensor([1]),
         ),
         torch.tensor([0, 1], dtype=torch.float64),
@@ -19,7 +19,7 @@ def test_hermemulx():
 
     for index in range(1, 5):
         torch.testing.assert_close(
-            beignet.polynomial._hermemulx.hermemulx(
+            beignet.polynomial._hermemulx.multiply_probabilists_hermite_series_by_x(
                 torch.tensor(
                     [0] * index + [1],
                 ),

@@ -104,7 +104,6 @@ from ._gauss_probabilists_hermite_series_quadrature import (
 )
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
-from ._hermemulx import hermemulx
 from ._hermgrid2d import hermgrid2d
 from ._hermgrid3d import hermgrid3d
 from ._hermmulx import hermmulx
@@ -155,6 +154,9 @@ from ._multiply_physicists_hermite_series import multiply_physicists_hermite_ser
 from ._multiply_power_series import multiply_power_series
 from ._multiply_power_series_by_x import multiply_power_series_by_x
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
+from ._multiply_probabilists_hermite_series_by_x import (
+    multiply_probabilists_hermite_series_by_x,
+)
 from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 from ._physicists_hermite_series_domain import physicists_hermite_series_domain
 from ._physicists_hermite_series_from_roots import physicists_hermite_series_from_roots
@@ -328,7 +330,7 @@ __all__ = [
     "gauss_probabilists_hermite_series_quadrature",
     "hermegrid2d",
     "hermegrid3d",
-    "hermemulx",
+    "multiply_probabilists_hermite_series_by_x",
     "physicists_hermite_series_from_roots",
     "gauss_physicists_hermite_series_quadrature",
     "hermgrid2d",

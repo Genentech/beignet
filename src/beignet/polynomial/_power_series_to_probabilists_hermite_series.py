@@ -2,7 +2,9 @@ import torch
 
 from .__as_series import _as_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._hermemulx import hermemulx
+from ._multiply_probabilists_hermite_series_by_x import (
+    multiply_probabilists_hermite_series_by_x,
+)
 
 
 def power_series_to_probabilists_hermite_series(input):
@@ -13,7 +15,7 @@ def power_series_to_probabilists_hermite_series(input):
     output = torch.tensor([0.0])
 
     for index in range(degree, -1, -1):
-        output = hermemulx(output)
+        output = multiply_probabilists_hermite_series_by_x(output)
 
         output = add_probabilists_hermite_series(
             output,
