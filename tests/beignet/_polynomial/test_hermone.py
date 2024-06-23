@@ -5,6 +5,6 @@ import torch
 
 def test_hermone():
     torch.testing.assert_close(
-        beignet.polynomial._hermone.physicists_hermite_series_one,
+        beignet.polynomial.physicists_hermite_series_one,
         torch.tensor([1]),
     )
