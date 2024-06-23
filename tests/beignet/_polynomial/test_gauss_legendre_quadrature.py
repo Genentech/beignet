@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_leggauss():
+def test_gauss_legendre_quadrature():
     x, w = beignet.polynomial.gauss_legendre_quadrature(torch.tensor(100))
 
     v = beignet.polynomial.legendre_series_vandermonde_1d(x, 99)

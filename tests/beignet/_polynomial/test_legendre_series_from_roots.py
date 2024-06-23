@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch.testing
 
 
-def test_legfromroots():
+def test_legendre_series_from_roots():
     torch.testing.assert_close(
         beignet.polynomial.trim_legendre_series(
             beignet.polynomial.legendre_series_from_roots(
