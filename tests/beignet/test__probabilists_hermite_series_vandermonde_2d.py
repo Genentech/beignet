@@ -1,6 +1,9 @@
-import beignet.polynomial
 import numpy
 import torch
+from beignet.polynomial import (
+    evaluate_probabilists_hermite_series_2d,
+    probabilists_hermite_series_vandermonde_2d,
+)
 
 
 def test_probabilists_hermite_series_vandermonde_2d():
@@ -8,15 +11,12 @@ def test_probabilists_hermite_series_vandermonde_2d():
     c = numpy.random.random((2, 3))
     torch.testing.assert_close(
         torch.dot(
-            beignet.polynomial.probabilists_hermite_series_vandermonde_2d(
-                x1, x2, [1, 2]
-            ),
+            probabilists_hermite_series_vandermonde_2d(x1, x2, [1, 2]),
             torch.flatten(c),
         ),
-        beignet.polynomial.evaluate_probabilists_hermite_series_2d(x1, x2, c),
+        evaluate_probabilists_hermite_series_2d(x1, x2, c),
     )
 
-    van = beignet.polynomial.probabilists_hermite_series_vandermonde_2d(
-        [x1], [x2], [1, 2]
-    )
-    assert van.shape == (1, 5, 6)
+    output = probabilists_hermite_series_vandermonde_2d([x1], [x2], [1, 2])
+
+    assert output.shape == (1, 5, 6)
