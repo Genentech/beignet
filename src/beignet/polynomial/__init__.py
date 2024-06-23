@@ -131,6 +131,7 @@ from ._laguerre_series_vandermonde_2d import laguerre_series_vandermonde_2d
 from ._laguerre_series_vandermonde_3d import laguerre_series_vandermonde_3d
 from ._laguerre_series_weight import laguerre_series_weight
 from ._laguerre_series_x import laguerre_series_x
+from ._laguerre_series_zero import laguerre_series_zero
 from ._legendre_series_companion import legendre_series_companion
 from ._legendre_series_domain import legendre_series_domain
 from ._legendre_series_from_roots import legendre_series_from_roots
@@ -364,6 +365,7 @@ __all__ = [
     "laguerre_series_vandermonde_3d",
     "laguerre_series_weight",
     "laguerre_series_x",
+    "laguerre_series_zero",
     "legendre_series_companion",
     "legendre_series_domain",
     "legendre_series_from_roots",
