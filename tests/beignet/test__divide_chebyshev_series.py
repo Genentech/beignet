@@ -24,10 +24,10 @@ def test_divide_chebyshev_series():
                         ),
                         remainder,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_chebyshev_series(
                     tgt,
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )

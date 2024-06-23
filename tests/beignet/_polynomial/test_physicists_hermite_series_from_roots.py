@@ -6,7 +6,7 @@ import torch
 def test_physicists_hermite_series_from_roots():
     res = beignet.polynomial.physicists_hermite_series_from_roots([])
     torch.testing.assert_close(
-        beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
+        beignet.polynomial.trim_physicists_hermite_series(res, tolerance=0.000001),
         [1],
     )
     for i in range(1, 5):

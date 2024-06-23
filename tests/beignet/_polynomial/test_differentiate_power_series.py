@@ -16,9 +16,9 @@ def test_differentiate_power_series():
         torch.testing.assert_close(
             beignet.polynomial.trim_power_series(
                 beignet.polynomial.differentiate_power_series(tgt, order=0),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
-            beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -29,8 +29,8 @@ def test_differentiate_power_series():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -43,8 +43,8 @@ def test_differentiate_power_series():
             )
 
             torch.testing.assert_close(
-                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

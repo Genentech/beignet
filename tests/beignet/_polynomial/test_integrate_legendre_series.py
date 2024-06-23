@@ -38,9 +38,9 @@ def test_integrate_legendre_series():
         torch.testing.assert_close(
             beignet.polynomial.trim_legendre_series(
                 beignet.polynomial.legendre_series_to_power_series(legint),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
-            beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -62,8 +62,8 @@ def test_integrate_legendre_series():
         legint = beignet.polynomial.integrate_legendre_series(legpol, m=1, k=[i], scl=2)
         res = beignet.polynomial.legendre_series_to_power_series(legint)
         torch.testing.assert_close(
-            beignet.polynomial.trim_legendre_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_legendre_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -74,8 +74,8 @@ def test_integrate_legendre_series():
                 tgt = beignet.polynomial.integrate_legendre_series(tgt, m=1)
             res = beignet.polynomial.integrate_legendre_series(pol, m=j)
             torch.testing.assert_close(
-                beignet.polynomial.trim_legendre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_legendre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -88,8 +88,8 @@ def test_integrate_legendre_series():
                 pol, m=j, k=list(range(j))
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_legendre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_legendre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -104,8 +104,8 @@ def test_integrate_legendre_series():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_legendre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_legendre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -121,9 +121,9 @@ def test_integrate_legendre_series():
                     beignet.polynomial.integrate_legendre_series(
                         pol, m=j, k=list(range(j)), scl=2
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
-                beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_legendre_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

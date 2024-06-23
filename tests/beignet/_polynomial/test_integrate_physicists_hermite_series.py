@@ -57,8 +57,8 @@ def test_integrate_physicists_hermite_series():
         )
         res = beignet.polynomial.physicists_hermite_series_to_power_series(hermint)
         torch.testing.assert_close(
-            beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_physicists_hermite_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -83,8 +83,8 @@ def test_integrate_physicists_hermite_series():
         )
         res = beignet.polynomial.physicists_hermite_series_to_power_series(hermint)
         torch.testing.assert_close(
-            beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_physicists_hermite_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -95,8 +95,12 @@ def test_integrate_physicists_hermite_series():
                 tgt = beignet.polynomial.integrate_physicists_hermite_series(tgt, m=1)
             res = beignet.polynomial.integrate_physicists_hermite_series(pol, m=j)
             torch.testing.assert_close(
-                beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    res, tolerance=0.000001
+                ),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     for i in range(5):
@@ -111,8 +115,12 @@ def test_integrate_physicists_hermite_series():
                 pol, m=j, k=list(range(j))
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    res, tolerance=0.000001
+                ),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     for i in range(5):
@@ -127,8 +135,12 @@ def test_integrate_physicists_hermite_series():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    res, tolerance=0.000001
+                ),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     for i in range(5):
@@ -143,8 +155,12 @@ def test_integrate_physicists_hermite_series():
                 pol, m=j, k=list(range(j)), scl=2
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    res, tolerance=0.000001
+                ),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     c2d = numpy.random.random((3, 4))

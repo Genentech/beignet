@@ -22,9 +22,9 @@ def test_differentiate_physicists_hermite_series():
         torch.testing.assert_close(
             beignet.polynomial.trim_physicists_hermite_series(
                 beignet.polynomial.differentiate_physicists_hermite_series(tgt, m=0),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
-            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -38,9 +38,11 @@ def test_differentiate_physicists_hermite_series():
                         ),
                         m=j,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     for i in range(5):
@@ -55,9 +57,11 @@ def test_differentiate_physicists_hermite_series():
                         m=j,
                         scl=0.5,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
-                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_physicists_hermite_series(
+                    tgt, tolerance=0.000001
+                ),
             )
 
     c2d = numpy.random.random((3, 4))

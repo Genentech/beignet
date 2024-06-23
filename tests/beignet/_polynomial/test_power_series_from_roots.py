@@ -10,7 +10,7 @@ def test_power_series_from_roots():
             beignet.polynomial.power_series_from_roots(
                 torch.tensor([]),
             ),
-            tolerance=1e-6,
+            tolerance=0.000001,
         ),
         torch.tensor([1], dtype=torch.float32),
     )
@@ -24,10 +24,10 @@ def test_power_series_from_roots():
                     roots,
                 )
                 * 2 ** (i - 1),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_power_series(
                 polynomial_coefficients[i],
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
         )

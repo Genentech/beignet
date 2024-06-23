@@ -19,10 +19,10 @@ def test_legendre_series_roots():
                         numpy.linspace(-1, 1, i),
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_legendre_series(
                 numpy.linspace(-1, 1, i),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
         )

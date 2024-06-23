@@ -8,7 +8,7 @@ def test_legendre_series_from_roots():
             beignet.polynomial.legendre_series_from_roots(
                 torch.tensor([]),
             ),
-            tolerance=1e-6,
+            tolerance=0.000001,
         ),
         torch.tensor([1]),
     )

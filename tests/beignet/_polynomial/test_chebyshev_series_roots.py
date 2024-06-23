@@ -18,17 +18,19 @@ def test_chebyshev_series_roots():
     )
 
     for index in range(2, 5):
+        input = torch.linspace(-1, 1, index)
+
         torch.testing.assert_close(
             beignet.polynomial.trim_chebyshev_series(
                 beignet.polynomial.chebyshev_series_roots(
                     beignet.polynomial.chebyshev_series_from_roots(
-                        torch.linspace(-1, 1, index),
+                        input,
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_chebyshev_series(
-                torch.linspace(-1, 1, index),
-                tolerance=1e-6,
+                input,
+                tolerance=0.000001,
             ),
         )

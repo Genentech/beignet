@@ -15,7 +15,7 @@ def test_pow_legendre_series():
                         c,
                         k,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_legendre_series(
                     functools.reduce(
@@ -23,6 +23,6 @@ def test_pow_legendre_series():
                         [*c] * k,
                         torch.tensor([1]),
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )

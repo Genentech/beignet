@@ -43,10 +43,10 @@ def test_integrate_laguerre_series():
                         k=[i],
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_laguerre_series(
-                [i] + [0] * i + [1 / (i + 1)], tolerance=1e-6
+                [i] + [0] * i + [1 / (i + 1)], tolerance=0.000001
             ),
         )
 
@@ -79,10 +79,10 @@ def test_integrate_laguerre_series():
                         scl=2,
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_laguerre_series(
-                [i] + [0] * i + [2 / scl], tolerance=1e-6
+                [i] + [0] * i + [2 / scl], tolerance=0.000001
             ),
         )
 
@@ -94,8 +94,8 @@ def test_integrate_laguerre_series():
                 tgt = beignet.polynomial.integrate_laguerre_series(tgt, m=1)
             res = beignet.polynomial.integrate_laguerre_series(pol, m=j)
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -108,8 +108,8 @@ def test_integrate_laguerre_series():
                 pol, m=j, k=list(range(j))
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -124,8 +124,8 @@ def test_integrate_laguerre_series():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -140,8 +140,8 @@ def test_integrate_laguerre_series():
                 pol, m=j, k=list(range(j)), scl=2
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

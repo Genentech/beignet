@@ -13,7 +13,7 @@ def test_pow_chebyshev_series():
                         torch.arange(j + 1),
                         k,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_chebyshev_series(
                     functools.reduce(
@@ -21,6 +21,6 @@ def test_pow_chebyshev_series():
                         torch.tensor([*torch.arange(j + 1)] * k),
                         torch.tensor([1]),
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )

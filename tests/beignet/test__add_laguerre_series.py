@@ -14,10 +14,10 @@ def test_add_laguerre_series():
                         torch.tensor([0] * i + [1]),
                         torch.tensor([0] * j + [1]),
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_laguerre_series(
                     tgt,
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )

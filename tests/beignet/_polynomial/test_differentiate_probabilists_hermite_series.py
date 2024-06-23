@@ -21,8 +21,12 @@ def test_differentiate_probabilists_hermite_series():
         tgt = [0] * i + [1]
         res = beignet.polynomial.differentiate_probabilists_hermite_series(tgt, m=0)
         torch.testing.assert_close(
-            beignet.polynomial.trim_probabilists_hermite_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_probabilists_hermite_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_probabilists_hermite_series(
+                res, tolerance=0.000001
+            ),
+            beignet.polynomial.trim_probabilists_hermite_series(
+                tgt, tolerance=0.000001
+            ),
         )
 
     for i in range(5):
@@ -34,10 +38,10 @@ def test_differentiate_probabilists_hermite_series():
             )
             torch.testing.assert_close(
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    res, tolerance=1e-6
+                    res, tolerance=0.000001
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 
@@ -53,10 +57,10 @@ def test_differentiate_probabilists_hermite_series():
             )
             torch.testing.assert_close(
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    res, tolerance=1e-6
+                    res, tolerance=0.000001
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 

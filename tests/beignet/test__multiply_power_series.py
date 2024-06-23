@@ -15,10 +15,10 @@ def test_multiply_power_series():
                         torch.tensor([0] * j + [1]),
                         torch.tensor([0] * k + [1]),
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_power_series(
                     output,
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )

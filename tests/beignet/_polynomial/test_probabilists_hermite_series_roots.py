@@ -25,10 +25,10 @@ def test_probabilists_hermite_series_roots():
                         torch.linspace(-1, 1, index),
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_probabilists_hermite_series(
                 torch.linspace(-1, 1, index),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
         )

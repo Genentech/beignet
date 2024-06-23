@@ -25,10 +25,10 @@ def test_power_series_roots():
                         torch.linspace(-1, 1, i),
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_power_series(
                 torch.linspace(-1, 1, i),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
         )

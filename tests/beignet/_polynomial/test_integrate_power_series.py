@@ -37,8 +37,8 @@ def test_integrate_power_series():
         tgt = [i] + [0] * i + [1 / scl]
         res = beignet.polynomial.integrate_power_series(pol, m=1, k=[i])
         torch.testing.assert_close(
-            beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -55,8 +55,8 @@ def test_integrate_power_series():
         tgt = [i] + [0] * i + [2 / scl]
         res = beignet.polynomial.integrate_power_series(pol, m=1, k=[i], scl=2)
         torch.testing.assert_close(
-            beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -67,8 +67,8 @@ def test_integrate_power_series():
                 tgt = beignet.polynomial.integrate_power_series(tgt, m=1)
             res = beignet.polynomial.integrate_power_series(pol, m=j)
             torch.testing.assert_close(
-                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -79,8 +79,8 @@ def test_integrate_power_series():
                 tgt = beignet.polynomial.integrate_power_series(tgt, m=1, k=[k])
             res = beignet.polynomial.integrate_power_series(pol, m=j, k=list(range(j)))
             torch.testing.assert_close(
-                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -95,8 +95,8 @@ def test_integrate_power_series():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_power_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -114,9 +114,9 @@ def test_integrate_power_series():
                         k=list(range(j)),
                         scl=2,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
-                beignet.polynomial.trim_power_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_power_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

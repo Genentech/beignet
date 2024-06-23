@@ -43,8 +43,8 @@ def test_integrate_chebyshev_series():
         chebint = beignet.polynomial.integrate_chebyshev_series(chebpol, m=1, k=[i])
         res = beignet.polynomial.chebyshev_series_to_power_series(chebint)
         torch.testing.assert_close(
-            beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -68,8 +68,8 @@ def test_integrate_chebyshev_series():
         )
         res = beignet.polynomial.chebyshev_series_to_power_series(chebint)
         torch.testing.assert_close(
-            beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -80,8 +80,8 @@ def test_integrate_chebyshev_series():
                 tgt = beignet.polynomial.integrate_chebyshev_series(tgt, m=1)
             res = beignet.polynomial.integrate_chebyshev_series(pol, m=j)
             torch.testing.assert_close(
-                beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -94,8 +94,8 @@ def test_integrate_chebyshev_series():
                 pol, m=j, k=list(range(j))
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -110,8 +110,8 @@ def test_integrate_chebyshev_series():
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -126,8 +126,8 @@ def test_integrate_chebyshev_series():
                 pol, m=j, k=list(range(j)), scl=2
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_chebyshev_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

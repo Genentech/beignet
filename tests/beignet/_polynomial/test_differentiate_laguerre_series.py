@@ -15,8 +15,8 @@ def test_differentiate_laguerre_series():
         tgt = [0] * i + [1]
         res = beignet.polynomial.differentiate_laguerre_series(tgt, m=0)
         torch.testing.assert_close(
-            beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-            beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+            beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
         )
 
     for i in range(5):
@@ -26,8 +26,8 @@ def test_differentiate_laguerre_series():
                 beignet.polynomial.integrate_laguerre_series(tgt, m=j), m=j
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     for i in range(5):
@@ -39,8 +39,8 @@ def test_differentiate_laguerre_series():
                 scl=0.5,
             )
             torch.testing.assert_close(
-                beignet.polynomial.trim_laguerre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_laguerre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_laguerre_series(res, tolerance=0.000001),
+                beignet.polynomial.trim_laguerre_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

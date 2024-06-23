@@ -24,11 +24,11 @@ def test_differentiate_chebyshev_series():
                     torch.tensor([0] * index + [1]),
                     m=0,
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_chebyshev_series(
                 torch.tensor([0] * index + [1]),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
         )
 
@@ -43,11 +43,11 @@ def test_differentiate_chebyshev_series():
                         ),
                         m=k,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_chebyshev_series(
                     torch.tensor([0] * j + [1]),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
             )
 
@@ -61,9 +61,9 @@ def test_differentiate_chebyshev_series():
                         m=j,
                         scl=0.5,
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=0.000001),
             )
 
     c2d = numpy.random.random((3, 4))

@@ -63,10 +63,10 @@ def test_integrate_probabilists_hermite_series():
                         k=[i],
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
             beignet.polynomial.trim_probabilists_hermite_series(
-                [i] + [0] * i + [1 / scl], tolerance=1e-6
+                [i] + [0] * i + [1 / scl], tolerance=0.000001
             ),
         )
 
@@ -104,9 +104,11 @@ def test_integrate_probabilists_hermite_series():
                         scl=2,
                     )
                 ),
-                tolerance=1e-6,
+                tolerance=0.000001,
             ),
-            beignet.polynomial.trim_probabilists_hermite_series(tgt, tolerance=1e-6),
+            beignet.polynomial.trim_probabilists_hermite_series(
+                tgt, tolerance=0.000001
+            ),
         )
 
     for i in range(5):
@@ -118,10 +120,10 @@ def test_integrate_probabilists_hermite_series():
             torch.testing.assert_close(
                 beignet.polynomial.trim_probabilists_hermite_series(
                     beignet.polynomial.integrate_probabilists_hermite_series(pol, m=j),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 
@@ -138,10 +140,10 @@ def test_integrate_probabilists_hermite_series():
                     beignet.polynomial.integrate_probabilists_hermite_series(
                         pol, m=j, k=list(range(j))
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 
@@ -158,10 +160,10 @@ def test_integrate_probabilists_hermite_series():
                     beignet.polynomial.integrate_probabilists_hermite_series(
                         pol, m=j, k=list(range(j)), lbnd=-1
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 
@@ -178,10 +180,10 @@ def test_integrate_probabilists_hermite_series():
                     beignet.polynomial.integrate_probabilists_hermite_series(
                         pol, m=j, k=list(range(j)), scl=2
                     ),
-                    tolerance=1e-6,
+                    tolerance=0.000001,
                 ),
                 beignet.polynomial.trim_probabilists_hermite_series(
-                    tgt, tolerance=1e-6
+                    tgt, tolerance=0.000001
                 ),
             )
 

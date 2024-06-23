@@ -7,7 +7,7 @@ def test_laguerre_series_from_roots():
     torch.testing.assert_close(
         beignet.polynomial.trim_laguerre_series(
             beignet.polynomial._lagfromroots.laguerre_series_from_roots([]),
-            tolerance=1e-6,
+            tolerance=0.000001,
         ),
         [1],
     )
