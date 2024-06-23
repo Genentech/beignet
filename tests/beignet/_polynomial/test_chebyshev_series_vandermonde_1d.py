@@ -13,7 +13,7 @@ def test_chebyshev_series_vandermonde_1d():
             )[..., index],
             beignet.polynomial.evaluate_chebyshev_series_1d(
                 x,
-                [0] * index + [1],
+                torch.tensor([0] * index + [1], dtype=torch.float32),
             ),
         )
 
@@ -27,6 +27,6 @@ def test_chebyshev_series_vandermonde_1d():
             )[..., index],
             beignet.polynomial.evaluate_chebyshev_series_1d(
                 x,
-                [0] * index + [1],
+                torch.tensor([0] * index + [1]),
             ),
         )
