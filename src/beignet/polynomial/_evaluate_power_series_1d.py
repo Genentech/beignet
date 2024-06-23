@@ -1,8 +1,9 @@
 import numpy
+import torch
 
 
 def evaluate_power_series_1d(x, c, tensor=True):
-    c = numpy.array(c, ndmin=1)
+    c = torch.ravel(c)
 
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c + 0.0

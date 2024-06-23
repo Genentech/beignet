@@ -1,4 +1,3 @@
-import numpy
 import torch
 
 from .__as_series import _as_series
@@ -14,7 +13,7 @@ def probabilists_hermite_series_roots(input):
         return torch.tensor([], dtype=input.dtype)
 
     if len(input) == 2:
-        return numpy.array([-input[0] / input[1]])
+        return torch.tensor([-input[0] / input[1]])
 
     m = probabilists_hermite_series_companion(input)[::-1, ::-1]
 

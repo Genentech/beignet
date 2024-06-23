@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+import torch
 from torch import Tensor
 
 from beignet.polynomial._differentiate_legendre_series import (
@@ -16,7 +17,7 @@ def gauss_legendre_quadrature(input: Tensor) -> (Tensor, Tensor):
     if ideg <= 0:
         raise ValueError
 
-    c = numpy.array([0] * input + [1])
+    c = torch.tensor([0] * input + [1])
     m = legendre_series_companion(c)
     x = numpy.linalg.eigvalsh(m)
 

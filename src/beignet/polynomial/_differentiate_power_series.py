@@ -1,12 +1,13 @@
 import operator
 
 import numpy
+import torch
 
 from .__normalize_axis_index import _normalize_axis_index
 
 
 def differentiate_power_series(input, order: int = 1, scale: float = 1, axis: int = 0):
-    output = numpy.array(input, ndmin=1)
+    output = torch.ravel(input)
 
     if output.dtype.char in "?bBhHiIlLqQpP":
         output = output + 0.0

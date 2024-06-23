@@ -11,7 +11,7 @@ def power_series_companion(series):
         raise ValueError
 
     if len(series) == 2:
-        output = numpy.array([[-series[0] / series[1]]])
+        output = torch.tensor([[-series[0] / series[1]]])
     else:
         n = series.shape[-1] - 1
 

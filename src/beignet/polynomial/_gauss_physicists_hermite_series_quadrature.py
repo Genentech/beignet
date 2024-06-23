@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+import torch
 from torch import Tensor
 
 from .__normed_hermite_n import _normed_hermite_n
@@ -12,9 +13,9 @@ def gauss_physicists_hermite_series_quadrature(
 ) -> (Tensor, Tensor):
     ideg = operator.index(input)
     if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
+        raise ValueError
 
-    c = numpy.array([0] * input + [1], dtype=numpy.float64)
+    c = torch.tensor([0] * input + [1], dtype=numpy.float64)
     m = physicists_hermite_series_companion(c)
     output = numpy.linalg.eigvalsh(m)
 

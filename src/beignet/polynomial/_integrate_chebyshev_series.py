@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+import torch
 
 from .__normalize_axis_index import _normalize_axis_index
 from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
@@ -9,7 +10,7 @@ from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
 def integrate_chebyshev_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = numpy.array(c, ndmin=1)
+    c = torch.ravel(c)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
     if not numpy.iterable(k):

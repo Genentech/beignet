@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+import torch
 from torch import Tensor
 
 from .__normed_hermite_e_n import _normed_hermite_e_n
@@ -17,7 +18,7 @@ def gauss_probabilists_hermite_series_quadrature(
     if ideg <= 0:
         raise ValueError
 
-    c = numpy.array([0] * input + [1])
+    c = torch.tensor([0] * input + [1])
     m = probabilists_hermite_series_companion(c)
     output = numpy.linalg.eigvalsh(m)
 

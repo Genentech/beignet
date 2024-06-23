@@ -4,7 +4,7 @@ from torch import Tensor
 
 
 def polyvalfromroots(x, output, tensor=True):
-    output = numpy.array(output, ndmin=1)
+    output = torch.ravel(output)
 
     if output.dtype.char in "?bBhHiIlLqQpP":
         output = output.astype(numpy.float64)
