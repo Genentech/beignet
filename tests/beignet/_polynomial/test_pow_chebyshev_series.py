@@ -9,19 +9,20 @@ def test_pow_chebyshev_series():
         for k in range(5):
             c = torch.arange(j + 1)
 
-            tgt = functools.reduce(
-                beignet.polynomial.multiply_chebyshev_series,
-                torch.tensor([c] * k),
-                torch.tensor([1]),
-            )
-
             torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
-                    beignet.polynomial.pow_chebyshev_series(c, k),
+                    beignet.polynomial.pow_chebyshev_series(
+                        c,
+                        k,
+                    ),
                     tolerance=1e-6,
                 ),
                 beignet.polynomial.trim_chebyshev_series(
-                    tgt,
+                    functools.reduce(
+                        beignet.polynomial.multiply_chebyshev_series,
+                        torch.tensor([c] * k),
+                        torch.tensor([1]),
+                    ),
                     tolerance=1e-6,
                 ),
             )
