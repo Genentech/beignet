@@ -90,6 +90,7 @@ from ._evaluate_physicists_hermite_series_grid_3d import (
     evaluate_physicists_hermite_series_grid_3d,
 )
 from ._evaluate_power_series_1d import evaluate_power_series_1d
+from ._evaluate_power_series_1d_from_roots import evaluate_power_series_1d_from_roots
 from ._evaluate_power_series_2d import evaluate_power_series_2d
 from ._evaluate_power_series_3d import evaluate_power_series_3d
 from ._evaluate_power_series_grid_2d import evaluate_power_series_grid_2d
@@ -194,7 +195,6 @@ from ._physicists_hermite_series_vandermonde_3d import (
 from ._physicists_hermite_series_weight import physicists_hermite_series_weight
 from ._physicists_hermite_series_x import physicists_hermite_series_x
 from ._physicists_hermite_series_zero import physicists_hermite_series_zero
-from ._polyvalfromroots import polyvalfromroots
 from ._pow_chebyshev_series import pow_chebyshev_series
 from ._pow_laguerre_series import pow_laguerre_series
 from ._pow_legendre_series import pow_legendre_series
@@ -416,7 +416,7 @@ __all__ = [
     "physicists_hermite_series_zero",
     "evaluate_power_series_grid_2d",
     "evaluate_power_series_grid_3d",
-    "polyvalfromroots",
+    "evaluate_power_series_1d_from_roots",
     "pow_chebyshev_series",
     "pow_laguerre_series",
     "pow_legendre_series",

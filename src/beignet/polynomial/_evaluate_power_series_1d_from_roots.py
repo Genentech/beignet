@@ -3,7 +3,7 @@ import torch
 from torch import Tensor
 
 
-def polyvalfromroots(x, output, tensor=True):
+def evaluate_power_series_1d_from_roots(x, output, tensor=True):
     output = torch.ravel(output)
 
     if output.dtype.char in "?bBhHiIlLqQpP":
