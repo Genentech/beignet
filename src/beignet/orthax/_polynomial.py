@@ -320,8 +320,6 @@ def poly2cheb(pol):
 
 
 def cheb2poly(c):
-    from .polynomial import polyadd, polymulx, polysub
-
     c = as_series(c)
     n = len(c)
     if n < 3:
@@ -677,8 +675,6 @@ def poly2herm(pol):
 
 
 def herm2poly(c):
-    from .polynomial import polyadd, polymulx, polysub
-
     c = as_series(c)
     n = len(c)
     if n == 1:
@@ -1024,8 +1020,6 @@ def poly2herme(pol):
 
 
 def herme2poly(c):
-    from .polynomial import polyadd, polymulx, polysub
-
     c = as_series(c)
     n = len(c)
     if n == 1:
@@ -1365,8 +1359,6 @@ def poly2lag(pol):
 
 
 def lag2poly(c):
-    from .polynomial import polyadd, polymulx, polysub
-
     c = as_series(c)
     n = len(c)
     if n == 1:
@@ -1692,8 +1684,6 @@ def poly2leg(pol):
 
 
 def leg2poly(c):
-    from .polynomial import polyadd, polymulx, polysub
-
     c = as_series(c)
     n = len(c)
     if n < 3:
