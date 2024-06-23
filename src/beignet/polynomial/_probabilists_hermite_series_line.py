@@ -1,7 +1,7 @@
 import torch
 
 
-def hermeline(input, other):
+def probabilists_hermite_series_line(input, other):
     if other != 0:
         return torch.tensor([input, other])
     else:

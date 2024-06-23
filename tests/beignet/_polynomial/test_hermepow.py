@@ -1,8 +1,8 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial._hermepow
 import beignet.polynomial._multiply_probabilists_hermite_series
+import beignet.polynomial._pow_probabilists_hermite_series
 import beignet.polynomial._trim_probabilists_hermite_series
 import numpy
 import torch
@@ -18,7 +18,7 @@ def test_hermepow():
                 [c] * j,
                 numpy.array([1]),
             )
-            res = beignet.polynomial._hermepow.hermepow(c, j)
+            res = beignet.polynomial._hermepow.pow_probabilists_hermite_series(c, j)
             torch.testing.assert_close(
                 beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
                     res, tolerance=1e-6

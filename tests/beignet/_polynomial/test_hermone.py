@@ -1,10 +1,10 @@
 import beignet.polynomial
-import beignet.polynomial._hermone
+import beignet.polynomial._physicists_hermite_series_one
 import torch
 
 
 def test_hermone():
     torch.testing.assert_close(
-        beignet.polynomial._hermone.hermone,
+        beignet.polynomial._hermone.physicists_hermite_series_one,
         torch.tensor([1]),
     )
