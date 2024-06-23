@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_hermegauss():
+def test_gauss_probabilists_hermite_series_quadrature():
     x, w = beignet.polynomial._hermegauss.gauss_probabilists_hermite_series_quadrature(
         100
     )

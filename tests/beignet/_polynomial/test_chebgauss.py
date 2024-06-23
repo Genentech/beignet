@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch.testing
 
 
-def test_chebgauss():
+def test_chebyshev_gauss_quadrature():
     x, w = beignet.polynomial.chebyshev_gauss_quadrature(100)
 
     v = beignet.polynomial.chebyshev_series_vandermonde_1d(x, 99)

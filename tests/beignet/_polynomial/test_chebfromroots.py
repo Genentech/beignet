@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch.testing
 
 
-def test_chebfromroots():
+def test_chebyshev_series_from_roots():
     torch.testing.assert_close(
         beignet.polynomial.trim_chebyshev_series(
             beignet.polynomial.chebyshev_series_from_roots(

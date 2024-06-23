@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_chebpts2():
+def test_chebyshev_nodes_2():
     numpy.testing.assert_raises(
         ValueError, beignet.polynomial._chebpts2.chebyshev_nodes_2, 1.5
     )

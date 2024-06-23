@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_hermefromroots():
+def test_probabilists_hermite_series_from_roots():
     res = beignet.polynomial._hermefromroots.probabilists_hermite_series_from_roots([])
     torch.testing.assert_close(
         beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
