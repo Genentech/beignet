@@ -6,8 +6,8 @@ from .__pow import _pow
 
 def pow_power_series(
     input: Tensor,
-    exponent,
-    maximum_exponent=None,
+    exponent: Tensor,
+    maximum_exponent: Tensor | None = None,
 ) -> Tensor:
     return _pow(
         torchaudio.functional.convolve,

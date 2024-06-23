@@ -9,8 +9,8 @@ from .__z_series_to_c_series import _z_series_to_c_series
 
 def pow_chebyshev_series(
     input: Tensor,
-    exponent,
-    maximum_exponent=16,
+    exponent: Tensor,
+    maximum_exponent: Tensor = 16,
 ) -> Tensor:
     (input,) = _as_series([input])
 
