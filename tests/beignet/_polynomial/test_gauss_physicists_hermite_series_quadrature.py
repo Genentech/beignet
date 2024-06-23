@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_hermgauss():
+def test_gauss_physicists_hermite_series_quadrature():
     x, w = beignet.polynomial.gauss_physicists_hermite_series_quadrature(100)
 
     v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(x, 99)

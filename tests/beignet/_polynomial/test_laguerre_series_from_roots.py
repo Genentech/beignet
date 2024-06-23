@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_lagfromroots():
+def test_laguerre_series_from_roots():
     torch.testing.assert_close(
         beignet.polynomial.trim_laguerre_series(
             beignet.polynomial._lagfromroots.laguerre_series_from_roots([]),

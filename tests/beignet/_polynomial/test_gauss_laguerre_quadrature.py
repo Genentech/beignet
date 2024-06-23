@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_laggauss():
+def test_gauss_laguerre_quadrature():
     x, w = beignet.polynomial._laggauss.gauss_laguerre_quadrature(100)
 
     v = beignet.polynomial.laguerre_series_vandermonde_1d(x, 99)

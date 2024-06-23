@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_hermfromroots():
+def test_physicists_hermite_series_from_roots():
     res = beignet.polynomial.physicists_hermite_series_from_roots([])
     torch.testing.assert_close(
         beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
