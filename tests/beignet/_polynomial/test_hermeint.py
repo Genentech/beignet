@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._evaluate_1d_probabilists_hermite_series
-import beignet.polynomial._hermeint
+import beignet.polynomial._integrate_probabilists_hermite_series
 import beignet.polynomial._power_series_to_probabilists_hermite_series
 import beignet.polynomial._probabilists_hermite_series_to_power_series
 import beignet.polynomial._trim_probabilists_hermite_series

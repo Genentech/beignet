@@ -45,6 +45,7 @@ from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
+from ._differentiate_laguerre_series import differentiate_laguerre_series
 from ._differentiate_legendre_series import differentiate_legendre_series
 from ._differentiate_physicists_hermite_series import (
     differentiate_physicists_hermite_series,
@@ -91,6 +92,7 @@ from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
 from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
+from ._fit_legendre_series import fit_legendre_series
 from ._fit_physicists_hermite_series import fit_physicists_hermite_series
 from ._fit_power_series import fit_power_series
 from ._fit_probabilists_hermite_series import fit_probabilists_hermite_series
@@ -100,15 +102,11 @@ from ._hermefromroots import hermefromroots
 from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
-from ._hermeint import integrate_probabilists_hermite_series
 from ._hermeline import hermeline
 from ._hermemulx import hermemulx
 from ._hermeone import hermeone
 from ._hermepow import hermepow
 from ._hermeroots import probabilists_hermite_series_roots
-from ._hermevander import probabilists_hermite_series_hermevander
-from ._hermevander2d import probabilists_hermite_series_hermevander2d
-from ._hermevander3d import probabilists_hermite_series_hermevander3d
 from ._hermeweight import hermeweight
 from ._hermex import hermex
 from ._hermfromroots import hermfromroots
@@ -127,7 +125,9 @@ from ._integrate_laguerre_series import integrate_laguerre_series
 from ._integrate_legendre_series import integrate_legendre_series
 from ._integrate_physicists_hermite_series import integrate_physicists_hermite_series
 from ._integrate_power_series import integrate_power_series
-from ._lagder import lagder
+from ._integrate_probabilists_hermite_series import (
+    integrate_probabilists_hermite_series,
+)
 from ._lagdomain import lagdomain
 from ._lagfromroots import lagfromroots
 from ._laggauss import laggauss
@@ -152,7 +152,6 @@ from ._legendre_series_to_power_series import legendre_series_to_power_series
 from ._legendre_series_vandermonde_1d import legendre_series_vandermonde_1d
 from ._legendre_series_vandermonde_2d import legendre_series_vandermonde_2d
 from ._legendre_series_vandermonde_3d import legendre_series_vandermonde_3d
-from ._legfit import legfit
 from ._legfromroots import legfromroots
 from ._leggauss import leggauss
 from ._leggrid2d import leggrid2d
@@ -213,6 +212,15 @@ from ._probabilists_hermite_series_companion import (
 )
 from ._probabilists_hermite_series_to_power_series import (
     probabilists_hermite_series_to_power_series,
+)
+from ._probabilists_hermite_series_vandermonde_1d import (
+    probabilists_hermite_series_vandermonde_1d,
+)
+from ._probabilists_hermite_series_vandermonde_2d import (
+    probabilists_hermite_series_vandermonde_2d,
+)
+from ._probabilists_hermite_series_vandermonde_3d import (
+    probabilists_hermite_series_vandermonde_3d,
 )
 from ._subtract_chebyshev_series import subtract_chebyshev_series
 from ._subtract_laguerre_series import subtract_laguerre_series
@@ -308,9 +316,9 @@ __all__ = [
     "evaluate_1d_probabilists_hermite_series",
     "evaluate_2d_probabilists_hermite_series",
     "evaluate_3d_probabilists_hermite_series",
-    "probabilists_hermite_series_hermevander",
-    "probabilists_hermite_series_hermevander2d",
-    "probabilists_hermite_series_hermevander3d",
+    "probabilists_hermite_series_vandermonde_1d",
+    "probabilists_hermite_series_vandermonde_2d",
+    "probabilists_hermite_series_vandermonde_3d",
     "hermeweight",
     "hermex",
     "fit_physicists_hermite_series",
@@ -338,7 +346,7 @@ __all__ = [
     "laguerre_series_to_power_series",
     "add_laguerre_series",
     "laguerre_series_companion",
-    "lagder",
+    "differentiate_laguerre_series",
     "divide_laguerre_series",
     "lagdomain",
     "fit_laguerre_series",
@@ -369,7 +377,7 @@ __all__ = [
     "differentiate_legendre_series",
     "divide_legendre_series",
     "legdomain",
-    "legfit",
+    "fit_legendre_series",
     "legfromroots",
     "leggauss",
     "leggrid2d",

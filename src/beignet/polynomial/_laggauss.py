@@ -2,7 +2,9 @@ import operator
 
 import numpy
 
-from beignet.polynomial._lagder import lagder
+from beignet.polynomial._differentiate_laguerre_series import (
+    differentiate_laguerre_series,
+)
 from beignet.polynomial._laguerre_series_companion import laguerre_series_companion
 
 from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
@@ -18,7 +20,7 @@ def laggauss(input):
     x = numpy.linalg.eigvalsh(m)
 
     dy = evaluate_1d_laguerre_series(x, c)
-    df = evaluate_1d_laguerre_series(x, lagder(c))
+    df = evaluate_1d_laguerre_series(x, differentiate_laguerre_series(c))
     x -= dy / df
 
     fm = evaluate_1d_laguerre_series(x, c[1:])

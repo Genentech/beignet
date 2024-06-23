@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._differentiate_probabilists_hermite_series
-import beignet.polynomial._hermeint
+import beignet.polynomial._integrate_probabilists_hermite_series
 import beignet.polynomial._trim_probabilists_hermite_series
 import numpy
 import torch
