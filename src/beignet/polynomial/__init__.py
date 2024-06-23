@@ -23,13 +23,13 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebgauss import chebgauss
 from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
 from ._chebinterpolate import chebinterpolate
 from ._chebmulx import chebmulx
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
+from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
 from ._chebyshev_series_companion import chebyshev_series_companion
 from ._chebyshev_series_domain import chebyshev_series_domain
 from ._chebyshev_series_from_roots import chebyshev_series_from_roots
@@ -95,6 +95,8 @@ from ._fit_legendre_series import fit_legendre_series
 from ._fit_physicists_hermite_series import fit_physicists_hermite_series
 from ._fit_power_series import fit_power_series
 from ._fit_probabilists_hermite_series import fit_probabilists_hermite_series
+from ._gauss_laguerre_quadrature import gauss_laguerre_quadrature
+from ._gauss_legendre_quadrature import gauss_legendre_quadrature
 from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
@@ -111,7 +113,6 @@ from ._integrate_power_series import integrate_power_series
 from ._integrate_probabilists_hermite_series import (
     integrate_probabilists_hermite_series,
 )
-from ._laggauss import laggauss
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
 from ._lagmulx import lagmulx
@@ -140,7 +141,6 @@ from ._legendre_series_vandermonde_3d import legendre_series_vandermonde_3d
 from ._legendre_series_weight import legendre_series_weight
 from ._legendre_series_x import legendre_series_x
 from ._legendre_series_zero import legendre_series_zero
-from ._leggauss import leggauss
 from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
 from ._legmulx import legmulx
@@ -265,7 +265,7 @@ __all__ = [
     "add_power_series",
     "add_probabilists_hermite_series",
     "chebyshev_series_from_roots",
-    "chebgauss",
+    "chebyshev_gauss_quadrature",
     "chebgrid2d",
     "chebgrid3d",
     "chebinterpolate",
@@ -337,7 +337,7 @@ __all__ = [
     "integrate_power_series",
     "integrate_probabilists_hermite_series",
     "laguerre_series_from_roots",
-    "laggauss",
+    "gauss_laguerre_quadrature",
     "laggrid2d",
     "laggrid3d",
     "lagmulx",
@@ -365,7 +365,7 @@ __all__ = [
     "legendre_series_x",
     "legendre_series_zero",
     "legendre_series_from_roots",
-    "leggauss",
+    "gauss_legendre_quadrature",
     "leggrid2d",
     "leggrid3d",
     "legmulx",

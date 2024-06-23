@@ -4,7 +4,7 @@ import torch
 
 
 def test_laggauss():
-    x, w = beignet.polynomial._laggauss.laggauss(100)
+    x, w = beignet.polynomial._laggauss.gauss_laguerre_quadrature(100)
 
     v = beignet.polynomial.laguerre_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)

@@ -1,9 +1,10 @@
 import operator
 
 import torch
+from torch import Tensor
 
 
-def chebgauss(input):
+def chebyshev_gauss_quadrature(input: Tensor) -> (Tensor, Tensor):
     ideg = operator.index(input)
 
     if ideg <= 0:

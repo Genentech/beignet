@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+from torch import Tensor
 
 from beignet.polynomial._differentiate_laguerre_series import (
     differentiate_laguerre_series,
@@ -10,10 +11,10 @@ from beignet.polynomial._laguerre_series_companion import laguerre_series_compan
 from ._evaluate_laguerre_series_1d import evaluate_laguerre_series_1d
 
 
-def laggauss(input):
+def gauss_laguerre_quadrature(input: Tensor) -> (Tensor, Tensor):
     ideg = operator.index(input)
     if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
+        raise ValueError
 
     c = numpy.array([0] * input + [1])
     m = laguerre_series_companion(c)
