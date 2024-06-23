@@ -65,11 +65,18 @@ def test_differentiate_probabilists_hermite_series():
     tgt = numpy.vstack(
         [beignet.polynomial.differentiate_probabilists_hermite_series(c) for c in c2d.T]
     ).T
+
     res = beignet.polynomial.differentiate_probabilists_hermite_series(c2d, axis=0)
+
     torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [beignet.polynomial.differentiate_probabilists_hermite_series(c) for c in c2d]
     )
+
     res = beignet.polynomial.differentiate_probabilists_hermite_series(c2d, axis=1)
-    torch.testing.assert_close(res, tgt)
+
+    torch.testing.assert_close(
+        res,
+        tgt,
+    )
