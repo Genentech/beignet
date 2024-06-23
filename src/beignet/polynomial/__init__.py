@@ -100,8 +100,6 @@ from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
 from ._hermemulx import hermemulx
-from ._hermeroots import probabilists_hermite_series_roots
-from ._hermeweight import hermeweight
 from ._hermex import hermex
 from ._hermfromroots import hermfromroots
 from ._hermgauss import hermgauss
@@ -210,6 +208,7 @@ from ._probabilists_hermite_series_companion import (
 from ._probabilists_hermite_series_domain import probabilists_hermite_series_domain
 from ._probabilists_hermite_series_line import probabilists_hermite_series_line
 from ._probabilists_hermite_series_one import probabilists_hermite_series_one
+from ._probabilists_hermite_series_roots import probabilists_hermite_series_roots
 from ._probabilists_hermite_series_to_power_series import (
     probabilists_hermite_series_to_power_series,
 )
@@ -222,6 +221,7 @@ from ._probabilists_hermite_series_vandermonde_2d import (
 from ._probabilists_hermite_series_vandermonde_3d import (
     probabilists_hermite_series_vandermonde_3d,
 )
+from ._probabilists_hermite_series_weight import probabilists_hermite_series_weight
 from ._subtract_chebyshev_series import subtract_chebyshev_series
 from ._subtract_laguerre_series import subtract_laguerre_series
 from ._subtract_legendre_series import subtract_legendre_series
@@ -319,7 +319,7 @@ __all__ = [
     "probabilists_hermite_series_vandermonde_1d",
     "probabilists_hermite_series_vandermonde_2d",
     "probabilists_hermite_series_vandermonde_3d",
-    "hermeweight",
+    "probabilists_hermite_series_weight",
     "hermex",
     "fit_physicists_hermite_series",
     "hermfromroots",

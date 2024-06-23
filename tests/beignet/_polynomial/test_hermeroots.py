@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._hermefromroots
-import beignet.polynomial._hermeroots
+import beignet.polynomial._probabilists_hermite_series_roots
 import beignet.polynomial._trim_probabilists_hermite_series
 import numpy
 
