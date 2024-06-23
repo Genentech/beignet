@@ -3,13 +3,12 @@ import torch
 
 
 def test_physicists_hermite_series_companion():
-    for i in range(1, 5):
-        coef = torch.tensor([0] * i + [1])
+    for index in range(1, 5):
+        coef = torch.tensor([0] * index + [1])
 
-        assert beignet.polynomial.physicists_hermite_series_companion(coef).shape == (
-            i,
-            i,
-        )
+        output = beignet.polynomial.physicists_hermite_series_companion(coef)
+
+        assert output.shape == (index, index)
 
     output = beignet.polynomial.physicists_hermite_series_companion(
         torch.tensor([1, 2])
