@@ -5,7 +5,7 @@ import numpy
 from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coefficients
 
 
-def test_herme2poly():
+def test_probabilists_hermite_series_to_power_series():
     for i in range(10):
         numpy.testing.assert_almost_equal(
             beignet.polynomial._herme2poly.probabilists_hermite_series_to_power_series(

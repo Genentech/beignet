@@ -6,10 +6,10 @@ import numpy
 import torch
 
 
-def test_hermeder():
+def test_differentiate_probabilists_hermite_series():
     numpy.testing.assert_raises(
         TypeError,
-        beignet.polynomial._hermeder.differentiate_probabilists_hermite_series,
+        beignet.polynomial.differentiate_probabilists_hermite_series,
         [0],
         0.5,
     )

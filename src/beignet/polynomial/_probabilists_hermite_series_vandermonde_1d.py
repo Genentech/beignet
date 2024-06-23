@@ -1,6 +1,6 @@
 import operator
 
-import numpy
+import torch
 
 
 def probabilists_hermite_series_vandermonde_1d(x, deg):
@@ -8,13 +8,13 @@ def probabilists_hermite_series_vandermonde_1d(x, deg):
     if ideg < 0:
         raise ValueError("deg must be non-negative")
 
-    x = numpy.array(x, ndmin=1) + 0.0
+    x = torch.ravel(x) + 0.0
 
     dims = (ideg + 1,) + x.shape
 
     dtyp = x.dtype
 
-    v = numpy.empty(dims, dtype=dtyp)
+    v = torch.empty(dims, dtype=dtyp)
 
     v[0] = x * 0 + 1
 
@@ -23,4 +23,4 @@ def probabilists_hermite_series_vandermonde_1d(x, deg):
         for i in range(2, ideg + 1):
             v[i] = v[i - 1] * x - v[i - 2] * (i - 1)
 
-    return numpy.moveaxis(v, 0, -1)
+    return torch.moveaxis(v, 0, -1)

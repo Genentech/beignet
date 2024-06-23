@@ -1,26 +1,38 @@
 import beignet.polynomial
 import beignet.polynomial._evaluate_physicists_hermite_series_1d
 import beignet.polynomial._physicists_hermite_series_vandermonde_1d
-import numpy
+import torch.testing
 
 
 def test_physicists_hermite_series_vandermonde_1d():
-    x = numpy.arange(3)
-    v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(x, 3)
-    numpy.testing.assert_(v.shape == (3, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
-        numpy.testing.assert_almost_equal(
-            v[..., i],
-            beignet.polynomial.evaluate_physicists_hermite_series_1d(x, coef),
+    v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(
+        torch.arange(3),
+        3,
+    )
+
+    assert v.shape == (3, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            v[..., index],
+            beignet.polynomial.evaluate_physicists_hermite_series_1d(
+                torch.arange(3),
+                torch.tensor([0] * index + [1]),
+            ),
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
-    v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(x, 3)
-    numpy.testing.assert_(v.shape == (3, 2, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
-        numpy.testing.assert_almost_equal(
-            v[..., i],
-            beignet.polynomial.evaluate_physicists_hermite_series_1d(x, coef),
+    v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(
+        torch.tensor([[1, 2], [3, 4], [5, 6]]),
+        3,
+    )
+
+    assert v.shape == (3, 2, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            v[..., index],
+            beignet.polynomial.evaluate_physicists_hermite_series_1d(
+                torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                torch.tensor([0] * index + [1]),
+            ),
         )
