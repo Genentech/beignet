@@ -1,12 +1,16 @@
-import numpy
+import torch
+from torch import Tensor
 
 
-def chebpts1(npts):
-    _npts = int(npts)
-    if _npts != npts:
-        raise ValueError("npts must be integer")
+def chebpts1(input: Tensor) -> Tensor:
+    _npts = int(input)
+
+    if _npts != input:
+        raise ValueError
+
     if _npts < 1:
-        raise ValueError("npts must be >= 1")
+        raise ValueError
 
-    x = 0.5 * numpy.pi / _npts * numpy.arange(-_npts + 1, _npts + 1, 2)
-    return numpy.sin(x)
+    x = 0.5 * torch.pi / _npts * torch.arange(-_npts + 1, _npts + 1, 2)
+
+    return torch.sin(x)

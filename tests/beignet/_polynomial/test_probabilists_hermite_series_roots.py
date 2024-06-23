@@ -1,27 +1,34 @@
 import beignet.polynomial
-import beignet.polynomial._hermefromroots
-import beignet.polynomial._probabilists_hermite_series_roots
-import beignet.polynomial._trim_probabilists_hermite_series
-import numpy
+import torch.testing
 
 
 def test_probabilists_hermite_series_roots():
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1]), []
+    torch.testing.assert_close(
+        beignet.polynomial.probabilists_hermite_series_roots(
+            torch.tensor([1]),
+        ),
+        torch.tensor([], dtype=torch.float64),
     )
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1, 1]), [-1]
+
+    torch.testing.assert_close(
+        beignet.polynomial.probabilists_hermite_series_roots(
+            torch.tensor([1, 1]),
+        ),
+        torch.tensor([-1], dtype=torch.float64),
     )
-    for i in range(2, 5):
-        tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial._hermeroots.probabilists_hermite_series_roots(
-            beignet.polynomial._hermefromroots.hermefromroots(tgt)
-        )
-        numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
-                res, tolerance=1e-6
+
+    for index in range(2, 5):
+        torch.testing.assert_close(
+            beignet.polynomial.trim_probabilists_hermite_series(
+                beignet.polynomial.probabilists_hermite_series_roots(
+                    beignet.polynomial.hermefromroots(
+                        torch.linspace(-1, 1, index),
+                    )
+                ),
+                tolerance=1e-6,
             ),
-            beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
-                tgt, tolerance=1e-6
+            beignet.polynomial.trim_probabilists_hermite_series(
+                torch.linspace(-1, 1, index),
+                tolerance=1e-6,
             ),
         )

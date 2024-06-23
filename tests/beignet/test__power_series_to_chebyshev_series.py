@@ -1,7 +1,7 @@
 import beignet.polynomial
 import torch.testing
 
-from .test_polynomial import chebyshev_polynomial_coefficients
+from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_coefficients
 
 
 def test_power_series_to_chebyshev_series():

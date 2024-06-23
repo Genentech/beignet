@@ -1,7 +1,7 @@
 import beignet.polynomial
 import torch.testing
 
-from .test_polynomial import hermite_e_polynomial_coefficients
+from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coefficients
 
 
 def test_power_series_to_probabilists_hermite_series():

@@ -1,7 +1,7 @@
 import beignet.polynomial
 import torch.testing
 
-from .test_polynomial import laguerre_polynomial_coefficients
+from tests.beignet._polynomial.test_polynomial import laguerre_polynomial_coefficients
 
 
 def test_power_series_to_laguerre_series():

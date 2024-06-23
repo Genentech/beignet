@@ -1,26 +1,28 @@
 import beignet.polynomial
-import numpy
+import pytest
+import torch
 
 
 def test_probabilists_hermite_series_companion():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial.probabilists_hermite_series_companion,
-        [],
-    )
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial.probabilists_hermite_series_companion,
-        [1],
-    )
-
-    for i in range(1, 5):
-        coef = [0] * i + [1]
-        numpy.testing.assert_(
-            beignet.polynomial.probabilists_hermite_series_companion(coef).shape
-            == (i, i)
+    with pytest.raises(ValueError):
+        beignet.polynomial.probabilists_hermite_series_companion(
+            torch.tensor([]),
         )
 
-    numpy.testing.assert_(
-        beignet.polynomial.probabilists_hermite_series_companion([1, 2])[0, 0] == -0.5
+    with pytest.raises(ValueError):
+        beignet.polynomial.probabilists_hermite_series_companion(
+            torch.tensor([1]),
+        )
+
+    for index in range(1, 5):
+        output = beignet.polynomial.probabilists_hermite_series_companion(
+            torch.tensor([0] * index + [1]),
+        )
+
+        assert output.shape == (index, index)
+
+    output = beignet.polynomial.probabilists_hermite_series_companion(
+        torch.tensor([1, 2]),
     )
+
+    assert output[0, 0] == -0.5
