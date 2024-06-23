@@ -1,6 +1,5 @@
 import operator
 
-import numpy
 import torch
 
 
@@ -10,7 +9,7 @@ def power_series_vandermonde_1d(input, degree):
     if degree < 0:
         raise ValueError
 
-    input = numpy.array(input, ndmin=1) + 0.0
+    input = torch.ravel(input) + 0.0
 
     output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
