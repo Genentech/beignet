@@ -5,19 +5,19 @@ import torch
 
 def test_laguerre_series_vandermonde_1d():
     x = torch.arange(3)
-    v = beignet.polynomial._lagvander.laguerre_series_vandermonde_1d(x, 3)
+    v = beignet.polynomial.laguerre_series_vandermonde_1d(x, 3)
     assert v.shape == (3, 4)
     for i in range(4):
         coef = [0] * i + [1]
         torch.testing.assert_close(
-            v[..., i], beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef)
+            v[..., i], beignet.polynomial.evaluate_laguerre_series_1d(x, coef)
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
-    v = beignet.polynomial._lagvander.laguerre_series_vandermonde_1d(x, 3)
+    v = beignet.polynomial.laguerre_series_vandermonde_1d(x, 3)
     assert v.shape == (3, 2, 4)
     for i in range(4):
         coef = [0] * i + [1]
         torch.testing.assert_close(
-            v[..., i], beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef)
+            v[..., i], beignet.polynomial.evaluate_laguerre_series_1d(x, coef)
         )

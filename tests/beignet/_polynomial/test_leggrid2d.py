@@ -13,10 +13,10 @@ def test_leggrid2d():
     x1, x2, x3 = x
     y1, y2, y3 = y
 
-    tgt = numpy.einsum("i,j->ij", y1, y2)
-    res = beignet.polynomial._leggrid2d.leggrid2d(x1, x2, c2d)
+    tgt = torch.einsum("i,j->ij", y1, y2)
+    res = beignet.polynomial.leggrid2d(x1, x2, c2d)
     torch.testing.assert_close(res, tgt)
 
-    z = numpy.ones((2, 3))
-    res = beignet.polynomial._leggrid2d.leggrid2d(z, z, c2d)
+    z = torch.ones((2, 3))
+    res = beignet.polynomial.leggrid2d(z, z, c2d)
     assert res.shape == (2, 3) * 2

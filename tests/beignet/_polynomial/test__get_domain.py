@@ -15,7 +15,13 @@ def test__get_domain():
                 ],
             )
         ),
-        [-1, +3],
+        torch.tensor(
+            [
+                -1,
+                +3,
+            ],
+            dtype=torch.float64,
+        ),
     )
 
     torch.testing.assert_close(
@@ -29,8 +35,10 @@ def test__get_domain():
                 ],
             ),
         ),
-        [
-            0.0 - 1.0j,
-            2.0 + 1.0j,
-        ],
+        torch.tensor(
+            [
+                0.0 - 1.0j,
+                2.0 + 1.0j,
+            ],
+        ),
     )
