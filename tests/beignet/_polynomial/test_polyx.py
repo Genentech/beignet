@@ -4,6 +4,6 @@ import torch
 
 def test_polyx():
     torch.testing.assert_close(
-        beignet.polynomial.polyx,
+        beignet.polynomial.power_series_x,
         torch.tensor([0, 1]),
     )

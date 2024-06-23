@@ -1,3 +1,3 @@
 import torch
 
-legzero = torch.tensor([0])
+legendre_series_zero = torch.tensor([0])

@@ -18,7 +18,7 @@ def test_lagpow():
                 [c] * j,
                 numpy.array([1]),
             )
-            res = beignet.polynomial._lagpow.lagpow(c, j)
+            res = beignet.polynomial._lagpow.pow_laguerre_series(c, j)
             torch.testing.assert_close(
                 beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
                 beignet.polynomial._lagtrim.trim_laguerre_series(tgt, tolerance=1e-6),

@@ -1,3 +1,3 @@
 import torch
 
-legone = torch.tensor([1])
+legendre_series_one = torch.tensor([1])

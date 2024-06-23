@@ -1,3 +1,3 @@
 import torch
 
-lagzero = torch.tensor([0])
+laguerre_series_zero = torch.tensor([0])

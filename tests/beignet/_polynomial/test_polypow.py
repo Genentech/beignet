@@ -10,7 +10,7 @@ def test_polypow():
             c = torch.arange(j + 1)
             torch.testing.assert_close(
                 beignet.polynomial.trim_power_series(
-                    beignet.polynomial.polypow(c, k),
+                    beignet.polynomial.pow_power_series(c, k),
                     tolerance=1e-6,
                 ),
                 beignet.polynomial.trim_power_series(

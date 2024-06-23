@@ -1,3 +1,3 @@
 import torch
 
-lagone = torch.tensor([1])
+laguerre_series_one = torch.tensor([1])

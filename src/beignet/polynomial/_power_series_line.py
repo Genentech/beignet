@@ -1,7 +1,7 @@
 import torch
 
 
-def polyline(input, other):
+def power_series_line(input, other):
     if other != 0:
         return torch.tensor([input, other])
     else:

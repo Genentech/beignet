@@ -128,24 +128,24 @@ from ._integrate_power_series import integrate_power_series
 from ._integrate_probabilists_hermite_series import (
     integrate_probabilists_hermite_series,
 )
-from ._lagdomain import lagdomain
+from ._lagdomain import laguerre_series_domain
 from ._lagfromroots import lagfromroots
 from ._laggauss import laggauss
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
-from ._lagline import lagline
+from ._lagline import laguerre_series_line
 from ._lagmulx import lagmulx
-from ._lagone import lagone
-from ._lagpow import lagpow
+from ._lagone import laguerre_series_one
+from ._lagpow import pow_laguerre_series
 from ._laguerre_series_companion import laguerre_series_companion
 from ._laguerre_series_roots import laguerre_series_roots
 from ._laguerre_series_to_power_series import laguerre_series_to_power_series
 from ._laguerre_series_vandermonde_1d import laguerre_series_vandermonde_1d
 from ._laguerre_series_vandermonde_2d import laguerre_series_vandermonde_2d
 from ._laguerre_series_vandermonde_3d import laguerre_series_vandermonde_3d
-from ._lagweight import lagweight
-from ._lagx import lagx
-from ._legdomain import legdomain
+from ._lagweight import laguerre_series_weight
+from ._lagx import laguerre_series_x
+from ._legdomain import legendre_series_domain
 from ._legendre_series_companion import legendre_series_companion
 from ._legendre_series_roots import legendre_series_roots
 from ._legendre_series_to_power_series import legendre_series_to_power_series
@@ -156,13 +156,13 @@ from ._legfromroots import legfromroots
 from ._leggauss import leggauss
 from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
-from ._legline import legline
+from ._legline import legendre_series_line
 from ._legmulx import legmulx
-from ._legone import legone
-from ._legpow import legpow
-from ._legweight import legweight
-from ._legx import legx
-from ._legzero import legzero
+from ._legone import legendre_series_one
+from ._legpow import pow_legendre_series
+from ._legweight import legendre_series_weight
+from ._legx import legendre_series_x
+from ._legzero import legendre_series_zero
 from ._multiply_chebyshev_series import multiply_chebyshev_series
 from ._multiply_laguerre_series import multiply_laguerre_series
 from ._multiply_legendre_series import multiply_legendre_series
@@ -182,18 +182,16 @@ from ._physicists_hermite_series_vandermonde_2d import (
 from ._physicists_hermite_series_vandermonde_3d import (
     physicists_hermite_series_vandermonde_3d,
 )
-from ._polydomain import polydomain
 from ._polyfromroots import polyfromroots
 from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
-from ._polyline import polyline
 from ._polymulx import polymulx
-from ._polyone import polyone
-from ._polypow import polypow
 from ._polyvalfromroots import polyvalfromroots
-from ._polyx import polyx
-from ._polyzero import polyzero
+from ._pow_power_series import pow_power_series
 from ._power_series_companion import power_series_companion
+from ._power_series_domain import power_series_domain
+from ._power_series_line import power_series_line
+from ._power_series_one import power_series_one
 from ._power_series_roots import power_series_roots
 from ._power_series_to_chebyshev_series import power_series_to_chebyshev_series
 from ._power_series_to_laguerre_series import power_series_to_laguerre_series
@@ -207,6 +205,8 @@ from ._power_series_to_probabilists_hermite_series import (
 from ._power_series_vandermonde_1d import power_series_vandermonde_1d
 from ._power_series_vandermonde_2d import power_series_vandermonde_2d
 from ._power_series_vandermonde_3d import power_series_vandermonde_3d
+from ._power_series_x import power_series_x
+from ._power_series_zero import power_series_zero
 from ._probabilists_hermite_series_companion import (
     probabilists_hermite_series_companion,
 )
@@ -348,18 +348,18 @@ __all__ = [
     "laguerre_series_companion",
     "differentiate_laguerre_series",
     "divide_laguerre_series",
-    "lagdomain",
+    "laguerre_series_domain",
     "fit_laguerre_series",
     "lagfromroots",
     "laggauss",
     "laggrid2d",
     "laggrid3d",
     "integrate_laguerre_series",
-    "lagline",
+    "laguerre_series_line",
     "multiply_laguerre_series",
     "lagmulx",
-    "lagone",
-    "lagpow",
+    "laguerre_series_one",
+    "pow_laguerre_series",
     "laguerre_series_roots",
     "subtract_laguerre_series",
     "trim_laguerre_series",
@@ -369,25 +369,25 @@ __all__ = [
     "laguerre_series_vandermonde_1d",
     "laguerre_series_vandermonde_2d",
     "laguerre_series_vandermonde_3d",
-    "lagweight",
-    "lagx",
+    "laguerre_series_weight",
+    "laguerre_series_x",
     "legendre_series_to_power_series",
     "add_legendre_series",
     "legendre_series_companion",
     "differentiate_legendre_series",
     "divide_legendre_series",
-    "legdomain",
+    "legendre_series_domain",
     "fit_legendre_series",
     "legfromroots",
     "leggauss",
     "leggrid2d",
     "leggrid3d",
     "integrate_legendre_series",
-    "legline",
+    "legendre_series_line",
     "multiply_legendre_series",
     "legmulx",
-    "legone",
-    "legpow",
+    "legendre_series_one",
+    "pow_legendre_series",
     "legendre_series_roots",
     "subtract_legendre_series",
     "trim_legendre_series",
@@ -397,9 +397,9 @@ __all__ = [
     "legendre_series_vandermonde_1d",
     "legendre_series_vandermonde_2d",
     "legendre_series_vandermonde_3d",
-    "legweight",
-    "legx",
-    "legzero",
+    "legendre_series_weight",
+    "legendre_series_x",
+    "legendre_series_zero",
     "power_series_to_chebyshev_series",
     "power_series_to_physicists_hermite_series",
     "power_series_to_probabilists_hermite_series",
@@ -409,17 +409,17 @@ __all__ = [
     "power_series_companion",
     "differentiate_power_series",
     "divide_power_series",
-    "polydomain",
+    "power_series_domain",
     "fit_power_series",
     "polyfromroots",
     "polygrid2d",
     "polygrid3d",
     "integrate_power_series",
-    "polyline",
+    "power_series_line",
     "multiply_power_series",
     "polymulx",
-    "polyone",
-    "polypow",
+    "power_series_one",
+    "pow_power_series",
     "power_series_roots",
     "subtract_power_series",
     "trim_power_series",
@@ -430,6 +430,6 @@ __all__ = [
     "power_series_vandermonde_1d",
     "power_series_vandermonde_2d",
     "power_series_vandermonde_3d",
-    "polyx",
-    "polyzero",
+    "power_series_x",
+    "power_series_zero",
 ]

@@ -5,6 +5,6 @@ import torch
 
 def test_lagzero():
     torch.testing.assert_close(
-        beignet.polynomial._lagzero.lagzero,
+        beignet.polynomial._lagzero.laguerre_series_zero,
         torch.tensor([0]),
     )

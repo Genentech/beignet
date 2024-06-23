@@ -1,3 +1,3 @@
 import torch
 
-lagx = torch.tensor([1, -1])
+laguerre_series_x = torch.tensor([1, -1])

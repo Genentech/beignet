@@ -17,7 +17,7 @@ def test_legpow():
                 [c] * j,
                 numpy.array([1]),
             )
-            res = beignet.polynomial._legpow.legpow(c, j)
+            res = beignet.polynomial._legpow.pow_legendre_series(c, j)
             torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),

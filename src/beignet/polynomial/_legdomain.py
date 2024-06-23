@@ -1,3 +1,3 @@
 import torch
 
-legdomain = torch.tensor([-1.0, 1.0])
+legendre_series_domain = torch.tensor([-1.0, 1.0])
