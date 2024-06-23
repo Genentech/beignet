@@ -1,10 +1,11 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 from .__trim_sequence import _trim_sequence
 
 
-def _div(func, a, b):
+def _div(func, a: Tensor, b: Tensor) -> (Tensor, Tensor):
     a, b = _as_series([a, b])
 
     if b[-1] == 0:

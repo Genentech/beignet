@@ -1,25 +1,29 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 
 
-def _pow(func, input, exponent, maximum_exponent):
+def _pow(func, input: Tensor, exponent, maximum_exponent) -> Tensor:
     (input,) = _as_series([input])
 
     exponent = int(exponent)
 
     if exponent != exponent or exponent < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maximum_exponent is not None and exponent > maximum_exponent:
         raise ValueError
-    elif exponent == 0:
+
+    if maximum_exponent is not None and exponent > maximum_exponent:
+        raise ValueError
+
+    if exponent == 0:
         return torch.tensor([1], dtype=input.dtype)
-    elif exponent == 1:
+
+    if exponent == 1:
         return input
-    else:
-        output = input
 
-        for _ in range(2, exponent + 1):
-            output = func(output, input)
+    output = input
 
-        return output
+    for _ in range(2, exponent + 1):
+        output = func(output, input)
+
+    return output

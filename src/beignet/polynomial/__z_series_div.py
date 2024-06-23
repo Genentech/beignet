@@ -1,49 +1,55 @@
 import torch
+from torch import Tensor
 
 
-def _z_series_div(z1, z2):
-    lc1 = len(z1)
-    lc2 = len(z2)
+def _z_series_div(input: Tensor, other: Tensor) -> (Tensor, Tensor):
+    lc1 = len(input)
+    lc2 = len(other)
 
     if lc2 == 1:
-        z1 /= z2
+        input /= other
 
-        return z1, z1[:1] * 0
-    elif lc1 < lc2:
-        return z1[:1] * 0, z1
-    else:
-        dlen = lc1 - lc2
+        return input, input[:1] * 0
 
-        scl = z2[0]
+    if lc1 < lc2:
+        return input[:1] * 0, input
 
-        z2 = z2 / scl
+    dlen = lc1 - lc2
 
-        quotient = torch.empty(dlen + 1, dtype=z1.dtype)
+    scl = other[0]
 
-        i = 0
+    other = other / scl
 
-        j = dlen
+    quotient = torch.empty(dlen + 1, dtype=input.dtype)
 
-        while i < j:
-            r = z1[i]
-            quotient[i] = z1[i]
-            quotient[dlen - i] = r
-            tmp = r * z2
-            z1[i : i + lc2] -= tmp
-            z1[j : j + lc2] -= tmp
-            i += 1
-            j -= 1
+    j = 0
 
-        r = z1[i]
+    k = dlen
 
-        quotient[i] = r
+    while j < k:
+        r = input[j]
 
-        tmp = r * z2
+        quotient[j] = input[j]
+        quotient[dlen - j] = r
 
-        z1[i : i + lc2] -= tmp
+        tmp = r * other
 
-        quotient /= scl
+        input[j : j + lc2] -= tmp
+        input[k : k + lc2] -= tmp
 
-        remainder = z1[i + 1 : i - 1 + lc2]
+        j = j + 1
+        k = k - 1
 
-        return quotient, remainder
+    r = input[j]
+
+    quotient[j] = r
+
+    tmp = r * other
+
+    input[j : j + lc2] -= tmp
+
+    quotient /= scl
+
+    remainder = input[j + 1 : j - 1 + lc2]
+
+    return quotient, remainder

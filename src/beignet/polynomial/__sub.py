@@ -1,7 +1,9 @@
+from torch import Tensor
+
 from .__as_series import _as_series
 
 
-def _sub(input, other):
+def _sub(input: Tensor, other: Tensor) -> Tensor:
     (
         input,
         other,

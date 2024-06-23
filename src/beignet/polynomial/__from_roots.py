@@ -6,28 +6,28 @@ from .__as_series import _as_series
 def _from_roots(line_f, mul_f, roots):
     if len(roots) == 0:
         return torch.ones(1, dtype=roots.dtype)
-    else:
-        (roots,) = _as_series([roots], trim=False)
 
-        roots = torch.sort(roots)
+    (roots,) = _as_series([roots], trim=False)
 
-        p = []
+    roots, _ = torch.sort(roots)
 
-        for root in roots:
-            p.append(line_f(-root, 1))
+    p = []
 
-        n = len(p)
+    for root in roots:
+        p.append(line_f(-root, 1))
 
-        while n > 1:
-            m, r = divmod(n, 2)
+    n = len(p)
 
-            tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
+    while n > 1:
+        m, r = divmod(n, 2)
 
-            if r:
-                tmp[0] = mul_f(tmp[0], p[-1])
+        tmp = [mul_f(p[i], p[i + m]) for i in range(m)]
 
-            p = tmp
+        if r:
+            tmp[0] = mul_f(tmp[0], p[-1])
 
-            n = m
+        p = tmp
 
-        return p[0]
+        n = m
+
+    return p[0]
