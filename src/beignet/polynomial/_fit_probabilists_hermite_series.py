@@ -5,4 +5,12 @@ from ._probabilists_hermite_series_vandermonde_1d import (
 
 
 def fit_probabilists_hermite_series(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(probabilists_hermite_series_vandermonde_1d, x, y, deg, rcond, full, w)
+    return _fit(
+        probabilists_hermite_series_vandermonde_1d,
+        x,
+        y,
+        deg,
+        rcond,
+        full,
+        w,
+    )
