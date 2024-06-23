@@ -1,11 +1,11 @@
 import beignet.polynomial
+import beignet.polynomial._evaluate_laguerre_series_3d
 import beignet.polynomial._evaluate_power_series_1d
-import beignet.polynomial._evaluate_probabilists_hermite_series_3d
 import numpy
 
 
-def test_evaluate_3d_probabilists_hermite_series():
-    c1d = numpy.array([4.0, 2.0, 3.0])
+def test_evaluate_laguerre_series_3d():
+    c1d = numpy.array([9.0, -14.0, 6.0])
 
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
 
@@ -17,7 +17,7 @@ def test_evaluate_3d_probabilists_hermite_series():
 
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._hermeval3d.evaluate_probabilists_hermite_series_3d,
+        beignet.polynomial._lagval3d.evaluate_laguerre_series_3d,
         x1,
         x2,
         x3[:2],
@@ -25,13 +25,9 @@ def test_evaluate_3d_probabilists_hermite_series():
     )
 
     tgt = y1 * y2 * y3
-    res = beignet.polynomial._hermeval3d.evaluate_probabilists_hermite_series_3d(
-        x1, x2, x3, c3d
-    )
+    res = beignet.polynomial._lagval3d.evaluate_laguerre_series_3d(x1, x2, x3, c3d)
     numpy.testing.assert_almost_equal(res, tgt)
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial._hermeval3d.evaluate_probabilists_hermite_series_3d(
-        z, z, z, c3d
-    )
+    res = beignet.polynomial._lagval3d.evaluate_laguerre_series_3d(z, z, z, c3d)
     numpy.testing.assert_(res.shape == (2, 3))

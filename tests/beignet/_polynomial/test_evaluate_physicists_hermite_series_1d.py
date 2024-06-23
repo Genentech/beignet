@@ -7,7 +7,7 @@ import torch
 from tests.beignet._polynomial.test_polynomial import hermite_polynomial_coefficients
 
 
-def test_evaluate_1d_physicists_hermite_series():
+def test_evaluate_physicists_hermite_series_1d():
     torch.testing.assert_close(
         beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d([], [1]).size,
         0,

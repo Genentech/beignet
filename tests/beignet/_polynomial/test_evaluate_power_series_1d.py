@@ -3,7 +3,7 @@ import beignet.polynomial._evaluate_power_series_1d
 import torch
 
 
-def test_evaluate_1d_power_series():
+def test_evaluate_power_series_1d():
     assert beignet.polynomial.evaluate_power_series_1d([], [1]).shape == (0,)
 
     x = torch.linspace(-1, 1, 50)

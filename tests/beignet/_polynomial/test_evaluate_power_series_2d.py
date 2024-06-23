@@ -3,7 +3,7 @@ import numpy
 import torch.testing
 
 
-def test_evaluate_2d_power_series():
+def test_evaluate_power_series_2d():
     c1d = numpy.array([1.0, 2.0, 3.0])
 
     c2d = numpy.einsum("i,j->ij", c1d, c1d)

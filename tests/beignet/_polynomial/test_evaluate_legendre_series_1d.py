@@ -7,7 +7,7 @@ import torch
 from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients
 
 
-def test_evaluate_1d_legendre_series():
+def test_evaluate_legendre_series_1d():
     torch.testing.assert_close(
         beignet.polynomial.evaluate_legendre_series_1d([], [1]).size,
         0,
