@@ -1,11 +1,12 @@
 import math
 
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 
 
-def chebyshev_series_companion(input):
+def chebyshev_series_companion(input: Tensor) -> Tensor:
     (input,) = _as_series([input])
 
     if len(input) < 2:
