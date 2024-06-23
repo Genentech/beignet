@@ -5,7 +5,7 @@ from .__as_series import _as_series
 from ._chebyshev_series_companion import chebyshev_series_companion
 
 
-def chebroots(c):
+def chebyshev_series_roots(c):
     [c] = _as_series([c])
     if len(c) < 2:
         return torch.tensor([], dtype=c.dtype)

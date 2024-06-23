@@ -23,13 +23,11 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebder import chebder
 from ._chebdomain import chebdomain
 from ._chebfromroots import chebfromroots
 from ._chebgauss import chebgauss
 from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
-from ._chebint import chebint
 from ._chebinterpolate import chebinterpolate
 from ._chebline import chebline
 from ._chebmulx import chebmulx
@@ -37,15 +35,16 @@ from ._chebone import chebone
 from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
-from ._chebroots import chebroots
 from ._chebweight import chebweight
 from ._chebx import chebx
 from ._chebyshev_series_companion import chebyshev_series_companion
+from ._chebyshev_series_roots import chebyshev_series_roots
 from ._chebyshev_series_to_power_series import chebyshev_series_to_power_series
 from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
 from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
+from ._differentiate_chebyshev_series import differentiate_chebyshev_series
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
 from ._divide_legendre_series import divide_legendre_series
@@ -83,6 +82,7 @@ from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
 from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
 from ._fit_chebyshev_series import fit_chebyshev_series
+from ._fit_laguerre_series import fit_laguerre_series
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
 from ._hermdomain import hermdomain
@@ -121,24 +121,24 @@ from ._hermvander2d import hermvander2d
 from ._hermvander3d import hermvander3d
 from ._hermweight import hermweight
 from ._hermx import hermx
-from ._lagcompanion import lagcompanion
+from ._integrate_chebyshev_series import integrate_chebyshev_series
+from ._integrate_laguerre_series import integrate_laguerre_series
 from ._lagder import lagder
 from ._lagdomain import lagdomain
-from ._lagfit import lagfit
 from ._lagfromroots import lagfromroots
 from ._laggauss import laggauss
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
-from ._lagint import lagint
 from ._lagline import lagline
 from ._lagmulx import lagmulx
 from ._lagone import lagone
 from ._lagpow import lagpow
-from ._lagroots import lagroots
+from ._laguerre_series_companion import laguerre_series_companion
+from ._laguerre_series_roots import laguerre_series_roots
 from ._laguerre_series_to_power_series import laguerre_series_to_power_series
-from ._lagvander import lagvander
-from ._lagvander2d import lagvander2d
-from ._lagvander3d import lagvander3d
+from ._laguerre_series_vandermonde_1d import laguerre_series_vandermonde_1d
+from ._laguerre_series_vandermonde_2d import laguerre_series_vandermonde_2d
+from ._laguerre_series_vandermonde_3d import laguerre_series_vandermonde_3d
 from ._lagweight import lagweight
 from ._lagx import lagx
 from ._legcompanion import legcompanion
@@ -238,7 +238,7 @@ __all__ = [
     "chebyshev_series_to_power_series",
     "add_chebyshev_series",
     "chebyshev_series_companion",
-    "chebder",
+    "differentiate_chebyshev_series",
     "divide_chebyshev_series",
     "chebdomain",
     "fit_chebyshev_series",
@@ -246,7 +246,7 @@ __all__ = [
     "chebgauss",
     "chebgrid2d",
     "chebgrid3d",
-    "chebint",
+    "integrate_chebyshev_series",
     "chebinterpolate",
     "chebline",
     "multiply_chebyshev_series",
@@ -255,7 +255,7 @@ __all__ = [
     "chebpow",
     "chebpts1",
     "chebpts2",
-    "chebroots",
+    "chebyshev_series_roots",
     "subtract_chebyshev_series",
     "trim_chebyshev_series",
     "evaluate_chebyshev_series_1d",
@@ -325,30 +325,30 @@ __all__ = [
     "hermx",
     "laguerre_series_to_power_series",
     "add_laguerre_series",
-    "lagcompanion",
+    "laguerre_series_companion",
     "lagder",
     "divide_laguerre_series",
     "lagdomain",
-    "lagfit",
+    "fit_laguerre_series",
     "lagfromroots",
     "laggauss",
     "laggrid2d",
     "laggrid3d",
-    "lagint",
+    "integrate_laguerre_series",
     "lagline",
     "multiply_laguerre_series",
     "lagmulx",
     "lagone",
     "lagpow",
-    "lagroots",
+    "laguerre_series_roots",
     "subtract_laguerre_series",
     "trim_laguerre_series",
     "evaluate_1d_laguerre_series",
     "evaluate_2d_laguerre_series",
     "evaluate_3d_laguerre_series",
-    "lagvander",
-    "lagvander2d",
-    "lagvander3d",
+    "laguerre_series_vandermonde_1d",
+    "laguerre_series_vandermonde_2d",
+    "laguerre_series_vandermonde_3d",
     "lagweight",
     "lagx",
     "legendre_series_to_power_series",

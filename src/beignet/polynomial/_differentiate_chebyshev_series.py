@@ -5,7 +5,7 @@ import numpy
 from .__normalize_axis_index import _normalize_axis_index
 
 
-def chebder(c, m=1, scl=1, axis=0):
+def differentiate_chebyshev_series(c, m=1, scl=1, axis=0):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)

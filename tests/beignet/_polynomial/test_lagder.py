@@ -1,6 +1,6 @@
 import beignet.polynomial
+import beignet.polynomial._integrate_laguerre_series
 import beignet.polynomial._lagder
-import beignet.polynomial._lagint
 import beignet.polynomial._trim_laguerre_series
 import numpy
 import torch
@@ -22,7 +22,7 @@ def test_lagder():
         for j in range(2, 5):
             tgt = [0] * i + [1]
             res = beignet.polynomial._lagder.lagder(
-                beignet.polynomial._lagint.lagint(tgt, m=j), m=j
+                beignet.polynomial._lagint.integrate_laguerre_series(tgt, m=j), m=j
             )
             numpy.testing.assert_almost_equal(
                 beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
@@ -33,7 +33,9 @@ def test_lagder():
         for j in range(2, 5):
             tgt = [0] * i + [1]
             res = beignet.polynomial._lagder.lagder(
-                beignet.polynomial._lagint.lagint(tgt, m=j, scl=2), m=j, scl=0.5
+                beignet.polynomial._lagint.integrate_laguerre_series(tgt, m=j, scl=2),
+                m=j,
+                scl=0.5,
             )
             numpy.testing.assert_almost_equal(
                 beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),

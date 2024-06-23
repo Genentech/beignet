@@ -3,7 +3,7 @@ import numpy
 from .__as_series import _as_series
 
 
-def lagcompanion(c):
+def laguerre_series_companion(c):
     [c] = _as_series([c])
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
