@@ -3,7 +3,9 @@ from torch import Tensor
 
 
 def evaluate_probabilists_hermite_series_1d(
-    x: Tensor, c: Tensor, tensor: bool = True
+    x: Tensor,
+    c: Tensor,
+    tensor: bool = True,
 ) -> Tensor:
     c = torch.ravel(c)
 

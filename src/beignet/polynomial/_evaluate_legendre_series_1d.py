@@ -2,7 +2,11 @@ import torch
 from torch import Tensor
 
 
-def evaluate_legendre_series_1d(x: Tensor, c: Tensor, tensor: bool = True) -> Tensor:
+def evaluate_legendre_series_1d(
+    x: Tensor,
+    c: Tensor,
+    tensor: bool = True,
+) -> Tensor:
     c = torch.ravel(c)
 
     if tensor:
