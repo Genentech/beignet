@@ -22,4 +22,6 @@ def test_evaluate_chebyshev_series_2d():
         beignet.polynomial.evaluate_chebyshev_series_2d(x1, x2, c2d), y1 * y2
     )
     z = numpy.ones((2, 3))
-    assert beignet.polynomial.evaluate_chebyshev_series_2d(z, z, c2d).shape == (2, 3)
+
+    output = beignet.polynomial.evaluate_chebyshev_series_2d(z, z, c2d)
+    assert output.shape == (2, 3)
