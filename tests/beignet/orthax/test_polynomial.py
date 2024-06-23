@@ -39,72 +39,74 @@ def test_polyx():
     numpy.testing.assert_equal(beignet.orthax.polyx, numpy.array([0, 1]))
 
 
-class TestArithmetic:
-    def test_polyadd(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] += 1
-                res = beignet.orthax.polyadd([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+def test_polyadd():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] += 1
+            res = beignet.orthax.polyadd([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_polysub(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] -= 1
-                res = beignet.orthax.polysub([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_polymulx(self):
-        numpy.testing.assert_array_equal(beignet.orthax.polymulx([0]), [0, 0])
-        numpy.testing.assert_array_equal(beignet.orthax.polymulx([1]), [0, 1])
-        for i in range(1, 5):
-            ser = [0] * i + [1]
-            tgt = [0] * (i + 1) + [1]
-            numpy.testing.assert_array_equal(beignet.orthax.polymulx(ser), tgt)
+def test_polysub():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] -= 1
+            res = beignet.orthax.polysub([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_polymul(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(i + j + 1)
-                tgt[i + j] += 1
-                res = beignet.orthax.polymul([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_polydiv(self):
-        quo, rem = beignet.orthax.polydiv([2], [2])
-        numpy.testing.assert_array_equal(quo, [1])
-        numpy.testing.assert_array_equal(rem, [0])
-        quo, rem = beignet.orthax.polydiv([2, 2], [2])
-        numpy.testing.assert_array_equal(quo, (1, 1))
-        numpy.testing.assert_array_equal(rem, [0])
+def test_polymulx():
+    numpy.testing.assert_array_equal(beignet.orthax.polymulx([0]), [0, 0])
+    numpy.testing.assert_array_equal(beignet.orthax.polymulx([1]), [0, 1])
+    for i in range(1, 5):
+        ser = [0] * i + [1]
+        tgt = [0] * (i + 1) + [1]
+        numpy.testing.assert_array_equal(beignet.orthax.polymulx(ser), tgt)
 
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                ci = [0.0] * i + [1.0, 2.0]
-                cj = [0.0] * j + [1.0, 2.0]
-                tgt = beignet.orthax.polyadd(ci, cj)
-                quo, rem = beignet.orthax.polydiv(tgt, ci)
-                res = beignet.orthax.polyadd(beignet.orthax.polymul(quo, ci), rem)
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_polypow(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                c = numpy.arange(i + 1)
-                tgt = functools.reduce(
-                    beignet.orthax.polymul, [c] * j, numpy.array([1])
-                )
-                res = beignet.orthax.polypow(c, j)
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+def test_polymul():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(i + j + 1)
+            tgt[i + j] += 1
+            res = beignet.orthax.polymul([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+
+
+def test_polydiv():
+    quo, rem = beignet.orthax.polydiv([2], [2])
+    numpy.testing.assert_array_equal(quo, [1])
+    numpy.testing.assert_array_equal(rem, [0])
+    quo, rem = beignet.orthax.polydiv([2, 2], [2])
+    numpy.testing.assert_array_equal(quo, (1, 1))
+    numpy.testing.assert_array_equal(rem, [0])
+
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            ci = [0.0] * i + [1.0, 2.0]
+            cj = [0.0] * j + [1.0, 2.0]
+            tgt = beignet.orthax.polyadd(ci, cj)
+            quo, rem = beignet.orthax.polydiv(tgt, ci)
+            res = beignet.orthax.polyadd(beignet.orthax.polymul(quo, ci), rem)
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+
+
+def test_polypow():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            c = numpy.arange(i + 1)
+            tgt = functools.reduce(beignet.orthax.polymul, [c] * j, numpy.array([1]))
+            res = beignet.orthax.polypow(c, j)
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
 
 class TestEvaluation:
