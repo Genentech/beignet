@@ -456,84 +456,84 @@ class TestFitting:
         numpy.testing.assert_array_almost_equal(coef1, coef2)
 
 
-class TestCompanion:
-    def test_raises(self):
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [])
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [1])
+def test_legcompanion():
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [1])
 
-    def test_dimensions(self):
-        for i in range(1, 5):
-            coef = [0] * i + [1]
-            numpy.testing.assert_(beignet.orthax.legcompanion(coef).shape == (i, i))
+    for i in range(1, 5):
+        coef = [0] * i + [1]
+        numpy.testing.assert_(beignet.orthax.legcompanion(coef).shape == (i, i))
 
-    def test_linear_root(self):
-        numpy.testing.assert_(beignet.orthax.legcompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.orthax.legcompanion([1, 2])[0, 0] == -0.5)
 
 
-class TestGauss:
-    def test_100(self):
-        x, w = beignet.orthax.leggauss(100)
+def test_leggauss():
+    x, w = beignet.orthax.leggauss(100)
 
-        v = beignet.orthax.legvander(x, 99)
-        vv = numpy.dot(v.T * w, v)
-        vd = 1 / numpy.sqrt(vv.diagonal())
-        vv = vd[:, None] * vv * vd
-        numpy.testing.assert_array_almost_equal(vv, numpy.eye(100))
+    v = beignet.orthax.legvander(x, 99)
+    vv = numpy.dot(v.T * w, v)
+    vd = 1 / numpy.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    numpy.testing.assert_array_almost_equal(vv, numpy.eye(100))
 
-        tgt = 2.0
-        numpy.testing.assert_array_almost_equal(w.sum(), tgt)
+    tgt = 2.0
+    numpy.testing.assert_array_almost_equal(w.sum(), tgt)
 
 
-class TestMisc:
-    def test_legfromroots(self):
-        res = beignet.orthax.legfromroots([])
-        numpy.testing.assert_array_almost_equal(trim(res), [1])
-        for i in range(1, 5):
-            roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.orthax.legfromroots(roots)
-            res = beignet.orthax.legval(roots, pol)
-            tgt = 0
-            numpy.testing.assert_(len(pol) == i + 1)
-            numpy.testing.assert_array_almost_equal(beignet.orthax.leg2poly(pol)[-1], 1)
-            numpy.testing.assert_array_almost_equal(res, tgt)
-
-    def test_legroots(self):
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1]), [])
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1, 2]), [-0.5])
-        for i in range(2, 5):
-            tgt = numpy.linspace(-1, 1, i)
-            res = beignet.orthax.legroots(beignet.orthax.legfromroots(tgt))
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-    def test_legtrim(self):
-        coef = [2, -1, 1, 0]
-
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legtrim, coef, -1)
-
-        numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef), coef[:-1])
-        numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef, 1), coef[:-3])
-        numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef, 2), [0])
-
-    def test_legline(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legline(3, 4), [3, 4])
-
-    def test_legline_zeroscl(self):
-        numpy.testing.assert_array_equal(trim(beignet.orthax.legline(3, 0)), [3])
-
-    def test_leg2poly(self):
-        for i in range(10):
-            numpy.testing.assert_array_almost_equal(
-                beignet.orthax.leg2poly([0] * i + [1]), Llist[i]
-            )
-
-    def test_poly2leg(self):
-        for i in range(10):
-            numpy.testing.assert_array_almost_equal(
-                beignet.orthax.poly2leg(Llist[i]), [0] * i + [1]
-            )
-
-    def test_weight(self):
-        x = numpy.linspace(-1, 1, 11)
-        tgt = 1.0
-        res = beignet.orthax.legweight(x)
+def test_legfromroots():
+    res = beignet.orthax.legfromroots([])
+    numpy.testing.assert_array_almost_equal(trim(res), [1])
+    for i in range(1, 5):
+        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
+        pol = beignet.orthax.legfromroots(roots)
+        res = beignet.orthax.legval(roots, pol)
+        tgt = 0
+        numpy.testing.assert_(len(pol) == i + 1)
+        numpy.testing.assert_array_almost_equal(beignet.orthax.leg2poly(pol)[-1], 1)
         numpy.testing.assert_array_almost_equal(res, tgt)
+
+
+def test_legroots():
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1]), [])
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1, 2]), [-0.5])
+    for i in range(2, 5):
+        tgt = numpy.linspace(-1, 1, i)
+        res = beignet.orthax.legroots(beignet.orthax.legfromroots(tgt))
+        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+
+
+def test_legtrim():
+    coef = [2, -1, 1, 0]
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legtrim, coef, -1)
+
+    numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef), coef[:-1])
+    numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef, 1), coef[:-3])
+    numpy.testing.assert_array_equal(beignet.orthax.legtrim(coef, 2), [0])
+
+
+def test_legline():
+    numpy.testing.assert_array_equal(beignet.orthax.legline(3, 4), [3, 4])
+
+    numpy.testing.assert_array_equal(trim(beignet.orthax.legline(3, 0)), [3])
+
+
+def test_leg2poly():
+    for i in range(10):
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.leg2poly([0] * i + [1]), Llist[i]
+        )
+
+
+def test_poly2leg():
+    for i in range(10):
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.poly2leg(Llist[i]), [0] * i + [1]
+        )
+
+
+def test_legweight():
+    x = numpy.linspace(-1, 1, 11)
+    tgt = 1.0
+    res = beignet.orthax.legweight(x)
+    numpy.testing.assert_array_almost_equal(res, tgt)
