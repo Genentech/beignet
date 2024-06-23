@@ -1,6 +1,7 @@
 import operator
 
 import numpy
+from torch import Tensor
 
 from .__normed_hermite_e_n import _normed_hermite_e_n
 from ._probabilists_hermite_series_companion import (
@@ -8,26 +9,31 @@ from ._probabilists_hermite_series_companion import (
 )
 
 
-def gauss_probabilists_hermite_series_quadrature(input):
+def gauss_probabilists_hermite_series_quadrature(
+    input: Tensor,
+) -> (Tensor, Tensor):
     ideg = operator.index(input)
+
     if ideg <= 0:
-        raise ValueError("deg must be a positive integer")
+        raise ValueError
 
     c = numpy.array([0] * input + [1])
     m = probabilists_hermite_series_companion(c)
-    x = numpy.linalg.eigvalsh(m)
+    output = numpy.linalg.eigvalsh(m)
 
-    dy = _normed_hermite_e_n(x, ideg)
-    df = _normed_hermite_e_n(x, ideg - 1) * numpy.sqrt(ideg)
-    x -= dy / df
+    dy = _normed_hermite_e_n(output, ideg)
+    df = _normed_hermite_e_n(output, ideg - 1) * numpy.sqrt(ideg)
+    output -= dy / df
 
-    fm = _normed_hermite_e_n(x, ideg - 1)
+    fm = _normed_hermite_e_n(output, ideg - 1)
     fm /= numpy.abs(fm).max()
-    w = 1 / (fm * fm)
 
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
+    weight = 1 / (fm * fm)
 
-    w *= numpy.sqrt(2 * numpy.pi) / w.sum()
+    weight = (weight + weight[::-1]) / 2
 
-    return x, w
+    output = (output - output[::-1]) / 2
+
+    weight = weight * (numpy.sqrt(2 * numpy.pi) / weight.sum())
+
+    return output, weight
