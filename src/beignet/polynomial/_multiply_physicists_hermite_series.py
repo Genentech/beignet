@@ -2,7 +2,9 @@ import torch
 
 from .__as_series import _as_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
-from ._hermmulx import hermmulx
+from ._multiply_physicists_hermite_series_by_x import (
+    multiply_physicists_hermite_series_by_x,
+)
 from ._subtract_physicists_hermite_series import subtract_physicists_hermite_series
 
 
@@ -30,12 +32,14 @@ def multiply_physicists_hermite_series(input, other):
             tmp = c0
             nd = nd - 1
             c0 = subtract_physicists_hermite_series(c[-i] * xs, input * (2 * (nd - 1)))
-            input = add_physicists_hermite_series(tmp, hermmulx(input) * 2)
+            input = add_physicists_hermite_series(
+                tmp, multiply_physicists_hermite_series_by_x(input) * 2
+            )
 
     input = torch.tensor(input)
     input = torch.ravel(input)
 
-    output = hermmulx(input) * 2
+    output = multiply_physicists_hermite_series_by_x(input) * 2
 
     output = add_physicists_hermite_series(c0, output)
 

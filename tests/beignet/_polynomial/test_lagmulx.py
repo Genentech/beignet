@@ -4,14 +4,14 @@ import torch
 
 def test_lagmulx():
     torch.testing.assert_close(
-        beignet.polynomial._lagmulx.lagmulx(
+        beignet.polynomial._lagmulx.multiply_laguerre_series_by_x(
             torch.tensor([0]),
         ),
         torch.tensor([0], dtype=torch.float64),
     )
 
     torch.testing.assert_close(
-        beignet.polynomial._lagmulx.lagmulx(
+        beignet.polynomial._lagmulx.multiply_laguerre_series_by_x(
             torch.tensor([1]),
         ),
         torch.tensor([1, -1], dtype=torch.float64),
@@ -19,7 +19,7 @@ def test_lagmulx():
 
     for index in range(1, 5):
         torch.testing.assert_close(
-            beignet.polynomial._lagmulx.lagmulx(
+            beignet.polynomial._lagmulx.multiply_laguerre_series_by_x(
                 torch.tensor(
                     [0] * index + [1],
                 ),

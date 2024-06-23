@@ -106,7 +106,6 @@ from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
 from ._hermgrid2d import hermgrid2d
 from ._hermgrid3d import hermgrid3d
-from ._hermmulx import hermmulx
 from ._integrate_chebyshev_series import integrate_chebyshev_series
 from ._integrate_laguerre_series import integrate_laguerre_series
 from ._integrate_legendre_series import integrate_legendre_series
@@ -117,7 +116,6 @@ from ._integrate_probabilists_hermite_series import (
 )
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
-from ._lagmulx import lagmulx
 from ._laguerre_series_companion import laguerre_series_companion
 from ._laguerre_series_domain import laguerre_series_domain
 from ._laguerre_series_from_roots import laguerre_series_from_roots
@@ -148,9 +146,13 @@ from ._leggrid3d import leggrid3d
 from ._multiply_chebyshev_series import multiply_chebyshev_series
 from ._multiply_chebyshev_series_by_x import multiply_chebyshev_series_by_x
 from ._multiply_laguerre_series import multiply_laguerre_series
+from ._multiply_laguerre_series_by_x import multiply_laguerre_series_by_x
 from ._multiply_legendre_series import multiply_legendre_series
 from ._multiply_legendre_series_by_x import multiply_legendre_series_by_x
 from ._multiply_physicists_hermite_series import multiply_physicists_hermite_series
+from ._multiply_physicists_hermite_series_by_x import (
+    multiply_physicists_hermite_series_by_x,
+)
 from ._multiply_power_series import multiply_power_series
 from ._multiply_power_series_by_x import multiply_power_series_by_x
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
@@ -335,7 +337,7 @@ __all__ = [
     "gauss_physicists_hermite_series_quadrature",
     "hermgrid2d",
     "hermgrid3d",
-    "hermmulx",
+    "multiply_physicists_hermite_series_by_x",
     "integrate_chebyshev_series",
     "integrate_laguerre_series",
     "integrate_legendre_series",
@@ -346,7 +348,7 @@ __all__ = [
     "gauss_laguerre_quadrature",
     "laggrid2d",
     "laggrid3d",
-    "lagmulx",
+    "multiply_laguerre_series_by_x",
     "laguerre_series_companion",
     "laguerre_series_domain",
     "laguerre_series_line",

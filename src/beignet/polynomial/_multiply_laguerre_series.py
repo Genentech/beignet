@@ -2,7 +2,7 @@ import torch
 
 from .__as_series import _as_series
 from ._add_laguerre_series import add_laguerre_series
-from ._lagmulx import lagmulx
+from ._multiply_laguerre_series_by_x import multiply_laguerre_series_by_x
 from ._subtract_laguerre_series import subtract_laguerre_series
 
 
@@ -42,7 +42,7 @@ def multiply_laguerre_series(input, other):
 
             nd_input = (2 * nd - 1) * input
 
-            t = lagmulx(input)
+            t = multiply_laguerre_series_by_x(input)
 
             input_nd = subtract_laguerre_series(nd_input, t)
 
@@ -52,7 +52,7 @@ def multiply_laguerre_series(input, other):
 
     print(input)
 
-    output = lagmulx(input)
+    output = multiply_laguerre_series_by_x(input)
 
     output = subtract_laguerre_series(input, output)
 
