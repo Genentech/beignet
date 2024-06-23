@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legweight
+import beignet.polynomial._legendre_series_weight
 import numpy
 
 

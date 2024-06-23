@@ -1,8 +1,8 @@
 import functools
 
 import beignet.polynomial
-import beignet.polynomial._legpow
 import beignet.polynomial._multiply_legendre_series
+import beignet.polynomial._pow_legendre_series
 import beignet.polynomial._trim_legendre_series
 import numpy
 import torch

@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legzero
+import beignet.polynomial._legendre_series_zero
 import torch
 
 
