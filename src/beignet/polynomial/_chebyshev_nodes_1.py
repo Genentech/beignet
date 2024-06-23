@@ -3,14 +3,14 @@ from torch import Tensor
 
 
 def chebyshev_nodes_1(input: Tensor) -> Tensor:
-    _npts = int(input)
+    points = int(input)
 
-    if _npts != input:
+    if points != input:
         raise ValueError
 
-    if _npts < 1:
+    if points < 1:
         raise ValueError
 
-    x = 0.5 * torch.pi / _npts * torch.arange(-_npts + 1, _npts + 1, 2)
+    output = 0.5 * torch.pi / points * torch.arange(-points + 1, points + 1, 2)
 
-    return torch.sin(x)
+    return torch.sin(output)
