@@ -95,7 +95,6 @@ from ._fit_legendre_series import fit_legendre_series
 from ._fit_physicists_hermite_series import fit_physicists_hermite_series
 from ._fit_power_series import fit_power_series
 from ._fit_probabilists_hermite_series import fit_probabilists_hermite_series
-from ._hermefromroots import hermefromroots
 from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
@@ -205,6 +204,9 @@ from ._probabilists_hermite_series_companion import (
     probabilists_hermite_series_companion,
 )
 from ._probabilists_hermite_series_domain import probabilists_hermite_series_domain
+from ._probabilists_hermite_series_from_roots import (
+    probabilists_hermite_series_from_roots,
+)
 from ._probabilists_hermite_series_line import probabilists_hermite_series_line
 from ._probabilists_hermite_series_one import probabilists_hermite_series_one
 from ._probabilists_hermite_series_roots import probabilists_hermite_series_roots
@@ -318,7 +320,7 @@ __all__ = [
     "fit_physicists_hermite_series",
     "fit_power_series",
     "fit_probabilists_hermite_series",
-    "hermefromroots",
+    "probabilists_hermite_series_from_roots",
     "hermegauss",
     "hermegrid2d",
     "hermegrid3d",

@@ -4,7 +4,7 @@ import torch
 
 
 def test_hermefromroots():
-    res = beignet.polynomial._hermefromroots.hermefromroots([])
+    res = beignet.polynomial._hermefromroots.probabilists_hermite_series_from_roots([])
     torch.testing.assert_close(
         beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
             res, tolerance=1e-6
@@ -13,7 +13,9 @@ def test_hermefromroots():
     )
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        pol = beignet.polynomial._hermefromroots.hermefromroots(roots)
+        pol = beignet.polynomial._hermefromroots.probabilists_hermite_series_from_roots(
+            roots
+        )
         res = beignet.polynomial._hermeval.evaluate_probabilists_hermite_series_1d(
             roots, pol
         )
