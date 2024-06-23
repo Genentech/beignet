@@ -1,7 +1,7 @@
 import beignet.polynomial
 import beignet.polynomial._chebint
 import beignet.polynomial._chebyshev_series_to_power_series
-import beignet.polynomial._evaluate_1d_chebyshev_series
+import beignet.polynomial._evaluate_chebyshev_series_1d
 import beignet.polynomial._power_series_to_chebyshev_series
 import beignet.polynomial._trim_chebyshev_series
 import numpy
@@ -50,7 +50,7 @@ def test_chebint():
         chebpol = beignet.polynomial._poly2cheb.power_series_to_chebyshev_series(pol)
         chebint = beignet.polynomial._chebint.chebint(chebpol, m=1, k=[i], lbnd=-1)
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._chebval.evaluate_1d_chebyshev_series(-1, chebint), i
+            beignet.polynomial._chebval.evaluate_chebyshev_series_1d(-1, chebint), i
         )
 
     for i in range(5):

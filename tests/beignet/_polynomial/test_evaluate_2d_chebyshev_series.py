@@ -1,6 +1,6 @@
 import beignet.polynomial
 import beignet.polynomial._evaluate_1d_power_series
-import beignet.polynomial._evaluate_2d_chebyshev_series
+import beignet.polynomial._evaluate_chebyshev_series_2d
 import numpy
 
 
@@ -16,17 +16,17 @@ def test_evaluate_2d_chebyshev_series():
 
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._chebval2d.evaluate_2d_chebyshev_series,
+        beignet.polynomial._chebval2d.evaluate_chebyshev_series_2d,
         x1,
         x2[:2],
         c2d,
     )
 
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._chebval2d.evaluate_2d_chebyshev_series(x1, x2, c2d), y1 * y2
+        beignet.polynomial._chebval2d.evaluate_chebyshev_series_2d(x1, x2, c2d), y1 * y2
     )
     z = numpy.ones((2, 3))
     numpy.testing.assert_(
-        beignet.polynomial._chebval2d.evaluate_2d_chebyshev_series(z, z, c2d).shape
+        beignet.polynomial._chebval2d.evaluate_chebyshev_series_2d(z, z, c2d).shape
         == (2, 3)
     )

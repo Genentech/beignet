@@ -3,7 +3,7 @@ import operator
 import numpy
 
 
-def chebvander(x, deg):
+def chebyshev_series_vandermonde_1d(x, deg):
     ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")

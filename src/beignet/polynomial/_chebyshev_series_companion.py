@@ -5,7 +5,7 @@ import torch
 from .__as_series import _as_series
 
 
-def chebcompanion(input):
+def chebyshev_series_companion(input):
     (input,) = _as_series([input])
 
     if len(input) < 2:

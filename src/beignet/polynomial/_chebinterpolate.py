@@ -1,7 +1,7 @@
 import numpy
 
 from ._chebpts1 import chebpts1
-from ._chebvander import chebvander
+from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
 
 
 def chebinterpolate(func, deg, args=()):
@@ -15,7 +15,7 @@ def chebinterpolate(func, deg, args=()):
     order = deg + 1
     xcheb = chebpts1(order)
     yfunc = func(xcheb, *args)
-    m = chebvander(xcheb, deg)
+    m = chebyshev_series_vandermonde_1d(xcheb, deg)
     c = numpy.dot(m.T, yfunc)
     c[0] /= order
     c[1:] /= 0.5 * order

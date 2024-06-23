@@ -23,10 +23,8 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebcompanion import chebcompanion
 from ._chebder import chebder
 from ._chebdomain import chebdomain
-from ._chebfit import chebfit
 from ._chebfromroots import chebfromroots
 from ._chebgauss import chebgauss
 from ._chebgrid2d import chebgrid2d
@@ -40,12 +38,13 @@ from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
 from ._chebroots import chebroots
-from ._chebvander import chebvander
-from ._chebvander2d import chebvander2d
-from ._chebvander3d import chebvander3d
 from ._chebweight import chebweight
 from ._chebx import chebx
+from ._chebyshev_series_companion import chebyshev_series_companion
 from ._chebyshev_series_to_power_series import chebyshev_series_to_power_series
+from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
+from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
+from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
@@ -53,7 +52,6 @@ from ._divide_legendre_series import divide_legendre_series
 from ._divide_physicists_hermite_series import divide_physicists_hermite_series
 from ._divide_power_series import divide_power_series
 from ._divide_probabilists_hermite_series import divide_probabilists_hermite_series
-from ._evaluate_1d_chebyshev_series import evaluate_1d_chebyshev_series
 from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
 from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
 from ._evaluate_1d_physicists_hermite_series import (
@@ -63,7 +61,6 @@ from ._evaluate_1d_power_series import evaluate_1d_power_series
 from ._evaluate_1d_probabilists_hermite_series import (
     evaluate_1d_probabilists_hermite_series,
 )
-from ._evaluate_2d_chebyshev_series import evaluate_2d_chebyshev_series
 from ._evaluate_2d_laguerre_series import evaluate_2d_laguerre_series
 from ._evaluate_2d_legendre_series import evaluate_2d_legendre_series
 from ._evaluate_2d_physicists_hermite_series import (
@@ -73,7 +70,6 @@ from ._evaluate_2d_power_series import evaluate_2d_power_series
 from ._evaluate_2d_probabilists_hermite_series import (
     evaluate_2d_probabilists_hermite_series,
 )
-from ._evaluate_3d_chebyshev_series import evaluate_3d_chebyshev_series
 from ._evaluate_3d_laguerre_series import evaluate_3d_laguerre_series
 from ._evaluate_3d_legendre_series import evaluate_3d_legendre_series
 from ._evaluate_3d_physicists_hermite_series import (
@@ -83,6 +79,10 @@ from ._evaluate_3d_power_series import evaluate_3d_power_series
 from ._evaluate_3d_probabilists_hermite_series import (
     evaluate_3d_probabilists_hermite_series,
 )
+from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
+from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
+from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
+from ._fit_chebyshev_series import fit_chebyshev_series
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
 from ._hermdomain import hermdomain
@@ -237,11 +237,11 @@ __all__ = [
     "_z_series_to_c_series",
     "chebyshev_series_to_power_series",
     "add_chebyshev_series",
-    "chebcompanion",
+    "chebyshev_series_companion",
     "chebder",
     "divide_chebyshev_series",
     "chebdomain",
-    "chebfit",
+    "fit_chebyshev_series",
     "chebfromroots",
     "chebgauss",
     "chebgrid2d",
@@ -258,12 +258,12 @@ __all__ = [
     "chebroots",
     "subtract_chebyshev_series",
     "trim_chebyshev_series",
-    "evaluate_1d_chebyshev_series",
-    "evaluate_2d_chebyshev_series",
-    "evaluate_3d_chebyshev_series",
-    "chebvander",
-    "chebvander2d",
-    "chebvander3d",
+    "evaluate_chebyshev_series_1d",
+    "evaluate_chebyshev_series_2d",
+    "evaluate_chebyshev_series_3d",
+    "chebyshev_series_vandermonde_1d",
+    "chebyshev_series_vandermonde_2d",
+    "chebyshev_series_vandermonde_3d",
     "chebweight",
     "chebx",
     "chebzero",
