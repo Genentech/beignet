@@ -4,21 +4,21 @@ import beignet.polynomial._evaluate_chebyshev_series_1d
 import numpy
 
 
-def test_chebvander():
+def test_chebyshev_series_vandermonde_1d():
     x = numpy.arange(3)
-    v = beignet.polynomial._chebvander.chebyshev_series_vandermonde_1d(x, 3)
+    v = beignet.polynomial.chebyshev_series_vandermonde_1d(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._chebval.evaluate_chebyshev_series_1d(x, coef)
+            v[..., i], beignet.polynomial.evaluate_chebyshev_series_1d(x, coef)
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
-    v = beignet.polynomial._chebvander.chebyshev_series_vandermonde_1d(x, 3)
+    v = beignet.polynomial.chebyshev_series_vandermonde_1d(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
     for i in range(4):
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial._chebval.evaluate_chebyshev_series_1d(x, coef)
+            v[..., i], beignet.polynomial.evaluate_chebyshev_series_1d(x, coef)
         )

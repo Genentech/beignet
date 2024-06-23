@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_chebcompanion():
+def test_chebyshev_series_companion():
     for index in range(1, 5):
         output = beignet.polynomial.chebyshev_series_companion(
             torch.tensor([0] * index + [1])

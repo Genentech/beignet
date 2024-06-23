@@ -6,7 +6,7 @@ import numpy
 import torch
 
 
-def test_chebder():
+def test_differentiate_chebyshev_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._chebder.differentiate_chebyshev_series, [0], 0.5
     )

@@ -5,7 +5,7 @@ import numpy
 import torch
 
 
-def test_chebfit():
+def test_fit_chebyshev_series():
     def f(x):
         return x * (x - 1) * (x - 2)
 

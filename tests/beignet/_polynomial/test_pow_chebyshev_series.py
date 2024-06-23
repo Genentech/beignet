@@ -4,20 +4,20 @@ import beignet.polynomial
 import torch
 
 
-def test_chebpow():
+def test_pow_chebyshev_series():
     for j in range(5):
         for k in range(5):
             c = torch.arange(j + 1)
 
             tgt = functools.reduce(
-                beignet.polynomial._chebmul.multiply_chebyshev_series,
+                beignet.polynomial.multiply_chebyshev_series,
                 torch.tensor([c] * k),
                 torch.tensor([1]),
             )
 
             torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
-                    beignet.polynomial._chebpow.pow_chebyshev_series(c, k),
+                    beignet.polynomial.pow_chebyshev_series(c, k),
                     tolerance=1e-6,
                 ),
                 beignet.polynomial.trim_chebyshev_series(

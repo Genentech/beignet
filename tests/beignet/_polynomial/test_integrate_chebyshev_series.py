@@ -7,7 +7,7 @@ import beignet.polynomial._trim_chebyshev_series
 import numpy
 
 
-def test_chebint():
+def test_integrate_chebyshev_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._chebint.integrate_chebyshev_series, [0], 0.5
     )
