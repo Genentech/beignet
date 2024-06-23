@@ -5,9 +5,7 @@ import numpy.testing
 
 def test_trimseq():
     for _ in range(5):
-        tgt = [1]
-        res = beignet.orthax.polyutils.trimseq([1] + [0] * 5)
-        numpy.testing.assert_equal(res, tgt)
+        numpy.testing.assert_equal(beignet.orthax.polyutils.trimseq([1] + [0] * 5), [1])
 
 
 def test_trimcoef():
@@ -84,16 +82,10 @@ def test_mapdomain():
 
 
 def test_mapparms():
-    # test for real values
-    dom1 = [0, 4]
-    dom2 = [1, 3]
-    tgt = [1, 0.5]
-    res = beignet.orthax.polyutils.mapparms(dom1, dom2)
-    numpy.testing.assert_array_equal(res, tgt)
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polyutils.mapparms([0, 4], [1, 3]), [1, 0.5]
+    )
 
-    # test for complex values
-    dom1 = [0 - 1j, 2 + 1j]
-    dom2 = [-2, 2]
-    tgt = [-1 + 1j, 1 - 1j]
-    res = beignet.orthax.polyutils.mapparms(dom1, dom2)
-    numpy.testing.assert_array_equal(res, tgt)
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polyutils.mapparms([0 - 1j, 2 + 1j], [-2, 2]), [-1 + 1j, 1 - 1j]
+    )
