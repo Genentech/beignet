@@ -51,8 +51,6 @@ def multiply_laguerre_series(input: Tensor, other: Tensor) -> Tensor:
 
             input = add_laguerre_series(tmp, input_nd)
 
-    print(input)
-
     output = multiply_laguerre_series_by_x(input)
 
     output = subtract_laguerre_series(input, output)
