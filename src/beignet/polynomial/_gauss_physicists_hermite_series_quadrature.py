@@ -1,12 +1,15 @@
 import operator
 
 import numpy
+from torch import Tensor
 
 from .__normed_hermite_n import _normed_hermite_n
 from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 
 
-def hermgauss(input):
+def gauss_physicists_hermite_series_quadrature(
+    input: Tensor,
+) -> (Tensor, Tensor):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")

@@ -4,7 +4,7 @@ import torch
 
 
 def test_hermgauss():
-    x, w = beignet.polynomial.hermgauss(100)
+    x, w = beignet.polynomial.gauss_physicists_hermite_series_quadrature(100)
 
     v = beignet.polynomial.physicists_hermite_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)
