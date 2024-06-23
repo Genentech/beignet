@@ -15,7 +15,7 @@ def test_legendre_series_roots():
         torch.testing.assert_close(
             beignet.polynomial.trim_legendre_series(
                 beignet.polynomial.legendre_series_roots(
-                    beignet.polynomial.legfromroots(
+                    beignet.polynomial.legendre_series_from_roots(
                         numpy.linspace(-1, 1, i),
                     )
                 ),

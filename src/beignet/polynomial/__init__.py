@@ -100,7 +100,6 @@ from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
 from ._hermemulx import hermemulx
-from ._hermfromroots import hermfromroots
 from ._hermgauss import hermgauss
 from ._hermgrid2d import hermgrid2d
 from ._hermgrid3d import hermgrid3d
@@ -131,6 +130,7 @@ from ._laguerre_series_weight import laguerre_series_weight
 from ._laguerre_series_x import laguerre_series_x
 from ._legendre_series_companion import legendre_series_companion
 from ._legendre_series_domain import legendre_series_domain
+from ._legendre_series_from_roots import legendre_series_from_roots
 from ._legendre_series_line import legendre_series_line
 from ._legendre_series_one import legendre_series_one
 from ._legendre_series_roots import legendre_series_roots
@@ -141,7 +141,6 @@ from ._legendre_series_vandermonde_3d import legendre_series_vandermonde_3d
 from ._legendre_series_weight import legendre_series_weight
 from ._legendre_series_x import legendre_series_x
 from ._legendre_series_zero import legendre_series_zero
-from ._legfromroots import legfromroots
 from ._leggauss import leggauss
 from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
@@ -154,6 +153,7 @@ from ._multiply_power_series import multiply_power_series
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
 from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 from ._physicists_hermite_series_domain import physicists_hermite_series_domain
+from ._physicists_hermite_series_from_roots import physicists_hermite_series_from_roots
 from ._physicists_hermite_series_line import physicists_hermite_series_line
 from ._physicists_hermite_series_one import physicists_hermite_series_one
 from ._physicists_hermite_series_roots import physicists_hermite_series_roots
@@ -323,7 +323,7 @@ __all__ = [
     "hermegrid2d",
     "hermegrid3d",
     "hermemulx",
-    "hermfromroots",
+    "physicists_hermite_series_from_roots",
     "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
@@ -362,7 +362,7 @@ __all__ = [
     "legendre_series_weight",
     "legendre_series_x",
     "legendre_series_zero",
-    "legfromroots",
+    "legendre_series_from_roots",
     "leggauss",
     "leggrid2d",
     "leggrid3d",

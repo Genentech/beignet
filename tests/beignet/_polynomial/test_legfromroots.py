@@ -5,7 +5,7 @@ import torch.testing
 def test_legfromroots():
     torch.testing.assert_close(
         beignet.polynomial.trim_legendre_series(
-            beignet.polynomial.legfromroots(
+            beignet.polynomial.legendre_series_from_roots(
                 torch.tensor([]),
             ),
             tolerance=1e-6,
