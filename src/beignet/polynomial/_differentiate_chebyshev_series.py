@@ -2,15 +2,16 @@ import operator
 
 import numpy
 import torch
+from torch import Tensor
 
 from .__normalize_axis_index import _normalize_axis_index
 
 
-def differentiate_chebyshev_series(c, m=1, scl=1, axis=0):
-    c = torch.ravel(c)
+def differentiate_chebyshev_series(input: Tensor, m=1, scl=1, axis=0):
+    input = torch.ravel(input)
 
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
+    # if input.dtype.char in "?bBhHiIlLqQpP":
+    #     input = input.astype(numpy.double)
 
     cnt = operator.index(m)
 
@@ -19,37 +20,37 @@ def differentiate_chebyshev_series(c, m=1, scl=1, axis=0):
     if cnt < 0:
         raise ValueError
 
-    iaxis = _normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, input.ndim)
 
     if cnt == 0:
-        return c
+        return input
 
-    c = numpy.moveaxis(c, iaxis, 0)
+    input = numpy.moveaxis(input, iaxis, 0)
 
-    n = len(c)
+    n = len(input)
 
     if cnt >= n:
-        c = c[:1] * 0
+        input = input[:1] * 0
     else:
         for _ in range(cnt):
             n = n - 1
 
-            c *= scl
+            input = input * scl
 
-            der = numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = numpy.empty((n,) + input.shape[1:], dtype=input.dtype)
 
             for j in range(n, 2, -1):
-                der[j - 1] = (2 * j) * c[j]
+                der[j - 1] = (2 * j) * input[j]
 
-                c[j - 2] += (j * c[j]) / (j - 2)
+                input[j - 2] += (j * input[j]) / (j - 2)
 
             if n > 1:
-                der[1] = 4 * c[2]
+                der[1] = 4 * input[2]
 
-            der[0] = c[1]
+            der[0] = input[1]
 
-            c = der
+            input = der
 
-    c = numpy.moveaxis(c, 0, iaxis)
+    input = numpy.moveaxis(input, 0, iaxis)
 
-    return c
+    return input

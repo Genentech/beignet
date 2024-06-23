@@ -6,33 +6,47 @@ import torch
 from .__normalize_axis_index import _normalize_axis_index
 
 
-def differentiate_laguerre_series(c, m=1, scl=1, axis=0):
-    c = torch.ravel(c)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
+def differentiate_laguerre_series(input, m=1, scl=1, axis=0):
+    input = torch.ravel(input)
+
+    # if input.dtype.char in "?bBhHiIlLqQpP":
+    #     input = input.astype(numpy.double)
 
     cnt = operator.index(m)
+
     iaxis = operator.index(axis)
+
     if cnt < 0:
-        raise ValueError("The order of derivation must be non-negative")
-    iaxis = _normalize_axis_index(iaxis, c.ndim)
+        raise ValueError
+
+    iaxis = _normalize_axis_index(iaxis, input.ndim)
 
     if cnt == 0:
-        return c
+        return input
 
-    c = numpy.moveaxis(c, iaxis, 0)
-    n = len(c)
+    input = numpy.moveaxis(input, iaxis, 0)
+
+    n = len(input)
+
     if cnt >= n:
-        c = c[:1] * 0
+        input = input[:1] * 0
     else:
         for _ in range(cnt):
             n = n - 1
-            c *= scl
-            der = numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
+
+            input *= scl
+
+            der = numpy.empty((n,) + input.shape[1:], dtype=input.dtype)
+
             for j in range(n, 1, -1):
-                der[j - 1] = -c[j]
-                c[j - 1] += c[j]
-            der[0] = -c[1]
-            c = der
-    c = numpy.moveaxis(c, 0, iaxis)
-    return c
+                der[j - 1] = -input[j]
+
+                input[j - 1] += input[j]
+
+            der[0] = -input[1]
+
+            input = der
+
+    input = numpy.moveaxis(input, 0, iaxis)
+
+    return input

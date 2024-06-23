@@ -1,15 +1,10 @@
-import numpy
 import torch
 
 
 def evaluate_chebyshev_series_1d(x, c, tensor=True):
     c = torch.ravel(c)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
-    if isinstance(x, (tuple, list)):
-        x = numpy.asarray(x)
-    if isinstance(x, numpy.ndarray) and tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+
+    c = c.reshape(c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]
@@ -21,8 +16,10 @@ def evaluate_chebyshev_series_1d(x, c, tensor=True):
         x2 = 2 * x
         c0 = c[-2]
         c1 = c[-1]
+
         for i in range(3, len(c) + 1):
             tmp = c0
             c0 = c[-i] - c1
             c1 = tmp + c1 * x2
+
     return c0 + c1 * x

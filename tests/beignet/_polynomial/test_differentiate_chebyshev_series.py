@@ -1,38 +1,54 @@
 import beignet.polynomial
 import numpy
+import pytest
 import torch
 
 
 def test_differentiate_chebyshev_series():
-    numpy.testing.assert_raises(
-        TypeError, beignet.polynomial.differentiate_chebyshev_series, [0], 0.5
-    )
-    numpy.testing.assert_raises(
-        ValueError, beignet.polynomial.differentiate_chebyshev_series, [0], -1
-    )
-
-    for i in range(5):
-        tgt = [0] * i + [1]
-        torch.testing.assert_close(
-            beignet.polynomial.trim_chebyshev_series(
-                beignet.polynomial.differentiate_chebyshev_series(tgt, m=0),
-                tolerance=1e-6,
-            ),
-            beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+    with pytest.raises(TypeError):
+        beignet.polynomial.differentiate_chebyshev_series(
+            torch.tensor([0]),
+            0.5,
         )
 
-    for i in range(5):
-        for j in range(2, 5):
-            tgt = [0] * i + [1]
+    with pytest.raises(ValueError):
+        beignet.polynomial.differentiate_chebyshev_series(
+            torch.tensor([0]),
+            -1,
+        )
+
+    for index in range(5):
+        torch.testing.assert_close(
+            beignet.polynomial.trim_chebyshev_series(
+                beignet.polynomial.differentiate_chebyshev_series(
+                    torch.tensor([0] * index + [1]),
+                    m=0,
+                ),
+                tolerance=1e-6,
+            ),
+            beignet.polynomial.trim_chebyshev_series(
+                torch.tensor([0] * index + [1]),
+                tolerance=1e-6,
+            ),
+        )
+
+    for j in range(5):
+        for k in range(2, 5):
             torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.differentiate_chebyshev_series(
-                        beignet.polynomial.integrate_chebyshev_series(tgt, m=j),
-                        m=j,
+                        beignet.polynomial.integrate_chebyshev_series(
+                            torch.tensor([0] * j + [1]),
+                            m=k,
+                        ),
+                        m=k,
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial.trim_chebyshev_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_chebyshev_series(
+                    torch.tensor([0] * j + [1]),
+                    tolerance=1e-6,
+                ),
             )
 
     for i in range(5):

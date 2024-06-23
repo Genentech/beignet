@@ -2,17 +2,27 @@ import operator
 
 import numpy
 import torch
+from torch import Tensor
 
 from .__normalize_axis_index import _normalize_axis_index
 from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
 
 
-def integrate_chebyshev_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def integrate_chebyshev_series(
+    input: Tensor,
+    m=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+):
     if k is None:
         k = []
-    c = torch.ravel(c)
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
+    input = torch.ravel(input)
+
+    # if c.dtype.char in "?bBhHiIlLqQpP":
+    #     c = c.astype(numpy.double)
+
     if not numpy.iterable(k):
         k = [k]
     cnt = operator.index(m)
@@ -25,28 +35,39 @@ def integrate_chebyshev_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError("lbnd must be a scalar.")
     if numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
-    iaxis = _normalize_axis_index(iaxis, c.ndim)
+    iaxis = _normalize_axis_index(iaxis, input.ndim)
 
     if cnt == 0:
-        return c
+        return input
 
-    c = numpy.moveaxis(c, iaxis, 0)
+    input = torch.moveaxis(input, iaxis, 0)
+
     k = list(k) + [0] * (cnt - len(k))
+
     for i in range(cnt):
-        n = len(c)
-        c *= scl
-        if n == 1 and numpy.all(c[0] == 0):
-            c[0] += k[i]
+        n = len(input)
+
+        input *= scl
+
+        if n == 1 and torch.all(input[0] == 0):
+            input[0] += k[i]
         else:
-            tmp = numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-            tmp[0] = c[0] * 0
-            tmp[1] = c[0]
+            tmp = torch.empty((n + 1,) + input.shape[1:], dtype=input.dtype)
+
+            tmp[0] = input[0] * 0
+            tmp[1] = input[0]
+
             if n > 1:
-                tmp[2] = c[1] / 4
+                tmp[2] = input[1] / 4
+
             for j in range(2, n):
-                tmp[j + 1] = c[j] / (2 * (j + 1))
-                tmp[j - 1] -= c[j] / (2 * (j - 1))
+                tmp[j + 1] = input[j] / (2 * (j + 1))
+                tmp[j - 1] -= input[j] / (2 * (j - 1))
+
             tmp[0] += k[i] - evaluate_chebyshev_series_1d(lbnd, tmp)
-            c = tmp
-    c = numpy.moveaxis(c, 0, iaxis)
-    return c
+
+            input = tmp
+
+    input = torch.moveaxis(input, 0, iaxis)
+
+    return input
