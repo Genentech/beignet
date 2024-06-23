@@ -1,4 +1,3 @@
-import numpy
 import torch
 from torch import Tensor
 
@@ -17,9 +16,10 @@ def chebyshev_series_roots(input: Tensor) -> Tensor:
 
     output = chebyshev_series_companion(input)
 
-    output = output[::-1, ::-1]
+    output = torch.flip(output, dims=[0])
+    output = torch.flip(output, dims=[1])
 
-    output = numpy.linalg.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
     output, _ = torch.sort(output)
 

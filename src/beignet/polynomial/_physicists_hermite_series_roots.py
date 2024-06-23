@@ -15,7 +15,8 @@ def physicists_hermite_series_roots(input):
 
     output = physicists_hermite_series_companion(input)
 
-    output = output[::-1, ::-1]
+    output = torch.flip(output, dims=[0])
+    output = torch.flip(output, dims=[1])
 
     output = torch.linalg.eigvals(output)
 
