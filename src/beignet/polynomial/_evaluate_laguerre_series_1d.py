@@ -10,7 +10,7 @@ def evaluate_laguerre_series_1d(
     other = torch.ravel(other)
 
     if tensor:
-        other = other.reshape(other.shape + (1,) * input.ndim)
+        other = torch.reshape(other, other.shape + (1,) * input.ndim)
 
     if len(other) == 1:
         c0 = other[0]

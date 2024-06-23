@@ -10,7 +10,7 @@ def evaluate_physicists_hermite_series_1d(
     other = torch.ravel(other)
 
     if tensor:
-        other = other.reshape(other.shape + (1,) * input.ndim)
+        other = torch.reshape(other, other.shape + (1,) * input.ndim)
 
     x2 = input * 2
     if len(other) == 1:

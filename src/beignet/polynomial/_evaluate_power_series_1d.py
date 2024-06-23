@@ -1,4 +1,3 @@
-import numpy
 import torch
 from torch import Tensor
 
@@ -11,7 +10,7 @@ def evaluate_power_series_1d(
     other = torch.ravel(other)
 
     if tensor:
-        other = numpy.reshape(other, other.shape + (1,) * input.ndim)
+        other = torch.reshape(other, other.shape + (1,) * input.ndim)
 
     c0 = other[-1] + input * 0
 
