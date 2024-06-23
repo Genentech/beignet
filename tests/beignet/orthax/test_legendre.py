@@ -1,8 +1,7 @@
 import functools
 
-import beignet.orthax.legendre
+import beignet.orthax._polynomial
 import numpy
-import numpy.polynomial.polynomial
 import numpy.testing
 
 L0 = numpy.array([1])
@@ -20,21 +19,21 @@ Llist = [L0, L1, L2, L3, L4, L5, L6, L7, L8, L9]
 
 
 def trim(x):
-    return beignet.orthax.legendre.legtrim(x, tol=1e-6)
+    return beignet.orthax._polynomial.legtrim(x, tol=1e-6)
 
 
 class TestConstants:
     def test_legdomain(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legdomain, [-1, 1])
+        numpy.testing.assert_array_equal(beignet.orthax._polynomial.legdomain, [-1, 1])
 
     def test_legzero(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legzero, [0])
+        numpy.testing.assert_array_equal(beignet.orthax._polynomial.legzero, [0])
 
     def test_legone(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legone, [1])
+        numpy.testing.assert_array_equal(beignet.orthax._polynomial.legone, [1])
 
     def test_legx(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legx, [0, 1])
+        numpy.testing.assert_array_equal(beignet.orthax._polynomial.legx, [0, 1])
 
 
 class TestArithmetic:
@@ -47,7 +46,7 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] += 1
-                res = beignet.orthax.legendre.legadd([0] * i + [1], [0] * j + [1])
+                res = beignet.orthax._polynomial.legadd([0] * i + [1], [0] * j + [1])
                 numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_legsub(self):
@@ -57,34 +56,34 @@ class TestArithmetic:
                 tgt = numpy.zeros(max(i, j) + 1)
                 tgt[i] += 1
                 tgt[j] -= 1
-                res = beignet.orthax.legendre.legsub([0] * i + [1], [0] * j + [1])
+                res = beignet.orthax._polynomial.legsub([0] * i + [1], [0] * j + [1])
                 numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
     def test_legmulx(self):
         numpy.testing.assert_array_equal(
-            trim(beignet.orthax.legendre.legmulx([0])), [0]
+            trim(beignet.orthax._polynomial.legmulx([0])), [0]
         )
         numpy.testing.assert_array_equal(
-            trim(beignet.orthax.legendre.legmulx([1])), [0, 1]
+            trim(beignet.orthax._polynomial.legmulx([1])), [0, 1]
         )
         for i in range(1, 5):
             tmp = 2 * i + 1
             ser = [0] * i + [1]
             tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
             numpy.testing.assert_array_equal(
-                trim(beignet.orthax.legendre.legmulx(ser)), tgt
+                trim(beignet.orthax._polynomial.legmulx(ser)), tgt
             )
 
     def test_legmul(self):
         for i in range(5):
             pol1 = [0] * i + [1]
-            val1 = beignet.orthax.legendre.legval(self.x, pol1)
+            val1 = beignet.orthax._polynomial.legval(self.x, pol1)
             for j in range(5):
                 msg = f"At i={i}, j={j}"
                 pol2 = [0] * j + [1]
-                val2 = beignet.orthax.legendre.legval(self.x, pol2)
-                pol3 = beignet.orthax.legendre.legmul(pol1, pol2)
-                val3 = beignet.orthax.legendre.legval(self.x, pol3)
+                val2 = beignet.orthax._polynomial.legval(self.x, pol2)
+                pol3 = beignet.orthax._polynomial.legmul(pol1, pol2)
+                val3 = beignet.orthax._polynomial.legval(self.x, pol3)
                 numpy.testing.assert_(len(pol3) == i + j + 1, msg)
                 numpy.testing.assert_array_almost_equal(val3, val1 * val2, err_msg=msg)
 
@@ -94,10 +93,10 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 ci = [0] * i + [1]
                 cj = [0] * j + [1]
-                tgt = beignet.orthax.legendre.legadd(ci, cj)
-                quo, rem = beignet.orthax.legendre.legdiv(tgt, ci)
-                res = beignet.orthax.legendre.legadd(
-                    beignet.orthax.legendre.legmul(quo, ci), rem
+                tgt = beignet.orthax._polynomial.legadd(ci, cj)
+                quo, rem = beignet.orthax._polynomial.legdiv(tgt, ci)
+                res = beignet.orthax._polynomial.legadd(
+                    beignet.orthax._polynomial.legmul(quo, ci), rem
                 )
                 numpy.testing.assert_array_almost_equal(
                     trim(res), trim(tgt), err_msg=msg
@@ -109,9 +108,9 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 c = numpy.arange(i + 1)
                 tgt = functools.reduce(
-                    beignet.orthax.legendre.legmul, [c] * j, numpy.array([1])
+                    beignet.orthax._polynomial.legmul, [c] * j, numpy.array([1])
                 )
-                res = beignet.orthax.legendre.legpow(c, j)
+                res = beignet.orthax._polynomial.legpow(c, j)
                 numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
 
@@ -125,7 +124,7 @@ class TestEvaluation:
 
     def test_legval(self):
         numpy.testing.assert_array_equal(
-            beignet.orthax.legendre.legval([], [1]).size, 0
+            beignet.orthax._polynomial.legval([], [1]).size, 0
         )
 
         x = numpy.linspace(-1, 1)
@@ -133,20 +132,20 @@ class TestEvaluation:
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
-            res = beignet.orthax.legendre.legval(x, [0] * i + [1])
+            res = beignet.orthax._polynomial.legval(x, [0] * i + [1])
             numpy.testing.assert_array_almost_equal(res, tgt, err_msg=msg)
 
         for i in range(3):
             dims = [2] * i
             x = numpy.zeros(dims)
             numpy.testing.assert_array_equal(
-                beignet.orthax.legendre.legval(x, [1]).shape, dims
+                beignet.orthax._polynomial.legval(x, [1]).shape, dims
             )
             numpy.testing.assert_array_equal(
-                beignet.orthax.legendre.legval(x, [1, 0]).shape, dims
+                beignet.orthax._polynomial.legval(x, [1, 0]).shape, dims
             )
             numpy.testing.assert_array_equal(
-                beignet.orthax.legendre.legval(x, [1, 0, 0]).shape, dims
+                beignet.orthax._polynomial.legval(x, [1, 0, 0]).shape, dims
             )
 
     def test_legval2d(self):
@@ -154,15 +153,15 @@ class TestEvaluation:
         y1, y2, y3 = self.y
 
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legval2d, x1, x2[:2], self.c2d
+            ValueError, beignet.orthax._polynomial.legval2d, x1, x2[:2], self.c2d
         )
 
         tgt = y1 * y2
-        res = beignet.orthax.legendre.legval2d(x1, x2, self.c2d)
+        res = beignet.orthax._polynomial.legval2d(x1, x2, self.c2d)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
         z = numpy.ones((2, 3))
-        res = beignet.orthax.legendre.legval2d(z, z, self.c2d)
+        res = beignet.orthax._polynomial.legval2d(z, z, self.c2d)
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_legval3d(self):
@@ -170,15 +169,15 @@ class TestEvaluation:
         y1, y2, y3 = self.y
 
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legval3d, x1, x2, x3[:2], self.c3d
+            ValueError, beignet.orthax._polynomial.legval3d, x1, x2, x3[:2], self.c3d
         )
 
         tgt = y1 * y2 * y3
-        res = beignet.orthax.legendre.legval3d(x1, x2, x3, self.c3d)
+        res = beignet.orthax._polynomial.legval3d(x1, x2, x3, self.c3d)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
         z = numpy.ones((2, 3))
-        res = beignet.orthax.legendre.legval3d(z, z, z, self.c3d)
+        res = beignet.orthax._polynomial.legval3d(z, z, z, self.c3d)
         numpy.testing.assert_(res.shape == (2, 3))
 
     def test_leggrid2d(self):
@@ -186,11 +185,11 @@ class TestEvaluation:
         y1, y2, y3 = self.y
 
         tgt = numpy.einsum("i,j->ij", y1, y2)
-        res = beignet.orthax.legendre.leggrid2d(x1, x2, self.c2d)
+        res = beignet.orthax._polynomial.leggrid2d(x1, x2, self.c2d)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
         z = numpy.ones((2, 3))
-        res = beignet.orthax.legendre.leggrid2d(z, z, self.c2d)
+        res = beignet.orthax._polynomial.leggrid2d(z, z, self.c2d)
         numpy.testing.assert_(res.shape == (2, 3) * 2)
 
     def test_leggrid3d(self):
@@ -198,61 +197,65 @@ class TestEvaluation:
         y1, y2, y3 = self.y
 
         tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-        res = beignet.orthax.legendre.leggrid3d(x1, x2, x3, self.c3d)
+        res = beignet.orthax._polynomial.leggrid3d(x1, x2, x3, self.c3d)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
         z = numpy.ones((2, 3))
-        res = beignet.orthax.legendre.leggrid3d(z, z, z, self.c3d)
+        res = beignet.orthax._polynomial.leggrid3d(z, z, z, self.c3d)
         numpy.testing.assert_(res.shape == (2, 3) * 3)
 
 
 class TestIntegral:
     def test_legint(self):  # noqa:C901
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legendre.legint, [0], 0.5)
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legendre.legint, [0], -1)
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legint, [0], 1, [0, 0]
+            TypeError, beignet.orthax._polynomial.legint, [0], 0.5
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legint, [0], lbnd=[0]
+            ValueError, beignet.orthax._polynomial.legint, [0], -1
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legint, [0], scl=[0]
+            ValueError, beignet.orthax._polynomial.legint, [0], 1, [0, 0]
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legint, [0], axis=0.5
+            ValueError, beignet.orthax._polynomial.legint, [0], lbnd=[0]
+        )
+        numpy.testing.assert_raises(
+            ValueError, beignet.orthax._polynomial.legint, [0], scl=[0]
+        )
+        numpy.testing.assert_raises(
+            TypeError, beignet.orthax._polynomial.legint, [0], axis=0.5
         )
 
         for i in range(2, 5):
             k = [0] * (i - 2) + [1]
-            res = beignet.orthax.legendre.legint([0], m=i, k=k)
+            res = beignet.orthax._polynomial.legint([0], m=i, k=k)
             numpy.testing.assert_array_almost_equal(trim(res), [0, 1])
 
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [1 / scl]
-            legpol = beignet.orthax.legendre.poly2leg(pol)
-            legint = beignet.orthax.legendre.legint(legpol, m=1, k=[i])
-            res = beignet.orthax.legendre.leg2poly(legint)
+            legpol = beignet.orthax._polynomial.poly2leg(pol)
+            legint = beignet.orthax._polynomial.legint(legpol, m=1, k=[i])
+            res = beignet.orthax._polynomial.leg2poly(legint)
             numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
-            legpol = beignet.orthax.legendre.poly2leg(pol)
-            legint = beignet.orthax.legendre.legint(legpol, m=1, k=[i], lbnd=-1)
+            legpol = beignet.orthax._polynomial.poly2leg(pol)
+            legint = beignet.orthax._polynomial.legint(legpol, m=1, k=[i], lbnd=-1)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.legendre.legval(-1, legint), i
+                beignet.orthax._polynomial.legval(-1, legint), i
             )
 
         for i in range(5):
             scl = i + 1
             pol = [0] * i + [1]
             tgt = [i] + [0] * i + [2 / scl]
-            legpol = beignet.orthax.legendre.poly2leg(pol)
-            legint = beignet.orthax.legendre.legint(legpol, m=1, k=[i], scl=2)
-            res = beignet.orthax.legendre.leg2poly(legint)
+            legpol = beignet.orthax._polynomial.poly2leg(pol)
+            legint = beignet.orthax._polynomial.legint(legpol, m=1, k=[i], scl=2)
+            res = beignet.orthax._polynomial.leg2poly(legint)
             numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
         for i in range(5):
@@ -260,8 +263,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for _ in range(j):
-                    tgt = beignet.orthax.legendre.legint(tgt, m=1)
-                res = beignet.orthax.legendre.legint(pol, m=j)
+                    tgt = beignet.orthax._polynomial.legint(tgt, m=1)
+                res = beignet.orthax._polynomial.legint(pol, m=j)
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
         for i in range(5):
@@ -269,8 +272,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.orthax.legendre.legint(tgt, m=1, k=[k])
-                res = beignet.orthax.legendre.legint(pol, m=j, k=list(range(j)))
+                    tgt = beignet.orthax._polynomial.legint(tgt, m=1, k=[k])
+                res = beignet.orthax._polynomial.legint(pol, m=j, k=list(range(j)))
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
         for i in range(5):
@@ -278,8 +281,8 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.orthax.legendre.legint(tgt, m=1, k=[k], lbnd=-1)
-                res = beignet.orthax.legendre.legint(
+                    tgt = beignet.orthax._polynomial.legint(tgt, m=1, k=[k], lbnd=-1)
+                res = beignet.orthax._polynomial.legint(
                     pol, m=j, k=list(range(j)), lbnd=-1
                 )
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
@@ -289,71 +292,77 @@ class TestIntegral:
                 pol = [0] * i + [1]
                 tgt = pol[:]
                 for k in range(j):
-                    tgt = beignet.orthax.legendre.legint(tgt, m=1, k=[k], scl=2)
-                res = beignet.orthax.legendre.legint(pol, m=j, k=list(range(j)), scl=2)
+                    tgt = beignet.orthax._polynomial.legint(tgt, m=1, k=[k], scl=2)
+                res = beignet.orthax._polynomial.legint(
+                    pol, m=j, k=list(range(j)), scl=2
+                )
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
     def test_legint_axis(self):
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.orthax.legendre.legint(c) for c in c2d.T]).T
-        res = beignet.orthax.legendre.legint(c2d, axis=0)
+        tgt = numpy.vstack([beignet.orthax._polynomial.legint(c) for c in c2d.T]).T
+        res = beignet.orthax._polynomial.legint(c2d, axis=0)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.orthax.legendre.legint(c) for c in c2d])
-        res = beignet.orthax.legendre.legint(c2d, axis=1)
+        tgt = numpy.vstack([beignet.orthax._polynomial.legint(c) for c in c2d])
+        res = beignet.orthax._polynomial.legint(c2d, axis=1)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.orthax.legendre.legint(c, k=3) for c in c2d])
-        res = beignet.orthax.legendre.legint(c2d, k=3, axis=1)
+        tgt = numpy.vstack([beignet.orthax._polynomial.legint(c, k=3) for c in c2d])
+        res = beignet.orthax._polynomial.legint(c2d, k=3, axis=1)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
     def test_legint_zerointord(self):
         numpy.testing.assert_array_equal(
-            beignet.orthax.legendre.legint((1, 2, 3), 0), (1, 2, 3)
+            beignet.orthax._polynomial.legint((1, 2, 3), 0), (1, 2, 3)
         )
 
 
 class TestDerivative:
     def test_legder(self):
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legendre.legder, [0], 0.5)
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legendre.legder, [0], -1)
+        numpy.testing.assert_raises(
+            TypeError, beignet.orthax._polynomial.legder, [0], 0.5
+        )
+        numpy.testing.assert_raises(
+            ValueError, beignet.orthax._polynomial.legder, [0], -1
+        )
 
         for i in range(5):
             tgt = [0] * i + [1]
-            res = beignet.orthax.legendre.legder(tgt, m=0)
+            res = beignet.orthax._polynomial.legder(tgt, m=0)
             numpy.testing.assert_array_equal(trim(res), trim(tgt))
 
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.orthax.legendre.legder(
-                    beignet.orthax.legendre.legint(tgt, m=j), m=j
+                res = beignet.orthax._polynomial.legder(
+                    beignet.orthax._polynomial.legint(tgt, m=j), m=j
                 )
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
         for i in range(5):
             for j in range(2, 5):
                 tgt = [0] * i + [1]
-                res = beignet.orthax.legendre.legder(
-                    beignet.orthax.legendre.legint(tgt, m=j, scl=2), m=j, scl=0.5
+                res = beignet.orthax._polynomial.legder(
+                    beignet.orthax._polynomial.legint(tgt, m=j, scl=2), m=j, scl=0.5
                 )
                 numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
     def test_legder_axis(self):
         c2d = numpy.random.random((3, 4))
 
-        tgt = numpy.vstack([beignet.orthax.legendre.legder(c) for c in c2d.T]).T
-        res = beignet.orthax.legendre.legder(c2d, axis=0)
+        tgt = numpy.vstack([beignet.orthax._polynomial.legder(c) for c in c2d.T]).T
+        res = beignet.orthax._polynomial.legder(c2d, axis=0)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
-        tgt = numpy.vstack([beignet.orthax.legendre.legder(c) for c in c2d])
-        res = beignet.orthax.legendre.legder(c2d, axis=1)
+        tgt = numpy.vstack([beignet.orthax._polynomial.legder(c) for c in c2d])
+        res = beignet.orthax._polynomial.legder(c2d, axis=1)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
     def test_legder_orderhigherthancoeff(self):
         c = (1, 2, 3, 4)
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legder(c, 4), [0])
+        numpy.testing.assert_array_equal(beignet.orthax._polynomial.legder(c, 4), [0])
 
 
 class TestVander:
@@ -361,48 +370,48 @@ class TestVander:
 
     def test_legvander(self):
         x = numpy.arange(3)
-        v = beignet.orthax.legendre.legvander(x, 3)
+        v = beignet.orthax._polynomial.legvander(x, 3)
         numpy.testing.assert_(v.shape == (3, 4))
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.legendre.legval(x, coef)
+                v[..., i], beignet.orthax._polynomial.legval(x, coef)
             )
 
         x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.orthax.legendre.legvander(x, 3)
+        v = beignet.orthax._polynomial.legvander(x, 3)
         numpy.testing.assert_(v.shape == (3, 2, 4))
         for i in range(4):
             coef = [0] * i + [1]
             numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.legendre.legval(x, coef)
+                v[..., i], beignet.orthax._polynomial.legval(x, coef)
             )
 
     def test_legvander2d(self):
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3))
-        van = beignet.orthax.legendre.legvander2d(x1, x2, (1, 2))
-        tgt = beignet.orthax.legendre.legval2d(x1, x2, c)
+        van = beignet.orthax._polynomial.legvander2d(x1, x2, (1, 2))
+        tgt = beignet.orthax._polynomial.legval2d(x1, x2, c)
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
-        van = beignet.orthax.legendre.legvander2d([x1], [x2], (1, 2))
+        van = beignet.orthax._polynomial.legvander2d([x1], [x2], (1, 2))
         numpy.testing.assert_(van.shape == (1, 5, 6))
 
     def test_legvander3d(self):
         x1, x2, x3 = self.x
         c = numpy.random.random((2, 3, 4))
-        van = beignet.orthax.legendre.legvander3d(x1, x2, x3, (1, 2, 3))
-        tgt = beignet.orthax.legendre.legval3d(x1, x2, x3, c)
+        van = beignet.orthax._polynomial.legvander3d(x1, x2, x3, (1, 2, 3))
+        tgt = beignet.orthax._polynomial.legval3d(x1, x2, x3, c)
         res = numpy.dot(van, c.flat)
         numpy.testing.assert_array_almost_equal(res, tgt)
 
-        van = beignet.orthax.legendre.legvander3d([x1], [x2], [x3], (1, 2, 3))
+        van = beignet.orthax._polynomial.legvander3d([x1], [x2], [x3], (1, 2, 3))
         numpy.testing.assert_(van.shape == (1, 5, 24))
 
     def test_legvander_negdeg(self):
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legvander, (1, 2, 3), -1
+            ValueError, beignet.orthax._polynomial.legvander, (1, 2, 3), -1
         )
 
 
@@ -415,108 +424,110 @@ class TestFitting:
             return x**4 + x**2 + 1
 
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legfit, [1], [1], -1
+            ValueError, beignet.orthax._polynomial.legfit, [1], [1], -1
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [[1]], [1], 0
+            TypeError, beignet.orthax._polynomial.legfit, [[1]], [1], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [], [1], 0
+            TypeError, beignet.orthax._polynomial.legfit, [], [1], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1], [[[1]]], 0
+            TypeError, beignet.orthax._polynomial.legfit, [1], [[[1]]], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1, 2], [1], 0
+            TypeError, beignet.orthax._polynomial.legfit, [1, 2], [1], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1], [1, 2], 0
+            TypeError, beignet.orthax._polynomial.legfit, [1], [1, 2], 0
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1], [1], 0, w=[[1]]
+            TypeError, beignet.orthax._polynomial.legfit, [1], [1], 0, w=[[1]]
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1], [1], 0, w=[1, 1]
+            TypeError, beignet.orthax._polynomial.legfit, [1], [1], 0, w=[1, 1]
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legfit, [1], [1], (-1,)
+            ValueError, beignet.orthax._polynomial.legfit, [1], [1], (-1,)
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legfit, [1], [1], (2, -1, 6)
+            ValueError, beignet.orthax._polynomial.legfit, [1], [1], (2, -1, 6)
         )
         numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legendre.legfit, [1], [1], ()
+            TypeError, beignet.orthax._polynomial.legfit, [1], [1], ()
         )
 
         x = numpy.linspace(0, 2)
         y = f(x)
 
-        coef3 = beignet.orthax.legendre.legfit(x, y, 3)
+        coef3 = beignet.orthax._polynomial.legfit(x, y, 3)
         numpy.testing.assert_array_equal(len(coef3), 4)
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef3), y
+            beignet.orthax._polynomial.legval(x, coef3), y
         )
-        coef3 = beignet.orthax.legendre.legfit(x, y, (0, 1, 2, 3))
+        coef3 = beignet.orthax._polynomial.legfit(x, y, (0, 1, 2, 3))
         numpy.testing.assert_array_equal(len(coef3), 4)
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef3), y
+            beignet.orthax._polynomial.legval(x, coef3), y
         )
 
-        coef4 = beignet.orthax.legendre.legfit(x, y, 4)
+        coef4 = beignet.orthax._polynomial.legfit(x, y, 4)
         numpy.testing.assert_array_equal(len(coef4), 5)
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef4), y
+            beignet.orthax._polynomial.legval(x, coef4), y
         )
-        coef4 = beignet.orthax.legendre.legfit(x, y, (0, 1, 2, 3, 4))
+        coef4 = beignet.orthax._polynomial.legfit(x, y, (0, 1, 2, 3, 4))
         numpy.testing.assert_array_equal(len(coef4), 5)
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef4), y
-        )
-
-        coef4 = beignet.orthax.legendre.legfit(x, y, (2, 3, 4, 1, 0))
-        numpy.testing.assert_array_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef4), y
+            beignet.orthax._polynomial.legval(x, coef4), y
         )
 
-        coef2d = beignet.orthax.legendre.legfit(x, numpy.array([y, y]).T, 3)
+        coef4 = beignet.orthax._polynomial.legfit(x, y, (2, 3, 4, 1, 0))
+        numpy.testing.assert_array_equal(len(coef4), 5)
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax._polynomial.legval(x, coef4), y
+        )
+
+        coef2d = beignet.orthax._polynomial.legfit(x, numpy.array([y, y]).T, 3)
         numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.orthax.legendre.legfit(x, numpy.array([y, y]).T, (0, 1, 2, 3))
+        coef2d = beignet.orthax._polynomial.legfit(
+            x, numpy.array([y, y]).T, (0, 1, 2, 3)
+        )
         numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
 
         w = numpy.zeros_like(x)
         yw = y.copy()
         w[1::2] = 1
         y[0::2] = 0
-        wcoef3 = beignet.orthax.legendre.legfit(x, yw, 3, w=w)
+        wcoef3 = beignet.orthax._polynomial.legfit(x, yw, 3, w=w)
         numpy.testing.assert_array_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.orthax.legendre.legfit(x, yw, (0, 1, 2, 3), w=w)
+        wcoef3 = beignet.orthax._polynomial.legfit(x, yw, (0, 1, 2, 3), w=w)
         numpy.testing.assert_array_almost_equal(wcoef3, coef3)
 
-        wcoef2d = beignet.orthax.legendre.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
+        wcoef2d = beignet.orthax._polynomial.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
         numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.orthax.legendre.legfit(
+        wcoef2d = beignet.orthax._polynomial.legfit(
             x, numpy.array([yw, yw]).T, (0, 1, 2, 3), w=w
         )
         numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
 
         x = [1, 1j, -1, -1j]
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legfit(x, x, 1), [0, 1]
+            beignet.orthax._polynomial.legfit(x, x, 1), [0, 1]
         )
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legfit(x, x, (0, 1)), [0, 1]
+            beignet.orthax._polynomial.legfit(x, x, (0, 1)), [0, 1]
         )
 
         x = numpy.linspace(-1, 1)
         y = f2(x)
-        coef1 = beignet.orthax.legendre.legfit(x, y, 4)
+        coef1 = beignet.orthax._polynomial.legfit(x, y, 4)
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef1), y
+            beignet.orthax._polynomial.legval(x, coef1), y
         )
-        coef2 = beignet.orthax.legendre.legfit(x, y, (0, 2, 4))
+        coef2 = beignet.orthax._polynomial.legfit(x, y, (0, 2, 4))
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legval(x, coef2), y
+            beignet.orthax._polynomial.legval(x, coef2), y
         )
         numpy.testing.assert_array_almost_equal(coef1, coef2)
 
@@ -524,30 +535,30 @@ class TestFitting:
 class TestCompanion:
     def test_raises(self):
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legcompanion, []
+            ValueError, beignet.orthax._polynomial.legcompanion, []
         )
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legcompanion, [1]
+            ValueError, beignet.orthax._polynomial.legcompanion, [1]
         )
 
     def test_dimensions(self):
         for i in range(1, 5):
             coef = [0] * i + [1]
             numpy.testing.assert_(
-                beignet.orthax.legendre.legcompanion(coef).shape == (i, i)
+                beignet.orthax._polynomial.legcompanion(coef).shape == (i, i)
             )
 
     def test_linear_root(self):
         numpy.testing.assert_(
-            beignet.orthax.legendre.legcompanion([1, 2])[0, 0] == -0.5
+            beignet.orthax._polynomial.legcompanion([1, 2])[0, 0] == -0.5
         )
 
 
 class TestGauss:
     def test_100(self):
-        x, w = beignet.orthax.legendre.leggauss(100)
+        x, w = beignet.orthax._polynomial.leggauss(100)
 
-        v = beignet.orthax.legendre.legvander(x, 99)
+        v = beignet.orthax._polynomial.legvander(x, 99)
         vv = numpy.dot(v.T * w, v)
         vd = 1 / numpy.sqrt(vv.diagonal())
         vv = vd[:, None] * vv * vd
@@ -559,30 +570,30 @@ class TestGauss:
 
 class TestMisc:
     def test_legfromroots(self):
-        res = beignet.orthax.legendre.legfromroots([])
+        res = beignet.orthax._polynomial.legfromroots([])
         numpy.testing.assert_array_almost_equal(trim(res), [1])
         for i in range(1, 5):
             roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.orthax.legendre.legfromroots(roots)
-            res = beignet.orthax.legendre.legval(roots, pol)
+            pol = beignet.orthax._polynomial.legfromroots(roots)
+            res = beignet.orthax._polynomial.legval(roots, pol)
             tgt = 0
             numpy.testing.assert_(len(pol) == i + 1)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.legendre.leg2poly(pol)[-1], 1
+                beignet.orthax._polynomial.leg2poly(pol)[-1], 1
             )
             numpy.testing.assert_array_almost_equal(res, tgt)
 
     def test_legroots(self):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legroots([1]), []
+            beignet.orthax._polynomial.legroots([1]), []
         )
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legendre.legroots([1, 2]), [-0.5]
+            beignet.orthax._polynomial.legroots([1, 2]), [-0.5]
         )
         for i in range(2, 5):
             tgt = numpy.linspace(-1, 1, i)
-            res = beignet.orthax.legendre.legroots(
-                beignet.orthax.legendre.legfromroots(tgt)
+            res = beignet.orthax._polynomial.legroots(
+                beignet.orthax._polynomial.legfromroots(tgt)
             )
             numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
@@ -590,39 +601,43 @@ class TestMisc:
         coef = [2, -1, 1, 0]
 
         numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legendre.legtrim, coef, -1
+            ValueError, beignet.orthax._polynomial.legtrim, coef, -1
         )
 
         numpy.testing.assert_array_equal(
-            beignet.orthax.legendre.legtrim(coef), coef[:-1]
+            beignet.orthax._polynomial.legtrim(coef), coef[:-1]
         )
         numpy.testing.assert_array_equal(
-            beignet.orthax.legendre.legtrim(coef, 1), coef[:-3]
+            beignet.orthax._polynomial.legtrim(coef, 1), coef[:-3]
         )
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legtrim(coef, 2), [0])
+        numpy.testing.assert_array_equal(
+            beignet.orthax._polynomial.legtrim(coef, 2), [0]
+        )
 
     def test_legline(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legendre.legline(3, 4), [3, 4])
+        numpy.testing.assert_array_equal(
+            beignet.orthax._polynomial.legline(3, 4), [3, 4]
+        )
 
     def test_legline_zeroscl(self):
         numpy.testing.assert_array_equal(
-            trim(beignet.orthax.legendre.legline(3, 0)), [3]
+            trim(beignet.orthax._polynomial.legline(3, 0)), [3]
         )
 
     def test_leg2poly(self):
         for i in range(10):
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.legendre.leg2poly([0] * i + [1]), Llist[i]
+                beignet.orthax._polynomial.leg2poly([0] * i + [1]), Llist[i]
             )
 
     def test_poly2leg(self):
         for i in range(10):
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.legendre.poly2leg(Llist[i]), [0] * i + [1]
+                beignet.orthax._polynomial.poly2leg(Llist[i]), [0] * i + [1]
             )
 
     def test_weight(self):
         x = numpy.linspace(-1, 1, 11)
         tgt = 1.0
-        res = beignet.orthax.legendre.legweight(x)
+        res = beignet.orthax._polynomial.legweight(x)
         numpy.testing.assert_array_almost_equal(res, tgt)
