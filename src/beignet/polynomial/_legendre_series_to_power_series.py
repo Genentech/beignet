@@ -1,3 +1,4 @@
+import torch
 from torch import Tensor
 
 from .__as_series import _as_series
@@ -8,17 +9,26 @@ from ._subtract_power_series import subtract_power_series
 
 def legendre_series_to_power_series(input: Tensor) -> Tensor:
     (input,) = _as_series([input])
+
     n = len(input)
+
     if n < 3:
         return input
-    else:
-        c0 = input[-2]
-        c1 = input[-1]
 
-        for i in range(n - 1, 1, -1):
-            tmp = c0
-            c0 = subtract_power_series(input[i - 2], (c1 * (i - 1)) / i)
-            c1 = add_power_series(
-                tmp, (multiply_power_series_by_x(c1) * (2 * i - 1)) / i
-            )
-        return add_power_series(c0, multiply_power_series_by_x(c1))
+    a = torch.ravel(input[-2])
+    b = torch.ravel(input[-1])
+
+    for index in range(n - 1, 1, -1):
+        c = a
+        e = torch.ravel(input[index - 2])
+        f = (b * (index - 1)) / index
+        a = subtract_power_series(e, f)
+        g = multiply_power_series_by_x(b) * (2 * index - 1)
+        d = g / index
+        b = add_power_series(c, d)
+
+    x = multiply_power_series_by_x(b)
+
+    output = add_power_series(a, x)
+
+    return output

@@ -1,30 +1,41 @@
 import beignet.polynomial
-import numpy
+import pytest
 import torch
 
 
 def test_legendre_series_vandermonde_1d():
-    x = torch.arange(3)
-    v = beignet.polynomial.legendre_series_vandermonde_1d(x, 3)
-    assert v.shape == (3, 4)
-    for i in range(4):
-        coef = [0] * i + [1]
+    input = torch.arange(3)
+
+    output = beignet.polynomial.legendre_series_vandermonde_1d(input, 3)
+
+    assert output.shape == (3, 4)
+
+    for index in range(4):
         torch.testing.assert_close(
-            v[..., i], beignet.polynomial.evaluate_legendre_series_1d(x, coef)
+            output[..., index],
+            beignet.polynomial.evaluate_legendre_series_1d(
+                input,
+                torch.tensor([0] * index + [1]),
+            ),
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
-    v = beignet.polynomial.legendre_series_vandermonde_1d(x, 3)
-    assert v.shape == (3, 2, 4)
-    for i in range(4):
-        coef = [0] * i + [1]
+    input = torch.tensor([[1, 2], [3, 4], [5, 6]])
+
+    output = beignet.polynomial.legendre_series_vandermonde_1d(input, 3)
+
+    assert output.shape == (3, 2, 4)
+
+    for index in range(4):
         torch.testing.assert_close(
-            v[..., i], beignet.polynomial.evaluate_legendre_series_1d(x, coef)
+            output[..., index],
+            beignet.polynomial.evaluate_legendre_series_1d(
+                input,
+                [0] * index + [1],
+            ),
         )
 
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial.legendre_series_vandermonde_1d,
-        (1, 2, 3),
-        -1,
-    )
+    with pytest.raises(ValueError):
+        beignet.polynomial.legendre_series_vandermonde_1d(
+            torch.tensor([1, 2, 3]),
+            -1,
+        )
