@@ -21,7 +21,7 @@ def test_chebyshev_series_roots():
         torch.testing.assert_close(
             beignet.polynomial.trim_chebyshev_series(
                 beignet.polynomial.chebyshev_series_roots(
-                    beignet.polynomial.chebfromroots(
+                    beignet.polynomial.chebyshev_series_from_roots(
                         torch.linspace(-1, 1, index),
                     )
                 ),

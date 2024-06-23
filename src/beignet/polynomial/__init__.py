@@ -23,7 +23,6 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebfromroots import chebfromroots
 from ._chebgauss import chebgauss
 from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
@@ -33,6 +32,7 @@ from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
 from ._chebyshev_series_companion import chebyshev_series_companion
 from ._chebyshev_series_domain import chebyshev_series_domain
+from ._chebyshev_series_from_roots import chebyshev_series_from_roots
 from ._chebyshev_series_line import chebyshev_series_line
 from ._chebyshev_series_one import chebyshev_series_one
 from ._chebyshev_series_roots import chebyshev_series_roots
@@ -170,7 +170,6 @@ from ._physicists_hermite_series_vandermonde_3d import (
 )
 from ._physicists_hermite_series_weight import physicists_hermite_series_weight
 from ._physicists_hermite_series_x import physicists_hermite_series_x
-from ._polyfromroots import polyfromroots
 from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
 from ._polymulx import polymulx
@@ -183,6 +182,7 @@ from ._pow_power_series import pow_power_series
 from ._pow_probabilists_hermite_series import pow_probabilists_hermite_series
 from ._power_series_companion import power_series_companion
 from ._power_series_domain import power_series_domain
+from ._power_series_from_roots import power_series_from_roots
 from ._power_series_line import power_series_line
 from ._power_series_one import power_series_one
 from ._power_series_roots import power_series_roots
@@ -264,7 +264,7 @@ __all__ = [
     "add_physicists_hermite_series",
     "add_power_series",
     "add_probabilists_hermite_series",
-    "chebfromroots",
+    "chebyshev_series_from_roots",
     "chebgauss",
     "chebgrid2d",
     "chebgrid3d",
@@ -386,7 +386,7 @@ __all__ = [
     "physicists_hermite_series_vandermonde_3d",
     "physicists_hermite_series_weight",
     "physicists_hermite_series_x",
-    "polyfromroots",
+    "power_series_from_roots",
     "polygrid2d",
     "polygrid3d",
     "polymulx",

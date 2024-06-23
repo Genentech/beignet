@@ -5,7 +5,7 @@ import torch.testing
 def test_chebfromroots():
     torch.testing.assert_close(
         beignet.polynomial.trim_chebyshev_series(
-            beignet.polynomial.chebfromroots(
+            beignet.polynomial.chebyshev_series_from_roots(
                 torch.tensor([]),
             ),
             tolerance=1e-6,
@@ -20,7 +20,7 @@ def test_chebfromroots():
 
         roots = torch.cos(roots)
 
-        output = beignet.polynomial.chebfromroots(roots)
+        output = beignet.polynomial.chebyshev_series_from_roots(roots)
 
         torch.testing.assert_close(
             beignet.polynomial.trim_chebyshev_series(

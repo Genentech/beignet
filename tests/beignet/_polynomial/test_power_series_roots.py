@@ -21,7 +21,7 @@ def test_power_series_roots():
         torch.testing.assert_close(
             beignet.polynomial.trim_power_series(
                 beignet.polynomial.power_series_roots(
-                    beignet.polynomial.polyfromroots(
+                    beignet.polynomial.power_series_from_roots(
                         torch.linspace(-1, 1, i),
                     )
                 ),

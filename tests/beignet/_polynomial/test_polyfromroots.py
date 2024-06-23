@@ -7,7 +7,7 @@ from tests.beignet._polynomial.test_polynomial import polynomial_coefficients
 def test_polyfromroots():
     torch.testing.assert_close(
         beignet.polynomial.trim_power_series(
-            beignet.polynomial.polyfromroots(
+            beignet.polynomial.power_series_from_roots(
                 torch.tensor([]),
             ),
             tolerance=1e-6,
@@ -20,7 +20,7 @@ def test_polyfromroots():
 
         torch.testing.assert_close(
             beignet.polynomial.trim_power_series(
-                beignet.polynomial.polyfromroots(
+                beignet.polynomial.power_series_from_roots(
                     roots,
                 )
                 * 2 ** (i - 1),
