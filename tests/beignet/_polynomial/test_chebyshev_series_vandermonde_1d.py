@@ -1,24 +1,32 @@
 import beignet.polynomial
-import beignet.polynomial._chebyshev_series_vandermonde_1d
-import beignet.polynomial._evaluate_chebyshev_series_1d
-import numpy
+import torch.testing
 
 
 def test_chebyshev_series_vandermonde_1d():
-    x = numpy.arange(3)
-    v = beignet.polynomial.chebyshev_series_vandermonde_1d(x, 3)
-    numpy.testing.assert_(v.shape == (3, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
-        numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial.evaluate_chebyshev_series_1d(x, coef)
+    x = torch.arange(3)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            beignet.polynomial.chebyshev_series_vandermonde_1d(
+                x,
+                3,
+            )[..., index],
+            beignet.polynomial.evaluate_chebyshev_series_1d(
+                x,
+                [0] * index + [1],
+            ),
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
-    v = beignet.polynomial.chebyshev_series_vandermonde_1d(x, 3)
-    numpy.testing.assert_(v.shape == (3, 2, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
-        numpy.testing.assert_almost_equal(
-            v[..., i], beignet.polynomial.evaluate_chebyshev_series_1d(x, coef)
+    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+
+    for index in range(4):
+        torch.testing.assert_close(
+            beignet.polynomial.chebyshev_series_vandermonde_1d(
+                x,
+                3,
+            )[..., index],
+            beignet.polynomial.evaluate_chebyshev_series_1d(
+                x,
+                [0] * index + [1],
+            ),
         )
