@@ -1,13 +1,13 @@
 import beignet.polynomial
 import beignet.polynomial._probabilists_hermite_series_to_power_series
-import numpy
+import torch
 
 from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coefficients
 
 
 def test_probabilists_hermite_series_to_power_series():
     for i in range(10):
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._herme2poly.probabilists_hermite_series_to_power_series(
                 [0] * i + [1]
             ),

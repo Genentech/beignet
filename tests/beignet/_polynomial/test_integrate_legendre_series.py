@@ -30,7 +30,7 @@ def test_integrate_legendre_series():
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._legint.integrate_legendre_series([0], m=i, k=k), [0, 1]
         )
 
@@ -42,7 +42,7 @@ def test_integrate_legendre_series():
         legint = beignet.polynomial._legint.integrate_legendre_series(
             legpol, m=1, k=[i]
         )
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._legtrim.trim_legendre_series(
                 beignet.polynomial._leg2poly.legendre_series_to_power_series(legint),
                 tolerance=1e-6,
@@ -57,7 +57,7 @@ def test_integrate_legendre_series():
         legint = beignet.polynomial._legint.integrate_legendre_series(
             legpol, m=1, k=[i], lbnd=-1
         )
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._legval.evaluate_legendre_series_1d(-1, legint), i
         )
 
@@ -70,7 +70,7 @@ def test_integrate_legendre_series():
             legpol, m=1, k=[i], scl=2
         )
         res = beignet.polynomial._leg2poly.legendre_series_to_power_series(legint)
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
             beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
         )
@@ -82,7 +82,7 @@ def test_integrate_legendre_series():
             for _ in range(j):
                 tgt = beignet.polynomial._legint.integrate_legendre_series(tgt, m=1)
             res = beignet.polynomial._legint.integrate_legendre_series(pol, m=j)
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
@@ -98,7 +98,7 @@ def test_integrate_legendre_series():
             res = beignet.polynomial._legint.integrate_legendre_series(
                 pol, m=j, k=list(range(j))
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
@@ -114,7 +114,7 @@ def test_integrate_legendre_series():
             res = beignet.polynomial._legint.integrate_legendre_series(
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
@@ -127,7 +127,7 @@ def test_integrate_legendre_series():
                 tgt = beignet.polynomial._legint.integrate_legendre_series(
                     tgt, m=1, k=[k], scl=2
                 )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(
                     beignet.polynomial._legint.integrate_legendre_series(
                         pol, m=j, k=list(range(j)), scl=2
@@ -138,19 +138,19 @@ def test_integrate_legendre_series():
             )
 
     c2d = numpy.random.random((3, 4))
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._legint.integrate_legendre_series(c2d, axis=0),
         numpy.vstack(
             [beignet.polynomial._legint.integrate_legendre_series(c) for c in c2d.T]
         ).T,
     )
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._legint.integrate_legendre_series(c2d, axis=1),
         numpy.vstack(
             [beignet.polynomial._legint.integrate_legendre_series(c) for c in c2d]
         ),
     )
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._legint.integrate_legendre_series(c2d, k=3, axis=1),
         numpy.vstack(
             [beignet.polynomial._legint.integrate_legendre_series(c, k=3) for c in c2d]

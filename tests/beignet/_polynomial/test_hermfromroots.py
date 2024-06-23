@@ -4,11 +4,12 @@ import beignet.polynomial._hermfromroots
 import beignet.polynomial._physicists_hermite_series_to_power_series
 import beignet.polynomial._trim_physicists_hermite_series
 import numpy
+import torch
 
 
 def test_hermfromroots():
     res = beignet.polynomial._hermfromroots.hermfromroots([])
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._hermtrim.trim_physicists_hermite_series(
             res, tolerance=1e-6
         ),
@@ -21,11 +22,11 @@ def test_hermfromroots():
             roots, pol
         )
         tgt = 0
-        numpy.testing.assert_(len(pol) == i + 1)
-        numpy.testing.assert_almost_equal(
+        assert len(pol) == i + 1
+        torch.testing.assert_close(
             beignet.polynomial._herm2poly.physicists_hermite_series_to_power_series(
                 pol
             )[-1],
             1,
         )
-        numpy.testing.assert_almost_equal(res, tgt)
+        torch.testing.assert_close(res, tgt)

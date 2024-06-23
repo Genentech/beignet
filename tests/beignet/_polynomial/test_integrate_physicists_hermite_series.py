@@ -5,6 +5,7 @@ import beignet.polynomial._physicists_hermite_series_to_power_series
 import beignet.polynomial._power_series_to_physicists_hermite_series
 import beignet.polynomial._trim_physicists_hermite_series
 import numpy
+import torch
 
 
 def test_integrate_physicists_hermite_series():
@@ -51,7 +52,7 @@ def test_integrate_physicists_hermite_series():
         res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
             [0], m=i, k=k
         )
-        numpy.testing.assert_almost_equal(res, [0, 0.5])
+        torch.testing.assert_close(res, [0, 0.5])
 
     for i in range(5):
         scl = i + 1
@@ -66,7 +67,7 @@ def test_integrate_physicists_hermite_series():
         res = beignet.polynomial._herm2poly.physicists_hermite_series_to_power_series(
             hermint
         )
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                 res, tolerance=1e-6
             ),
@@ -84,7 +85,7 @@ def test_integrate_physicists_hermite_series():
         hermint = beignet.polynomial._hermint.integrate_physicists_hermite_series(
             hermpol, m=1, k=[i], lbnd=-1
         )
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
                 -1, hermint
             ),
@@ -104,7 +105,7 @@ def test_integrate_physicists_hermite_series():
         res = beignet.polynomial._herm2poly.physicists_hermite_series_to_power_series(
             hermint
         )
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                 res, tolerance=1e-6
             ),
@@ -124,7 +125,7 @@ def test_integrate_physicists_hermite_series():
             res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
                 pol, m=j
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -144,7 +145,7 @@ def test_integrate_physicists_hermite_series():
             res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
                 pol, m=j, k=list(range(j))
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -164,7 +165,7 @@ def test_integrate_physicists_hermite_series():
             res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
                 pol, m=j, k=list(range(j)), lbnd=-1
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -184,7 +185,7 @@ def test_integrate_physicists_hermite_series():
             res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
                 pol, m=j, k=list(range(j)), scl=2
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermtrim.trim_physicists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -202,7 +203,7 @@ def test_integrate_physicists_hermite_series():
         ]
     ).T
     res = beignet.polynomial._hermint.integrate_physicists_hermite_series(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [
@@ -211,7 +212,7 @@ def test_integrate_physicists_hermite_series():
         ]
     )
     res = beignet.polynomial._hermint.integrate_physicists_hermite_series(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [
@@ -222,4 +223,4 @@ def test_integrate_physicists_hermite_series():
     res = beignet.polynomial._hermint.integrate_physicists_hermite_series(
         c2d, k=3, axis=1
     )
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)

@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._chebgrid3d
 import beignet.polynomial._evaluate_power_series_1d
 import numpy
+import torch
 
 
 def test_chebgrid3d():
@@ -16,7 +17,7 @@ def test_chebgrid3d():
     y1, y2, y3 = y
 
     tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._chebgrid3d.chebgrid3d(x1, x2, x3, c3d), tgt
     )
 

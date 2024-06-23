@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._evaluate_power_series_1d
 import beignet.polynomial._hermegrid2d
 import numpy
+import torch
 
 
 def test_hermegrid2d():
@@ -16,8 +17,8 @@ def test_hermegrid2d():
 
     tgt = numpy.einsum("i,j->ij", y1, y2)
     res = beignet.polynomial._hermegrid2d.hermegrid2d(x1, x2, c2d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     z = numpy.ones((2, 3))
     res = beignet.polynomial._hermegrid2d.hermegrid2d(z, z, c2d)
-    numpy.testing.assert_(res.shape == (2, 3) * 2)
+    assert res.shape == (2, 3) * 2

@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._chebinterpolate
 import beignet.polynomial._evaluate_chebyshev_series_1d
 import numpy
+import torch
 
 
 def test_chebinterpolate():
@@ -28,7 +29,7 @@ def test_chebinterpolate():
     for deg in range(0, 10):
         for p in range(0, deg + 1):
             c = beignet.polynomial._chebinterpolate.chebinterpolate(powx, deg, (p,))
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._chebval.evaluate_chebyshev_series_1d(x, c),
                 powx(x, p),
                 decimal=12,

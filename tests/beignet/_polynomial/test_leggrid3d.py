@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._evaluate_power_series_1d
 import beignet.polynomial._leggrid3d
 import numpy
+import torch
 
 
 def test_leggrid3d():
@@ -17,8 +18,8 @@ def test_leggrid3d():
 
     tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
     res = beignet.polynomial._leggrid3d.leggrid3d(x1, x2, x3, c3d)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     z = numpy.ones((2, 3))
     res = beignet.polynomial._leggrid3d.leggrid3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3) * 3)
+    assert res.shape == (2, 3) * 3

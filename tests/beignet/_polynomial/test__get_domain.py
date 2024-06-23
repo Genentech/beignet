@@ -1,11 +1,10 @@
 import beignet.polynomial
 import beignet.polynomial.__get_domain
-import numpy
 import torch
 
 
 def test__get_domain():
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.__get_domain._get_domain(
             torch.tensor(
                 [
@@ -19,7 +18,7 @@ def test__get_domain():
         [-1, +3],
     )
 
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.__get_domain._get_domain(
             torch.tensor(
                 [

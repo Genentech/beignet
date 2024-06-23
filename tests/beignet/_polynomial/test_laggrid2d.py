@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._evaluate_power_series_1d
 import beignet.polynomial._laggrid2d
 import numpy
+import torch
 
 
 def test_laggrid2d():
@@ -12,7 +13,7 @@ def test_laggrid2d():
     x1, x2, x3 = x
     y1, y2, y3 = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial._laggrid2d.laggrid2d(x1, x2, c2d),
         numpy.einsum("i,j->ij", y1, y2),
     )

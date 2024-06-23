@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._laggauss
 import beignet.polynomial._laguerre_series_vandermonde_1d
 import numpy
+import torch
 
 
 def test_laggauss():
@@ -11,5 +12,5 @@ def test_laggauss():
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
-    numpy.testing.assert_almost_equal(vv, numpy.eye(100))
-    numpy.testing.assert_almost_equal(w.sum(), 1.0)
+    torch.testing.assert_close(vv, numpy.eye(100))
+    torch.testing.assert_close(w.sum(), 1.0)

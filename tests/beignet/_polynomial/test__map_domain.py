@@ -1,10 +1,11 @@
 import beignet.polynomial
 import beignet.polynomial.__map_domain
 import numpy
+import torch
 
 
 def test__map_domain():
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.__map_domain._map_domain(
             [0, 4],
             [0, 4],
@@ -13,7 +14,7 @@ def test__map_domain():
         [1, 3],
     )
 
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.__map_domain._map_domain(
             [0 - 1j, 2 + 1j],
             [0 - 1j, 2 + 1j],
@@ -21,7 +22,7 @@ def test__map_domain():
         ),
         [-2, 2],
     )
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.__map_domain._map_domain(
             numpy.array([[0, 4], [0, 4]]),
             [0, 4],

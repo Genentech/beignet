@@ -45,7 +45,7 @@ def test_differentiate_probabilists_hermite_series():
                     m=j,
                 )
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -66,7 +66,7 @@ def test_differentiate_probabilists_hermite_series():
                     scl=0.5,
                 )
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
                     res, tolerance=1e-6
                 ),
@@ -86,7 +86,7 @@ def test_differentiate_probabilists_hermite_series():
     res = beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
         c2d, axis=0
     )
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [
@@ -97,4 +97,4 @@ def test_differentiate_probabilists_hermite_series():
     res = beignet.polynomial._hermeder.differentiate_probabilists_hermite_series(
         c2d, axis=1
     )
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)

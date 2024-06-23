@@ -28,7 +28,7 @@ def test_differentiate_laguerre_series():
             res = beignet.polynomial._lagder.differentiate_laguerre_series(
                 beignet.polynomial._lagint.integrate_laguerre_series(tgt, m=j), m=j
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
                 beignet.polynomial._lagtrim.trim_laguerre_series(tgt, tolerance=1e-6),
             )
@@ -41,7 +41,7 @@ def test_differentiate_laguerre_series():
                 m=j,
                 scl=0.5,
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._lagtrim.trim_laguerre_series(res, tolerance=1e-6),
                 beignet.polynomial._lagtrim.trim_laguerre_series(tgt, tolerance=1e-6),
             )
@@ -52,10 +52,10 @@ def test_differentiate_laguerre_series():
         [beignet.polynomial._lagder.differentiate_laguerre_series(c) for c in c2d.T]
     ).T
     res = beignet.polynomial._lagder.differentiate_laguerre_series(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [beignet.polynomial._lagder.differentiate_laguerre_series(c) for c in c2d]
     )
     res = beignet.polynomial._lagder.differentiate_laguerre_series(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)

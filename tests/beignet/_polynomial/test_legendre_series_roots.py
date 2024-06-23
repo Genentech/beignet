@@ -1,19 +1,18 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_legendre_series_roots():
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.legendre_series_roots([1]),
         [],
     )
 
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.legendre_series_roots([1, 2]), [-0.5]
-    )
+    torch.testing.assert_close(beignet.polynomial.legendre_series_roots([1, 2]), [-0.5])
 
     for i in range(2, 5):
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial.trim_legendre_series(
                 beignet.polynomial.legendre_series_roots(
                     beignet.polynomial.legfromroots(

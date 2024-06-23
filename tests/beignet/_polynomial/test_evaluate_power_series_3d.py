@@ -1,5 +1,6 @@
 import beignet.polynomial
 import numpy
+import torch
 
 
 def test_evaluate_power_series_3d():
@@ -21,7 +22,7 @@ def test_evaluate_power_series_3d():
     )
 
     tgt = y1 * y2 * y3
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.evaluate_power_series_3d(x1, x2, x3, c3d), tgt
     )
 

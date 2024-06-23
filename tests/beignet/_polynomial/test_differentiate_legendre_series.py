@@ -28,7 +28,7 @@ def test_differentiate_legendre_series():
             res = beignet.polynomial._legder.differentiate_legendre_series(
                 beignet.polynomial._legint.integrate_legendre_series(tgt, m=j), m=j
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
@@ -41,7 +41,7 @@ def test_differentiate_legendre_series():
                 m=j,
                 scl=0.5,
             )
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial._legtrim.trim_legendre_series(res, tolerance=1e-6),
                 beignet.polynomial._legtrim.trim_legendre_series(tgt, tolerance=1e-6),
             )
@@ -52,13 +52,13 @@ def test_differentiate_legendre_series():
         [beignet.polynomial._legder.differentiate_legendre_series(c) for c in c2d.T]
     ).T
     res = beignet.polynomial._legder.differentiate_legendre_series(c2d, axis=0)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     tgt = numpy.vstack(
         [beignet.polynomial._legder.differentiate_legendre_series(c) for c in c2d]
     )
     res = beignet.polynomial._legder.differentiate_legendre_series(c2d, axis=1)
-    numpy.testing.assert_almost_equal(res, tgt)
+    torch.testing.assert_close(res, tgt)
 
     c = (1, 2, 3, 4)
     torch.testing.assert_close(

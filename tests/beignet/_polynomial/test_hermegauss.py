@@ -2,6 +2,7 @@ import beignet.polynomial
 import beignet.polynomial._hermegauss
 import beignet.polynomial._probabilists_hermite_series_vandermonde_1d
 import numpy
+import torch
 
 
 def test_hermegauss():
@@ -13,7 +14,7 @@ def test_hermegauss():
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
-    numpy.testing.assert_almost_equal(vv, numpy.eye(100))
+    torch.testing.assert_close(vv, numpy.eye(100))
 
     tgt = numpy.sqrt(2 * numpy.pi)
-    numpy.testing.assert_almost_equal(w.sum(), tgt)
+    torch.testing.assert_close(w.sum(), tgt)

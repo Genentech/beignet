@@ -13,7 +13,7 @@ def test_polyvalfromroots():
     )
 
     torch.testing.assert_close(beignet.polynomial.polyvalfromroots([], [1]).size, 0)
-    numpy.testing.assert_(beignet.polynomial.polyvalfromroots([], [1]).shape == (0,))
+    assert beignet.polynomial.polyvalfromroots([], [1]).shape == (0,)
 
     torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots([], [[1] * 5]).size, 0
@@ -30,13 +30,11 @@ def test_polyvalfromroots():
     x = numpy.linspace(-1, 1)
     y = [x**i for i in range(5)]
     for i in range(1, 5):
-        numpy.testing.assert_almost_equal(
+        torch.testing.assert_close(
             beignet.polynomial.polyvalfromroots(x, [0] * i), y[i]
         )
     tgt = x * (x - 1) * (x + 1)
-    numpy.testing.assert_almost_equal(
-        beignet.polynomial.polyvalfromroots(x, [-1, 0, 1]), tgt
-    )
+    torch.testing.assert_close(beignet.polynomial.polyvalfromroots(x, [-1, 0, 1]), tgt)
 
     for i in range(3):
         dims = [2] * i
@@ -54,7 +52,7 @@ def test_polyvalfromroots():
 
     ptest = [15, 2, -16, -2, 1]
     x = numpy.linspace(-1, 1)
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.evaluate_power_series_1d(x, ptest),
         beignet.polynomial.polyvalfromroots(
             x, beignet.polynomial.power_series_roots(ptest)
@@ -62,7 +60,7 @@ def test_polyvalfromroots():
     )
 
     rshape = (3, 5)
-    x = numpy.arange(-3, 2)
+    x = torch.arange(-3, 2)
     r = numpy.random.randint(-5, 5, size=rshape)
     tgt = numpy.empty(r.shape[1:])
     for ii in range(tgt.size):

@@ -27,7 +27,7 @@ def test_differentiate_chebyshev_series():
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.differentiate_chebyshev_series(
                         beignet.polynomial.integrate_chebyshev_series(tgt, m=j),
@@ -41,7 +41,7 @@ def test_differentiate_chebyshev_series():
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            numpy.testing.assert_almost_equal(
+            torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.differentiate_chebyshev_series(
                         beignet.polynomial.integrate_chebyshev_series(tgt, m=j, scl=2),
@@ -55,14 +55,14 @@ def test_differentiate_chebyshev_series():
 
     c2d = numpy.random.random((3, 4))
 
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.differentiate_chebyshev_series(c2d, axis=0),
         numpy.vstack(
             [beignet.polynomial.differentiate_chebyshev_series(c) for c in c2d.T]
         ).T,
     )
 
-    numpy.testing.assert_almost_equal(
+    torch.testing.assert_close(
         beignet.polynomial.differentiate_chebyshev_series(c2d, axis=1),
         numpy.vstack(
             [beignet.polynomial.differentiate_chebyshev_series(c) for c in c2d]
