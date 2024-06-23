@@ -364,210 +364,203 @@ class TestIntegral:
         numpy.testing.assert_array_almost_equal(res, tgt)
 
 
-class TestDerivative:
-    def test_polyder(self):
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyder, [0], 0.5)
+def test_polyder():
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyder, [0], 0.5)
 
-        for i in range(5):
+    for i in range(5):
+        tgt = [0] * i + [1]
+        res = beignet.orthax.polyder(tgt, m=0)
+        numpy.testing.assert_array_equal(trim(res), trim(tgt))
+
+    for i in range(5):
+        for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.orthax.polyder(tgt, m=0)
-            numpy.testing.assert_array_equal(trim(res), trim(tgt))
-
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.orthax.polyder(beignet.orthax.polyint(tgt, m=j), m=j)
-                numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.orthax.polyder(
-                    beignet.orthax.polyint(tgt, m=j, scl=2), m=j, scl=0.5
-                )
-                numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-    def test_polyder_axis(self):
-        c2d = numpy.random.random((3, 4))
-
-        tgt = numpy.vstack([beignet.orthax.polyder(c) for c in c2d.T]).T
-        res = beignet.orthax.polyder(c2d, axis=0)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        tgt = numpy.vstack([beignet.orthax.polyder(c) for c in c2d])
-        res = beignet.orthax.polyder(c2d, axis=1)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-
-class TestVander:
-    x = numpy.random.random((3, 5)) * 2 - 1
-
-    def test_polyvander(self):
-        x = numpy.arange(3)
-        v = beignet.orthax.polyvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.polyval(x, coef)
-            )
-
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.orthax.polyvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.polyval(x, coef)
-            )
-
-    def test_polyvander2d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.orthax.polyvander2d(x1, x2, (1, 2))
-        tgt = beignet.orthax.polyval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        van = beignet.orthax.polyvander2d([x1], [x2], (1, 2))
-        numpy.testing.assert_(van.shape == (1, 5, 6))
-
-    def test_polyvander3d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.orthax.polyvander3d(x1, x2, x3, (1, 2, 3))
-        tgt = beignet.orthax.polyval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        van = beignet.orthax.polyvander3d([x1], [x2], [x3], (1, 2, 3))
-        numpy.testing.assert_(van.shape == (1, 5, 24))
-
-    def test_polyvandernegdeg(self):
-        x = numpy.arange(3)
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polyvander, x, -1)
-
-
-class TestCompanion:
-    def test_raises(self):
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [])
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [1])
-
-    def test_dimensions(self):
-        for i in range(1, 5):
-            coef = [0] * i + [1]
-            numpy.testing.assert_(beignet.orthax.polycompanion(coef).shape == (i, i))
-
-    def test_linear_root(self):
-        numpy.testing.assert_(beignet.orthax.polycompanion([1, 2])[0, 0] == -0.5)
-
-
-class TestMisc:
-    def test_polyfromroots(self):
-        res = beignet.orthax.polyfromroots([])
-        numpy.testing.assert_array_almost_equal(trim(res), [1])
-        for i in range(1, 5):
-            roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            tgt = Tlist[i]
-            res = beignet.orthax.polyfromroots(roots) * 2 ** (i - 1)
+            res = beignet.orthax.polyder(beignet.orthax.polyint(tgt, m=j), m=j)
             numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
-    def test_polyroots(self):
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyroots([1]), [])
-        numpy.testing.assert_array_almost_equal(
-            beignet.orthax.polyroots([1, 2]), [-0.5]
-        )
-        for i in range(2, 5):
-            tgt = numpy.linspace(-1, 1, i)
-            res = beignet.orthax.polyroots(beignet.orthax.polyfromroots(tgt))
+    for i in range(5):
+        for j in range(2, 5):
+            tgt = [0] * i + [1]
+            res = beignet.orthax.polyder(
+                beignet.orthax.polyint(tgt, m=j, scl=2), m=j, scl=0.5
+            )
             numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
-    def test_polyfit(self):
-        def f(x):
-            return x * (x - 1) * (x - 2)
+    c2d = numpy.random.random((3, 4))
 
-        def f2(x):
-            return x**4 + x**2 + 1
+    tgt = numpy.vstack([beignet.orthax.polyder(c) for c in c2d.T]).T
+    res = beignet.orthax.polyder(c2d, axis=0)
+    numpy.testing.assert_array_almost_equal(res, tgt)
 
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polyfit, [1], [1], -1)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [[1]], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [[[1]]], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1, 2], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1, 2], 0)
-        numpy.testing.assert_raises(
-            TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[[1]]
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[1, 1]
-        )
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polyfit, [1], [1], (-1,))
-        numpy.testing.assert_raises(
-            ValueError, beignet.orthax.polyfit, [1], [1], (2, -1, 6)
-        )
-        numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1], ())
+    tgt = numpy.vstack([beignet.orthax.polyder(c) for c in c2d])
+    res = beignet.orthax.polyder(c2d, axis=1)
+    numpy.testing.assert_array_almost_equal(res, tgt)
 
-        x = numpy.linspace(0, 2)
-        y = f(x)
 
-        coef3 = beignet.orthax.polyfit(x, y, 3)
-        numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef3), y)
-        coef3 = beignet.orthax.polyfit(x, y, (0, 1, 2, 3))
-        numpy.testing.assert_equal(len(coef3), 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef3), y)
-
-        coef4 = beignet.orthax.polyfit(x, y, 4)
-        numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef4), y)
-        coef4 = beignet.orthax.polyfit(x, y, (0, 1, 2, 3, 4))
-        numpy.testing.assert_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef4), y)
-
-        coef2d = beignet.orthax.polyfit(x, numpy.array([y, y]).T, 3)
-        numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.orthax.polyfit(x, numpy.array([y, y]).T, (0, 1, 2, 3))
-        numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-
-        w = numpy.zeros_like(x)
-        yw = y.copy()
-        w[1::2] = 1
-        yw[0::2] = 0
-        wcoef3 = beignet.orthax.polyfit(x, yw, 3, w=w)
-        numpy.testing.assert_array_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.orthax.polyfit(x, yw, (0, 1, 2, 3), w=w)
-        numpy.testing.assert_array_almost_equal(wcoef3, coef3)
-
-        wcoef2d = beignet.orthax.polyfit(x, numpy.array([yw, yw]).T, 3, w=w)
-        numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.orthax.polyfit(x, numpy.array([yw, yw]).T, (0, 1, 2, 3), w=w)
-        numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-
-        x = [1, 1j, -1, -1j]
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyfit(x, x, 1), [0, 1])
+def test_polyvander():
+    x = numpy.arange(3)
+    v = beignet.orthax.polyvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.polyfit(x, x, (0, 1)), [0, 1]
+            v[..., i], beignet.orthax.polyval(x, coef)
         )
 
-        x = numpy.linspace(-1, 1)
-        y = f2(x)
-        coef1 = beignet.orthax.polyfit(x, y, 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef1), y)
-        coef2 = beignet.orthax.polyfit(x, y, (0, 2, 4))
-        numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef2), y)
-        numpy.testing.assert_array_almost_equal(coef1, coef2)
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.orthax.polyvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.polyval(x, coef)
+        )
 
-    def test_polytrim(self):
-        coef = [2, -1, 1, 0]
+    x = numpy.arange(3)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polyvander, x, -1)
 
-        numpy.testing.assert_raises(ValueError, beignet.orthax.polytrim, coef, -1)
 
-        numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef), coef[:-1])
-        numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 1), coef[:-3])
-        numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 2), [0])
+def test_polyvander2d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.orthax.polyvander2d(x1, x2, (1, 2))
+    tgt = beignet.orthax.polyval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
 
-    def test_polyline(self):
-        numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 4), [3, 4])
+    van = beignet.orthax.polyvander2d([x1], [x2], (1, 2))
+    numpy.testing.assert_(van.shape == (1, 5, 6))
 
-    def test_polyline_zero(self):
-        numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 0), [3, 0])
+
+def test_polyvander3d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.orthax.polyvander3d(x1, x2, x3, (1, 2, 3))
+    tgt = beignet.orthax.polyval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.polyvander3d([x1], [x2], [x3], (1, 2, 3))
+    numpy.testing.assert_(van.shape == (1, 5, 24))
+
+
+def test_polycompanion():
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [1])
+
+    for i in range(1, 5):
+        coef = [0] * i + [1]
+        numpy.testing.assert_(beignet.orthax.polycompanion(coef).shape == (i, i))
+
+    numpy.testing.assert_(beignet.orthax.polycompanion([1, 2])[0, 0] == -0.5)
+
+
+def test_polyfromroots():
+    res = beignet.orthax.polyfromroots([])
+    numpy.testing.assert_array_almost_equal(trim(res), [1])
+    for i in range(1, 5):
+        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
+        tgt = Tlist[i]
+        res = beignet.orthax.polyfromroots(roots) * 2 ** (i - 1)
+        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+
+
+def test_polyroots():
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyroots([1]), [])
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyroots([1, 2]), [-0.5])
+    for i in range(2, 5):
+        tgt = numpy.linspace(-1, 1, i)
+        res = beignet.orthax.polyroots(beignet.orthax.polyfromroots(tgt))
+        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+
+
+def test_polyfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def f2(x):
+        return x**4 + x**2 + 1
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polyfit, [1], [1], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [[1]], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [[[1]]], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1, 2], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[[1]])
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[1, 1]
+    )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polyfit, [1], [1], (-1,))
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.polyfit, [1], [1], (2, -1, 6)
+    )
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1], ())
+
+    x = numpy.linspace(0, 2)
+    y = f(x)
+
+    coef3 = beignet.orthax.polyfit(x, y, 3)
+    numpy.testing.assert_equal(len(coef3), 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef3), y)
+    coef3 = beignet.orthax.polyfit(x, y, (0, 1, 2, 3))
+    numpy.testing.assert_equal(len(coef3), 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef3), y)
+
+    coef4 = beignet.orthax.polyfit(x, y, 4)
+    numpy.testing.assert_equal(len(coef4), 5)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef4), y)
+    coef4 = beignet.orthax.polyfit(x, y, (0, 1, 2, 3, 4))
+    numpy.testing.assert_equal(len(coef4), 5)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef4), y)
+
+    coef2d = beignet.orthax.polyfit(x, numpy.array([y, y]).T, 3)
+    numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+    coef2d = beignet.orthax.polyfit(x, numpy.array([y, y]).T, (0, 1, 2, 3))
+    numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+
+    w = numpy.zeros_like(x)
+    yw = y.copy()
+    w[1::2] = 1
+    yw[0::2] = 0
+    wcoef3 = beignet.orthax.polyfit(x, yw, 3, w=w)
+    numpy.testing.assert_array_almost_equal(wcoef3, coef3)
+    wcoef3 = beignet.orthax.polyfit(x, yw, (0, 1, 2, 3), w=w)
+    numpy.testing.assert_array_almost_equal(wcoef3, coef3)
+
+    wcoef2d = beignet.orthax.polyfit(x, numpy.array([yw, yw]).T, 3, w=w)
+    numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+    wcoef2d = beignet.orthax.polyfit(x, numpy.array([yw, yw]).T, (0, 1, 2, 3), w=w)
+    numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+
+    x = [1, 1j, -1, -1j]
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyfit(x, x, 1), [0, 1])
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyfit(x, x, (0, 1)), [0, 1]
+    )
+
+    x = numpy.linspace(-1, 1)
+    y = f2(x)
+    coef1 = beignet.orthax.polyfit(x, y, 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef1), y)
+    coef2 = beignet.orthax.polyfit(x, y, (0, 2, 4))
+    numpy.testing.assert_array_almost_equal(beignet.orthax.polyval(x, coef2), y)
+    numpy.testing.assert_array_almost_equal(coef1, coef2)
+
+
+def test_polytrim():
+    coef = [2, -1, 1, 0]
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.polytrim, coef, -1)
+
+    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef), coef[:-1])
+    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 1), coef[:-3])
+    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 2), [0])
+
+
+def test_polyline():
+    numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 4), [3, 4])
+
+
+def test_polyline_zero():
+    numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 0), [3, 0])
