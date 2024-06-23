@@ -18,10 +18,8 @@ def probabilists_hermite_series_roots(input):
 
     m = probabilists_hermite_series_companion(input)[::-1, ::-1]
 
-    output = numpy.linalg.eigvals(m)
+    output = torch.linalg.eigvals(m)
 
-    output = numpy.sort(output)
-
-    output = torch.from_numpy(output)
+    output, _ = torch.sort(output)
 
     return output
