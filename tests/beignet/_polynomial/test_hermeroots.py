@@ -7,14 +7,14 @@ import numpy
 
 def test_hermeroots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeroots.hermeroots([1]), []
+        beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1]), []
     )
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermeroots.hermeroots([1, 1]), [-1]
+        beignet.polynomial._hermeroots.probabilists_hermite_series_roots([1, 1]), [-1]
     )
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial._hermeroots.hermeroots(
+        res = beignet.polynomial._hermeroots.probabilists_hermite_series_roots(
             beignet.polynomial._hermefromroots.hermefromroots(tgt)
         )
         numpy.testing.assert_almost_equal(

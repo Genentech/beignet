@@ -3,7 +3,7 @@ import operator
 import numpy
 
 
-def hermevander(x, deg):
+def probabilists_hermite_series_hermevander(x, deg):
     ideg = operator.index(deg)
     if ideg < 0:
         raise ValueError("deg must be non-negative")

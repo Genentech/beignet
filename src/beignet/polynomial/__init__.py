@@ -50,6 +50,9 @@ from ._differentiate_physicists_hermite_series import (
     differentiate_physicists_hermite_series,
 )
 from ._differentiate_power_series import differentiate_power_series
+from ._differentiate_probabilists_hermite_series import (
+    differentiate_probabilists_hermite_series,
+)
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
 from ._divide_legendre_series import divide_legendre_series
@@ -90,24 +93,22 @@ from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
 from ._fit_physicists_hermite_series import fit_physicists_hermite_series
 from ._fit_power_series import fit_power_series
+from ._fit_probabilists_hermite_series import fit_probabilists_hermite_series
 from ._hermdomain import hermdomain
-from ._hermecompanion import hermecompanion
-from ._hermeder import differentiate_hermeder
 from ._hermedomain import hermedomain
-from ._hermefit import hermefit
 from ._hermefromroots import hermefromroots
 from ._hermegauss import hermegauss
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
-from ._hermeint import hermeint
+from ._hermeint import integrate_probabilists_hermite_series
 from ._hermeline import hermeline
 from ._hermemulx import hermemulx
 from ._hermeone import hermeone
 from ._hermepow import hermepow
-from ._hermeroots import hermeroots
-from ._hermevander import hermevander
-from ._hermevander2d import hermevander2d
-from ._hermevander3d import hermevander3d
+from ._hermeroots import probabilists_hermite_series_roots
+from ._hermevander import probabilists_hermite_series_hermevander
+from ._hermevander2d import probabilists_hermite_series_hermevander2d
+from ._hermevander3d import probabilists_hermite_series_hermevander3d
 from ._hermeweight import hermeweight
 from ._hermex import hermex
 from ._hermfromroots import hermfromroots
@@ -201,6 +202,9 @@ from ._power_series_to_probabilists_hermite_series import (
 from ._power_series_vandermonde_1d import power_series_vandermonde_1d
 from ._power_series_vandermonde_2d import power_series_vandermonde_2d
 from ._power_series_vandermonde_3d import power_series_vandermonde_3d
+from ._probabilists_hermite_series_companion import (
+    probabilists_hermite_series_companion,
+)
 from ._probabilists_hermite_series_to_power_series import (
     probabilists_hermite_series_to_power_series,
 )
@@ -277,30 +281,30 @@ __all__ = [
     "hermdomain",
     "probabilists_hermite_series_to_power_series",
     "add_probabilists_hermite_series",
-    "hermecompanion",
-    "differentiate_hermeder",
+    "probabilists_hermite_series_companion",
+    "differentiate_probabilists_hermite_series",
     "divide_probabilists_hermite_series",
     "hermedomain",
-    "hermefit",
+    "fit_probabilists_hermite_series",
     "hermefromroots",
     "hermegauss",
     "hermegrid2d",
     "hermegrid3d",
-    "hermeint",
+    "integrate_probabilists_hermite_series",
     "hermeline",
     "multiply_probabilists_hermite_series",
     "hermemulx",
     "hermeone",
     "hermepow",
-    "hermeroots",
+    "probabilists_hermite_series_roots",
     "subtract_probabilists_hermite_series",
     "trim_probabilists_hermite_series",
     "evaluate_1d_probabilists_hermite_series",
     "evaluate_2d_probabilists_hermite_series",
     "evaluate_3d_probabilists_hermite_series",
-    "hermevander",
-    "hermevander2d",
-    "hermevander3d",
+    "probabilists_hermite_series_hermevander",
+    "probabilists_hermite_series_hermevander2d",
+    "probabilists_hermite_series_hermevander3d",
     "hermeweight",
     "hermex",
     "fit_physicists_hermite_series",

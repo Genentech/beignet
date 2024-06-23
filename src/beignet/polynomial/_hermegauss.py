@@ -3,7 +3,9 @@ import operator
 import numpy
 
 from .__normed_hermite_e_n import _normed_hermite_e_n
-from ._hermecompanion import hermecompanion
+from ._probabilists_hermite_series_companion import (
+    probabilists_hermite_series_companion,
+)
 
 
 def hermegauss(input):
@@ -12,7 +14,7 @@ def hermegauss(input):
         raise ValueError("deg must be a positive integer")
 
     c = numpy.array([0] * input + [1])
-    m = hermecompanion(c)
+    m = probabilists_hermite_series_companion(c)
     x = numpy.linalg.eigvalsh(m)
 
     dy = _normed_hermite_e_n(x, ideg)
