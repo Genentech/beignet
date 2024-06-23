@@ -1,33 +1,36 @@
-import numpy
 import torch
+import torchaudio
+from torch import Tensor
 
 from .__as_series import _as_series
 from .__c_series_to_z_series import _c_series_to_z_series
 from .__z_series_to_c_series import _z_series_to_c_series
 
 
-def pow_chebyshev_series(c, pow, maxpower=16):
-    [c] = _as_series([c])
+def pow_chebyshev_series(input: Tensor, exponent, maximum_exponent=16) -> Tensor:
+    (input,) = _as_series([input])
 
-    power = int(pow)
+    power = int(exponent)
 
-    if power != pow or power < 0:
+    if power != exponent or power < 0:
         raise ValueError
-    elif maxpower is not None and power > maxpower:
+
+    if maximum_exponent is not None and power > maximum_exponent:
         raise ValueError
-    elif power == 0:
-        return torch.tensor([1], dtype=c.dtype)
-    elif power == 1:
-        return c
-    else:
-        zs = _c_series_to_z_series(c)
-        prd = zs
 
-        for _ in range(2, power + 1):
-            prd = numpy.convolve(prd, zs)
+    if power == 0:
+        return torch.tensor([1], dtype=input.dtype)
 
-        output = torch.from_numpy(prd)
+    if power == 1:
+        return input
 
-        output = _z_series_to_c_series(prd)
+    z_series = _c_series_to_z_series(input)
 
-        return output
+    output = z_series
+
+    for _ in range(2, power + 1):
+        output = torchaudio.functional.convolve(output, z_series)
+
+    output = _z_series_to_c_series(output)
+
+    return output
