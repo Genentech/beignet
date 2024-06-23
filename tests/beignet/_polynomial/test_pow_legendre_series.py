@@ -1,21 +1,28 @@
 import functools
 
 import beignet.polynomial
-import numpy
 import torch
 
 
 def test_pow_legendre_series():
-    for i in range(5):
-        for j in range(5):
-            c = numpy.arange(i + 1)
-            tgt = functools.reduce(
-                beignet.polynomial.multiply_legendre_series,
-                [c] * j,
-                numpy.array([1]),
-            )
-            res = beignet.polynomial.pow_legendre_series(c, j)
+    for j in range(5):
+        for k in range(5):
+            c = torch.arange(j + 1)
+
             torch.testing.assert_close(
-                beignet.polynomial.trim_legendre_series(res, tolerance=1e-6),
-                beignet.polynomial.trim_legendre_series(tgt, tolerance=1e-6),
+                beignet.polynomial.trim_legendre_series(
+                    beignet.polynomial.pow_legendre_series(
+                        c,
+                        k,
+                    ),
+                    tolerance=1e-6,
+                ),
+                beignet.polynomial.trim_legendre_series(
+                    functools.reduce(
+                        beignet.polynomial.multiply_legendre_series,
+                        [*c] * k,
+                        torch.tensor([1]),
+                    ),
+                    tolerance=1e-6,
+                ),
             )

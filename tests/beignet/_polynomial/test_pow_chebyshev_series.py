@@ -7,12 +7,10 @@ import torch
 def test_pow_chebyshev_series():
     for j in range(5):
         for k in range(5):
-            c = torch.arange(j + 1)
-
             torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
                     beignet.polynomial.pow_chebyshev_series(
-                        c,
+                        torch.arange(j + 1),
                         k,
                     ),
                     tolerance=1e-6,
@@ -20,7 +18,7 @@ def test_pow_chebyshev_series():
                 beignet.polynomial.trim_chebyshev_series(
                     functools.reduce(
                         beignet.polynomial.multiply_chebyshev_series,
-                        torch.tensor([c] * k),
+                        torch.tensor([*torch.arange(j + 1)] * k),
                         torch.tensor([1]),
                     ),
                     tolerance=1e-6,
