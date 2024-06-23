@@ -2,7 +2,7 @@ import beignet.polynomial
 import numpy
 import torch
 
-from .test_polynomial import chebyshev_polynomial_coefficients
+from tests.beignet._polynomial.test_polynomial import chebyshev_polynomial_coefficients
 
 
 def test_evaluate_chebyshev_series_1d():

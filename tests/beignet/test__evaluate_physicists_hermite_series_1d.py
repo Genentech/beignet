@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_physicists_hermite_series_1d
-import beignet.polynomial._evaluate_power_series_1d
 import numpy
 import torch
 
@@ -9,40 +7,34 @@ from tests.beignet._polynomial.test_polynomial import hermite_polynomial_coeffic
 
 def test_evaluate_physicists_hermite_series_1d():
     torch.testing.assert_close(
-        beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d([], [1]).size,
+        beignet.polynomial.evaluate_physicists_hermite_series_1d([], [1]).size,
         0,
     )
 
     x = numpy.linspace(-1, 1)
     y = [
-        beignet.polynomial._polyval.evaluate_power_series_1d(x, c)
+        beignet.polynomial.evaluate_power_series_1d(x, c)
         for c in hermite_polynomial_coefficients
     ]
     for i in range(10):
         msg = f"At i={i}"
         tgt = y[i]
-        res = beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
-            x, [0] * i + [1]
-        )
+        res = beignet.polynomial.evaluate_physicists_hermite_series_1d(x, [0] * i + [1])
         numpy.testing.assert_almost_equal(res, tgt, err_msg=msg)
 
     for i in range(3):
         dims = [2] * i
         x = numpy.zeros(dims)
         torch.testing.assert_close(
-            beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
-                x, [1]
-            ).shape,
+            beignet.polynomial.evaluate_physicists_hermite_series_1d(x, [1]).shape,
             dims,
         )
         torch.testing.assert_close(
-            beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
-                x, [1, 0]
-            ).shape,
+            beignet.polynomial.evaluate_physicists_hermite_series_1d(x, [1, 0]).shape,
             dims,
         )
         torch.testing.assert_close(
-            beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
+            beignet.polynomial.evaluate_physicists_hermite_series_1d(
                 x, [1, 0, 0]
             ).shape,
             dims,
