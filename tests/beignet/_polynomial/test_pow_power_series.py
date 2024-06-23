@@ -4,7 +4,7 @@ import beignet.polynomial
 import torch
 
 
-def test_polypow():
+def test_pow_power_series():
     for j in range(5):
         for k in range(5):
             c = torch.arange(j + 1)

@@ -3,7 +3,7 @@ import numpy
 import torch.testing
 
 
-def test_polyvander():
+def test_power_series_vandermonde_1d():
     x = numpy.arange(3)
     v = beignet.polynomial.power_series_vandermonde_1d(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))

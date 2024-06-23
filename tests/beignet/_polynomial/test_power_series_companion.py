@@ -3,7 +3,7 @@ import pytest
 import torch
 
 
-def test_polycompanion():
+def test_power_series_companion():
     with pytest.raises(ValueError):
         beignet.polynomial.power_series_companion(
             torch.tensor([]),

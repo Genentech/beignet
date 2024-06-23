@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch.testing
 
 
-def test_polyroots():
+def test_power_series_roots():
     torch.testing.assert_close(
         beignet.polynomial.power_series_roots(
             torch.tensor([1]),

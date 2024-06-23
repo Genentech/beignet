@@ -2,7 +2,7 @@ import beignet.polynomial
 import numpy
 
 
-def test_polyvander2d():
+def test_power_series_vandermonde_2d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
 
     c = numpy.random.random((2, 3))

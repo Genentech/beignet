@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_polyder():
+def test_differentiate_power_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial.differentiate_power_series, [0], 0.5
     )
