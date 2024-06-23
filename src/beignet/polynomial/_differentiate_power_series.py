@@ -5,7 +5,7 @@ import numpy
 from .__normalize_axis_index import _normalize_axis_index
 
 
-def polyder(input, order: int = 1, scale: float = 1, axis: int = 0):
+def differentiate_power_series(input, order: int = 1, scale: float = 1, axis: int = 0):
     output = numpy.array(input, ndmin=1)
 
     if output.dtype.char in "?bBhHiIlLqQpP":

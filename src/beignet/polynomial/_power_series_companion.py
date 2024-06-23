@@ -4,7 +4,7 @@ import torch
 from .__as_series import _as_series
 
 
-def polycompanion(series):
+def power_series_companion(series):
     (series,) = _as_series([series])
 
     if len(series) < 2:

@@ -11,32 +11,32 @@ def test_polyfit():
         return x**4 + x**2 + 1
 
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._polyfit.polyfit, [1], [1], -1
+        ValueError, beignet.polynomial._polyfit.fit_power_series, [1], [1], -1
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [[1]], [1], 0
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [[1]], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [], [1], 0
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1], [[[1]]], 0
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1], [[[1]]], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1, 2], [1], 0
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1, 2], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1], [1, 2], 0
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1], [1, 2], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1], [1], 0, w=[[1]]
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1], [1], 0, w=[[1]]
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1], [1], 0, w=[1, 1]
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1], [1], 0, w=[1, 1]
     )
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._polyfit.polyfit,
+        beignet.polynomial._polyfit.fit_power_series,
         [1],
         [1],
         [
@@ -44,67 +44,75 @@ def test_polyfit():
         ],
     )
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._polyfit.polyfit, [1], [1], [2, -1, 6]
+        ValueError, beignet.polynomial._polyfit.fit_power_series, [1], [1], [2, -1, 6]
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._polyfit.polyfit, [1], [1], []
+        TypeError, beignet.polynomial._polyfit.fit_power_series, [1], [1], []
     )
 
     x = numpy.linspace(0, 2)
     y = f(x)
 
-    coef3 = beignet.polynomial._polyfit.polyfit(x, y, 3)
+    coef3 = beignet.polynomial._polyfit.fit_power_series(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
         beignet.polynomial._polyval.evaluate_1d_power_series(x, coef3), y
     )
-    coef3 = beignet.polynomial._polyfit.polyfit(x, y, [0, 1, 2, 3])
+    coef3 = beignet.polynomial._polyfit.fit_power_series(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
         beignet.polynomial._polyval.evaluate_1d_power_series(x, coef3), y
     )
 
-    coef4 = beignet.polynomial._polyfit.polyfit(x, y, 4)
+    coef4 = beignet.polynomial._polyfit.fit_power_series(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
         beignet.polynomial._polyval.evaluate_1d_power_series(x, coef4), y
     )
-    coef4 = beignet.polynomial._polyfit.polyfit(x, y, [0, 1, 2, 3, 4])
+    coef4 = beignet.polynomial._polyfit.fit_power_series(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
         beignet.polynomial._polyval.evaluate_1d_power_series(x, coef4), y
     )
 
-    coef2d = beignet.polynomial._polyfit.polyfit(x, numpy.array([y, y]).T, 3)
+    coef2d = beignet.polynomial._polyfit.fit_power_series(x, numpy.array([y, y]).T, 3)
     numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-    coef2d = beignet.polynomial._polyfit.polyfit(x, numpy.array([y, y]).T, [0, 1, 2, 3])
+    coef2d = beignet.polynomial._polyfit.fit_power_series(
+        x, numpy.array([y, y]).T, [0, 1, 2, 3]
+    )
     numpy.testing.assert_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
 
     w = numpy.zeros_like(x)
     yw = y.copy()
     w[1::2] = 1
     yw[0::2] = 0
-    wcoef3 = beignet.polynomial.polyfit(x, yw, 3, w=w)
+    wcoef3 = beignet.polynomial.fit_power_series(x, yw, 3, w=w)
     numpy.testing.assert_almost_equal(wcoef3, coef3)
-    wcoef3 = beignet.polynomial.polyfit(x, yw, [0, 1, 2, 3], w=w)
+    wcoef3 = beignet.polynomial.fit_power_series(x, yw, [0, 1, 2, 3], w=w)
     numpy.testing.assert_almost_equal(wcoef3, coef3)
 
-    wcoef2d = beignet.polynomial.polyfit(x, numpy.array([yw, yw]).T, 3, w=w)
+    wcoef2d = beignet.polynomial.fit_power_series(x, numpy.array([yw, yw]).T, 3, w=w)
     numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-    wcoef2d = beignet.polynomial.polyfit(x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w)
+    wcoef2d = beignet.polynomial.fit_power_series(
+        x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
+    )
     numpy.testing.assert_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
 
     x = [1, 1j, -1, -1j]
-    numpy.testing.assert_almost_equal(beignet.polynomial.polyfit(x, x, 1), [0, 1])
-    numpy.testing.assert_almost_equal(beignet.polynomial.polyfit(x, x, [0, 1]), [0, 1])
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.fit_power_series(x, x, 1), [0, 1]
+    )
+    numpy.testing.assert_almost_equal(
+        beignet.polynomial.fit_power_series(x, x, [0, 1]), [0, 1]
+    )
 
     x = numpy.linspace(-1, 1)
     y = f2(x)
-    coef1 = beignet.polynomial.polyfit(x, y, 4)
+    coef1 = beignet.polynomial.fit_power_series(x, y, 4)
     numpy.testing.assert_almost_equal(
         beignet.polynomial.evaluate_1d_power_series(x, coef1), y
     )
-    coef2 = beignet.polynomial.polyfit(x, y, [0, 2, 4])
+    coef2 = beignet.polynomial.fit_power_series(x, y, [0, 2, 4])
     numpy.testing.assert_almost_equal(
         beignet.polynomial.evaluate_1d_power_series(x, coef2), y
     )

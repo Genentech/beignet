@@ -6,7 +6,7 @@ from .__normalize_axis_index import _normalize_axis_index
 from ._evaluate_1d_power_series import evaluate_1d_power_series
 
 
-def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def integrate_power_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = numpy.array(c, ndmin=1)

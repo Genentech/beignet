@@ -56,7 +56,9 @@ def test_polyvalfromroots():
     x = numpy.linspace(-1, 1)
     numpy.testing.assert_almost_equal(
         beignet.polynomial.evaluate_1d_power_series(x, ptest),
-        beignet.polynomial.polyvalfromroots(x, beignet.polynomial.polyroots(ptest)),
+        beignet.polynomial.polyvalfromroots(
+            x, beignet.polynomial.power_series_roots(ptest)
+        ),
     )
 
     rshape = (3, 5)

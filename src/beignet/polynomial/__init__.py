@@ -45,6 +45,7 @@ from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
+from ._differentiate_power_series import differentiate_power_series
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
 from ._divide_legendre_series import divide_legendre_series
@@ -83,6 +84,7 @@ from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
 from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
+from ._fit_power_series import fit_power_series
 from ._hermcompanion import hermcompanion
 from ._hermder import hermder
 from ._hermdomain import hermdomain
@@ -123,6 +125,7 @@ from ._hermweight import hermweight
 from ._hermx import hermx
 from ._integrate_chebyshev_series import integrate_chebyshev_series
 from ._integrate_laguerre_series import integrate_laguerre_series
+from ._integrate_power_series import integrate_power_series
 from ._lagder import lagder
 from ._lagdomain import lagdomain
 from ._lagfromroots import lagfromroots
@@ -171,22 +174,19 @@ from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite
 from ._physicists_hermite_series_to_power_series import (
     physicists_hermite_series_to_power_series,
 )
-from ._polycompanion import polycompanion
-from ._polyder import polyder
 from ._polydomain import polydomain
-from ._polyfit import polyfit
 from ._polyfromroots import polyfromroots
 from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
-from ._polyint import polyint
 from ._polyline import polyline
 from ._polymulx import polymulx
 from ._polyone import polyone
 from ._polypow import polypow
-from ._polyroots import polyroots
 from ._polyvalfromroots import polyvalfromroots
 from ._polyx import polyx
 from ._polyzero import polyzero
+from ._power_series_companion import power_series_companion
+from ._power_series_roots import power_series_roots
 from ._power_series_to_chebyshev_series import power_series_to_chebyshev_series
 from ._power_series_to_laguerre_series import power_series_to_laguerre_series
 from ._power_series_to_legendre_series import power_series_to_legendre_series
@@ -386,21 +386,21 @@ __all__ = [
     "power_series_to_laguerre_series",
     "power_series_to_legendre_series",
     "add_power_series",
-    "polycompanion",
-    "polyder",
+    "power_series_companion",
+    "differentiate_power_series",
     "divide_power_series",
     "polydomain",
-    "polyfit",
+    "fit_power_series",
     "polyfromroots",
     "polygrid2d",
     "polygrid3d",
-    "polyint",
+    "integrate_power_series",
     "polyline",
     "multiply_power_series",
     "polymulx",
     "polyone",
     "polypow",
-    "polyroots",
+    "power_series_roots",
     "subtract_power_series",
     "trim_power_series",
     "evaluate_1d_power_series",

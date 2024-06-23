@@ -4,14 +4,14 @@ import torch.testing
 
 def test_polyroots():
     torch.testing.assert_close(
-        beignet.polynomial.polyroots(
+        beignet.polynomial.power_series_roots(
             torch.tensor([1]),
         ),
         torch.tensor([], dtype=torch.float64),
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.polyroots(
+        beignet.polynomial.power_series_roots(
             torch.tensor([1, 2]),
         ),
         torch.tensor([-0.5], dtype=torch.float64),
@@ -20,7 +20,7 @@ def test_polyroots():
     for i in range(2, 5):
         torch.testing.assert_close(
             beignet.polynomial.trim_power_series(
-                beignet.polynomial.polyroots(
+                beignet.polynomial.power_series_roots(
                     beignet.polynomial.polyfromroots(
                         torch.linspace(-1, 1, i),
                     )
