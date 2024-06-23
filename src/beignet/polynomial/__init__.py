@@ -5,7 +5,9 @@ from .__div import _div
 from .__evaluate import _evaluate
 from .__fit import _fit
 from .__from_roots import _from_roots
+from .__get_domain import _get_domain
 from .__grid import _grid
+from .__map_domain import _map_domain
 from .__map_parameters import _map_parameters
 from .__normalize_axis_index import _normalize_axis_index
 from .__normed_hermite_e_n import _normed_hermite_e_n
@@ -255,7 +257,10 @@ __all__ = [
     "_evaluate",
     "_fit",
     "_from_roots",
+    "_get_domain",
     "_grid",
+    "_map_domain",
+    "_map_parameters",
     "_map_parameters",
     "_normalize_axis_index",
     "_normed_hermite_e_n",

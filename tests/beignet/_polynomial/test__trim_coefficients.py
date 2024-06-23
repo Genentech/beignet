@@ -7,14 +7,14 @@ def test__trim_coefficients():
     coef = torch.tensor([2, -1, 1, 0], dtype=torch.float64)
 
     torch.testing.assert_close(
-        beignet.polynomial.__trim_coefficients._trim_coefficients(
+        beignet.polynomial._trim_coefficients(
             coef,
         ),
         coef[:-1],
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.__trim_coefficients._trim_coefficients(
+        beignet.polynomial._trim_coefficients(
             coef,
             1,
         ),
@@ -22,7 +22,7 @@ def test__trim_coefficients():
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.__trim_coefficients._trim_coefficients(
+        beignet.polynomial._trim_coefficients(
             coef,
             2,
         ),

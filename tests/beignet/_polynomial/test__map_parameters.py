@@ -5,9 +5,17 @@ import torch
 
 def test__map_parameters():
     torch.testing.assert_close(
-        beignet.polynomial.__map_parameters._map_parameters([0, 4], [1, 3]), [1, 0.5]
+        beignet.polynomial._map_parameters(
+            torch.tensor([0, 4]),
+            torch.tensor([1, 3]),
+        ),
+        torch.tensor([1, 0.5]),
     )
+
     torch.testing.assert_close(
-        beignet.polynomial.__map_parameters._map_parameters([0 - 1j, 2 + 1j], [-2, 2]),
-        [-1 + 1j, 1 - 1j],
+        beignet.polynomial._map_parameters(
+            torch.tensor([+0 - 1j, +2 + 1j]),
+            torch.tensor([-2 + 0j, +2 + 0j]),
+        ),
+        torch.tensor([-1 + 1j, +1 - 1j]),
     )
