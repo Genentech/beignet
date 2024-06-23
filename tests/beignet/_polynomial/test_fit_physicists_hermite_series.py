@@ -5,7 +5,7 @@ import numpy
 import torch
 
 
-def test_hermfit():
+def test_fit_physicists_hermite_series():
     def f(x):
         return x * (x - 1) * (x - 2)
 

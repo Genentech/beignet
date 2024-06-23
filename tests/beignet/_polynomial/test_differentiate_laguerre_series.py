@@ -6,7 +6,7 @@ import numpy
 import torch
 
 
-def test_lagder():
+def test_differentiate_laguerre_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._lagder.differentiate_laguerre_series, [0], 0.5
     )

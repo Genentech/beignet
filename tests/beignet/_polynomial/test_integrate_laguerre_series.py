@@ -7,7 +7,7 @@ import beignet.polynomial._trim_laguerre_series
 import numpy
 
 
-def test_lagint():
+def test_integrate_laguerre_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._lagint.integrate_laguerre_series, [0], 0.5
     )

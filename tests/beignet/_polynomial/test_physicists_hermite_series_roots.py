@@ -5,7 +5,7 @@ import beignet.polynomial._trim_physicists_hermite_series
 import numpy
 
 
-def test_hermroots():
+def test_physicists_hermite_series_roots():
     numpy.testing.assert_almost_equal(
         beignet.polynomial._hermroots.physicists_hermite_series_roots([1]), []
     )

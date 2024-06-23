@@ -5,7 +5,7 @@ import numpy
 import torch
 
 
-def test_lagfit():
+def test_fit_laguerre_series():
     def f(x):
         return x * (x - 1) * (x - 2)
 

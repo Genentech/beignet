@@ -7,7 +7,7 @@ import beignet.polynomial._trim_physicists_hermite_series
 import numpy
 
 
-def test_hermint():
+def test_integrate_physicists_hermite_series():
     numpy.testing.assert_raises(
         TypeError,
         beignet.polynomial._hermint.integrate_physicists_hermite_series,

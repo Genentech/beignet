@@ -5,9 +5,9 @@ import numpy
 from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients
 
 
-def test_leg2poly():
+def test_legendre_series_to_power_series():
     for i in range(10):
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._leg2poly.legendre_series_to_power_series([0] * i + [1]),
+            beignet.polynomial.legendre_series_to_power_series([0] * i + [1]),
             legendre_polynomial_coefficients[i],
         )

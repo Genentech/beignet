@@ -6,7 +6,7 @@ import numpy
 import torch
 
 
-def test_legder():
+def test_differentiate_legendre_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._legder.differentiate_legendre_series, [0], 0.5
     )

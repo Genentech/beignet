@@ -5,7 +5,7 @@ import beignet.polynomial._trim_laguerre_series
 import numpy
 
 
-def test_lagroots():
+def test_laguerre_series_roots():
     numpy.testing.assert_almost_equal(
         beignet.polynomial._lagroots.laguerre_series_roots([1]), []
     )
