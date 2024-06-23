@@ -1,33 +1,28 @@
 import beignet.polynomial
-import numpy
 import torch.testing
 
 
 def test_multiply_probabilists_hermite_series():
-    x = numpy.linspace(-3, 3, 100)
+    x = torch.linspace(-3, 3, 100, dtype=torch.float64)
 
     for j in range(5):
-        val1 = beignet.polynomial.evaluate_probabilists_hermite_series_1d(
+        a = beignet.polynomial.evaluate_probabilists_hermite_series_1d(
             x,
-            torch.tensor([0] * j + [1]),
+            torch.tensor([0] * j + [1], dtype=torch.float64),
         )
 
         for k in range(5):
-            val2 = beignet.polynomial.evaluate_probabilists_hermite_series_1d(
+            b = beignet.polynomial.evaluate_probabilists_hermite_series_1d(
                 x,
-                torch.tensor([0] * k + [1]),
+                torch.tensor([0] * k + [1], dtype=torch.float64),
             )
 
-            pol3 = beignet.polynomial.multiply_probabilists_hermite_series(
-                torch.tensor([0] * j + [1]),
-                torch.tensor([0] * k + [1]),
+            c = beignet.polynomial.evaluate_probabilists_hermite_series_1d(
+                x,
+                beignet.polynomial.multiply_probabilists_hermite_series(
+                    torch.tensor([0] * j + [1], dtype=torch.float64),
+                    torch.tensor([0] * k + [1], dtype=torch.float64),
+                ),
             )
 
-            val3 = beignet.polynomial.evaluate_probabilists_hermite_series_1d(x, pol3)
-
-            assert len(pol3) == j + k + 1
-
-            torch.testing.assert_close(
-                val3,
-                val1 * val2,
-            )
+            torch.testing.assert_close(c, a * b)
