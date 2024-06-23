@@ -1,13 +1,13 @@
 import beignet.polynomial
 import beignet.polynomial._hermgauss
-import beignet.polynomial._hermvander
+import beignet.polynomial._physicists_hermite_series_vandermonde_1d
 import numpy
 
 
 def test_hermgauss():
     x, w = beignet.polynomial._hermgauss.hermgauss(100)
 
-    v = beignet.polynomial._hermvander.physicists_hermite_series_hermvander(x, 99)
+    v = beignet.polynomial._hermvander.physicists_hermite_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd

@@ -120,9 +120,6 @@ from ._hermmulx import hermmulx
 from ._hermone import hermone
 from ._hermpow import hermpow
 from ._hermroots import hermroots
-from ._hermvander import physicists_hermite_series_hermvander
-from ._hermvander2d import physicists_hermite_series_hermvander2d
-from ._hermvander3d import physicists_hermite_series_hermvander3d
 from ._hermweight import hermweight
 from ._hermx import hermx
 from ._integrate_chebyshev_series import integrate_chebyshev_series
@@ -161,7 +158,7 @@ from ._legline import legline
 from ._legmulx import legmulx
 from ._legone import legone
 from ._legpow import legpow
-from ._legvander import legvander
+from ._legvander import legvander_vandermonde_1d
 from ._legvander2d import legvander2d
 from ._legvander3d import legvander3d
 from ._legweight import legweight
@@ -176,6 +173,15 @@ from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite
 from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 from ._physicists_hermite_series_to_power_series import (
     physicists_hermite_series_to_power_series,
+)
+from ._physicists_hermite_series_vandermonde_1d import (
+    physicists_hermite_series_vandermonde_1d,
+)
+from ._physicists_hermite_series_vandermonde_2d import (
+    physicists_hermite_series_vandermonde_2d,
+)
+from ._physicists_hermite_series_vandermonde_3d import (
+    physicists_hermite_series_vandermonde_3d,
 )
 from ._polydomain import polydomain
 from ._polyfromroots import polyfromroots
@@ -324,9 +330,9 @@ __all__ = [
     "evaluate_1d_physicists_hermite_series",
     "evaluate_2d_physicists_hermite_series",
     "evaluate_3d_physicists_hermite_series",
-    "physicists_hermite_series_hermvander",
-    "physicists_hermite_series_hermvander2d",
-    "physicists_hermite_series_hermvander3d",
+    "physicists_hermite_series_vandermonde_1d",
+    "physicists_hermite_series_vandermonde_2d",
+    "physicists_hermite_series_vandermonde_3d",
     "hermweight",
     "hermx",
     "laguerre_series_to_power_series",
@@ -380,7 +386,7 @@ __all__ = [
     "evaluate_1d_legendre_series",
     "evaluate_2d_legendre_series",
     "evaluate_3d_legendre_series",
-    "legvander",
+    "legvander_vandermonde_1d",
     "legvander2d",
     "legvander3d",
     "legweight",
