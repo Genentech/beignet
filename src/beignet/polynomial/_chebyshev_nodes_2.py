@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 
-def chebpts2(input: Tensor) -> Tensor:
+def chebyshev_nodes_2(input: Tensor) -> Tensor:
     _npts = int(input)
 
     if _npts != input:

@@ -27,9 +27,9 @@ from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
 from ._chebinterpolate import chebinterpolate
 from ._chebmulx import chebmulx
-from ._chebpts1 import chebpts1
-from ._chebpts2 import chebpts2
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
+from ._chebyshev_nodes_1 import chebyshev_nodes_1
+from ._chebyshev_nodes_2 import chebyshev_nodes_2
 from ._chebyshev_series_companion import chebyshev_series_companion
 from ._chebyshev_series_domain import chebyshev_series_domain
 from ._chebyshev_series_from_roots import chebyshev_series_from_roots
@@ -274,8 +274,8 @@ __all__ = [
     "chebgrid3d",
     "chebinterpolate",
     "chebmulx",
-    "chebpts1",
-    "chebpts2",
+    "chebyshev_nodes_1",
+    "chebyshev_nodes_2",
     "chebyshev_series_companion",
     "chebyshev_series_domain",
     "chebyshev_series_line",

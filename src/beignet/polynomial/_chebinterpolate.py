@@ -1,6 +1,6 @@
 import numpy
 
-from ._chebpts1 import chebpts1
+from ._chebyshev_nodes_1 import chebyshev_nodes_1
 from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
 
 
@@ -13,7 +13,7 @@ def chebinterpolate(func, deg, args=()):
         raise ValueError("expected deg >= 0")
 
     order = deg + 1
-    xcheb = chebpts1(order)
+    xcheb = chebyshev_nodes_1(order)
     yfunc = func(xcheb, *args)
     m = chebyshev_series_vandermonde_1d(xcheb, deg)
     c = numpy.dot(m.T, yfunc)
