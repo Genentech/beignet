@@ -1,4 +1,3 @@
-import numpy
 import torch
 
 from .__as_series import _as_series
@@ -12,12 +11,14 @@ def physicists_hermite_series_roots(input):
         return torch.tensor([], dtype=input.dtype)
 
     if len(input) == 2:
-        return torch.tensor([-0.5 * input[0] / input[1]])
+        return torch.tensor([-0.5 * input[0] / input[1]], dtype=input.dtype)
 
-    m = physicists_hermite_series_companion(input)[::-1, ::-1]
+    output = physicists_hermite_series_companion(input)
 
-    r = numpy.linalg.eigvals(m)
+    output = output[::-1, ::-1]
 
-    r.sort()
+    output = torch.linalg.eigvals(output)
 
-    return r
+    output, _ = torch.sort(output)
+
+    return output

@@ -13,7 +13,7 @@ def test_physicists_hermite_series_roots():
         torch.testing.assert_close(
             beignet.polynomial.trim_physicists_hermite_series(
                 beignet.polynomial.physicists_hermite_series_roots(
-                    beignet.polynomial._hermfromroots.physicists_hermite_series_from_roots(
+                    beignet.polynomial.physicists_hermite_series_from_roots(
                         torch.linspace(-1, 1, i)
                     )
                 ),
