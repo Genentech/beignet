@@ -11,17 +11,16 @@ def chebyshev_series_vandermonde_1d(input, degree):
 
     input = torch.ravel(input) + 0.0
 
-    dims = (ideg + 1,) + input.shape
+    output = torch.empty((ideg + 1,) + input.shape, dtype=input.dtype)
 
-    v = torch.empty(dims, dtype=input.dtype)
-
-    v[0] = input * 0 + 1
+    output[0] = input * 0 + 1
 
     if ideg > 0:
-        x2 = 2 * input
-        v[1] = input
+        output[1] = input
 
         for index in range(2, ideg + 1):
-            v[index] = v[index - 1] * x2 - v[index - 2]
+            output[index] = output[index - 1] * 2 * input - output[index - 2]
 
-    return torch.moveaxis(v, 0, -1)
+    output = torch.moveaxis(output, 0, -1)
+
+    return output
