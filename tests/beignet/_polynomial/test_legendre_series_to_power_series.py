@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._legendre_series_to_power_series
 import torch
 
 from tests.beignet._polynomial.test_polynomial import legendre_polynomial_coefficients

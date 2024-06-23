@@ -1,9 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_legendre_series_1d
-import beignet.polynomial._integrate_legendre_series
-import beignet.polynomial._legendre_series_to_power_series
-import beignet.polynomial._power_series_to_legendre_series
-import beignet.polynomial._trim_legendre_series
 import numpy
 import torch
 

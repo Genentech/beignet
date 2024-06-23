@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._polyfromroots
-import beignet.polynomial._trim_power_series
 import torch.testing
 
 from tests.beignet._polynomial.test_polynomial import polynomial_coefficients

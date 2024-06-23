@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebyshev_series_vandermonde_3d
-import beignet.polynomial._evaluate_chebyshev_series_3d
 import numpy
 import torch
 

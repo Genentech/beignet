@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._laguerre_series_zero
 import torch
 
 

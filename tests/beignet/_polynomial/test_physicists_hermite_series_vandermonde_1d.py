@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_physicists_hermite_series_1d
-import beignet.polynomial._physicists_hermite_series_vandermonde_1d
 import torch.testing
 
 

@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_power_series_1d
 import torch
 
 

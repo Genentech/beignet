@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_probabilists_hermite_series_3d
-import beignet.polynomial._probabilists_hermite_series_vandermonde_3d
 import numpy
 import torch
 

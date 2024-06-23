@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebfromroots
-import beignet.polynomial._trim_chebyshev_series
 import torch.testing
 
 

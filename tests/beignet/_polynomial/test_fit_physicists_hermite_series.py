@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_physicists_hermite_series_1d
-import beignet.polynomial._fit_physicists_hermite_series
 import numpy
 import torch
 

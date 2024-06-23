@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_legendre_series_2d
-import beignet.polynomial._legendre_series_vandermonde_2d
 import numpy
 import torch
 

@@ -1,8 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_physicists_hermite_series_1d
-import beignet.polynomial._hermfromroots
-import beignet.polynomial._physicists_hermite_series_to_power_series
-import beignet.polynomial._trim_physicists_hermite_series
 import numpy
 import torch
 

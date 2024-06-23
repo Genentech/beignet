@@ -1,8 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_legendre_series_1d
-import beignet.polynomial._legendre_series_to_power_series
-import beignet.polynomial._legfromroots
-import beignet.polynomial._trim_legendre_series
 import torch.testing
 
 

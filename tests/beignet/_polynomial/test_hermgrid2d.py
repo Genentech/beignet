@@ -1,6 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_power_series_1d
-import beignet.polynomial._hermgrid2d
 import numpy
 import torch
 

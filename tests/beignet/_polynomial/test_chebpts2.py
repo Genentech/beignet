@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._chebpts2
 import numpy
 import torch
 

@@ -1,7 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._differentiate_legendre_series
-import beignet.polynomial._integrate_legendre_series
-import beignet.polynomial._trim_legendre_series
 import numpy
 import torch
 

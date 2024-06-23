@@ -1,8 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_laguerre_series_1d
-import beignet.polynomial._lagfromroots
-import beignet.polynomial._laguerre_series_to_power_series
-import beignet.polynomial._trim_laguerre_series
 import numpy
 import torch
 
