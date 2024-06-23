@@ -1,5 +1,5 @@
 import beignet.polynomial
-import torch
+import torch.testing
 
 legendre_polynomial_coefficients = [
     torch.tensor([1], dtype=torch.float64),
@@ -17,11 +17,11 @@ legendre_polynomial_coefficients = [
 ]
 
 
-def test_legendre_series_to_power_series():
+def test_power_series_to_legendre_series():
     for index in range(10):
         torch.testing.assert_close(
-            beignet.polynomial.legendre_series_to_power_series(
-                torch.tensor([0] * index + [1]),
+            beignet.polynomial.power_series_to_legendre_series(
+                legendre_polynomial_coefficients[index],
             ),
-            legendre_polynomial_coefficients[index],
+            torch.tensor([0] * index + [1], dtype=torch.float64),
         )
