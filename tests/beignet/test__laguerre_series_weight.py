@@ -1,12 +1,11 @@
 import beignet.polynomial
-import beignet.polynomial._laguerre_series_weight
 import torch
 
 
-def test_lagweight():
+def test_laguerre_series_weight():
     x = torch.linspace(0, 10, 11)
 
     torch.testing.assert_close(
-        beignet.polynomial._lagweight.laguerre_series_weight(x),
+        beignet.polynomial.laguerre_series_weight(x),
         torch.exp(-x),
     )
