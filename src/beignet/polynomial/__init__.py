@@ -26,7 +26,6 @@ from ._add_probabilists_hermite_series import add_probabilists_hermite_series
 from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
 from ._chebinterpolate import chebinterpolate
-from ._chebmulx import chebmulx
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
 from ._chebyshev_nodes_1 import chebyshev_nodes_1
 from ._chebyshev_nodes_2 import chebyshev_nodes_2
@@ -147,10 +146,11 @@ from ._legendre_series_x import legendre_series_x
 from ._legendre_series_zero import legendre_series_zero
 from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
-from ._legmulx import legmulx
 from ._multiply_chebyshev_series import multiply_chebyshev_series
+from ._multiply_chebyshev_series_by_x import multiply_chebyshev_series_by_x
 from ._multiply_laguerre_series import multiply_laguerre_series
 from ._multiply_legendre_series import multiply_legendre_series
+from ._multiply_legendre_series_by_x import multiply_legendre_series_by_x
 from ._multiply_physicists_hermite_series import multiply_physicists_hermite_series
 from ._multiply_power_series import multiply_power_series
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
@@ -273,7 +273,7 @@ __all__ = [
     "chebgrid2d",
     "chebgrid3d",
     "chebinterpolate",
-    "chebmulx",
+    "multiply_chebyshev_series_by_x",
     "chebyshev_nodes_1",
     "chebyshev_nodes_2",
     "chebyshev_series_companion",
@@ -372,7 +372,7 @@ __all__ = [
     "gauss_legendre_quadrature",
     "leggrid2d",
     "leggrid3d",
-    "legmulx",
+    "multiply_legendre_series_by_x",
     "multiply_chebyshev_series",
     "multiply_laguerre_series",
     "multiply_legendre_series",

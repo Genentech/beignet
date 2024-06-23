@@ -2,7 +2,7 @@ import torch
 
 from .__as_series import _as_series
 from ._add_legendre_series import add_legendre_series
-from ._legmulx import legmulx
+from ._multiply_legendre_series_by_x import multiply_legendre_series_by_x
 from ._subtract_legendre_series import subtract_legendre_series
 
 
@@ -30,8 +30,10 @@ def multiply_legendre_series(input, other):
             tmp = c0
             nd = nd - 1
             c0 = subtract_legendre_series(c[-i] * xs, (input * (nd - 1)) / nd)
-            input = add_legendre_series(tmp, (legmulx(input) * (2 * nd - 1)) / nd)
+            input = add_legendre_series(
+                tmp, (multiply_legendre_series_by_x(input) * (2 * nd - 1)) / nd
+            )
 
-    output = add_legendre_series(c0, legmulx(input))
+    output = add_legendre_series(c0, multiply_legendre_series_by_x(input))
 
     return output

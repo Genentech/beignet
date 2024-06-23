@@ -4,14 +4,14 @@ import torch
 
 def test_chebmulx():
     torch.testing.assert_close(
-        beignet.polynomial._chebmulx.chebmulx(
+        beignet.polynomial._chebmulx.multiply_chebyshev_series_by_x(
             torch.tensor([0]),
         ),
         torch.tensor([0], dtype=torch.float64),
     )
 
     torch.testing.assert_close(
-        beignet.polynomial._chebmulx.chebmulx(
+        beignet.polynomial._chebmulx.multiply_chebyshev_series_by_x(
             torch.tensor([1]),
         ),
         torch.tensor([0, 1], dtype=torch.float64),
@@ -19,7 +19,7 @@ def test_chebmulx():
 
     for index in range(1, 5):
         torch.testing.assert_close(
-            beignet.polynomial._chebmulx.chebmulx(
+            beignet.polynomial._chebmulx.multiply_chebyshev_series_by_x(
                 torch.tensor(
                     [0] * index + [1],
                 ),

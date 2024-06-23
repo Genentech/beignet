@@ -4,14 +4,14 @@ import torch
 
 def test_legmulx():
     torch.testing.assert_close(
-        beignet.polynomial.legmulx(
+        beignet.polynomial.multiply_legendre_series_by_x(
             torch.tensor([0]),
         ),
         torch.tensor([0], dtype=torch.float64),
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.legmulx(
+        beignet.polynomial.multiply_legendre_series_by_x(
             torch.tensor([1]),
         ),
         torch.tensor([0, 1], dtype=torch.float64),
@@ -21,7 +21,7 @@ def test_legmulx():
         tmp = 2 * i + 1
 
         torch.testing.assert_close(
-            beignet.polynomial.legmulx(
+            beignet.polynomial.multiply_legendre_series_by_x(
                 torch.tensor([0] * i + [1]),
             ),
             torch.tensor(
