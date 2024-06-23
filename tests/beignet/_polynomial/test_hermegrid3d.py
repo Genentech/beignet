@@ -15,10 +15,12 @@ def test_hermegrid3d():
     y1, y2, y3 = y
 
     torch.testing.assert_close(
-        beignet.polynomial.hermegrid3d(x1, x2, x3, c3d),
+        beignet.polynomial.evaluate_probabilists_hermite_series_grid_3d(
+            x1, x2, x3, c3d
+        ),
         numpy.einsum("i,j,k->ijk", y1, y2, y3),
     )
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.hermegrid3d(z, z, z, c3d)
+    res = beignet.polynomial.evaluate_probabilists_hermite_series_grid_3d(z, z, z, c3d)
     assert res.shape == (2, 3) * 3

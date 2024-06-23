@@ -8,10 +8,6 @@ def test_power_series_vandermonde_2d():
 
     c = numpy.random.random([2, 3])
 
-    x1 = torch.from_numpy(x1)
-    x2 = torch.from_numpy(x2)
-    x3 = torch.from_numpy(x3)
-
     c = torch.from_numpy(c)
 
     torch.testing.assert_close(
@@ -30,8 +26,8 @@ def test_power_series_vandermonde_2d():
         ),
     )
 
-    # assert beignet.polynomial.power_series_vandermonde_2d(
-    #     [x1],
-    #     [x2],
-    #     [1, 2],
-    # ).shape == (1, 5, 6)
+    assert beignet.polynomial.power_series_vandermonde_2d(
+        [x1],
+        [x2],
+        [1, 2],
+    ).shape == (1, 5, 6)

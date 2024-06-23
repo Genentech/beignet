@@ -26,10 +26,8 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebgrid2d import chebgrid2d
-from ._chebgrid3d import chebgrid3d
-from ._chebinterpolate import chebinterpolate
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
+from ._chebyshev_interpolation import chebyshev_interpolation
 from ._chebyshev_nodes_1 import chebyshev_nodes_1
 from ._chebyshev_nodes_2 import chebyshev_nodes_2
 from ._chebyshev_series_companion import chebyshev_series_companion
@@ -64,12 +62,18 @@ from ._divide_probabilists_hermite_series import divide_probabilists_hermite_ser
 from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
 from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
+from ._evaluate_chebyshev_series_grid_2d import evaluate_chebyshev_series_grid_2d
+from ._evaluate_chebyshev_series_grid_3d import evaluate_chebyshev_series_grid_3d
 from ._evaluate_laguerre_series_1d import evaluate_laguerre_series_1d
 from ._evaluate_laguerre_series_2d import evaluate_laguerre_series_2d
 from ._evaluate_laguerre_series_3d import evaluate_laguerre_series_3d
+from ._evaluate_laguerre_series_grid_2d import evaluate_laguerre_series_grid_2d
+from ._evaluate_laguerre_series_grid_3d import evaluate_laguerre_series_grid_3d
 from ._evaluate_legendre_series_1d import evaluate_legendre_series_1d
 from ._evaluate_legendre_series_2d import evaluate_legendre_series_2d
 from ._evaluate_legendre_series_3d import evaluate_legendre_series_3d
+from ._evaluate_legendre_series_grid_2d import evaluate_legendre_series_grid_2d
+from ._evaluate_legendre_series_grid_3d import evaluate_legendre_series_grid_3d
 from ._evaluate_physicists_hermite_series_1d import (
     evaluate_physicists_hermite_series_1d,
 )
@@ -79,9 +83,17 @@ from ._evaluate_physicists_hermite_series_2d import (
 from ._evaluate_physicists_hermite_series_3d import (
     evaluate_physicists_hermite_series_3d,
 )
+from ._evaluate_physicists_hermite_series_grid_2d import (
+    evaluate_physicists_hermite_series_grid_2d,
+)
+from ._evaluate_physicists_hermite_series_grid_3d import (
+    evaluate_physicists_hermite_series_grid_3d,
+)
 from ._evaluate_power_series_1d import evaluate_power_series_1d
 from ._evaluate_power_series_2d import evaluate_power_series_2d
 from ._evaluate_power_series_3d import evaluate_power_series_3d
+from ._evaluate_power_series_grid_2d import evaluate_power_series_grid_2d
+from ._evaluate_power_series_grid_3d import evaluate_power_series_grid_3d
 from ._evaluate_probabilists_hermite_series_1d import (
     evaluate_probabilists_hermite_series_1d,
 )
@@ -90,6 +102,12 @@ from ._evaluate_probabilists_hermite_series_2d import (
 )
 from ._evaluate_probabilists_hermite_series_3d import (
     evaluate_probabilists_hermite_series_3d,
+)
+from ._evaluate_probabilists_hermite_series_grid_2d import (
+    evaluate_probabilists_hermite_series_grid_2d,
+)
+from ._evaluate_probabilists_hermite_series_grid_3d import (
+    evaluate_probabilists_hermite_series_grid_3d,
 )
 from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
@@ -105,10 +123,6 @@ from ._gauss_physicists_hermite_series_quadrature import (
 from ._gauss_probabilists_hermite_series_quadrature import (
     gauss_probabilists_hermite_series_quadrature,
 )
-from ._hermegrid2d import hermegrid2d
-from ._hermegrid3d import hermegrid3d
-from ._hermgrid2d import hermgrid2d
-from ._hermgrid3d import hermgrid3d
 from ._integrate_chebyshev_series import integrate_chebyshev_series
 from ._integrate_laguerre_series import integrate_laguerre_series
 from ._integrate_legendre_series import integrate_legendre_series
@@ -117,8 +131,6 @@ from ._integrate_power_series import integrate_power_series
 from ._integrate_probabilists_hermite_series import (
     integrate_probabilists_hermite_series,
 )
-from ._laggrid2d import laggrid2d
-from ._laggrid3d import laggrid3d
 from ._laguerre_series_companion import laguerre_series_companion
 from ._laguerre_series_domain import laguerre_series_domain
 from ._laguerre_series_from_roots import laguerre_series_from_roots
@@ -145,8 +157,6 @@ from ._legendre_series_vandermonde_3d import legendre_series_vandermonde_3d
 from ._legendre_series_weight import legendre_series_weight
 from ._legendre_series_x import legendre_series_x
 from ._legendre_series_zero import legendre_series_zero
-from ._leggrid2d import leggrid2d
-from ._leggrid3d import leggrid3d
 from ._multiply_chebyshev_series import multiply_chebyshev_series
 from ._multiply_chebyshev_series_by_x import multiply_chebyshev_series_by_x
 from ._multiply_laguerre_series import multiply_laguerre_series
@@ -184,8 +194,6 @@ from ._physicists_hermite_series_vandermonde_3d import (
 from ._physicists_hermite_series_weight import physicists_hermite_series_weight
 from ._physicists_hermite_series_x import physicists_hermite_series_x
 from ._physicists_hermite_series_zero import physicists_hermite_series_zero
-from ._polygrid2d import polygrid2d
-from ._polygrid3d import polygrid3d
 from ._polyvalfromroots import polyvalfromroots
 from ._pow_chebyshev_series import pow_chebyshev_series
 from ._pow_laguerre_series import pow_laguerre_series
@@ -282,9 +290,9 @@ __all__ = [
     "add_physicists_hermite_series",
     "add_power_series",
     "add_probabilists_hermite_series",
-    "chebgrid2d",
-    "chebgrid3d",
-    "chebinterpolate",
+    "evaluate_chebyshev_series_grid_2d",
+    "evaluate_chebyshev_series_grid_3d",
+    "chebyshev_interpolation",
     "chebyshev_gauss_quadrature",
     "chebyshev_nodes_1",
     "chebyshev_nodes_2",
@@ -341,18 +349,18 @@ __all__ = [
     "gauss_legendre_quadrature",
     "gauss_physicists_hermite_series_quadrature",
     "gauss_probabilists_hermite_series_quadrature",
-    "hermegrid2d",
-    "hermegrid3d",
-    "hermgrid2d",
-    "hermgrid3d",
+    "evaluate_probabilists_hermite_series_grid_2d",
+    "evaluate_probabilists_hermite_series_grid_3d",
+    "evaluate_physicists_hermite_series_grid_2d",
+    "evaluate_physicists_hermite_series_grid_3d",
     "integrate_chebyshev_series",
     "integrate_laguerre_series",
     "integrate_legendre_series",
     "integrate_physicists_hermite_series",
     "integrate_power_series",
     "integrate_probabilists_hermite_series",
-    "laggrid2d",
-    "laggrid3d",
+    "evaluate_laguerre_series_grid_2d",
+    "evaluate_laguerre_series_grid_3d",
     "laguerre_series_companion",
     "laguerre_series_domain",
     "laguerre_series_from_roots",
@@ -379,8 +387,8 @@ __all__ = [
     "legendre_series_weight",
     "legendre_series_x",
     "legendre_series_zero",
-    "leggrid2d",
-    "leggrid3d",
+    "evaluate_legendre_series_grid_2d",
+    "evaluate_legendre_series_grid_3d",
     "multiply_chebyshev_series",
     "multiply_chebyshev_series_by_x",
     "multiply_laguerre_series",
@@ -406,8 +414,8 @@ __all__ = [
     "physicists_hermite_series_weight",
     "physicists_hermite_series_x",
     "physicists_hermite_series_zero",
-    "polygrid2d",
-    "polygrid3d",
+    "evaluate_power_series_grid_2d",
+    "evaluate_power_series_grid_3d",
     "polyvalfromroots",
     "pow_chebyshev_series",
     "pow_laguerre_series",

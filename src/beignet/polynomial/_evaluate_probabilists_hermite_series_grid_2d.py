@@ -4,5 +4,5 @@ from ._evaluate_probabilists_hermite_series_1d import (
 )
 
 
-def hermegrid2d(x, y, c):
+def evaluate_probabilists_hermite_series_grid_2d(x, y, c):
     return _grid(evaluate_probabilists_hermite_series_1d, c, x, y)

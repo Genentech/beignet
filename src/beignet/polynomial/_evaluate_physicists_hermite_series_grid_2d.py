@@ -4,5 +4,5 @@ from ._evaluate_physicists_hermite_series_1d import (
 )
 
 
-def hermgrid2d(x, y, c):
+def evaluate_physicists_hermite_series_grid_2d(x, y, c):
     return _grid(evaluate_physicists_hermite_series_1d, c, x, y)

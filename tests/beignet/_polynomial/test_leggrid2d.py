@@ -14,7 +14,7 @@ def test_leggrid2d():
     y1, y2, y3 = y
 
     torch.testing.assert_close(
-        beignet.polynomial.leggrid2d(
+        beignet.polynomial.evaluate_legendre_series_grid_2d(
             x1,
             x2,
             c2d,
@@ -28,6 +28,6 @@ def test_leggrid2d():
 
     z = torch.ones([2, 3])
 
-    res = beignet.polynomial.leggrid2d(z, z, c2d)
+    res = beignet.polynomial.evaluate_legendre_series_grid_2d(z, z, c2d)
 
     assert res.shape == (2, 3) * 2

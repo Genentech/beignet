@@ -4,7 +4,7 @@ from ._chebyshev_nodes_1 import chebyshev_nodes_1
 from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
 
 
-def chebinterpolate(func, deg, args=()):
+def chebyshev_interpolation(func, deg, args=()):
     deg = numpy.asarray(deg)
 
     if deg.ndim > 0 or deg.dtype.kind not in "iu" or deg.size == 0:

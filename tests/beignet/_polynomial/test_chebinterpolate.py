@@ -8,14 +8,14 @@ def test_chebinterpolate():
         return x * (x - 1) * (x - 2)
 
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial.chebinterpolate, func, -1
+        ValueError, beignet.polynomial.chebyshev_interpolation, func, -1
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial.chebinterpolate, func, 10.0
+        TypeError, beignet.polynomial.chebyshev_interpolation, func, 10.0
     )
 
     for deg in range(1, 5):
-        assert beignet.polynomial.chebinterpolate(func, deg).shape == (deg + 1,)
+        assert beignet.polynomial.chebyshev_interpolation(func, deg).shape == (deg + 1,)
 
     def powx(x, p):
         return x**p
@@ -23,7 +23,7 @@ def test_chebinterpolate():
     x = numpy.linspace(-1, 1, 10)
     for deg in range(0, 10):
         for p in range(0, deg + 1):
-            c = beignet.polynomial.chebinterpolate(powx, deg, (p,))
+            c = beignet.polynomial.chebyshev_interpolation(powx, deg, (p,))
             torch.testing.assert_close(
                 beignet.polynomial.evaluate_chebyshev_series_1d(x, c),
                 powx(x, p),

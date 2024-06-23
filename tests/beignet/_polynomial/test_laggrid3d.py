@@ -13,9 +13,12 @@ def test_laggrid3d():
     y1, y2, y3 = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
     torch.testing.assert_close(
-        beignet.polynomial.laggrid3d(x1, x2, x3, c3d),
+        beignet.polynomial.evaluate_laguerre_series_grid_3d(x1, x2, x3, c3d),
         numpy.einsum("i,j,k->ijk", y1, y2, y3),
     )
 
     z = numpy.ones((2, 3))
-    assert beignet.polynomial.laggrid3d(z, z, z, c3d).shape == (2, 3) * 3
+    assert (
+        beignet.polynomial.evaluate_laguerre_series_grid_3d(z, z, z, c3d).shape
+        == (2, 3) * 3
+    )

@@ -15,9 +15,9 @@ def test_hermgrid3d():
     y1, y2, y3 = y
 
     tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-    res = beignet.polynomial.hermgrid3d(x1, x2, x3, c3d)
+    res = beignet.polynomial.evaluate_physicists_hermite_series_grid_3d(x1, x2, x3, c3d)
     torch.testing.assert_close(res, tgt)
 
     z = numpy.ones((2, 3))
-    res = beignet.polynomial.hermgrid3d(z, z, z, c3d)
+    res = beignet.polynomial.evaluate_physicists_hermite_series_grid_3d(z, z, z, c3d)
     assert res.shape == (2, 3) * 3

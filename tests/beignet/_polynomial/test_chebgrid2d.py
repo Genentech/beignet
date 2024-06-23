@@ -12,9 +12,12 @@ def test_chebgrid2d():
     y1, y2, y3 = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
     torch.testing.assert_close(
-        beignet.polynomial.chebgrid2d(x1, x2, c2d),
+        beignet.polynomial.evaluate_chebyshev_series_grid_2d(x1, x2, c2d),
         numpy.einsum("i,j->ij", y1, y2),
     )
 
     z = numpy.ones((2, 3))
-    assert beignet.polynomial.chebgrid2d(z, z, c2d).shape == (2, 3) * 2
+    assert (
+        beignet.polynomial.evaluate_chebyshev_series_grid_2d(z, z, c2d).shape
+        == (2, 3) * 2
+    )

@@ -13,7 +13,7 @@ def test_polygrid3d():
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.polygrid3d(
+        beignet.polynomial.evaluate_power_series_grid_3d(
             x1,
             x2,
             x3,
@@ -32,7 +32,7 @@ def test_polygrid3d():
         ),
     )
 
-    output = beignet.polynomial.polygrid3d(
+    output = beignet.polynomial.evaluate_power_series_grid_3d(
         torch.ones([2, 3]),
         torch.ones([2, 3]),
         torch.ones([2, 3]),

@@ -15,7 +15,12 @@ def test_chebgrid3d():
     y1, y2, y3 = y
 
     tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
-    torch.testing.assert_close(beignet.polynomial.chebgrid3d(x1, x2, x3, c3d), tgt)
+    torch.testing.assert_close(
+        beignet.polynomial.evaluate_chebyshev_series_grid_3d(x1, x2, x3, c3d), tgt
+    )
 
     z = numpy.ones((2, 3))
-    assert beignet.polynomial.chebgrid3d(z, z, z, c3d).shape == (2, 3) * 3
+    assert (
+        beignet.polynomial.evaluate_chebyshev_series_grid_3d(z, z, z, c3d).shape
+        == (2, 3) * 3
+    )
