@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_polygrid2d():
+def test_evaluate_power_series_grid_2d():
     c1d = numpy.array([1.0, 2.0, 3.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 

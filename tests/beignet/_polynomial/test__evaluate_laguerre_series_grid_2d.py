@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_laggrid2d():
+def test_evaluate_laguerre_series_grid_2d():
     c1d = numpy.array([9.0, -14.0, 6.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 

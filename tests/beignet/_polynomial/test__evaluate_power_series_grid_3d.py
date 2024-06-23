@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch.testing
 
 
-def test_polygrid3d():
+def test_evaluate_power_series_grid_3d():
     x = torch.rand([3, 5]) * 2 - 1
 
     x1, x2, x3 = x

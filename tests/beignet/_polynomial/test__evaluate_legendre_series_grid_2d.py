@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_leggrid2d():
+def test_evaluate_legendre_series_grid_2d():
     c1d = numpy.array([2.0, 2.0, 2.0])
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 

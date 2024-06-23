@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_chebgrid3d():
+def test_evaluate_chebyshev_series_grid_3d():
     c1d = numpy.array([2.5, 2.0, 1.5])
 
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)

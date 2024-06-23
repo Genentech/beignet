@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_hermgrid3d():
+def test_evaluate_physicists_hermite_series_grid_3d():
     c1d = numpy.array([2.5, 1.0, 0.75])
 
     c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)

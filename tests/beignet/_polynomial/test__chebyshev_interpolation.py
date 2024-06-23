@@ -3,7 +3,7 @@ import numpy
 import torch
 
 
-def test_chebinterpolate():
+def test_chebyshev_interpolation():
     def func(x):
         return x * (x - 1) * (x - 2)
 
