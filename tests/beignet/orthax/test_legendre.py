@@ -22,18 +22,20 @@ def trim(x):
     return beignet.orthax.legtrim(x, tol=1e-6)
 
 
-class TestConstants:
-    def test_legdomain(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legdomain, [-1, 1])
+def test_legdomain():
+    numpy.testing.assert_array_equal(beignet.orthax.legdomain, [-1, 1])
 
-    def test_legzero(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legzero, [0])
 
-    def test_legone(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legone, [1])
+def test_legzero():
+    numpy.testing.assert_array_equal(beignet.orthax.legzero, [0])
 
-    def test_legx(self):
-        numpy.testing.assert_array_equal(beignet.orthax.legx, [0, 1])
+
+def test_legone():
+    numpy.testing.assert_array_equal(beignet.orthax.legone, [1])
+
+
+def test_legx():
+    numpy.testing.assert_array_equal(beignet.orthax.legx, [0, 1])
 
 
 class TestArithmetic:
