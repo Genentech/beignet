@@ -8,32 +8,32 @@ def test_fit_laguerre_series():
         return x * (x - 1) * (x - 2)
 
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1], -1
+        ValueError, beignet.polynomial.fit_laguerre_series, [1], [1], -1
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [[1]], [1], 0
+        TypeError, beignet.polynomial.fit_laguerre_series, [[1]], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [], [1], 0
+        TypeError, beignet.polynomial.fit_laguerre_series, [], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [[[1]]], 0
+        TypeError, beignet.polynomial.fit_laguerre_series, [1], [[[1]]], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1, 2], [1], 0
+        TypeError, beignet.polynomial.fit_laguerre_series, [1, 2], [1], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1, 2], 0
+        TypeError, beignet.polynomial.fit_laguerre_series, [1], [1, 2], 0
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1], 0, w=[[1]]
+        TypeError, beignet.polynomial.fit_laguerre_series, [1], [1], 0, w=[[1]]
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1], 0, w=[1, 1]
+        TypeError, beignet.polynomial.fit_laguerre_series, [1], [1], 0, w=[1, 1]
     )
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._lagfit.fit_laguerre_series,
+        beignet.polynomial.fit_laguerre_series,
         [1],
         [1],
         [
@@ -41,40 +41,40 @@ def test_fit_laguerre_series():
         ],
     )
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1], [2, -1, 6]
+        ValueError, beignet.polynomial.fit_laguerre_series, [1], [1], [2, -1, 6]
     )
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._lagfit.fit_laguerre_series, [1], [1], []
+        TypeError, beignet.polynomial.fit_laguerre_series, [1], [1], []
     )
 
     x = numpy.linspace(0, 2)
     y = f(x)
 
-    coef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, 3)
+    coef3 = beignet.polynomial.fit_laguerre_series(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
     torch.testing.assert_close(
-        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef3), y
+        beignet.polynomial.evaluate_laguerre_series_1d(x, coef3), y
     )
-    coef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, [0, 1, 2, 3])
+    coef3 = beignet.polynomial.fit_laguerre_series(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
     torch.testing.assert_close(
-        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef3), y
+        beignet.polynomial.evaluate_laguerre_series_1d(x, coef3), y
     )
 
-    coef4 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, 4)
+    coef4 = beignet.polynomial.fit_laguerre_series(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
     torch.testing.assert_close(
-        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef4), y
+        beignet.polynomial.evaluate_laguerre_series_1d(x, coef4), y
     )
-    coef4 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, [0, 1, 2, 3, 4])
+    coef4 = beignet.polynomial.fit_laguerre_series(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
     torch.testing.assert_close(
-        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef4), y
+        beignet.polynomial.evaluate_laguerre_series_1d(x, coef4), y
     )
 
-    coef2d = beignet.polynomial._lagfit.fit_laguerre_series(x, numpy.array([y, y]).T, 3)
+    coef2d = beignet.polynomial.fit_laguerre_series(x, numpy.array([y, y]).T, 3)
     torch.testing.assert_close(coef2d, numpy.array([coef3, coef3]).T)
-    coef2d = beignet.polynomial._lagfit.fit_laguerre_series(
+    coef2d = beignet.polynomial.fit_laguerre_series(
         x, numpy.array([y, y]).T, [0, 1, 2, 3]
     )
     torch.testing.assert_close(coef2d, numpy.array([coef3, coef3]).T)
@@ -83,24 +83,20 @@ def test_fit_laguerre_series():
     yw = y.copy()
     w[1::2] = 1
     y[0::2] = 0
-    wcoef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, yw, 3, w=w)
+    wcoef3 = beignet.polynomial.fit_laguerre_series(x, yw, 3, w=w)
     torch.testing.assert_close(wcoef3, coef3)
-    wcoef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, yw, [0, 1, 2, 3], w=w)
+    wcoef3 = beignet.polynomial.fit_laguerre_series(x, yw, [0, 1, 2, 3], w=w)
     torch.testing.assert_close(wcoef3, coef3)
 
-    wcoef2d = beignet.polynomial._lagfit.fit_laguerre_series(
-        x, numpy.array([yw, yw]).T, 3, w=w
-    )
+    wcoef2d = beignet.polynomial.fit_laguerre_series(x, numpy.array([yw, yw]).T, 3, w=w)
     torch.testing.assert_close(wcoef2d, numpy.array([coef3, coef3]).T)
-    wcoef2d = beignet.polynomial._lagfit.fit_laguerre_series(
+    wcoef2d = beignet.polynomial.fit_laguerre_series(
         x, numpy.array([yw, yw]).T, [0, 1, 2, 3], w=w
     )
     torch.testing.assert_close(wcoef2d, numpy.array([coef3, coef3]).T)
 
     x = [1, 1j, -1, -1j]
+    torch.testing.assert_close(beignet.polynomial.fit_laguerre_series(x, x, 1), [1, -1])
     torch.testing.assert_close(
-        beignet.polynomial._lagfit.fit_laguerre_series(x, x, 1), [1, -1]
-    )
-    torch.testing.assert_close(
-        beignet.polynomial._lagfit.fit_laguerre_series(x, x, [0, 1]), [1, -1]
+        beignet.polynomial.fit_laguerre_series(x, x, [0, 1]), [1, -1]
     )

@@ -55,25 +55,17 @@ def test_fit_power_series():
 
     coef3 = beignet.polynomial.fit_power_series(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
-    torch.testing.assert_close(
-        beignet.polynomial._polyval.evaluate_power_series_1d(x, coef3), y
-    )
+    torch.testing.assert_close(beignet.polynomial.evaluate_power_series_1d(x, coef3), y)
     coef3 = beignet.polynomial.fit_power_series(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
-    torch.testing.assert_close(
-        beignet.polynomial._polyval.evaluate_power_series_1d(x, coef3), y
-    )
+    torch.testing.assert_close(beignet.polynomial.evaluate_power_series_1d(x, coef3), y)
 
     coef4 = beignet.polynomial.fit_power_series(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
-    torch.testing.assert_close(
-        beignet.polynomial._polyval.evaluate_power_series_1d(x, coef4), y
-    )
+    torch.testing.assert_close(beignet.polynomial.evaluate_power_series_1d(x, coef4), y)
     coef4 = beignet.polynomial.fit_power_series(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
-    torch.testing.assert_close(
-        beignet.polynomial._polyval.evaluate_power_series_1d(x, coef4), y
-    )
+    torch.testing.assert_close(beignet.polynomial.evaluate_power_series_1d(x, coef4), y)
 
     coef2d = beignet.polynomial.fit_power_series(x, numpy.array([y, y]).T, 3)
     torch.testing.assert_close(coef2d, numpy.array([coef3, coef3]).T)
