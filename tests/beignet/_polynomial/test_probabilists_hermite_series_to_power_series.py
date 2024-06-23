@@ -5,10 +5,10 @@ from tests.beignet._polynomial.test_polynomial import hermite_e_polynomial_coeff
 
 
 def test_probabilists_hermite_series_to_power_series():
-    for i in range(10):
+    for index in range(10):
         torch.testing.assert_close(
             beignet.polynomial.probabilists_hermite_series_to_power_series(
-                [0] * i + [1]
+                torch.tensor([0] * index + [1])
             ),
-            hermite_e_polynomial_coefficients[i],
+            hermite_e_polynomial_coefficients[index],
         )

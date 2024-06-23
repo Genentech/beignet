@@ -37,16 +37,22 @@ hermite_polynomial_coefficients = [
     hermite_polynomial_H9,
 ]
 
-hermite_e_polynomial_He0 = torch.tensor([1])
-hermite_e_polynomial_He1 = torch.tensor([0, 1])
-hermite_e_polynomial_He2 = torch.tensor([-1, 0, 1])
-hermite_e_polynomial_He3 = torch.tensor([0, -3, 0, 1])
-hermite_e_polynomial_He4 = torch.tensor([3, 0, -6, 0, 1])
-hermite_e_polynomial_He5 = torch.tensor([0, 15, 0, -10, 0, 1])
-hermite_e_polynomial_He6 = torch.tensor([-15, 0, 45, 0, -15, 0, 1])
-hermite_e_polynomial_He7 = torch.tensor([0, -105, 0, 105, 0, -21, 0, 1])
-hermite_e_polynomial_He8 = torch.tensor([105, 0, -420, 0, 210, 0, -28, 0, 1])
-hermite_e_polynomial_He9 = torch.tensor([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])
+hermite_e_polynomial_He0 = torch.tensor([1], dtype=torch.float64)
+hermite_e_polynomial_He1 = torch.tensor([0, 1], dtype=torch.float64)
+hermite_e_polynomial_He2 = torch.tensor([-1, 0, 1], dtype=torch.float64)
+hermite_e_polynomial_He3 = torch.tensor([0, -3, 0, 1], dtype=torch.float64)
+hermite_e_polynomial_He4 = torch.tensor([3, 0, -6, 0, 1], dtype=torch.float64)
+hermite_e_polynomial_He5 = torch.tensor([0, 15, 0, -10, 0, 1], dtype=torch.float64)
+hermite_e_polynomial_He6 = torch.tensor([-15, 0, 45, 0, -15, 0, 1], dtype=torch.float64)
+hermite_e_polynomial_He7 = torch.tensor(
+    [0, -105, 0, 105, 0, -21, 0, 1], dtype=torch.float64
+)
+hermite_e_polynomial_He8 = torch.tensor(
+    [105, 0, -420, 0, 210, 0, -28, 0, 1], dtype=torch.float64
+)
+hermite_e_polynomial_He9 = torch.tensor(
+    [0, 945, 0, -1260, 0, 378, 0, -36, 0, 1], dtype=torch.float64
+)
 
 hermite_e_polynomial_coefficients = [
     hermite_e_polynomial_He0,
