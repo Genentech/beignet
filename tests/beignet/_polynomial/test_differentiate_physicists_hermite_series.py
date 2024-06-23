@@ -6,13 +6,13 @@ import torch
 def test_differentiate_physicists_hermite_series():
     numpy.testing.assert_raises(
         TypeError,
-        beignet.polynomial._hermder.differentiate_physicists_hermite_series,
+        beignet.polynomial.differentiate_physicists_hermite_series,
         [0],
         0.5,
     )
     numpy.testing.assert_raises(
         ValueError,
-        beignet.polynomial._hermder.differentiate_physicists_hermite_series,
+        beignet.polynomial.differentiate_physicists_hermite_series,
         [0],
         -1,
     )
@@ -20,23 +20,19 @@ def test_differentiate_physicists_hermite_series():
     for i in range(5):
         tgt = [0] * i + [1]
         torch.testing.assert_close(
-            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                beignet.polynomial._hermder.differentiate_physicists_hermite_series(
-                    tgt, m=0
-                ),
+            beignet.polynomial.trim_physicists_hermite_series(
+                beignet.polynomial.differentiate_physicists_hermite_series(tgt, m=0),
                 tolerance=1e-6,
             ),
-            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                tgt, tolerance=1e-6
-            ),
+            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
         )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             torch.testing.assert_close(
-                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                    beignet.polynomial._hermder.differentiate_physicists_hermite_series(
+                beignet.polynomial.trim_physicists_hermite_series(
+                    beignet.polynomial.differentiate_physicists_hermite_series(
                         beignet.polynomial._hermint.integrate_physicists_hermite_series(
                             tgt, m=j
                         ),
@@ -44,18 +40,16 @@ def test_differentiate_physicists_hermite_series():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                    tgt, tolerance=1e-6
-                ),
+                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             torch.testing.assert_close(
-                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                    beignet.polynomial._hermder.differentiate_physicists_hermite_series(
-                        beignet.polynomial._hermint.integrate_physicists_hermite_series(
+                beignet.polynomial.trim_physicists_hermite_series(
+                    beignet.polynomial.differentiate_physicists_hermite_series(
+                        beignet.polynomial.integrate_physicists_hermite_series(
                             tgt, m=j, scl=2
                         ),
                         m=j,
@@ -63,35 +57,23 @@ def test_differentiate_physicists_hermite_series():
                     ),
                     tolerance=1e-6,
                 ),
-                beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                    tgt, tolerance=1e-6
-                ),
+                beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
 
     tgt = numpy.vstack(
-        [
-            beignet.polynomial._hermder.differentiate_physicists_hermite_series(c)
-            for c in c2d.T
-        ]
+        [beignet.polynomial.differentiate_physicists_hermite_series(c) for c in c2d.T]
     ).T
     torch.testing.assert_close(
-        beignet.polynomial._hermder.differentiate_physicists_hermite_series(
-            c2d, axis=0
-        ),
+        beignet.polynomial.differentiate_physicists_hermite_series(c2d, axis=0),
         tgt,
     )
 
     tgt = numpy.vstack(
-        [
-            beignet.polynomial._hermder.differentiate_physicists_hermite_series(c)
-            for c in c2d
-        ]
+        [beignet.polynomial.differentiate_physicists_hermite_series(c) for c in c2d]
     )
     torch.testing.assert_close(
-        beignet.polynomial._hermder.differentiate_physicists_hermite_series(
-            c2d, axis=1
-        ),
+        beignet.polynomial.differentiate_physicists_hermite_series(c2d, axis=1),
         tgt,
     )
