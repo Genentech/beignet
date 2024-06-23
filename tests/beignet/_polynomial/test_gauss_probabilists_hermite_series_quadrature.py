@@ -4,13 +4,9 @@ import torch
 
 
 def test_gauss_probabilists_hermite_series_quadrature():
-    x, w = beignet.polynomial._hermegauss.gauss_probabilists_hermite_series_quadrature(
-        100
-    )
+    x, w = beignet.polynomial.gauss_probabilists_hermite_series_quadrature(100)
 
-    v = beignet.polynomial._hermevander.probabilists_hermite_series_vandermonde_1d(
-        x, 99
-    )
+    v = beignet.polynomial.probabilists_hermite_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
