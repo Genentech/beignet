@@ -2,7 +2,7 @@ import beignet.polynomial
 import torch
 
 
-def test_legmulx():
+def test_multiply_legendre_series_by_x():
     torch.testing.assert_close(
         beignet.polynomial.multiply_legendre_series_by_x(
             torch.tensor([0]),
