@@ -5,17 +5,17 @@ from torch import Tensor
 
 
 def chebyshev_gauss_quadrature(input: Tensor) -> (Tensor, Tensor):
-    ideg = operator.index(input)
+    degree = operator.index(input)
 
-    if ideg <= 0:
+    if degree <= 0:
         raise ValueError
 
-    output = torch.arange(1, 2 * ideg, 2) / (2.0 * ideg)
+    output = torch.arange(1, 2 * degree, 2) / (2.0 * degree)
 
     output = output * torch.pi
 
     output = torch.cos(output)
 
-    weight = torch.ones(ideg) * (torch.pi / ideg)
+    weight = torch.ones(degree) * (torch.pi / degree)
 
     return output, weight
