@@ -1,25 +1,29 @@
 import operator
 
 import torch
+from torch import Tensor
 
 
-def probabilists_hermite_series_vandermonde_1d(x, deg):
-    ideg = operator.index(deg)
+def probabilists_hermite_series_vandermonde_1d(
+    input: Tensor,
+    degree,
+) -> Tensor:
+    degree = operator.index(degree)
 
-    if ideg < 0:
+    if degree < 0:
         raise ValueError
 
-    x = torch.ravel(x) + 0.0
+    input = torch.ravel(input) + 0.0
 
-    output = torch.empty((ideg + 1,) + x.shape, dtype=x.dtype)
+    output = torch.empty((degree + 1,) + input.shape, dtype=input.dtype)
 
-    output[0] = x * 0 + 1
+    output[0] = input * 0 + 1
 
-    if ideg > 0:
-        output[1] = x
+    if degree > 0:
+        output[1] = input
 
-        for index in range(2, ideg + 1):
-            output[index] = output[index - 1] * x - output[index - 2] * (index - 1)
+        for index in range(2, degree + 1):
+            output[index] = output[index - 1] * input - output[index - 2] * (index - 1)
 
     output = torch.moveaxis(output, 0, -1)
 
