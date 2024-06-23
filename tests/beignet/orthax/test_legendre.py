@@ -38,72 +38,73 @@ def test_legx():
     numpy.testing.assert_array_equal(beignet.orthax.legx, [0, 1])
 
 
-class TestArithmetic:
-    x = numpy.linspace(-1, 1, 100)
+def test_legadd():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] += 1
+            res = beignet.orthax.legadd([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_legadd(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] += 1
-                res = beignet.orthax.legadd([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_legsub(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = numpy.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] -= 1
-                res = beignet.orthax.legsub([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+def test_legsub():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            tgt = numpy.zeros(max(i, j) + 1)
+            tgt[i] += 1
+            tgt[j] -= 1
+            res = beignet.orthax.legsub([0] * i + [1], [0] * j + [1])
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
-    def test_legmulx(self):
-        numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx([0])), [0])
-        numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx([1])), [0, 1])
-        for i in range(1, 5):
-            tmp = 2 * i + 1
-            ser = [0] * i + [1]
-            tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
-            numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx(ser)), tgt)
 
-    def test_legmul(self):
-        for i in range(5):
-            pol1 = [0] * i + [1]
-            val1 = beignet.orthax.legval(self.x, pol1)
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                pol2 = [0] * j + [1]
-                val2 = beignet.orthax.legval(self.x, pol2)
-                pol3 = beignet.orthax.legmul(pol1, pol2)
-                val3 = beignet.orthax.legval(self.x, pol3)
-                numpy.testing.assert_(len(pol3) == i + j + 1, msg)
-                numpy.testing.assert_array_almost_equal(val3, val1 * val2, err_msg=msg)
+def test_legmulx():
+    numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx([0])), [0])
+    numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx([1])), [0, 1])
+    for i in range(1, 5):
+        tmp = 2 * i + 1
+        ser = [0] * i + [1]
+        tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
+        numpy.testing.assert_array_equal(trim(beignet.orthax.legmulx(ser)), tgt)
 
-    def test_legdiv(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                ci = [0] * i + [1]
-                cj = [0] * j + [1]
-                tgt = beignet.orthax.legadd(ci, cj)
-                quo, rem = beignet.orthax.legdiv(tgt, ci)
-                res = beignet.orthax.legadd(beignet.orthax.legmul(quo, ci), rem)
-                numpy.testing.assert_array_almost_equal(
-                    trim(res), trim(tgt), err_msg=msg
-                )
 
-    def test_legpow(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                c = numpy.arange(i + 1)
-                tgt = functools.reduce(beignet.orthax.legmul, [c] * j, numpy.array([1]))
-                res = beignet.orthax.legpow(c, j)
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+def test_legmul():
+    for i in range(5):
+        pol1 = [0] * i + [1]
+        x = numpy.linspace(-1, 1, 100)
+        val1 = beignet.orthax.legval(x, pol1)
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            pol2 = [0] * j + [1]
+            val2 = beignet.orthax.legval(x, pol2)
+            pol3 = beignet.orthax.legmul(pol1, pol2)
+            val3 = beignet.orthax.legval(x, pol3)
+            numpy.testing.assert_(len(pol3) == i + j + 1, msg)
+            numpy.testing.assert_array_almost_equal(val3, val1 * val2, err_msg=msg)
+
+
+def test_legdiv():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            ci = [0] * i + [1]
+            cj = [0] * j + [1]
+            tgt = beignet.orthax.legadd(ci, cj)
+            quo, rem = beignet.orthax.legdiv(tgt, ci)
+            res = beignet.orthax.legadd(beignet.orthax.legmul(quo, ci), rem)
+            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt), err_msg=msg)
+
+
+def test_legpow():
+    for i in range(5):
+        for j in range(5):
+            msg = f"At i={i}, j={j}"
+            c = numpy.arange(i + 1)
+            tgt = functools.reduce(beignet.orthax.legmul, [c] * j, numpy.array([1]))
+            res = beignet.orthax.legpow(c, j)
+            numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
 
 
 class TestEvaluation:
