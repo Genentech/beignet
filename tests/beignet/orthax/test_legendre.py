@@ -329,133 +329,121 @@ class TestDerivative:
         numpy.testing.assert_array_equal(beignet.orthax.legder(c, 4), [0])
 
 
-class TestVander:
-    x = numpy.random.random((3, 5)) * 2 - 1
-
-    def test_legvander(self):
-        x = numpy.arange(3)
-        v = beignet.orthax.legvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.legval(x, coef)
-            )
-
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.orthax.legvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.legval(x, coef)
-            )
-
-    def test_legvander2d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.orthax.legvander2d(x1, x2, (1, 2))
-        tgt = beignet.orthax.legval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        van = beignet.orthax.legvander2d([x1], [x2], (1, 2))
-        numpy.testing.assert_(van.shape == (1, 5, 6))
-
-    def test_legvander3d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.orthax.legvander3d(x1, x2, x3, (1, 2, 3))
-        tgt = beignet.orthax.legval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        van = beignet.orthax.legvander3d([x1], [x2], [x3], (1, 2, 3))
-        numpy.testing.assert_(van.shape == (1, 5, 24))
-
-    def test_legvander_negdeg(self):
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legvander, (1, 2, 3), -1)
-
-
-class TestFitting:
-    def test_legfit(self):
-        def f(x):
-            return x * (x - 1) * (x - 2)
-
-        def f2(x):
-            return x**4 + x**2 + 1
-
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], -1)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [[1]], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [[[1]]], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1, 2], [1], 0)
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1, 2], 0)
-        numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legfit, [1], [1], 0, w=[[1]]
-        )
-        numpy.testing.assert_raises(
-            TypeError, beignet.orthax.legfit, [1], [1], 0, w=[1, 1]
-        )
-        numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], (-1,))
-        numpy.testing.assert_raises(
-            ValueError, beignet.orthax.legfit, [1], [1], (2, -1, 6)
-        )
-        numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], ())
-
-        x = numpy.linspace(0, 2)
-        y = f(x)
-
-        coef3 = beignet.orthax.legfit(x, y, 3)
-        numpy.testing.assert_array_equal(len(coef3), 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef3), y)
-        coef3 = beignet.orthax.legfit(x, y, (0, 1, 2, 3))
-        numpy.testing.assert_array_equal(len(coef3), 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef3), y)
-
-        coef4 = beignet.orthax.legfit(x, y, 4)
-        numpy.testing.assert_array_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
-        coef4 = beignet.orthax.legfit(x, y, (0, 1, 2, 3, 4))
-        numpy.testing.assert_array_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
-
-        coef4 = beignet.orthax.legfit(x, y, (2, 3, 4, 1, 0))
-        numpy.testing.assert_array_equal(len(coef4), 5)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
-
-        coef2d = beignet.orthax.legfit(x, numpy.array([y, y]).T, 3)
-        numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-        coef2d = beignet.orthax.legfit(x, numpy.array([y, y]).T, (0, 1, 2, 3))
-        numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
-
-        w = numpy.zeros_like(x)
-        yw = y.copy()
-        w[1::2] = 1
-        y[0::2] = 0
-        wcoef3 = beignet.orthax.legfit(x, yw, 3, w=w)
-        numpy.testing.assert_array_almost_equal(wcoef3, coef3)
-        wcoef3 = beignet.orthax.legfit(x, yw, (0, 1, 2, 3), w=w)
-        numpy.testing.assert_array_almost_equal(wcoef3, coef3)
-
-        wcoef2d = beignet.orthax.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
-        numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-        wcoef2d = beignet.orthax.legfit(x, numpy.array([yw, yw]).T, (0, 1, 2, 3), w=w)
-        numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
-
-        x = [1, 1j, -1, -1j]
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legfit(x, x, 1), [0, 1])
+def test_legvander():
+    x = numpy.arange(3)
+    v = beignet.orthax.legvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.legfit(x, x, (0, 1)), [0, 1]
+            v[..., i], beignet.orthax.legval(x, coef)
         )
 
-        x = numpy.linspace(-1, 1)
-        y = f2(x)
-        coef1 = beignet.orthax.legfit(x, y, 4)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef1), y)
-        coef2 = beignet.orthax.legfit(x, y, (0, 2, 4))
-        numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef2), y)
-        numpy.testing.assert_array_almost_equal(coef1, coef2)
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.orthax.legvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.legval(x, coef)
+        )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legvander, (1, 2, 3), -1)
+
+
+def test_legvander2d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.orthax.legvander2d(x1, x2, (1, 2))
+    tgt = beignet.orthax.legval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.legvander2d([x1], [x2], (1, 2))
+    numpy.testing.assert_(van.shape == (1, 5, 6))
+
+
+def test_legvander3d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.orthax.legvander3d(x1, x2, x3, (1, 2, 3))
+    tgt = beignet.orthax.legval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.legvander3d([x1], [x2], [x3], (1, 2, 3))
+    numpy.testing.assert_(van.shape == (1, 5, 24))
+
+
+def test_legfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def f2(x):
+        return x**4 + x**2 + 1
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [[1]], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [[[1]]], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1, 2], [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[[1]])
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[1, 1])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], (-1,))
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], (2, -1, 6))
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], ())
+
+    x = numpy.linspace(0, 2)
+    y = f(x)
+
+    coef3 = beignet.orthax.legfit(x, y, 3)
+    numpy.testing.assert_array_equal(len(coef3), 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef3), y)
+    coef3 = beignet.orthax.legfit(x, y, (0, 1, 2, 3))
+    numpy.testing.assert_array_equal(len(coef3), 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef3), y)
+
+    coef4 = beignet.orthax.legfit(x, y, 4)
+    numpy.testing.assert_array_equal(len(coef4), 5)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
+    coef4 = beignet.orthax.legfit(x, y, (0, 1, 2, 3, 4))
+    numpy.testing.assert_array_equal(len(coef4), 5)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
+
+    coef4 = beignet.orthax.legfit(x, y, (2, 3, 4, 1, 0))
+    numpy.testing.assert_array_equal(len(coef4), 5)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef4), y)
+
+    coef2d = beignet.orthax.legfit(x, numpy.array([y, y]).T, 3)
+    numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+    coef2d = beignet.orthax.legfit(x, numpy.array([y, y]).T, (0, 1, 2, 3))
+    numpy.testing.assert_array_almost_equal(coef2d, numpy.array([coef3, coef3]).T)
+
+    w = numpy.zeros_like(x)
+    yw = y.copy()
+    w[1::2] = 1
+    y[0::2] = 0
+    wcoef3 = beignet.orthax.legfit(x, yw, 3, w=w)
+    numpy.testing.assert_array_almost_equal(wcoef3, coef3)
+    wcoef3 = beignet.orthax.legfit(x, yw, (0, 1, 2, 3), w=w)
+    numpy.testing.assert_array_almost_equal(wcoef3, coef3)
+
+    wcoef2d = beignet.orthax.legfit(x, numpy.array([yw, yw]).T, 3, w=w)
+    numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+    wcoef2d = beignet.orthax.legfit(x, numpy.array([yw, yw]).T, (0, 1, 2, 3), w=w)
+    numpy.testing.assert_array_almost_equal(wcoef2d, numpy.array([coef3, coef3]).T)
+
+    x = [1, 1j, -1, -1j]
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legfit(x, x, 1), [0, 1])
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legfit(x, x, (0, 1)), [0, 1])
+
+    x = numpy.linspace(-1, 1)
+    y = f2(x)
+    coef1 = beignet.orthax.legfit(x, y, 4)
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef1), y)
+    coef2 = beignet.orthax.legfit(x, y, (0, 2, 4))
+    numpy.testing.assert_array_almost_equal(beignet.orthax.legval(x, coef2), y)
+    numpy.testing.assert_array_almost_equal(coef1, coef2)
 
 
 def test_legcompanion():
