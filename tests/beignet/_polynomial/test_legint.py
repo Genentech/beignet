@@ -8,7 +8,7 @@ import numpy
 import torch
 
 
-def test_legint():
+def test_integrate_legendre_series():
     numpy.testing.assert_raises(
         TypeError, beignet.polynomial._legint.integrate_legendre_series, [0], 0.5
     )
