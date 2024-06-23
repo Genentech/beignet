@@ -1,13 +1,13 @@
 import beignet.polynomial
+import beignet.polynomial._legendre_series_vandermonde_1d
 import beignet.polynomial._leggauss
-import beignet.polynomial._legvander
 import numpy
 
 
 def test_leggauss():
     x, w = beignet.polynomial._leggauss.leggauss(100)
 
-    v = beignet.polynomial._legvander.legvander_vandermonde_1d(x, 99)
+    v = beignet.polynomial._legvander.legendre_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd

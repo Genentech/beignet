@@ -149,6 +149,9 @@ from ._legdomain import legdomain
 from ._legendre_series_companion import legendre_series_companion
 from ._legendre_series_roots import legendre_series_roots
 from ._legendre_series_to_power_series import legendre_series_to_power_series
+from ._legendre_series_vandermonde_1d import legendre_series_vandermonde_1d
+from ._legendre_series_vandermonde_2d import legendre_series_vandermonde_2d
+from ._legendre_series_vandermonde_3d import legendre_series_vandermonde_3d
 from ._legfit import legfit
 from ._legfromroots import legfromroots
 from ._leggauss import leggauss
@@ -158,9 +161,6 @@ from ._legline import legline
 from ._legmulx import legmulx
 from ._legone import legone
 from ._legpow import legpow
-from ._legvander import legvander_vandermonde_1d
-from ._legvander2d import legvander2d
-from ._legvander3d import legvander3d
 from ._legweight import legweight
 from ._legx import legx
 from ._legzero import legzero
@@ -386,9 +386,9 @@ __all__ = [
     "evaluate_1d_legendre_series",
     "evaluate_2d_legendre_series",
     "evaluate_3d_legendre_series",
-    "legvander_vandermonde_1d",
-    "legvander2d",
-    "legvander3d",
+    "legendre_series_vandermonde_1d",
+    "legendre_series_vandermonde_2d",
+    "legendre_series_vandermonde_3d",
     "legweight",
     "legx",
     "legzero",
