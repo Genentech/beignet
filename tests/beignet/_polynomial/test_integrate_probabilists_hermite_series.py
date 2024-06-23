@@ -75,10 +75,16 @@ def test_integrate_probabilists_hermite_series():
         pol = [0] * i + [1]
         hermepol = beignet.polynomial.power_series_to_probabilists_hermite_series(pol)
         hermeint = beignet.polynomial.integrate_probabilists_hermite_series(
-            hermepol, m=1, k=[i], lbnd=-1
+            hermepol,
+            m=1,
+            k=[i],
+            lbnd=-1,
         )
         torch.testing.assert_close(
-            beignet.polynomial.evaluate_probabilists_hermite_series_1d(-1, hermeint),
+            beignet.polynomial.evaluate_probabilists_hermite_series_1d(
+                -1,
+                hermeint,
+            ),
             i,
         )
 
