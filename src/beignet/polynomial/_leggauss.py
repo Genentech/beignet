@@ -2,8 +2,10 @@ import operator
 
 import numpy
 
-from beignet.polynomial._legcompanion import legcompanion
-from beignet.polynomial._legder import legder
+from beignet.polynomial._differentiate_legendre_series import (
+    differentiate_legendre_series,
+)
+from beignet.polynomial._legendre_series_companion import legendre_series_companion
 
 from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
 
@@ -14,11 +16,11 @@ def leggauss(input):
         raise ValueError("deg must be a positive integer")
 
     c = numpy.array([0] * input + [1])
-    m = legcompanion(c)
+    m = legendre_series_companion(c)
     x = numpy.linalg.eigvalsh(m)
 
     dy = evaluate_1d_legendre_series(x, c)
-    df = evaluate_1d_legendre_series(x, legder(c))
+    df = evaluate_1d_legendre_series(x, differentiate_legendre_series(c))
     x -= dy / df
 
     fm = evaluate_1d_legendre_series(x, c[1:])

@@ -45,6 +45,7 @@ from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
+from ._differentiate_legendre_series import differentiate_legendre_series
 from ._differentiate_power_series import differentiate_power_series
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
@@ -125,6 +126,7 @@ from ._hermweight import hermweight
 from ._hermx import hermx
 from ._integrate_chebyshev_series import integrate_chebyshev_series
 from ._integrate_laguerre_series import integrate_laguerre_series
+from ._integrate_legendre_series import integrate_legendre_series
 from ._integrate_power_series import integrate_power_series
 from ._lagder import lagder
 from ._lagdomain import lagdomain
@@ -144,21 +146,19 @@ from ._laguerre_series_vandermonde_2d import laguerre_series_vandermonde_2d
 from ._laguerre_series_vandermonde_3d import laguerre_series_vandermonde_3d
 from ._lagweight import lagweight
 from ._lagx import lagx
-from ._legcompanion import legcompanion
-from ._legder import legder
 from ._legdomain import legdomain
+from ._legendre_series_companion import legendre_series_companion
+from ._legendre_series_roots import legendre_series_roots
 from ._legendre_series_to_power_series import legendre_series_to_power_series
 from ._legfit import legfit
 from ._legfromroots import legfromroots
 from ._leggauss import leggauss
 from ._leggrid2d import leggrid2d
 from ._leggrid3d import leggrid3d
-from ._legint import legint
 from ._legline import legline
 from ._legmulx import legmulx
 from ._legone import legone
 from ._legpow import legpow
-from ._legroots import legroots
 from ._legvander import legvander
 from ._legvander2d import legvander2d
 from ._legvander3d import legvander3d
@@ -353,8 +353,8 @@ __all__ = [
     "lagx",
     "legendre_series_to_power_series",
     "add_legendre_series",
-    "legcompanion",
-    "legder",
+    "legendre_series_companion",
+    "differentiate_legendre_series",
     "divide_legendre_series",
     "legdomain",
     "legfit",
@@ -362,13 +362,13 @@ __all__ = [
     "leggauss",
     "leggrid2d",
     "leggrid3d",
-    "legint",
+    "integrate_legendre_series",
     "legline",
     "multiply_legendre_series",
     "legmulx",
     "legone",
     "legpow",
-    "legroots",
+    "legendre_series_roots",
     "subtract_legendre_series",
     "trim_legendre_series",
     "evaluate_1d_legendre_series",

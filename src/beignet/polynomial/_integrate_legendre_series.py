@@ -6,7 +6,7 @@ from .__normalize_axis_index import _normalize_axis_index
 from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
 
 
-def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def integrate_legendre_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = numpy.array(c, ndmin=1)
