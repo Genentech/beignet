@@ -4,7 +4,7 @@ import beignet.polynomial._legendre_series_vandermonde_2d
 import numpy
 
 
-def test_legvander2d():
+def test_legendre_series_vandermonde_2d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3))
     numpy.testing.assert_almost_equal(

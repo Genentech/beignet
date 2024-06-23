@@ -8,6 +8,7 @@ def test_pow_power_series():
     for j in range(5):
         for k in range(5):
             c = torch.arange(j + 1)
+
             torch.testing.assert_close(
                 beignet.polynomial.trim_power_series(
                     beignet.polynomial.pow_power_series(c, k),
