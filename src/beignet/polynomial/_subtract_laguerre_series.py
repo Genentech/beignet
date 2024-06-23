@@ -1,5 +1,10 @@
+from torch import Tensor
+
 from .__sub import _sub
 
 
-def subtract_laguerre_series(c1, c2):
-    return _sub(c1, c2)
+def subtract_laguerre_series(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
+    return _sub(input, other)
