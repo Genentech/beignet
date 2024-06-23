@@ -1,7 +1,10 @@
 import torch
+from torch import Tensor
 
 
-def evaluate_probabilists_hermite_series_1d(x, c, tensor=True):
+def evaluate_probabilists_hermite_series_1d(
+    x: Tensor, c: Tensor, tensor: bool = True
+) -> Tensor:
     c = torch.ravel(c)
 
     if tensor:
@@ -9,7 +12,7 @@ def evaluate_probabilists_hermite_series_1d(x, c, tensor=True):
 
     if len(c) == 1:
         c0 = c[0]
-        c1 = 0
+        c1 = torch.tensor([0], dtype=x.dtype)
     elif len(c) == 2:
         c0 = c[0]
         c1 = c[1]

@@ -1,8 +1,9 @@
 import numpy
 import torch
+from torch import Tensor
 
 
-def evaluate_power_series_1d(x, c, tensor=True):
+def evaluate_power_series_1d(x: Tensor, c: Tensor, tensor: bool = True) -> Tensor:
     c = torch.ravel(c)
 
     if tensor:
