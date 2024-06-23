@@ -8,15 +8,15 @@ import torch
 
 def test_hermeder():
     numpy.testing.assert_raises(
-        TypeError, beignet.polynomial._hermeder.hermeder, [0], 0.5
+        TypeError, beignet.polynomial._hermeder.differentiate_hermeder, [0], 0.5
     )
     numpy.testing.assert_raises(
-        ValueError, beignet.polynomial._hermeder.hermeder, [0], -1
+        ValueError, beignet.polynomial._hermeder.differentiate_hermeder, [0], -1
     )
 
     for i in range(5):
         tgt = [0] * i + [1]
-        res = beignet.polynomial._hermeder.hermeder(tgt, m=0)
+        res = beignet.polynomial._hermeder.differentiate_hermeder(tgt, m=0)
         torch.testing.assert_close(
             beignet.polynomial._hermetrim.trim_probabilists_hermite_series(
                 res, tolerance=1e-6
@@ -29,7 +29,7 @@ def test_hermeder():
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial._hermeder.hermeder(
+            res = beignet.polynomial._hermeder.differentiate_hermeder(
                 beignet.polynomial._hermeint.hermeint(tgt, m=j), m=j
             )
             numpy.testing.assert_almost_equal(
@@ -44,7 +44,7 @@ def test_hermeder():
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.polynomial._hermeder.hermeder(
+            res = beignet.polynomial._hermeder.differentiate_hermeder(
                 beignet.polynomial._hermeint.hermeint(tgt, m=j, scl=2), m=j, scl=0.5
             )
             numpy.testing.assert_almost_equal(
@@ -58,10 +58,14 @@ def test_hermeder():
 
     c2d = numpy.random.random((3, 4))
 
-    tgt = numpy.vstack([beignet.polynomial._hermeder.hermeder(c) for c in c2d.T]).T
-    res = beignet.polynomial._hermeder.hermeder(c2d, axis=0)
+    tgt = numpy.vstack(
+        [beignet.polynomial._hermeder.differentiate_hermeder(c) for c in c2d.T]
+    ).T
+    res = beignet.polynomial._hermeder.differentiate_hermeder(c2d, axis=0)
     numpy.testing.assert_almost_equal(res, tgt)
 
-    tgt = numpy.vstack([beignet.polynomial._hermeder.hermeder(c) for c in c2d])
-    res = beignet.polynomial._hermeder.hermeder(c2d, axis=1)
+    tgt = numpy.vstack(
+        [beignet.polynomial._hermeder.differentiate_hermeder(c) for c in c2d]
+    )
+    res = beignet.polynomial._hermeder.differentiate_hermeder(c2d, axis=1)
     numpy.testing.assert_almost_equal(res, tgt)

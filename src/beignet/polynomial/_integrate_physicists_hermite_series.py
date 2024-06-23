@@ -8,7 +8,7 @@ from ._evaluate_1d_physicists_hermite_series import (
 )
 
 
-def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def integrate_physicists_hermite_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = numpy.array(c, ndmin=1)

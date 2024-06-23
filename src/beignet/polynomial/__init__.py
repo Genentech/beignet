@@ -46,6 +46,9 @@ from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebzero import chebzero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
 from ._differentiate_legendre_series import differentiate_legendre_series
+from ._differentiate_physicists_hermite_series import (
+    differentiate_physicists_hermite_series,
+)
 from ._differentiate_power_series import differentiate_power_series
 from ._divide_chebyshev_series import divide_chebyshev_series
 from ._divide_laguerre_series import divide_laguerre_series
@@ -85,12 +88,11 @@ from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
 from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
+from ._fit_physicists_hermite_series import fit_physicists_hermite_series
 from ._fit_power_series import fit_power_series
-from ._hermcompanion import hermcompanion
-from ._hermder import hermder
 from ._hermdomain import hermdomain
 from ._hermecompanion import hermecompanion
-from ._hermeder import hermeder
+from ._hermeder import differentiate_hermeder
 from ._hermedomain import hermedomain
 from ._hermefit import hermefit
 from ._hermefromroots import hermefromroots
@@ -108,25 +110,24 @@ from ._hermevander2d import hermevander2d
 from ._hermevander3d import hermevander3d
 from ._hermeweight import hermeweight
 from ._hermex import hermex
-from ._hermfit import hermfit
 from ._hermfromroots import hermfromroots
 from ._hermgauss import hermgauss
 from ._hermgrid2d import hermgrid2d
 from ._hermgrid3d import hermgrid3d
-from ._hermint import hermint
 from ._hermline import hermline
 from ._hermmulx import hermmulx
 from ._hermone import hermone
 from ._hermpow import hermpow
 from ._hermroots import hermroots
-from ._hermvander import hermvander
-from ._hermvander2d import hermvander2d
-from ._hermvander3d import hermvander3d
+from ._hermvander import physicists_hermite_series_hermvander
+from ._hermvander2d import physicists_hermite_series_hermvander2d
+from ._hermvander3d import physicists_hermite_series_hermvander3d
 from ._hermweight import hermweight
 from ._hermx import hermx
 from ._integrate_chebyshev_series import integrate_chebyshev_series
 from ._integrate_laguerre_series import integrate_laguerre_series
 from ._integrate_legendre_series import integrate_legendre_series
+from ._integrate_physicists_hermite_series import integrate_physicists_hermite_series
 from ._integrate_power_series import integrate_power_series
 from ._lagder import lagder
 from ._lagdomain import lagdomain
@@ -171,6 +172,7 @@ from ._multiply_legendre_series import multiply_legendre_series
 from ._multiply_physicists_hermite_series import multiply_physicists_hermite_series
 from ._multiply_power_series import multiply_power_series
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
+from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 from ._physicists_hermite_series_to_power_series import (
     physicists_hermite_series_to_power_series,
 )
@@ -269,14 +271,14 @@ __all__ = [
     "chebzero",
     "physicists_hermite_series_to_power_series",
     "add_physicists_hermite_series",
-    "hermcompanion",
-    "hermder",
+    "physicists_hermite_series_companion",
+    "differentiate_physicists_hermite_series",
     "divide_physicists_hermite_series",
     "hermdomain",
     "probabilists_hermite_series_to_power_series",
     "add_probabilists_hermite_series",
     "hermecompanion",
-    "hermeder",
+    "differentiate_hermeder",
     "divide_probabilists_hermite_series",
     "hermedomain",
     "hermefit",
@@ -301,12 +303,12 @@ __all__ = [
     "hermevander3d",
     "hermeweight",
     "hermex",
-    "hermfit",
+    "fit_physicists_hermite_series",
     "hermfromroots",
     "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
-    "hermint",
+    "integrate_physicists_hermite_series",
     "hermline",
     "multiply_physicists_hermite_series",
     "hermmulx",
@@ -318,9 +320,9 @@ __all__ = [
     "evaluate_1d_physicists_hermite_series",
     "evaluate_2d_physicists_hermite_series",
     "evaluate_3d_physicists_hermite_series",
-    "hermvander",
-    "hermvander2d",
-    "hermvander3d",
+    "physicists_hermite_series_hermvander",
+    "physicists_hermite_series_hermvander2d",
+    "physicists_hermite_series_hermvander3d",
     "hermweight",
     "hermx",
     "laguerre_series_to_power_series",

@@ -4,7 +4,7 @@ import torch
 from .__as_series import _as_series
 
 
-def hermcompanion(input):
+def physicists_hermite_series_companion(input):
     (input,) = _as_series([input])
 
     if len(input) < 2:
