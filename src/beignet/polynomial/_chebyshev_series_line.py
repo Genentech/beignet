@@ -1,7 +1,7 @@
 import torch
 
 
-def chebline(input, other):
+def chebyshev_series_line(input, other):
     if other != 0:
         return torch.tensor([input, other])
     else:

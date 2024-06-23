@@ -17,7 +17,7 @@ def test_chebpow():
 
             torch.testing.assert_close(
                 beignet.polynomial.trim_chebyshev_series(
-                    beignet.polynomial._chebpow.chebpow(c, k),
+                    beignet.polynomial._chebpow.pow_chebyshev_series(c, k),
                     tolerance=1e-6,
                 ),
                 beignet.polynomial.trim_chebyshev_series(

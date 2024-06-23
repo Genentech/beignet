@@ -23,26 +23,25 @@ from ._add_legendre_series import add_legendre_series
 from ._add_physicists_hermite_series import add_physicists_hermite_series
 from ._add_power_series import add_power_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
-from ._chebdomain import chebdomain
 from ._chebfromroots import chebfromroots
 from ._chebgauss import chebgauss
 from ._chebgrid2d import chebgrid2d
 from ._chebgrid3d import chebgrid3d
 from ._chebinterpolate import chebinterpolate
-from ._chebline import chebline
 from ._chebmulx import chebmulx
-from ._chebone import chebone
-from ._chebpow import chebpow
 from ._chebpts1 import chebpts1
 from ._chebpts2 import chebpts2
-from ._chebweight import chebweight
-from ._chebx import chebx
 from ._chebyshev_series_companion import chebyshev_series_companion
+from ._chebyshev_series_domain import chebyshev_series_domain
+from ._chebyshev_series_line import chebyshev_series_line
+from ._chebyshev_series_one import chebyshev_series_one
 from ._chebyshev_series_roots import chebyshev_series_roots
 from ._chebyshev_series_to_power_series import chebyshev_series_to_power_series
 from ._chebyshev_series_vandermonde_1d import chebyshev_series_vandermonde_1d
 from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
+from ._chebyshev_series_weight import chebyshev_series_weight
+from ._chebyshev_series_x import chebyshev_series_x
 from ._chebzero import chebzero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
 from ._differentiate_laguerre_series import differentiate_laguerre_series
@@ -185,6 +184,7 @@ from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
 from ._polymulx import polymulx
 from ._polyvalfromroots import polyvalfromroots
+from ._pow_chebyshev_series import pow_chebyshev_series
 from ._pow_laguerre_series import pow_laguerre_series
 from ._pow_legendre_series import pow_legendre_series
 from ._pow_power_series import pow_power_series
@@ -260,7 +260,7 @@ __all__ = [
     "chebyshev_series_companion",
     "differentiate_chebyshev_series",
     "divide_chebyshev_series",
-    "chebdomain",
+    "chebyshev_series_domain",
     "fit_chebyshev_series",
     "chebfromroots",
     "chebgauss",
@@ -268,11 +268,11 @@ __all__ = [
     "chebgrid3d",
     "integrate_chebyshev_series",
     "chebinterpolate",
-    "chebline",
+    "chebyshev_series_line",
     "multiply_chebyshev_series",
     "chebmulx",
-    "chebone",
-    "chebpow",
+    "chebyshev_series_one",
+    "pow_chebyshev_series",
     "chebpts1",
     "chebpts2",
     "chebyshev_series_roots",
@@ -284,8 +284,8 @@ __all__ = [
     "chebyshev_series_vandermonde_1d",
     "chebyshev_series_vandermonde_2d",
     "chebyshev_series_vandermonde_3d",
-    "chebweight",
-    "chebx",
+    "chebyshev_series_weight",
+    "chebyshev_series_x",
     "chebzero",
     "physicists_hermite_series_to_power_series",
     "add_physicists_hermite_series",

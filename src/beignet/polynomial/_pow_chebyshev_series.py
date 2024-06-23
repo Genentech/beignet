@@ -6,7 +6,7 @@ from .__c_series_to_z_series import _c_series_to_z_series
 from .__z_series_to_c_series import _z_series_to_c_series
 
 
-def chebpow(c, pow, maxpower=16):
+def pow_chebyshev_series(c, pow, maxpower=16):
     [c] = _as_series([c])
 
     power = int(pow)
