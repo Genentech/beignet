@@ -4,7 +4,7 @@ import beignet.polynomial._physicists_hermite_series_vandermonde_3d
 import numpy
 
 
-def test_hermvander3d():
+def test_physicists_hermite_series_vandermonde_3d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3, 4))
     van = beignet.polynomial._hermvander3d.physicists_hermite_series_vandermonde_3d(

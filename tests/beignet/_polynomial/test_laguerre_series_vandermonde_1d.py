@@ -4,7 +4,7 @@ import beignet.polynomial._laguerre_series_vandermonde_1d
 import numpy
 
 
-def test_lagvander():
+def test_laguerre_series_vandermonde_1d():
     x = numpy.arange(3)
     v = beignet.polynomial._lagvander.laguerre_series_vandermonde_1d(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))
