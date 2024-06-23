@@ -113,13 +113,13 @@ from ._integrate_power_series import integrate_power_series
 from ._integrate_probabilists_hermite_series import (
     integrate_probabilists_hermite_series,
 )
-from ._lagfromroots import lagfromroots
 from ._laggauss import laggauss
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
 from ._lagmulx import lagmulx
 from ._laguerre_series_companion import laguerre_series_companion
 from ._laguerre_series_domain import laguerre_series_domain
+from ._laguerre_series_from_roots import laguerre_series_from_roots
 from ._laguerre_series_line import laguerre_series_line
 from ._laguerre_series_one import laguerre_series_one
 from ._laguerre_series_roots import laguerre_series_roots
@@ -334,7 +334,7 @@ __all__ = [
     "integrate_physicists_hermite_series",
     "integrate_power_series",
     "integrate_probabilists_hermite_series",
-    "lagfromroots",
+    "laguerre_series_from_roots",
     "laggauss",
     "laggrid2d",
     "laggrid3d",
