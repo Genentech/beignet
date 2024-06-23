@@ -89,8 +89,6 @@ __all__ = [
 ]
 
 
-import functools
-
 import jax
 import jax.numpy
 
@@ -111,7 +109,6 @@ polyx = jax.numpy.array([0, 1])
 """Polynomial coefficients representing the identity x."""
 
 
-@jax.jit
 def polyline(off, scl):
     """
     Returns an array representing a linear polynomial.
@@ -147,7 +144,6 @@ def polyline(off, scl):
     return jax.numpy.array([off, scl])
 
 
-@jax.jit
 def polyfromroots(roots):
     """
     Generate a monic polynomial with given roots.
@@ -212,7 +208,6 @@ def polyfromroots(roots):
     return polyutils._fromroots(polyline, polymul, roots)
 
 
-@jax.jit
 def polyadd(c1, c2):
     """
     Add one polynomial to another.
@@ -249,7 +244,6 @@ def polyadd(c1, c2):
     return polyutils._add(c1, c2)
 
 
-@jax.jit
 def polysub(c1, c2):
     """
     Subtract one polynomial from another.
@@ -287,7 +281,6 @@ def polysub(c1, c2):
     return polyutils._sub(c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def polymulx(c, mode="full"):
     """Multiply a polynomial by x.
 
@@ -323,7 +316,6 @@ def polymulx(c, mode="full"):
     return prd
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def polymul(c1, c2, mode="full"):
     """
     Multiply one polynomial by another.
@@ -366,7 +358,6 @@ def polymul(c1, c2, mode="full"):
     return ret
 
 
-@jax.jit
 def polydiv(c1, c2):
     """
     Divide one polynomial by another.
@@ -404,7 +395,6 @@ def polydiv(c1, c2):
     return polyutils._div(polymul, c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames=("pow", "maxpower"))
 def polypow(c, pow, maxpower=16):
     """Raise a polynomial to a power.
 
@@ -442,7 +432,6 @@ def polypow(c, pow, maxpower=16):
     return polyutils._pow(polymul, c, pow, maxpower)
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def polyder(c, m=1, scl=1, axis=0):
     """Differentiate a polynomial.
 
@@ -517,7 +506,6 @@ def polyder(c, m=1, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     """
     Integrate a polynomial.
@@ -633,7 +621,6 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def polyval(x, c, tensor=True):
     """
     Evaluate a polynomial at points x.
@@ -728,7 +715,6 @@ def polyval(x, c, tensor=True):
     return c0
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def polyvalfromroots(x, r, tensor=True):
     r"""Evaluate a polynomial specified by its roots at points x.
 
@@ -810,7 +796,6 @@ def polyvalfromroots(x, r, tensor=True):
     return jax.numpy.prod(x - r, axis=0)
 
 
-@jax.jit
 def polyval2d(x, y, c):
     r"""Evaluate a 2-D polynomial at points (x, y).
 
@@ -855,7 +840,6 @@ def polyval2d(x, y, c):
     return polyutils._valnd(polyval, c, x, y)
 
 
-@jax.jit
 def polygrid2d(x, y, c):
     r"""Evaluate a 2-D polynomial on the Cartesian product of x and y.
 
@@ -903,7 +887,6 @@ def polygrid2d(x, y, c):
     return polyutils._gridnd(polyval, c, x, y)
 
 
-@jax.jit
 def polyval3d(x, y, z, c):
     r"""Evaluate a 3-D polynomial at points (x, y, z).
 
@@ -949,7 +932,6 @@ def polyval3d(x, y, z, c):
     return polyutils._valnd(polyval, c, x, y, z)
 
 
-@jax.jit
 def polygrid3d(x, y, z, c):
     r"""Evaluate a 3-D polynomial on the Cartesian product of x, y and z.
 
@@ -1000,7 +982,6 @@ def polygrid3d(x, y, z, c):
     return polyutils._gridnd(polyval, c, x, y, z)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def polyvander(x, deg):
     """Vandermonde matrix of given degree.
 
@@ -1057,7 +1038,6 @@ def polyvander(x, deg):
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def polyvander2d(x, y, deg):
     """Pseudo-Vandermonde matrix of given degrees.
 
@@ -1106,7 +1086,6 @@ def polyvander2d(x, y, deg):
     return polyutils._vander_nd_flat((polyvander, polyvander), (x, y), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def polyvander3d(x, y, z, deg):
     """Pseudo-Vandermonde matrix of given degrees.
 
@@ -1158,7 +1137,6 @@ def polyvander3d(x, y, z, deg):
     )
 
 
-@functools.partial(jax.jit, static_argnames=("deg", "full"))
 def polyfit(x, y, deg, rcond=None, full=False, w=None):
     r"""Least-squares fit of a polynomial to data.
 
@@ -1296,7 +1274,6 @@ def polyfit(x, y, deg, rcond=None, full=False, w=None):
     return polyutils._fit(polyvander, x, y, deg, rcond, full, w)
 
 
-@jax.jit
 def polycompanion(c):
     """Return the companion matrix of c.
 
@@ -1330,7 +1307,6 @@ def polycompanion(c):
     return mat
 
 
-@jax.jit
 def polyroots(c):
     r"""Compute the roots of a polynomial.
 

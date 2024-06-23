@@ -65,8 +65,6 @@ Misc Functions
 
 """
 
-import functools
-
 import jax
 import jax.numpy
 
@@ -108,7 +106,6 @@ __all__ = [
 legtrim = polyutils.trimcoef
 
 
-@jax.jit
 def poly2leg(pol):
     """Convert a polynomial to a Legendre series.
 
@@ -147,7 +144,6 @@ def poly2leg(pol):
     return res
 
 
-@jax.jit
 def leg2poly(c):
     """Convert a Legendre series to a polynomial.
 
@@ -211,7 +207,6 @@ legx = jax.numpy.array([0, 1])
 """Legendre coefficients representing the identity x."""
 
 
-@jax.jit
 def legline(off, scl):
     """Legendre series whose graph is a straight line.
 
@@ -246,7 +241,6 @@ def legline(off, scl):
     return jax.numpy.array([off, scl])
 
 
-@jax.jit
 def legfromroots(roots):
     """Generate a Legendre series with given roots.
 
@@ -301,7 +295,6 @@ def legfromroots(roots):
     return polyutils._fromroots(legline, legmul, roots)
 
 
-@jax.jit
 def legadd(c1, c2):
     """
     Add one Legendre series to another.
@@ -344,7 +337,6 @@ def legadd(c1, c2):
     return polyutils._add(c1, c2)
 
 
-@jax.jit
 def legsub(c1, c2):
     """
     Subtract one Legendre series from another.
@@ -389,7 +381,6 @@ def legsub(c1, c2):
     return polyutils._sub(c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def legmulx(c, mode="full"):
     """Multiply a Legendre series by x.
 
@@ -450,7 +441,6 @@ def legmulx(c, mode="full"):
     return prd
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def legmul(c1, c2, mode="full"):
     """
     Multiply one Legendre series by another.
@@ -530,7 +520,6 @@ def legmul(c1, c2, mode="full"):
     return ret
 
 
-@jax.jit
 def legdiv(c1, c2):
     """Divide one Legendre series by another.
 
@@ -579,7 +568,6 @@ def legdiv(c1, c2):
     return polyutils._div(legmul, c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames=("pow", "maxpower"))
 def legpow(c, pow, maxpower=16):
     """Raise a Legendre series to a power.
 
@@ -611,7 +599,6 @@ def legpow(c, pow, maxpower=16):
     return polyutils._pow(legmul, c, pow, maxpower)
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def legder(c, m=1, scl=1, axis=0):
     """Differentiate a Legendre series.
 
@@ -706,7 +693,6 @@ def legder(c, m=1, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     """Integrate a Legendre series.
 
@@ -828,7 +814,6 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def legval(x, c, tensor=True):
     """Evaluate a Legendre series at points x.
 
@@ -914,7 +899,6 @@ def legval(x, c, tensor=True):
     return c0 + c1 * x
 
 
-@jax.jit
 def legval2d(x, y, c):
     r"""Evaluate a 2-D Legendre series at points (x, y).
 
@@ -958,7 +942,6 @@ def legval2d(x, y, c):
     return polyutils._valnd(legval, c, x, y)
 
 
-@jax.jit
 def leggrid2d(x, y, c):
     r"""Evaluate a 2-D Legendre series on the Cartesian product of x and y.
 
@@ -1006,7 +989,6 @@ def leggrid2d(x, y, c):
     return polyutils._gridnd(legval, c, x, y)
 
 
-@jax.jit
 def legval3d(x, y, z, c):
     r"""Evaluate a 3-D Legendre series at points (x, y, z).
 
@@ -1052,7 +1034,6 @@ def legval3d(x, y, z, c):
     return polyutils._valnd(legval, c, x, y, z)
 
 
-@jax.jit
 def leggrid3d(x, y, z, c):
     r"""Evaluate a 3-D Legendre series on the Cartesian product of x, y, and z.
 
@@ -1103,7 +1084,6 @@ def leggrid3d(x, y, z, c):
     return polyutils._gridnd(legval, c, x, y, z)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def legvander(x, deg):
     r"""Pseudo-Vandermonde matrix of given degree.
 
@@ -1159,7 +1139,6 @@ def legvander(x, deg):
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def legvander2d(x, y, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1208,7 +1187,6 @@ def legvander2d(x, y, deg):
     return polyutils._vander_nd_flat((legvander, legvander), (x, y), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def legvander3d(x, y, z, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1258,7 +1236,6 @@ def legvander3d(x, y, z, deg):
     return polyutils._vander_nd_flat((legvander, legvander, legvander), (x, y, z), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg", "full"))
 def legfit(x, y, deg, rcond=None, full=False, w=None):
     r"""Least squares fit of Legendre series to data.
 
@@ -1366,7 +1343,6 @@ def legfit(x, y, deg, rcond=None, full=False, w=None):
     return polyutils._fit(legvander, x, y, deg, rcond, full, w)
 
 
-@jax.jit
 def legcompanion(c):
     """Return the scaled companion matrix of c.
 
@@ -1406,7 +1382,6 @@ def legcompanion(c):
     return mat
 
 
-@jax.jit
 def legroots(c):
     r"""Compute the roots of a Legendre series.
 

@@ -68,8 +68,6 @@ Misc Functions
 
 """
 
-import functools
-
 import jax
 import jax.numpy
 
@@ -119,7 +117,6 @@ chebtrim = polyutils.trimcoef
 #
 
 
-@jax.jit
 def _cseries_to_zseries(c):
     """Convert Chebyshev series to z-series.
 
@@ -145,7 +142,6 @@ def _cseries_to_zseries(c):
     return zs + zs[::-1]
 
 
-@jax.jit
 def _zseries_to_cseries(zs):
     """Convert z-series to a Chebyshev series.
 
@@ -171,7 +167,6 @@ def _zseries_to_cseries(zs):
     return c
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def _zseries_mul(z1, z2, mode="full"):
     """Multiply two z-series.
 
@@ -207,7 +202,6 @@ def _zseries_mul(z1, z2, mode="full"):
 #
 
 
-@jax.jit
 def poly2cheb(pol):
     """Convert a polynomial to a Chebyshev series.
 
@@ -246,7 +240,6 @@ def poly2cheb(pol):
     return res
 
 
-@jax.jit
 def cheb2poly(c):
     """Convert a Chebyshev series to a polynomial.
 
@@ -310,7 +303,6 @@ chebx = jax.numpy.array([0, 1])
 """Chebyshev coefficients representing the identity x."""
 
 
-@jax.jit
 def chebline(off, scl):
     """Chebyshev series whose graph is a straight line.
 
@@ -345,7 +337,6 @@ def chebline(off, scl):
     return jax.numpy.array([off, scl])
 
 
-@jax.jit
 def chebfromroots(roots):
     """Generate a Chebyshev series with given roots.
 
@@ -400,7 +391,6 @@ def chebfromroots(roots):
     return polyutils._fromroots(chebline, chebmul, roots)
 
 
-@jax.jit
 def chebadd(c1, c2):
     """Add one Chebyshev series to another.
 
@@ -442,7 +432,6 @@ def chebadd(c1, c2):
     return polyutils._add(c1, c2)
 
 
-@jax.jit
 def chebsub(c1, c2):
     """Subtract one Chebyshev series from another.
 
@@ -486,7 +475,6 @@ def chebsub(c1, c2):
     return polyutils._sub(c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def chebmulx(c, mode="full"):
     """Multiply a Chebyshev series by x.
 
@@ -529,7 +517,6 @@ def chebmulx(c, mode="full"):
     return prd
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def chebmul(c1, c2, mode="full"):
     """Multiply one Chebyshev series by another.
 
@@ -583,7 +570,6 @@ def chebmul(c1, c2, mode="full"):
     return ret
 
 
-@jax.jit
 def chebdiv(c1, c2):
     """Divide one Chebyshev series by another.
 
@@ -634,7 +620,6 @@ def chebdiv(c1, c2):
     return polyutils._div(chebmul, c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames=("pow", "maxpower"))
 def chebpow(c, pow, maxpower=16):
     """Raise a Chebyshev series to a power.
 
@@ -698,7 +683,6 @@ def chebpow(c, pow, maxpower=16):
         return _zseries_to_cseries(prd)
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def chebder(c, m=1, scl=1, axis=0):
     """Differentiate a Chebyshev series.
 
@@ -793,7 +777,6 @@ def chebder(c, m=1, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     """Integrate a Chebyshev series.
 
@@ -914,7 +897,6 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def chebval(x, c, tensor=True):
     """Evaluate a Chebyshev series at points x.
 
@@ -999,7 +981,6 @@ def chebval(x, c, tensor=True):
     return c0 + c1 * x
 
 
-@jax.jit
 def chebval2d(x, y, c):
     r"""Evaluate a 2-D Chebyshev series at points (x, y).
 
@@ -1043,7 +1024,6 @@ def chebval2d(x, y, c):
     return polyutils._valnd(chebval, c, x, y)
 
 
-@jax.jit
 def chebgrid2d(x, y, c):
     r"""Evaluate a 2-D Chebyshev series on the Cartesian product of x and y.
 
@@ -1091,7 +1071,6 @@ def chebgrid2d(x, y, c):
     return polyutils._gridnd(chebval, c, x, y)
 
 
-@jax.jit
 def chebval3d(x, y, z, c):
     r"""Evaluate a 3-D Chebyshev series at points (x, y, z).
 
@@ -1137,7 +1116,6 @@ def chebval3d(x, y, z, c):
     return polyutils._valnd(chebval, c, x, y, z)
 
 
-@jax.jit
 def chebgrid3d(x, y, z, c):
     r"""Evaluate a 3-D Chebyshev series on the Cartesian product of x, y, and z.
 
@@ -1188,7 +1166,6 @@ def chebgrid3d(x, y, z, c):
     return polyutils._gridnd(chebval, c, x, y, z)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def chebvander(x, deg):
     """Pseudo-Vandermonde matrix of given degree.
 
@@ -1246,7 +1223,6 @@ def chebvander(x, deg):
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def chebvander2d(x, y, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1295,7 +1271,6 @@ def chebvander2d(x, y, deg):
     return polyutils._vander_nd_flat((chebvander, chebvander), (x, y), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def chebvander3d(x, y, z, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1347,7 +1322,6 @@ def chebvander3d(x, y, z, deg):
     )
 
 
-@functools.partial(jax.jit, static_argnames=("deg", "full"))
 def chebfit(x, y, deg, rcond=None, full=False, w=None):
     r"""Least squares fit of Chebyshev series to data.
 
@@ -1453,7 +1427,6 @@ def chebfit(x, y, deg, rcond=None, full=False, w=None):
     return polyutils._fit(chebvander, x, y, deg, rcond, full, w)
 
 
-@jax.jit
 def chebcompanion(c):
     """Return the scaled companion matrix of c.
 
@@ -1497,7 +1470,6 @@ def chebcompanion(c):
     return mat
 
 
-@jax.jit
 def chebroots(c):
     r"""Compute the roots of a Chebyshev series.
 
@@ -1660,7 +1632,6 @@ def chebgauss(deg):
     return x, w
 
 
-@jax.jit
 def chebweight(x):
     r"""The weight function of the Chebyshev polynomials.
 

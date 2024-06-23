@@ -61,8 +61,6 @@ Misc Functions
 
 """
 
-import functools
-
 import jax
 import jax.numpy
 
@@ -104,7 +102,6 @@ __all__ = [
 lagtrim = polyutils.trimcoef
 
 
-@jax.jit
 def poly2lag(pol):
     """Convert a polynomial to a Laguerre series.
 
@@ -146,7 +143,6 @@ def poly2lag(pol):
     return res
 
 
-@jax.jit
 def lag2poly(c):
     """Convert a Laguerre series to a polynomial.
 
@@ -216,7 +212,6 @@ lagx = jax.numpy.array([1, -1])
 """Laguerre coefficients representing the identity x."""
 
 
-@jax.jit
 def lagline(off, scl):
     """
     Laguerre series whose graph is a straight line.
@@ -252,7 +247,6 @@ def lagline(off, scl):
     return jax.numpy.array([off + scl, -scl])
 
 
-@jax.jit
 def lagfromroots(roots):
     """
     Generate a Laguerre series with given roots.
@@ -309,7 +303,6 @@ def lagfromroots(roots):
     return polyutils._fromroots(lagline, lagmul, roots)
 
 
-@jax.jit
 def lagadd(c1, c2):
     """Add one Laguerre series to another.
 
@@ -350,7 +343,6 @@ def lagadd(c1, c2):
     return polyutils._add(c1, c2)
 
 
-@jax.jit
 def lagsub(c1, c2):
     """
     Subtract one Laguerre series from another.
@@ -391,7 +383,6 @@ def lagsub(c1, c2):
     return polyutils._sub(c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def lagmulx(c, mode="full"):
     """Multiply a Laguerre series by x.
 
@@ -450,7 +441,6 @@ def lagmulx(c, mode="full"):
     return prd
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def lagmul(c1, c2, mode="full"):
     """Multiply one Laguerre series by another.
 
@@ -528,7 +518,6 @@ def lagmul(c1, c2, mode="full"):
     return ret
 
 
-@jax.jit
 def lagdiv(c1, c2):
     """Divide one Laguerre series by another.
 
@@ -574,7 +563,6 @@ def lagdiv(c1, c2):
     return polyutils._div(lagmul, c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames=("pow", "maxpower"))
 def lagpow(c, pow, maxpower=16):
     """Raise a Laguerre series to a power.
 
@@ -612,7 +600,6 @@ def lagpow(c, pow, maxpower=16):
     return polyutils._pow(lagmul, c, pow, maxpower)
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def lagder(c, m=1, scl=1, axis=0):
     """Differentiate a Laguerre series.
 
@@ -700,7 +687,6 @@ def lagder(c, m=1, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     """Integrate a Laguerre series.
 
@@ -819,7 +805,6 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def lagval(x, c, tensor=True):
     """Evaluate a Laguerre series at points x.
 
@@ -915,7 +900,6 @@ def lagval(x, c, tensor=True):
     return c0 + c1 * (1 - x)
 
 
-@jax.jit
 def lagval2d(x, y, c):
     r"""Evaluate a 2-D Laguerre series at points (x, y).
 
@@ -959,7 +943,6 @@ def lagval2d(x, y, c):
     return polyutils._valnd(lagval, c, x, y)
 
 
-@jax.jit
 def laggrid2d(x, y, c):
     r"""Evaluate a 2-D Laguerre series on the Cartesian product of x and y.
 
@@ -1007,7 +990,6 @@ def laggrid2d(x, y, c):
     return polyutils._gridnd(lagval, c, x, y)
 
 
-@jax.jit
 def lagval3d(x, y, z, c):
     r"""Evaluate a 3-D Laguerre series at points (x, y, z).
 
@@ -1053,7 +1035,6 @@ def lagval3d(x, y, z, c):
     return polyutils._valnd(lagval, c, x, y, z)
 
 
-@jax.jit
 def laggrid3d(x, y, z, c):
     r"""Evaluate a 3-D Laguerre series on the Cartesian product of x, y, and z.
 
@@ -1104,7 +1085,6 @@ def laggrid3d(x, y, z, c):
     return polyutils._gridnd(lagval, c, x, y, z)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def lagvander(x, deg):
     """Pseudo-Vandermonde matrix of given degree.
 
@@ -1169,7 +1149,6 @@ def lagvander(x, deg):
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def lagvander2d(x, y, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1218,7 +1197,6 @@ def lagvander2d(x, y, deg):
     return polyutils._vander_nd_flat((lagvander, lagvander), (x, y), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def lagvander3d(x, y, z, deg):
     r"""Pseudo-Vandermonde matrix of given degrees.
 
@@ -1268,7 +1246,6 @@ def lagvander3d(x, y, z, deg):
     return polyutils._vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg", "full"))
 def lagfit(x, y, deg, rcond=None, full=False, w=None):
     r"""Least squares fit of Laguerre series to data.
 
@@ -1384,7 +1361,6 @@ def lagfit(x, y, deg, rcond=None, full=False, w=None):
     return polyutils._fit(lagvander, x, y, deg, rcond, full, w)
 
 
-@jax.jit
 def lagcompanion(c):
     """Return the companion matrix of c.
 
@@ -1420,7 +1396,6 @@ def lagcompanion(c):
     return mat
 
 
-@jax.jit
 def lagroots(c):
     r"""Compute the roots of a Laguerre series.
 
@@ -1543,7 +1518,6 @@ def laggauss(deg):
     return x, w
 
 
-@jax.jit
 def lagweight(x):
     r"""Weight function of the Laguerre polynomials.
 

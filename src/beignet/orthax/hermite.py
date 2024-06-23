@@ -61,8 +61,6 @@ Misc Functions
 
 """
 
-import functools
-
 import jax
 import jax.numpy
 
@@ -104,7 +102,6 @@ __all__ = [
 hermtrim = polyutils.trimcoef
 
 
-@jax.jit
 def poly2herm(pol):
     """Convert a polynomial to a Hermite series.
 
@@ -148,7 +145,6 @@ def poly2herm(pol):
     return res
 
 
-@jax.jit
 def herm2poly(c):
     """Convert a Hermite series to a polynomial.
 
@@ -226,7 +222,6 @@ hermx = jax.numpy.array([0, 1 / 2])
 """Hermite coefficients representing the identity x."""
 
 
-@jax.jit
 def hermline(off, scl):
     """Hermite series whose graph is a straight line.
 
@@ -261,7 +256,6 @@ def hermline(off, scl):
     return jax.numpy.array([off, scl / 2])
 
 
-@jax.jit
 def hermfromroots(roots):
     """
     Generate a Hermite series with given roots.
@@ -318,7 +312,6 @@ def hermfromroots(roots):
     return polyutils._fromroots(hermline, hermmul, roots)
 
 
-@jax.jit
 def hermadd(c1, c2):
     """
     Add one Hermite series to another.
@@ -359,7 +352,6 @@ def hermadd(c1, c2):
     return polyutils._add(c1, c2)
 
 
-@jax.jit
 def hermsub(c1, c2):
     """
     Subtract one Hermite series from another.
@@ -400,7 +392,6 @@ def hermsub(c1, c2):
     return polyutils._sub(c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def hermmulx(c, mode="full"):
     """Multiply a Hermite series by x.
 
@@ -457,7 +448,6 @@ def hermmulx(c, mode="full"):
     return prd
 
 
-@functools.partial(jax.jit, static_argnames="mode")
 def hermmul(c1, c2, mode="full"):
     """
     Multiply one Hermite series by another.
@@ -535,7 +525,6 @@ def hermmul(c1, c2, mode="full"):
     return ret
 
 
-@jax.jit
 def hermdiv(c1, c2):
     """
     Divide one Hermite series by another.
@@ -584,7 +573,6 @@ def hermdiv(c1, c2):
     return polyutils._div(hermmul, c1, c2)
 
 
-@functools.partial(jax.jit, static_argnames=("pow", "maxpower"))
 def hermpow(c, pow, maxpower=16):
     """Raise a Hermite series to a power.
 
@@ -622,7 +610,6 @@ def hermpow(c, pow, maxpower=16):
     return polyutils._pow(hermmul, c, pow, maxpower)
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def hermder(c, m=1, scl=1, axis=0):
     """
     Differentiate a Hermite series.
@@ -701,7 +688,6 @@ def hermder(c, m=1, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("m", "axis"))
 def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     """
     Integrate a Hermite series.
@@ -818,7 +804,6 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-@functools.partial(jax.jit, static_argnames=("tensor",))
 def hermval(x, c, tensor=True):
     """
     Evaluate an Hermite series at points x.
@@ -916,7 +901,6 @@ def hermval(x, c, tensor=True):
     return c0 + c1 * x2
 
 
-@jax.jit
 def hermval2d(x, y, c):
     r"""Evaluate a 2-D Hermite series at points (x, y).
 
@@ -960,7 +944,6 @@ def hermval2d(x, y, c):
     return polyutils._valnd(hermval, c, x, y)
 
 
-@jax.jit
 def hermgrid2d(x, y, c):
     r"""Evaluate a 2-D Hermite series on the Cartesian product of x and y.
 
@@ -1008,7 +991,6 @@ def hermgrid2d(x, y, c):
     return polyutils._gridnd(hermval, c, x, y)
 
 
-@jax.jit
 def hermval3d(x, y, z, c):
     r"""Evaluate a 3-D Hermite series at points (x, y, z).
 
@@ -1054,7 +1036,6 @@ def hermval3d(x, y, z, c):
     return polyutils._valnd(hermval, c, x, y, z)
 
 
-@jax.jit
 def hermgrid3d(x, y, z, c):
     r"""Evaluate a 3-D Hermite series on the Cartesian product of x, y, and z.
 
@@ -1105,7 +1086,6 @@ def hermgrid3d(x, y, z, c):
     return polyutils._gridnd(hermval, c, x, y, z)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def hermvander(x, deg):
     """Pseudo-Vandermonde matrix of given degree.
 
@@ -1171,7 +1151,6 @@ def hermvander(x, deg):
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def hermvander2d(x, y, deg):
     """Pseudo-Vandermonde matrix of given degrees.
 
@@ -1220,7 +1199,6 @@ def hermvander2d(x, y, deg):
     return polyutils._vander_nd_flat((hermvander, hermvander), (x, y), deg)
 
 
-@functools.partial(jax.jit, static_argnames=("deg",))
 def hermvander3d(x, y, z, deg):
     """Pseudo-Vandermonde matrix of given degrees.
 
@@ -1272,7 +1250,6 @@ def hermvander3d(x, y, z, deg):
     )
 
 
-@functools.partial(jax.jit, static_argnames=("deg", "full"))
 def hermfit(x, y, deg, rcond=None, full=False, w=None):
     r"""Least squares fit of Hermite series to data.
 
@@ -1388,7 +1365,6 @@ def hermfit(x, y, deg, rcond=None, full=False, w=None):
     return polyutils._fit(hermvander, x, y, deg, rcond, full, w)
 
 
-@jax.jit
 def hermcompanion(c):
     """Return the scaled companion matrix of c.
 
@@ -1431,7 +1407,6 @@ def hermcompanion(c):
     return mat
 
 
-@jax.jit
 def hermroots(c):
     r"""Compute the roots of a Hermite series.
 
@@ -1494,7 +1469,6 @@ def hermroots(c):
     return r
 
 
-@jax.jit
 def _normed_hermite_n(x, n):
     """
     Evaluate a normalized Hermite polynomial.
@@ -1608,7 +1582,6 @@ def hermgauss(deg):
     return x, w
 
 
-@jax.jit
 def hermweight(x):
     r"""Weight function of the Hermite polynomials.
 
