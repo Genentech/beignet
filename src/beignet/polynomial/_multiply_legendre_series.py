@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 from ._add_legendre_series import add_legendre_series
@@ -6,7 +7,7 @@ from ._multiply_legendre_series_by_x import multiply_legendre_series_by_x
 from ._subtract_legendre_series import subtract_legendre_series
 
 
-def multiply_legendre_series(input, other):
+def multiply_legendre_series(input: Tensor, other: Tensor) -> Tensor:
     [input, other] = _as_series([input, other])
 
     if len(input) > len(other):

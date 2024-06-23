@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 from ._add_laguerre_series import add_laguerre_series
@@ -6,7 +7,7 @@ from ._multiply_laguerre_series_by_x import multiply_laguerre_series_by_x
 from ._subtract_laguerre_series import subtract_laguerre_series
 
 
-def multiply_laguerre_series(input, other):
+def multiply_laguerre_series(input: Tensor, other: Tensor) -> Tensor:
     input, other = _as_series([input, other])
 
     if len(input) > len(other):

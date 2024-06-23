@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 from .__as_series import _as_series
 from ._add_probabilists_hermite_series import add_probabilists_hermite_series
@@ -8,11 +9,8 @@ from ._multiply_probabilists_hermite_series_by_x import (
 from ._subtract_probabilists_hermite_series import subtract_probabilists_hermite_series
 
 
-def multiply_probabilists_hermite_series(input, other):
-    (
-        input,
-        other,
-    ) = _as_series([input, other])
+def multiply_probabilists_hermite_series(input: Tensor, other: Tensor) -> Tensor:
+    input, other = _as_series([input, other])
 
     if len(input) > len(other):
         c = other
