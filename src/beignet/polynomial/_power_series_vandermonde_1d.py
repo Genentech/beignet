@@ -4,7 +4,7 @@ import numpy
 import torch
 
 
-def polyvander(input, degree):
+def power_series_vandermonde_1d(input, degree):
     degree = operator.index(degree)
 
     if degree < 0:

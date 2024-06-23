@@ -185,9 +185,6 @@ from ._polyone import polyone
 from ._polypow import polypow
 from ._polyroots import polyroots
 from ._polyvalfromroots import polyvalfromroots
-from ._polyvander import polyvander
-from ._polyvander2d import polyvander2d
-from ._polyvander3d import polyvander3d
 from ._polyx import polyx
 from ._polyzero import polyzero
 from ._power_series_to_chebyshev_series import power_series_to_chebyshev_series
@@ -199,6 +196,9 @@ from ._power_series_to_physicists_hermite_series import (
 from ._power_series_to_probabilists_hermite_series import (
     power_series_to_probabilists_hermite_series,
 )
+from ._power_series_vandermonde_1d import power_series_vandermonde_1d
+from ._power_series_vandermonde_2d import power_series_vandermonde_2d
+from ._power_series_vandermonde_3d import power_series_vandermonde_3d
 from ._probabilists_hermite_series_to_power_series import (
     probabilists_hermite_series_to_power_series,
 )
@@ -407,9 +407,9 @@ __all__ = [
     "evaluate_2d_power_series",
     "evaluate_3d_power_series",
     "polyvalfromroots",
-    "polyvander",
-    "polyvander2d",
-    "polyvander3d",
+    "power_series_vandermonde_1d",
+    "power_series_vandermonde_2d",
+    "power_series_vandermonde_3d",
     "polyx",
     "polyzero",
 ]

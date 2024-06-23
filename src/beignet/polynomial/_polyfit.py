@@ -1,6 +1,6 @@
 from .__fit import _fit
-from ._polyvander import polyvander
+from ._power_series_vandermonde_1d import power_series_vandermonde_1d
 
 
 def polyfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(polyvander, x, y, deg, rcond, full, w)
+    return _fit(power_series_vandermonde_1d, x, y, deg, rcond, full, w)

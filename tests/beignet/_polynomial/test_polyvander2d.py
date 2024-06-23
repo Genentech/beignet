@@ -8,10 +8,13 @@ def test_polyvander2d():
     c = numpy.random.random((2, 3))
 
     numpy.testing.assert_almost_equal(
-        numpy.dot(beignet.polynomial.polyvander2d(x1, x2, [1, 2]), c.flat),
+        numpy.dot(
+            beignet.polynomial.power_series_vandermonde_2d(x1, x2, [1, 2]), c.flat
+        ),
         beignet.polynomial.evaluate_2d_power_series(x1, x2, c),
     )
 
     numpy.testing.assert_(
-        beignet.polynomial.polyvander2d([x1], [x2], [1, 2]).shape == (1, 5, 6)
+        beignet.polynomial.power_series_vandermonde_2d([x1], [x2], [1, 2]).shape
+        == (1, 5, 6)
     )
