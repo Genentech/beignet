@@ -10,6 +10,7 @@ class RankWarning(RuntimeWarning):
 def _fit(func, x, y, degree, relative_condition=None, full=False, weight=None):
     x = numpy.asarray(x) + 0.0
     y = numpy.asarray(y) + 0.0
+
     degree = numpy.asarray(degree)
 
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
@@ -54,6 +55,7 @@ def _fit(func, x, y, degree, relative_condition=None, full=False, weight=None):
         scl = numpy.sqrt((numpy.square(lhs.real) + numpy.square(lhs.imag)).sum(1))
     else:
         scl = numpy.sqrt(numpy.square(lhs).sum(1))
+
     scl[scl == 0] = 1
 
     c, resids, rank, s = numpy.linalg.lstsq(lhs.T / scl, rhs.T, relative_condition)
@@ -64,11 +66,14 @@ def _fit(func, x, y, degree, relative_condition=None, full=False, weight=None):
             cc = numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
         else:
             cc = numpy.zeros(lmax + 1, dtype=c.dtype)
+
         cc[degree] = c
+
         c = cc
 
     if rank != order and not full:
         msg = "The fit may be poorly conditioned"
+
         warnings.warn(msg, RankWarning, stacklevel=2)
 
     if full:

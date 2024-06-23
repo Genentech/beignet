@@ -7,21 +7,17 @@ import numpy
 
 def test_physicists_hermite_series_roots():
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermroots.physicists_hermite_series_roots([1]), []
+        beignet.polynomial.physicists_hermite_series_roots([1]), []
     )
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._hermroots.physicists_hermite_series_roots([1, 1]), [-0.5]
+        beignet.polynomial.physicists_hermite_series_roots([1, 1]), [-0.5]
     )
     for i in range(2, 5):
         tgt = numpy.linspace(-1, 1, i)
-        res = beignet.polynomial._hermroots.physicists_hermite_series_roots(
+        res = beignet.polynomial.physicists_hermite_series_roots(
             beignet.polynomial._hermfromroots.hermfromroots(tgt)
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                res, tolerance=1e-6
-            ),
-            beignet.polynomial._hermtrim.trim_physicists_hermite_series(
-                tgt, tolerance=1e-6
-            ),
+            beignet.polynomial.trim_physicists_hermite_series(res, tolerance=1e-6),
+            beignet.polynomial.trim_physicists_hermite_series(tgt, tolerance=1e-6),
         )

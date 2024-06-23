@@ -9,7 +9,7 @@ def test_leggrid2d():
     c2d = numpy.einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
-    y = beignet.polynomial._polyval.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
+    y = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
     x1, x2, x3 = x
     y1, y2, y3 = y

@@ -9,17 +9,13 @@ def test_legendre_series_vandermonde_2d():
     c = numpy.random.random((2, 3))
     numpy.testing.assert_almost_equal(
         numpy.dot(
-            beignet.polynomial._legvander2d.legendre_series_vandermonde_2d(
-                x1, x2, [1, 2]
-            ),
+            beignet.polynomial.legendre_series_vandermonde_2d(x1, x2, [1, 2]),
             c.flat,
         ),
-        beignet.polynomial._legval2d.evaluate_legendre_series_2d(x1, x2, c),
+        beignet.polynomial.evaluate_legendre_series_2d(x1, x2, c),
     )
 
     numpy.testing.assert_(
-        beignet.polynomial._legvander2d.legendre_series_vandermonde_2d(
-            [x1], [x2], [1, 2]
-        ).shape
+        beignet.polynomial.legendre_series_vandermonde_2d([x1], [x2], [1, 2]).shape
         == (1, 5, 6)
     )
