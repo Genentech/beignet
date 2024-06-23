@@ -4,18 +4,18 @@ from torch import Tensor
 
 
 def evaluate_power_series_1d(
-    x: Tensor,
-    c: Tensor,
+    input: Tensor,
+    other: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    c = torch.ravel(c)
+    other = torch.ravel(other)
 
     if tensor:
-        c = numpy.reshape(c, c.shape + (1,) * x.ndim)
+        other = numpy.reshape(other, other.shape + (1,) * input.ndim)
 
-    c0 = c[-1] + x * 0
+    c0 = other[-1] + input * 0
 
-    for i in range(2, len(c) + 1):
-        c0 = c[-i] + c0 * x
+    for i in range(2, len(other) + 1):
+        c0 = other[-i] + c0 * input
 
     return c0

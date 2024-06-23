@@ -3,31 +3,31 @@ from torch import Tensor
 
 
 def evaluate_laguerre_series_1d(
-    x: Tensor,
-    c: Tensor,
+    input: Tensor,
+    other: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    c = torch.ravel(c)
+    other = torch.ravel(other)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        other = other.reshape(other.shape + (1,) * input.ndim)
 
-    if len(c) == 1:
-        c0 = c[0]
-        c1 = torch.tensor([0], dtype=x.dtype)
-    elif len(c) == 2:
-        c0 = c[0]
-        c1 = c[1]
+    if len(other) == 1:
+        c0 = other[0]
+        c1 = torch.tensor([0], dtype=input.dtype)
+    elif len(other) == 2:
+        c0 = other[0]
+        c1 = other[1]
     else:
-        nd = len(c)
+        nd = len(other)
 
-        c0 = c[-2]
-        c1 = c[-1]
+        c0 = other[-2]
+        c1 = other[-1]
 
-        for i in range(3, len(c) + 1):
+        for i in range(3, len(other) + 1):
             tmp = c0
             nd = nd - 1
-            c0 = c[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
+            c0 = other[-i] - (c1 * (nd - 1)) / nd
+            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
 
-    return c0 + c1 * (1 - x)
+    return c0 + c1 * (1 - input)
