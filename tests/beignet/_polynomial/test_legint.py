@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_legendre_series
+import beignet.polynomial._evaluate_legendre_series_1d
 import beignet.polynomial._integrate_legendre_series
 import beignet.polynomial._legendre_series_to_power_series
 import beignet.polynomial._power_series_to_legendre_series
@@ -58,7 +58,7 @@ def test_legint():
             legpol, m=1, k=[i], lbnd=-1
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._legval.evaluate_1d_legendre_series(-1, legint), i
+            beignet.polynomial._legval.evaluate_legendre_series_1d(-1, legint), i
         )
 
     for i in range(5):

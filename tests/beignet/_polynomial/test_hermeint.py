@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_probabilists_hermite_series
+import beignet.polynomial._evaluate_probabilists_hermite_series_1d
 import beignet.polynomial._integrate_probabilists_hermite_series
 import beignet.polynomial._power_series_to_probabilists_hermite_series
 import beignet.polynomial._probabilists_hermite_series_to_power_series
@@ -91,7 +91,7 @@ def test_hermeint():
             hermepol, m=1, k=[i], lbnd=-1
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._hermeval.evaluate_1d_probabilists_hermite_series(
+            beignet.polynomial._hermeval.evaluate_probabilists_hermite_series_1d(
                 -1, hermeint
             ),
             i,

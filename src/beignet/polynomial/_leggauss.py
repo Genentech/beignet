@@ -7,7 +7,7 @@ from beignet.polynomial._differentiate_legendre_series import (
 )
 from beignet.polynomial._legendre_series_companion import legendre_series_companion
 
-from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
+from ._evaluate_legendre_series_1d import evaluate_legendre_series_1d
 
 
 def leggauss(input):
@@ -19,11 +19,11 @@ def leggauss(input):
     m = legendre_series_companion(c)
     x = numpy.linalg.eigvalsh(m)
 
-    dy = evaluate_1d_legendre_series(x, c)
-    df = evaluate_1d_legendre_series(x, differentiate_legendre_series(c))
+    dy = evaluate_legendre_series_1d(x, c)
+    df = evaluate_legendre_series_1d(x, differentiate_legendre_series(c))
     x -= dy / df
 
-    fm = evaluate_1d_legendre_series(x, c[1:])
+    fm = evaluate_legendre_series_1d(x, c[1:])
     fm /= numpy.abs(fm).max()
     df /= numpy.abs(df).max()
     weights = 1 / (fm * df)

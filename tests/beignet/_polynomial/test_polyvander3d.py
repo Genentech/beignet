@@ -11,7 +11,7 @@ def test_polyvander3d():
             beignet.polynomial.power_series_vandermonde_3d(x1, x2, x3, [1, 2, 3]),
             c.flat,
         ),
-        beignet.polynomial.evaluate_3d_power_series(x1, x2, x3, c),
+        beignet.polynomial.evaluate_power_series_3d(x1, x2, x3, c),
     )
 
     output = beignet.polynomial.power_series_vandermonde_3d([x1], [x2], [x3], [1, 2, 3])

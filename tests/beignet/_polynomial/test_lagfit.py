@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_laguerre_series
+import beignet.polynomial._evaluate_laguerre_series_1d
 import beignet.polynomial._fit_laguerre_series
 import numpy
 import torch
@@ -55,23 +55,23 @@ def test_lagfit():
     coef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, 3)
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._lagval.evaluate_1d_laguerre_series(x, coef3), y
+        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef3), y
     )
     coef3 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, [0, 1, 2, 3])
     torch.testing.assert_close(len(coef3), 4)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._lagval.evaluate_1d_laguerre_series(x, coef3), y
+        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef3), y
     )
 
     coef4 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, 4)
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._lagval.evaluate_1d_laguerre_series(x, coef4), y
+        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef4), y
     )
     coef4 = beignet.polynomial._lagfit.fit_laguerre_series(x, y, [0, 1, 2, 3, 4])
     torch.testing.assert_close(len(coef4), 5)
     numpy.testing.assert_almost_equal(
-        beignet.polynomial._lagval.evaluate_1d_laguerre_series(x, coef4), y
+        beignet.polynomial._lagval.evaluate_laguerre_series_1d(x, coef4), y
     )
 
     coef2d = beignet.polynomial._lagfit.fit_laguerre_series(x, numpy.array([y, y]).T, 3)

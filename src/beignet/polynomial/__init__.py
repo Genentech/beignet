@@ -60,36 +60,36 @@ from ._divide_legendre_series import divide_legendre_series
 from ._divide_physicists_hermite_series import divide_physicists_hermite_series
 from ._divide_power_series import divide_power_series
 from ._divide_probabilists_hermite_series import divide_probabilists_hermite_series
-from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
-from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
-from ._evaluate_1d_physicists_hermite_series import (
-    evaluate_1d_physicists_hermite_series,
-)
-from ._evaluate_1d_power_series import evaluate_1d_power_series
-from ._evaluate_1d_probabilists_hermite_series import (
-    evaluate_1d_probabilists_hermite_series,
-)
-from ._evaluate_2d_laguerre_series import evaluate_2d_laguerre_series
-from ._evaluate_2d_legendre_series import evaluate_2d_legendre_series
-from ._evaluate_2d_physicists_hermite_series import (
-    evaluate_2d_physicists_hermite_series,
-)
-from ._evaluate_2d_power_series import evaluate_2d_power_series
-from ._evaluate_2d_probabilists_hermite_series import (
-    evaluate_2d_probabilists_hermite_series,
-)
-from ._evaluate_3d_laguerre_series import evaluate_3d_laguerre_series
-from ._evaluate_3d_legendre_series import evaluate_3d_legendre_series
-from ._evaluate_3d_physicists_hermite_series import (
-    evaluate_3d_physicists_hermite_series,
-)
-from ._evaluate_3d_power_series import evaluate_3d_power_series
-from ._evaluate_3d_probabilists_hermite_series import (
-    evaluate_3d_probabilists_hermite_series,
-)
 from ._evaluate_chebyshev_series_1d import evaluate_chebyshev_series_1d
 from ._evaluate_chebyshev_series_2d import evaluate_chebyshev_series_2d
 from ._evaluate_chebyshev_series_3d import evaluate_chebyshev_series_3d
+from ._evaluate_laguerre_series_1d import evaluate_laguerre_series_1d
+from ._evaluate_laguerre_series_2d import evaluate_laguerre_series_2d
+from ._evaluate_laguerre_series_3d import evaluate_laguerre_series_3d
+from ._evaluate_legendre_series_1d import evaluate_legendre_series_1d
+from ._evaluate_legendre_series_2d import evaluate_legendre_series_2d
+from ._evaluate_legendre_series_3d import evaluate_legendre_series_3d
+from ._evaluate_physicists_hermite_series_1d import (
+    evaluate_physicists_hermite_series_1d,
+)
+from ._evaluate_physicists_hermite_series_2d import (
+    evaluate_physicists_hermite_series_2d,
+)
+from ._evaluate_physicists_hermite_series_3d import (
+    evaluate_physicists_hermite_series_3d,
+)
+from ._evaluate_power_series_1d import evaluate_power_series_1d
+from ._evaluate_power_series_2d import evaluate_power_series_2d
+from ._evaluate_power_series_3d import evaluate_power_series_3d
+from ._evaluate_probabilists_hermite_series_1d import (
+    evaluate_probabilists_hermite_series_1d,
+)
+from ._evaluate_probabilists_hermite_series_2d import (
+    evaluate_probabilists_hermite_series_2d,
+)
+from ._evaluate_probabilists_hermite_series_3d import (
+    evaluate_probabilists_hermite_series_3d,
+)
 from ._fit_chebyshev_series import fit_chebyshev_series
 from ._fit_laguerre_series import fit_laguerre_series
 from ._fit_legendre_series import fit_legendre_series
@@ -313,9 +313,9 @@ __all__ = [
     "probabilists_hermite_series_roots",
     "subtract_probabilists_hermite_series",
     "trim_probabilists_hermite_series",
-    "evaluate_1d_probabilists_hermite_series",
-    "evaluate_2d_probabilists_hermite_series",
-    "evaluate_3d_probabilists_hermite_series",
+    "evaluate_probabilists_hermite_series_1d",
+    "evaluate_probabilists_hermite_series_2d",
+    "evaluate_probabilists_hermite_series_3d",
     "probabilists_hermite_series_vandermonde_1d",
     "probabilists_hermite_series_vandermonde_2d",
     "probabilists_hermite_series_vandermonde_3d",
@@ -335,9 +335,9 @@ __all__ = [
     "hermroots",
     "subtract_physicists_hermite_series",
     "trim_physicists_hermite_series",
-    "evaluate_1d_physicists_hermite_series",
-    "evaluate_2d_physicists_hermite_series",
-    "evaluate_3d_physicists_hermite_series",
+    "evaluate_physicists_hermite_series_1d",
+    "evaluate_physicists_hermite_series_2d",
+    "evaluate_physicists_hermite_series_3d",
     "physicists_hermite_series_vandermonde_1d",
     "physicists_hermite_series_vandermonde_2d",
     "physicists_hermite_series_vandermonde_3d",
@@ -363,9 +363,9 @@ __all__ = [
     "laguerre_series_roots",
     "subtract_laguerre_series",
     "trim_laguerre_series",
-    "evaluate_1d_laguerre_series",
-    "evaluate_2d_laguerre_series",
-    "evaluate_3d_laguerre_series",
+    "evaluate_laguerre_series_1d",
+    "evaluate_laguerre_series_2d",
+    "evaluate_laguerre_series_3d",
     "laguerre_series_vandermonde_1d",
     "laguerre_series_vandermonde_2d",
     "laguerre_series_vandermonde_3d",
@@ -391,9 +391,9 @@ __all__ = [
     "legendre_series_roots",
     "subtract_legendre_series",
     "trim_legendre_series",
-    "evaluate_1d_legendre_series",
-    "evaluate_2d_legendre_series",
-    "evaluate_3d_legendre_series",
+    "evaluate_legendre_series_1d",
+    "evaluate_legendre_series_2d",
+    "evaluate_legendre_series_3d",
     "legendre_series_vandermonde_1d",
     "legendre_series_vandermonde_2d",
     "legendre_series_vandermonde_3d",
@@ -423,9 +423,9 @@ __all__ = [
     "power_series_roots",
     "subtract_power_series",
     "trim_power_series",
-    "evaluate_1d_power_series",
-    "evaluate_2d_power_series",
-    "evaluate_3d_power_series",
+    "evaluate_power_series_1d",
+    "evaluate_power_series_2d",
+    "evaluate_power_series_3d",
     "polyvalfromroots",
     "power_series_vandermonde_1d",
     "power_series_vandermonde_2d",

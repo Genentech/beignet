@@ -3,7 +3,7 @@ import operator
 import numpy
 
 from .__normalize_axis_index import _normalize_axis_index
-from ._evaluate_1d_laguerre_series import evaluate_1d_laguerre_series
+from ._evaluate_laguerre_series_1d import evaluate_laguerre_series_1d
 
 
 def integrate_laguerre_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
@@ -43,7 +43,7 @@ def integrate_laguerre_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
             for j in range(1, n):
                 tmp[j] += c[j]
                 tmp[j + 1] = -c[j]
-            tmp[0] += k[i] - evaluate_1d_laguerre_series(lbnd, tmp)
+            tmp[0] += k[i] - evaluate_laguerre_series_1d(lbnd, tmp)
             c = tmp
     c = numpy.moveaxis(c, 0, iaxis)
     return c

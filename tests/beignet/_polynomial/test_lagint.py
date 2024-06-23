@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_laguerre_series
+import beignet.polynomial._evaluate_laguerre_series_1d
 import beignet.polynomial._integrate_laguerre_series
 import beignet.polynomial._laguerre_series_to_power_series
 import beignet.polynomial._power_series_to_laguerre_series
@@ -57,7 +57,7 @@ def test_lagint():
     for i in range(5):
         scl = i + 1
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._lagval.evaluate_1d_laguerre_series(
+            beignet.polynomial._lagval.evaluate_laguerre_series_1d(
                 -1,
                 beignet.polynomial._lagint.integrate_laguerre_series(
                     beignet.polynomial._poly2lag.power_series_to_laguerre_series(

@@ -9,7 +9,7 @@ def test_polygrid2d():
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.polynomial.evaluate_1d_power_series(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
     torch.testing.assert_close(
         beignet.polynomial.polygrid2d(x1, x2, c2d),

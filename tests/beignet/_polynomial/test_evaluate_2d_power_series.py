@@ -11,22 +11,22 @@ def test_evaluate_2d_power_series():
     x = numpy.random.random((3, 5)) * 2 - 1
 
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.polynomial.evaluate_1d_power_series(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = beignet.polynomial.evaluate_power_series_1d(x, [1.0, 2.0, 3.0])
 
     numpy.testing.assert_raises_regex(
         ValueError,
         "incompatible",
-        beignet.polynomial.evaluate_2d_power_series,
+        beignet.polynomial.evaluate_power_series_2d,
         x1,
         x2[:2],
         c2d,
     )
 
     torch.testing.assert_close(
-        beignet.polynomial.evaluate_2d_power_series(x1, x2, c2d),
+        beignet.polynomial.evaluate_power_series_2d(x1, x2, c2d),
         y1 * y2,
     )
 
     z = numpy.ones((2, 3))
 
-    assert beignet.polynomial.evaluate_2d_power_series(z, z, c2d).shape == (2, 3)
+    assert beignet.polynomial.evaluate_power_series_2d(z, z, c2d).shape == (2, 3)

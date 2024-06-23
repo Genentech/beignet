@@ -1,7 +1,7 @@
 import numpy
 
 
-def evaluate_1d_probabilists_hermite_series(x, c, tensor=True):
+def evaluate_legendre_series_1d(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
     if c.dtype.char in "?bBhHiIlLqQpP":
         c = c.astype(numpy.double)
@@ -23,6 +23,6 @@ def evaluate_1d_probabilists_hermite_series(x, c, tensor=True):
         for i in range(3, len(c) + 1):
             tmp = c0
             nd = nd - 1
-            c0 = c[-i] - c1 * (nd - 1)
-            c1 = tmp + c1 * x
+            c0 = c[-i] - (c1 * (nd - 1)) / nd
+            c1 = tmp + (c1 * x * (2 * nd - 1)) / nd
     return c0 + c1 * x

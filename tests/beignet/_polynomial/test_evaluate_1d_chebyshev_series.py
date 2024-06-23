@@ -1,6 +1,6 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_power_series
 import beignet.polynomial._evaluate_chebyshev_series_1d
+import beignet.polynomial._evaluate_power_series_1d
 import numpy
 import torch
 
@@ -14,7 +14,7 @@ def test_evaluate_1d_chebyshev_series():
 
     x = numpy.linspace(-1, 1)
     y = [
-        beignet.polynomial._polyval.evaluate_1d_power_series(x, c)
+        beignet.polynomial._polyval.evaluate_power_series_1d(x, c)
         for c in chebyshev_polynomial_coefficients
     ]
     for i in range(10):

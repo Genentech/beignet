@@ -1,10 +1,10 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_power_series
+import beignet.polynomial._evaluate_power_series_1d
 import torch
 
 
 def test_evaluate_1d_power_series():
-    assert beignet.polynomial.evaluate_1d_power_series([], [1]).shape == (0,)
+    assert beignet.polynomial.evaluate_power_series_1d([], [1]).shape == (0,)
 
     x = torch.linspace(-1, 1, 50)
 
@@ -15,7 +15,7 @@ def test_evaluate_1d_power_series():
 
     for index in range(5):
         torch.testing.assert_close(
-            beignet.polynomial.evaluate_1d_power_series(
+            beignet.polynomial.evaluate_power_series_1d(
                 x,
                 [0] * index + [1],
             ),
@@ -23,7 +23,7 @@ def test_evaluate_1d_power_series():
         )
 
     torch.testing.assert_close(
-        beignet.polynomial.evaluate_1d_power_series(
+        beignet.polynomial.evaluate_power_series_1d(
             x,
             [0, -1, 0, 1],
         ),
@@ -34,11 +34,11 @@ def test_evaluate_1d_power_series():
         dims = [2] * index
         x = torch.zeros(dims)
         torch.testing.assert_close(
-            beignet.polynomial.evaluate_1d_power_series(x, [1]).shape, dims
+            beignet.polynomial.evaluate_power_series_1d(x, [1]).shape, dims
         )
         torch.testing.assert_close(
-            beignet.polynomial.evaluate_1d_power_series(x, [1, 0]).shape, dims
+            beignet.polynomial.evaluate_power_series_1d(x, [1, 0]).shape, dims
         )
         torch.testing.assert_close(
-            beignet.polynomial.evaluate_1d_power_series(x, [1, 0, 0]).shape, dims
+            beignet.polynomial.evaluate_power_series_1d(x, [1, 0, 0]).shape, dims
         )

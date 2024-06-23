@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_power_series
+import beignet.polynomial._evaluate_power_series_1d
 import beignet.polynomial._hermegrid2d
 import numpy
 
@@ -10,7 +10,7 @@ def test_hermegrid2d():
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.polynomial._polyval.evaluate_1d_power_series(
+    y1, y2, y3 = beignet.polynomial._polyval.evaluate_power_series_1d(
         x, [1.0, 2.0, 3.0]
     )
 

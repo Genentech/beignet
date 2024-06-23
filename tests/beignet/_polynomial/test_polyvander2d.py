@@ -11,7 +11,7 @@ def test_polyvander2d():
         numpy.dot(
             beignet.polynomial.power_series_vandermonde_2d(x1, x2, [1, 2]), c.flat
         ),
-        beignet.polynomial.evaluate_2d_power_series(x1, x2, c),
+        beignet.polynomial.evaluate_power_series_2d(x1, x2, c),
     )
 
     numpy.testing.assert_(

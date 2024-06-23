@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_physicists_hermite_series
+import beignet.polynomial._evaluate_physicists_hermite_series_1d
 import beignet.polynomial._physicists_hermite_series_vandermonde_1d
 import numpy
 
@@ -12,7 +12,7 @@ def test_hermvander():
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
             v[..., i],
-            beignet.polynomial._hermval.evaluate_1d_physicists_hermite_series(x, coef),
+            beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(x, coef),
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
@@ -22,5 +22,5 @@ def test_hermvander():
         coef = [0] * i + [1]
         numpy.testing.assert_almost_equal(
             v[..., i],
-            beignet.polynomial._hermval.evaluate_1d_physicists_hermite_series(x, coef),
+            beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(x, coef),
         )

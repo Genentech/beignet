@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_2d_probabilists_hermite_series
+import beignet.polynomial._evaluate_probabilists_hermite_series_2d
 import beignet.polynomial._probabilists_hermite_series_vandermonde_2d
 import numpy
 
@@ -10,7 +10,7 @@ def test_hermevander2d():
     van = beignet.polynomial._hermevander2d.probabilists_hermite_series_vandermonde_2d(
         x1, x2, [1, 2]
     )
-    tgt = beignet.polynomial._hermeval2d.evaluate_2d_probabilists_hermite_series(
+    tgt = beignet.polynomial._hermeval2d.evaluate_probabilists_hermite_series_2d(
         x1, x2, c
     )
     res = numpy.dot(van, c.flat)

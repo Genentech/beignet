@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_physicists_hermite_series
+import beignet.polynomial._evaluate_physicists_hermite_series_1d
 import beignet.polynomial._hermfromroots
 import beignet.polynomial._physicists_hermite_series_to_power_series
 import beignet.polynomial._trim_physicists_hermite_series
@@ -17,7 +17,7 @@ def test_hermfromroots():
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.polynomial._hermfromroots.hermfromroots(roots)
-        res = beignet.polynomial._hermval.evaluate_1d_physicists_hermite_series(
+        res = beignet.polynomial._hermval.evaluate_physicists_hermite_series_1d(
             roots, pol
         )
         tgt = 0

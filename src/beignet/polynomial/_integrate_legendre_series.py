@@ -3,7 +3,7 @@ import operator
 import numpy
 
 from .__normalize_axis_index import _normalize_axis_index
-from ._evaluate_1d_legendre_series import evaluate_1d_legendre_series
+from ._evaluate_legendre_series_1d import evaluate_legendre_series_1d
 
 
 def integrate_legendre_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
@@ -46,7 +46,7 @@ def integrate_legendre_series(c, m=1, k=None, lbnd=0, scl=1, axis=0):
                 t = c[j] / (2 * j + 1)
                 tmp[j + 1] = t
                 tmp[j - 1] -= t
-            tmp[0] += k[i] - evaluate_1d_legendre_series(lbnd, tmp)
+            tmp[0] += k[i] - evaluate_legendre_series_1d(lbnd, tmp)
             c = tmp
     c = numpy.moveaxis(c, 0, iaxis)
     return c

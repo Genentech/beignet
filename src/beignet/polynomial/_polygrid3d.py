@@ -1,6 +1,6 @@
 from .__grid import _grid
-from ._evaluate_1d_power_series import evaluate_1d_power_series
+from ._evaluate_power_series_1d import evaluate_power_series_1d
 
 
 def polygrid3d(x, y, z, c):
-    return _grid(evaluate_1d_power_series, c, x, y, z)
+    return _grid(evaluate_power_series_1d, c, x, y, z)

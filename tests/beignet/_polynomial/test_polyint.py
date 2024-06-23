@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_1d_power_series
+import beignet.polynomial._evaluate_power_series_1d
 import beignet.polynomial._integrate_power_series
 import beignet.polynomial._trim_power_series
 import numpy
@@ -50,7 +50,7 @@ def test_polyint():
             pol, m=1, k=[i], lbnd=-1
         )
         numpy.testing.assert_almost_equal(
-            beignet.polynomial._polyval.evaluate_1d_power_series(-1, res), i
+            beignet.polynomial._polyval.evaluate_power_series_1d(-1, res), i
         )
 
     for i in range(5):

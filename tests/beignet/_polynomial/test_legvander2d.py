@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._evaluate_2d_legendre_series
+import beignet.polynomial._evaluate_legendre_series_2d
 import beignet.polynomial._legendre_series_vandermonde_2d
 import numpy
 
@@ -14,7 +14,7 @@ def test_legvander2d():
             ),
             c.flat,
         ),
-        beignet.polynomial._legval2d.evaluate_2d_legendre_series(x1, x2, c),
+        beignet.polynomial._legval2d.evaluate_legendre_series_2d(x1, x2, c),
     )
 
     numpy.testing.assert_(

@@ -1,7 +1,7 @@
 import numpy
 
 
-def evaluate_1d_power_series(x, c, tensor=True):
+def evaluate_power_series_1d(x, c, tensor=True):
     c = numpy.array(c, ndmin=1)
 
     if c.dtype.char in "?bBhHiIlLqQpP":
