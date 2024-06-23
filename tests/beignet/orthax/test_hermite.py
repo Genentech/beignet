@@ -281,88 +281,85 @@ class TestIntegral:
         numpy.testing.assert_array_almost_equal(res, tgt)
 
 
-class TestDerivative:
-    def test_hermder(self):
-        numpy.testing.assert_raises(TypeError, beignet.orthax.hermder, [0], 0.5)
-        numpy.testing.assert_raises(ValueError, beignet.orthax.hermder, [0], -1)
+def test_hermder(self):
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermder, [0], 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermder, [0], -1)
 
-        for i in range(5):
+    for i in range(5):
+        tgt = [0] * i + [1]
+        res = beignet.orthax.hermder(tgt, m=0)
+        numpy.testing.assert_array_equal(trim(res), trim(tgt))
+
+    for i in range(5):
+        for j in range(2, 5):
             tgt = [0] * i + [1]
-            res = beignet.orthax.hermder(tgt, m=0)
-            numpy.testing.assert_array_equal(trim(res), trim(tgt))
+            res = beignet.orthax.hermder(beignet.orthax.hermint(tgt, m=j), m=j)
+            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.orthax.hermder(beignet.orthax.hermint(tgt, m=j), m=j)
-                numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = beignet.orthax.hermder(
-                    beignet.orthax.hermint(tgt, m=j, scl=2), m=j, scl=0.5
-                )
-                numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-    def test_hermder_axis(self):
-        c2d = numpy.random.random((3, 4))
-
-        tgt = numpy.vstack([beignet.orthax.hermder(c) for c in c2d.T]).T
-        res = beignet.orthax.hermder(c2d, axis=0)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        tgt = numpy.vstack([beignet.orthax.hermder(c) for c in c2d])
-        res = beignet.orthax.hermder(c2d, axis=1)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-
-class TestVander:
-    x = numpy.random.random((3, 5)) * 2 - 1
-
-    def test_hermvander(self):
-        x = numpy.arange(3)
-        v = beignet.orthax.hermvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.hermval(x, coef)
+    for i in range(5):
+        for j in range(2, 5):
+            tgt = [0] * i + [1]
+            res = beignet.orthax.hermder(
+                beignet.orthax.hermint(tgt, m=j, scl=2), m=j, scl=0.5
             )
+            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 
-        x = numpy.array([[1, 2], [3, 4], [5, 6]])
-        v = beignet.orthax.hermvander(x, 3)
-        numpy.testing.assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            numpy.testing.assert_array_almost_equal(
-                v[..., i], beignet.orthax.hermval(x, coef)
-            )
+    c2d = numpy.random.random((3, 4))
 
-    def test_hermvander2d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3))
-        van = beignet.orthax.hermvander2d(x1, x2, (1, 2))
-        tgt = beignet.orthax.hermval2d(x1, x2, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
+    tgt = numpy.vstack([beignet.orthax.hermder(c) for c in c2d.T]).T
+    res = beignet.orthax.hermder(c2d, axis=0)
+    numpy.testing.assert_array_almost_equal(res, tgt)
 
-        van = beignet.orthax.hermvander2d([x1], [x2], (1, 2))
-        numpy.testing.assert_(van.shape == (1, 5, 6))
-
-    def test_hermvander3d(self):
-        x1, x2, x3 = self.x
-        c = numpy.random.random((2, 3, 4))
-        van = beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3))
-        tgt = beignet.orthax.hermval3d(x1, x2, x3, c)
-        res = numpy.dot(van, c.flat)
-        numpy.testing.assert_array_almost_equal(res, tgt)
-
-        van = beignet.orthax.hermvander3d([x1], [x2], [x3], (1, 2, 3))
-        numpy.testing.assert_(van.shape == (1, 5, 24))
+    tgt = numpy.vstack([beignet.orthax.hermder(c) for c in c2d])
+    res = beignet.orthax.hermder(c2d, axis=1)
+    numpy.testing.assert_array_almost_equal(res, tgt)
 
 
-def test_hermfit(self):
+def test_hermvander():
+    x = numpy.arange(3)
+    v = beignet.orthax.hermvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.hermval(x, coef)
+        )
+
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.orthax.hermvander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.hermval(x, coef)
+        )
+
+
+def test_hermvander2d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.orthax.hermvander2d(x1, x2, (1, 2))
+    tgt = beignet.orthax.hermval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.hermvander2d([x1], [x2], (1, 2))
+    numpy.testing.assert_(van.shape == (1, 5, 6))
+
+
+def test_hermvander3d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3))
+    tgt = beignet.orthax.hermval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.hermvander3d([x1], [x2], [x3], (1, 2, 3))
+    numpy.testing.assert_(van.shape == (1, 5, 24))
+
+
+def test_hermfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
@@ -440,7 +437,7 @@ def test_hermfit(self):
     numpy.testing.assert_array_almost_equal(coef1, coef2)
 
 
-def test_hermcompanion(self):
+def test_hermcompanion():
     numpy.testing.assert_raises(ValueError, beignet.orthax.hermcompanion, [])
     numpy.testing.assert_raises(ValueError, beignet.orthax.hermcompanion, [1])
 
