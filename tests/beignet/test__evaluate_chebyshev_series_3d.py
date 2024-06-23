@@ -21,6 +21,4 @@ def test_evaluate_chebyshev_series_3d():
         y1 * y2 * y3,
     )
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(
-        beignet.polynomial.evaluate_chebyshev_series_3d(z, z, z, c3d).shape == (2, 3)
-    )
+    assert beignet.polynomial.evaluate_chebyshev_series_3d(z, z, z, c3d).shape == (2, 3)

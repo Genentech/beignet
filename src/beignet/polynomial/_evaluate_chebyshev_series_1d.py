@@ -4,7 +4,8 @@ import torch
 def evaluate_chebyshev_series_1d(x, c, tensor=True):
     c = torch.ravel(c)
 
-    c = c.reshape(c.shape + (1,) * x.ndim)
+    if tensor:
+        c = c.reshape(c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]

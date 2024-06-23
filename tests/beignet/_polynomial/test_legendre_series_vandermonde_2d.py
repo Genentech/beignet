@@ -14,7 +14,6 @@ def test_legendre_series_vandermonde_2d():
         beignet.polynomial.evaluate_legendre_series_2d(x1, x2, c),
     )
 
-    numpy.testing.assert_(
-        beignet.polynomial.legendre_series_vandermonde_2d([x1], [x2], [1, 2]).shape
-        == (1, 5, 6)
-    )
+    assert beignet.polynomial.legendre_series_vandermonde_2d(
+        [x1], [x2], [1, 2]
+    ).shape == (1, 5, 6)

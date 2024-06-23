@@ -17,4 +17,4 @@ def test_chebgrid2d():
     )
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(beignet.polynomial.chebgrid2d(z, z, c2d).shape == (2, 3) * 2)
+    assert beignet.polynomial.chebgrid2d(z, z, c2d).shape == (2, 3) * 2

@@ -15,9 +15,7 @@ def test_chebinterpolate():
     )
 
     for deg in range(1, 5):
-        numpy.testing.assert_(
-            beignet.polynomial.chebinterpolate(func, deg).shape == (deg + 1,)
-        )
+        assert beignet.polynomial.chebinterpolate(func, deg).shape == (deg + 1,)
 
     def powx(x, p):
         return x**p

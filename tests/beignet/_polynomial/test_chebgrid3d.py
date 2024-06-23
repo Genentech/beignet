@@ -18,6 +18,4 @@ def test_chebgrid3d():
     torch.testing.assert_close(beignet.polynomial.chebgrid3d(x1, x2, x3, c3d), tgt)
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(
-        beignet.polynomial.chebgrid3d(z, z, z, c3d).shape == (2, 3) * 3
-    )
+    assert beignet.polynomial.chebgrid3d(z, z, z, c3d).shape == (2, 3) * 3

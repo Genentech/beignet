@@ -34,11 +34,9 @@ def test__map_domain():
     class Foo(numpy.ndarray):
         pass
 
-    numpy.testing.assert_(
-        isinstance(
-            beignet.polynomial.__map_domain._map_domain(
-                numpy.array([[0, 4], [0, 4]]).view(Foo), [0, 4], [1, 3]
-            ),
-            Foo,
-        )
+    assert isinstance(
+        beignet.polynomial.__map_domain._map_domain(
+            numpy.array([[0, 4], [0, 4]]).view(Foo), [0, 4], [1, 3]
+        ),
+        Foo,
     )

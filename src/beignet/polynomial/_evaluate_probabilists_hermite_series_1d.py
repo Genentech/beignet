@@ -1,15 +1,10 @@
-import numpy
 import torch
 
 
 def evaluate_probabilists_hermite_series_1d(x, c, tensor=True):
     c = torch.ravel(c)
 
-    if c.dtype.char in "?bBhHiIlLqQpP":
-        c = c.astype(numpy.double)
-    if isinstance(x, (tuple, list)):
-        x = numpy.asarray(x)
-    if isinstance(x, numpy.ndarray) and tensor:
+    if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
     if len(c) == 1:

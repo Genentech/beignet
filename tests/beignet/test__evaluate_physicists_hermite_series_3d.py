@@ -28,4 +28,4 @@ def test_evaluate_physicists_hermite_series_3d():
 
     z = numpy.ones((2, 3))
     res = beignet.polynomial.evaluate_physicists_hermite_series_3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3))
+    assert res.shape == (2, 3)

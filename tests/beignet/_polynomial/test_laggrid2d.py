@@ -17,6 +17,4 @@ def test_laggrid2d():
     )
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(
-        beignet.polynomial._laggrid2d.laggrid2d(z, z, c2d).shape == (2, 3) * 2
-    )
+    assert beignet.polynomial._laggrid2d.laggrid2d(z, z, c2d).shape == (2, 3) * 2

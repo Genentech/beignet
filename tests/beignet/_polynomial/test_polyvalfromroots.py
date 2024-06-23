@@ -18,14 +18,10 @@ def test_polyvalfromroots():
     torch.testing.assert_close(
         beignet.polynomial.polyvalfromroots([], [[1] * 5]).size, 0
     )
-    numpy.testing.assert_(
-        beignet.polynomial.polyvalfromroots([], [[1] * 5]).shape == (5, 0)
-    )
+    assert beignet.polynomial.polyvalfromroots([], [[1] * 5]).shape == (5, 0)
 
     torch.testing.assert_close(beignet.polynomial.polyvalfromroots(1, 1), 0)
-    numpy.testing.assert_(
-        beignet.polynomial.polyvalfromroots(1, numpy.ones((3, 3))).shape == (3,)
-    )
+    assert beignet.polynomial.polyvalfromroots(1, numpy.ones((3, 3))).shape == (3,)
 
     x = numpy.linspace(-1, 1)
     y = [x**i for i in range(5)]

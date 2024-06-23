@@ -24,6 +24,4 @@ def test_evaluate_legendre_series_2d():
     )
 
     z = numpy.ones((2, 3))
-    numpy.testing.assert_(
-        beignet.polynomial.evaluate_legendre_series_2d(z, z, c2d).shape == (2, 3)
-    )
+    assert beignet.polynomial.evaluate_legendre_series_2d(z, z, c2d).shape == (2, 3)
