@@ -6,7 +6,7 @@ import numpy
 import torch
 
 
-def test_hermder():
+def test_differentiate_physicists_hermite_series():
     numpy.testing.assert_raises(
         TypeError,
         beignet.polynomial._hermder.differentiate_physicists_hermite_series,
