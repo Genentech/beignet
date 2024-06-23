@@ -4,7 +4,7 @@ import beignet.polynomial._physicists_hermite_series_vandermonde_1d
 import numpy
 
 
-def test_hermvander():
+def test_physicists_hermite_series_vandermonde_1d():
     x = numpy.arange(3)
     v = beignet.polynomial._hermvander.physicists_hermite_series_vandermonde_1d(x, 3)
     numpy.testing.assert_(v.shape == (3, 4))
