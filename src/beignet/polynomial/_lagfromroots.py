@@ -1,5 +1,5 @@
 from .__from_roots import _from_roots
-from ._lagline import laguerre_series_line
+from ._laguerre_series_line import laguerre_series_line
 from ._multiply_laguerre_series import multiply_laguerre_series
 
 

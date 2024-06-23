@@ -128,25 +128,24 @@ from ._integrate_power_series import integrate_power_series
 from ._integrate_probabilists_hermite_series import (
     integrate_probabilists_hermite_series,
 )
-from ._lagdomain import laguerre_series_domain
 from ._lagfromroots import lagfromroots
 from ._laggauss import laggauss
 from ._laggrid2d import laggrid2d
 from ._laggrid3d import laggrid3d
-from ._lagline import laguerre_series_line
 from ._lagmulx import lagmulx
-from ._lagone import laguerre_series_one
-from ._lagpow import pow_laguerre_series
 from ._laguerre_series_companion import laguerre_series_companion
+from ._laguerre_series_domain import laguerre_series_domain
+from ._laguerre_series_line import laguerre_series_line
+from ._laguerre_series_one import laguerre_series_one
 from ._laguerre_series_roots import laguerre_series_roots
 from ._laguerre_series_to_power_series import laguerre_series_to_power_series
 from ._laguerre_series_vandermonde_1d import laguerre_series_vandermonde_1d
 from ._laguerre_series_vandermonde_2d import laguerre_series_vandermonde_2d
 from ._laguerre_series_vandermonde_3d import laguerre_series_vandermonde_3d
-from ._lagweight import laguerre_series_weight
-from ._lagx import laguerre_series_x
-from ._legdomain import legendre_series_domain
+from ._laguerre_series_weight import laguerre_series_weight
+from ._laguerre_series_x import laguerre_series_x
 from ._legendre_series_companion import legendre_series_companion
+from ._legendre_series_domain import legendre_series_domain
 from ._legendre_series_line import legendre_series_line
 from ._legendre_series_one import legendre_series_one
 from ._legendre_series_roots import legendre_series_roots
@@ -186,6 +185,7 @@ from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
 from ._polymulx import polymulx
 from ._polyvalfromroots import polyvalfromroots
+from ._pow_laguerre_series import pow_laguerre_series
 from ._pow_legendre_series import pow_legendre_series
 from ._pow_power_series import pow_power_series
 from ._power_series_companion import power_series_companion

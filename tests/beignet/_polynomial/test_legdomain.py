@@ -1,5 +1,5 @@
 import beignet.polynomial
-import beignet.polynomial._legdomain
+import beignet.polynomial._legendre_series_domain
 import torch
 
 
