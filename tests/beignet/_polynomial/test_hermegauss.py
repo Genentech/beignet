@@ -4,7 +4,9 @@ import torch
 
 
 def test_hermegauss():
-    x, w = beignet.polynomial._hermegauss.hermegauss(100)
+    x, w = beignet.polynomial._hermegauss.gauss_probabilists_hermite_series_quadrature(
+        100
+    )
 
     v = beignet.polynomial._hermevander.probabilists_hermite_series_vandermonde_1d(
         x, 99

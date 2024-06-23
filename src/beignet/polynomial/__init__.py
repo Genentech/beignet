@@ -97,7 +97,9 @@ from ._fit_power_series import fit_power_series
 from ._fit_probabilists_hermite_series import fit_probabilists_hermite_series
 from ._gauss_laguerre_quadrature import gauss_laguerre_quadrature
 from ._gauss_legendre_quadrature import gauss_legendre_quadrature
-from ._hermegauss import hermegauss
+from ._gauss_probabilists_hermite_series_quadrature import (
+    gauss_probabilists_hermite_series_quadrature,
+)
 from ._hermegrid2d import hermegrid2d
 from ._hermegrid3d import hermegrid3d
 from ._hermemulx import hermemulx
@@ -321,7 +323,7 @@ __all__ = [
     "fit_power_series",
     "fit_probabilists_hermite_series",
     "probabilists_hermite_series_from_roots",
-    "hermegauss",
+    "gauss_probabilists_hermite_series_quadrature",
     "hermegrid2d",
     "hermegrid3d",
     "hermemulx",

@@ -8,7 +8,7 @@ from ._probabilists_hermite_series_companion import (
 )
 
 
-def hermegauss(input):
+def gauss_probabilists_hermite_series_quadrature(input):
     ideg = operator.index(input)
     if ideg <= 0:
         raise ValueError("deg must be a positive integer")
