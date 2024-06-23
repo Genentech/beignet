@@ -32,4 +32,6 @@ def multiply_legendre_series(input, other):
             c0 = subtract_legendre_series(c[-i] * xs, (input * (nd - 1)) / nd)
             input = add_legendre_series(tmp, (legmulx(input) * (2 * nd - 1)) / nd)
 
-    return add_legendre_series(c0, legmulx(input))
+    output = add_legendre_series(c0, legmulx(input))
+
+    return output
