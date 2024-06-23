@@ -7,4 +7,9 @@ from ._multiply_physicists_hermite_series import multiply_physicists_hermite_ser
 def pow_physicists_hermite_series(
     input: Tensor, exponent, maximum_exponent=16
 ) -> Tensor:
-    return _pow(multiply_physicists_hermite_series, input, exponent, maximum_exponent)
+    return _pow(
+        multiply_physicists_hermite_series,
+        input,
+        exponent,
+        maximum_exponent,
+    )
