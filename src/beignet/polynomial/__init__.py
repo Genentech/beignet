@@ -153,6 +153,7 @@ from ._multiply_legendre_series import multiply_legendre_series
 from ._multiply_legendre_series_by_x import multiply_legendre_series_by_x
 from ._multiply_physicists_hermite_series import multiply_physicists_hermite_series
 from ._multiply_power_series import multiply_power_series
+from ._multiply_power_series_by_x import multiply_power_series_by_x
 from ._multiply_probabilists_hermite_series import multiply_probabilists_hermite_series
 from ._physicists_hermite_series_companion import physicists_hermite_series_companion
 from ._physicists_hermite_series_domain import physicists_hermite_series_domain
@@ -176,7 +177,6 @@ from ._physicists_hermite_series_weight import physicists_hermite_series_weight
 from ._physicists_hermite_series_x import physicists_hermite_series_x
 from ._polygrid2d import polygrid2d
 from ._polygrid3d import polygrid3d
-from ._polymulx import polymulx
 from ._polyvalfromroots import polyvalfromroots
 from ._pow_chebyshev_series import pow_chebyshev_series
 from ._pow_laguerre_series import pow_laguerre_series
@@ -393,7 +393,7 @@ __all__ = [
     "power_series_from_roots",
     "polygrid2d",
     "polygrid3d",
-    "polymulx",
+    "multiply_power_series_by_x",
     "polyvalfromroots",
     "pow_chebyshev_series",
     "pow_laguerre_series",
