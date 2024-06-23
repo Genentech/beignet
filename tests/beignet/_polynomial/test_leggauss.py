@@ -4,7 +4,7 @@ import torch
 
 
 def test_leggauss():
-    x, w = beignet.polynomial._leggauss.gauss_legendre_quadrature(100)
+    x, w = beignet.polynomial.gauss_legendre_quadrature(torch.tensor(100))
 
     v = beignet.polynomial.legendre_series_vandermonde_1d(x, 99)
     vv = numpy.dot(v.T * w, v)
