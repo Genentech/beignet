@@ -1,15 +1,13 @@
 import beignet.polynomial
-import beignet.polynomial.__pow
-import numpy
+import pytest
 import torch
 
 
 def test__pow():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.polynomial.__pow._pow,
-        (),
-        torch.tensor([1, 2, 3]),
-        5,
-        4,
-    )
+    with pytest.raises(ValueError):
+        beignet.polynomial._pow(
+            torch.tensor([1, 2, 3]),
+            torch.tensor([1, 2, 3]),
+            5,
+            4,
+        )

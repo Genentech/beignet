@@ -16,6 +16,7 @@ from .__pow import _pow
 from .__sub import _sub
 from .__trim_coefficients import _trim_coefficients
 from .__trim_sequence import _trim_sequence
+from .__vander_nd import _vander_nd
 from .__vander_nd_flat import _vander_nd_flat
 from .__z_series_div import _z_series_div
 from .__z_series_to_c_series import _z_series_to_c_series
@@ -269,6 +270,8 @@ __all__ = [
     "_sub",
     "_trim_coefficients",
     "_trim_sequence",
+    "_vander_nd",
+    "_vander_nd_flat",
     "_vander_nd_flat",
     "_z_series_div",
     "_z_series_to_c_series",
