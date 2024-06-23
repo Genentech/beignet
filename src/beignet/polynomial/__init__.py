@@ -42,7 +42,7 @@ from ._chebyshev_series_vandermonde_2d import chebyshev_series_vandermonde_2d
 from ._chebyshev_series_vandermonde_3d import chebyshev_series_vandermonde_3d
 from ._chebyshev_series_weight import chebyshev_series_weight
 from ._chebyshev_series_x import chebyshev_series_x
-from ._chebzero import chebzero
+from ._chebyshev_series_zero import chebyshev_series_zero
 from ._differentiate_chebyshev_series import differentiate_chebyshev_series
 from ._differentiate_laguerre_series import differentiate_laguerre_series
 from ._differentiate_legendre_series import differentiate_legendre_series
@@ -286,7 +286,7 @@ __all__ = [
     "chebyshev_series_vandermonde_3d",
     "chebyshev_series_weight",
     "chebyshev_series_x",
-    "chebzero",
+    "chebyshev_series_zero",
     "physicists_hermite_series_to_power_series",
     "add_physicists_hermite_series",
     "physicists_hermite_series_companion",
