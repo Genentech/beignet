@@ -1,5 +1,4 @@
 import beignet.polynomial
-import beignet.polynomial._trim_legendre_series
 import pytest
 import torch
 
