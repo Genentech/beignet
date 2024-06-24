@@ -1,11 +1,10 @@
 import functools
 import math
 import operator
+from typing import Callable, Literal, Union
 
-import beartype
 import jax
 import jax.numpy
-import jaxtyping
 from jax.numpy import (
     abs,
     arange,
@@ -102,7 +101,6 @@ def scan(f, init, xs, length=None):
     return carry, stack(ys)
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def _add(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -115,41 +113,47 @@ def _add(
     return other.at[: input.size].add(input)
 
 
-def _c_series_to_z_series(c):
-    n = c.size
+def _c_series_to_z_series(
+    input: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    n = input.size
 
-    zs = zeros(2 * n - 1, dtype=c.dtype)
+    zs = zeros(2 * n - 1, dtype=input.dtype)
 
-    zs = zs.at[n - 1 :].set(c / 2)
+    zs = zs.at[n - 1 :].set(input / 2)
 
     return zs + zs[::-1]
 
 
-def _div(mul_f, c1, c2):
-    c1, c2 = _as_series(c1, c2)
+def _div(
+    func,
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Union[Num[Array, "..."], Num[Array, "..."]]:
+    input, other = _as_series(input, other)
 
-    lc1 = len(c1)
-    lc2 = len(c2)
+    lc1 = len(input)
+    lc2 = len(other)
 
     if lc1 < lc2:
-        return zeros_like(c1[:1]), c1
+        return zeros_like(input[:1]), input
 
     if lc2 == 1:
-        return c1 / c2[-1], zeros_like(c1[:1])
+        return input / other[-1], zeros_like(input[:1])
 
     def _ldordidx(x):  # index of highest order nonzero term
         return len(x) - 1 - nonzero(x[::-1], size=1)[0][0]
 
-    quo = zeros(lc1 - lc2 + 1, dtype=c1.dtype)
-    rem = c1
+    quo = zeros(lc1 - lc2 + 1, dtype=input.dtype)
+    rem = input
     ridx = len(rem) - 1
-    sz = lc1 - _ldordidx(c2) - 1
-    y = zeros(lc1 + lc2 + 1, dtype=c1.dtype).at[sz].set(1.0)
+    sz = lc1 - _ldordidx(other) - 1
+    y = zeros(lc1 + lc2 + 1, dtype=input.dtype).at[sz].set(1.0)
 
     def body(k, val):
         quo, rem, y, ridx = val
         i = sz - k
-        p = mul_f(y, c2)
+        p = func(y, other)
         pidx = _ldordidx(p)
         t = rem[ridx] / p[pidx]
         rem = _subtract(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
@@ -358,29 +362,45 @@ def _pad_along_axis(array, pad=(0, 0), axis=0):
     return moveaxis(array, 0, axis)
 
 
-def _pow(mul_f, c, pow, maxpower):
-    c = _as_series(c)
-    power = int(pow)
-    if power != pow or power < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maxpower is not None and power > maxpower:
-        raise ValueError("Power is too large")
-    elif power == 0:
-        return array([1], dtype=c.dtype)
-    elif power == 1:
-        return c
-    else:
-        prd = zeros(len(c) * pow, dtype=c.dtype)
-        prd = _add(prd, c)
+def _pow(
+    func: Callable[
+        [
+            Num[Array, "..."],
+            Num[Array, "..."],
+            Literal["full", "same"],
+        ],
+        Num[Array, "..."],
+    ],
+    input: Num[Array, "..."],
+    exponent,
+    maximum_exponent,
+):
+    input = _as_series(input)
 
-        def body(i, p):
-            p = mul_f(p, c, mode="same")
-            return p
+    power = int(exponent)
 
-        return fori_loop(2, power + 1, body, prd)
+    if power != exponent or power < 0:
+        raise ValueError
+
+    if maximum_exponent is not None and power > maximum_exponent:
+        raise ValueError
+
+    if power == 0:
+        return array([1], dtype=input.dtype)
+
+    if power == 1:
+        return input
+
+    output = zeros(len(input) * exponent, dtype=input.dtype)
+
+    output = _add(output, input)
+
+    for _ in range(2, power + 1):
+        output = func(output, input, mode="same")
+
+    return output
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def _subtract(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -401,9 +421,11 @@ def _subtract(
     return output
 
 
-def _evaluate(func, input, *args):
-    args = [asarray(a) for a in args]
-
+def _evaluate(
+    func: Callable,
+    input: Num[Array, "..."],
+    *args,
+):
     xs = []
 
     for a in args:
@@ -500,7 +522,6 @@ def cheb2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def chebadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -563,7 +584,6 @@ def chebder(c, m=1, scl=1, axis=0):
     return c
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def chebdiv(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -666,16 +686,19 @@ def chebline(off, scl):
     return array([off, scl])
 
 
-def chebmul(input, other, mode="full"):
+def chebmul(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+    mode: Literal["full", "same"] = "full",
+) -> Num[Array, "..."]:
     input, other = _as_series(input, other)
 
     z1 = _c_series_to_z_series(input)
-
     z2 = _c_series_to_z_series(other)
 
-    prd = _z_series_mul(z1, z2, mode=mode)
+    output = _z_series_mul(z1, z2, mode=mode)
 
-    output = _z_series_to_c_series(prd)
+    output = _z_series_to_c_series(output)
 
     if mode == "same":
         output = output[: max(len(input), len(other))]
@@ -792,7 +815,6 @@ def chebroots(c):
     return output
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def chebsub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -855,7 +877,11 @@ def chebvander(x, degree):
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2])
 
-        v = fori_loop(2, degree + 1, body, v)
+        b = degree + 1
+        y = v
+        for index in range(2, b):
+            y = body(index, y)
+        v = y
 
     return moveaxis(v, 0, -1)
 
@@ -917,12 +943,16 @@ def herm2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * 2)
             return c0, c1
 
-        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hermadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -975,8 +1005,11 @@ def hermder(c, m=1, scl=1, axis=0):
     return c
 
 
-def hermdiv(c1, c2):
-    return _div(hermmul, c1, c2)
+def hermdiv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    return _div(hermmul, input, other)
 
 
 def herme2poly(c):
@@ -998,12 +1031,16 @@ def herme2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same"))
             return c0, c1
 
-        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hermeadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1056,8 +1093,11 @@ def hermeder(c, m=1, scl=1, axis=0):
     return c
 
 
-def hermediv(c1, c2):
-    return _div(hermemul, c1, c2)
+def hermediv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    return _div(hermemul, input, other)
 
 
 def hermefit(x, y, degree, rcond=None, full=False, w=None):
@@ -1213,7 +1253,6 @@ def hermeroots(c):
     return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hermesub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1453,7 +1492,6 @@ def hermroots(c):
     return sort(eigvals(hermcompanion(c)[::-1, ::-1]))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def hermsub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1564,7 +1602,6 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def lagadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1625,8 +1662,11 @@ def lagder(c, m=1, scl=1, axis=0):
     return c
 
 
-def lagdiv(c1, c2):
-    return _div(lagmul, c1, c2)
+def lagdiv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    return _div(lagmul, input, other)
 
 
 def lagfit(x, y, degree, rcond=None, full=False, w=None):
@@ -1781,7 +1821,6 @@ def lagroots(c):
     return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def lagsub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1882,7 +1921,6 @@ def leg2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def legadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -1945,8 +1983,11 @@ def legder(c, m=1, scl=1, axis=0):
     return c
 
 
-def legdiv(c1, c2):
-    return _div(legmul, c1, c2)
+def legdiv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    return _div(legmul, input, other)
 
 
 def legfit(x, y, degree, rcond=None, full=False, w=None):
@@ -2113,7 +2154,6 @@ def legroots(c):
     return sort(eigvals(legcompanion(c)[::-1, ::-1]))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def legsub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -2287,7 +2327,6 @@ def poly2leg(pol):
     return fori_loop(0, degree + 1, body, res)
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def polyadd(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -2348,10 +2387,13 @@ def polyder(c, m=1, scl=1, axis=0):
     return c
 
 
-def polydiv(c1, c2):
-    c1, c2 = _as_series(c1, c2)
+def polydiv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    input, other = _as_series(input, other)
 
-    return _div(polymul, c1, c2)
+    return _div(polymul, input, other)
 
 
 def polyfit(x, y, degree, rcond=None, full=False, w=None):
@@ -2472,7 +2514,6 @@ def polyroots(c):
     return sort(eigvals(polycompanion(c)[::-1, ::-1]))
 
 
-@jaxtyping.jaxtyped(typechecker=beartype.beartype)
 def polysub(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
