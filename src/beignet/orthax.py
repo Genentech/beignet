@@ -162,7 +162,11 @@ def _div(
         y = roll(y, -1)
         return quo, rem, y, ridx
 
-    quo, rem, _, _ = fori_loop(0, sz, body, (quo, rem, y, ridx))
+    x = (quo, rem, y, ridx)
+    y1 = x
+    for index in range(0, sz):
+        y1 = body(index, y1)
+    quo, rem, _, _ = y1
     return quo, rem
 
 
@@ -310,7 +314,12 @@ def _normed_hermite_e_n(x, n):
             nd = nd - 1.0
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(0, n - 1, body, (c0, c1, nd))
+        b = n - 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1, _ = y
         return c0 + c1 * x
 
     return cond(n == 0, truefun, falsefun)
@@ -333,7 +342,12 @@ def _normed_hermite_n(x, n):
             nd = nd - 1.0
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(0, n - 1, body, (c0, c1, nd))
+        b = n - 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1, _ = y
         return c0 + c1 * x * sqrt(2)
 
     return cond(n == 0, truefun, falsefun)
@@ -517,7 +531,12 @@ def cheb2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * 2)
             return c0, c1
 
-        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
 
@@ -574,7 +593,13 @@ def chebder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 2].add((j * c[j]) / (j - 2))
                 return der, c
 
-            der, c = fori_loop(0, n - 2, body, (der, c))
+            b = n - 2
+            x = (der, c)
+            y = x
+            for index in range(0, b):
+                y = body(index, y)
+            der, c = y
+
             if n > 1:
                 der = der.at[1].set(4 * c[2])
             der = der.at[0].set(c[1])
@@ -754,7 +779,11 @@ def chebpow(c, pow, maxpower=16):
     def func(_, p):
         return convolve(p, zs, mode="same")
 
-    output = fori_loop(2, power + 1, func, output)
+    b = power + 1
+    y = output
+    for index in range(2, b):
+        y = func(index, y)
+    output = y
 
     output = _z_series_to_c_series(output)
 
@@ -846,7 +875,12 @@ def chebval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1
 
-        c0, c1 = fori_loop(3, len(c) + 1, body, (c0, c1))
+        b = len(c) + 1
+        x1 = (c0, c1)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1 = y
 
     return c0 + c1 * x
 
@@ -1214,7 +1248,12 @@ def hermemul(input, other, mode="full"):
             c1 = hermeadd(tmp, hermemulx(c1, "same"))
             return c0, c1, nd
 
-        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
+        b = len(c) + 1
+        x = (c0, input, nd)
+        y = x
+        for index in range(3, b):
+            y = body(index, y)
+        c0, input, _ = y
 
     ret = hermeadd(c0, hermemulx(input, "same"))
     if mode == "same":
@@ -1285,7 +1324,12 @@ def hermeval(x, c, tensor=True):
             c1 = tmp + c1 * x
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        b = len(c) + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
 
     return c0 + c1 * x
 
@@ -1314,7 +1358,11 @@ def hermevander(x, degree):
         def body(i, v):
             return v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
 
-        v = fori_loop(2, degree + 1, body, v)
+        b = degree + 1
+        y = v
+        for index in range(2, b):
+            y = body(index, y)
+        v = y
 
     return moveaxis(v, 0, -1)
 
@@ -1452,7 +1500,12 @@ def hermmul(input, other, mode="full"):
             c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
             return c0, c1, nd
 
-        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
+        b = len(c) + 1
+        x = (c0, input, nd)
+        y = x
+        for index in range(3, b):
+            y = body(index, y)
+        c0, input, _ = y
 
     ret = hermadd(c0, hermmulx(input, "same") * 2)
     if mode == "same":
@@ -1525,7 +1578,12 @@ def hermval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        b = len(c) + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
 
     return c0 + c1 * x2
 
@@ -1555,7 +1613,11 @@ def hermvander(x, degree):
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
 
-        v = fori_loop(2, degree + 1, body, v)
+        b = degree + 1
+        y = v
+        for index in range(2, b):
+            y = body(index, y)
+        v = y
 
     return moveaxis(v, 0, -1)
 
@@ -1597,7 +1659,12 @@ def lag2poly(c):
             c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1, "same")) / i)
             return c0, c1
 
-        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
 
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
@@ -1654,7 +1721,12 @@ def lagder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 1].add(c[j])
                 return der, c
 
-            der, c = fori_loop(0, n - 1, body, (der, c))
+            b = n - 1
+            x = (der, c)
+            y = x
+            for index in range(0, b):
+                y = body(index, y)
+            der, c = y
             der = der.at[0].set(-c[1])
             c = der
 
@@ -1779,7 +1851,12 @@ def lagmul(input, other, mode="full"):
             c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
             return c0, c1, nd
 
-        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
+        b = len(c) + 1
+        x = (c0, input, nd)
+        y = x
+        for index in range(3, b):
+            y = body(index, y)
+        c0, input, _ = y
 
     ret = lagadd(c0, lagsub(input, lagmulx(input, "same")))
     if mode == "same":
@@ -1853,7 +1930,12 @@ def lagval(x, c, tensor=True):
             c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        b = len(c) + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
 
     return c0 + c1 * (1 - x)
 
@@ -1882,7 +1964,11 @@ def lagvander(x, degree):
         def body(i, v):
             return v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
 
-        v = fori_loop(2, degree + 1, body, v)
+        b = degree + 1
+        y = v
+        for index in range(2, b):
+            y = body(index, y)
+        v = y
 
     return moveaxis(v, 0, -1)
 
@@ -1916,7 +2002,12 @@ def leg2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
             return c0, c1
 
-        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
 
@@ -1973,7 +2064,12 @@ def legder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 2].add(c[j])
                 return der, c
 
-            der, c = fori_loop(0, n - 2, body, (der, c))
+            b = n - 2
+            x = (der, c)
+            y = x
+            for index in range(0, b):
+                y = body(index, y)
+            der, c = y
             if n > 1:
                 der = der.at[1].set(3 * c[2])
             der = der.at[0].set(c[1])
@@ -2104,7 +2200,12 @@ def legmul(input, other, mode="full"):
             c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
             return c0, c1, nd
 
-        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
+        b = len(c) + 1
+        x = (c0, input, nd)
+        y = x
+        for index in range(3, b):
+            y = body(index, y)
+        c0, input, _ = y
 
     ret = legadd(c0, legmulx(input, "same"))
     if mode == "same":
@@ -2130,7 +2231,11 @@ def legmulx(c, mode="full"):
 
         return prd
 
-    prd = fori_loop(1, len(c), body, prd)
+    b = len(c)
+    y = prd
+    for index in range(1, b):
+        y = body(index, y)
+    prd = y
 
     if mode == "same":
         prd = prd[: len(c)]
@@ -2186,7 +2291,12 @@ def legval(x, c, tensor=True):
             c1 = tmp + (c1 * x * (2 * nd - 1)) / nd
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        b = len(c) + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
 
     return c0 + c1 * x
 
@@ -2221,7 +2331,11 @@ def legvander(x, degree):
         def body(i, v):
             return v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
 
-        v = fori_loop(2, degree + 1, body, v)
+        b = degree + 1
+        y = v
+        for index in range(2, b):
+            y = body(index, y)
+        v = y
 
     return moveaxis(v, 0, -1)
 
@@ -2268,7 +2382,11 @@ def poly2cheb(pol):
     def body(i, res):
         return chebadd(chebmulx(res, mode="same"), pol[(degree - i)])
 
-    return fori_loop(0, degree + 1, body, res)
+    b = degree + 1
+    y = res
+    for index in range(0, b):
+        y = body(index, y)
+    return y
 
 
 def poly2herm(pol):
@@ -2281,7 +2399,11 @@ def poly2herm(pol):
     def body(i, res):
         return hermadd(hermmulx(res, mode="same"), pol[(degree - i)])
 
-    return fori_loop(0, degree + 1, body, res)
+    b = degree + 1
+    y = res
+    for index in range(0, b):
+        y = body(index, y)
+    return y
 
 
 def poly2herme(pol):
@@ -2294,7 +2416,11 @@ def poly2herme(pol):
     def body(i, res):
         return hermeadd(hermemulx(res, mode="same"), pol[(degree - i)])
 
-    return fori_loop(0, degree + 1, body, res)
+    b = degree + 1
+    y = res
+    for index in range(0, b):
+        y = body(index, y)
+    return y
 
 
 def poly2lag(pol):
@@ -2307,7 +2433,11 @@ def poly2lag(pol):
 
         return res
 
-    return fori_loop(0, len(pol), body, res)
+    b = len(pol)
+    y = res
+    for index in range(0, b):
+        y = body(index, y)
+    return y
 
 
 def poly2leg(pol):
@@ -2324,7 +2454,11 @@ def poly2leg(pol):
 
         return res
 
-    return fori_loop(0, degree + 1, body, res)
+    b = degree + 1
+    y = res
+    for index in range(0, b):
+        y = body(index, y)
+    return y
 
 
 def polyadd(
@@ -2378,7 +2512,10 @@ def polyder(c, m=1, scl=1, axis=0):
 
             return c
 
-        c = fori_loop(0, m, body, c)
+        y = c
+        for index in range(0, m):
+            y = body(index, y)
+        c = y
 
         c = c[:-m]
 
@@ -2463,7 +2600,10 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
         return c
 
-    c = fori_loop(0, m, body, c)
+    y = c
+    for index in range(0, m):
+        y = body(index, y)
+    c = y
 
     c = moveaxis(c, 0, axis)
 
@@ -2536,7 +2676,11 @@ def polyval(x, c, tensor=True):
 
         return c0
 
-    return fori_loop(2, len(c) + 1, body, c0)
+    b = len(c) + 1
+    y = c0
+    for index in range(2, b):
+        y = body(index, y)
+    return y
 
 
 def polyval2d(x, y, c):
@@ -2578,7 +2722,11 @@ def polyvander(x, degree):
     def func(i, v):
         return v.at[i].set(v[i - 1] * x)
 
-    v = fori_loop(1, degree + 1, func, v)
+    b = degree + 1
+    y = v
+    for index in range(1, b):
+        y = func(index, y)
+    v = y
 
     output = moveaxis(v, 0, -1)
 
