@@ -5267,14 +5267,14 @@ def test_polyvander3d():
 
 
 def test_polyx():
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyx,
-        numpy.array([0, 1]),
+        array([0, 1]),
     )
 
 
 def test_polyzero():
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyzero,
         array([0]),
     )
