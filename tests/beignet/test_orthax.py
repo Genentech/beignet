@@ -3091,14 +3091,10 @@ def test_lagmul():
         for j in range(5):
             pol2 = [0] * j + [1]
             val2 = beignet.orthax.lagval(x, pol2)
-            x = beignet.orthax.lagmul(pol1, pol2)
-            pol3 = beignet.orthax.lagtrim(x, tol=1e-6)
+            pol3 = beignet.orthax.lagtrim(beignet.orthax.lagmul(pol1, pol2))
             val3 = beignet.orthax.lagval(x, pol3)
             numpy.testing.assert_(len(pol3) == i + j + 1)
-            numpy.testing.assert_array_almost_equal(
-                val3,
-                val1 * val2,
-            )
+            numpy.testing.assert_array_almost_equal(val3, val1 * val2)
 
 
 def test_lagmulx():

@@ -2149,18 +2149,25 @@ def polyline(off, scl):
 
 def polymul(c1, c2, mode="full"):
     c1, c2 = as_series(c1, c2)
+
     ret = jax.numpy.convolve(c1, c2)
+
     if mode == "same":
         ret = ret[: max(len(c1), len(c2))]
+
     return ret
 
 
 def polymulx(c, mode="full"):
     c = as_series(c)
+
     prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+
     prd = prd.at[1:].set(c)
+
     if mode == "same":
         prd = prd[: len(c)]
+
     return prd
 
 
@@ -2170,14 +2177,19 @@ def polypow(c, pow, maxpower=16):
 
 def polyroots(c):
     c = as_series(c)
+
     if len(c) < 2:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
     m = polycompanion(c)[::-1, ::-1]
+
     r = jax.numpy.linalg.eigvals(m)
+
     r = jax.numpy.sort(r)
+
     return r
 
 
@@ -2187,7 +2199,9 @@ def polysub(c1, c2):
 
 def polyval(x, c, tensor=True):
     c = as_series(c)
+
     x = jax.numpy.asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -2195,9 +2209,11 @@ def polyval(x, c, tensor=True):
 
     def body(i, c0):
         c0 = c[-i] + c0 * x
+
         return c0
 
     c0 = jax.lax.fori_loop(2, len(c) + 1, body, c0)
+
     return c0
 
 
@@ -2211,11 +2227,14 @@ def polyval3d(x, y, z, c):
 
 def polyvalfromroots(x, r, tensor=True):
     r = jax.numpy.array(r, ndmin=1)
+
     x = jax.numpy.asarray(x)
+
     if tensor:
         r = r.reshape(r.shape + (1,) * x.ndim)
     elif x.ndim >= r.ndim:
         raise ValueError("x.ndim must be < r.ndim when tensor == False")
+
     return jax.numpy.prod(x - r, axis=0)
 
 
@@ -2224,13 +2243,18 @@ def polyvander(x, deg):
         raise ValueError("deg must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
+
     dims = (deg + 1,) + x.shape
+
     dtyp = x.dtype
+
     v = jax.numpy.empty(dims, dtype=dtyp)
+
     v = v.at[0].set(jax.numpy.ones_like(x))
 
     def body(i, v):
         v = v.at[i].set(v[i - 1] * x)
+
         return v
 
     v = jax.lax.fori_loop(1, deg + 1, body, v)
@@ -2251,7 +2275,9 @@ def _trim_coefficients(c, tol=0):
         raise ValueError("tol must be non-negative")
 
     c = as_series(c)
+
     [ind] = jax.numpy.nonzero(jax.numpy.abs(c) > tol)
+
     if len(ind) == 0:
         return c[:1] * 0
     else:
@@ -2265,6 +2291,7 @@ def _trim_sequence(seq):
         for i in range(len(seq) - 1, -1, -1):
             if seq[i] != 0:
                 break
+
         return seq[: i + 1]
 
 
