@@ -1,33 +1,102 @@
 import functools
+import math
 import operator
 
 import jax
 import jax.numpy
+from jax.numpy import (
+    abs,
+    arange,
+    array,
+    asarray,
+    complexfloating,
+    convolve,
+    cos,
+    cumprod,
+    dot,
+    empty,
+    exp,
+    finfo,
+    full,
+    hstack,
+    iscomplexobj,
+    iterable,
+    linspace,
+    moveaxis,
+    ndim,
+    newaxis,
+    nonzero,
+    ones,
+    ones_like,
+    prod,
+    promote_types,
+    roll,
+    sin,
+    sort,
+    sqrt,
+    square,
+    stack,
+    where,
+    zeros,
+    zeros_like,
+)
+from jax.numpy.linalg import (
+    eigvals,
+    eigvalsh,
+    lstsq,
+)
 
-chebdomain = jax.numpy.array([-1, 1])
-chebone = jax.numpy.array([1])
-chebx = jax.numpy.array([0, 1])
-chebzero = jax.numpy.array([0])
-hermdomain = jax.numpy.array([-1, 1])
-hermedomain = jax.numpy.array([-1, 1])
-hermeone = jax.numpy.array([1])
-hermex = jax.numpy.array([0, 1])
-hermezero = jax.numpy.array([0])
-hermone = jax.numpy.array([1])
-hermx = jax.numpy.array([0, 1 / 2])
-hermzero = jax.numpy.array([0])
-lagdomain = jax.numpy.array([0, 1])
-lagone = jax.numpy.array([1])
-lagx = jax.numpy.array([1, -1])
-lagzero = jax.numpy.array([0])
-legdomain = jax.numpy.array([-1, 1])
-legone = jax.numpy.array([1])
-legx = jax.numpy.array([0, 1])
-legzero = jax.numpy.array([0])
-polydomain = jax.numpy.array([-1, 1])
-polyone = jax.numpy.array([1])
-polyx = jax.numpy.array([0, 1])
-polyzero = jax.numpy.array([0])
+chebdomain = array([-1, 1])
+chebone = array([1])
+chebx = array([0, 1])
+chebzero = array([0])
+hermdomain = array([-1, 1])
+hermedomain = array([-1, 1])
+hermeone = array([1])
+hermex = array([0, 1])
+hermezero = array([0])
+hermone = array([1])
+hermx = array([0, 1 / 2])
+hermzero = array([0])
+lagdomain = array([0, 1])
+lagone = array([1])
+lagx = array([1, -1])
+lagzero = array([0])
+legdomain = array([-1, 1])
+legone = array([1])
+legx = array([0, 1])
+legzero = array([0])
+polydomain = array([-1, 1])
+polyone = array([1])
+polyx = array([0, 1])
+polyzero = array([0])
+
+
+def cond(pred, true_fun, false_fun, *operands):
+    if pred:
+        return true_fun(*operands)
+    else:
+        return false_fun(*operands)
+
+
+def fori_loop(a, b, func, x):
+    y = x
+
+    for index in range(a, b):
+        y = func(index, y)
+
+    return y
+
+
+def scan(f, init, xs, length=None):
+    if xs is None:
+        xs = [None] * length
+    carry = init
+    ys = []
+    for x in xs:
+        carry, y = f(carry, x)
+        ys.append(y)
+    return carry, stack(ys)
 
 
 def _add(c1, c2):
@@ -44,7 +113,7 @@ def _add(c1, c2):
 def _c_series_to_z_series(c):
     n = c.size
 
-    zs = jax.numpy.zeros(2 * n - 1, dtype=c.dtype)
+    zs = zeros(2 * n - 1, dtype=c.dtype)
 
     zs = zs.at[n - 1 :].set(c / 2)
 
@@ -58,19 +127,19 @@ def _div(mul_f, c1, c2):
     lc2 = len(c2)
 
     if lc1 < lc2:
-        return jax.numpy.zeros_like(c1[:1]), c1
+        return zeros_like(c1[:1]), c1
 
     if lc2 == 1:
-        return c1 / c2[-1], jax.numpy.zeros_like(c1[:1])
+        return c1 / c2[-1], zeros_like(c1[:1])
 
     def _ldordidx(x):  # index of highest order nonzero term
-        return len(x) - 1 - jax.numpy.nonzero(x[::-1], size=1)[0][0]
+        return len(x) - 1 - nonzero(x[::-1], size=1)[0][0]
 
-    quo = jax.numpy.zeros(lc1 - lc2 + 1, dtype=c1.dtype)
+    quo = zeros(lc1 - lc2 + 1, dtype=c1.dtype)
     rem = c1
     ridx = len(rem) - 1
     sz = lc1 - _ldordidx(c2) - 1
-    y = jax.numpy.zeros(lc1 + lc2 + 1, dtype=c1.dtype).at[sz].set(1.0)
+    y = zeros(lc1 + lc2 + 1, dtype=c1.dtype).at[sz].set(1.0)
 
     def body(k, val):
         quo, rem, y, ridx = val
@@ -81,41 +150,41 @@ def _div(mul_f, c1, c2):
         rem = _sub(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
         quo = quo.at[i].set(t)
         ridx -= 1
-        y = jax.numpy.roll(y, -1)
+        y = roll(y, -1)
         return quo, rem, y, ridx
 
-    quo, rem, _, _ = jax.lax.fori_loop(0, sz, body, (quo, rem, y, ridx))
+    quo, rem, _, _ = fori_loop(0, sz, body, (quo, rem, y, ridx))
     return quo, rem
 
 
 def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
-    x = jax.numpy.asarray(x)
-    y = jax.numpy.asarray(y)
-    degree = jax.numpy.asarray(degree)
+    x = asarray(x)
+    y = asarray(y)
+    degree = asarray(degree)
 
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
-        raise TypeError("degree must be an int or non-empty 1-D array of int")
+        raise TypeError
 
     if degree.min() < 0:
-        raise ValueError("expected degree >= 0")
+        raise ValueError
 
     if x.ndim != 1:
-        raise TypeError("expected 1D vector for x")
+        raise TypeError
 
     if x.size == 0:
-        raise TypeError("expected non-empty vector for x")
+        raise TypeError
 
     if y.ndim < 1 or y.ndim > 2:
-        raise TypeError("expected 1D or 2D array for y")
+        raise TypeError
 
     if len(x) != len(y):
-        raise TypeError("expected x and y to have same length")
+        raise TypeError
 
     if degree.ndim == 0:
         lmax = int(degree)
         van = vander_f(x, lmax)
     else:
-        degree = jax.numpy.sort(degree)
+        degree = sort(degree)
         lmax = int(degree[-1])
         van = vander_f(x, lmax)[:, degree]
 
@@ -123,34 +192,34 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
     rhs = y.T
 
     if w is not None:
-        w = jax.numpy.asarray(w)
+        w = asarray(w)
+
         if w.ndim != 1:
-            raise TypeError("expected 1D vector for w")
+            raise TypeError
+
         if len(x) != len(w):
-            raise TypeError("expected x and w to have same length")
+            raise TypeError
 
         lhs = lhs * w
         rhs = rhs * w
 
     if rcond is None:
-        rcond = len(x) * jax.numpy.finfo(x.dtype).eps
+        rcond = len(x) * finfo(x.dtype).eps
 
-    if issubclass(lhs.dtype.type, jax.numpy.complexfloating):
-        scl = jax.numpy.sqrt(
-            (jax.numpy.square(lhs.real) + jax.numpy.square(lhs.imag)).sum(1)
-        )
+    if issubclass(lhs.dtype.type, complexfloating):
+        scl = sqrt((square(lhs.real) + square(lhs.imag)).sum(1))
     else:
-        scl = jax.numpy.sqrt(jax.numpy.square(lhs).sum(1))
-    scl = jax.numpy.where(scl == 0, 1, scl)
+        scl = sqrt(square(lhs).sum(1))
+    scl = where(scl == 0, 1, scl)
 
-    c, resids, rank, s = jax.numpy.linalg.lstsq(lhs.T / scl, rhs.T, rcond)
+    c, resids, rank, s = lstsq(lhs.T / scl, rhs.T, rcond)
     c = (c.T / scl).T
 
     if degree.ndim > 0:
         if c.ndim == 2:
-            cc = jax.numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
+            cc = zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
         else:
-            cc = jax.numpy.zeros(lmax + 1, dtype=c.dtype)
+            cc = zeros(lmax + 1, dtype=c.dtype)
         cc = cc.at[degree].set(c)
         c = cc
 
@@ -161,20 +230,20 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
 
 
 def _from_roots(line_f, mul_f, roots):
-    roots = jax.numpy.asarray(roots)
+    roots = asarray(roots)
     if roots.size == 0:
-        return jax.numpy.ones(1)
+        return ones(1)
 
-    roots = jax.numpy.sort(roots)
+    roots = sort(roots)
 
     retlen = len(roots) + 1
 
     def p_scan_fun(carry, x):
-        return carry, _add(jax.numpy.zeros(retlen, dtype=x.dtype), line_f(-x, 1))
+        return carry, _add(zeros(retlen, dtype=x.dtype), line_f(-x, 1))
 
-    _, p = jax.lax.scan(p_scan_fun, 0, roots)
+    _, p = scan(p_scan_fun, 0, roots)
 
-    p = jax.numpy.asarray(p)
+    p = asarray(p)
     n = len(p)
 
     def cond_fun(val):
@@ -183,19 +252,28 @@ def _from_roots(line_f, mul_f, roots):
     def body_fun(val):
         m, r = divmod(val[0], 2)
         arr = val[1]
-        tmp = jax.numpy.array([jax.numpy.zeros(retlen, dtype=p.dtype)] * len(p))
+        tmp = array([zeros(retlen, dtype=p.dtype)] * len(p))
 
         def inner_body_fun(i, val):
             return val.at[i].set(mul_f(arr[i], arr[i + m])[:retlen])
 
         tmp = jax.lax.fori_loop(0, m, inner_body_fun, tmp)
-        tmp = jax.lax.cond(
+
+        tmp = cond(
             r, lambda x: x.at[0].set(mul_f(x[0], arr[2 * m])[:retlen]), lambda x: x, tmp
         )
 
-        return (m, tmp)
+        return m, tmp
 
-    _, ret = jax.lax.while_loop(cond_fun, body_fun, (n, p))
+    val = (n, p)
+
+    val = val
+
+    while cond_fun(val):
+        val = body_fun(val)
+
+    _, ret = val
+
     return ret[0]
 
 
@@ -208,60 +286,58 @@ def _gridnd(val_f, c, *args):
 
 def _normed_hermite_e_n(x, n):
     def truefun():
-        return jax.numpy.full(
-            x.shape, 1 / jax.numpy.sqrt(jax.numpy.sqrt(2 * jax.numpy.pi))
-        )
+        return full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
 
     def falsefun():
-        c0 = jax.numpy.zeros_like(x)
-        c1 = jax.numpy.ones_like(x) / jax.numpy.sqrt(jax.numpy.sqrt(2 * jax.numpy.pi))
-        nd = jax.numpy.array(n).astype(float)
+        c0 = zeros_like(x)
+        c1 = ones_like(x) / sqrt(sqrt(2 * math.pi))
+        nd = array(n).astype(float)
 
         def body(i, val):
             c0, c1, nd = val
             tmp = c0
-            c0 = -c1 * jax.numpy.sqrt((nd - 1.0) / nd)
-            c1 = tmp + c1 * x * jax.numpy.sqrt(1.0 / nd)
+            c0 = -c1 * sqrt((nd - 1.0) / nd)
+            c1 = tmp + c1 * x * sqrt(1.0 / nd)
             nd = nd - 1.0
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(0, n - 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(0, n - 1, body, (c0, c1, nd))
         return c0 + c1 * x
 
-    return jax.lax.cond(n == 0, truefun, falsefun)
+    return cond(n == 0, truefun, falsefun)
 
 
 def _normed_hermite_n(x, n):
     def truefun():
-        return jax.numpy.full(x.shape, 1 / jax.numpy.sqrt(jax.numpy.sqrt(jax.numpy.pi)))
+        return full(x.shape, 1 / sqrt(sqrt(math.pi)))
 
     def falsefun():
-        c0 = jax.numpy.zeros_like(x)
-        c1 = jax.numpy.ones_like(x) / jax.numpy.sqrt(jax.numpy.sqrt(jax.numpy.pi))
-        nd = jax.numpy.array(n).astype(float)
+        c0 = zeros_like(x)
+        c1 = ones_like(x) / sqrt(sqrt(math.pi))
+        nd = array(n).astype(float)
 
         def body(i, val):
             c0, c1, nd = val
             tmp = c0
-            c0 = -c1 * jax.numpy.sqrt((nd - 1.0) / nd)
-            c1 = tmp + c1 * x * jax.numpy.sqrt(2.0 / nd)
+            c0 = -c1 * sqrt((nd - 1.0) / nd)
+            c1 = tmp + c1 * x * sqrt(2.0 / nd)
             nd = nd - 1.0
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(0, n - 1, body, (c0, c1, nd))
-        return c0 + c1 * x * jax.numpy.sqrt(2)
+        c0, c1, _ = fori_loop(0, n - 1, body, (c0, c1, nd))
+        return c0 + c1 * x * sqrt(2)
 
-    return jax.lax.cond(n == 0, truefun, falsefun)
+    return cond(n == 0, truefun, falsefun)
 
 
 def _nth_slice(i, ndim):
-    sl = [jax.numpy.newaxis] * ndim
+    sl = [newaxis] * ndim
     sl[i] = slice(None)
     return tuple(sl)
 
 
 def _pad_along_axis(array, pad=(0, 0), axis=0):
-    array = jax.numpy.moveaxis(array, axis, 0)
+    array = moveaxis(array, axis, 0)
 
     if pad[0] < 0:
         array = array[abs(pad[0]) :]
@@ -274,7 +350,7 @@ def _pad_along_axis(array, pad=(0, 0), axis=0):
     npad[0] = pad
 
     array = jax.numpy.pad(array, pad_width=npad, mode="constant", constant_values=0)
-    return jax.numpy.moveaxis(array, 0, axis)
+    return moveaxis(array, 0, axis)
 
 
 def _pow(mul_f, c, pow, maxpower):
@@ -285,18 +361,18 @@ def _pow(mul_f, c, pow, maxpower):
     elif maxpower is not None and power > maxpower:
         raise ValueError("Power is too large")
     elif power == 0:
-        return jax.numpy.array([1], dtype=c.dtype)
+        return array([1], dtype=c.dtype)
     elif power == 1:
         return c
     else:
-        prd = jax.numpy.zeros(len(c) * pow, dtype=c.dtype)
+        prd = zeros(len(c) * pow, dtype=c.dtype)
         prd = _add(prd, c)
 
         def body(i, p):
             p = mul_f(p, c, mode="same")
             return p
 
-        return jax.lax.fori_loop(2, power + 1, body, prd)
+        return fori_loop(2, power + 1, body, prd)
 
 
 def _sub(c1, c2):
@@ -309,7 +385,7 @@ def _sub(c1, c2):
 
 
 def _valnd(val_f, c, *args):
-    args = [jax.numpy.asarray(a) for a in args]
+    args = [asarray(a) for a in args]
     shape0 = args[0].shape
     if not all(a.shape == shape0 for a in args[1:]):
         if len(args) == 3:
@@ -338,7 +414,7 @@ def _vander_nd(vander_fs, points, degrees):
     if n_dims == 0:
         raise ValueError("Unable to guess a dtype or shape when no points are given")
 
-    points = tuple(jax.numpy.array(tuple(points), copy=False) + 0.0)
+    points = tuple(array(tuple(points), copy=False) + 0.0)
 
     vander_arrays = (
         vander_fs[i](points[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
@@ -354,7 +430,7 @@ def _vander_nd_flat(vander_fs, points, degrees):
 
 
 def _z_series_mul(z1, z2, mode="full"):
-    return jax.numpy.convolve(z1, z2, mode=mode)
+    return convolve(z1, z2, mode=mode)
 
 
 def _z_series_to_c_series(zs):
@@ -364,7 +440,7 @@ def _z_series_to_c_series(zs):
 
 
 def as_series(*arrs, trim=False):
-    arrays = tuple(jax.numpy.array(a, ndmin=1) for a in arrs)
+    arrays = tuple(array(a, ndmin=1) for a in arrs)
     if trim:
         arrays = tuple(_trim_sequence(a) for a in arrays)
     arrays = jax._src.numpy.util.promote_dtypes_inexact(*arrays)
@@ -379,8 +455,8 @@ def cheb2poly(c):
     if n < 3:
         return c
     else:
-        c0 = jax.numpy.zeros_like(c).at[0].set(c[-2])
-        c1 = jax.numpy.zeros_like(c).at[0].set(c[-1])
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -390,7 +466,7 @@ def cheb2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * 2)
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(0, n - 2, body, (c0, c1))
+        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
 
         return polyadd(c0, polymulx(c1, "same"))
 
@@ -404,19 +480,15 @@ def chebcompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return jax.numpy.array([[-c[0] / c[1]]])
+        return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype)
-    scl = jax.numpy.ones(n).at[1:].set(jax.numpy.sqrt(0.5))
+    mat = zeros((n, n), dtype=c.dtype)
+    scl = ones(n).at[1:].set(sqrt(0.5))
     shp = mat.shape
     mat = mat.flatten()
-    mat = mat.at[1 :: n + 1].set(
-        jax.numpy.full(n - 1, 1 / 2).at[0].set(jax.numpy.sqrt(0.5))
-    )
-    mat = mat.at[n :: n + 1].set(
-        jax.numpy.full(n - 1, 1 / 2).at[0].set(jax.numpy.sqrt(0.5))
-    )
+    mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
+    mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
     mat = mat.reshape(shp)
     mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5)
     return mat
@@ -431,15 +503,15 @@ def chebder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
     n = len(c)
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
         for _ in range(m):
             n = n - 1
             c *= scl
-            der = jax.numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -448,13 +520,13 @@ def chebder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 2].add((j * c[j]) / (j - 2))
                 return der, c
 
-            der, c = jax.lax.fori_loop(0, n - 2, body, (der, c))
+            der, c = fori_loop(0, n - 2, body, (der, c))
             if n > 1:
                 der = der.at[1].set(4 * c[2])
             der = der.at[0].set(c[1])
             c = der
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -472,15 +544,21 @@ def chebfromroots(roots):
 
 def chebgauss(degree):
     degree = int(degree)
+
     if degree <= 0:
-        raise ValueError("degree must be a positive integer")
+        raise ValueError
 
-    x = jax.numpy.cos(
-        jax.numpy.pi * jax.numpy.arange(1, 2 * degree, 2) / (2.0 * degree)
-    )
-    w = jax.numpy.ones(degree) * (jax.numpy.pi / degree)
+    output = arange(1, 2 * degree, 2)
 
-    return x, w
+    output = output / (2.0 * degree)
+
+    output = output * math.pi
+
+    output = cos(output)
+
+    w = ones(degree) * (math.pi / degree)
+
+    return output, w
 
 
 def chebgrid2d(x, y, c):
@@ -495,37 +573,37 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = as_series(c)
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
     if len(k) > m:
         raise ValueError("Too many integration constants")
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    c = moveaxis(c, axis, 0)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     for i in range(m):
         n = len(c)
         c *= scl
-        tmp = jax.numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         if n > 1:
             tmp = tmp.at[2].set(c[1] / 4)
-        j = jax.numpy.arange(2, n)
+        j = arange(2, n)
         tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
         tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
         tmp = tmp.at[0].add(k[i] - chebval(lbnd, tmp))
         c = tmp
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -540,7 +618,7 @@ def chebinterpolate(func, degree, args=()):
     xcheb = chebpts1(order)
     yfunc = func(xcheb, *args)
     m = chebvander(xcheb, _deg)
-    c = jax.numpy.dot(m.T, yfunc)
+    c = dot(m.T, yfunc)
     c = c.at[0].divide(order)
     c = c.at[1:].divide(0.5 * order)
 
@@ -548,98 +626,133 @@ def chebinterpolate(func, degree, args=()):
 
 
 def chebline(off, scl):
-    return jax.numpy.array([off, scl])
+    return array([off, scl])
 
 
 def chebmul(c1, c2, mode="full"):
     c1, c2 = as_series(c1, c2)
-    z1 = _c_series_to_z_series(c1)
-    z2 = _c_series_to_z_series(c2)
-    prd = _z_series_mul(z1, z2, mode=mode)
-    ret = _z_series_to_c_series(prd)
-    if mode == "same":
-        ret = ret[: max(len(c1), len(c2))]
 
-    return ret
+    z1 = _c_series_to_z_series(c1)
+
+    z2 = _c_series_to_z_series(c2)
+
+    prd = _z_series_mul(z1, z2, mode=mode)
+
+    output = _z_series_to_c_series(prd)
+
+    if mode == "same":
+        output = output[: max(len(c1), len(c2))]
+
+    return output
 
 
 def chebmulx(c, mode="full"):
     c = as_series(c)
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
-    prd = prd.at[1].set(c[0])
+
+    output = zeros(len(c) + 1, dtype=c.dtype)
+
+    output = output.at[1].set(c[0])
 
     if len(c) > 1:
         tmp = c[1:] / 2
-        prd = prd.at[2:].set(tmp)
-        prd = prd.at[0:-2].add(tmp)
+
+        output = output.at[2:].set(tmp)
+
+        output = output.at[0:-2].add(tmp)
 
     if mode == "same":
-        prd = prd[: len(c)]
-    return prd
+        output = output[: len(c)]
+
+    return output
 
 
 def chebpow(c, pow, maxpower=16):
     c = as_series(c)
+
     power = int(pow)
+
     if power != pow or power < 0:
-        raise ValueError("Power must be a non-negative integer.")
-    elif maxpower is not None and power > maxpower:
-        raise ValueError("Power is too large")
-    elif power == 0:
-        return jax.numpy.array([1], dtype=c.dtype)
-    elif power == 1:
+        raise ValueError
+
+    if maxpower is not None and power > maxpower:
+        raise ValueError
+
+    if power == 0:
+        return array([1], dtype=c.dtype)
+
+    if power == 1:
         return c
-    else:
-        prd = jax.numpy.zeros(len(c) * pow, dtype=c.dtype)
-        prd = chebadd(prd, c)
-        zs = _c_series_to_z_series(c)
-        prd = _c_series_to_z_series(prd)
 
-        def body(i, p):
-            p = jax.numpy.convolve(p, zs, mode="same")
-            return p
+    output = zeros(len(c) * pow, dtype=c.dtype)
 
-        prd = jax.lax.fori_loop(2, power + 1, body, prd)
+    output = chebadd(output, c)
 
-        return _z_series_to_c_series(prd)
+    zs = _c_series_to_z_series(c)
 
+    output = _c_series_to_z_series(output)
 
-def chebpts1(npts):
-    _npts = int(npts)
+    def func(_, p):
+        return convolve(p, zs, mode="same")
 
-    if _npts != npts:
-        raise ValueError("npts must be integer")
+    output = fori_loop(2, power + 1, func, output)
 
-    if _npts < 1:
-        raise ValueError("npts must be >= 1")
+    output = _z_series_to_c_series(output)
 
-    return jax.numpy.sin(
-        0.5 * jax.numpy.pi / _npts * jax.numpy.arange(-_npts + 1, _npts + 1, 2)
-    )
+    return output
 
 
-def chebpts2(npts):
-    _npts = int(npts)
+def chebpts1(points):
+    _points = int(points)
 
-    if _npts != npts:
-        raise ValueError("npts must be integer")
+    if _points != points:
+        raise ValueError
 
-    if _npts < 2:
-        raise ValueError("npts must be >= 2")
+    if _points < 1:
+        raise ValueError
 
-    return jax.numpy.cos(jax.numpy.linspace(-jax.numpy.pi, 0, _npts))
+    output = arange(-_points + 1, _points + 1, 2)
+
+    output = 0.5 * math.pi / _points * output
+
+    output = sin(output)
+
+    return output
+
+
+def chebpts2(points):
+    _points = int(points)
+
+    if _points != points:
+        raise ValueError
+
+    if _points < 2:
+        raise ValueError
+
+    output = linspace(-math.pi, 0, _points)
+
+    output = cos(output)
+
+    return output
 
 
 def chebroots(c):
     c = as_series(c)
 
     if len(c) <= 1:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([-c[0] / c[1]])
+        return array([-c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(chebcompanion(c)[::-1, ::-1]))
+    output = chebcompanion(c)
+
+    output = output[::-1, ::-1]
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def chebsub(c1, c2):
@@ -648,7 +761,7 @@ def chebsub(c1, c2):
 
 def chebval(x, c, tensor=True):
     c = as_series(c)
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -660,8 +773,8 @@ def chebval(x, c, tensor=True):
         c1 = c[1]
     else:
         x2 = 2 * x
-        c0 = c[-2] * jax.numpy.ones_like(x)
-        c1 = c[-1] * jax.numpy.ones_like(x)
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
 
         def body(i, val):
             c0, c1 = val
@@ -670,7 +783,7 @@ def chebval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1))
+        c0, c1 = fori_loop(3, len(c) + 1, body, (c0, c1))
 
     return c0 + c1 * x
 
@@ -685,14 +798,14 @@ def chebval3d(x, y, z, c):
 
 def chebvander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
-    dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+    dtyp = promote_types(x.dtype, array(0.0).dtype)
     x = x.astype(dtyp)
-    v = jax.numpy.empty(dims, dtype=dtyp)
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
 
     if degree > 0:
         v = v.at[1].set(x)
@@ -701,33 +814,46 @@ def chebvander(x, degree):
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2])
 
-        v = jax.lax.fori_loop(2, degree + 1, body, v)
+        v = fori_loop(2, degree + 1, body, v)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return moveaxis(v, 0, -1)
 
 
 def chebvander2d(x, y, degree):
-    return _vander_nd_flat((chebvander, chebvander), (x, y), degree)
+    return _vander_nd_flat(
+        (chebvander, chebvander),
+        (x, y),
+        degree,
+    )
 
 
 def chebvander3d(x, y, z, degree):
-    return _vander_nd_flat((chebvander, chebvander, chebvander), (x, y, z), degree)
+    return _vander_nd_flat(
+        (chebvander, chebvander, chebvander),
+        (x, y, z),
+        degree,
+    )
 
 
 def chebweight(x):
-    x = jax.numpy.asarray(x)
-    return 1.0 / (jax.numpy.sqrt(1.0 + x) * jax.numpy.sqrt(1.0 - x))
+    x = asarray(x)
+
+    output = sqrt(1.0 + x) * sqrt(1.0 - x)
+
+    output = 1.0 / output
+
+    return output
 
 
 def getdomain(x):
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
 
-    if jax.numpy.iscomplexobj(x):
+    if iscomplexobj(x):
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
-        return jax.numpy.array(((rmin + 1j * imin), (rmax + 1j * imax)))
+        return array(((rmin + 1j * imin), (rmax + 1j * imax)))
 
-    return jax.numpy.array((x.min(), x.max()))
+    return array((x.min(), x.max()))
 
 
 def herm2poly(c):
@@ -739,8 +865,8 @@ def herm2poly(c):
         c = c.at[1].multiply(2)
         return c
     else:
-        c0 = jax.numpy.zeros_like(c).at[0].set(c[-2])
-        c1 = jax.numpy.zeros_like(c).at[0].set(c[-1])
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -750,7 +876,7 @@ def herm2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * 2)
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(0, n - 2, body, (c0, c1))
+        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
 
         return polyadd(c0, polymulx(c1, "same") * 2)
 
@@ -764,18 +890,16 @@ def hermcompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return jax.numpy.array([[-0.5 * c[0] / c[1]]])
+        return array([[-0.5 * c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype)
-    scl = jax.numpy.hstack(
-        (1.0, 1.0 / jax.numpy.sqrt(2.0 * jax.numpy.arange(n - 1, 0, -1)))
-    )
-    scl = jax.numpy.cumprod(scl)[::-1]
+    mat = zeros((n, n), dtype=c.dtype)
+    scl = hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
+    scl = cumprod(scl)[::-1]
     shp = mat.shape
     mat = mat.flatten()
-    mat = mat.at[1 :: n + 1].set(jax.numpy.sqrt(0.5 * jax.numpy.arange(1, n)))
-    mat = mat.at[n :: n + 1].set(jax.numpy.sqrt(0.5 * jax.numpy.arange(1, n)))
+    mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
+    mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = mat.reshape(shp)
     mat = mat.at[:, -1].add(-scl * c[:-1] / (2.0 * c[-1]))
     return mat
@@ -790,19 +914,19 @@ def hermder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
     n = len(c)
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
         for _ in range(m):
             n = n - 1
             c *= scl
-            der = jax.numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
-            j = jax.numpy.arange(n, 0, -1)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
+            j = arange(n, 0, -1)
             der = der.at[j - 1].set((2 * j * c[j].T).T)
             c = der
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -818,8 +942,8 @@ def herme2poly(c):
     if n == 2:
         return c
     else:
-        c0 = jax.numpy.zeros_like(c).at[0].set(c[-2])
-        c1 = jax.numpy.zeros_like(c).at[0].set(c[-1])
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -829,7 +953,7 @@ def herme2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same"))
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(0, n - 2, body, (c0, c1))
+        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
 
         return polyadd(c0, polymulx(c1, "same"))
 
@@ -843,16 +967,16 @@ def hermecompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return jax.numpy.array([[-c[0] / c[1]]])
+        return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype)
-    scl = jax.numpy.hstack((1.0, 1.0 / jax.numpy.sqrt(jax.numpy.arange(n - 1, 0, -1))))
-    scl = jax.numpy.cumprod(scl)[::-1]
+    mat = zeros((n, n), dtype=c.dtype)
+    scl = hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
+    scl = cumprod(scl)[::-1]
     shp = mat.shape
     mat = mat.flatten()
-    mat = mat.at[1 :: n + 1].set(jax.numpy.sqrt(jax.numpy.arange(1, n)))
-    mat = mat.at[n :: n + 1].set(jax.numpy.sqrt(jax.numpy.arange(1, n)))
+    mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
+    mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
     mat = mat.reshape(shp)
     mat = mat.at[:, -1].add(-scl * c[:-1] / c[-1])
     return mat
@@ -867,19 +991,19 @@ def hermeder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
     n = len(c)
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
         for _ in range(m):
             n = n - 1
             c *= scl
-            der = jax.numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
-            j = jax.numpy.arange(n, 0, -1)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
+            j = arange(n, 0, -1)
             der = der.at[j - 1].set((j * c[j].T).T)
             c = der
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -900,22 +1024,22 @@ def hermegauss(degree):
     if degree <= 0:
         raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1).at[-1].set(1)
     m = hermecompanion(c)
-    x = jax.numpy.linalg.eigvalsh(m)
+    x = eigvalsh(m)
 
     dy = _normed_hermite_e_n(x, degree)
-    df = _normed_hermite_e_n(x, degree - 1) * jax.numpy.sqrt(degree)
+    df = _normed_hermite_e_n(x, degree - 1) * sqrt(degree)
     x -= dy / df
 
     fm = _normed_hermite_e_n(x, degree - 1)
-    fm /= jax.numpy.abs(fm).max()
+    fm /= abs(fm).max()
     w = 1 / (fm * fm)
 
     w = (w + w[::-1]) / 2
     x = (x - x[::-1]) / 2
 
-    w *= jax.numpy.sqrt(2 * jax.numpy.pi) / w.sum()
+    w *= sqrt(2 * math.pi) / w.sum()
 
     return x, w
 
@@ -934,42 +1058,42 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     c = as_series(c)
 
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
 
     if len(k) > m:
         raise ValueError("Too many integration constants")
 
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
 
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    c = moveaxis(c, axis, 0)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     for i in range(m):
         n = len(c)
         c *= scl
-        tmp = jax.numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
-        j = jax.numpy.arange(1, n)
+        j = arange(1, n)
         tmp = tmp.at[j + 1].set((c[j].T / (j + 1)).T)
         tmp = tmp.at[0].add(k[i] - hermeval(lbnd, tmp))
         c = tmp
 
-    return jax.numpy.moveaxis(c, 0, axis)
+    return moveaxis(c, 0, axis)
 
 
 def hermeline(off, scl):
-    return jax.numpy.array([off, scl])
+    return array([off, scl])
 
 
 def hermemul(c1, c2, mode="full"):
@@ -983,15 +1107,15 @@ def hermemul(c1, c2, mode="full"):
         xs = c2
 
     if len(c) == 1:
-        c0 = hermeadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = jax.numpy.zeros(lc1 + lc2 - 1)
+        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
-        c0 = hermeadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermeadd(jax.numpy.zeros(lc1 + lc2 - 1), c[1] * xs)
+        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
-        c0 = hermeadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermeadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1001,7 +1125,7 @@ def hermemul(c1, c2, mode="full"):
             c1 = hermeadd(tmp, hermemulx(c1, "same"))
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     ret = hermeadd(c0, hermemulx(c1, "same"))
     if mode == "same":
@@ -1011,10 +1135,10 @@ def hermemul(c1, c2, mode="full"):
 
 def hermemulx(c, mode="full"):
     c = as_series(c)
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0])
 
-    i = jax.numpy.arange(1, len(c))
+    i = arange(1, len(c))
 
     prd = prd.at[i + 1].set(c[i])
     prd = prd.at[i - 1].add(c[i] * i)
@@ -1032,12 +1156,12 @@ def hermeroots(c):
     c = as_series(c)
 
     if len(c) <= 1:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([-c[0] / c[1]])
+        return array([-c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(hermecompanion(c)[::-1, ::-1]))
+    return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
 
 
 def hermesub(c1, c2):
@@ -1046,7 +1170,7 @@ def hermesub(c1, c2):
 
 def hermeval(x, c, tensor=True):
     c = as_series(c)
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1058,8 +1182,8 @@ def hermeval(x, c, tensor=True):
         c1 = c[1]
     else:
         nd = len(c)
-        c0 = c[-2] * jax.numpy.ones_like(x)
-        c1 = c[-1] * jax.numpy.ones_like(x)
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1069,7 +1193,7 @@ def hermeval(x, c, tensor=True):
             c1 = tmp + c1 * x
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     return c0 + c1 * x
 
@@ -1086,21 +1210,21 @@ def hermevander(x, degree):
     if degree < 0:
         raise ValueError("degree must be non-negative")
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
-    dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+    dtyp = promote_types(x.dtype, array(0.0).dtype)
     x = x.astype(dtyp)
-    v = jax.numpy.empty(dims, dtype=dtyp)
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
     if degree > 0:
         v = v.at[1].set(x)
 
         def body(i, v):
             return v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
 
-        v = jax.lax.fori_loop(2, degree + 1, body, v)
+        v = fori_loop(2, degree + 1, body, v)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return moveaxis(v, 0, -1)
 
 
 def hermevander2d(x, y, degree):
@@ -1120,7 +1244,7 @@ def hermevander3d(x, y, z, degree):
 
 
 def hermeweight(x):
-    return jax.numpy.exp(-0.5 * x**2)
+    return exp(-0.5 * x**2)
 
 
 def hermfit(x, y, degree, rcond=None, full=False, w=None):
@@ -1136,21 +1260,21 @@ def hermgauss(degree):
     if degree <= 0:
         raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
-    x = jax.numpy.linalg.eigvalsh(hermcompanion(c))
+    c = zeros(degree + 1).at[-1].set(1)
+    x = eigvalsh(hermcompanion(c))
 
     dy = _normed_hermite_n(x, degree)
-    df = _normed_hermite_n(x, degree - 1) * jax.numpy.sqrt(2 * degree)
+    df = _normed_hermite_n(x, degree - 1) * sqrt(2 * degree)
     x -= dy / df
 
     fm = _normed_hermite_n(x, degree - 1)
-    fm /= jax.numpy.abs(fm).max()
+    fm /= abs(fm).max()
     w = 1 / (fm * fm)
 
     w = (w + w[::-1]) / 2
     x = (x - x[::-1]) / 2
 
-    w = w * (jax.numpy.sqrt(jax.numpy.pi) / w.sum())
+    w = w * (sqrt(math.pi) / w.sum())
 
     return x, w
 
@@ -1167,44 +1291,44 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = as_series(c)
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
 
     if len(k) > m:
         raise ValueError("Too many integration constants")
 
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
 
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    c = moveaxis(c, axis, 0)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     for i in range(m):
         n = len(c)
         c *= scl
-        tmp = jax.numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0] / 2)
-        j = jax.numpy.arange(1, n)
+        j = arange(1, n)
         tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
         tmp = tmp.at[0].add(k[i] - hermval(lbnd, tmp))
         c = tmp
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
 
     return c
 
 
 def hermline(off, scl):
-    return jax.numpy.array([off, scl / 2])
+    return array([off, scl / 2])
 
 
 def hermmul(c1, c2, mode="full"):
@@ -1218,15 +1342,15 @@ def hermmul(c1, c2, mode="full"):
         xs = c2
 
     if len(c) == 1:
-        c0 = hermadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = jax.numpy.zeros(lc1 + lc2 - 1)
+        c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
-        c0 = hermadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermadd(jax.numpy.zeros(lc1 + lc2 - 1), c[1] * xs)
+        c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
-        c0 = hermadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c0 = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        c1 = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1236,7 +1360,7 @@ def hermmul(c1, c2, mode="full"):
             c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     ret = hermadd(c0, hermmulx(c1, "same") * 2)
     if mode == "same":
@@ -1246,10 +1370,10 @@ def hermmul(c1, c2, mode="full"):
 
 def hermmulx(c, mode="full"):
     c = as_series(c)
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0] / 2)
 
-    i = jax.numpy.arange(1, len(c))
+    i = arange(1, len(c))
 
     prd = prd.at[i + 1].set(c[i] / 2)
     prd = prd.at[i - 1].add(c[i] * i)
@@ -1268,12 +1392,12 @@ def hermroots(c):
     c = as_series(c)
 
     if len(c) <= 1:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([-0.5 * c[0] / c[1]])
+        return array([-0.5 * c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(hermcompanion(c)[::-1, ::-1]))
+    return sort(eigvals(hermcompanion(c)[::-1, ::-1]))
 
 
 def hermsub(c1, c2):
@@ -1282,7 +1406,7 @@ def hermsub(c1, c2):
 
 def hermval(x, c, tensor=True):
     c = as_series(c)
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1295,8 +1419,8 @@ def hermval(x, c, tensor=True):
         c1 = c[1]
     else:
         nd = len(c)
-        c0 = c[-2] * jax.numpy.ones_like(x)
-        c1 = c[-1] * jax.numpy.ones_like(x)
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1306,7 +1430,7 @@ def hermval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     return c0 + c1 * x2
 
@@ -1323,12 +1447,12 @@ def hermvander(x, degree):
     if degree < 0:
         raise ValueError("degree must be non-negative")
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
-    dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+    dtyp = promote_types(x.dtype, array(0.0).dtype)
     x = x.astype(dtyp)
-    v = jax.numpy.empty(dims, dtype=dtyp)
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
     if degree > 0:
         x2 = x * 2
         v = v.at[1].set(x2)
@@ -1336,9 +1460,9 @@ def hermvander(x, degree):
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
 
-        v = jax.lax.fori_loop(2, degree + 1, body, v)
+        v = fori_loop(2, degree + 1, body, v)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return moveaxis(v, 0, -1)
 
 
 def hermvander2d(x, y, degree):
@@ -1358,7 +1482,7 @@ def hermvander3d(x, y, z, degree):
 
 
 def hermweight(x):
-    return jax.numpy.exp(-(x**2))
+    return exp(-(x**2))
 
 
 def lag2poly(c):
@@ -1367,8 +1491,8 @@ def lag2poly(c):
     if n == 1:
         return c
     else:
-        c0 = jax.numpy.zeros_like(c).at[0].set(c[-2])
-        c1 = jax.numpy.zeros_like(c).at[0].set(c[-1])
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -1378,7 +1502,7 @@ def lag2poly(c):
             c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1, "same")) / i)
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(0, n - 2, body, (c0, c1))
+        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
 
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
@@ -1394,13 +1518,13 @@ def lagcompanion(c):
         raise ValueError("Series must have maximum degree of at least 1.")
 
     if len(c) == 2:
-        return jax.numpy.array([[1 + c[0] / c[1]]])
+        return array([[1 + c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype).flatten()
-    mat = mat.at[1 :: n + 1].set(-jax.numpy.arange(1, n))
-    mat = mat.at[0 :: n + 1].set(2.0 * jax.numpy.arange(n) + 1.0)
-    mat = mat.at[n :: n + 1].set(-jax.numpy.arange(1, n))
+    mat = zeros((n, n), dtype=c.dtype).flatten()
+    mat = mat.at[1 :: n + 1].set(-arange(1, n))
+    mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
+    mat = mat.at[n :: n + 1].set(-arange(1, n))
     mat = mat.reshape((n, n))
     mat = mat.at[:, -1].add((c[:-1] / c[-1]) * n)
     return mat
@@ -1415,15 +1539,15 @@ def lagder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
     n = len(c)
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
         for _ in range(m):
             n = n - 1
             c *= scl
-            der = jax.numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -1432,11 +1556,11 @@ def lagder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 1].add(c[j])
                 return der, c
 
-            der, c = jax.lax.fori_loop(0, n - 1, body, (der, c))
+            der, c = fori_loop(0, n - 1, body, (der, c))
             der = der.at[0].set(-c[1])
             c = der
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -1457,17 +1581,17 @@ def laggauss(degree):
     if degree <= 0:
         raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1).at[-1].set(1)
     m = lagcompanion(c)
-    x = jax.numpy.linalg.eigvalsh(m)
+    x = eigvalsh(m)
 
     dy = lagval(x, c)
     df = lagval(x, lagder(c))
     x -= dy / df
 
     fm = lagval(x, c[1:])
-    fm /= jax.numpy.abs(fm).max()
-    df /= jax.numpy.abs(df).max()
+    fm /= abs(fm).max()
+    df /= abs(df).max()
     w = 1 / (fm * df)
 
     w /= w.sum()
@@ -1487,41 +1611,41 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = as_series(c)
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
     if len(k) > m:
         raise ValueError("Too many integration constants")
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    c = moveaxis(c, axis, 0)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     for i in range(m):
         n = len(c)
         c *= scl
-        tmp = jax.numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0])
         tmp = tmp.at[1].set(-c[0])
-        j = jax.numpy.arange(1, n)
+        j = arange(1, n)
         tmp = tmp.at[j].add(c[j])
         tmp = tmp.at[j + 1].add(-c[j])
         tmp = tmp.at[0].add(k[i] - lagval(lbnd, tmp))
         c = tmp
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
 def lagline(off, scl):
-    return jax.numpy.array([off + scl, -scl])
+    return array([off + scl, -scl])
 
 
 def lagmul(c1, c2, mode="full"):
@@ -1536,15 +1660,15 @@ def lagmul(c1, c2, mode="full"):
         xs = c2
 
     if len(c) == 1:
-        c0 = lagadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = jax.numpy.zeros(lc1 + lc2 - 1)
+        c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
-        c0 = lagadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = lagadd(jax.numpy.zeros(lc1 + lc2 - 1), c[1] * xs)
+        c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
-        c0 = lagadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = lagadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c0 = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        c1 = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1554,7 +1678,7 @@ def lagmul(c1, c2, mode="full"):
             c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     ret = lagadd(c0, lagsub(c1, lagmulx(c1, "same")))
     if mode == "same":
@@ -1565,11 +1689,11 @@ def lagmul(c1, c2, mode="full"):
 def lagmulx(c, mode="full"):
     c = as_series(c)
 
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[0].set(c[0])
     prd = prd.at[1].set(-c[0])
 
-    i = jax.numpy.arange(1, len(c))
+    i = arange(1, len(c))
 
     prd = prd.at[i + 1].set(-c[i] * (i + 1))
     prd = prd.at[i].add(c[i] * (2 * i + 1))
@@ -1588,12 +1712,12 @@ def lagroots(c):
     c = as_series(c)
 
     if len(c) <= 1:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([1 + c[0] / c[1]])
+        return array([1 + c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(lagcompanion(c)[::-1, ::-1]))
+    return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
 def lagsub(c1, c2):
@@ -1602,7 +1726,7 @@ def lagsub(c1, c2):
 
 def lagval(x, c, tensor=True):
     c = as_series(c)
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1614,8 +1738,8 @@ def lagval(x, c, tensor=True):
         c1 = c[1]
     else:
         nd = len(c)
-        c0 = c[-2] * jax.numpy.ones_like(x)
-        c1 = c[-1] * jax.numpy.ones_like(x)
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1625,7 +1749,7 @@ def lagval(x, c, tensor=True):
             c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     return c0 + c1 * (1 - x)
 
@@ -1642,21 +1766,21 @@ def lagvander(x, degree):
     if degree < 0:
         raise ValueError("degree must be non-negative")
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
-    dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+    dtyp = promote_types(x.dtype, array(0.0).dtype)
     x = x.astype(dtyp)
-    v = jax.numpy.empty(dims, dtype=dtyp)
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
     if degree > 0:
         v = v.at[1].set(1 - x)
 
         def body(i, v):
             return v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
 
-        v = jax.lax.fori_loop(2, degree + 1, body, v)
+        v = fori_loop(2, degree + 1, body, v)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return moveaxis(v, 0, -1)
 
 
 def lagvander2d(x, y, degree):
@@ -1668,7 +1792,7 @@ def lagvander3d(x, y, z, degree):
 
 
 def lagweight(x):
-    return jax.numpy.exp(-x)
+    return exp(-x)
 
 
 def leg2poly(c):
@@ -1677,8 +1801,8 @@ def leg2poly(c):
     if n < 3:
         return c
     else:
-        c0 = jax.numpy.zeros_like(c).at[0].set(c[-2])
-        c1 = jax.numpy.zeros_like(c).at[0].set(c[-1])
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -1688,7 +1812,7 @@ def leg2poly(c):
             c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
             return c0, c1
 
-        c0, c1 = jax.lax.fori_loop(0, n - 2, body, (c0, c1))
+        c0, c1 = fori_loop(0, n - 2, body, (c0, c1))
 
         return polyadd(c0, polymulx(c1, "same"))
 
@@ -1702,15 +1826,15 @@ def legcompanion(c):
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
-        return jax.numpy.array([[-c[0] / c[1]]])
+        return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype)
-    scl = 1.0 / jax.numpy.sqrt(2 * jax.numpy.arange(n) + 1)
+    mat = zeros((n, n), dtype=c.dtype)
+    scl = 1.0 / sqrt(2 * arange(n) + 1)
     shp = mat.shape
     mat = mat.flatten()
-    mat = mat.at[1 :: n + 1].set(jax.numpy.arange(1, n) * scl[: n - 1] * scl[1:n])
-    mat = mat.at[n :: n + 1].set(jax.numpy.arange(1, n) * scl[: n - 1] * scl[1:n])
+    mat = mat.at[1 :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
+    mat = mat.at[n :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
     mat = mat.reshape(shp)
     mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * (n / (2 * n - 1)))
     return mat
@@ -1725,15 +1849,15 @@ def legder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
     n = len(c)
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
         for _ in range(m):
             n = n - 1
             c *= scl
-            der = jax.numpy.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -1742,13 +1866,13 @@ def legder(c, m=1, scl=1, axis=0):
                 c = c.at[j - 2].add(c[j])
                 return der, c
 
-            der, c = jax.lax.fori_loop(0, n - 2, body, (der, c))
+            der, c = fori_loop(0, n - 2, body, (der, c))
             if n > 1:
                 der = der.at[1].set(3 * c[2])
             der = der.at[0].set(c[1])
             c = der
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
@@ -1769,17 +1893,17 @@ def leggauss(degree):
     if degree <= 0:
         raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1).at[-1].set(1)
     m = legcompanion(c)
-    x = jax.numpy.linalg.eigvalsh(m)
+    x = eigvalsh(m)
 
     dy = legval(x, c)
     df = legval(x, legder(c))
     x -= dy / df
 
     fm = legval(x, c[1:])
-    fm /= jax.numpy.abs(fm).max()
-    df /= jax.numpy.abs(df).max()
+    fm /= abs(fm).max()
+    df /= abs(df).max()
     w = 1 / (fm * df)
 
     w = (w + w[::-1]) / 2
@@ -1802,43 +1926,43 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = as_series(c)
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
     if len(k) > m:
         raise ValueError("Too many integration constants")
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    c = moveaxis(c, axis, 0)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     for i in range(m):
         n = len(c)
         c *= scl
-        tmp = jax.numpy.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         if n > 1:
             tmp = tmp.at[2].set(c[1] / 3)
-        j = jax.numpy.arange(2, n)
+        j = arange(2, n)
         t = (c[j].T / (2 * j + 1)).T
         tmp = tmp.at[j + 1].set(t)
         tmp = tmp.at[j - 1].add(-t)
         tmp = tmp.at[0].add(k[i] - legval(lbnd, tmp))
         c = tmp
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
     return c
 
 
 def legline(off, scl):
-    return jax.numpy.array([off, scl])
+    return array([off, scl])
 
 
 def legmul(c1, c2, mode="full"):
@@ -1852,15 +1976,15 @@ def legmul(c1, c2, mode="full"):
         xs = c2
 
     if len(c) == 1:
-        c0 = legadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = jax.numpy.zeros(lc1 + lc2 - 1)
+        c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
-        c0 = legadd(jax.numpy.zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = legadd(jax.numpy.zeros(lc1 + lc2 - 1), c[1] * xs)
+        c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        c1 = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
-        c0 = legadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = legadd(jax.numpy.zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c0 = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        c1 = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1870,7 +1994,7 @@ def legmul(c1, c2, mode="full"):
             c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     ret = legadd(c0, legmulx(c1, "same"))
     if mode == "same":
@@ -1880,7 +2004,7 @@ def legmul(c1, c2, mode="full"):
 
 def legmulx(c, mode="full"):
     c = as_series(c)
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0])
 
     def body(i, prd):
@@ -1896,7 +2020,7 @@ def legmulx(c, mode="full"):
 
         return prd
 
-    prd = jax.lax.fori_loop(1, len(c), body, prd)
+    prd = fori_loop(1, len(c), body, prd)
 
     if mode == "same":
         prd = prd[: len(c)]
@@ -1912,12 +2036,12 @@ def legroots(c):
     c = as_series(c)
 
     if len(c) <= 1:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([-c[0] / c[1]])
+        return array([-c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(legcompanion(c)[::-1, ::-1]))
+    return sort(eigvals(legcompanion(c)[::-1, ::-1]))
 
 
 def legsub(c1, c2):
@@ -1926,7 +2050,7 @@ def legsub(c1, c2):
 
 def legval(x, c, tensor=True):
     c = as_series(c)
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1938,8 +2062,8 @@ def legval(x, c, tensor=True):
         c1 = c[1]
     else:
         nd = len(c)
-        c0 = c[-2] * jax.numpy.ones_like(x)
-        c1 = c[-1] * jax.numpy.ones_like(x)
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1949,7 +2073,7 @@ def legval(x, c, tensor=True):
             c1 = tmp + (c1 * x * (2 * nd - 1)) / nd
             return c0, c1, nd
 
-        c0, c1, _ = jax.lax.fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
 
     return c0 + c1 * x
 
@@ -1966,17 +2090,17 @@ def legvander(x, degree):
     if degree < 0:
         raise ValueError("degree must be non-negative")
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
 
     dims = (degree + 1,) + x.shape
 
-    dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+    dtyp = promote_types(x.dtype, array(0.0).dtype)
 
     x = x.astype(dtyp)
 
-    v = jax.numpy.empty(dims, dtype=dtyp)
+    v = empty(dims, dtype=dtyp)
 
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = v.at[0].set(ones_like(x))
 
     if degree > 0:
         v = v.at[1].set(x)
@@ -1984,9 +2108,9 @@ def legvander(x, degree):
         def body(i, v):
             return v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
 
-        v = jax.lax.fori_loop(2, degree + 1, body, v)
+        v = fori_loop(2, degree + 1, body, v)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return moveaxis(v, 0, -1)
 
 
 def legvander2d(x, y, degree):
@@ -1998,11 +2122,11 @@ def legvander3d(x, y, z, degree):
 
 
 def legweight(x):
-    return jax.numpy.ones_like(x)
+    return ones_like(x)
 
 
 def _map_domain(x, old, new):
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
 
     off, scl = _map_parameters(old, new)
 
@@ -2026,12 +2150,12 @@ def poly2cheb(pol):
 
     degree = len(pol) - 1
 
-    res = jax.numpy.zeros_like(pol)
+    res = zeros_like(pol)
 
     def body(i, res):
         return chebadd(chebmulx(res, mode="same"), pol[(degree - i)])
 
-    return jax.lax.fori_loop(0, degree + 1, body, res)
+    return fori_loop(0, degree + 1, body, res)
 
 
 def poly2herm(pol):
@@ -2039,12 +2163,12 @@ def poly2herm(pol):
 
     degree = len(pol) - 1
 
-    res = jax.numpy.zeros_like(pol)
+    res = zeros_like(pol)
 
     def body(i, res):
         return hermadd(hermmulx(res, mode="same"), pol[(degree - i)])
 
-    return jax.lax.fori_loop(0, degree + 1, body, res)
+    return fori_loop(0, degree + 1, body, res)
 
 
 def poly2herme(pol):
@@ -2052,25 +2176,25 @@ def poly2herme(pol):
 
     degree = len(pol) - 1
 
-    res = jax.numpy.zeros_like(pol)
+    res = zeros_like(pol)
 
     def body(i, res):
         return hermeadd(hermemulx(res, mode="same"), pol[(degree - i)])
 
-    return jax.lax.fori_loop(0, degree + 1, body, res)
+    return fori_loop(0, degree + 1, body, res)
 
 
 def poly2lag(pol):
     pol = as_series(pol)
 
-    res = jax.numpy.zeros_like(pol)
+    res = zeros_like(pol)
 
     def body(i, res):
         res = lagadd(lagmulx(res, mode="same"), pol[::-1][i])
 
         return res
 
-    return jax.lax.fori_loop(0, len(pol), body, res)
+    return fori_loop(0, len(pol), body, res)
 
 
 def poly2leg(pol):
@@ -2078,7 +2202,7 @@ def poly2leg(pol):
 
     degree = len(pol) - 1
 
-    res = jax.numpy.zeros_like(pol)
+    res = zeros_like(pol)
 
     def body(i, res):
         k = degree - i
@@ -2087,7 +2211,7 @@ def poly2leg(pol):
 
         return res
 
-    return jax.lax.fori_loop(0, degree + 1, body, res)
+    return fori_loop(0, degree + 1, body, res)
 
 
 def polyadd(c1, c2):
@@ -2101,11 +2225,11 @@ def polycompanion(c):
         raise ValueError("Series must have maximum degree of at least 1.")
 
     if len(c) == 2:
-        return jax.numpy.array([[-c[0] / c[1]]])
+        return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
 
-    mat = jax.numpy.zeros((n, n), dtype=c.dtype).flatten()
+    mat = zeros((n, n), dtype=c.dtype).flatten()
 
     mat = mat.at[n :: n + 1].set(1)
 
@@ -2120,29 +2244,29 @@ def polyder(c, m=1, scl=1, axis=0):
     if m == 0:
         return c
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
 
     n = c.shape[0]
 
     if m >= n:
-        c = jax.numpy.zeros_like(c[:1])
+        c = zeros_like(c[:1])
     else:
-        D = jax.numpy.arange(n)
+        D = arange(n)
 
         def body(i, c):
             c = (D * c.T).T
 
-            c = jax.numpy.roll(c, -1, axis=0) * scl
+            c = roll(c, -1, axis=0) * scl
 
             c = c.at[-1].set(0)
 
             return c
 
-        c = jax.lax.fori_loop(0, m, body, c)
+        c = fori_loop(0, m, body, c)
 
         c = c[:-m]
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
 
     return c
 
@@ -2175,9 +2299,9 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     c = as_series(c)
 
-    lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+    lbnd, scl = map(asarray, (lbnd, scl))
 
-    if not jax.numpy.iterable(k):
+    if not iterable(k):
         k = [k]
 
     if m < 0:
@@ -2186,31 +2310,31 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if len(k) > m:
         raise ValueError("Too many integration constants")
 
-    if jax.numpy.ndim(lbnd) != 0:
+    if ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
 
-    if jax.numpy.ndim(scl) != 0:
+    if ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
     if m == 0:
         return c
 
-    k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
 
     n = c.shape[axis]
 
     c = _pad_along_axis(c, (0, m), axis)
 
-    c = jax.numpy.moveaxis(c, axis, 0)
+    c = moveaxis(c, axis, 0)
 
-    D = jax.numpy.arange(n + m) + 1
+    D = arange(n + m) + 1
 
     def body(i, c):
         c *= scl
 
         c = (c.T / D).T  # broadcasting correctly
 
-        c = jax.numpy.roll(c, 1, axis=0)
+        c = roll(c, 1, axis=0)
 
         c = c.at[0].set(0)
 
@@ -2220,21 +2344,21 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
         return c
 
-    c = jax.lax.fori_loop(0, m, body, c)
+    c = fori_loop(0, m, body, c)
 
-    c = jax.numpy.moveaxis(c, 0, axis)
+    c = moveaxis(c, 0, axis)
 
     return c
 
 
 def polyline(off, scl):
-    return jax.numpy.array([off, scl])
+    return array([off, scl])
 
 
 def polymul(c1, c2, mode="full"):
     c1, c2 = as_series(c1, c2)
 
-    ret = jax.numpy.convolve(c1, c2)
+    ret = convolve(c1, c2)
 
     if mode == "same":
         ret = ret[: max(len(c1), len(c2))]
@@ -2245,7 +2369,7 @@ def polymul(c1, c2, mode="full"):
 def polymulx(c, mode="full"):
     c = as_series(c)
 
-    prd = jax.numpy.zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(len(c) + 1, dtype=c.dtype)
 
     prd = prd.at[1:].set(c)
 
@@ -2263,12 +2387,12 @@ def polyroots(c):
     c = as_series(c)
 
     if len(c) < 2:
-        return jax.numpy.array([], dtype=c.dtype)
+        return array([], dtype=c.dtype)
 
     if len(c) == 2:
-        return jax.numpy.array([-c[0] / c[1]])
+        return array([-c[0] / c[1]])
 
-    return jax.numpy.sort(jax.numpy.linalg.eigvals(polycompanion(c)[::-1, ::-1]))
+    return sort(eigvals(polycompanion(c)[::-1, ::-1]))
 
 
 def polysub(c1, c2):
@@ -2278,19 +2402,19 @@ def polysub(c1, c2):
 def polyval(x, c, tensor=True):
     c = as_series(c)
 
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
 
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
-    c0 = c[-1] + jax.numpy.zeros_like(x)
+    c0 = c[-1] + zeros_like(x)
 
     def body(i, c0):
         c0 = c[-i] + c0 * x
 
         return c0
 
-    return jax.lax.fori_loop(2, len(c) + 1, body, c0)
+    return fori_loop(2, len(c) + 1, body, c0)
 
 
 def polyval2d(x, y, c):
@@ -2302,9 +2426,9 @@ def polyval3d(x, y, z, c):
 
 
 def polyvalfromroots(x, r, tensor=True):
-    r = jax.numpy.array(r, ndmin=1)
+    r = array(r, ndmin=1)
 
-    x = jax.numpy.asarray(x)
+    x = asarray(x)
 
     if tensor:
         r = r.reshape(r.shape + (1,) * x.ndim)
@@ -2312,31 +2436,31 @@ def polyvalfromroots(x, r, tensor=True):
     if x.ndim >= r.ndim:
         raise ValueError("x.ndim must be < r.ndim when tensor == False")
 
-    return jax.numpy.prod(x - r, axis=0)
+    return prod(x - r, axis=0)
 
 
 def polyvander(x, degree):
     if degree < 0:
         raise ValueError("degree must be non-negative")
 
-    x = jax.numpy.array(x, ndmin=1)
+    x = array(x, ndmin=1)
 
     dims = (degree + 1,) + x.shape
 
     dtyp = x.dtype
 
-    v = jax.numpy.empty(dims, dtype=dtyp)
+    v = empty(dims, dtype=dtyp)
 
-    v = v.at[0].set(jax.numpy.ones_like(x))
+    v = v.at[0].set(ones_like(x))
 
-    def body(i, v):
-        v = v.at[i].set(v[i - 1] * x)
+    def func(i, v):
+        return v.at[i].set(v[i - 1] * x)
 
-        return v
+    v = fori_loop(1, degree + 1, func, v)
 
-    v = jax.lax.fori_loop(1, degree + 1, body, v)
+    output = moveaxis(v, 0, -1)
 
-    return jax.numpy.moveaxis(v, 0, -1)
+    return output
 
 
 def polyvander2d(x, y, degree):
@@ -2361,7 +2485,7 @@ def _trim_coefficients(c, tol=0):
 
     c = as_series(c)
 
-    [ind] = jax.numpy.nonzero(jax.numpy.abs(c) > tol)
+    [ind] = nonzero(abs(c) > tol)
 
     if len(ind) == 0:
         return c[:1] * 0
