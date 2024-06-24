@@ -349,7 +349,7 @@ def _vander_nd_flat(vander_fs, points, degrees):
     return v.reshape(v.shape[: -len(degrees)] + (-1,))
 
 
-def _zseries_mul(z1, z2, mode="full"):
+def _z_series_mul(z1, z2, mode="full"):
     return jax.numpy.convolve(z1, z2, mode=mode)
 
 
@@ -550,7 +550,7 @@ def chebmul(c1, c2, mode="full"):
     c1, c2 = as_series(c1, c2)
     z1 = _c_series_to_z_series(c1)
     z2 = _c_series_to_z_series(c2)
-    prd = _zseries_mul(z1, z2, mode=mode)
+    prd = _z_series_mul(z1, z2, mode=mode)
     ret = _z_series_to_c_series(prd)
     if mode == "same":
         ret = ret[: max(len(c1), len(c2))]
@@ -2388,6 +2388,10 @@ legtrim = _trim_coefficients
 polytrim = _trim_coefficients
 
 __all__ = [
+    "_map_domain",
+    "_map_parameters",
+    "_trim_coefficients",
+    "_trim_sequence",
     "as_series",
     "cheb2poly",
     "chebadd",
@@ -2538,8 +2542,6 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "_map_domain",
-    "_map_parameters",
     "poly2cheb",
     "poly2herm",
     "poly2herme",
@@ -2571,6 +2573,4 @@ __all__ = [
     "polyvander3d",
     "polyx",
     "polyzero",
-    "_trim_coefficients",
-    "_trim_sequence",
 ]
