@@ -960,19 +960,30 @@ def test_chebpts2():
 
 
 def test_chebroots():
-    numpy.testing.assert_array_almost_equal(beignet.orthax.chebroots([1]), [])
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebroots([1]),
+        [],
+    )
 
-    numpy.testing.assert_array_almost_equal(beignet.orthax.chebroots([1, 2]), [-0.5])
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebroots([1, 2]),
+        [-0.5],
+    )
 
     for i in range(2, 5):
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.chebtrim(
                 beignet.orthax.chebroots(
-                    beignet.orthax.chebfromroots(numpy.linspace(-1, 1, i))
+                    beignet.orthax.chebfromroots(
+                        numpy.linspace(-1, 1, i),
+                    )
                 ),
                 tol=1e-6,
             ),
-            beignet.orthax.chebtrim(numpy.linspace(-1, 1, i), tol=1e-6),
+            beignet.orthax.chebtrim(
+                numpy.linspace(-1, 1, i),
+                tol=1e-6,
+            ),
         )
 
 
@@ -980,24 +991,34 @@ def test_chebsub():
     for i in range(5):
         for j in range(5):
             target = numpy.zeros(max(i, j) + 1)
+
             target[i] += 1
             target[j] -= 1
+
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(
-                    beignet.orthax.chebsub([0] * i + [1], [0] * j + [1]), tol=1e-6
+                    beignet.orthax.chebsub(
+                        [0] * i + [1],
+                        [0] * j + [1],
+                    ),
+                    tol=1e-6,
                 ),
-                beignet.orthax.chebtrim(target, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
 def test_chebtrim():
-    coef = [2, -1, 1, 0]
-
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebtrim, coef, -1)
-
-    numpy.testing.assert_array_equal(beignet.orthax.chebtrim(coef), coef[:-1])
-    numpy.testing.assert_array_equal(beignet.orthax.chebtrim(coef, 1), coef[:-3])
-    numpy.testing.assert_array_equal(beignet.orthax.chebtrim(coef, 2), [0])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebtrim, [2, -1, 1, 0], -1)
+    numpy.testing.assert_array_equal(
+        beignet.orthax.chebtrim([2, -1, 1, 0]), [2, -1, 1, 0][:-1]
+    )
+    numpy.testing.assert_array_equal(
+        beignet.orthax.chebtrim([2, -1, 1, 0], 1), [2, -1, 1, 0][:-3]
+    )
+    numpy.testing.assert_array_equal(beignet.orthax.chebtrim([2, -1, 1, 0], 2), [0])
 
 
 def test_chebval():
