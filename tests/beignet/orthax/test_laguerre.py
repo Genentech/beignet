@@ -15,10 +15,6 @@ lagcoefficients = [
 ]
 
 
-def trim(x):
-    return beignet.orthax.lagtrim(x, tol=1e-6)
-
-
 def test_lagdomain():
     numpy.testing.assert_array_equal(beignet.orthax.lagdomain, [0, 1])
 
@@ -46,7 +42,11 @@ class TestArithmetic:
                 tgt[i] += 1
                 tgt[j] += 1
                 res = beignet.orthax.lagadd([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+                numpy.testing.assert_array_equal(
+                    beignet.orthax.lagtrim(res, tol=1e-6),
+                    beignet.orthax.lagtrim(tgt, tol=1e-6),
+                    err_msg=msg,
+                )
 
     def test_lagsub(self):
         for i in range(5):
@@ -56,16 +56,24 @@ class TestArithmetic:
                 tgt[i] += 1
                 tgt[j] -= 1
                 res = beignet.orthax.lagsub([0] * i + [1], [0] * j + [1])
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+                numpy.testing.assert_array_equal(
+                    beignet.orthax.lagtrim(res, tol=1e-6),
+                    beignet.orthax.lagtrim(tgt, tol=1e-6),
+                    err_msg=msg,
+                )
 
     def test_lagmulx(self):
-        numpy.testing.assert_array_equal(trim(beignet.orthax.lagmulx([0])), [0])
-        numpy.testing.assert_array_equal(trim(beignet.orthax.lagmulx([1])), [1, -1])
+        x = beignet.orthax.lagmulx([0])
+        numpy.testing.assert_array_equal(beignet.orthax.lagtrim(x, tol=1e-6), [0])
+        x1 = beignet.orthax.lagmulx([1])
+        numpy.testing.assert_array_equal(beignet.orthax.lagtrim(x1, tol=1e-6), [1, -1])
         for i in range(1, 5):
             ser = [0] * i + [1]
             tgt = [0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]
+            x2 = beignet.orthax.lagmulx(ser)
             numpy.testing.assert_array_almost_equal(
-                trim(beignet.orthax.lagmulx(ser)), trim(tgt)
+                beignet.orthax.lagtrim(x2, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
             )
 
     def test_lagmul(self):
@@ -76,7 +84,8 @@ class TestArithmetic:
                 msg = f"At i={i}, j={j}"
                 pol2 = [0] * j + [1]
                 val2 = beignet.orthax.lagval(self.x, pol2)
-                pol3 = trim(beignet.orthax.lagmul(pol1, pol2))
+                x = beignet.orthax.lagmul(pol1, pol2)
+                pol3 = beignet.orthax.lagtrim(x, tol=1e-6)
                 val3 = beignet.orthax.lagval(self.x, pol3)
                 numpy.testing.assert_(len(pol3) == i + j + 1, msg)
                 numpy.testing.assert_array_almost_equal(val3, val1 * val2, err_msg=msg)
@@ -91,7 +100,9 @@ class TestArithmetic:
                 quo, rem = beignet.orthax.lagdiv(tgt, ci)
                 res = beignet.orthax.lagadd(beignet.orthax.lagmul(quo, ci), rem)
                 numpy.testing.assert_array_almost_equal(
-                    trim(res), trim(tgt), err_msg=msg
+                    beignet.orthax.lagtrim(res, tol=1e-6),
+                    beignet.orthax.lagtrim(tgt, tol=1e-6),
+                    err_msg=msg,
                 )
 
     def test_lagpow(self):
@@ -101,7 +112,11 @@ class TestArithmetic:
                 c = numpy.arange(i + 1)
                 tgt = functools.reduce(beignet.orthax.lagmul, [c] * j, numpy.array([1]))
                 res = beignet.orthax.lagpow(c, j)
-                numpy.testing.assert_array_equal(trim(res), trim(tgt), err_msg=msg)
+                numpy.testing.assert_array_equal(
+                    beignet.orthax.lagtrim(res, tol=1e-6),
+                    beignet.orthax.lagtrim(tgt, tol=1e-6),
+                    err_msg=msg,
+                )
 
 
 class TestEvaluation:
@@ -202,7 +217,9 @@ def test_lagint():  # noqa:C901
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         res = beignet.orthax.lagint([0], m=i, k=k)
-        numpy.testing.assert_array_almost_equal(trim(res), [1, -1])
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.lagtrim(res, tol=1e-6), [1, -1]
+        )
 
     for i in range(5):
         scl = i + 1
@@ -211,7 +228,9 @@ def test_lagint():  # noqa:C901
         lagpol = beignet.orthax.poly2lag(pol)
         lagint = beignet.orthax.lagint(lagpol, m=1, k=[i])
         res = beignet.orthax.lag2poly(lagint)
-        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.lagtrim(res, tol=1e-6), beignet.orthax.lagtrim(tgt, tol=1e-6)
+        )
 
     for i in range(5):
         scl = i + 1
@@ -227,7 +246,9 @@ def test_lagint():  # noqa:C901
         lagpol = beignet.orthax.poly2lag(pol)
         lagint = beignet.orthax.lagint(lagpol, m=1, k=[i], scl=2)
         res = beignet.orthax.lag2poly(lagint)
-        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.lagtrim(res, tol=1e-6), beignet.orthax.lagtrim(tgt, tol=1e-6)
+        )
 
     for i in range(5):
         for j in range(2, 5):
@@ -236,7 +257,10 @@ def test_lagint():  # noqa:C901
             for _ in range(j):
                 tgt = beignet.orthax.lagint(tgt, m=1)
             res = beignet.orthax.lagint(pol, m=j)
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     for i in range(5):
         for j in range(2, 5):
@@ -245,7 +269,10 @@ def test_lagint():  # noqa:C901
             for k in range(j):
                 tgt = beignet.orthax.lagint(tgt, m=1, k=[k])
             res = beignet.orthax.lagint(pol, m=j, k=list(range(j)))
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     for i in range(5):
         for j in range(2, 5):
@@ -254,7 +281,10 @@ def test_lagint():  # noqa:C901
             for k in range(j):
                 tgt = beignet.orthax.lagint(tgt, m=1, k=[k], lbnd=-1)
             res = beignet.orthax.lagint(pol, m=j, k=list(range(j)), lbnd=-1)
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     for i in range(5):
         for j in range(2, 5):
@@ -263,7 +293,10 @@ def test_lagint():  # noqa:C901
             for k in range(j):
                 tgt = beignet.orthax.lagint(tgt, m=1, k=[k], scl=2)
             res = beignet.orthax.lagint(pol, m=j, k=list(range(j)), scl=2)
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     c2d = numpy.random.random((3, 4))
 
@@ -287,13 +320,18 @@ def test_lagder():
     for i in range(5):
         tgt = [0] * i + [1]
         res = beignet.orthax.lagder(tgt, m=0)
-        numpy.testing.assert_array_equal(trim(res), trim(tgt))
+        numpy.testing.assert_array_equal(
+            beignet.orthax.lagtrim(res, tol=1e-6), beignet.orthax.lagtrim(tgt, tol=1e-6)
+        )
 
     for i in range(5):
         for j in range(2, 5):
             tgt = [0] * i + [1]
             res = beignet.orthax.lagder(beignet.orthax.lagint(tgt, m=j), m=j)
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     for i in range(5):
         for j in range(2, 5):
@@ -301,7 +339,10 @@ def test_lagder():
             res = beignet.orthax.lagder(
                 beignet.orthax.lagint(tgt, m=j, scl=2), m=j, scl=0.5
             )
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.lagtrim(res, tol=1e-6),
+                beignet.orthax.lagtrim(tgt, tol=1e-6),
+            )
 
     c2d = numpy.random.random((3, 4))
 
@@ -443,7 +484,7 @@ def test_laggauss():
 
 def test_lagfromroots():
     res = beignet.orthax.lagfromroots([])
-    numpy.testing.assert_array_almost_equal(trim(res), [1])
+    numpy.testing.assert_array_almost_equal(beignet.orthax.lagtrim(res, tol=1e-6), [1])
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
         pol = beignet.orthax.lagfromroots(roots)
@@ -460,7 +501,9 @@ def test_lagroots():
     for i in range(2, 5):
         tgt = numpy.linspace(0, 3, i)
         res = beignet.orthax.lagroots(beignet.orthax.lagfromroots(tgt))
-        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.lagtrim(res, tol=1e-6), beignet.orthax.lagtrim(tgt, tol=1e-6)
+        )
 
 
 def test_lagtrim():
