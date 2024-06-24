@@ -88,16 +88,16 @@ def _div(mul_f, c1, c2):
     return quo, rem
 
 
-def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
+def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
     x = jax.numpy.asarray(x)
     y = jax.numpy.asarray(y)
-    deg = jax.numpy.asarray(deg)
+    degree = jax.numpy.asarray(degree)
 
-    if deg.ndim > 1 or deg.dtype.kind not in "iu" or deg.size == 0:
-        raise TypeError("deg must be an int or non-empty 1-D array of int")
+    if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
+        raise TypeError("degree must be an int or non-empty 1-D array of int")
 
-    if deg.min() < 0:
-        raise ValueError("expected deg >= 0")
+    if degree.min() < 0:
+        raise ValueError("expected degree >= 0")
 
     if x.ndim != 1:
         raise TypeError("expected 1D vector for x")
@@ -111,13 +111,13 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
     if len(x) != len(y):
         raise TypeError("expected x and y to have same length")
 
-    if deg.ndim == 0:
-        lmax = int(deg)
+    if degree.ndim == 0:
+        lmax = int(degree)
         van = vander_f(x, lmax)
     else:
-        deg = jax.numpy.sort(deg)
-        lmax = int(deg[-1])
-        van = vander_f(x, lmax)[:, deg]
+        degree = jax.numpy.sort(degree)
+        lmax = int(degree[-1])
+        van = vander_f(x, lmax)[:, degree]
 
     lhs = van.T
     rhs = y.T
@@ -146,12 +146,12 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
     c, resids, rank, s = jax.numpy.linalg.lstsq(lhs.T / scl, rhs.T, rcond)
     c = (c.T / scl).T
 
-    if deg.ndim > 0:
+    if degree.ndim > 0:
         if c.ndim == 2:
             cc = jax.numpy.zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
         else:
             cc = jax.numpy.zeros(lmax + 1, dtype=c.dtype)
-        cc = cc.at[deg].set(c)
+        cc = cc.at[degree].set(c)
         c = cc
 
     if full:
@@ -462,21 +462,23 @@ def chebdiv(c1, c2):
     return _div(chebmul, c1, c2)
 
 
-def chebfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(chebvander, x, y, deg, rcond, full, w)
+def chebfit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(chebvander, x, y, degree, rcond, full, w)
 
 
 def chebfromroots(roots):
     return _from_roots(chebline, chebmul, roots)
 
 
-def chebgauss(deg):
-    deg = int(deg)
-    if deg <= 0:
-        raise ValueError("deg must be a positive integer")
+def chebgauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError("degree must be a positive integer")
 
-    x = jax.numpy.cos(jax.numpy.pi * jax.numpy.arange(1, 2 * deg, 2) / (2.0 * deg))
-    w = jax.numpy.ones(deg) * (jax.numpy.pi / deg)
+    x = jax.numpy.cos(
+        jax.numpy.pi * jax.numpy.arange(1, 2 * degree, 2) / (2.0 * degree)
+    )
+    w = jax.numpy.ones(degree) * (jax.numpy.pi / degree)
 
     return x, w
 
@@ -527,12 +529,12 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     return c
 
 
-def chebinterpolate(func, deg, args=()):
-    _deg = int(deg)
-    if _deg != deg:
-        raise ValueError("deg must be integer")
+def chebinterpolate(func, degree, args=()):
+    _deg = int(degree)
+    if _deg != degree:
+        raise ValueError("degree must be integer")
     if _deg < 0:
-        raise ValueError("expected deg >= 0")
+        raise ValueError("expected degree >= 0")
 
     order = _deg + 1
     xcheb = chebpts1(order)
@@ -681,35 +683,35 @@ def chebval3d(x, y, z, c):
     return _valnd(chebval, c, x, y, z)
 
 
-def chebvander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def chebvander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
     x = x.astype(dtyp)
     v = jax.numpy.empty(dims, dtype=dtyp)
     v = v.at[0].set(jax.numpy.ones_like(x))
 
-    if deg > 0:
+    if degree > 0:
         v = v.at[1].set(x)
         x2 = 2 * x
 
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2])
 
-        v = jax.lax.fori_loop(2, deg + 1, body, v)
+        v = jax.lax.fori_loop(2, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def chebvander2d(x, y, deg):
-    return _vander_nd_flat((chebvander, chebvander), (x, y), deg)
+def chebvander2d(x, y, degree):
+    return _vander_nd_flat((chebvander, chebvander), (x, y), degree)
 
 
-def chebvander3d(x, y, z, deg):
-    return _vander_nd_flat((chebvander, chebvander, chebvander), (x, y, z), deg)
+def chebvander3d(x, y, z, degree):
+    return _vander_nd_flat((chebvander, chebvander, chebvander), (x, y, z), degree)
 
 
 def chebweight(x):
@@ -885,28 +887,28 @@ def hermediv(c1, c2):
     return _div(hermemul, c1, c2)
 
 
-def hermefit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(hermevander, x, y, deg, rcond, full, w)
+def hermefit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(hermevander, x, y, degree, rcond, full, w)
 
 
 def hermefromroots(roots):
     return _from_roots(hermeline, hermemul, roots)
 
 
-def hermegauss(deg):
-    deg = int(deg)
-    if deg <= 0:
-        raise ValueError("deg must be a positive integer")
+def hermegauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(deg + 1).at[-1].set(1)
+    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
     m = hermecompanion(c)
     x = jax.numpy.linalg.eigvalsh(m)
 
-    dy = _normed_hermite_e_n(x, deg)
-    df = _normed_hermite_e_n(x, deg - 1) * jax.numpy.sqrt(deg)
+    dy = _normed_hermite_e_n(x, degree)
+    df = _normed_hermite_e_n(x, degree - 1) * jax.numpy.sqrt(degree)
     x -= dy / df
 
-    fm = _normed_hermite_e_n(x, deg - 1)
+    fm = _normed_hermite_e_n(x, degree - 1)
     fm /= jax.numpy.abs(fm).max()
     w = 1 / (fm * fm)
 
@@ -929,15 +931,20 @@ def hermegrid3d(x, y, z, c):
 def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
+
     c = as_series(c)
+
     lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
 
     if not jax.numpy.iterable(k):
         k = [k]
+
     if len(k) > m:
         raise ValueError("Too many integration constants")
+
     if jax.numpy.ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
+
     if jax.numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
@@ -957,8 +964,8 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         tmp = tmp.at[j + 1].set((c[j].T / (j + 1)).T)
         tmp = tmp.at[0].add(k[i] - hermeval(lbnd, tmp))
         c = tmp
-    c = jax.numpy.moveaxis(c, 0, axis)
-    return c
+
+    return jax.numpy.moveaxis(c, 0, axis)
 
 
 def hermeline(off, scl):
@@ -1075,40 +1082,40 @@ def hermeval3d(x, y, z, c):
     return _valnd(hermeval, c, x, y, z)
 
 
-def hermevander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def hermevander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
     x = x.astype(dtyp)
     v = jax.numpy.empty(dims, dtype=dtyp)
     v = v.at[0].set(jax.numpy.ones_like(x))
-    if deg > 0:
+    if degree > 0:
         v = v.at[1].set(x)
 
         def body(i, v):
             return v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
 
-        v = jax.lax.fori_loop(2, deg + 1, body, v)
+        v = jax.lax.fori_loop(2, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def hermevander2d(x, y, deg):
+def hermevander2d(x, y, degree):
     return _vander_nd_flat(
         (hermevander, hermevander),
         (x, y),
-        deg,
+        degree,
     )
 
 
-def hermevander3d(x, y, z, deg):
+def hermevander3d(x, y, z, degree):
     return _vander_nd_flat(
         (hermevander, hermevander, hermevander),
         (x, y, z),
-        deg,
+        degree,
     )
 
 
@@ -1116,27 +1123,27 @@ def hermeweight(x):
     return jax.numpy.exp(-0.5 * x**2)
 
 
-def hermfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(hermvander, x, y, deg, rcond, full, w)
+def hermfit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(hermvander, x, y, degree, rcond, full, w)
 
 
 def hermfromroots(roots):
     return _from_roots(hermline, hermmul, roots)
 
 
-def hermgauss(deg):
-    deg = int(deg)
-    if deg <= 0:
-        raise ValueError("deg must be a positive integer")
+def hermgauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(deg + 1).at[-1].set(1)
+    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
     x = jax.numpy.linalg.eigvalsh(hermcompanion(c))
 
-    dy = _normed_hermite_n(x, deg)
-    df = _normed_hermite_n(x, deg - 1) * jax.numpy.sqrt(2 * deg)
+    dy = _normed_hermite_n(x, degree)
+    df = _normed_hermite_n(x, degree - 1) * jax.numpy.sqrt(2 * degree)
     x -= dy / df
 
-    fm = _normed_hermite_n(x, deg - 1)
+    fm = _normed_hermite_n(x, degree - 1)
     fm /= jax.numpy.abs(fm).max()
     w = 1 / (fm * fm)
 
@@ -1312,41 +1319,41 @@ def hermval3d(x, y, z, c):
     return _valnd(hermval, c, x, y, z)
 
 
-def hermvander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def hermvander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
     x = x.astype(dtyp)
     v = jax.numpy.empty(dims, dtype=dtyp)
     v = v.at[0].set(jax.numpy.ones_like(x))
-    if deg > 0:
+    if degree > 0:
         x2 = x * 2
         v = v.at[1].set(x2)
 
         def body(i, v):
             return v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
 
-        v = jax.lax.fori_loop(2, deg + 1, body, v)
+        v = jax.lax.fori_loop(2, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def hermvander2d(x, y, deg):
+def hermvander2d(x, y, degree):
     return _vander_nd_flat(
         (hermvander, hermvander),
         (x, y),
-        deg,
+        degree,
     )
 
 
-def hermvander3d(x, y, z, deg):
+def hermvander3d(x, y, z, degree):
     return _vander_nd_flat(
         (hermvander, hermvander, hermvander),
         (x, y, z),
-        deg,
+        degree,
     )
 
 
@@ -1437,20 +1444,20 @@ def lagdiv(c1, c2):
     return _div(lagmul, c1, c2)
 
 
-def lagfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(lagvander, x, y, deg, rcond, full, w)
+def lagfit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(lagvander, x, y, degree, rcond, full, w)
 
 
 def lagfromroots(roots):
     return _from_roots(lagline, lagmul, roots)
 
 
-def laggauss(deg):
-    deg = int(deg)
-    if deg <= 0:
-        raise ValueError("deg must be a positive integer")
+def laggauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(deg + 1).at[-1].set(1)
+    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
     m = lagcompanion(c)
     x = jax.numpy.linalg.eigvalsh(m)
 
@@ -1579,14 +1586,14 @@ def lagpow(c, pow, maxpower=16):
 
 def lagroots(c):
     c = as_series(c)
+
     if len(c) <= 1:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([1 + c[0] / c[1]])
 
-    m = lagcompanion(c)[::-1, ::-1]
-    r = jax.numpy.linalg.eigvals(m)
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
 def lagsub(c1, c2):
@@ -1631,33 +1638,33 @@ def lagval3d(x, y, z, c):
     return _valnd(lagval, c, x, y, z)
 
 
-def lagvander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def lagvander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
     x = x.astype(dtyp)
     v = jax.numpy.empty(dims, dtype=dtyp)
     v = v.at[0].set(jax.numpy.ones_like(x))
-    if deg > 0:
+    if degree > 0:
         v = v.at[1].set(1 - x)
 
         def body(i, v):
             return v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
 
-        v = jax.lax.fori_loop(2, deg + 1, body, v)
+        v = jax.lax.fori_loop(2, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def lagvander2d(x, y, deg):
-    return _vander_nd_flat((lagvander, lagvander), (x, y), deg)
+def lagvander2d(x, y, degree):
+    return _vander_nd_flat((lagvander, lagvander), (x, y), degree)
 
 
-def lagvander3d(x, y, z, deg):
-    return _vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), deg)
+def lagvander3d(x, y, z, degree):
+    return _vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), degree)
 
 
 def lagweight(x):
@@ -1749,20 +1756,20 @@ def legdiv(c1, c2):
     return _div(legmul, c1, c2)
 
 
-def legfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(legvander, x, y, deg, rcond, full, w)
+def legfit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(legvander, x, y, degree, rcond, full, w)
 
 
 def legfromroots(roots):
     return _from_roots(legline, legmul, roots)
 
 
-def leggauss(deg):
-    deg = int(deg)
-    if deg <= 0:
-        raise ValueError("deg must be a positive integer")
+def leggauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError("degree must be a positive integer")
 
-    c = jax.numpy.zeros(deg + 1).at[-1].set(1)
+    c = jax.numpy.zeros(degree + 1).at[-1].set(1)
     m = legcompanion(c)
     x = jax.numpy.linalg.eigvalsh(m)
 
@@ -1910,11 +1917,7 @@ def legroots(c):
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
-    m = legcompanion(c)[::-1, ::-1]
-
-    r = jax.numpy.linalg.eigvals(m)
-
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(legcompanion(c)[::-1, ::-1]))
 
 
 def legsub(c1, c2):
@@ -1959,13 +1962,13 @@ def legval3d(x, y, z, c):
     return _valnd(legval, c, x, y, z)
 
 
-def legvander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def legvander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
 
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
 
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
 
@@ -1975,23 +1978,23 @@ def legvander(x, deg):
 
     v = v.at[0].set(jax.numpy.ones_like(x))
 
-    if deg > 0:
+    if degree > 0:
         v = v.at[1].set(x)
 
         def body(i, v):
             return v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
 
-        v = jax.lax.fori_loop(2, deg + 1, body, v)
+        v = jax.lax.fori_loop(2, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def legvander2d(x, y, deg):
-    return _vander_nd_flat((legvander, legvander), (x, y), deg)
+def legvander2d(x, y, degree):
+    return _vander_nd_flat((legvander, legvander), (x, y), degree)
 
 
-def legvander3d(x, y, z, deg):
-    return _vander_nd_flat((legvander, legvander, legvander), (x, y, z), deg)
+def legvander3d(x, y, z, degree):
+    return _vander_nd_flat((legvander, legvander, legvander), (x, y, z), degree)
 
 
 def legweight(x):
@@ -2021,52 +2024,40 @@ def _map_parameters(old, new):
 def poly2cheb(pol):
     pol = as_series(pol)
 
-    deg = len(pol) - 1
+    degree = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
-        k = deg - i
+        return chebadd(chebmulx(res, mode="same"), pol[(degree - i)])
 
-        res = chebadd(chebmulx(res, mode="same"), pol[k])
-
-        return res
-
-    return jax.lax.fori_loop(0, deg + 1, body, res)
+    return jax.lax.fori_loop(0, degree + 1, body, res)
 
 
 def poly2herm(pol):
     pol = as_series(pol)
 
-    deg = len(pol) - 1
+    degree = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
-        k = deg - i
+        return hermadd(hermmulx(res, mode="same"), pol[(degree - i)])
 
-        res = hermadd(hermmulx(res, mode="same"), pol[k])
-
-        return res
-
-    return jax.lax.fori_loop(0, deg + 1, body, res)
+    return jax.lax.fori_loop(0, degree + 1, body, res)
 
 
 def poly2herme(pol):
     pol = as_series(pol)
 
-    deg = len(pol) - 1
+    degree = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
-        k = deg - i
+        return hermeadd(hermemulx(res, mode="same"), pol[(degree - i)])
 
-        res = hermeadd(hermemulx(res, mode="same"), pol[k])
-
-        return res
-
-    return jax.lax.fori_loop(0, deg + 1, body, res)
+    return jax.lax.fori_loop(0, degree + 1, body, res)
 
 
 def poly2lag(pol):
@@ -2085,18 +2076,18 @@ def poly2lag(pol):
 def poly2leg(pol):
     pol = as_series(pol)
 
-    deg = len(pol) - 1
+    degree = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
-        k = deg - i
+        k = degree - i
 
         res = legadd(legmulx(res, mode="same"), pol[k])
 
         return res
 
-    return jax.lax.fori_loop(0, deg + 1, body, res)
+    return jax.lax.fori_loop(0, degree + 1, body, res)
 
 
 def polyadd(c1, c2):
@@ -2162,8 +2153,8 @@ def polydiv(c1, c2):
     return _div(polymul, c1, c2)
 
 
-def polyfit(x, y, deg, rcond=None, full=False, w=None):
-    return _fit(polyvander, x, y, deg, rcond, full, w)
+def polyfit(x, y, degree, rcond=None, full=False, w=None):
+    return _fit(polyvander, x, y, degree, rcond, full, w)
 
 
 def polyfromroots(roots):
@@ -2277,11 +2268,7 @@ def polyroots(c):
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
-    m = polycompanion(c)[::-1, ::-1]
-
-    r = jax.numpy.linalg.eigvals(m)
-
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(polycompanion(c)[::-1, ::-1]))
 
 
 def polysub(c1, c2):
@@ -2303,9 +2290,7 @@ def polyval(x, c, tensor=True):
 
         return c0
 
-    c0 = jax.lax.fori_loop(2, len(c) + 1, body, c0)
-
-    return c0
+    return jax.lax.fori_loop(2, len(c) + 1, body, c0)
 
 
 def polyval2d(x, y, c):
@@ -2323,19 +2308,20 @@ def polyvalfromroots(x, r, tensor=True):
 
     if tensor:
         r = r.reshape(r.shape + (1,) * x.ndim)
-    elif x.ndim >= r.ndim:
+
+    if x.ndim >= r.ndim:
         raise ValueError("x.ndim must be < r.ndim when tensor == False")
 
     return jax.numpy.prod(x - r, axis=0)
 
 
-def polyvander(x, deg):
-    if deg < 0:
-        raise ValueError("deg must be non-negative")
+def polyvander(x, degree):
+    if degree < 0:
+        raise ValueError("degree must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
 
-    dims = (deg + 1,) + x.shape
+    dims = (degree + 1,) + x.shape
 
     dtyp = x.dtype
 
@@ -2348,24 +2334,24 @@ def polyvander(x, deg):
 
         return v
 
-    v = jax.lax.fori_loop(1, deg + 1, body, v)
+    v = jax.lax.fori_loop(1, degree + 1, body, v)
 
     return jax.numpy.moveaxis(v, 0, -1)
 
 
-def polyvander2d(x, y, deg):
+def polyvander2d(x, y, degree):
     return _vander_nd_flat(
         (polyvander, polyvander),
         (x, y),
-        deg,
+        degree,
     )
 
 
-def polyvander3d(x, y, z, deg):
+def polyvander3d(x, y, z, degree):
     return _vander_nd_flat(
         (polyvander, polyvander, polyvander),
         (x, y, z),
-        deg,
+        degree,
     )
 
 
