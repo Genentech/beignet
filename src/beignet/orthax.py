@@ -40,7 +40,7 @@ def _add(c1, c2):
     return ret
 
 
-def _cseries_to_zseries(c):
+def _c_series_to_z_series(c):
     n = c.size
     zs = jax.numpy.zeros(2 * n - 1, dtype=c.dtype)
     zs = zs.at[n - 1 :].set(c / 2)
@@ -345,7 +345,7 @@ def _zseries_mul(z1, z2, mode="full"):
     return jax.numpy.convolve(z1, z2, mode=mode)
 
 
-def _zseries_to_cseries(zs):
+def _z_series_to_c_series(zs):
     n = (zs.size + 1) // 2
     c = zs[n - 1 :].copy()
     c = c.at[1:n].multiply(2)
@@ -355,7 +355,7 @@ def _zseries_to_cseries(zs):
 def as_series(*arrs, trim=False):
     arrays = tuple(jax.numpy.array(a, ndmin=1) for a in arrs)
     if trim:
-        arrays = tuple(trimseq(a) for a in arrays)
+        arrays = tuple(_trim_sequence(a) for a in arrays)
     arrays = jax._src.numpy.util.promote_dtypes_inexact(*arrays)
     if len(arrays) == 1:
         return arrays[0]
@@ -540,10 +540,10 @@ def chebline(off, scl):
 
 def chebmul(c1, c2, mode="full"):
     c1, c2 = as_series(c1, c2)
-    z1 = _cseries_to_zseries(c1)
-    z2 = _cseries_to_zseries(c2)
+    z1 = _c_series_to_z_series(c1)
+    z2 = _c_series_to_z_series(c2)
     prd = _zseries_mul(z1, z2, mode=mode)
-    ret = _zseries_to_cseries(prd)
+    ret = _z_series_to_c_series(prd)
     if mode == "same":
         ret = ret[: max(len(c1), len(c2))]
 
@@ -579,15 +579,15 @@ def chebpow(c, pow, maxpower=16):
     else:
         prd = jax.numpy.zeros(len(c) * pow, dtype=c.dtype)
         prd = chebadd(prd, c)
-        zs = _cseries_to_zseries(c)
-        prd = _cseries_to_zseries(prd)
+        zs = _c_series_to_z_series(c)
+        prd = _c_series_to_z_series(prd)
 
         def body(i, p):
             p = jax.numpy.convolve(p, zs, mode="same")
             return p
 
         prd = jax.lax.fori_loop(2, power + 1, body, prd)
-        return _zseries_to_cseries(prd)
+        return _z_series_to_c_series(prd)
 
 
 def chebpts1(npts):
@@ -1952,13 +1952,13 @@ def legweight(x):
     return w
 
 
-def mapdomain(x, old, new):
+def _map_domain(x, old, new):
     x = jax.numpy.asarray(x)
-    off, scl = mapparms(old, new)
+    off, scl = _map_parameters(old, new)
     return off + scl * x
 
 
-def mapparms(old, new):
+def _map_parameters(old, new):
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -2246,7 +2246,7 @@ def polyvander3d(x, y, z, deg):
     return _vander_nd_flat((polyvander, polyvander, polyvander), (x, y, z), deg)
 
 
-def trimcoef(c, tol=0):
+def _trim_coefficients(c, tol=0):
     if tol < 0:
         raise ValueError("tol must be non-negative")
 
@@ -2258,7 +2258,7 @@ def trimcoef(c, tol=0):
         return c[: ind[-1] + 1].copy()
 
 
-def trimseq(seq):
+def _trim_sequence(seq):
     if len(seq) == 0:
         return seq
     else:
@@ -2268,12 +2268,12 @@ def trimseq(seq):
         return seq[: i + 1]
 
 
-chebtrim = trimcoef
-hermetrim = trimcoef
-hermtrim = trimcoef
-lagtrim = trimcoef
-legtrim = trimcoef
-polytrim = trimcoef
+chebtrim = _trim_coefficients
+hermetrim = _trim_coefficients
+hermtrim = _trim_coefficients
+lagtrim = _trim_coefficients
+legtrim = _trim_coefficients
+polytrim = _trim_coefficients
 
 __all__ = [
     "as_series",
@@ -2426,8 +2426,8 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "mapdomain",
-    "mapparms",
+    "_map_domain",
+    "_map_parameters",
     "poly2cheb",
     "poly2herm",
     "poly2herme",
@@ -2459,6 +2459,6 @@ __all__ = [
     "polyvander3d",
     "polyx",
     "polyzero",
-    "trimcoef",
-    "trimseq",
+    "_trim_coefficients",
+    "_trim_sequence",
 ]

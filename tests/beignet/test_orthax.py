@@ -82,23 +82,161 @@ polycoefficients = [
 ]
 
 
-def test__cseries_to_zseries():
-    for index in range(5):
+def test__c_series_to_z_series():
+    for i in range(5):
         numpy.testing.assert_array_equal(
-            beignet.orthax._cseries_to_zseries(
-                jax.numpy.array([2] + [1] * index, numpy.double),
+            beignet.orthax._c_series_to_z_series(
+                jax.numpy.array(
+                    [2] + [1] * i,
+                    numpy.double,
+                ),
             ),
-            jax.numpy.array([0.5] * index + [2] + [0.5] * index, numpy.double),
+            jax.numpy.array(
+                [0.5] * i + [2] + [0.5] * i,
+                numpy.double,
+            ),
         )
 
 
-def test__zseries_to_cseries():
-    for index in range(5):
-        numpy.testing.assert_array_equal(
-            beignet.orthax._zseries_to_cseries(
-                jax.numpy.array([0.5] * index + [2] + [0.5] * index, numpy.double),
+def test__map_domain():
+    numpy.testing.assert_array_equal(
+        beignet.orthax._map_domain(
+            [0, 4],
+            [0, 4],
+            [1, 3],
+        ),
+        [1, 3],
+    )
+
+    numpy.testing.assert_array_equal(
+        beignet.orthax._map_domain(
+            [0 - 1j, 2 + 1j],
+            [0 - 1j, 2 + 1j],
+            [-2, 2],
+        ),
+        [-2, 2],
+    )
+
+    numpy.testing.assert_array_equal(
+        beignet.orthax._map_domain(
+            numpy.array([[0, 4], [0, 4]]),
+            [0, 4],
+            [1, 3],
+        ),
+        numpy.array([[1, 3], [1, 3]]),
+    )
+
+
+def test__map_parameters():
+    numpy.testing.assert_array_equal(
+        beignet.orthax._map_parameters(
+            [0, 4],
+            [1, 3],
+        ),
+        [1, 0.5],
+    )
+
+    numpy.testing.assert_array_equal(
+        beignet.orthax._map_parameters(
+            [+0 - 1j, +2 + 1j],
+            [-2 + 0j, +2 + 0j],
+        ),
+        [-1 + 1j, +1 - 1j],
+    )
+
+
+def test__pow():
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._pow,
+        (),
+        [1, 2, 3],
+        5,
+        4,
+    )
+
+
+def test__trim_coefficients():
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._trim_coefficients,
+        numpy.array([2, -1, 1, 0]),
+        -1,
+    )
+
+    numpy.testing.assert_equal(
+        beignet.orthax._trim_coefficients(
+            numpy.array([2, -1, 1, 0]),
+        ),
+        numpy.array([2, -1, 1, 0])[:-1],
+    )
+
+    numpy.testing.assert_equal(
+        beignet.orthax._trim_coefficients(
+            numpy.array([2, -1, 1, 0]),
+            1,
+        ),
+        numpy.array([2, -1, 1, 0])[:-3],
+    )
+
+    numpy.testing.assert_equal(
+        beignet.orthax._trim_coefficients(
+            numpy.array(
+                [2, -1, 1, 0],
             ),
-            jax.numpy.array([2] + [1] * index, numpy.double),
+            2,
+        ),
+        numpy.array([0]),
+    )
+
+
+def test__trim_sequence():
+    for _ in range(5):
+        numpy.testing.assert_equal(
+            beignet.orthax._trim_sequence([1] + [0] * 5),
+            [1],
+        )
+
+
+def test__vandermonde():
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (1, 2, 3),
+        [90],
+    )
+
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (),
+        [90.65],
+    )
+
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (),
+        [],
+    )
+
+
+def test__z_series_to_c_series():
+    for i in range(5):
+        numpy.testing.assert_array_equal(
+            beignet.orthax._z_series_to_c_series(
+                jax.numpy.array(
+                    [0.5] * i + [2] + [0.5] * i,
+                    numpy.double,
+                ),
+            ),
+            jax.numpy.array(
+                [2] + [1] * i,
+                numpy.double,
+            ),
         )
 
 
@@ -1434,6 +1572,46 @@ def test_hermegauss():
     numpy.testing.assert_array_almost_equal(w.sum(), target)
 
 
+def test_hermegrid2d():
+    c1d = numpy.array([4.0, 2.0, 3.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    target = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.orthax.hermegrid2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, target)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermegrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_hermegrid3d():
+    c1d = numpy.array([4.0, 2.0, 3.0])
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.hermegrid3d(x1, x2, x3, c3d),
+        numpy.einsum("i,j,k->ijk", y1, y2, y3),
+        decimal=4,
+    )
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermegrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
 def test_hermeint():
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermeint, [0], 0.5)
     numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, [0], -1)
@@ -1543,46 +1721,6 @@ def test_hermeint():
     target = numpy.vstack([beignet.orthax.hermeint(c, k=3) for c in c2d])
     res = beignet.orthax.hermeint(c2d, k=3, axis=1)
     numpy.testing.assert_array_almost_equal(res, target)
-
-
-def test_hermegrid2d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
-
-    x = numpy.random.random((3, 5)) * 2 - 1
-    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
-    x1, x2, x3 = x
-    y1, y2, y3 = y
-
-    target = numpy.einsum("i,j->ij", y1, y2)
-    res = beignet.orthax.hermegrid2d(x1, x2, c2d)
-    numpy.testing.assert_array_almost_equal(res, target)
-
-    z = numpy.ones((2, 3))
-    res = beignet.orthax.hermegrid2d(z, z, c2d)
-    numpy.testing.assert_(res.shape == (2, 3) * 2)
-
-
-def test_hermegrid3d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
-
-    x = numpy.random.random((3, 5)) * 2 - 1
-    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
-    x1, x2, x3 = x
-    y1, y2, y3 = y
-
-    numpy.testing.assert_array_almost_equal(
-        beignet.orthax.hermegrid3d(x1, x2, x3, c3d),
-        numpy.einsum("i,j,k->ijk", y1, y2, y3),
-        decimal=4,
-    )
-
-    z = numpy.ones((2, 3))
-    res = beignet.orthax.hermegrid3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3) * 3)
 
 
 def test_hermeline():
@@ -3954,30 +4092,6 @@ def test_legzero():
     numpy.testing.assert_array_equal(beignet.orthax.legzero, [0])
 
 
-def test_mapdomain():
-    numpy.testing.assert_array_equal(
-        beignet.orthax.mapdomain([0, 4], [0, 4], [1, 3]), [1, 3]
-    )
-
-    numpy.testing.assert_array_equal(
-        beignet.orthax.mapdomain([0 - 1j, 2 + 1j], [0 - 1j, 2 + 1j], [-2, 2]), [-2, 2]
-    )
-
-    numpy.testing.assert_array_equal(
-        beignet.orthax.mapdomain(numpy.array([[0, 4], [0, 4]]), [0, 4], [1, 3]),
-        numpy.array([[1, 3], [1, 3]]),
-    )
-
-
-def test_mapparms():
-    numpy.testing.assert_array_equal(beignet.orthax.mapparms([0, 4], [1, 3]), [1, 0.5])
-
-    numpy.testing.assert_array_equal(
-        beignet.orthax.mapparms([0 - 1j, 2 + 1j], [-2, 2]),
-        [-1 + 1j, 1 - 1j],
-    )
-
-
 def test_poly2cheb():
     for index in range(10):
         numpy.testing.assert_array_almost_equal(
@@ -5068,75 +5182,4 @@ def test_polyzero():
     numpy.testing.assert_equal(
         beignet.orthax.polyzero,
         numpy.array([0]),
-    )
-
-
-def test__pow():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.orthax._pow,
-        (),
-        [1, 2, 3],
-        5,
-        4,
-    )
-
-
-def test_trimcoef():
-    coef = numpy.array([2, -1, 1, 0])
-
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.orthax.trimcoef,
-        coef,
-        -1,
-    )
-
-    numpy.testing.assert_equal(
-        beignet.orthax.trimcoef(coef),
-        coef[:-1],
-    )
-
-    numpy.testing.assert_equal(
-        beignet.orthax.trimcoef(coef, 1),
-        coef[:-3],
-    )
-
-    numpy.testing.assert_equal(
-        beignet.orthax.trimcoef(coef, 2),
-        numpy.array([0]),
-    )
-
-
-def test_trimseq():
-    for _ in range(5):
-        numpy.testing.assert_equal(
-            beignet.orthax.trimseq([1] + [0] * 5),
-            [1],
-        )
-
-
-def test_vander_nd_exception():
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.orthax._vander_nd,
-        (),
-        (1, 2, 3),
-        [90],
-    )
-
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.orthax._vander_nd,
-        (),
-        (),
-        [90.65],
-    )
-
-    numpy.testing.assert_raises(
-        ValueError,
-        beignet.orthax._vander_nd,
-        (),
-        (),
-        [],
     )
