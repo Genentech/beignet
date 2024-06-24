@@ -148,7 +148,7 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
         return c
 
 
-def _fromroots(line_f, mul_f, roots):
+def _from_roots(line_f, mul_f, roots):
     roots = jax.numpy.asarray(roots)
     if roots.size == 0:
         return jax.numpy.ones(1)
@@ -456,7 +456,7 @@ def chebfit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def chebfromroots(roots):
-    return _fromroots(chebline, chebmul, roots)
+    return _from_roots(chebline, chebmul, roots)
 
 
 def chebgauss(deg):
@@ -875,7 +875,7 @@ def hermefit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def hermefromroots(roots):
-    return _fromroots(hermeline, hermemul, roots)
+    return _from_roots(hermeline, hermemul, roots)
 
 
 def hermegauss(deg):
@@ -1100,7 +1100,7 @@ def hermfit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def hermfromroots(roots):
-    return _fromroots(hermline, hermmul, roots)
+    return _from_roots(hermline, hermmul, roots)
 
 
 def hermgauss(deg):
@@ -1408,7 +1408,7 @@ def lagfit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def lagfromroots(roots):
-    return _fromroots(lagline, lagmul, roots)
+    return _from_roots(lagline, lagmul, roots)
 
 
 def laggauss(deg):
@@ -1722,7 +1722,7 @@ def legfit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def legfromroots(roots):
-    return _fromroots(legline, legmul, roots)
+    return _from_roots(legline, legmul, roots)
 
 
 def leggauss(deg):
@@ -2092,7 +2092,7 @@ def polyfit(x, y, deg, rcond=None, full=False, w=None):
 
 
 def polyfromroots(roots):
-    return _fromroots(polyline, polymul, roots)
+    return _from_roots(polyline, polymul, roots)
 
 
 def polygrid2d(x, y, c):
