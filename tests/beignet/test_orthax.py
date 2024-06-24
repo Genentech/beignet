@@ -156,33 +156,39 @@ def test_chebder():
 
     for i in range(5):
         for j in range(2, 5):
-            tgt = [0] * i + [1]
-            res = beignet.orthax.chebder(beignet.orthax.chebint(tgt, m=j), m=j)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
-                beignet.orthax.chebtrim(tgt, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebder(
+                        beignet.orthax.chebint([0] * i + [1], m=j), m=j
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.chebtrim([0] * i + [1], tol=1e-6),
             )
 
     for i in range(5):
         for j in range(2, 5):
-            tgt = [0] * i + [1]
-            res = beignet.orthax.chebder(
-                beignet.orthax.chebint(tgt, m=j, scl=2), m=j, scl=0.5
-            )
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
-                beignet.orthax.chebtrim(tgt, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebder(
+                        beignet.orthax.chebint([0] * i + [1], m=j, scl=2), m=j, scl=0.5
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.chebtrim([0] * i + [1], tol=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
 
-    tgt = numpy.vstack([beignet.orthax.chebder(c) for c in c2d.T]).T
-    res = beignet.orthax.chebder(c2d, axis=0)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebder(c2d, axis=0),
+        numpy.vstack([beignet.orthax.chebder(c) for c in c2d.T]).T,
+    )
 
-    tgt = numpy.vstack([beignet.orthax.chebder(c) for c in c2d])
-    res = beignet.orthax.chebder(c2d, axis=1)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebder(c2d, axis=1),
+        numpy.vstack([beignet.orthax.chebder(c) for c in c2d]),
+    )
 
 
 def test_chebdiv():
@@ -458,15 +464,19 @@ def test_chebfit():
 
 
 def test_chebfromroots():
-    res = beignet.orthax.chebfromroots([])
-    numpy.testing.assert_array_almost_equal(beignet.orthax.chebtrim(res, tol=1e-6), [1])
-    for i in range(1, 5):
-        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        tgt = [0] * i + [1]
-        res = beignet.orthax.chebfromroots(roots) * 2 ** (i - 1)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebtrim(beignet.orthax.chebfromroots([]), tol=1e-6), [1]
+    )
+    for index in range(1, 5):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.chebtrim(res, tol=1e-6),
-            beignet.orthax.chebtrim(tgt, tol=1e-6),
+            beignet.orthax.chebtrim(
+                beignet.orthax.chebfromroots(
+                    numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * index + 1)[1::2])
+                )
+                * 2 ** (index - 1),
+                tol=1e-6,
+            ),
+            beignet.orthax.chebtrim([0] * index + [1], tol=1e-6),
         )
 
 
@@ -478,7 +488,6 @@ def test_chebgauss():
     vd = 1 / numpy.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     numpy.testing.assert_array_almost_equal(vv, numpy.eye(100))
-
     numpy.testing.assert_array_almost_equal(w.sum(), numpy.pi)
 
 
@@ -540,105 +549,130 @@ def test_chebint():
     numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, [0], scl=[0])
     numpy.testing.assert_raises(TypeError, beignet.orthax.chebint, [0], axis=0.5)
 
-    for i in range(2, 5):
-        k = [0] * (i - 2) + [1]
-        res = beignet.orthax.chebint([0], m=i, k=k)
+    for index in range(2, 5):
+        k = [0] * (index - 2) + [1]
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.chebtrim(res, tol=1e-6), [0, 1]
+            beignet.orthax.chebtrim(
+                beignet.orthax.chebint([0], m=index, k=k), tol=1e-6
+            ),
+            [0, 1],
         )
 
-    for i in range(5):
-        scl = i + 1
-        pol = [0] * i + [1]
-        tgt = [i] + [0] * i + [1 / scl]
-        chebpol = beignet.orthax.poly2cheb(pol)
-        chebint = beignet.orthax.chebint(chebpol, m=1, k=[i])
-        res = beignet.orthax.cheb2poly(chebint)
+    for index in range(5):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.chebtrim(res, tol=1e-6),
-            beignet.orthax.chebtrim(tgt, tol=1e-6),
+            beignet.orthax.chebtrim(
+                beignet.orthax.cheb2poly(
+                    beignet.orthax.chebint(
+                        beignet.orthax.poly2cheb([0] * index + [1]), m=1, k=[index]
+                    )
+                ),
+                tol=1e-6,
+            ),
+            beignet.orthax.chebtrim(
+                [index] + [0] * index + [1 / (index + 1)], tol=1e-6
+            ),
         )
 
-    for i in range(5):
-        scl = i + 1
-        pol = [0] * i + [1]
-        chebpol = beignet.orthax.poly2cheb(pol)
-        chebint = beignet.orthax.chebint(chebpol, m=1, k=[i], lbnd=-1)
-        numpy.testing.assert_array_almost_equal(beignet.orthax.chebval(-1, chebint), i)
-
-    for i in range(5):
-        scl = i + 1
-        pol = [0] * i + [1]
-        tgt = [i] + [0] * i + [2 / scl]
-        chebpol = beignet.orthax.poly2cheb(pol)
-        chebint = beignet.orthax.chebint(chebpol, m=1, k=[i], scl=2)
-        res = beignet.orthax.cheb2poly(chebint)
+    for index in range(5):
+        # scl = index + 1
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.chebtrim(res, tol=1e-6),
-            beignet.orthax.chebtrim(tgt, tol=1e-6),
+            beignet.orthax.chebval(
+                -1,
+                beignet.orthax.chebint(
+                    beignet.orthax.poly2cheb([0] * index + [1]), m=1, k=[index], lbnd=-1
+                ),
+            ),
+            index,
         )
 
-    for i in range(5):
+    for index in range(5):
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.chebtrim(
+                beignet.orthax.cheb2poly(
+                    beignet.orthax.chebint(
+                        beignet.orthax.poly2cheb([0] * index + [1]),
+                        m=1,
+                        k=[index],
+                        scl=2,
+                    )
+                ),
+                tol=1e-6,
+            ),
+            beignet.orthax.chebtrim(
+                [index] + [0] * index + [2 / (index + 1)], tol=1e-6
+            ),
+        )
+
+    for index in range(5):
         for j in range(2, 5):
-            pol = [0] * i + [1]
+            pol = [0] * index + [1]
             tgt = pol[:]
             for _ in range(j):
                 tgt = beignet.orthax.chebint(tgt, m=1)
-            res = beignet.orthax.chebint(pol, m=j)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
+                beignet.orthax.chebtrim(beignet.orthax.chebint(pol, m=j), tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
             )
 
-    for i in range(5):
+    for index in range(5):
         for j in range(2, 5):
-            pol = [0] * i + [1]
+            pol = [0] * index + [1]
             tgt = pol[:]
             for k in range(j):
                 tgt = beignet.orthax.chebint(tgt, m=1, k=[k])
-            res = beignet.orthax.chebint(pol, m=j, k=list(range(j)))
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebint(pol, m=j, k=list(range(j))), tol=1e-6
+                ),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
             )
 
-    for i in range(5):
+    for index in range(5):
         for j in range(2, 5):
-            pol = [0] * i + [1]
+            pol = [0] * index + [1]
             tgt = pol[:]
             for k in range(j):
                 tgt = beignet.orthax.chebint(tgt, m=1, k=[k], lbnd=-1)
-            res = beignet.orthax.chebint(pol, m=j, k=list(range(j)), lbnd=-1)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebint(pol, m=j, k=list(range(j)), lbnd=-1),
+                    tol=1e-6,
+                ),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
             )
 
-    for i in range(5):
+    for index in range(5):
         for j in range(2, 5):
-            pol = [0] * i + [1]
+            pol = [0] * index + [1]
             tgt = pol[:]
             for k in range(j):
                 tgt = beignet.orthax.chebint(tgt, m=1, k=[k], scl=2)
-            res = beignet.orthax.chebint(pol, m=j, k=list(range(j)), scl=2)
             numpy.testing.assert_array_almost_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebint(pol, m=j, k=list(range(j)), scl=2), tol=1e-6
+                ),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
             )
 
     c2d = numpy.random.random((3, 4))
 
     tgt = numpy.vstack([beignet.orthax.chebint(c) for c in c2d.T]).T
-    res = beignet.orthax.chebint(c2d, axis=0)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebint(c2d, axis=0),
+        tgt,
+    )
 
     tgt = numpy.vstack([beignet.orthax.chebint(c) for c in c2d])
-    res = beignet.orthax.chebint(c2d, axis=1)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebint(c2d, axis=1),
+        tgt,
+    )
 
     tgt = numpy.vstack([beignet.orthax.chebint(c, k=3) for c in c2d])
-    res = beignet.orthax.chebint(c2d, k=3, axis=1)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.chebint(c2d, k=3, axis=1),
+        tgt,
+    )
 
 
 def test_chebinterpolate():
