@@ -1,11 +1,13 @@
 import functools
 
 import beignet.orthax
-import jax.numpy
+import jax
 import numpy
 import numpy.testing
 from jax.numpy import (
     array,
+    einsum,
+    ones,
 )
 
 jax.config.update("jax_enable_x64", True)
@@ -24,52 +26,52 @@ chebcoefficients = [
 ]
 
 hermcoefficients = [
-    (numpy.array([1])),
-    (numpy.array([0, 2])),
-    (numpy.array([-2, 0, 4])),
-    (numpy.array([0, -12, 0, 8])),
-    (numpy.array([12, 0, -48, 0, 16])),
-    (numpy.array([0, 120, 0, -160, 0, 32])),
-    (numpy.array([-120, 0, 720, 0, -480, 0, 64])),
-    (numpy.array([0, -1680, 0, 3360, 0, -1344, 0, 128])),
-    (numpy.array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])),
-    (numpy.array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])),
+    (array([1])),
+    (array([0, 2])),
+    (array([-2, 0, 4])),
+    (array([0, -12, 0, 8])),
+    (array([12, 0, -48, 0, 16])),
+    (array([0, 120, 0, -160, 0, 32])),
+    (array([-120, 0, 720, 0, -480, 0, 64])),
+    (array([0, -1680, 0, 3360, 0, -1344, 0, 128])),
+    (array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])),
+    (array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])),
 ]
 
 hermecoefficients = [
-    (numpy.array([1])),
-    (numpy.array([0, 1])),
-    (numpy.array([-1, 0, 1])),
-    (numpy.array([0, -3, 0, 1])),
-    (numpy.array([3, 0, -6, 0, 1])),
-    (numpy.array([0, 15, 0, -10, 0, 1])),
-    (numpy.array([-15, 0, 45, 0, -15, 0, 1])),
-    (numpy.array([0, -105, 0, 105, 0, -21, 0, 1])),
-    (numpy.array([105, 0, -420, 0, 210, 0, -28, 0, 1])),
-    (numpy.array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])),
+    (array([1])),
+    (array([0, 1])),
+    (array([-1, 0, 1])),
+    (array([0, -3, 0, 1])),
+    (array([3, 0, -6, 0, 1])),
+    (array([0, 15, 0, -10, 0, 1])),
+    (array([-15, 0, 45, 0, -15, 0, 1])),
+    (array([0, -105, 0, 105, 0, -21, 0, 1])),
+    (array([105, 0, -420, 0, 210, 0, -28, 0, 1])),
+    (array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])),
 ]
 
 lagcoefficients = [
-    (numpy.array([1]) / 1),
-    (numpy.array([1, -1]) / 1),
-    (numpy.array([2, -4, 1]) / 2),
-    (numpy.array([6, -18, 9, -1]) / 6),
-    (numpy.array([24, -96, 72, -16, 1]) / 24),
-    (numpy.array([120, -600, 600, -200, 25, -1]) / 120),
-    (numpy.array([720, -4320, 5400, -2400, 450, -36, 1]) / 720),
+    (array([1]) / 1),
+    (array([1, -1]) / 1),
+    (array([2, -4, 1]) / 2),
+    (array([6, -18, 9, -1]) / 6),
+    (array([24, -96, 72, -16, 1]) / 24),
+    (array([120, -600, 600, -200, 25, -1]) / 120),
+    (array([720, -4320, 5400, -2400, 450, -36, 1]) / 720),
 ]
 
 legcoefficients = [
-    (numpy.array([1])),
-    (numpy.array([0, 1])),
-    (numpy.array([-1, 0, 3]) / 2),
-    (numpy.array([0, -3, 0, 5]) / 2),
-    (numpy.array([3, 0, -30, 0, 35]) / 8),
-    (numpy.array([0, 15, 0, -70, 0, 63]) / 8),
-    (numpy.array([-5, 0, 105, 0, -315, 0, 231]) / 16),
-    (numpy.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16),
-    (numpy.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128),
-    (numpy.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128),
+    (array([1])),
+    (array([0, 1])),
+    (array([-1, 0, 3]) / 2),
+    (array([0, -3, 0, 5]) / 2),
+    (array([3, 0, -30, 0, 35]) / 8),
+    (array([0, 15, 0, -70, 0, 63]) / 8),
+    (array([-5, 0, 105, 0, -315, 0, 231]) / 16),
+    (array([0, -35, 0, 315, 0, -693, 0, 429]) / 16),
+    (array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128),
+    (array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128),
 ]
 
 polycoefficients = [
@@ -103,7 +105,7 @@ def test__c_series_to_z_series():
 
 
 def test__map_domain():
-    numpy.testing.assert_array_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._map_domain(
             [0, 4],
             [0, 4],
@@ -112,7 +114,7 @@ def test__map_domain():
         [1, 3],
     )
 
-    numpy.testing.assert_array_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._map_domain(
             [0 - 1j, 2 + 1j],
             [0 - 1j, 2 + 1j],
@@ -121,13 +123,13 @@ def test__map_domain():
         [-2, 2],
     )
 
-    numpy.testing.assert_array_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._map_domain(
-            numpy.array([[0, 4], [0, 4]]),
+            array([[0, 4], [0, 4]]),
             [0, 4],
             [1, 3],
         ),
-        numpy.array([[1, 3], [1, 3]]),
+        array([[1, 3], [1, 3]]),
     )
 
 
@@ -164,33 +166,33 @@ def test__trim_coefficients():
     numpy.testing.assert_raises(
         ValueError,
         beignet.orthax._trim_coefficients,
-        numpy.array([2, -1, 1, 0]),
+        array([2, -1, 1, 0]),
         -1,
     )
 
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._trim_coefficients(
-            numpy.array([2, -1, 1, 0]),
+            array([2, -1, 1, 0]),
         ),
-        numpy.array([2, -1, 1, 0])[:-1],
+        array([2, -1, 1, 0])[:-1],
     )
 
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._trim_coefficients(
-            numpy.array([2, -1, 1, 0]),
+            array([2, -1, 1, 0]),
             1,
         ),
-        numpy.array([2, -1, 1, 0])[:-3],
+        array([2, -1, 1, 0])[:-3],
     )
 
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax._trim_coefficients(
-            numpy.array(
+            array(
                 [2, -1, 1, 0],
             ),
             2,
         ),
-        numpy.array([0]),
+        array([0]),
     )
 
 
@@ -434,7 +436,6 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebval(x, coef3),
         y,
-        # decimal=5,
     )
     coef3 = beignet.orthax.chebfit(
         x,
@@ -448,7 +449,6 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.chebfit(
@@ -463,7 +463,6 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebval(x, coef4),
         y,
-        # decimal=5,
     )
     coef4 = beignet.orthax.chebfit(
         x,
@@ -477,7 +476,6 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.chebfit(
@@ -492,28 +490,25 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef2d = beignet.orthax.chebfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         3,
     )
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
     coef2d = beignet.orthax.chebfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         (0, 1, 2, 3),
     )
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(x)
@@ -531,7 +526,6 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef3 = beignet.orthax.chebfit(
@@ -544,33 +538,30 @@ def test_chebfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef2d = beignet.orthax.chebfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         3,
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     wcoef2d = beignet.orthax.chebfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         (0, 1, 2, 3),
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     x = [1, 1j, -1, -1j]
@@ -582,7 +573,6 @@ def test_chebfit():
             1,
         ),
         [0, 1],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -592,7 +582,6 @@ def test_chebfit():
             (0, 1),
         ),
         [0, 1],
-        # decimal=5,
     )
 
     x = numpy.linspace(-1, 1)
@@ -610,7 +599,6 @@ def test_chebfit():
             coef1,
         ),
         y,
-        # decimal=5,
     )
 
     coef2 = beignet.orthax.chebfit(
@@ -625,13 +613,11 @@ def test_chebfit():
             coef2,
         ),
         y,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef1,
         coef2,
-        # decimal=5,
     )
 
 
@@ -667,8 +653,8 @@ def test_chebgauss():
 
 
 def test_chebgrid2d():
-    c1d = numpy.array([2.5, 2.0, 1.5])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.5, 2.0, 1.5])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -676,7 +662,7 @@ def test_chebgrid2d():
     x1, x2, x3 = x
     y1, y2, y3 = y
 
-    target = numpy.einsum("i,j->ij", y1, y2)
+    target = einsum("i,j->ij", y1, y2)
     res = beignet.orthax.chebgrid2d(x1, x2, c2d)
     numpy.testing.assert_array_almost_equal(res, target, decimal=5)
 
@@ -686,8 +672,8 @@ def test_chebgrid2d():
 
 
 def test_chebgrid3d():
-    c1d = numpy.array([2.5, 2.0, 1.5])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([2.5, 2.0, 1.5])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -702,7 +688,7 @@ def test_chebgrid3d():
             x3,
             c3d,
         ),
-        numpy.einsum(
+        einsum(
             "i,j,k->ijk",
             y1,
             y2,
@@ -922,7 +908,7 @@ def test_chebpow():
                     functools.reduce(
                         beignet.orthax.chebmul,
                         [(numpy.arange(i + 1))] * j,
-                        numpy.array([1]),
+                        array([1]),
                     ),
                     tol=1e-6,
                 ),
@@ -1051,8 +1037,8 @@ def test_chebval():
 
 
 def test_chebval2d():
-    c1d = numpy.array([2.5, 2.0, 1.5])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.5, 2.0, 1.5])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -1072,8 +1058,8 @@ def test_chebval2d():
 
 
 def test_chebval3d():
-    c1d = numpy.array([2.5, 2.0, 1.5])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([2.5, 2.0, 1.5])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -1104,7 +1090,7 @@ def test_chebvander():
             v[..., i], beignet.orthax.chebval(x, coef)
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
     v = beignet.orthax.chebvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
     for i in range(4):
@@ -1253,8 +1239,8 @@ def test_hermder():
 def test_hermdiv():
     for i in range(5):
         for j in range(5):
-            ci = [0.0] * i + [1.0]
-            cj = [0.0] * j + [1.0]
+            ci = array([0.0] * i + [1.0])
+            cj = array([0.0] * j + [1.0])
             target = beignet.orthax.hermadd(ci, cj)
             quo, rem = beignet.orthax.hermdiv(target, ci)
             res = beignet.orthax.hermadd(beignet.orthax.hermmul(quo, ci), rem)
@@ -1265,7 +1251,7 @@ def test_hermdiv():
 
 
 def test_hermdomain():
-    numpy.testing.assert_array_equal(beignet.orthax.hermdomain, numpy.array([-1, 1]))
+    numpy.testing.assert_array_equal(beignet.orthax.hermdomain, array([-1, 1]))
 
 
 def test_herme2poly():
@@ -1437,7 +1423,6 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef3 = beignet.orthax.hermefit(
@@ -1454,7 +1439,6 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermefit(
@@ -1471,7 +1455,6 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermefit(
@@ -1488,7 +1471,6 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermefit(
@@ -1505,31 +1487,28 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef2d = beignet.orthax.hermefit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         3,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     coef2d = beignet.orthax.hermefit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         (0, 1, 2, 3),
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(x)
@@ -1550,7 +1529,6 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef3 = beignet.orthax.hermefit(
@@ -1563,33 +1541,30 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef2d = beignet.orthax.hermefit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         3,
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     wcoef2d = beignet.orthax.hermefit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         (0, 1, 2, 3),
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     x = [1, 1j, -1, -1j]
@@ -1597,13 +1572,11 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermefit(x, x, 1),
         [0, 1],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermefit(x, x, (0, 1)),
         [0, 1],
-        # decimal=5,
     )
 
     x = numpy.linspace(-1, 1)
@@ -1615,19 +1588,16 @@ def test_hermefit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, coef1),
         y,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeval(x, beignet.orthax.hermefit(x, y, (0, 2, 4))),
         y,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef1,
         beignet.orthax.hermefit(x, y, (0, 2, 4)),
-        # decimal=5,
     )
 
 
@@ -1660,8 +1630,8 @@ def test_hermegauss():
 
 
 def test_hermegrid2d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([4.0, 2.0, 3.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -1669,7 +1639,7 @@ def test_hermegrid2d():
     x1, x2, x3 = x
     y1, y2, y3 = y
 
-    target = numpy.einsum("i,j->ij", y1, y2)
+    target = einsum("i,j->ij", y1, y2)
     res = beignet.orthax.hermegrid2d(x1, x2, c2d)
     numpy.testing.assert_array_almost_equal(res, target)
 
@@ -1679,8 +1649,8 @@ def test_hermegrid2d():
 
 
 def test_hermegrid3d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([4.0, 2.0, 3.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -1690,7 +1660,7 @@ def test_hermegrid3d():
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermegrid3d(x1, x2, x3, c3d),
-        numpy.einsum("i,j,k->ijk", y1, y2, y3),
+        einsum("i,j,k->ijk", y1, y2, y3),
         decimal=4,
     )
 
@@ -1855,9 +1825,7 @@ def test_hermepow():
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermetrim(beignet.orthax.hermepow(c, j), tol=1e-6),
                 beignet.orthax.hermetrim(
-                    functools.reduce(
-                        beignet.orthax.hermemul, [c] * j, numpy.array([1])
-                    ),
+                    functools.reduce(beignet.orthax.hermemul, [c] * j, array([1])),
                     tol=1e-6,
                 ),
             )
@@ -1924,8 +1892,8 @@ def test_hermeval():
 
 
 def test_hermeval2d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([4.0, 2.0, 3.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -1943,8 +1911,8 @@ def test_hermeval2d():
 
 
 def test_hermeval3d():
-    c1d = numpy.array([4.0, 2.0, 3.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([4.0, 2.0, 3.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -1975,7 +1943,7 @@ def test_hermevander():
             v[..., i], beignet.orthax.hermeval(x, coef)
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
     v = beignet.orthax.hermevander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
     for i in range(4):
@@ -2069,7 +2037,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef3 = beignet.orthax.hermfit(
@@ -2086,7 +2053,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermfit(
@@ -2103,7 +2069,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermfit(
@@ -2120,7 +2085,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.hermfit(
@@ -2137,31 +2101,28 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef2d = beignet.orthax.hermfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         3,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     coef2d = beignet.orthax.hermfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         (0, 1, 2, 3),
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(x)
@@ -2181,7 +2142,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef3 = beignet.orthax.hermfit(
@@ -2194,33 +2154,30 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef2d = beignet.orthax.hermfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         3,
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     wcoef2d = beignet.orthax.hermfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         (0, 1, 2, 3),
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     x = [1, 1j, -1, -1j]
@@ -2228,13 +2185,11 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermfit(x, x, 1),
         [0, 0.5],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermfit(x, x, (0, 1)),
         [0, 0.5],
-        # decimal=5,
     )
 
     x = numpy.linspace(-1, 1)
@@ -2250,7 +2205,6 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef1),
         y,
-        # decimal=5,
     )
 
     coef2 = beignet.orthax.hermfit(
@@ -2262,13 +2216,11 @@ def test_hermfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermval(x, coef2),
         y,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef1,
         coef2,
-        # decimal=5,
     )
 
 
@@ -2299,14 +2251,14 @@ def test_hermgauss():
 
 
 def test_hermgrid2d():
-    c1d = numpy.array([2.5, 1.0, 0.75])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.5, 1.0, 0.75])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
     y1, y2, y3 = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
 
-    target = numpy.einsum("i,j->ij", y1, y2)
+    target = einsum("i,j->ij", y1, y2)
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermgrid2d(x1, x2, c2d), target, decimal=5
     )
@@ -2316,22 +2268,35 @@ def test_hermgrid2d():
 
 
 def test_hermgrid3d():
-    c1d = numpy.array([2.5, 1.0, 0.75])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
-
-    x = numpy.random.random((3, 5)) * 2 - 1
-    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
-
-    x1, x2, x3 = x
-    y1, y2, y3 = y
-
-    numpy.testing.assert_array_almost_equal(
-        beignet.orthax.hermgrid3d(x1, x2, x3, c3d),
-        numpy.einsum("i,j,k->ijk", y1, y2, y3),
-        # decimal=5,
+    c1d = array([2.5, 1.0, 0.75])
+    c3d = einsum(
+        "i,j,k->ijk",
+        c1d,
+        c1d,
+        c1d,
     )
 
-    z = numpy.ones((2, 3))
+    x = numpy.random.random((3, 5)) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.hermgrid3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        einsum(
+            "i,j,k->ijk",
+            y1,
+            y2,
+            y3,
+        ),
+    )
+
+    z = ones([2, 3])
+
     numpy.testing.assert_(beignet.orthax.hermgrid3d(z, z, z, c3d).shape == (2, 3) * 3)
 
 
@@ -2450,10 +2415,10 @@ def test_hermmul():
     x = numpy.linspace(-3, 3, 100)
 
     for i in range(5):
-        pol1 = [0.0] * i + [1.0]
+        pol1 = array([0.0] * i + [1.0])
         val1 = beignet.orthax.hermval(x, pol1)
         for j in range(5):
-            pol2 = [0.0] * j + [1.0]
+            pol2 = array([0.0] * j + [1.0])
             val2 = beignet.orthax.hermval(x, pol2)
             pol3 = beignet.orthax.hermmul(pol1, pol2)
             val3 = beignet.orthax.hermval(x, pol3)
@@ -2476,12 +2441,13 @@ def test_hermmulx():
     numpy.testing.assert_array_equal(beignet.orthax.hermmulx([1.0]), [0.0, 0.5])
     for i in range(1, 5):
         numpy.testing.assert_array_equal(
-            beignet.orthax.hermmulx([0.0] * i + [1.0]), [0.0] * (i - 1) + [i, 0.0, 0.5]
+            beignet.orthax.hermmulx(array([0.0] * i + [1.0])),
+            [0.0] * (i - 1) + [i, 0.0, 0.5],
         )
 
 
 def test_hermone():
-    numpy.testing.assert_array_equal(beignet.orthax.hermone, numpy.array([1]))
+    numpy.testing.assert_array_equal(beignet.orthax.hermone, array([1]))
 
 
 def test_hermpow():
@@ -2491,7 +2457,7 @@ def test_hermpow():
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermtrim(beignet.orthax.hermpow(c, j), tol=1e-6),
                 beignet.orthax.hermtrim(
-                    functools.reduce(beignet.orthax.hermmul, [c] * j, numpy.array([1])),
+                    functools.reduce(beignet.orthax.hermmul, [c] * j, array([1])),
                     tol=1e-6,
                 ),
             )
@@ -2515,7 +2481,9 @@ def test_hermsub():
             target = numpy.zeros(max(i, j) + 1)
             target[i] += 1
             target[j] -= 1
-            res = beignet.orthax.hermsub([0.0] * i + [1.0], [0.0] * j + [1.0])
+            res = beignet.orthax.hermsub(
+                array([0.0] * i + [1.0]), array([0.0] * j + [1.0])
+            )
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermtrim(res, tol=1e-6),
                 beignet.orthax.hermtrim(target, tol=1e-6),
@@ -2557,8 +2525,8 @@ def test_hermval():
 
 
 def test_hermval2d():
-    c1d = numpy.array([2.5, 1.0, 0.75])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.5, 1.0, 0.75])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -2578,8 +2546,8 @@ def test_hermval2d():
 
 
 def test_hermval3d():
-    c1d = numpy.array([2.5, 1.0, 0.75])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([2.5, 1.0, 0.75])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -2610,7 +2578,7 @@ def test_hermvander():
             v[..., i], beignet.orthax.hermval(x, coef)
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
     v = beignet.orthax.hermvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
     for i in range(4):
@@ -2639,7 +2607,6 @@ def test_hermvander3d():
     numpy.testing.assert_array_almost_equal(
         numpy.dot(beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3)), c.flat),
         beignet.orthax.hermval3d(x1, x2, x3, c),
-        # decimal=5,
     )
 
     numpy.testing.assert_(
@@ -2655,11 +2622,11 @@ def test_hermweight():
 
 
 def test_hermx():
-    numpy.testing.assert_array_equal(beignet.orthax.hermx, numpy.array([0, 0.5]))
+    numpy.testing.assert_array_equal(beignet.orthax.hermx, array([0, 0.5]))
 
 
 def test_hermzero():
-    numpy.testing.assert_array_equal(beignet.orthax.hermzero, numpy.array([0]))
+    numpy.testing.assert_array_equal(beignet.orthax.hermzero, array([0]))
 
 
 def test_lag2poly():
@@ -2805,7 +2772,6 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef3 = beignet.orthax.lagfit(
@@ -2822,7 +2788,6 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagval(x, coef3),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.lagfit(
@@ -2839,7 +2804,6 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.lagfit(
@@ -2856,31 +2820,28 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagval(x, coef4),
         y,
-        # decimal=5,
     )
 
     coef2d = beignet.orthax.lagfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         3,
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     coef2d = beignet.orthax.lagfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         (0, 1, 2, 3),
     )
 
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(x)
@@ -2900,7 +2861,6 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef3 = beignet.orthax.lagfit(
@@ -2913,33 +2873,30 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
-        # decimal=5,
     )
 
     wcoef2d = beignet.orthax.lagfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         3,
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     wcoef2d = beignet.orthax.lagfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         (0, 1, 2, 3),
         w=w,
     )
 
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     x = [1, 1j, -1, -1j]
@@ -2947,13 +2904,11 @@ def test_lagfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagfit(x, x, 1),
         [1, -1],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagfit(x, x, (0, 1)),
         [1, -1],
-        # decimal=5,
     )
 
 
@@ -2984,8 +2939,8 @@ def test_laggauss():
 
 
 def test_laggrid2d():
-    c1d = numpy.array([9.0, -14.0, 6.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([9.0, -14.0, 6.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -2993,7 +2948,7 @@ def test_laggrid2d():
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.laggrid2d(x1, x2, c2d),
-        numpy.einsum("i,j->ij", y1, y2),
+        einsum("i,j->ij", y1, y2),
         decimal=3,
     )
 
@@ -3002,8 +2957,8 @@ def test_laggrid2d():
 
 
 def test_laggrid3d():
-    c1d = numpy.array([9.0, -14.0, 6.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([9.0, -14.0, 6.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
@@ -3011,7 +2966,7 @@ def test_laggrid3d():
     x1, x2, x3 = x
     y1, y2, y3 = y
 
-    target = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    target = einsum("i,j,k->ijk", y1, y2, y3)
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.laggrid3d(x1, x2, x3, c3d), target, decimal=3
     )
@@ -3174,7 +3129,7 @@ def test_lagpow():
             numpy.testing.assert_array_equal(
                 beignet.orthax.lagtrim(beignet.orthax.lagpow(c, j), tol=1e-6),
                 beignet.orthax.lagtrim(
-                    functools.reduce(beignet.orthax.lagmul, [c] * j, numpy.array([1])),
+                    functools.reduce(beignet.orthax.lagmul, [c] * j, array([1])),
                     tol=1e-6,
                 ),
             )
@@ -3192,7 +3147,6 @@ def test_lagroots():
                 tol=1e-6,
             ),
             beignet.orthax.lagtrim(numpy.linspace(0, 3, i), tol=1e-6),
-            # decimal=5,
         )
 
 
@@ -3232,7 +3186,6 @@ def test_lagval():
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.lagval(x, array([0] * i + [1])),
             y[i],
-            # decimal=5,
         )
 
     for i in range(3):
@@ -3246,8 +3199,8 @@ def test_lagval():
 
 
 def test_lagval2d():
-    c1d = numpy.array([9.0, -14.0, 6.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([9.0, -14.0, 6.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
@@ -3267,8 +3220,8 @@ def test_lagval2d():
 
 
 def test_lagval3d():
-    c1d = numpy.array([9.0, -14.0, 6.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([9.0, -14.0, 6.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -3311,10 +3264,9 @@ def test_lagvander():
                 x,
                 array([0] * i + [1]),
             ),
-            # decimal=5,
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
 
     v = beignet.orthax.lagvander(x, 3)
 
@@ -3327,7 +3279,6 @@ def test_lagvander():
                 x,
                 array([0] * i + [1]),
             ),
-            # decimal=5,
         )
 
 
@@ -3350,7 +3301,6 @@ def test_lagvander3d():
     numpy.testing.assert_array_almost_equal(
         numpy.dot(beignet.orthax.lagvander3d(x1, x2, x3, (1, 2, 3)), c.flat),
         beignet.orthax.lagval3d(x1, x2, x3, c),
-        # decimal=5,
     )
 
     numpy.testing.assert_(
@@ -3378,7 +3328,6 @@ def test_leg2poly():
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.leg2poly([0] * index + [1]),
             legcoefficients[index],
-            # decimal=5,
         )
 
 
@@ -3504,7 +3453,6 @@ def test_legfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval(numpy.linspace(0, 2), coef3),
         f(numpy.linspace(0, 2)),
-        # decimal=5,
     )
     coef3 = beignet.orthax.legfit(
         numpy.linspace(0, 2),
@@ -3518,7 +3466,6 @@ def test_legfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval(numpy.linspace(0, 2), coef3),
         f(numpy.linspace(0, 2)),
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.legfit(
@@ -3533,7 +3480,6 @@ def test_legfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval(numpy.linspace(0, 2), coef4),
         f(numpy.linspace(0, 2)),
-        # decimal=5,
     )
     coef4 = beignet.orthax.legfit(
         numpy.linspace(0, 2),
@@ -3547,7 +3493,6 @@ def test_legfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval(numpy.linspace(0, 2), coef4),
         f(numpy.linspace(0, 2)),
-        # decimal=5,
     )
 
     coef4 = beignet.orthax.legfit(
@@ -3564,27 +3509,24 @@ def test_legfit():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval(numpy.linspace(0, 2), coef4),
         f(numpy.linspace(0, 2)),
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legfit(
             numpy.linspace(0, 2),
-            numpy.array([(f(numpy.linspace(0, 2))), (f(numpy.linspace(0, 2)))]).T,
+            array([(f(numpy.linspace(0, 2))), (f(numpy.linspace(0, 2)))]).T,
             3,
         ),
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legfit(
             numpy.linspace(0, 2),
-            numpy.array([(f(numpy.linspace(0, 2))), (f(numpy.linspace(0, 2)))]).T,
+            array([(f(numpy.linspace(0, 2))), (f(numpy.linspace(0, 2)))]).T,
             (0, 1, 2, 3),
         ),
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(numpy.linspace(0, 2))
@@ -3603,7 +3545,6 @@ def test_legfit():
             w=w,
         ),
         coef3,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3614,29 +3555,26 @@ def test_legfit():
             w=w,
         ),
         coef3,
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legfit(
             numpy.linspace(0, 2),
-            numpy.array([yw, yw]).T,
+            array([yw, yw]).T,
             3,
             w=w,
         ),
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legfit(
             numpy.linspace(0, 2),
-            numpy.array([yw, yw]).T,
+            array([yw, yw]).T,
             (0, 1, 2, 3),
             w=w,
         ),
-        numpy.array([coef3, coef3]).T,
-        # decimal=5,
+        array([coef3, coef3]).T,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3646,7 +3584,6 @@ def test_legfit():
             1,
         ),
         [0, 1],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3656,7 +3593,6 @@ def test_legfit():
             (0, 1),
         ),
         [0, 1],
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3669,7 +3605,6 @@ def test_legfit():
             ),
         ),
         g(numpy.linspace(-1, 1)),
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3682,7 +3617,6 @@ def test_legfit():
             ),
         ),
         g(numpy.linspace(-1, 1)),
-        # decimal=5,
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -3696,7 +3630,6 @@ def test_legfit():
             g(numpy.linspace(-1, 1)),
             (0, 2, 4),
         ),
-        # decimal=5,
     )
 
 
@@ -3748,8 +3681,8 @@ def test_leggauss():
 
 
 def test_leggrid2d():
-    c1d = numpy.array([2.0, 2.0, 2.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.0, 2.0, 2.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -3757,8 +3690,7 @@ def test_leggrid2d():
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.leggrid2d(x1, x2, c2d),
-        numpy.einsum("i,j->ij", y1, y2),
-        # decimal=5,
+        einsum("i,j->ij", y1, y2),
     )
 
     z = numpy.ones((2, 3))
@@ -3766,8 +3698,8 @@ def test_leggrid2d():
 
 
 def test_leggrid3d():
-    c1d = numpy.array([2.0, 2.0, 2.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([2.0, 2.0, 2.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -3780,13 +3712,12 @@ def test_leggrid3d():
             x3,
             c3d,
         ),
-        numpy.einsum(
+        einsum(
             "i,j,k->ijk",
             y1,
             y2,
             y3,
         ),
-        # decimal=5,
     )
 
     numpy.testing.assert_(
@@ -3987,7 +3918,6 @@ def test_legmulx():
                 tol=1e-6,
             ),
             [0] * (index - 1) + [index / tmp, 0, (index + 1) / tmp],
-            # decimal=5,
         )
 
 
@@ -4012,7 +3942,7 @@ def test_legpow():
                     functools.reduce(
                         beignet.orthax.legmul,
                         [c] * j,
-                        numpy.array([1]),
+                        array([1]),
                     ),
                     tol=1e-6,
                 ),
@@ -4094,8 +4024,8 @@ def test_legval():
 
 
 def test_legval2d():
-    c1d = numpy.array([2.0, 2.0, 2.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([2.0, 2.0, 2.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
@@ -4114,8 +4044,8 @@ def test_legval2d():
 
 
 def test_legval3d():
-    c1d = numpy.array([2.0, 2.0, 2.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([2.0, 2.0, 2.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -4128,7 +4058,6 @@ def test_legval3d():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legval3d(x1, x2, x3, c3d),
         y1 * y2 * y3,
-        # decimal=5,
     )
 
     z = numpy.ones((2, 3))
@@ -4149,7 +4078,7 @@ def test_legvander():
             ),
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
     v = beignet.orthax.legvander(x, 3)
     numpy.testing.assert_(v.shape == (3, 2, 4))
 
@@ -4246,7 +4175,6 @@ def test_poly2lag():
                 lagcoefficients[index],
             ),
             [0] * index + [1],
-            # decimal=5,
         )
 
 
@@ -4360,9 +4288,9 @@ def test_polydiv():
 
 
 def test_polydomain():
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax.polydomain,
-        numpy.array([-1, 1]),
+        array([-1, 1]),
     )
 
 
@@ -4448,21 +4376,21 @@ def test_polyfit():
 
     coef2d = beignet.orthax.polyfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         3,
     )
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
+        array([coef3, coef3]).T,
     )
     coef2d = beignet.orthax.polyfit(
         x,
-        numpy.array([y, y]).T,
+        array([y, y]).T,
         (0, 1, 2, 3),
     )
     numpy.testing.assert_array_almost_equal(
         coef2d,
-        numpy.array([coef3, coef3]).T,
+        array([coef3, coef3]).T,
     )
 
     w = numpy.zeros_like(x)
@@ -4492,23 +4420,23 @@ def test_polyfit():
 
     wcoef2d = beignet.orthax.polyfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         3,
         w=w,
     )
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
+        array([coef3, coef3]).T,
     )
     wcoef2d = beignet.orthax.polyfit(
         x,
-        numpy.array([yw, yw]).T,
+        array([yw, yw]).T,
         (0, 1, 2, 3),
         w=w,
     )
     numpy.testing.assert_array_almost_equal(
         wcoef2d,
-        numpy.array([coef3, coef3]).T,
+        array([coef3, coef3]).T,
     )
 
     x = [1, 1j, -1, -1j]
@@ -4589,8 +4517,8 @@ def test_polyfromroots():
 
 
 def test_polygrid2d():
-    c1d = numpy.array([1.0, 2.0, 3.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([1.0, 2.0, 3.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
 
@@ -4603,12 +4531,11 @@ def test_polygrid2d():
             x2,
             c2d,
         ),
-        numpy.einsum(
+        einsum(
             "i,j->ij",
             y1,
             y2,
         ),
-        # decimal=5,
     )
 
     z = numpy.ones((2, 3))
@@ -4619,8 +4546,8 @@ def test_polygrid2d():
 
 
 def test_polygrid3d():
-    c1d = numpy.array([1.0, 2.0, 3.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([1.0, 2.0, 3.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
@@ -4635,13 +4562,12 @@ def test_polygrid3d():
             x3,
             c3d,
         ),
-        numpy.einsum(
+        einsum(
             "i,j,k->ijk",
             y1,
             y2,
             y3,
         ),
-        # decimal=5,
     )
 
     z = numpy.ones((2, 3))
@@ -4918,7 +4844,7 @@ def test_polymulx():
 def test_polyone():
     numpy.testing.assert_equal(
         beignet.orthax.polyone,
-        numpy.array([1]),
+        array([1]),
     )
 
 
@@ -4937,7 +4863,7 @@ def test_polypow():
                     functools.reduce(
                         beignet.orthax.polymul,
                         [(numpy.arange(i + 1))] * j,
-                        numpy.array([1]),
+                        array([1]),
                     ),
                     tol=1e-6,
                 ),
@@ -5043,8 +4969,8 @@ def test_polyval():
 
 
 def test_polyval2d():
-    c1d = numpy.array([1.0, 2.0, 3.0])
-    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c1d = array([1.0, 2.0, 3.0])
+    c2d = einsum("i,j->ij", c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -5057,7 +4983,6 @@ def test_polyval2d():
             c2d,
         ),
         y1 * y2,
-        # decimal=5,
     )
 
     z = numpy.ones((2, 3))
@@ -5068,8 +4993,8 @@ def test_polyval2d():
 
 
 def test_polyval3d():
-    c1d = numpy.array([1.0, 2.0, 3.0])
-    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c1d = array([1.0, 2.0, 3.0])
+    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = numpy.random.random((3, 5)) * 2 - 1
     x1, x2, x3 = x
@@ -5078,7 +5003,6 @@ def test_polyval3d():
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyval3d(x1, x2, x3, c3d),
         y1 * y2 * y3,
-        # decimal=5,
     )
 
     z = numpy.ones((2, 3))
@@ -5185,7 +5109,7 @@ def test_polyvander():
             ),
         )
 
-    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    x = array([[1, 2], [3, 4], [5, 6]])
 
     v = beignet.orthax.polyvander(x, 3)
 
