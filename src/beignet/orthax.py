@@ -197,6 +197,7 @@ def _from_roots(line_f, mul_f, roots):
 def _gridnd(val_f, c, *args):
     for xi in args:
         c = val_f(xi, c)
+
     return c
 
 
@@ -1853,16 +1854,22 @@ def legmulx(c, mode="full"):
 
     def body(i, prd):
         j = i + 1
+
         k = i - 1
+
         s = i + j
+
         prd = prd.at[j].set((c[i] * j) / s)
+
         prd = prd.at[k].add((c[i] * i) / s)
+
         return prd
 
     prd = jax.lax.fori_loop(1, len(c), body, prd)
 
     if mode == "same":
         prd = prd[: len(c)]
+
     return prd
 
 
@@ -1872,14 +1879,19 @@ def legpow(c, pow, maxpower=16):
 
 def legroots(c):
     c = as_series(c)
+
     if len(c) <= 1:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
     m = legcompanion(c)[::-1, ::-1]
+
     r = jax.numpy.linalg.eigvals(m)
+
     r = jax.numpy.sort(r)
+
     return r
 
 
