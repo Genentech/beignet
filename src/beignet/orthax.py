@@ -81,15 +81,6 @@ def cond(pred, true_fun, false_fun, *operands):
         return false_fun(*operands)
 
 
-def fori_loop(a, b, func, x):
-    y = x
-
-    for index in range(a, b):
-        y = func(index, y)
-
-    return y
-
-
 def scan(f, init, xs, length=None):
     if xs is None:
         xs = [None] * length
