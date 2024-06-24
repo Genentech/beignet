@@ -74,13 +74,6 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def cond(pred, true_fun, false_fun, *operands):
-    if pred:
-        return true_fun(*operands)
-    else:
-        return false_fun(*operands)
-
-
 def scan(f, init, xs, length=None):
     if xs is None:
         xs = [None] * length
@@ -233,25 +226,23 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
         return c
 
 
-def _from_roots(line_f, mul_f, roots):
-    roots = asarray(roots)
-    if roots.size == 0:
+def _from_roots(f, g, input):
+    input = asarray(input)
+
+    if input.size == 0:
         return ones(1)
 
-    roots = sort(roots)
+    input = sort(input)
 
-    retlen = len(roots) + 1
+    retlen = len(input) + 1
 
     def p_scan_fun(carry, x):
-        return carry, _add(zeros(retlen, dtype=x.dtype), line_f(-x, 1))
+        return carry, _add(zeros(retlen, dtype=x.dtype), f(-x, 1))
 
-    _, p = scan(p_scan_fun, 0, roots)
+    _, p = scan(p_scan_fun, 0, input)
 
     p = asarray(p)
     n = len(p)
-
-    def cond_fun(val):
-        return val[0] > 1
 
     def body_fun(val):
         m, r = divmod(val[0], 2)
@@ -259,21 +250,18 @@ def _from_roots(line_f, mul_f, roots):
         tmp = array([zeros(retlen, dtype=p.dtype)] * len(p))
 
         def inner_body_fun(i, val):
-            return val.at[i].set(mul_f(arr[i], arr[i + m])[:retlen])
+            return val.at[i].set(g(arr[i], arr[i + m])[:retlen])
 
         tmp = jax.lax.fori_loop(0, m, inner_body_fun, tmp)
 
-        tmp = cond(
-            r, lambda x: x.at[0].set(mul_f(x[0], arr[2 * m])[:retlen]), lambda x: x, tmp
-        )
+        if r:
+            tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[:retlen])
 
         return m, tmp
 
     val = (n, p)
 
-    val = val
-
-    while cond_fun(val):
+    while val[0] > 1:
         val = body_fun(val)
 
     _, ret = val
@@ -306,14 +294,24 @@ def _normed_hermite_e_n(x, n):
             return c0, c1, nd
 
         b = n - 1
+
         x1 = (c0, c1, nd)
+
         y = x1
+
         for index in range(0, b):
             y = body(index, y)
+
         c0, c1, _ = y
+
         return c0 + c1 * x
 
-    return cond(n == 0, truefun, falsefun)
+    if n == 0:
+        output = truefun()
+    else:
+        output = falsefun()
+
+    return output
 
 
 def _normed_hermite_n(x, n):
@@ -341,7 +339,12 @@ def _normed_hermite_n(x, n):
         c0, c1, _ = y
         return c0 + c1 * x * sqrt(2)
 
-    return cond(n == 0, truefun, falsefun)
+    if n == 0:
+        output = truefun()
+    else:
+        output = falsefun()
+
+    return output
 
 
 def _nth_slice(i, ndim):
@@ -350,21 +353,21 @@ def _nth_slice(i, ndim):
     return tuple(sl)
 
 
-def _pad_along_axis(array, pad=(0, 0), axis=0):
-    array = moveaxis(array, axis, 0)
+def _pad_along_axis(input, pad=(0, 0), axis=0):
+    input = moveaxis(input, axis, 0)
 
     if pad[0] < 0:
-        array = array[abs(pad[0]) :]
+        input = input[abs(pad[0]) :]
         pad = (0, pad[1])
     if pad[1] < 0:
-        array = array[: -abs(pad[1])]
+        input = input[: -abs(pad[1])]
         pad = (pad[0], 0)
 
-    npad = [(0, 0)] * array.ndim
+    npad = [(0, 0)] * input.ndim
     npad[0] = pad
 
-    array = jax.numpy.pad(array, pad_width=npad, mode="constant", constant_values=0)
-    return moveaxis(array, 0, axis)
+    output = jax.numpy.pad(input, pad_width=npad, mode="constant", constant_values=0)
+    return moveaxis(output, 0, axis)
 
 
 def _pow(
@@ -507,29 +510,40 @@ def _as_series(*arrs, trim=False):
 
 def cheb2poly(c):
     c = _as_series(c)
+
     n = len(c)
+
     if n < 3:
         return c
-    else:
-        c0 = zeros_like(c).at[0].set(c[-2])
-        c1 = zeros_like(c).at[0].set(c[-1])
 
-        def body(k, c0c1):
-            i = n - 1 - k
-            c0, c1 = c0c1
-            tmp = c0
-            c0 = polysub(c[i - 2], c1)
-            c1 = polyadd(tmp, polymulx(c1, "same") * 2)
-            return c0, c1
+    c0 = zeros_like(c).at[0].set(c[-2])
+    c1 = zeros_like(c).at[0].set(c[-1])
 
-        b = n - 2
-        x = (c0, c1)
-        y = x
-        for index in range(0, b):
-            y = body(index, y)
-        c0, c1 = y
+    def body(k, c0c1):
+        i = n - 1 - k
 
-        return polyadd(c0, polymulx(c1, "same"))
+        c0, c1 = c0c1
+
+        tmp = c0
+
+        c0 = polysub(c[i - 2], c1)
+
+        c1 = polyadd(tmp, polymulx(c1, "same") * 2)
+
+        return c0, c1
+
+    b = n - 2
+
+    x = (c0, c1)
+
+    y = x
+
+    for index in range(0, b):
+        y = body(index, y)
+
+    c0, c1 = y
+
+    return polyadd(c0, polymulx(c1, "same"))
 
 
 def chebadd(
