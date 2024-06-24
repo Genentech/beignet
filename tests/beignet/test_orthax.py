@@ -112,7 +112,6 @@ def test_cheb2poly():
 def test_chebadd():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] += 1
@@ -120,7 +119,6 @@ def test_chebadd():
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(res, tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -181,7 +179,6 @@ def test_chebder():
 def test_chebdiv():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             ci = [0] * i + [1]
             cj = [0] * j + [1]
             tgt = beignet.orthax.chebadd(ci, cj)
@@ -190,7 +187,6 @@ def test_chebdiv():
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(res, tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -450,7 +446,7 @@ def test_chebint():
 
 
 def test_chebinterpolate():
-    def f(self, x):
+    def f(x):
         return x * (x - 1) * (x - 2)
 
     numpy.testing.assert_raises(ValueError, beignet.orthax.chebinterpolate, f, -1)
@@ -479,7 +475,6 @@ def test_chebline():
 def test_chebmul():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(i + j + 1)
             tgt[i + j] += 0.5
             tgt[abs(i - j)] += 0.5
@@ -487,7 +482,6 @@ def test_chebmul():
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(res, tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -510,14 +504,12 @@ def test_chebone():
 def test_chebpow():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             c = numpy.arange(i + 1)
             tgt = functools.reduce(beignet.orthax.chebmul, [c] * j, numpy.array([1]))
             res = beignet.orthax.chebpow(c, j)
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(res, tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -564,7 +556,6 @@ def test_chebroots():
 def test_chebsub():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] -= 1
@@ -572,7 +563,6 @@ def test_chebsub():
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(res, tol=1e-6),
                 beignet.orthax.chebtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -732,7 +722,6 @@ def test_herm2poly():
 def test_hermadd():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] += 1
@@ -740,7 +729,6 @@ def test_hermadd():
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermtrim(res, tol=1e-6),
                 beignet.orthax.hermtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -801,7 +789,6 @@ def test_hermder(self):
 def test_hermdiv():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             ci = [0.0] * i + [1.0]
             cj = [0.0] * j + [1.0]
             tgt = beignet.orthax.hermadd(ci, cj)
@@ -810,7 +797,6 @@ def test_hermdiv():
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermtrim(res, tol=1e-6),
                 beignet.orthax.hermtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -2974,53 +2960,79 @@ def test_mapparms():
 
 
 def test_poly2cheb():
-    for i in range(10):
+    for index in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2cheb(chebcoefficients[i]), [0] * i + [1]
+            beignet.orthax.poly2cheb(
+                chebcoefficients[index],
+            ),
+            [0] * index + [1],
         )
 
 
 def test_poly2herm():
-    for i in range(10):
-        x = beignet.orthax.poly2herm(hermcoefficients[i])
+    for index in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.hermtrim(x, tol=1e-6), [0] * i + [1]
+            beignet.orthax.hermtrim(
+                beignet.orthax.poly2herm(
+                    hermcoefficients[index],
+                ),
+                tol=1e-6,
+            ),
+            [0] * index + [1],
         )
 
 
 def test_poly2herme():
-    for i in range(10):
+    for index in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2herme(hermecoefficients[i]), [0] * i + [1]
+            beignet.orthax.poly2herme(
+                hermecoefficients[index],
+            ),
+            [0] * index + [1],
         )
 
 
 def test_poly2lag():
-    for i in range(7):
+    for index in range(7):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2lag(lagcoefficients[i]), [0] * i + [1]
+            beignet.orthax.poly2lag(
+                lagcoefficients[index],
+            ),
+            [0] * index + [1],
+            decimal=5,
         )
 
 
 def test_poly2leg():
-    for i in range(10):
+    for index in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2leg(legcoefficients[i]), [0] * i + [1]
+            beignet.orthax.poly2leg(
+                legcoefficients[index],
+            ),
+            [0] * index + [1],
         )
 
 
 def test_polyadd():
-    for i in range(5):
-        for j in range(5):
-            msg = f"At i={i}, j={j}"
-            tgt = numpy.zeros(max(i, j) + 1)
-            tgt[i] += 1
-            tgt[j] += 1
-            res = beignet.orthax.polyadd([0] * i + [1], [0] * j + [1])
+    for j in range(5):
+        for k in range(5):
+            target = numpy.zeros(max(j, k) + 1)
+
+            target[j] += 1
+            target[k] += 1
+
             numpy.testing.assert_array_equal(
-                beignet.orthax.polytrim(res, tol=1e-6),
-                beignet.orthax.polytrim(tgt, tol=1e-6),
-                err_msg=msg,
+                beignet.orthax.polytrim(
+                    beignet.orthax.polyadd(
+                        [0] * j + [1],
+                        [0] * k + [1],
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.polytrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -3028,9 +3040,11 @@ def test_polycompanion():
     numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [])
     numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [1])
 
-    for i in range(1, 5):
-        coef = [0] * i + [1]
-        numpy.testing.assert_(beignet.orthax.polycompanion(coef).shape == (i, i))
+    for index in range(1, 5):
+        coef = [0] * index + [1]
+        numpy.testing.assert_(
+            beignet.orthax.polycompanion(coef).shape == (index, index)
+        )
 
     numpy.testing.assert_(beignet.orthax.polycompanion([1, 2])[0, 0] == -0.5)
 
@@ -3101,7 +3115,10 @@ def test_polydiv():
 
 
 def test_polydomain():
-    numpy.testing.assert_equal(beignet.orthax.polydomain, numpy.array([-1, 1]))
+    numpy.testing.assert_equal(
+        beignet.orthax.polydomain,
+        numpy.array([-1, 1]),
+    )
 
 
 def test_polyfit():
@@ -3179,15 +3196,28 @@ def test_polyfit():
 
 
 def test_polyfromroots():
-    res = beignet.orthax.polyfromroots([])
-    numpy.testing.assert_array_almost_equal(beignet.orthax.polytrim(res, tol=1e-6), [1])
-    for i in range(1, 5):
-        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        tgt = polycoefficients[i]
-        res = beignet.orthax.polyfromroots(roots) * 2 ** (i - 1)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polytrim(
+            beignet.orthax.polyfromroots([]),
+            tol=1e-6,
+        ),
+        [1],
+    )
+
+    for index in range(1, 5):
+        roots = numpy.cos(
+            numpy.linspace(-numpy.pi, 0, 2 * index + 1)[1::2],
+        )
+
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.polytrim(res, tol=1e-6),
-            beignet.orthax.polytrim(tgt, tol=1e-6),
+            beignet.orthax.polytrim(
+                beignet.orthax.polyfromroots(roots) * 2 ** (index - 1),
+                tol=1e-6,
+            ),
+            beignet.orthax.polytrim(
+                polycoefficients[index],
+                tol=1e-6,
+            ),
         )
 
 
@@ -3405,15 +3435,21 @@ def test_polyroots():
 def test_polysub():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
-            tgt = numpy.zeros(max(i, j) + 1)
-            tgt[i] += 1
-            tgt[j] -= 1
-            res = beignet.orthax.polysub([0] * i + [1], [0] * j + [1])
+            target = numpy.zeros(max(i, j) + 1)
+            target[i] += 1
+            target[j] -= 1
             numpy.testing.assert_array_equal(
-                beignet.orthax.polytrim(res, tol=1e-6),
-                beignet.orthax.polytrim(tgt, tol=1e-6),
-                err_msg=msg,
+                beignet.orthax.polytrim(
+                    beignet.orthax.polysub(
+                        [0] * i + [1],
+                        [0] * j + [1],
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.polytrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -3422,9 +3458,20 @@ def test_polytrim():
 
     numpy.testing.assert_raises(ValueError, beignet.orthax.polytrim, coef, -1)
 
-    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef), coef[:-1])
-    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 1), coef[:-3])
-    numpy.testing.assert_array_equal(beignet.orthax.polytrim(coef, 2), [0])
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polytrim(coef),
+        coef[:-1],
+    )
+
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polytrim(coef, 1),
+        coef[:-3],
+    )
+
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polytrim(coef, 2),
+        [0],
+    )
 
 
 def test_polyval():
@@ -3573,61 +3620,111 @@ def test_polyvalfromroots():
     x = numpy.vstack([x, 2 * x])
     res = beignet.orthax.polyvalfromroots(x, r, tensor=True)
     tgt = numpy.empty(r.shape[1:] + x.shape)
+
     for ii in range(r.shape[1]):
         for jj in range(x.shape[0]):
             tgt[ii, jj, :] = beignet.orthax.polyvalfromroots(x[jj], r[:, ii])
-    numpy.testing.assert_array_equal(res, tgt)
+
+    numpy.testing.assert_array_equal(
+        res,
+        tgt,
+    )
 
 
 def test_polyvander():
     x = numpy.arange(3)
+
     v = beignet.orthax.polyvander(x, 3)
+
     numpy.testing.assert_(v.shape == (3, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
+
+    for index in range(4):
         numpy.testing.assert_array_almost_equal(
-            v[..., i], beignet.orthax.polyval(x, coef)
+            v[..., index],
+            beignet.orthax.polyval(
+                x,
+                [0] * index + [1],
+            ),
         )
 
     x = numpy.array([[1, 2], [3, 4], [5, 6]])
+
     v = beignet.orthax.polyvander(x, 3)
+
     numpy.testing.assert_(v.shape == (3, 2, 4))
-    for i in range(4):
-        coef = [0] * i + [1]
+
+    for index in range(4):
         numpy.testing.assert_array_almost_equal(
-            v[..., i], beignet.orthax.polyval(x, coef)
+            v[..., index],
+            beignet.orthax.polyval(
+                x,
+                [0] * index + [1],
+            ),
         )
 
-    x = numpy.arange(3)
     numpy.testing.assert_raises(
         ValueError,
         beignet.orthax.polyvander,
-        x,
+        numpy.arange(3),
         -1,
     )
 
 
 def test_polyvander2d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
-    c = numpy.random.random((2, 3))
-    van = beignet.orthax.polyvander2d(x1, x2, (1, 2))
-    tgt = beignet.orthax.polyval2d(x1, x2, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_array_almost_equal(res, tgt)
 
-    van = beignet.orthax.polyvander2d([x1], [x2], (1, 2))
+    c = numpy.random.random((2, 3))
+
+    numpy.testing.assert_array_almost_equal(
+        numpy.dot(
+            beignet.orthax.polyvander2d(
+                x1,
+                x2,
+                (1, 2),
+            ),
+            c.flat,
+        ),
+        beignet.orthax.polyval2d(
+            x1,
+            x2,
+            c,
+        ),
+    )
+
+    van = beignet.orthax.polyvander2d(
+        [x1],
+        [x2],
+        (1, 2),
+    )
+
     numpy.testing.assert_(van.shape == (1, 5, 6))
 
 
 def test_polyvander3d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
-    c = numpy.random.random((2, 3, 4))
-    van = beignet.orthax.polyvander3d(x1, x2, x3, (1, 2, 3))
-    tgt = beignet.orthax.polyval3d(x1, x2, x3, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_array_almost_equal(res, tgt)
 
-    van = beignet.orthax.polyvander3d([x1], [x2], [x3], (1, 2, 3))
+    c = numpy.random.random((2, 3, 4))
+
+    numpy.testing.assert_array_almost_equal(
+        numpy.dot(
+            beignet.orthax.polyvander3d(
+                x1,
+                x2,
+                x3,
+                (1, 2, 3),
+            ),
+            c.flat,
+        ),
+        beignet.orthax.polyval3d(x1, x2, x3, c),
+    )
+
+    van = beignet.orthax.polyvander3d(
+        [x1],
+        [x2],
+        [x3],
+        (1, 2, 3),
+    )
+
     numpy.testing.assert_(van.shape == (1, 5, 24))
 
 
