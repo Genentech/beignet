@@ -2918,3 +2918,325 @@ def test_hermint():
     tgt = numpy.vstack([beignet.orthax.hermint(c, k=3) for c in c2d])
     res = beignet.orthax.hermint(c2d, k=3, axis=1)
     numpy.testing.assert_array_almost_equal(res, tgt)
+
+
+def test_polyval():
+    # c1d = numpy.array([1.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    numpy.testing.assert_equal(beignet.orthax.polyval([], [1]).size, 0)
+
+    x = numpy.linspace(-1, 1)
+    y = [x**i for i in range(5)]
+    for i in range(5):
+        tgt = y[i]
+        res = beignet.orthax.polyval(x, [0] * i + [1])
+        numpy.testing.assert_array_almost_equal(res, tgt)
+    tgt = x * (x**2 - 1)
+    res = beignet.orthax.polyval(x, [0, -1, 0, 1])
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.orthax.polyval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.orthax.polyval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.orthax.polyval(x, [1, 0, 0]).shape, dims)
+
+    mask = [False, True, False]
+    mx = numpy.ma.array([1, 2, 3], mask=mask)
+    res = numpy.polyval([7, 5, 3], mx)
+    numpy.testing.assert_array_equal(res.mask, mask)
+
+
+def test_polyvalfromroots():
+    # c1d = numpy.array([1.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    # y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax.polyvalfromroots,
+        [1],
+        [1],
+        tensor=False,
+    )
+
+    numpy.testing.assert_equal(beignet.orthax.polyvalfromroots([], [1]).size, 0)
+    numpy.testing.assert_(beignet.orthax.polyvalfromroots([], [1]).shape == (0,))
+
+    numpy.testing.assert_equal(beignet.orthax.polyvalfromroots([], [[1] * 5]).size, 0)
+    numpy.testing.assert_(
+        beignet.orthax.polyvalfromroots([], [[1] * 5]).shape == (5, 0)
+    )
+
+    numpy.testing.assert_array_equal(beignet.orthax.polyvalfromroots(1, 1), 0)
+    numpy.testing.assert_(
+        beignet.orthax.polyvalfromroots(1, numpy.ones((3, 3))).shape == (3,)
+    )
+
+    x = numpy.linspace(-1, 1)
+    y = [x**i for i in range(5)]
+    for i in range(1, 5):
+        tgt = y[i]
+        res = beignet.orthax.polyvalfromroots(x, [0] * i)
+        numpy.testing.assert_array_almost_equal(res, tgt)
+    tgt = x * (x - 1) * (x + 1)
+    res = beignet.orthax.polyvalfromroots(x, [-1, 0, 1])
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.orthax.polyvalfromroots(x, [1]).shape, dims)
+        numpy.testing.assert_equal(
+            beignet.orthax.polyvalfromroots(x, [1, 0]).shape, dims
+        )
+        numpy.testing.assert_equal(
+            beignet.orthax.polyvalfromroots(x, [1, 0, 0]).shape, dims
+        )
+
+    ptest = [15, 2, -16, -2, 1]
+    r = beignet.orthax.polyroots(ptest)
+    x = numpy.linspace(-1, 1)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyval(x, ptest),
+        beignet.orthax.polyvalfromroots(x, r),
+    )
+
+    rshape = (3, 5)
+    x = numpy.arange(-3, 2)
+    r = numpy.random.randint(-5, 5, size=rshape)
+    res = beignet.orthax.polyvalfromroots(x, r, tensor=False)
+    tgt = numpy.empty(r.shape[1:])
+    for ii in range(tgt.size):
+        tgt[ii] = beignet.orthax.polyvalfromroots(x[ii], r[:, ii])
+    numpy.testing.assert_array_equal(res, tgt)
+
+    x = numpy.vstack([x, 2 * x])
+    res = beignet.orthax.polyvalfromroots(x, r, tensor=True)
+    tgt = numpy.empty(r.shape[1:] + x.shape)
+    for ii in range(r.shape[1]):
+        for jj in range(x.shape[0]):
+            tgt[ii, jj, :] = beignet.orthax.polyvalfromroots(x[jj], r[:, ii])
+    numpy.testing.assert_array_equal(res, tgt)
+
+
+def test_polyval2d():
+    c1d = numpy.array([1.0, 2.0, 3.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises_regex(
+        ValueError,
+        "incompatible",
+        beignet.orthax.polyval2d,
+        x1,
+        x2[:2],
+        c2d,
+    )
+
+    tgt = y1 * y2
+    res = beignet.orthax.polyval2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.polyval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_polyval3d():
+    c1d = numpy.array([1.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises_regex(
+        ValueError,
+        "incompatible",
+        beignet.orthax.polyval3d,
+        x1,
+        x2,
+        x3[:2],
+        c3d,
+    )
+
+    tgt = y1 * y2 * y3
+    res = beignet.orthax.polyval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.polyval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_polygrid2d():
+    c1d = numpy.array([1.0, 2.0, 3.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.orthax.polygrid2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.polygrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_polygrid3d():
+    c1d = numpy.array([1.0, 2.0, 3.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.orthax.polygrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.polygrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_legval():
+    # c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    numpy.testing.assert_array_equal(beignet.orthax.legval([], [1]).size, 0)
+
+    x = numpy.linspace(-1, 1)
+    y = [numpy.polynomial.polynomial.polyval(x, c) for c in legcoefficients]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.orthax.legval(x, [0] * i + [1])
+        numpy.testing.assert_array_almost_equal(res, tgt, err_msg=msg)
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_array_equal(beignet.orthax.legval(x, [1]).shape, dims)
+        numpy.testing.assert_array_equal(beignet.orthax.legval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_array_equal(
+            beignet.orthax.legval(x, [1, 0, 0]).shape, dims
+        )
+
+
+def test_legval2d():
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legval2d, x1, x2[:2], c2d)
+
+    tgt = y1 * y2
+    res = beignet.orthax.legval2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.legval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_legval3d():
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.legval3d, x1, x2, x3[:2], c3d
+    )
+
+    tgt = y1 * y2 * y3
+    res = beignet.orthax.legval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.legval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_leggrid2d():
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.orthax.leggrid2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.leggrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_leggrid3d():
+    c1d = numpy.array([2.0, 2.0, 2.0])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.orthax.leggrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.leggrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
