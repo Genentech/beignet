@@ -3347,3 +3347,108 @@ def test_chebgrid3d():
     z = numpy.ones((2, 3))
     res = beignet.orthax.chebgrid3d(z, z, z, c3d)
     numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_hermval():
+    numpy.testing.assert_equal(beignet.orthax.hermval([], [1]).size, 0)
+
+    x = numpy.linspace(-1, 1)
+    y = [numpy.polynomial.polynomial.polyval(x, c) for c in hermcoefficients]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.orthax.hermval(x, [0] * i + [1])
+        numpy.testing.assert_array_almost_equal(res, tgt, err_msg=msg)
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_equal(beignet.orthax.hermval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.orthax.hermval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_equal(beignet.orthax.hermval(x, [1, 0, 0]).shape, dims)
+
+
+def test_hermval2d():
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermval2d, x1, x2[:2], c2d)
+
+    tgt = y1 * y2
+    res = beignet.orthax.hermval2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_hermval3d():
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermval3d, x1, x2, x3[:2], c3d
+    )
+
+    tgt = y1 * y2 * y3
+    res = beignet.orthax.hermval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_hermgrid2d():
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.orthax.hermgrid2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermgrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_hermgrid3d():
+    c1d = numpy.array([2.5, 1.0, 0.75])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.orthax.hermgrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.hermgrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
