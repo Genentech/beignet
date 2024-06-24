@@ -74,15 +74,11 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def scan(f, init, xs, length=None):
-    if xs is None:
-        xs = [None] * length
-    carry = init
-    ys = []
-    for x in xs:
-        carry, y = f(carry, x)
-        ys.append(y)
-    return carry, stack(ys)
+def fori_loop(lower, upper, body_fun, init_val):
+    val = init_val
+    for i in range(lower, upper):
+        val = body_fun(i, val)
+    return val
 
 
 def _add(
@@ -239,7 +235,17 @@ def _from_roots(f, g, input):
     def p_scan_fun(carry, x):
         return carry, _add(zeros(retlen, dtype=x.dtype), f(-x, 1))
 
-    _, p = scan(p_scan_fun, 0, input)
+    carry = 0
+
+    ys = []
+
+    for x in input:
+        carry, y = p_scan_fun(carry, x)
+        ys.append(y)
+
+    result = carry, stack(ys)
+
+    _, p = result
 
     p = asarray(p)
     n = len(p)
@@ -252,7 +258,10 @@ def _from_roots(f, g, input):
         def inner_body_fun(i, val):
             return val.at[i].set(g(arr[i], arr[i + m])[:retlen])
 
-        tmp = jax.lax.fori_loop(0, m, inner_body_fun, tmp)
+        val1 = tmp
+        for i in range(0, m):
+            val1 = inner_body_fun(i, val1)
+        tmp = val1
 
         if r:
             tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[:retlen])
