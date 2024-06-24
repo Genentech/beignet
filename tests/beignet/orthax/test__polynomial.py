@@ -2677,3 +2677,47 @@ def test_hermeder():
     tgt = numpy.vstack([beignet.orthax.hermeder(c) for c in c2d])
     res = beignet.orthax.hermeder(c2d, axis=1)
     numpy.testing.assert_array_almost_equal(res, tgt)
+
+
+def test_hermevander():
+    x = numpy.arange(3)
+    v = beignet.orthax.hermevander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.hermeval(x, coef)
+        )
+
+    x = numpy.array([[1, 2], [3, 4], [5, 6]])
+    v = beignet.orthax.hermevander(x, 3)
+    numpy.testing.assert_(v.shape == (3, 2, 4))
+    for i in range(4):
+        coef = [0] * i + [1]
+        numpy.testing.assert_array_almost_equal(
+            v[..., i], beignet.orthax.hermeval(x, coef)
+        )
+
+
+def test_hermevander2d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3))
+    van = beignet.orthax.hermevander2d(x1, x2, (1, 2))
+    tgt = beignet.orthax.hermeval2d(x1, x2, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.hermevander2d([x1], [x2], (1, 2))
+    numpy.testing.assert_(van.shape == (1, 5, 6))
+
+
+def test_hermevander3d():
+    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    c = numpy.random.random((2, 3, 4))
+    van = beignet.orthax.hermevander3d(x1, x2, x3, (1, 2, 3))
+    tgt = beignet.orthax.hermeval3d(x1, x2, x3, c)
+    res = numpy.dot(van, c.flat)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    van = beignet.orthax.hermevander3d([x1], [x2], [x3], (1, 2, 3))
+    numpy.testing.assert_(van.shape == (1, 5, 24))
