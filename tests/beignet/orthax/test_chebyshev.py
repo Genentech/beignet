@@ -9,18 +9,18 @@ def trim(x):
     return beignet.orthax.chebtrim(x, tol=1e-6)
 
 
-T0 = [1]
-T1 = [0, 1]
-T2 = [-1, 0, 2]
-T3 = [0, -3, 0, 4]
-T4 = [1, 0, -8, 0, 8]
-T5 = [0, 5, 0, -20, 0, 16]
-T6 = [-1, 0, 18, 0, -48, 0, 32]
-T7 = [0, -7, 0, 56, 0, -112, 0, 64]
-T8 = [1, 0, -32, 0, 160, 0, -256, 0, 128]
-T9 = [0, 9, 0, -120, 0, 432, 0, -576, 0, 256]
-
-Tlist = [T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
+chebcoefficients = [
+    [1],
+    [0, 1],
+    [-1, 0, 2],
+    [0, -3, 0, 4],
+    [1, 0, -8, 0, 8],
+    [0, 5, 0, -20, 0, 16],
+    [-1, 0, 18, 0, -48, 0, 32],
+    [0, -7, 0, 56, 0, -112, 0, 64],
+    [1, 0, -32, 0, 160, 0, -256, 0, 128],
+    [0, 9, 0, -120, 0, 432, 0, -576, 0, 256],
+]
 
 
 def test__cseries_to_zseries():
@@ -131,7 +131,7 @@ class TestEvaluation:
         numpy.testing.assert_array_equal(beignet.orthax.chebval([], [1]).size, 0)
 
         x = numpy.linspace(-1, 1)
-        y = [numpy.polynomial.polynomial.polyval(x, c) for c in Tlist]
+        y = [numpy.polynomial.polynomial.polyval(x, c) for c in chebcoefficients]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
@@ -539,14 +539,14 @@ def test_chebline():
 def test_cheb2poly():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.cheb2poly([0] * i + [1]), Tlist[i]
+            beignet.orthax.cheb2poly([0] * i + [1]), chebcoefficients[i]
         )
 
 
 def test_poly2cheb():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2cheb(Tlist[i]), [0] * i + [1]
+            beignet.orthax.poly2cheb(chebcoefficients[i]), [0] * i + [1]
         )
 
 

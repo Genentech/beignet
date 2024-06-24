@@ -4,36 +4,38 @@ import beignet.orthax
 import numpy
 import numpy.testing
 
-He0 = numpy.array([1])
-He1 = numpy.array([0, 1])
-He2 = numpy.array([-1, 0, 1])
-He3 = numpy.array([0, -3, 0, 1])
-He4 = numpy.array([3, 0, -6, 0, 1])
-He5 = numpy.array([0, 15, 0, -10, 0, 1])
-He6 = numpy.array([-15, 0, 45, 0, -15, 0, 1])
-He7 = numpy.array([0, -105, 0, 105, 0, -21, 0, 1])
-He8 = numpy.array([105, 0, -420, 0, 210, 0, -28, 0, 1])
-He9 = numpy.array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])
-
-Helist = [He0, He1, He2, He3, He4, He5, He6, He7, He8, He9]
+hermecoefficients = [
+    (numpy.array([1])),
+    (numpy.array([0, 1])),
+    (numpy.array([-1, 0, 1])),
+    (numpy.array([0, -3, 0, 1])),
+    (numpy.array([3, 0, -6, 0, 1])),
+    (numpy.array([0, 15, 0, -10, 0, 1])),
+    (numpy.array([-15, 0, 45, 0, -15, 0, 1])),
+    (numpy.array([0, -105, 0, 105, 0, -21, 0, 1])),
+    (numpy.array([105, 0, -420, 0, 210, 0, -28, 0, 1])),
+    (numpy.array([0, 945, 0, -1260, 0, 378, 0, -36, 0, 1])),
+]
 
 
 def trim(x):
     return beignet.orthax.hermetrim(x, tol=1e-6)
 
 
-class TestConstants:
-    def test_hermedomain(self):
-        numpy.testing.assert_array_equal(beignet.orthax.hermedomain, [-1, 1])
+def test_hermedomain():
+    numpy.testing.assert_array_equal(beignet.orthax.hermedomain, [-1, 1])
 
-    def test_hermezero(self):
-        numpy.testing.assert_array_equal(beignet.orthax.hermezero, [0])
 
-    def test_hermeone(self):
-        numpy.testing.assert_array_equal(beignet.orthax.hermeone, [1])
+def test_hermezero():
+    numpy.testing.assert_array_equal(beignet.orthax.hermezero, [0])
 
-    def test_hermex(self):
-        numpy.testing.assert_array_equal(beignet.orthax.hermex, [0, 1])
+
+def test_hermeone():
+    numpy.testing.assert_array_equal(beignet.orthax.hermeone, [1])
+
+
+def test_hermex():
+    numpy.testing.assert_array_equal(beignet.orthax.hermex, [0, 1])
 
 
 class TestArithmetic:
@@ -115,7 +117,7 @@ class TestEvaluation:
         numpy.testing.assert_array_equal(beignet.orthax.hermeval([], [1]).size, 0)
 
         x = numpy.linspace(-1, 1)
-        y = [numpy.polynomial.polynomial.polyval(x, c) for c in Helist]
+        y = [numpy.polynomial.polynomial.polyval(x, c) for c in hermecoefficients]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
@@ -479,55 +481,58 @@ class TestGauss:
         numpy.testing.assert_array_almost_equal(w.sum(), tgt)
 
 
-class TestMisc:
-    def test_hermefromroots(self):
-        res = beignet.orthax.hermefromroots([])
-        numpy.testing.assert_array_almost_equal(trim(res), [1])
-        for i in range(1, 5):
-            roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-            pol = beignet.orthax.hermefromroots(roots)
-            res = beignet.orthax.hermeval(roots, pol)
-            tgt = 0
-            numpy.testing.assert_(len(pol) == i + 1)
-            numpy.testing.assert_array_almost_equal(
-                beignet.orthax.herme2poly(pol)[-1], 1
-            )
-            numpy.testing.assert_array_almost_equal(res, tgt)
-
-    def test_hermeroots(self):
-        numpy.testing.assert_array_almost_equal(beignet.orthax.hermeroots([1]), [])
-        numpy.testing.assert_array_almost_equal(beignet.orthax.hermeroots([1, 1]), [-1])
-        for i in range(2, 5):
-            tgt = numpy.linspace(-1, 1, i)
-            res = beignet.orthax.hermeroots(beignet.orthax.hermefromroots(tgt))
-            numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
-
-    def test_hermetrim(self):
-        coef = [2, -1, 1, 0]
-
-        numpy.testing.assert_raises(ValueError, beignet.orthax.hermetrim, coef, -1)
-
-        numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef), coef[:-1])
-        numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef, 1), coef[:-3])
-        numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef, 2), [0])
-
-    def test_hermeline(self):
-        numpy.testing.assert_array_equal(beignet.orthax.hermeline(3, 4), [3, 4])
-
-    def test_herme2poly(self):
-        for i in range(10):
-            numpy.testing.assert_array_almost_equal(
-                beignet.orthax.herme2poly([0] * i + [1]), Helist[i]
-            )
-
-    def test_poly2herme(self):
-        for i in range(10):
-            numpy.testing.assert_array_almost_equal(
-                beignet.orthax.poly2herme(Helist[i]), [0] * i + [1]
-            )
-
-    def test_weight(self):
-        x = numpy.linspace(-5, 5, 11)
-        tgt = numpy.exp(-0.5 * x**2)
-        res = beignet.orthax.hermeweight(x)
+def test_hermefromroots():
+    res = beignet.orthax.hermefromroots([])
+    numpy.testing.assert_array_almost_equal(trim(res), [1])
+    for i in range(1, 5):
+        roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
+        pol = beignet.orthax.hermefromroots(roots)
+        res = beignet.orthax.hermeval(roots, pol)
+        tgt = 0
+        numpy.testing.assert_(len(pol) == i + 1)
+        numpy.testing.assert_array_almost_equal(beignet.orthax.herme2poly(pol)[-1], 1)
         numpy.testing.assert_array_almost_equal(res, tgt)
+
+
+def test_hermeroots():
+    numpy.testing.assert_array_almost_equal(beignet.orthax.hermeroots([1]), [])
+    numpy.testing.assert_array_almost_equal(beignet.orthax.hermeroots([1, 1]), [-1])
+    for i in range(2, 5):
+        tgt = numpy.linspace(-1, 1, i)
+        res = beignet.orthax.hermeroots(beignet.orthax.hermefromroots(tgt))
+        numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
+
+
+def test_hermetrim():
+    coef = [2, -1, 1, 0]
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermetrim, coef, -1)
+
+    numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef), coef[:-1])
+    numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef, 1), coef[:-3])
+    numpy.testing.assert_array_equal(beignet.orthax.hermetrim(coef, 2), [0])
+
+
+def test_hermeline():
+    numpy.testing.assert_array_equal(beignet.orthax.hermeline(3, 4), [3, 4])
+
+
+def test_herme2poly():
+    for i in range(10):
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.herme2poly([0] * i + [1]), hermecoefficients[i]
+        )
+
+
+def test_poly2herme():
+    for i in range(10):
+        numpy.testing.assert_array_almost_equal(
+            beignet.orthax.poly2herme(hermecoefficients[i]), [0] * i + [1]
+        )
+
+
+def test_hermeweight():
+    x = numpy.linspace(-5, 5, 11)
+    tgt = numpy.exp(-0.5 * x**2)
+    res = beignet.orthax.hermeweight(x)
+    numpy.testing.assert_array_almost_equal(res, tgt)

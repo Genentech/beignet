@@ -4,18 +4,18 @@ import beignet.orthax
 import numpy
 import numpy.testing
 
-H0 = numpy.array([1])
-H1 = numpy.array([0, 2])
-H2 = numpy.array([-2, 0, 4])
-H3 = numpy.array([0, -12, 0, 8])
-H4 = numpy.array([12, 0, -48, 0, 16])
-H5 = numpy.array([0, 120, 0, -160, 0, 32])
-H6 = numpy.array([-120, 0, 720, 0, -480, 0, 64])
-H7 = numpy.array([0, -1680, 0, 3360, 0, -1344, 0, 128])
-H8 = numpy.array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])
-H9 = numpy.array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])
-
-Hlist = [H0, H1, H2, H3, H4, H5, H6, H7, H8, H9]
+hermcoefficients = [
+    (numpy.array([1])),
+    (numpy.array([0, 2])),
+    (numpy.array([-2, 0, 4])),
+    (numpy.array([0, -12, 0, 8])),
+    (numpy.array([12, 0, -48, 0, 16])),
+    (numpy.array([0, 120, 0, -160, 0, 32])),
+    (numpy.array([-120, 0, 720, 0, -480, 0, 64])),
+    (numpy.array([0, -1680, 0, 3360, 0, -1344, 0, 128])),
+    (numpy.array([1680, 0, -13440, 0, 13440, 0, -3584, 0, 256])),
+    (numpy.array([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512])),
+]
 
 
 def trim(x):
@@ -117,7 +117,7 @@ class TestEvaluation:
         numpy.testing.assert_equal(beignet.orthax.hermval([], [1]).size, 0)
 
         x = numpy.linspace(-1, 1)
-        y = [numpy.polynomial.polynomial.polyval(x, c) for c in Hlist]
+        y = [numpy.polynomial.polynomial.polyval(x, c) for c in hermcoefficients]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
@@ -500,14 +500,14 @@ def test_hermline():
 def test_herm2poly():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.herm2poly([0] * i + [1]), Hlist[i]
+            beignet.orthax.herm2poly([0] * i + [1]), hermcoefficients[i]
         )
 
 
 def test_poly2herm():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            trim(beignet.orthax.poly2herm(Hlist[i])), [0] * i + [1]
+            trim(beignet.orthax.poly2herm(hermcoefficients[i])), [0] * i + [1]
         )
 
 

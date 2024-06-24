@@ -9,18 +9,18 @@ def trim(x):
     return beignet.orthax.polytrim(x, tol=1e-6)
 
 
-T0 = [1]
-T1 = [0, 1]
-T2 = [-1, 0, 2]
-T3 = [0, -3, 0, 4]
-T4 = [1, 0, -8, 0, 8]
-T5 = [0, 5, 0, -20, 0, 16]
-T6 = [-1, 0, 18, 0, -48, 0, 32]
-T7 = [0, -7, 0, 56, 0, -112, 0, 64]
-T8 = [1, 0, -32, 0, 160, 0, -256, 0, 128]
-T9 = [0, 9, 0, -120, 0, 432, 0, -576, 0, 256]
-
-Tlist = [T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
+polycoefficients = [
+    [1],
+    [0, 1],
+    [-1, 0, 2],
+    [0, -3, 0, 4],
+    [1, 0, -8, 0, 8],
+    [0, 5, 0, -20, 0, 16],
+    [-1, 0, 18, 0, -48, 0, 32],
+    [0, -7, 0, 56, 0, -112, 0, 64],
+    [1, 0, -32, 0, 160, 0, -256, 0, 128],
+    [0, 9, 0, -120, 0, 432, 0, -576, 0, 256],
+]
 
 
 def test_polydomain():
@@ -462,7 +462,7 @@ def test_polyfromroots():
     numpy.testing.assert_array_almost_equal(trim(res), [1])
     for i in range(1, 5):
         roots = numpy.cos(numpy.linspace(-numpy.pi, 0, 2 * i + 1)[1::2])
-        tgt = Tlist[i]
+        tgt = polycoefficients[i]
         res = beignet.orthax.polyfromroots(roots) * 2 ** (i - 1)
         numpy.testing.assert_array_almost_equal(trim(res), trim(tgt))
 

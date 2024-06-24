@@ -4,18 +4,18 @@ import beignet.orthax
 import numpy
 import numpy.testing
 
-L0 = numpy.array([1])
-L1 = numpy.array([0, 1])
-L2 = numpy.array([-1, 0, 3]) / 2
-L3 = numpy.array([0, -3, 0, 5]) / 2
-L4 = numpy.array([3, 0, -30, 0, 35]) / 8
-L5 = numpy.array([0, 15, 0, -70, 0, 63]) / 8
-L6 = numpy.array([-5, 0, 105, 0, -315, 0, 231]) / 16
-L7 = numpy.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16
-L8 = numpy.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128
-L9 = numpy.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128
-
-Llist = [L0, L1, L2, L3, L4, L5, L6, L7, L8, L9]
+legcoefficients = [
+    (numpy.array([1])),
+    (numpy.array([0, 1])),
+    (numpy.array([-1, 0, 3]) / 2),
+    (numpy.array([0, -3, 0, 5]) / 2),
+    (numpy.array([3, 0, -30, 0, 35]) / 8),
+    (numpy.array([0, 15, 0, -70, 0, 63]) / 8),
+    (numpy.array([-5, 0, 105, 0, -315, 0, 231]) / 16),
+    (numpy.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16),
+    (numpy.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128),
+    (numpy.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128),
+]
 
 
 def trim(x):
@@ -119,7 +119,7 @@ class TestEvaluation:
         numpy.testing.assert_array_equal(beignet.orthax.legval([], [1]).size, 0)
 
         x = numpy.linspace(-1, 1)
-        y = [numpy.polynomial.polynomial.polyval(x, c) for c in Llist]
+        y = [numpy.polynomial.polynomial.polyval(x, c) for c in legcoefficients]
         for i in range(10):
             msg = f"At i={i}"
             tgt = y[i]
@@ -512,14 +512,14 @@ def test_legline():
 def test_leg2poly():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.leg2poly([0] * i + [1]), Llist[i]
+            beignet.orthax.leg2poly([0] * i + [1]), legcoefficients[i]
         )
 
 
 def test_poly2leg():
     for i in range(10):
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.poly2leg(Llist[i]), [0] * i + [1]
+            beignet.orthax.poly2leg(legcoefficients[i]), [0] * i + [1]
         )
 
 
