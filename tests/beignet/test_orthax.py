@@ -1833,15 +1833,20 @@ def test_hermmul():
         pol1 = [0.0] * i + [1.0]
         val1 = beignet.orthax.hermval(x, pol1)
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             pol2 = [0.0] * j + [1.0]
             val2 = beignet.orthax.hermval(x, pol2)
             pol3 = beignet.orthax.hermmul(pol1, pol2)
             val3 = beignet.orthax.hermval(x, pol3)
+
             numpy.testing.assert_(
-                len(beignet.orthax.hermtrim(pol3, tol=1e-6)) == i + j + 1, msg
+                len(beignet.orthax.hermtrim(pol3, tol=1e-6)) == i + j + 1
             )
-            numpy.testing.assert_array_almost_equal(val3, val1 * val2, decimal=3)
+
+            numpy.testing.assert_array_almost_equal(
+                val3,
+                val1 * val2,
+                decimal=3,
+            )
 
 
 def test_hermmulx():
@@ -1887,7 +1892,6 @@ def test_hermroots():
 def test_hermsub():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(max(i, j) + 1)
             tgt[i] += 1
             tgt[j] -= 1
@@ -1895,7 +1899,6 @@ def test_hermsub():
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermtrim(res, tol=1e-6),
                 beignet.orthax.hermtrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -1963,12 +1966,12 @@ def test_hermval3d():
     )
 
     tgt = y1 * y2 * y3
-    res = beignet.orthax.hermval3d(x1, x2, x3, c3d)
-    numpy.testing.assert_array_almost_equal(res, tgt, decimal=5)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.hermval3d(x1, x2, x3, c3d), tgt, decimal=5
+    )
 
     z = numpy.ones((2, 3))
-    res = beignet.orthax.hermval3d(z, z, z, c3d)
-    numpy.testing.assert_(res.shape == (2, 3))
+    numpy.testing.assert_(beignet.orthax.hermval3d(z, z, z, c3d).shape == (2, 3))
 
 
 def test_hermvander():
@@ -1994,32 +1997,35 @@ def test_hermvander():
 def test_hermvander2d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3))
-    van = beignet.orthax.hermvander2d(x1, x2, (1, 2))
-    tgt = beignet.orthax.hermval2d(x1, x2, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        numpy.dot(beignet.orthax.hermvander2d(x1, x2, (1, 2)), c.flat),
+        beignet.orthax.hermval2d(x1, x2, c),
+    )
 
-    van = beignet.orthax.hermvander2d([x1], [x2], (1, 2))
-    numpy.testing.assert_(van.shape == (1, 5, 6))
+    numpy.testing.assert_(
+        beignet.orthax.hermvander2d([x1], [x2], (1, 2)).shape == (1, 5, 6)
+    )
 
 
 def test_hermvander3d():
     x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
     c = numpy.random.random((2, 3, 4))
-    van = beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3))
-    tgt = beignet.orthax.hermval3d(x1, x2, x3, c)
-    res = numpy.dot(van, c.flat)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        numpy.dot(beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3)), c.flat),
+        beignet.orthax.hermval3d(x1, x2, x3, c),
+        decimal=5,
+    )
 
-    van = beignet.orthax.hermvander3d([x1], [x2], [x3], (1, 2, 3))
-    numpy.testing.assert_(van.shape == (1, 5, 24))
+    numpy.testing.assert_(
+        beignet.orthax.hermvander3d([x1], [x2], [x3], (1, 2, 3)).shape == (1, 5, 24)
+    )
 
 
 def test_hermweight():
-    x = numpy.linspace(-5, 5, 11)
-    tgt = numpy.exp(-(x**2))
-    res = beignet.orthax.hermweight(x)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.hermweight(numpy.linspace(-5, 5, 11)),
+        numpy.exp(-(numpy.linspace(-5, 5, 11) ** 2)),
+    )
 
 
 def test_hermx():
@@ -3405,7 +3411,6 @@ def test_polydiv():
 
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             ci = [0.0] * i + [1.0, 2.0]
             cj = [0.0] * j + [1.0, 2.0]
             tgt = beignet.orthax.polyadd(ci, cj)
@@ -3414,7 +3419,6 @@ def test_polydiv():
             numpy.testing.assert_array_equal(
                 beignet.orthax.polytrim(res, tol=1e-6),
                 beignet.orthax.polytrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
