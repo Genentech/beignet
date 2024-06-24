@@ -3666,3 +3666,26 @@ def test_laggrid3d():
     z = numpy.ones((2, 3))
     res = beignet.orthax.laggrid3d(z, z, z, c3d)
     numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_chebinterpolate():
+    def f(self, x):
+        return x * (x - 1) * (x - 2)
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebinterpolate, f, -1)
+
+    for deg in range(1, 5):
+        numpy.testing.assert_(
+            beignet.orthax.chebinterpolate(f, deg).shape == (deg + 1,)
+        )
+
+    def powx(x, p):
+        return x**p
+
+    x = numpy.linspace(-1, 1, 10)
+    for deg in range(0, 10):
+        for p in range(0, deg + 1):
+            c = beignet.orthax.chebinterpolate(powx, deg, (p,))
+            numpy.testing.assert_array_almost_equal(
+                beignet.orthax.chebval(x, c), powx(x, p), decimal=12
+            )
