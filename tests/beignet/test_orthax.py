@@ -869,12 +869,22 @@ def test_chebmul():
     for i in range(5):
         for j in range(5):
             target = zeros(i + j + 1)
+
             target[i + j] += 0.5
             target[abs(i - j)] += 0.5
-            res = beignet.orthax.chebmul(array([0] * i + [1]), array([0] * j + [1]))
+
             numpy.testing.assert_array_equal(
-                beignet.orthax.chebtrim(res, tol=1e-6),
-                beignet.orthax.chebtrim(target, tol=1e-6),
+                beignet.orthax.chebtrim(
+                    beignet.orthax.chebmul(
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.chebtrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -990,8 +1000,8 @@ def test_chebsub():
         for j in range(5):
             target = zeros(max(i, j) + 1)
 
-            target[i] += 1
-            target[j] -= 1
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
 
             numpy.testing.assert_array_equal(
                 beignet.orthax.chebtrim(
@@ -1853,14 +1863,22 @@ def test_hermesub():
     for i in range(5):
         for j in range(5):
             target = zeros(max(i, j) + 1)
-            target[i] += 1
-            target[j] -= 1
+
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
+
             numpy.testing.assert_array_equal(
                 beignet.orthax.hermetrim(
-                    beignet.orthax.hermesub(array([0] * i + [1]), array([0] * j + [1])),
+                    beignet.orthax.hermesub(
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
+                    ),
                     tol=1e-6,
                 ),
-                beignet.orthax.hermetrim(target, tol=1e-6),
+                beignet.orthax.hermetrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -2482,14 +2500,22 @@ def test_hermsub():
     for i in range(5):
         for j in range(5):
             target = zeros(max(i, j) + 1)
-            target[i] += 1
-            target[j] -= 1
-            res = beignet.orthax.hermsub(
-                array([0.0] * i + [1.0]), array([0.0] * j + [1.0])
-            )
+
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
+
             numpy.testing.assert_array_equal(
-                beignet.orthax.hermtrim(res, tol=1e-6),
-                beignet.orthax.hermtrim(target, tol=1e-6),
+                beignet.orthax.hermtrim(
+                    beignet.orthax.hermsub(
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
+                    ),
+                    tol=1e-6,
+                ),
+                beignet.orthax.hermtrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -3155,14 +3181,22 @@ def test_lagsub():
     for i in range(5):
         for j in range(5):
             target = zeros(max(i, j) + 1)
-            target[i] += 1
-            target[j] -= 1
+
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
+
             numpy.testing.assert_array_equal(
                 beignet.orthax.lagtrim(
-                    beignet.orthax.lagsub(array([0] * i + [1]), array([0] * j + [1])),
+                    beignet.orthax.lagsub(
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
+                    ),
                     tol=1e-6,
                 ),
-                beignet.orthax.lagtrim(target, tol=1e-6),
+                beignet.orthax.lagtrim(
+                    target,
+                    tol=1e-6,
+                ),
             )
 
 
@@ -3975,8 +4009,10 @@ def test_legsub():
     for i in range(5):
         for j in range(5):
             target = zeros(max(i, j) + 1)
-            target[i] += 1
-            target[j] -= 1
+
+            target[i] = target[i] + 1
+            target[j] = target[i] - 1
+
             numpy.testing.assert_array_equal(
                 beignet.orthax.legtrim(
                     beignet.orthax.legsub(
@@ -4805,7 +4841,7 @@ def test_polymul():
         for j in range(5):
             target = zeros(i + j + 1)
 
-            target[i + j] += 1
+            target[i + j] = target[i + j] + 1
 
             numpy.testing.assert_array_equal(
                 beignet.orthax.polytrim(
