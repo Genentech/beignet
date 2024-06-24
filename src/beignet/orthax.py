@@ -59,33 +59,33 @@ def _div(mul_f, c1, c2):
 
     if lc1 < lc2:
         return jax.numpy.zeros_like(c1[:1]), c1
-    elif lc2 == 1:
+
+    if lc2 == 1:
         return c1 / c2[-1], jax.numpy.zeros_like(c1[:1])
-    else:
 
-        def _ldordidx(x):  # index of highest order nonzero term
-            return len(x) - 1 - jax.numpy.nonzero(x[::-1], size=1)[0][0]
+    def _ldordidx(x):  # index of highest order nonzero term
+        return len(x) - 1 - jax.numpy.nonzero(x[::-1], size=1)[0][0]
 
-        quo = jax.numpy.zeros(lc1 - lc2 + 1, dtype=c1.dtype)
-        rem = c1
-        ridx = len(rem) - 1
-        sz = lc1 - _ldordidx(c2) - 1
-        y = jax.numpy.zeros(lc1 + lc2 + 1, dtype=c1.dtype).at[sz].set(1.0)
+    quo = jax.numpy.zeros(lc1 - lc2 + 1, dtype=c1.dtype)
+    rem = c1
+    ridx = len(rem) - 1
+    sz = lc1 - _ldordidx(c2) - 1
+    y = jax.numpy.zeros(lc1 + lc2 + 1, dtype=c1.dtype).at[sz].set(1.0)
 
-        def body(k, val):
-            quo, rem, y, ridx = val
-            i = sz - k
-            p = mul_f(y, c2)
-            pidx = _ldordidx(p)
-            t = rem[ridx] / p[pidx]
-            rem = _sub(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
-            quo = quo.at[i].set(t)
-            ridx -= 1
-            y = jax.numpy.roll(y, -1)
-            return quo, rem, y, ridx
+    def body(k, val):
+        quo, rem, y, ridx = val
+        i = sz - k
+        p = mul_f(y, c2)
+        pidx = _ldordidx(p)
+        t = rem[ridx] / p[pidx]
+        rem = _sub(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
+        quo = quo.at[i].set(t)
+        ridx -= 1
+        y = jax.numpy.roll(y, -1)
+        return quo, rem, y, ridx
 
-        quo, rem, _, _ = jax.lax.fori_loop(0, sz, body, (quo, rem, y, ridx))
-        return quo, rem
+    quo, rem, _, _ = jax.lax.fori_loop(0, sz, body, (quo, rem, y, ridx))
+    return quo, rem
 
 
 def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
@@ -95,14 +95,19 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
 
     if deg.ndim > 1 or deg.dtype.kind not in "iu" or deg.size == 0:
         raise TypeError("deg must be an int or non-empty 1-D array of int")
+
     if deg.min() < 0:
         raise ValueError("expected deg >= 0")
+
     if x.ndim != 1:
         raise TypeError("expected 1D vector for x")
+
     if x.size == 0:
         raise TypeError("expected non-empty vector for x")
+
     if y.ndim < 1 or y.ndim > 2:
         raise TypeError("expected 1D or 2D array for y")
+
     if len(x) != len(y):
         raise TypeError("expected x and y to have same length")
 
@@ -116,6 +121,7 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
 
     lhs = van.T
     rhs = y.T
+
     if w is not None:
         w = jax.numpy.asarray(w)
         if w.ndim != 1:
@@ -295,11 +301,11 @@ def _pow(mul_f, c, pow, maxpower):
 
 def _sub(c1, c2):
     c1, c2 = as_series(c1, c2)
+
     if len(c1) > len(c2):
-        ret = c1.at[: c2.size].add(-c2)
-    else:
-        ret = (-c2).at[: c1.size].add(c1)
-    return ret
+        return c1.at[: c2.size].add(-c2)
+
+    return (-c2).at[: c1.size].add(c1)
 
 
 def _valnd(val_f, c, *args):
@@ -624,14 +630,14 @@ def chebpts2(npts):
 
 def chebroots(c):
     c = as_series(c)
+
     if len(c) <= 1:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
-    m = chebcompanion(c)[::-1, ::-1]
-    r = jax.numpy.linalg.eigvals(m)
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(chebcompanion(c)[::-1, ::-1]))
 
 
 def chebsub(c1, c2):
@@ -713,12 +719,13 @@ def chebweight(x):
 
 def getdomain(x):
     x = jax.numpy.asarray(x)
+
     if jax.numpy.iscomplexobj(x):
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
         return jax.numpy.array(((rmin + 1j * imin), (rmax + 1j * imax)))
-    else:
-        return jax.numpy.array((x.min(), x.max()))
+
+    return jax.numpy.array((x.min(), x.max()))
 
 
 def herm2poly(c):
@@ -1016,14 +1023,14 @@ def hermepow(c, pow, maxpower=16):
 
 def hermeroots(c):
     c = as_series(c)
+
     if len(c) <= 1:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([-c[0] / c[1]])
 
-    m = hermecompanion(c)[::-1, ::-1]
-    r = jax.numpy.linalg.eigvals(m)
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(hermecompanion(c)[::-1, ::-1]))
 
 
 def hermesub(c1, c2):
@@ -1123,8 +1130,7 @@ def hermgauss(deg):
         raise ValueError("deg must be a positive integer")
 
     c = jax.numpy.zeros(deg + 1).at[-1].set(1)
-    m = hermcompanion(c)
-    x = jax.numpy.linalg.eigvalsh(m)
+    x = jax.numpy.linalg.eigvalsh(hermcompanion(c))
 
     dy = _normed_hermite_n(x, deg)
     df = _normed_hermite_n(x, deg - 1) * jax.numpy.sqrt(2 * deg)
@@ -1137,7 +1143,7 @@ def hermgauss(deg):
     w = (w + w[::-1]) / 2
     x = (x - x[::-1]) / 2
 
-    w *= jax.numpy.sqrt(jax.numpy.pi) / w.sum()
+    w = w * (jax.numpy.sqrt(jax.numpy.pi) / w.sum())
 
     return x, w
 
@@ -1158,10 +1164,13 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     if not jax.numpy.iterable(k):
         k = [k]
+
     if len(k) > m:
         raise ValueError("Too many integration constants")
+
     if jax.numpy.ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
+
     if jax.numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
@@ -1181,7 +1190,9 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
         tmp = tmp.at[0].add(k[i] - hermval(lbnd, tmp))
         c = tmp
+
     c = jax.numpy.moveaxis(c, 0, axis)
+
     return c
 
 
@@ -1238,6 +1249,7 @@ def hermmulx(c, mode="full"):
 
     if mode == "same":
         prd = prd[: len(c)]
+
     return prd
 
 
@@ -1247,14 +1259,14 @@ def hermpow(c, pow, maxpower=16):
 
 def hermroots(c):
     c = as_series(c)
+
     if len(c) <= 1:
         return jax.numpy.array([], dtype=c.dtype)
+
     if len(c) == 2:
         return jax.numpy.array([-0.5 * c[0] / c[1]])
 
-    m = hermcompanion(c)[::-1, ::-1]
-    r = jax.numpy.linalg.eigvals(m)
-    return jax.numpy.sort(r)
+    return jax.numpy.sort(jax.numpy.linalg.eigvals(hermcompanion(c)[::-1, ::-1]))
 
 
 def hermsub(c1, c2):
@@ -1370,8 +1382,10 @@ def lagadd(c1, c2):
 
 def lagcompanion(c):
     c = as_series(c)
+
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
+
     if len(c) == 2:
         return jax.numpy.array([[1 + c[0] / c[1]]])
 
