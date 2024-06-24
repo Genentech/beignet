@@ -3321,37 +3321,45 @@ def test_polyint():
     c2d = numpy.random.random((3, 6))
 
     tgt = numpy.vstack([beignet.orthax.polyint(c) for c in c2d.T]).T
-    res = beignet.orthax.polyint(c2d, axis=0)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyint(c2d, axis=0),
+        tgt,
+    )
 
     tgt = numpy.vstack([beignet.orthax.polyint(c) for c in c2d])
-    res = beignet.orthax.polyint(c2d, axis=1)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyint(c2d, axis=1),
+        tgt,
+    )
 
     tgt = numpy.vstack([beignet.orthax.polyint(c, k=3) for c in c2d])
-    res = beignet.orthax.polyint(c2d, k=3, axis=1)
-    numpy.testing.assert_array_almost_equal(res, tgt)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyint(c2d, k=3, axis=1),
+        tgt,
+    )
 
 
 def test_polyline():
-    numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 4), [3, 4])
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polyline(3, 4),
+        [3, 4],
+    )
 
-
-def test_polyline_zero():
-    numpy.testing.assert_array_equal(beignet.orthax.polyline(3, 0), [3, 0])
+    numpy.testing.assert_array_equal(
+        beignet.orthax.polyline(3, 0),
+        [3, 0],
+    )
 
 
 def test_polymul():
     for i in range(5):
         for j in range(5):
-            msg = f"At i={i}, j={j}"
             tgt = numpy.zeros(i + j + 1)
             tgt[i + j] += 1
             res = beignet.orthax.polymul([0] * i + [1], [0] * j + [1])
             numpy.testing.assert_array_equal(
                 beignet.orthax.polytrim(res, tol=1e-6),
                 beignet.orthax.polytrim(tgt, tol=1e-6),
-                err_msg=msg,
             )
 
 
@@ -3591,7 +3599,12 @@ def test_polyvander():
         )
 
     x = numpy.arange(3)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polyvander, x, -1)
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax.polyvander,
+        x,
+        -1,
+    )
 
 
 def test_polyvander2d():
@@ -3619,37 +3632,85 @@ def test_polyvander3d():
 
 
 def test_polyx():
-    numpy.testing.assert_equal(beignet.orthax.polyx, numpy.array([0, 1]))
+    numpy.testing.assert_equal(
+        beignet.orthax.polyx,
+        numpy.array([0, 1]),
+    )
 
 
 def test_polyzero():
-    numpy.testing.assert_equal(beignet.orthax.polyzero, numpy.array([0]))
+    numpy.testing.assert_equal(
+        beignet.orthax.polyzero,
+        numpy.array([0]),
+    )
 
 
 def test_pow_too_large():
-    numpy.testing.assert_raises(ValueError, beignet.orthax._pow, (), [1, 2, 3], 5, 4)
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._pow,
+        (),
+        [1, 2, 3],
+        5,
+        4,
+    )
 
 
 def test_trimcoef():
     coef = numpy.array([2, -1, 1, 0])
 
-    numpy.testing.assert_raises(ValueError, beignet.orthax.trimcoef, coef, -1)
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax.trimcoef,
+        coef,
+        -1,
+    )
 
-    numpy.testing.assert_equal(beignet.orthax.trimcoef(coef), coef[:-1])
-    numpy.testing.assert_equal(beignet.orthax.trimcoef(coef, 1), coef[:-3])
-    numpy.testing.assert_equal(beignet.orthax.trimcoef(coef, 2), numpy.array([0]))
+    numpy.testing.assert_equal(
+        beignet.orthax.trimcoef(coef),
+        coef[:-1],
+    )
+
+    numpy.testing.assert_equal(
+        beignet.orthax.trimcoef(coef, 1),
+        coef[:-3],
+    )
+
+    numpy.testing.assert_equal(
+        beignet.orthax.trimcoef(coef, 2),
+        numpy.array([0]),
+    )
 
 
 def test_trimseq():
     for _ in range(5):
-        numpy.testing.assert_equal(beignet.orthax.trimseq([1] + [0] * 5), [1])
+        numpy.testing.assert_equal(
+            beignet.orthax.trimseq([1] + [0] * 5),
+            [1],
+        )
 
 
 def test_vander_nd_exception():
     numpy.testing.assert_raises(
-        ValueError, beignet.orthax._vander_nd, (), (1, 2, 3), [90]
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (1, 2, 3),
+        [90],
     )
 
-    numpy.testing.assert_raises(ValueError, beignet.orthax._vander_nd, (), (), [90.65])
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (),
+        [90.65],
+    )
 
-    numpy.testing.assert_raises(ValueError, beignet.orthax._vander_nd, (), (), [])
+    numpy.testing.assert_raises(
+        ValueError,
+        beignet.orthax._vander_nd,
+        (),
+        (),
+        [],
+    )
