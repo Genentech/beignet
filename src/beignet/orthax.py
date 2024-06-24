@@ -3,7 +3,6 @@ import operator
 
 import jax
 import jax.numpy
-import numpy
 
 chebdomain = jax.numpy.array([-1, 1])
 chebone = jax.numpy.array([1])
@@ -92,7 +91,7 @@ def _div(mul_f, c1, c2):
 def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
     x = jax.numpy.asarray(x)
     y = jax.numpy.asarray(y)
-    deg = numpy.asarray(deg)
+    deg = jax.numpy.asarray(deg)
 
     if deg.ndim > 1 or deg.dtype.kind not in "iu" or deg.size == 0:
         raise TypeError("deg must be an int or non-empty 1-D array of int")
@@ -111,7 +110,7 @@ def _fit(vander_f, x, y, deg, rcond=None, full=False, w=None):  # noqa:C901
         lmax = int(deg)
         van = vander_f(x, lmax)
     else:
-        deg = numpy.sort(deg)
+        deg = jax.numpy.sort(deg)
         lmax = int(deg[-1])
         van = vander_f(x, lmax)[:, deg]
 
@@ -291,8 +290,7 @@ def _pow(mul_f, c, pow, maxpower):
             p = mul_f(p, c, mode="same")
             return p
 
-        prd = jax.lax.fori_loop(2, power + 1, body, prd)
-        return prd
+        return jax.lax.fori_loop(2, power + 1, body, prd)
 
 
 def _sub(c1, c2):
@@ -356,8 +354,7 @@ def _z_series_mul(z1, z2, mode="full"):
 def _z_series_to_c_series(zs):
     n = (zs.size + 1) // 2
     c = zs[n - 1 :].copy()
-    c = c.at[1:n].multiply(2)
-    return c
+    return c.at[1:n].multiply(2)
 
 
 def as_series(*arrs, trim=False):
@@ -595,29 +592,34 @@ def chebpow(c, pow, maxpower=16):
             return p
 
         prd = jax.lax.fori_loop(2, power + 1, body, prd)
+
         return _z_series_to_c_series(prd)
 
 
 def chebpts1(npts):
     _npts = int(npts)
+
     if _npts != npts:
         raise ValueError("npts must be integer")
+
     if _npts < 1:
         raise ValueError("npts must be >= 1")
 
-    x = 0.5 * jax.numpy.pi / _npts * jax.numpy.arange(-_npts + 1, _npts + 1, 2)
-    return jax.numpy.sin(x)
+    return jax.numpy.sin(
+        0.5 * jax.numpy.pi / _npts * jax.numpy.arange(-_npts + 1, _npts + 1, 2)
+    )
 
 
 def chebpts2(npts):
     _npts = int(npts)
+
     if _npts != npts:
         raise ValueError("npts must be integer")
+
     if _npts < 2:
         raise ValueError("npts must be >= 2")
 
-    x = jax.numpy.linspace(-jax.numpy.pi, 0, _npts)
-    return jax.numpy.cos(x)
+    return jax.numpy.cos(jax.numpy.linspace(-jax.numpy.pi, 0, _npts))
 
 
 def chebroots(c):
@@ -629,8 +631,7 @@ def chebroots(c):
 
     m = chebcompanion(c)[::-1, ::-1]
     r = jax.numpy.linalg.eigvals(m)
-    r = jax.numpy.sort(r)
-    return r
+    return jax.numpy.sort(r)
 
 
 def chebsub(c1, c2):
@@ -707,8 +708,7 @@ def chebvander3d(x, y, z, deg):
 
 def chebweight(x):
     x = jax.numpy.asarray(x)
-    w = 1.0 / (jax.numpy.sqrt(1.0 + x) * jax.numpy.sqrt(1.0 - x))
-    return w
+    return 1.0 / (jax.numpy.sqrt(1.0 + x) * jax.numpy.sqrt(1.0 - x))
 
 
 def getdomain(x):
@@ -1023,8 +1023,7 @@ def hermeroots(c):
 
     m = hermecompanion(c)[::-1, ::-1]
     r = jax.numpy.linalg.eigvals(m)
-    r = jax.numpy.sort(r)
-    return r
+    return jax.numpy.sort(r)
 
 
 def hermesub(c1, c2):
@@ -1091,16 +1090,23 @@ def hermevander(x, deg):
 
 
 def hermevander2d(x, y, deg):
-    return _vander_nd_flat((hermevander, hermevander), (x, y), deg)
+    return _vander_nd_flat(
+        (hermevander, hermevander),
+        (x, y),
+        deg,
+    )
 
 
 def hermevander3d(x, y, z, deg):
-    return _vander_nd_flat((hermevander, hermevander, hermevander), (x, y, z), deg)
+    return _vander_nd_flat(
+        (hermevander, hermevander, hermevander),
+        (x, y, z),
+        deg,
+    )
 
 
 def hermeweight(x):
-    w = jax.numpy.exp(-0.5 * x**2)
-    return w
+    return jax.numpy.exp(-0.5 * x**2)
 
 
 def hermfit(x, y, deg, rcond=None, full=False, w=None):
@@ -1248,8 +1254,7 @@ def hermroots(c):
 
     m = hermcompanion(c)[::-1, ::-1]
     r = jax.numpy.linalg.eigvals(m)
-    r = jax.numpy.sort(r)
-    return r
+    return jax.numpy.sort(r)
 
 
 def hermsub(c1, c2):
@@ -1318,16 +1323,23 @@ def hermvander(x, deg):
 
 
 def hermvander2d(x, y, deg):
-    return _vander_nd_flat((hermvander, hermvander), (x, y), deg)
+    return _vander_nd_flat(
+        (hermvander, hermvander),
+        (x, y),
+        deg,
+    )
 
 
 def hermvander3d(x, y, z, deg):
-    return _vander_nd_flat((hermvander, hermvander, hermvander), (x, y, z), deg)
+    return _vander_nd_flat(
+        (hermvander, hermvander, hermvander),
+        (x, y, z),
+        deg,
+    )
 
 
 def hermweight(x):
-    w = jax.numpy.exp(-(x**2))
-    return w
+    return jax.numpy.exp(-(x**2))
 
 
 def lag2poly(c):
@@ -1560,8 +1572,7 @@ def lagroots(c):
 
     m = lagcompanion(c)[::-1, ::-1]
     r = jax.numpy.linalg.eigvals(m)
-    r = jax.numpy.sort(r)
-    return r
+    return jax.numpy.sort(r)
 
 
 def lagsub(c1, c2):
@@ -1636,8 +1647,7 @@ def lagvander3d(x, y, z, deg):
 
 
 def lagweight(x):
-    w = jax.numpy.exp(-x)
-    return w
+    return jax.numpy.exp(-x)
 
 
 def leg2poly(c):
@@ -1890,9 +1900,7 @@ def legroots(c):
 
     r = jax.numpy.linalg.eigvals(m)
 
-    r = jax.numpy.sort(r)
-
-    return r
+    return jax.numpy.sort(r)
 
 
 def legsub(c1, c2):
@@ -1973,9 +1981,7 @@ def legvander3d(x, y, z, deg):
 
 
 def legweight(x):
-    w = jax.numpy.ones_like(x)
-
-    return w
+    return jax.numpy.ones_like(x)
 
 
 def _map_domain(x, old, new):
@@ -2012,9 +2018,7 @@ def poly2cheb(pol):
 
         return res
 
-    res = jax.lax.fori_loop(0, deg + 1, body, res)
-
-    return res
+    return jax.lax.fori_loop(0, deg + 1, body, res)
 
 
 def poly2herm(pol):
@@ -2031,9 +2035,7 @@ def poly2herm(pol):
 
         return res
 
-    res = jax.lax.fori_loop(0, deg + 1, body, res)
-
-    return res
+    return jax.lax.fori_loop(0, deg + 1, body, res)
 
 
 def poly2herme(pol):
@@ -2050,9 +2052,7 @@ def poly2herme(pol):
 
         return res
 
-    res = jax.lax.fori_loop(0, deg + 1, body, res)
-
-    return res
+    return jax.lax.fori_loop(0, deg + 1, body, res)
 
 
 def poly2lag(pol):
@@ -2065,9 +2065,7 @@ def poly2lag(pol):
 
         return res
 
-    res = jax.lax.fori_loop(0, len(pol), body, res)
-
-    return res
+    return jax.lax.fori_loop(0, len(pol), body, res)
 
 
 def poly2leg(pol):
@@ -2084,9 +2082,7 @@ def poly2leg(pol):
 
         return res
 
-    res = jax.lax.fori_loop(0, deg + 1, body, res)
-
-    return res
+    return jax.lax.fori_loop(0, deg + 1, body, res)
 
 
 def polyadd(c1, c2):
@@ -2110,9 +2106,7 @@ def polycompanion(c):
 
     mat = mat.reshape((n, n))
 
-    mat = mat.at[:, -1].add(-c[:-1] / c[-1])
-
-    return mat
+    return mat.at[:, -1].add(-c[:-1] / c[-1])
 
 
 def polyder(c, m=1, scl=1, axis=0):
@@ -2273,9 +2267,7 @@ def polyroots(c):
 
     r = jax.numpy.linalg.eigvals(m)
 
-    r = jax.numpy.sort(r)
-
-    return r
+    return jax.numpy.sort(r)
 
 
 def polysub(c1, c2):
@@ -2348,11 +2340,19 @@ def polyvander(x, deg):
 
 
 def polyvander2d(x, y, deg):
-    return _vander_nd_flat((polyvander, polyvander), (x, y), deg)
+    return _vander_nd_flat(
+        (polyvander, polyvander),
+        (x, y),
+        deg,
+    )
 
 
 def polyvander3d(x, y, z, deg):
-    return _vander_nd_flat((polyvander, polyvander, polyvander), (x, y, z), deg)
+    return _vander_nd_flat(
+        (polyvander, polyvander, polyvander),
+        (x, y, z),
+        deg,
+    )
 
 
 def _trim_coefficients(c, tol=0):
