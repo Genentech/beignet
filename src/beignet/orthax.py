@@ -33,24 +33,31 @@ polyzero = jax.numpy.array([0])
 
 def _add(c1, c2):
     c1, c2 = as_series(c1, c2)
+
     if len(c1) > len(c2):
         ret = c1.at[: c2.size].add(c2)
     else:
         ret = c2.at[: c1.size].add(c1)
+
     return ret
 
 
 def _c_series_to_z_series(c):
     n = c.size
+
     zs = jax.numpy.zeros(2 * n - 1, dtype=c.dtype)
+
     zs = zs.at[n - 1 :].set(c / 2)
+
     return zs + zs[::-1]
 
 
 def _div(mul_f, c1, c2):
     c1, c2 = as_series(c1, c2)
+
     lc1 = len(c1)
     lc2 = len(c2)
+
     if lc1 < lc2:
         return jax.numpy.zeros_like(c1[:1]), c1
     elif lc2 == 1:
@@ -1923,11 +1930,17 @@ def legvander(x, deg):
         raise ValueError("deg must be non-negative")
 
     x = jax.numpy.array(x, ndmin=1)
+
     dims = (deg + 1,) + x.shape
+
     dtyp = jax.numpy.promote_types(x.dtype, jax.numpy.array(0.0).dtype)
+
     x = x.astype(dtyp)
+
     v = jax.numpy.empty(dims, dtype=dtyp)
+
     v = v.at[0].set(jax.numpy.ones_like(x))
+
     if deg > 0:
         v = v.at[1].set(x)
 
@@ -1949,91 +1962,118 @@ def legvander3d(x, y, z, deg):
 
 def legweight(x):
     w = jax.numpy.ones_like(x)
+
     return w
 
 
 def _map_domain(x, old, new):
     x = jax.numpy.asarray(x)
+
     off, scl = _map_parameters(old, new)
+
     return off + scl * x
 
 
 def _map_parameters(old, new):
     oldlen = old[1] - old[0]
+
     newlen = new[1] - new[0]
+
     off = (old[1] * new[0] - old[0] * new[1]) / oldlen
+
     scl = newlen / oldlen
+
     return off, scl
 
 
 def poly2cheb(pol):
     pol = as_series(pol)
+
     deg = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
         k = deg - i
+
         res = chebadd(chebmulx(res, mode="same"), pol[k])
+
         return res
 
     res = jax.lax.fori_loop(0, deg + 1, body, res)
+
     return res
 
 
 def poly2herm(pol):
     pol = as_series(pol)
+
     deg = len(pol) - 1
+
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
         k = deg - i
+
         res = hermadd(hermmulx(res, mode="same"), pol[k])
+
         return res
 
     res = jax.lax.fori_loop(0, deg + 1, body, res)
+
     return res
 
 
 def poly2herme(pol):
     pol = as_series(pol)
+
     deg = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
         k = deg - i
+
         res = hermeadd(hermemulx(res, mode="same"), pol[k])
+
         return res
 
     res = jax.lax.fori_loop(0, deg + 1, body, res)
+
     return res
 
 
 def poly2lag(pol):
     pol = as_series(pol)
+
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
         res = lagadd(lagmulx(res, mode="same"), pol[::-1][i])
+
         return res
 
     res = jax.lax.fori_loop(0, len(pol), body, res)
+
     return res
 
 
 def poly2leg(pol):
     pol = as_series(pol)
+
     deg = len(pol) - 1
 
     res = jax.numpy.zeros_like(pol)
 
     def body(i, res):
         k = deg - i
+
         res = legadd(legmulx(res, mode="same"), pol[k])
+
         return res
 
     res = jax.lax.fori_loop(0, deg + 1, body, res)
+
     return res
 
 
@@ -2043,16 +2083,23 @@ def polyadd(c1, c2):
 
 def polycompanion(c):
     c = as_series(c)
+
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
+
     if len(c) == 2:
         return jax.numpy.array([[-c[0] / c[1]]])
 
     n = len(c) - 1
+
     mat = jax.numpy.zeros((n, n), dtype=c.dtype).flatten()
+
     mat = mat.at[n :: n + 1].set(1)
+
     mat = mat.reshape((n, n))
+
     mat = mat.at[:, -1].add(-c[:-1] / c[-1])
+
     return mat
 
 
@@ -2063,7 +2110,9 @@ def polyder(c, m=1, scl=1, axis=0):
         return c
 
     c = jax.numpy.moveaxis(c, axis, 0)
+
     n = c.shape[0]
+
     if m >= n:
         c = jax.numpy.zeros_like(c[:1])
     else:
@@ -2071,19 +2120,25 @@ def polyder(c, m=1, scl=1, axis=0):
 
         def body(i, c):
             c = (D * c.T).T
+
             c = jax.numpy.roll(c, -1, axis=0) * scl
+
             c = c.at[-1].set(0)
+
             return c
 
         c = jax.lax.fori_loop(0, m, body, c)
+
         c = c[:-m]
 
     c = jax.numpy.moveaxis(c, 0, axis)
+
     return c
 
 
 def polydiv(c1, c2):
     c1, c2 = as_series(c1, c2)
+
     return _div(polymul, c1, c2)
 
 
@@ -2106,16 +2161,23 @@ def polygrid3d(x, y, z, c):
 def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
+
     c = as_series(c)
+
     lbnd, scl = map(jax.numpy.asarray, (lbnd, scl))
+
     if not jax.numpy.iterable(k):
         k = [k]
+
     if m < 0:
         raise ValueError("The order of integration must be non-negative")
+
     if len(k) > m:
         raise ValueError("Too many integration constants")
+
     if jax.numpy.ndim(lbnd) != 0:
         raise ValueError("lbnd must be a scalar.")
+
     if jax.numpy.ndim(scl) != 0:
         raise ValueError("scl must be a scalar.")
 
@@ -2123,23 +2185,34 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         return c
 
     k = jax.numpy.array(list(k) + [0] * (m - len(k)), ndmin=1)
+
     n = c.shape[axis]
+
     c = _pad_along_axis(c, (0, m), axis)
+
     c = jax.numpy.moveaxis(c, axis, 0)
+
     D = jax.numpy.arange(n + m) + 1
 
     def body(i, c):
         c *= scl
+
         c = (c.T / D).T  # broadcasting correctly
+
         c = jax.numpy.roll(c, 1, axis=0)
+
         c = c.at[0].set(0)
+
         offset = k[i] - polyval(lbnd, c)
+
         c = c.at[0].add(offset)
+
         return c
 
     c = jax.lax.fori_loop(0, m, body, c)
 
     c = jax.numpy.moveaxis(c, 0, axis)
+
     return c
 
 
