@@ -666,19 +666,19 @@ def chebline(off, scl):
     return array([off, scl])
 
 
-def chebmul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
+def chebmul(input, other, mode="full"):
+    input, other = _as_series(input, other)
 
-    z1 = _c_series_to_z_series(c1)
+    z1 = _c_series_to_z_series(input)
 
-    z2 = _c_series_to_z_series(c2)
+    z2 = _c_series_to_z_series(other)
 
     prd = _z_series_mul(z1, z2, mode=mode)
 
     output = _z_series_to_c_series(prd)
 
     if mode == "same":
-        output = output[: max(len(c1), len(c2))]
+        output = output[: max(len(input), len(other))]
 
     return output
 
@@ -1145,26 +1145,26 @@ def hermeline(off, scl):
     return array([off, scl])
 
 
-def hermemul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
-    lc1, lc2 = len(c1), len(c2)
+def hermemul(input, other, mode="full"):
+    input, other = _as_series(input, other)
+    lc1, lc2 = len(input), len(other)
     if lc1 > lc2:
-        c = c2
-        xs = c1
+        c = other
+        xs = input
     else:
-        c = c1
-        xs = c2
+        c = input
+        xs = other
 
     if len(c) == 1:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        input = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        input = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        input = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1174,9 +1174,9 @@ def hermemul(c1, c2, mode="full"):
             c1 = hermeadd(tmp, hermemulx(c1, "same"))
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
 
-    ret = hermeadd(c0, hermemulx(c1, "same"))
+    ret = hermeadd(c0, hermemulx(input, "same"))
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -1384,26 +1384,26 @@ def hermline(off, scl):
     return array([off, scl / 2])
 
 
-def hermmul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
-    lc1, lc2 = len(c1), len(c2)
+def hermmul(input, other, mode="full"):
+    input, other = _as_series(input, other)
+    lc1, lc2 = len(input), len(other)
     if lc1 > lc2:
-        c = c2
-        xs = c1
+        c = other
+        xs = input
     else:
-        c = c1
-        xs = c2
+        c = input
+        xs = other
 
     if len(c) == 1:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        input = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        input = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        input = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1413,9 +1413,9 @@ def hermmul(c1, c2, mode="full"):
             c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
 
-    ret = hermadd(c0, hermmulx(c1, "same") * 2)
+    ret = hermadd(c0, hermmulx(input, "same") * 2)
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -1709,27 +1709,27 @@ def lagline(off, scl):
     return array([off + scl, -scl])
 
 
-def lagmul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
-    lc1, lc2 = len(c1), len(c2)
+def lagmul(input, other, mode="full"):
+    input, other = _as_series(input, other)
+    lc1, lc2 = len(input), len(other)
 
     if lc1 > lc2:
-        c = c2
-        xs = c1
+        c = other
+        xs = input
     else:
-        c = c1
-        xs = c2
+        c = input
+        xs = other
 
     if len(c) == 1:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        input = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        input = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        input = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -1739,9 +1739,9 @@ def lagmul(c1, c2, mode="full"):
             c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
 
-    ret = lagadd(c0, lagsub(c1, lagmulx(c1, "same")))
+    ret = lagadd(c0, lagsub(input, lagmulx(input, "same")))
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -2034,26 +2034,26 @@ def legline(off, scl):
     return array([off, scl])
 
 
-def legmul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
-    lc1, lc2 = len(c1), len(c2)
+def legmul(input, other, mode="full"):
+    input, other = _as_series(input, other)
+    lc1, lc2 = len(input), len(other)
     if lc1 > lc2:
-        c = c2
-        xs = c1
+        c = other
+        xs = input
     else:
-        c = c1
-        xs = c2
+        c = input
+        xs = other
 
     if len(c) == 1:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        input = zeros(lc1 + lc2 - 1)
     elif len(c) == 2:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        input = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = len(c)
         c0 = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        input = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         def body(i, val):
             c0, c1, nd = val
@@ -2063,9 +2063,9 @@ def legmul(c1, c2, mode="full"):
             c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
             return c0, c1, nd
 
-        c0, c1, _ = fori_loop(3, len(c) + 1, body, (c0, c1, nd))
+        c0, input, _ = fori_loop(3, len(c) + 1, body, (c0, input, nd))
 
-    ret = legadd(c0, legmulx(c1, "same"))
+    ret = legadd(c0, legmulx(input, "same"))
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -2432,13 +2432,13 @@ def polyline(off, scl):
     return array([off, scl])
 
 
-def polymul(c1, c2, mode="full"):
-    c1, c2 = _as_series(c1, c2)
+def polymul(input, other, mode="full"):
+    input, other = _as_series(input, other)
 
-    ret = convolve(c1, c2)
+    ret = convolve(input, other)
 
     if mode == "same":
-        ret = ret[: max(len(c1), len(c2))]
+        ret = ret[: max(len(input), len(other))]
 
     return ret
 
