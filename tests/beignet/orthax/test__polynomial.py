@@ -3240,3 +3240,110 @@ def test_leggrid3d():
     z = numpy.ones((2, 3))
     res = beignet.orthax.leggrid3d(z, z, z, c3d)
     numpy.testing.assert_(res.shape == (2, 3) * 3)
+
+
+def test_chebval():
+    numpy.testing.assert_array_equal(beignet.orthax.chebval([], [1]).size, 0)
+
+    x = numpy.linspace(-1, 1)
+    y = [numpy.polynomial.polynomial.polyval(x, c) for c in chebcoefficients]
+    for i in range(10):
+        msg = f"At i={i}"
+        tgt = y[i]
+        res = beignet.orthax.chebval(x, [0] * i + [1])
+        numpy.testing.assert_array_almost_equal(res, tgt, err_msg=msg)
+
+    for i in range(3):
+        dims = [2] * i
+        x = numpy.zeros(dims)
+        numpy.testing.assert_array_equal(beignet.orthax.chebval(x, [1]).shape, dims)
+        numpy.testing.assert_array_equal(beignet.orthax.chebval(x, [1, 0]).shape, dims)
+        numpy.testing.assert_array_equal(
+            beignet.orthax.chebval(x, [1, 0, 0]).shape, dims
+        )
+
+
+def test_chebval2d():
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebval2d, x1, x2[:2], c2d)
+
+    tgt = y1 * y2
+    res = beignet.orthax.chebval2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.chebval2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_chebval3d():
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.chebval3d, x1, x2, x3[:2], c3d
+    )
+
+    tgt = y1 * y2 * y3
+    res = beignet.orthax.chebval3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.chebval3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3))
+
+
+def test_chebgrid2d():
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    # c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j->ij", y1, y2)
+    res = beignet.orthax.chebgrid2d(x1, x2, c2d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.chebgrid2d(z, z, c2d)
+    numpy.testing.assert_(res.shape == (2, 3) * 2)
+
+
+def test_chebgrid3d():
+    c1d = numpy.array([2.5, 2.0, 1.5])
+    # c2d = numpy.einsum("i,j->ij", c1d, c1d)
+    c3d = numpy.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = numpy.random.random((3, 5)) * 2 - 1
+    y = numpy.polynomial.polynomial.polyval(x, [1.0, 2.0, 3.0])
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    tgt = numpy.einsum("i,j,k->ijk", y1, y2, y3)
+    res = beignet.orthax.chebgrid3d(x1, x2, x3, c3d)
+    numpy.testing.assert_array_almost_equal(res, tgt)
+
+    z = numpy.ones((2, 3))
+    res = beignet.orthax.chebgrid3d(z, z, z, c3d)
+    numpy.testing.assert_(res.shape == (2, 3) * 3)
