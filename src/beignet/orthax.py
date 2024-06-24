@@ -2,8 +2,10 @@ import functools
 import math
 import operator
 
+import beartype
 import jax
 import jax.numpy
+import jaxtyping
 from jax.numpy import (
     abs,
     arange,
@@ -45,6 +47,7 @@ from jax.numpy.linalg import (
     eigvalsh,
     lstsq,
 )
+from jaxtyping import Array, Num
 
 chebdomain = array([-1, 1])
 chebone = array([1])
@@ -99,15 +102,17 @@ def scan(f, init, xs, length=None):
     return carry, stack(ys)
 
 
-def _add(c1, c2):
-    c1, c2 = as_series(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def _add(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    input, other = _as_series(input, other)
 
-    if len(c1) > len(c2):
-        ret = c1.at[: c2.size].add(c2)
-    else:
-        ret = c2.at[: c1.size].add(c1)
+    if len(input) > len(other):
+        return input.at[: other.size].add(other)
 
-    return ret
+    return other.at[: input.size].add(input)
 
 
 def _c_series_to_z_series(c):
@@ -121,7 +126,7 @@ def _c_series_to_z_series(c):
 
 
 def _div(mul_f, c1, c2):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
 
     lc1 = len(c1)
     lc2 = len(c2)
@@ -147,7 +152,7 @@ def _div(mul_f, c1, c2):
         p = mul_f(y, c2)
         pidx = _ldordidx(p)
         t = rem[ridx] / p[pidx]
-        rem = _sub(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
+        rem = _subtract(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
         quo = quo.at[i].set(t)
         ridx -= 1
         y = roll(y, -1)
@@ -354,7 +359,7 @@ def _pad_along_axis(array, pad=(0, 0), axis=0):
 
 
 def _pow(mul_f, c, pow, maxpower):
-    c = as_series(c)
+    c = _as_series(c)
     power = int(pow)
     if power != pow or power < 0:
         raise ValueError("Power must be a non-negative integer.")
@@ -375,32 +380,52 @@ def _pow(mul_f, c, pow, maxpower):
         return fori_loop(2, power + 1, body, prd)
 
 
-def _sub(c1, c2):
-    c1, c2 = as_series(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def _subtract(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    input, other = _as_series(input, other)
 
-    if len(c1) > len(c2):
-        return c1.at[: c2.size].add(-c2)
+    if len(input) > len(other):
+        output = -other
 
-    return (-c2).at[: c1.size].add(c1)
+        output = input.at[: other.size].add(output)
+
+        return output
+
+    output = -other
+
+    output = output.at[: input.size].add(input)
+
+    return output
 
 
-def _valnd(val_f, c, *args):
+def _evaluate(func, input, *args):
     args = [asarray(a) for a in args]
-    shape0 = args[0].shape
-    if not all(a.shape == shape0 for a in args[1:]):
-        if len(args) == 3:
-            raise ValueError("x, y, z are incompatible")
-        elif len(args) == 2:
-            raise ValueError("x, y are incompatible")
-        else:
-            raise ValueError("ordinates are incompatible")
-    it = iter(args)
-    x0 = next(it)
 
-    c = val_f(x0, c)
-    for xi in it:
-        c = val_f(xi, c, tensor=False)
-    return c
+    xs = []
+
+    for a in args:
+        xs = [*xs, asarray(a)]
+
+    if not all(a.shape == xs[0].shape for a in xs[1:]):
+        match len(xs):
+            case 2:
+                raise ValueError
+            case 3:
+                raise ValueError
+            case _:
+                raise ValueError
+
+    xs = iter(xs)
+
+    output = func(next(xs), input)
+
+    for x in xs:
+        output = func(x, output, tensor=False)
+
+    return output
 
 
 def _vander_nd(vander_fs, points, degrees):
@@ -439,18 +464,22 @@ def _z_series_to_c_series(zs):
     return c.at[1:n].multiply(2)
 
 
-def as_series(*arrs, trim=False):
+def _as_series(*arrs, trim=False):
     arrays = tuple(array(a, ndmin=1) for a in arrs)
+
     if trim:
         arrays = tuple(_trim_sequence(a) for a in arrays)
+
     arrays = jax._src.numpy.util.promote_dtypes_inexact(*arrays)
+
     if len(arrays) == 1:
         return arrays[0]
+
     return tuple(arrays)
 
 
 def cheb2poly(c):
-    c = as_series(c)
+    c = _as_series(c)
     n = len(c)
     if n < 3:
         return c
@@ -471,12 +500,16 @@ def cheb2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-def chebadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def chebadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def chebcompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
@@ -498,7 +531,7 @@ def chebder(c, m=1, scl=1, axis=0):
     if m < 0:
         raise ValueError("The order of derivation must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -530,8 +563,12 @@ def chebder(c, m=1, scl=1, axis=0):
     return c
 
 
-def chebdiv(c1, c2):
-    return _div(chebmul, c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def chebdiv(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> (Num[Array, "..."], Num[Array, "..."]):
+    return _div(chebmul, input, other)
 
 
 def chebfit(x, y, degree, rcond=None, full=False, w=None):
@@ -572,7 +609,7 @@ def chebgrid3d(x, y, z, c):
 def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = as_series(c)
+    c = _as_series(c)
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -630,7 +667,7 @@ def chebline(off, scl):
 
 
 def chebmul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
 
     z1 = _c_series_to_z_series(c1)
 
@@ -647,7 +684,7 @@ def chebmul(c1, c2, mode="full"):
 
 
 def chebmulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
 
     output = zeros(len(c) + 1, dtype=c.dtype)
 
@@ -667,7 +704,7 @@ def chebmulx(c, mode="full"):
 
 
 def chebpow(c, pow, maxpower=16):
-    c = as_series(c)
+    c = _as_series(c)
 
     power = int(pow)
 
@@ -736,7 +773,7 @@ def chebpts2(points):
 
 
 def chebroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) <= 1:
         return array([], dtype=c.dtype)
@@ -755,12 +792,16 @@ def chebroots(c):
     return output
 
 
-def chebsub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def chebsub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def chebval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
     x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
@@ -789,11 +830,11 @@ def chebval(x, c, tensor=True):
 
 
 def chebval2d(x, y, c):
-    return _valnd(chebval, c, x, y)
+    return _evaluate(chebval, c, x, y)
 
 
 def chebval3d(x, y, z, c):
-    return _valnd(chebval, c, x, y, z)
+    return _evaluate(chebval, c, x, y, z)
 
 
 def chebvander(x, degree):
@@ -857,7 +898,7 @@ def getdomain(x):
 
 
 def herm2poly(c):
-    c = as_series(c)
+    c = _as_series(c)
     n = len(c)
     if n == 1:
         return c
@@ -881,12 +922,16 @@ def herm2poly(c):
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def hermadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def hermadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def hermcompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
@@ -909,7 +954,7 @@ def hermder(c, m=1, scl=1, axis=0):
     if m < 0:
         raise ValueError("The order of derivation must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -935,7 +980,7 @@ def hermdiv(c1, c2):
 
 
 def herme2poly(c):
-    c = as_series(c)
+    c = _as_series(c)
     n = len(c)
     if n == 1:
         return c
@@ -958,12 +1003,16 @@ def herme2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-def hermeadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def hermeadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def hermecompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
@@ -986,7 +1035,7 @@ def hermeder(c, m=1, scl=1, axis=0):
     if m < 0:
         raise ValueError("The order of derivation must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -1056,7 +1105,7 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
 
-    c = as_series(c)
+    c = _as_series(c)
 
     lbnd, scl = map(asarray, (lbnd, scl))
 
@@ -1097,7 +1146,7 @@ def hermeline(off, scl):
 
 
 def hermemul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
     lc1, lc2 = len(c1), len(c2)
     if lc1 > lc2:
         c = c2
@@ -1134,7 +1183,7 @@ def hermemul(c1, c2, mode="full"):
 
 
 def hermemulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
     prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0])
 
@@ -1153,7 +1202,7 @@ def hermepow(c, pow, maxpower=16):
 
 
 def hermeroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) <= 1:
         return array([], dtype=c.dtype)
@@ -1164,12 +1213,16 @@ def hermeroots(c):
     return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
 
 
-def hermesub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def hermesub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def hermeval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
     x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
@@ -1199,11 +1252,11 @@ def hermeval(x, c, tensor=True):
 
 
 def hermeval2d(x, y, c):
-    return _valnd(hermeval, c, x, y)
+    return _evaluate(hermeval, c, x, y)
 
 
 def hermeval3d(x, y, z, c):
-    return _valnd(hermeval, c, x, y, z)
+    return _evaluate(hermeval, c, x, y, z)
 
 
 def hermevander(x, degree):
@@ -1290,7 +1343,7 @@ def hermgrid3d(x, y, z, c):
 def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = as_series(c)
+    c = _as_series(c)
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -1332,7 +1385,7 @@ def hermline(off, scl):
 
 
 def hermmul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
     lc1, lc2 = len(c1), len(c2)
     if lc1 > lc2:
         c = c2
@@ -1369,7 +1422,7 @@ def hermmul(c1, c2, mode="full"):
 
 
 def hermmulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
     prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0] / 2)
 
@@ -1389,7 +1442,7 @@ def hermpow(c, pow, maxpower=16):
 
 
 def hermroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) <= 1:
         return array([], dtype=c.dtype)
@@ -1400,12 +1453,16 @@ def hermroots(c):
     return sort(eigvals(hermcompanion(c)[::-1, ::-1]))
 
 
-def hermsub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def hermsub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def hermval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
     x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
@@ -1436,11 +1493,11 @@ def hermval(x, c, tensor=True):
 
 
 def hermval2d(x, y, c):
-    return _valnd(hermval, c, x, y)
+    return _evaluate(hermval, c, x, y)
 
 
 def hermval3d(x, y, z, c):
-    return _valnd(hermval, c, x, y, z)
+    return _evaluate(hermval, c, x, y, z)
 
 
 def hermvander(x, degree):
@@ -1486,7 +1543,7 @@ def hermweight(x):
 
 
 def lag2poly(c):
-    c = as_series(c)
+    c = _as_series(c)
     n = len(c)
     if n == 1:
         return c
@@ -1507,12 +1564,16 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def lagadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def lagcompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
@@ -1534,7 +1595,7 @@ def lagder(c, m=1, scl=1, axis=0):
     if m < 0:
         raise ValueError("The order of derivation must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -1610,7 +1671,7 @@ def laggrid3d(x, y, z, c):
 def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = as_series(c)
+    c = _as_series(c)
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -1649,7 +1710,7 @@ def lagline(off, scl):
 
 
 def lagmul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
     lc1, lc2 = len(c1), len(c2)
 
     if lc1 > lc2:
@@ -1687,7 +1748,7 @@ def lagmul(c1, c2, mode="full"):
 
 
 def lagmulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
 
     prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[0].set(c[0])
@@ -1709,7 +1770,7 @@ def lagpow(c, pow, maxpower=16):
 
 
 def lagroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) <= 1:
         return array([], dtype=c.dtype)
@@ -1720,12 +1781,16 @@ def lagroots(c):
     return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
-def lagsub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def lagsub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def lagval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
     x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
@@ -1755,11 +1820,11 @@ def lagval(x, c, tensor=True):
 
 
 def lagval2d(x, y, c):
-    return _valnd(lagval, c, x, y)
+    return _evaluate(lagval, c, x, y)
 
 
 def lagval3d(x, y, z, c):
-    return _valnd(lagval, c, x, y, z)
+    return _evaluate(lagval, c, x, y, z)
 
 
 def lagvander(x, degree):
@@ -1796,7 +1861,7 @@ def lagweight(x):
 
 
 def leg2poly(c):
-    c = as_series(c)
+    c = _as_series(c)
     n = len(c)
     if n < 3:
         return c
@@ -1817,12 +1882,16 @@ def leg2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-def legadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def legadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def legcompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
     if len(c) == 2:
@@ -1844,7 +1913,7 @@ def legder(c, m=1, scl=1, axis=0):
     if m < 0:
         raise ValueError("The order of derivation must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -1925,7 +1994,7 @@ def leggrid3d(x, y, z, c):
 def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
-    c = as_series(c)
+    c = _as_series(c)
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -1966,7 +2035,7 @@ def legline(off, scl):
 
 
 def legmul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
     lc1, lc2 = len(c1), len(c2)
     if lc1 > lc2:
         c = c2
@@ -2003,7 +2072,7 @@ def legmul(c1, c2, mode="full"):
 
 
 def legmulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
     prd = zeros(len(c) + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0])
 
@@ -2033,7 +2102,7 @@ def legpow(c, pow, maxpower=16):
 
 
 def legroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) <= 1:
         return array([], dtype=c.dtype)
@@ -2044,12 +2113,16 @@ def legroots(c):
     return sort(eigvals(legcompanion(c)[::-1, ::-1]))
 
 
-def legsub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def legsub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def legval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
     x = asarray(x)
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
@@ -2079,11 +2152,11 @@ def legval(x, c, tensor=True):
 
 
 def legval2d(x, y, c):
-    return _valnd(legval, c, x, y)
+    return _evaluate(legval, c, x, y)
 
 
 def legval3d(x, y, z, c):
-    return _valnd(legval, c, x, y, z)
+    return _evaluate(legval, c, x, y, z)
 
 
 def legvander(x, degree):
@@ -2146,7 +2219,7 @@ def _map_parameters(old, new):
 
 
 def poly2cheb(pol):
-    pol = as_series(pol)
+    pol = _as_series(pol)
 
     degree = len(pol) - 1
 
@@ -2159,7 +2232,7 @@ def poly2cheb(pol):
 
 
 def poly2herm(pol):
-    pol = as_series(pol)
+    pol = _as_series(pol)
 
     degree = len(pol) - 1
 
@@ -2172,7 +2245,7 @@ def poly2herm(pol):
 
 
 def poly2herme(pol):
-    pol = as_series(pol)
+    pol = _as_series(pol)
 
     degree = len(pol) - 1
 
@@ -2185,7 +2258,7 @@ def poly2herme(pol):
 
 
 def poly2lag(pol):
-    pol = as_series(pol)
+    pol = _as_series(pol)
 
     res = zeros_like(pol)
 
@@ -2198,7 +2271,7 @@ def poly2lag(pol):
 
 
 def poly2leg(pol):
-    pol = as_series(pol)
+    pol = _as_series(pol)
 
     degree = len(pol) - 1
 
@@ -2214,12 +2287,16 @@ def poly2leg(pol):
     return fori_loop(0, degree + 1, body, res)
 
 
-def polyadd(c1, c2):
-    return _add(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def polyadd(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _add(input, other)
 
 
 def polycompanion(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) < 2:
         raise ValueError("Series must have maximum degree of at least 1.")
@@ -2239,7 +2316,7 @@ def polycompanion(c):
 
 
 def polyder(c, m=1, scl=1, axis=0):
-    c = as_series(c)
+    c = _as_series(c)
 
     if m == 0:
         return c
@@ -2272,7 +2349,7 @@ def polyder(c, m=1, scl=1, axis=0):
 
 
 def polydiv(c1, c2):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
 
     return _div(polymul, c1, c2)
 
@@ -2297,7 +2374,7 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
 
-    c = as_series(c)
+    c = _as_series(c)
 
     lbnd, scl = map(asarray, (lbnd, scl))
 
@@ -2356,7 +2433,7 @@ def polyline(off, scl):
 
 
 def polymul(c1, c2, mode="full"):
-    c1, c2 = as_series(c1, c2)
+    c1, c2 = _as_series(c1, c2)
 
     ret = convolve(c1, c2)
 
@@ -2367,7 +2444,7 @@ def polymul(c1, c2, mode="full"):
 
 
 def polymulx(c, mode="full"):
-    c = as_series(c)
+    c = _as_series(c)
 
     prd = zeros(len(c) + 1, dtype=c.dtype)
 
@@ -2384,7 +2461,7 @@ def polypow(c, pow, maxpower=16):
 
 
 def polyroots(c):
-    c = as_series(c)
+    c = _as_series(c)
 
     if len(c) < 2:
         return array([], dtype=c.dtype)
@@ -2395,12 +2472,16 @@ def polyroots(c):
     return sort(eigvals(polycompanion(c)[::-1, ::-1]))
 
 
-def polysub(c1, c2):
-    return _sub(c1, c2)
+@jaxtyping.jaxtyped(typechecker=beartype.beartype)
+def polysub(
+    input: Num[Array, "..."],
+    other: Num[Array, "..."],
+) -> Num[Array, "..."]:
+    return _subtract(input, other)
 
 
 def polyval(x, c, tensor=True):
-    c = as_series(c)
+    c = _as_series(c)
 
     x = asarray(x)
 
@@ -2418,11 +2499,11 @@ def polyval(x, c, tensor=True):
 
 
 def polyval2d(x, y, c):
-    return _valnd(polyval, c, x, y)
+    return _evaluate(polyval, c, x, y)
 
 
 def polyval3d(x, y, z, c):
-    return _valnd(polyval, c, x, y, z)
+    return _evaluate(polyval, c, x, y, z)
 
 
 def polyvalfromroots(x, r, tensor=True):
@@ -2483,7 +2564,7 @@ def _trim_coefficients(c, tol=0):
     if tol < 0:
         raise ValueError("tol must be non-negative")
 
-    c = as_series(c)
+    c = _as_series(c)
 
     [ind] = nonzero(abs(c) > tol)
 
@@ -2516,7 +2597,7 @@ __all__ = [
     "_map_parameters",
     "_trim_coefficients",
     "_trim_sequence",
-    "as_series",
+    "_as_series",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
