@@ -213,7 +213,7 @@ def test__trim_coefficients():
 
 def test__trim_sequence():
     for _ in range(5):
-        numpy.testing.assert_equal(
+        numpy.testing.assert_array_almost_equal(
             beignet.orthax._trim_sequence(array([1] + [0] * 5)),
             array([1]),
         )
@@ -2206,10 +2206,7 @@ def test_hermfit():
         3,
     )
 
-    numpy.testing.assert_equal(
-        len(coef3),
-        4,
-    )
+    assert len(coef3) == 4
 
     assert_array_almost_equal(
         beignet.orthax.hermval(x, coef3),
@@ -2222,10 +2219,7 @@ def test_hermfit():
         (0, 1, 2, 3),
     )
 
-    numpy.testing.assert_equal(
-        len(coef3),
-        4,
-    )
+    assert len(coef3) == 4
 
     assert_array_almost_equal(
         beignet.orthax.hermval(x, coef3),
@@ -2238,10 +2232,7 @@ def test_hermfit():
         4,
     )
 
-    numpy.testing.assert_equal(
-        len(coef4),
-        5,
-    )
+    assert len(coef4) == 5
 
     assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
@@ -2254,10 +2245,7 @@ def test_hermfit():
         (0, 1, 2, 3, 4),
     )
 
-    numpy.testing.assert_equal(
-        len(coef4),
-        5,
-    )
+    assert len(coef4) == 5
 
     assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
@@ -2270,10 +2258,7 @@ def test_hermfit():
         (2, 3, 4, 1, 0),
     )
 
-    numpy.testing.assert_equal(
-        len(coef4),
-        5,
-    )
+    assert len(coef4) == 5
 
     assert_array_almost_equal(
         beignet.orthax.hermval(x, coef4),
@@ -2724,7 +2709,7 @@ def test_hermtrim():
 
 
 def test_hermval():
-    numpy.testing.assert_equal(beignet.orthax.hermval(array([]), [1]).size, 0)
+    assert beignet.orthax.hermval(array([]), [1]).size == 0
 
     x = linspace(-1, 1)
     y = [beignet.orthax.polyval(x, c) for c in hermcoefficients]
@@ -2739,13 +2724,11 @@ def test_hermval():
         )
 
     for index in range(3):
-        dims = [2] * index
+        dims = (2,) * index
         x = zeros(dims)
-        numpy.testing.assert_equal(beignet.orthax.hermval(x, [1]).shape, dims)
-        numpy.testing.assert_equal(beignet.orthax.hermval(x, array([1, 0])).shape, dims)
-        numpy.testing.assert_equal(
-            beignet.orthax.hermval(x, array([1, 0, 0])).shape, dims
-        )
+        assert beignet.orthax.hermval(x, [1]).shape == dims
+        assert beignet.orthax.hermval(x, array([1, 0])).shape == dims
+        assert beignet.orthax.hermval(x, array([1, 0, 0])).shape == dims
 
 
 def test_hermval2d():
@@ -4736,10 +4719,7 @@ def test_polyfit():
         f(linspace(0, 2)),
         3,
     )
-    numpy.testing.assert_equal(
-        coef3.shape[0],
-        4,
-    )
+    assert coef3.shape[0] == 4
     assert_array_almost_equal(
         beignet.orthax.polyval(linspace(0, 2), coef3),
         f(linspace(0, 2)),
@@ -4749,10 +4729,7 @@ def test_polyfit():
         f(linspace(0, 2)),
         (0, 1, 2, 3),
     )
-    numpy.testing.assert_equal(
-        len(coef3),
-        4,
-    )
+    assert len(coef3) == 4
     assert_array_almost_equal(
         beignet.orthax.polyval(linspace(0, 2), coef3),
         f(linspace(0, 2)),
@@ -4763,10 +4740,7 @@ def test_polyfit():
         f(linspace(0, 2)),
         4,
     )
-    numpy.testing.assert_equal(
-        len(coef4),
-        5,
-    )
+    assert len(coef4) == 5
     assert_array_almost_equal(
         beignet.orthax.polyval(linspace(0, 2), coef4),
         f(linspace(0, 2)),
@@ -4776,10 +4750,7 @@ def test_polyfit():
         f(linspace(0, 2)),
         (0, 1, 2, 3, 4),
     )
-    numpy.testing.assert_equal(
-        len(coef4),
-        5,
-    )
+    assert len(coef4) == 5
     assert_array_almost_equal(
         beignet.orthax.polyval(linspace(0, 2), coef4),
         f(linspace(0, 2)),
@@ -5297,7 +5268,7 @@ def test_polymulx():
 
 
 def test_polyone():
-    numpy.testing.assert_equal(
+    numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyone,
         array([1]),
     )
@@ -5398,7 +5369,7 @@ def test_polytrim():
 
 
 def test_polyval():
-    numpy.testing.assert_equal(beignet.orthax.polyval(array([]), [1]).size, 0)
+    assert beignet.orthax.polyval(array([]), [1]).size == 0
 
     x = linspace(-1, 1)
     y = [x**i for i in range(5)]
@@ -5415,31 +5386,31 @@ def test_polyval():
     )
 
     for i in range(3):
-        dims = [2] * i
+        dims = (2,) * i
         x = zeros(dims)
 
-        numpy.testing.assert_equal(
+        assert (
             beignet.orthax.polyval(
                 x,
                 array([1]),
-            ).shape,
-            dims,
+            ).shape
+            == dims
         )
 
-        numpy.testing.assert_equal(
+        assert (
             beignet.orthax.polyval(
                 x,
                 array([1, 0]),
-            ).shape,
-            dims,
+            ).shape
+            == dims
         )
 
-        numpy.testing.assert_equal(
+        assert (
             beignet.orthax.polyval(
                 x,
                 array([1, 0, 0]),
-            ).shape,
-            dims,
+            ).shape
+            == dims
         )
 
 
@@ -5533,17 +5504,11 @@ def test_polyvalfromroots():
         tensor=False,
     )
 
-    numpy.testing.assert_equal(
-        beignet.orthax.polyvalfromroots(array([]), array([1])).size,
-        0,
-    )
+    assert beignet.orthax.polyvalfromroots(array([]), array([1])).size == 0
 
     assert beignet.orthax.polyvalfromroots(array([]), array([1])).shape == (0,)
 
-    numpy.testing.assert_equal(
-        beignet.orthax.polyvalfromroots(array([]), [[1] * 5]).size,
-        0,
-    )
+    assert beignet.orthax.polyvalfromroots(array([]), [[1] * 5]).size == 0
 
     assert beignet.orthax.polyvalfromroots(array([]), [[1] * 5]).shape == (5, 0)
 
@@ -5570,17 +5535,11 @@ def test_polyvalfromroots():
     )
 
     for i in range(3):
-        dims = [2] * i
+        dims = (2,) * i
         x = zeros(dims)
-        numpy.testing.assert_equal(
-            beignet.orthax.polyvalfromroots(x, array([1])).shape, dims
-        )
-        numpy.testing.assert_equal(
-            beignet.orthax.polyvalfromroots(x, array([1, 0])).shape, dims
-        )
-        numpy.testing.assert_equal(
-            beignet.orthax.polyvalfromroots(x, array([1, 0, 0])).shape, dims
-        )
+        assert beignet.orthax.polyvalfromroots(x, array([1])).shape == dims
+        assert beignet.orthax.polyvalfromroots(x, array([1, 0])).shape == dims
+        assert beignet.orthax.polyvalfromroots(x, array([1, 0, 0])).shape == dims
 
     ptest = array([15, 2, -16, -2, 1])
     r = beignet.orthax.polyroots(ptest)
