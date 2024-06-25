@@ -1835,7 +1835,7 @@ def test_hermefit():
     coef4 = hermefit(
         x,
         y,
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
 
     assert_array_almost_equal(
@@ -2482,7 +2482,7 @@ def test_hermfit():
     coef4 = hermfit(
         x,
         y,
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
 
     assert len(coef4) == 5
@@ -2495,7 +2495,7 @@ def test_hermfit():
     coef4 = hermfit(
         x,
         y,
-        (2, 3, 4, 1, 0),
+        degree=(2, 3, 4, 1, 0),
     )
 
     assert len(coef4) == 5
@@ -3269,7 +3269,7 @@ def test_lagfit():
     coef4 = lagfit(
         x,
         y,
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
 
     assert_array_almost_equal(
@@ -4038,7 +4038,7 @@ def test_legfit():
     coef4 = legfit(
         linspace(0, 2, 50),
         f(input),
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
     assert_array_almost_equal(
         len(coef4),
@@ -4052,7 +4052,7 @@ def test_legfit():
     coef4 = legfit(
         linspace(0, 2, 50),
         f(input),
-        (2, 3, 4, 1, 0),
+        degree=(2, 3, 4, 1, 0),
     )
 
     assert_array_almost_equal(
@@ -5009,7 +5009,7 @@ def test_polyfit():
     coef4 = polyfit(
         linspace(0, 2, 50),
         f(a),
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
     assert len(coef4) == 5
     assert_array_almost_equal(
