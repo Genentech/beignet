@@ -117,14 +117,11 @@ def space(
             perturbation: Tensor | None = None,
             **_,
         ) -> Tensor:
-            if len(input.shape) != 1:
-                raise ValueError
-
-            if input.shape != other.shape:
-                raise ValueError
+            """Displacement fn for free space"""
+            displacement = pairwise_displacement(input, other)
 
             if perturbation is not None:
-                transform = input - other
+                transform = displacement
 
                 match transform.ndim:
                     case 0:
@@ -144,7 +141,7 @@ def space(
                     case _:
                         raise ValueError
 
-            return input - other
+            return displacement
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
             return input + other
@@ -340,8 +337,7 @@ def space(
         perturbation: Tensor | None = None,
         **_,
     ) -> Tensor:
-
-
+        """Displacement fn for hypercube"""
         displacement = periodic_displacement(box, pairwise_displacement(input, other))
 
         if perturbation is not None:

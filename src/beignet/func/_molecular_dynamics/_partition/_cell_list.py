@@ -78,7 +78,10 @@ def cell_list(
         )
 
         if excess is None:
-            cell_capacity= torch.max(_particles_per_cell(positions, size, unit_size))
+            print(f"positions: {positions}")
+            print(f"box size: {size}")
+            print(f"cell_size: {unit_size}")
+            cell_capacity = torch.max(_particles_per_cell(positions, size, unit_size))
 
             buffer_size = int(cell_capacity * buffer_size_multiplier)
 

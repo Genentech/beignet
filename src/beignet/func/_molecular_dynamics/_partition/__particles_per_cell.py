@@ -41,9 +41,20 @@ def _particles_per_cell(
         dim, size, minimum_size
     )
 
-    hash_multipliers = _hash_constants(positions.shape[1], per_side)
+    print(f"size: {size}")
+    print(f"unit_size: {unit_size}")
+    print(f"per_side: {per_side}")
+    print(f"n: {n}")
+
+    print(f"dim: {dim}")
+
+    hash_multipliers = _hash_constants(dim, per_side)
     particle_index = torch.tensor(positions / unit_size, dtype=torch.int32)
     particle_hash = torch.sum(particle_index * hash_multipliers, dim=1)
+
+    print(f"hash_multipliers: {hash_multipliers}")
+    print(f"particle_index: {particle_index}")
+    print(f"particle_hash: {particle_hash}")
 
     filling = _segment_sum(torch.ones_like(particle_hash), particle_hash, n)
 

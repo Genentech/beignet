@@ -46,7 +46,7 @@ def neighbor_list(
 
     squared_cutoff = cutoff**2
 
-    squared_maximum_distance = (maximum_distance / 2.0) ** 2
+    squared_maximum_distance = (maximum_distance / torch.tensor(2.0)) ** 2
 
     metric_sq = _to_square_metric_fn(displacement_fn)
 
