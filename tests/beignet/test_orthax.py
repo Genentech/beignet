@@ -301,7 +301,7 @@ def test_chebcompanion():
         beignet.orthax.chebcompanion(array([]))
 
     with pytest.raises(ValueError):
-        beignet.orthax.chebcompanion([1])
+        beignet.orthax.chebcompanion(array([1]))
 
     for i in range(1, 5):
         assert beignet.orthax.chebcompanion(array([0] * i + [1])).shape == (i, i)
@@ -437,27 +437,31 @@ def test_chebfit():
     def g(x):
         return x**4 + x**2 + 1
 
-    pytest.raises(ValueError, beignet.orthax.chebfit, [1], [1], -1)
+    pytest.raises(ValueError, beignet.orthax.chebfit, array([1]), array([1]), -1)
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [[1]], [1], 0)
+    pytest.raises(TypeError, beignet.orthax.chebfit, [[1]], array([1]), 0)
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([]), [1], 0)
+    pytest.raises(TypeError, beignet.orthax.chebfit, array([]), array([1]), 0)
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [1], [[[1]]], 0)
+    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), [[[1]]], 0)
 
     pytest.raises(TypeError, beignet.orthax.chebfit, array([1, 2]), [1], 0)
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [1], array([1, 2]), 0)
+    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1, 2]), 0)
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [1], [1], 0, w=[[1]])
+    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1]), 0, w=[[1]])
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [1], [1], 0, w=[1, 1])
+    pytest.raises(
+        TypeError, beignet.orthax.chebfit, array([1]), array([1]), 0, w=[1, 1]
+    )
 
-    pytest.raises(ValueError, beignet.orthax.chebfit, [1], [1], (-1,))
+    pytest.raises(ValueError, beignet.orthax.chebfit, array([1]), array([1]), (-1,))
 
-    pytest.raises(ValueError, beignet.orthax.chebfit, [1], [1], (2, -1, 6))
+    pytest.raises(
+        ValueError, beignet.orthax.chebfit, array([1]), array([1]), (2, -1, 6)
+    )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [1], [1], ())
+    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1]), ())
 
     x = linspace(0, 2)
     y = f(x)
@@ -663,7 +667,7 @@ def test_chebfit():
 def test_chebfromroots():
     assert_array_almost_equal(
         beignet.orthax.chebtrim(beignet.orthax.chebfromroots(array([])), tol=0.000001),
-        [1],
+        array([1]),
     )
     for i in range(1, 5):
         assert_array_almost_equal(
