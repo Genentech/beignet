@@ -7,6 +7,7 @@ import pytest
 from beignet.orthax import (
     _c_series_to_z_series,
     _fit,
+    _get_domain,
     _map_domain,
     _map_parameters,
     _pow,
@@ -46,7 +47,6 @@ from beignet.orthax import (
     chebweight,
     chebx,
     chebzero,
-    getdomain,
     herm2poly,
     hermadd,
     hermcompanion,
@@ -208,6 +208,7 @@ from jax.numpy import (
     eye,
     linspace,
     ones,
+    ravel,
     sqrt,
     vstack,
     zeros,
@@ -1463,11 +1464,17 @@ def test_chebvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     c = jax.random.uniform(key, (2, 3))
     van = chebvander2d(x1, x2, (1, 2))
-    target = chebval2d(x1, x2, c)
-    res = dot(van, c.ravel())
+
     assert_array_almost_equal(
-        res,
-        target,
+        dot(
+            van,
+            ravel(c),
+        ),
+        chebval2d(
+            x1,
+            x2,
+            c,
+        ),
     )
 
     van = chebvander2d([x1], [x2], (1, 2))
@@ -1502,18 +1509,18 @@ def test_chebx():
 
 
 def test_chebzero():
-    assert_array_almost_equal(chebzero, [0])
+    assert_array_almost_equal(chebzero, array([0]))
 
 
-def test_getdomain():
+def test__get_domain():
     assert_array_almost_equal(
-        getdomain([1, 10, 3, -1]),
-        [-1, 10],
+        _get_domain(array([1, 10, 3, -1])),
+        array([-1, 10]),
     )
 
     assert_array_almost_equal(
-        getdomain([1 + 1j, 1 - 1j, 0, 2]),
-        [-1j, 2 + 1j],
+        _get_domain(array([1 + 1j, 1 - 1j, 0, 2])),
+        array([-1j, 2 + 1j]),
     )
 
 

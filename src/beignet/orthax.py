@@ -162,9 +162,6 @@ def _fit(
     full: bool = False,
     weight: Array | None = None,
 ):
-    # input = asarray(input)
-    # other = asarray(other)
-
     degree = asarray(degree)
 
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
@@ -843,7 +840,9 @@ def chebsub(input, other):
 
 def chebval(x, c, tensor=True):
     c = _as_series(c)
+
     x = asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -865,14 +864,12 @@ def chebval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1
 
-        b = len(c) + 1
         x1 = (c0, c1)
-        y = x1
 
-        for index in range(3, b):
-            y = body(index, y)
+        for index in range(3, c.shape[0] + 1):
+            x1 = body(index, x1)
 
-        c0, c1 = y
+        c0, c1 = x1
 
     return c0 + c1 * x
 
@@ -900,14 +897,8 @@ def chebvander(x, degree):
         v = v.at[1].set(x)
         x2 = 2 * x
 
-        def body(i, v):
-            return v.at[i].set(v[i - 1] * x2 - v[i - 2])
-
-        b = degree + 1
-        y = v
-        for index in range(2, b):
-            y = body(index, y)
-        v = y
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x2 - v[i - 2])
 
     return moveaxis(v, 0, -1)
 
@@ -938,12 +929,13 @@ def chebweight(x):
     return output
 
 
-def getdomain(x):
-    x = asarray(x)
+def _get_domain(x: Array) -> Array:
+    # x = asarray(x)
 
     if iscomplexobj(x):
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
+
         return array(((rmin + 1j * imin), (rmax + 1j * imax)))
 
     return array((x.min(), x.max()))
@@ -1362,14 +1354,8 @@ def hermevander(x, degree):
     if degree > 0:
         v = v.at[1].set(x)
 
-        def body(i, v):
-            return v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
-
-        b = degree + 1
-        y = v
-        for index in range(2, b):
-            y = body(index, y)
-        v = y
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
 
     return moveaxis(v, 0, -1)
 
@@ -1632,14 +1618,8 @@ def hermvander(x, degree):
         x2 = x * 2
         v = v.at[1].set(x2)
 
-        def body(i, v):
-            return v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
-
-        b = degree + 1
-        y = v
-        for index in range(2, b):
-            y = body(index, y)
-        v = y
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
 
     return moveaxis(v, 0, -1)
 
@@ -1995,14 +1975,8 @@ def lagvander(x, degree):
     if degree > 0:
         v = v.at[1].set(1 - x)
 
-        def body(i, v):
-            return v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
-
-        b = degree + 1
-        y = v
-        for index in range(2, b):
-            y = body(index, y)
-        v = y
+        for i in range(2, degree + 1):
+            v = v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
 
     return moveaxis(v, 0, -1)
 
@@ -2375,15 +2349,8 @@ def legvander(x, degree):
     if degree > 0:
         v = v.at[1].set(x)
 
-        def body(i, v):
-            return v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
-
-        y = v
-
-        for index in range(2, degree + 1):
-            y = body(index, y)
-
-        v = y
+        for i in range(2, degree + 1):
+            v = v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
 
     return moveaxis(v, 0, -1)
 
@@ -2858,7 +2825,7 @@ __all__ = [
     "chebweight",
     "chebx",
     "chebzero",
-    "getdomain",
+    "_get_domain",
     "herm2poly",
     "hermadd",
     "hermcompanion",
