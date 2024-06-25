@@ -166,7 +166,7 @@ def test__pow():
         ValueError,
         beignet.orthax._pow,
         (),
-        [1, 2, 3],
+        array([1, 2, 3]),
         5,
         4,
     )
@@ -298,7 +298,7 @@ def test_chebcompanion():
             beignet.orthax.chebcompanion(array([0] * i + [1])).shape == (i, i)
         )
 
-    numpy.testing.assert_(beignet.orthax.chebcompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.orthax.chebcompanion(array([1, 2]))[0, 0] == -0.5)
 
 
 def test_chebder():
@@ -416,9 +416,13 @@ def test_chebfit():
 
     numpy.testing.assert_raises(TypeError, beignet.orthax.chebfit, [1], [[[1]]], 0)
 
-    numpy.testing.assert_raises(TypeError, beignet.orthax.chebfit, [1, 2], [1], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.chebfit, array([1, 2]), [1], 0
+    )
 
-    numpy.testing.assert_raises(TypeError, beignet.orthax.chebfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.chebfit, [1], array([1, 2]), 0
+    )
 
     numpy.testing.assert_raises(TypeError, beignet.orthax.chebfit, [1], [1], 0, w=[[1]])
 
@@ -1002,7 +1006,7 @@ def test_chebroots():
     )
 
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.chebroots([1, 2]),
+        beignet.orthax.chebroots(array([1, 2])),
         [-0.5],
     )
 
@@ -1268,7 +1272,7 @@ def test_hermcompanion():
             beignet.orthax.hermcompanion(array([0] * i + [1])).shape == (i, i)
         )
 
-    numpy.testing.assert_(beignet.orthax.hermcompanion([1, 2])[0, 0] == -0.25)
+    numpy.testing.assert_(beignet.orthax.hermcompanion(array([1, 2]))[0, 0] == -0.25)
 
 
 def test_hermder():
@@ -1382,7 +1386,7 @@ def test_hermecompanion():
         coef = array([0] * i + [1])
         numpy.testing.assert_(beignet.orthax.hermecompanion(coef).shape == (i, i))
 
-    numpy.testing.assert_(beignet.orthax.hermecompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.orthax.hermecompanion(array([1, 2]))[0, 0] == -0.5)
 
 
 def test_hermeder():
@@ -1474,8 +1478,12 @@ def test_hermefit():
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermefit, [[1]], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermefit, [], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermefit, [1], [[[1]]], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermefit, [1, 2], [1], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermefit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.hermefit, array([1, 2]), [1], 0
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.hermefit, [1], array([1, 2]), 0
+    )
     numpy.testing.assert_raises(
         TypeError, beignet.orthax.hermefit, [1], [1], 0, w=[[1]]
     )
@@ -2151,8 +2159,12 @@ def test_hermfit():
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [[1]], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [1], [[[1]]], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [1, 2], [1], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.hermfit, array([1, 2]), [1], 0
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.hermfit, [1], array([1, 2]), 0
+    )
     numpy.testing.assert_raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, w=[[1]])
 
     numpy.testing.assert_raises(
@@ -2874,7 +2886,7 @@ def test_lagcompanion():
         coef = array([0] * i + [1])
         numpy.testing.assert_(beignet.orthax.lagcompanion(coef).shape == (i, i))
 
-    numpy.testing.assert_(beignet.orthax.lagcompanion([1, 2])[0, 0] == 1.5)
+    numpy.testing.assert_(beignet.orthax.lagcompanion(array([1, 2]))[0, 0] == 1.5)
 
 
 def test_lagder():
@@ -2957,8 +2969,8 @@ def test_lagfit():
     numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [[1]], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1], [[[1]]], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1, 2], [1], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, array([1, 2]), [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1], array([1, 2]), 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, w=[[1]])
     numpy.testing.assert_raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, w=[1, 1])
     numpy.testing.assert_raises(ValueError, beignet.orthax.lagfit, [1], [1], (-1,))
@@ -3629,7 +3641,7 @@ def test_legcompanion():
         coef = array([0] * i + [1])
         numpy.testing.assert_(beignet.orthax.legcompanion(coef).shape == (i, i))
 
-    numpy.testing.assert_(beignet.orthax.legcompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.orthax.legcompanion(array([1, 2]))[0, 0] == -0.5)
 
 
 def test_legder():
@@ -3716,8 +3728,8 @@ def test_legfit():
     numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [[1]], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [[[1]]], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1, 2], [1], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, array([1, 2]), [1], 0)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], array([1, 2]), 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[[1]])
     numpy.testing.assert_raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[1, 1])
     numpy.testing.assert_raises(ValueError, beignet.orthax.legfit, [1], [1], (-1,))
@@ -4244,7 +4256,9 @@ def test_legpow():
 
 def test_legroots():
     numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1]), [])
-    numpy.testing.assert_array_almost_equal(beignet.orthax.legroots([1, 2]), [-0.5])
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.legroots(array([1, 2])), [-0.5]
+    )
 
     for index in range(2, 5):
         numpy.testing.assert_array_almost_equal(
@@ -4536,7 +4550,7 @@ def test_polycompanion():
             beignet.orthax.polycompanion([0] * index + [1]).shape == (index, index)
         )
 
-    numpy.testing.assert_(beignet.orthax.polycompanion([1, 2])[0, 0] == -0.5)
+    numpy.testing.assert_(beignet.orthax.polycompanion(array([1, 2]))[0, 0] == -0.5)
 
 
 def test_polyder():
@@ -4626,8 +4640,12 @@ def test_polyfit():
     numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [[1]], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [], [1], 0)
     numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [[[1]]], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1, 2], [1], 0)
-    numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1, 2], 0)
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.polyfit, array([1, 2]), [1], 0
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.polyfit, [1], array([1, 2]), 0
+    )
     numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[[1]])
     numpy.testing.assert_raises(
         TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[1, 1]
@@ -5204,7 +5222,7 @@ def test_polyroots():
     )
 
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyroots([1, 2]),
+        beignet.orthax.polyroots(array([1, 2])),
         [-0.5],
     )
 
@@ -5291,7 +5309,7 @@ def test_polyval():
     for i in range(3):
         dims = [2] * i
         x = zeros(dims)
-        numpy.testing.assert_equal(beignet.orthax.polyval(x, [1]).shape, dims)
+        numpy.testing.assert_equal(beignet.orthax.polyval(x, array([1])).shape, dims)
         numpy.testing.assert_equal(beignet.orthax.polyval(x, [1, 0]).shape, dims)
         numpy.testing.assert_equal(beignet.orthax.polyval(x, [1, 0, 0]).shape, dims)
 
@@ -5346,13 +5364,13 @@ def test_polyvalfromroots():
     numpy.testing.assert_raises(
         ValueError,
         beignet.orthax.polyvalfromroots,
-        [1],
-        [1],
+        array([1]),
+        array([1]),
         tensor=False,
     )
 
-    numpy.testing.assert_equal(beignet.orthax.polyvalfromroots([], [1]).size, 0)
-    numpy.testing.assert_(beignet.orthax.polyvalfromroots([], [1]).shape == (0,))
+    numpy.testing.assert_equal(beignet.orthax.polyvalfromroots([], array([1])).size, 0)
+    numpy.testing.assert_(beignet.orthax.polyvalfromroots([], array([1])).shape == (0,))
 
     numpy.testing.assert_equal(beignet.orthax.polyvalfromroots([], [[1] * 5]).size, 0)
     numpy.testing.assert_(
@@ -5383,7 +5401,9 @@ def test_polyvalfromroots():
     for i in range(3):
         dims = [2] * i
         x = zeros(dims)
-        numpy.testing.assert_equal(beignet.orthax.polyvalfromroots(x, [1]).shape, dims)
+        numpy.testing.assert_equal(
+            beignet.orthax.polyvalfromroots(x, array([1])).shape, dims
+        )
         numpy.testing.assert_equal(
             beignet.orthax.polyvalfromroots(x, [1, 0]).shape, dims
         )
