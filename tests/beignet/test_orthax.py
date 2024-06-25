@@ -4539,11 +4539,17 @@ def test_legweight():
 
 
 def test_legx():
-    numpy.testing.assert_array_equal(beignet.orthax.legx, [0, 1])
+    numpy.testing.assert_array_equal(
+        beignet.orthax.legx,
+        array([0, 1]),
+    )
 
 
 def test_legzero():
-    numpy.testing.assert_array_equal(beignet.orthax.legzero, [0])
+    numpy.testing.assert_array_equal(
+        beignet.orthax.legzero,
+        array([0]),
+    )
 
 
 def test_poly2cheb():
@@ -4816,25 +4822,22 @@ def test_polyfit():
     )
     numpy.testing.assert_raises(TypeError, beignet.orthax.polyfit, [1], [1], ())
 
-    x = linspace(0, 2)
-    y = f(x)
-
     coef3 = beignet.orthax.polyfit(
-        x,
-        y,
+        linspace(0, 2),
+        f(linspace(0, 2)),
         3,
     )
     numpy.testing.assert_equal(
-        len(coef3),
+        coef3.shape[0],
         4,
     )
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyval(x, coef3),
-        y,
+        beignet.orthax.polyval(linspace(0, 2), coef3),
+        f(linspace(0, 2)),
     )
     coef3 = beignet.orthax.polyfit(
-        x,
-        y,
+        linspace(0, 2),
+        f(linspace(0, 2)),
         (0, 1, 2, 3),
     )
     numpy.testing.assert_equal(
@@ -4842,13 +4845,13 @@ def test_polyfit():
         4,
     )
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyval(x, coef3),
-        y,
+        beignet.orthax.polyval(linspace(0, 2), coef3),
+        f(linspace(0, 2)),
     )
 
     coef4 = beignet.orthax.polyfit(
-        x,
-        y,
+        linspace(0, 2),
+        f(linspace(0, 2)),
         4,
     )
     numpy.testing.assert_equal(
@@ -4856,12 +4859,12 @@ def test_polyfit():
         5,
     )
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyval(x, coef4),
-        y,
+        beignet.orthax.polyval(linspace(0, 2), coef4),
+        f(linspace(0, 2)),
     )
     coef4 = beignet.orthax.polyfit(
-        x,
-        y,
+        linspace(0, 2),
+        f(linspace(0, 2)),
         (0, 1, 2, 3, 4),
     )
     numpy.testing.assert_equal(
@@ -4869,13 +4872,13 @@ def test_polyfit():
         5,
     )
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyval(x, coef4),
-        y,
+        beignet.orthax.polyval(linspace(0, 2), coef4),
+        f(linspace(0, 2)),
     )
 
     coef2d = beignet.orthax.polyfit(
-        x,
-        array([y, y]).T,
+        linspace(0, 2),
+        array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
         3,
     )
     numpy.testing.assert_array_almost_equal(
@@ -4883,8 +4886,8 @@ def test_polyfit():
         array([coef3, coef3]).T,
     )
     coef2d = beignet.orthax.polyfit(
-        x,
-        array([y, y]).T,
+        linspace(0, 2),
+        array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
         (0, 1, 2, 3),
     )
     numpy.testing.assert_array_almost_equal(
@@ -4892,100 +4895,106 @@ def test_polyfit():
         array([coef3, coef3]).T,
     )
 
-    w = zeros_like(x)
-    yw = y.copy()
+    w = zeros_like(linspace(0, 2))
 
     w = w.at[1::2].set(1)
-    yw = y.at[0::2].set(0)
+    yw = f(linspace(0, 2)).at[0::2].set(0)
 
     wcoef3 = beignet.orthax.polyfit(
-        x,
+        linspace(0, 2),
         yw,
         3,
         w=w,
     )
-    numpy.testing.assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-    wcoef3 = beignet.orthax.polyfit(
-        x,
-        yw,
-        (0, 1, 2, 3),
-        w=w,
-    )
+
     numpy.testing.assert_array_almost_equal(
         wcoef3,
         coef3,
     )
 
-    wcoef2d = beignet.orthax.polyfit(
-        x,
-        array([yw, yw]).T,
-        3,
-        w=w,
-    )
-    numpy.testing.assert_array_almost_equal(
-        wcoef2d,
-        array([coef3, coef3]).T,
-    )
-    wcoef2d = beignet.orthax.polyfit(
-        x,
-        array([yw, yw]).T,
+    wcoef3 = beignet.orthax.polyfit(
+        linspace(0, 2),
+        yw,
         (0, 1, 2, 3),
         w=w,
     )
+
     numpy.testing.assert_array_almost_equal(
-        wcoef2d,
+        wcoef3,
+        coef3,
+    )
+
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyfit(
+            linspace(0, 2),
+            array([yw, yw]).T,
+            3,
+            w=w,
+        ),
         array([coef3, coef3]).T,
     )
 
-    x = [1, 1j, -1, -1j]
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyfit(x, x, 1),
-        array([0, 1]),
+        beignet.orthax.polyfit(
+            linspace(0, 2),
+            array([yw, yw]).T,
+            (0, 1, 2, 3),
+            w=w,
+        ),
+        array([coef3, coef3]).T,
     )
+
     numpy.testing.assert_array_almost_equal(
-        beignet.orthax.polyfit(x, x, (0, 1)),
+        beignet.orthax.polyfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            1,
+        ),
         array([0, 1]),
     )
 
-    x = linspace(-1, 1)
-    y = g(x)
+    numpy.testing.assert_array_almost_equal(
+        beignet.orthax.polyfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            (0, 1),
+        ),
+        array([0, 1]),
+    )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyval(
-            x,
+            linspace(-1, 1),
             beignet.orthax.polyfit(
-                x,
-                y,
+                linspace(-1, 1),
+                g(linspace(-1, 1)),
                 4,
             ),
         ),
-        y,
+        g(linspace(-1, 1)),
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyval(
-            x,
+            linspace(-1, 1),
             beignet.orthax.polyfit(
-                x,
-                y,
+                linspace(-1, 1),
+                g(linspace(-1, 1)),
                 (0, 2, 4),
             ),
         ),
-        y,
+        g(linspace(-1, 1)),
     )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyfit(
-            x,
-            y,
+            linspace(-1, 1),
+            g(linspace(-1, 1)),
             4,
         ),
         beignet.orthax.polyfit(
-            x,
-            y,
+            linspace(-1, 1),
+            g(linspace(-1, 1)),
             (0, 2, 4),
         ),
     )
@@ -4997,7 +5006,7 @@ def test_polyfromroots():
             beignet.orthax.polyfromroots(array([])),
             tol=0.000001,
         ),
-        [1],
+        array([1]),
     )
 
     for i in range(1, 5):
@@ -5018,9 +5027,6 @@ def test_polyfromroots():
 
 
 def test_polygrid2d():
-    c1d = array([1.0, 2.0, 3.0])
-    c2d = einsum("i,j->ij", c1d, c1d)
-
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
     x1, x2, x3 = x
@@ -5030,7 +5036,11 @@ def test_polygrid2d():
         beignet.orthax.polygrid2d(
             x1,
             x2,
-            c2d,
+            einsum(
+                "i,j->ij",
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+            ),
         ),
         einsum(
             "i,j->ij",
@@ -5039,15 +5049,17 @@ def test_polygrid2d():
         ),
     )
 
-    z = ones([2, 3])
-
-    res = beignet.orthax.polygrid2d(
-        z,
-        z,
-        c2d,
+    output = beignet.orthax.polygrid2d(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+        ),
     )
 
-    assert res.shape == (2, 3) * 2
+    assert output.shape == (2, 3) * 2
 
 
 def test_polygrid3d():
