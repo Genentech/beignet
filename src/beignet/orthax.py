@@ -249,8 +249,6 @@ def _fit(
 
 
 def _from_roots(f, g, input):
-    input = asarray(input)
-
     if math.prod(input.shape) == 0:
         return ones(1)
 
@@ -311,20 +309,21 @@ def _normed_hermite_e_n(x, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
     else:
-        c0 = zeros_like(x)
-        c1 = ones_like(x) / sqrt(sqrt(2 * math.pi))
-        nd = array(n).astype(float)
+        a = zeros_like(x)
+        b = ones_like(x) / sqrt(sqrt(2 * math.pi))
+
+        d = array(n).astype(float)
 
         for _ in range(0, n - 1):
-            tmp = c0
+            c = a
 
-            c0 = -c1 * sqrt((nd - 1.0) / nd)
+            a = -b * sqrt((d - 1.0) / d)
 
-            c1 = tmp + c1 * x * sqrt(1.0 / nd)
+            b = c + b * x * sqrt(1.0 / d)
 
-            nd = nd - 1.0
+            d = d - 1.0
 
-        output = c0 + c1 * x
+        output = a + b * x
 
     return output
 
@@ -841,8 +840,6 @@ def chebsub(input, other):
 def chebval(x, c, tensor=True):
     c = _as_series(c)
 
-    x = asarray(x)
-
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -920,8 +917,6 @@ def chebvander3d(x, y, z, degree):
 
 
 def chebweight(x):
-    x = asarray(x)
-
     output = sqrt(1.0 + x) * sqrt(1.0 - x)
 
     output = 1.0 / output
@@ -930,8 +925,6 @@ def chebweight(x):
 
 
 def _get_domain(x: Array) -> Array:
-    # x = asarray(x)
-
     if iscomplexobj(x):
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
@@ -1300,7 +1293,7 @@ def hermesub(
 
 def hermeval(x, c, tensor=True):
     c = _as_series(c)
-    x = asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1439,6 +1432,7 @@ def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = _as_series(c)
+
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -1562,7 +1556,7 @@ def hermsub(
 
 def hermval(x, c, tensor=True):
     c = _as_series(c)
-    x = asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -1800,7 +1794,9 @@ def laggrid3d(x, y, z, c):
 def lagint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
+
     c = _as_series(c)
+
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -1921,7 +1917,7 @@ def lagsub(input, other):
 
 def lagval(x, c, tensor=True):
     c = _as_series(c)
-    x = asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -2154,7 +2150,9 @@ def leggrid3d(x, y, z, c):
 def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
+
     c = _as_series(c)
+
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
@@ -2289,7 +2287,7 @@ def legsub(
 
 def legval(x, c, tensor=True):
     c = _as_series(c)
-    x = asarray(x)
+
     if tensor:
         c = c.reshape(c.shape + (1,) * x.ndim)
 
@@ -2376,8 +2374,6 @@ def legweight(x):
 
 
 def _map_domain(x, old, new):
-    x = asarray(x)
-
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -2671,8 +2667,6 @@ def polysub(input, other):
 def polyval(x, c, tensor=True):
     c = _as_series(c)
 
-    x = asarray(x)
-
     if tensor:
         c = reshape(c, c.shape + (1,) * x.ndim)
 
@@ -2707,8 +2701,6 @@ def polyval3d(x, y, z, c):
 
 def polyvalfromroots(x, r, tensor=True):
     r = array(r, ndmin=1)
-
-    x = asarray(x)
 
     if tensor:
         r = reshape(r, r.shape + (1,) * x.ndim)
