@@ -1,7 +1,7 @@
 import functools
 import math
 import operator
-from typing import Literal
+from typing import Callable, Literal, Tuple
 
 import jax
 import jax.numpy
@@ -77,7 +77,7 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def _add(input, other):
+def _add(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
     if len(input) > len(other):
@@ -88,7 +88,7 @@ def _add(input, other):
     return output
 
 
-def _c_series_to_z_series(input):
+def _c_series_to_z_series(input: Array) -> Array:
     n = math.prod(input.shape)
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
@@ -100,11 +100,11 @@ def _c_series_to_z_series(input):
     return output
 
 
-def _div(func, input, other):
+def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
     input, other = _as_series(input, other)
 
-    lc1 = len(input)
-    lc2 = len(other)
+    lc1 = input.shape[0]
+    lc2 = other.shape[0]
 
     if lc1 < lc2:
         return zeros_like(input[:1]), input
@@ -251,7 +251,7 @@ def _fit(
         return output
 
 
-def _from_roots(f, g, input):
+def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
     if math.prod(input.shape) == 0:
         return ones([1])
 
@@ -294,7 +294,7 @@ def _from_roots(f, g, input):
     return ret[0]
 
 
-def _normed_hermite_e_n(x, n):
+def _normed_hermite_e_n(x: Array, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
     else:
@@ -317,7 +317,7 @@ def _normed_hermite_e_n(x, n):
     return output
 
 
-def _normed_hermite_n(x, n):
+def _normed_hermite_n(x: Array, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
     else:
@@ -345,7 +345,7 @@ def _nth_slice(i, ndim):
     return tuple(sl)
 
 
-def _pad_along_axis(input, padding=(0, 0), axis=0):
+def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
     input = moveaxis(input, axis, 0)
 
     if padding[0] < 0:
@@ -362,7 +362,7 @@ def _pad_along_axis(input, padding=(0, 0), axis=0):
     return moveaxis(output, 0, axis)
 
 
-def _pow(func, input, exponent, maximum_exponent):
+def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
     input = _as_series(input)
 
     power = int(exponent)
@@ -389,7 +389,7 @@ def _pow(func, input, exponent, maximum_exponent):
     return output
 
 
-def _subtract(input, other):
+def _subtract(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
     if len(input) > len(other):
@@ -406,7 +406,7 @@ def _subtract(input, other):
     return output
 
 
-def _evaluate(func, input, *args):
+def _evaluate(func: Callable, input: Array, *args):
     if not all(a.shape == args[0].shape for a in args[1:]):
         match len(args):
             case 2:
@@ -474,23 +474,23 @@ def _as_series(*arrs, trim: bool = False):
     return tuple(arrays)
 
 
-def cheb2poly(c):
-    c = _as_series(c)
+def cheb2poly(input: Array) -> Array:
+    input = _as_series(input)
 
-    n = c.shape[0]
+    n = input.shape[0]
 
     if n < 3:
-        return c
+        return input
 
-    c0 = zeros_like(c).at[0].set(c[-2])
-    c1 = zeros_like(c).at[0].set(c[-1])
+    c0 = zeros_like(input).at[0].set(input[-2])
+    c1 = zeros_like(input).at[0].set(input[-1])
 
     for i in range(0, n - 2):
         i1 = n - 1 - i
 
         tmp = c0
 
-        c0 = polysub(c[i1 - 2], c1)
+        c0 = polysub(input[i1 - 2], c1)
 
         c1 = polyadd(tmp, polymulx(c1, "same") * 2)
 
@@ -501,7 +501,7 @@ def cheb2poly(c):
     return output
 
 
-def chebadd(input, other):
+def chebadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
