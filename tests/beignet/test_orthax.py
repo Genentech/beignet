@@ -431,57 +431,58 @@ def test_chebdomain():
     )
 
 
-def test_chebfit():
-    def f(x: Array) -> Array:
-        return x * (x - 1) * (x - 2)
-
-    def g(x: Array) -> Array:
-        return x**4 + x**2 + 1
-
+def test__fit():
     with pytest.raises(ValueError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=-1,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([[1]]),
             array([1]),
             degree=0,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([]),
             array([1]),
             degree=0,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([[[1]]]),
             degree=0,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1, 2]),
             array([1]),
             degree=0,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1, 2]),
             degree=0,
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=0,
@@ -489,7 +490,8 @@ def test_chebfit():
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=0,
@@ -497,25 +499,36 @@ def test_chebfit():
         )
 
     with pytest.raises(ValueError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=(-1,),
         )
 
     with pytest.raises(ValueError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=(2, -1, 6),
         )
 
     with pytest.raises(TypeError):
-        beignet.orthax.chebfit(
+        beignet.orthax._fit(
+            beignet.orthax._vander_nd,
             array([1]),
             array([1]),
             degree=(),
         )
+
+
+def test_chebfit():
+    def f(x: Array) -> Array:
+        return x * (x - 1) * (x - 2)
+
+    def g(x: Array) -> Array:
+        return x**4 + x**2 + 1
 
     x = linspace(0, 2, 50)
     y = f(x)
@@ -1602,87 +1615,8 @@ def test_hermefit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    def f2(x):
+    def g(x):
         return x**4 + x**2 + 1
-
-    with pytest.raises(ValueError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=-1,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([[1]]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([[[1]]]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1, 2]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1, 2]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=0,
-            weight=[[1]],
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=0,
-            weight=array([1, 1]),
-        )
-
-    with pytest.raises(ValueError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=(-1,),
-        )
-
-    with pytest.raises(ValueError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=(2, -1, 6),
-        )
-
-    with pytest.raises(TypeError):
-        beignet.orthax.hermefit(
-            array([1]),
-            array([1]),
-            degree=(),
-        )
 
     x = linspace(0, 2)
 
@@ -1859,7 +1793,7 @@ def test_hermefit():
 
     x = linspace(-1, 1)
 
-    y = f2(x)
+    y = g(x)
 
     coef1 = beignet.orthax.hermefit(x, y, 4)
 
@@ -2334,24 +2268,8 @@ def test_hermfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    def f2(x):
+    def g(x):
         return x**4 + x**2 + 1
-
-    pytest.raises(ValueError, beignet.orthax.hermfit, [1], [1], -1)
-    pytest.raises(TypeError, beignet.orthax.hermfit, [[1]], [1], 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, array([]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [[[1]]], 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, array([1, 2]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, weight=[[1]])
-
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, weight=[1, 1])
-
-    pytest.raises(ValueError, beignet.orthax.hermfit, [1], [1], (-1))
-
-    pytest.raises(ValueError, beignet.orthax.hermfit, [1], [1], (2, -1, 6))
-
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], ())
 
     x = linspace(0, 2)
 
@@ -2499,21 +2417,21 @@ def test_hermfit():
         array([coef3, coef3]).T,
     )
 
-    x = [1, 1j, -1, -1j]
+    x = array([1, 1j, -1, -1j])
 
     assert_array_almost_equal(
         beignet.orthax.hermfit(x, x, 1),
-        [0, 0.5],
+        array([0, 0.5]),
     )
 
     assert_array_almost_equal(
         beignet.orthax.hermfit(x, x, (0, 1)),
-        [0, 0.5],
+        array([0, 0.5]),
     )
 
     x = linspace(-1, 1)
 
-    y = f2(x)
+    y = g(x)
 
     coef1 = beignet.orthax.hermfit(
         x,
@@ -3147,18 +3065,6 @@ def test_lagfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    pytest.raises(ValueError, beignet.orthax.lagfit, [1], [1], -1)
-    pytest.raises(TypeError, beignet.orthax.lagfit, [[1]], [1], 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, array([]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [[[1]]], 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, array([1, 2]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, weight=[[1]])
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, weight=[1, 1])
-    pytest.raises(ValueError, beignet.orthax.lagfit, [1], [1], (-1,))
-    pytest.raises(ValueError, beignet.orthax.lagfit, [1], [1], (2, -1, 6))
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], ())
-
     x = linspace(0, 2)
     y = f(x)
 
@@ -3303,16 +3209,16 @@ def test_lagfit():
         array([coef3, coef3]).T,
     )
 
-    x = [1, 1j, -1, -1j]
+    x = array([1, 1j, -1, -1j])
 
     assert_array_almost_equal(
         beignet.orthax.lagfit(x, x, 1),
-        [1, -1],
+        array([1, -1]),
     )
 
     assert_array_almost_equal(
         beignet.orthax.lagfit(x, x, (0, 1)),
-        [1, -1],
+        array([1, -1]),
     )
 
 
@@ -3959,18 +3865,6 @@ def test_legfit():
     def g(x):
         return x**4 + x**2 + 1
 
-    pytest.raises(ValueError, beignet.orthax.legfit, [1], [1], -1)
-    pytest.raises(TypeError, beignet.orthax.legfit, [[1]], [1], 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, array([]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [[[1]]], 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, array([1, 2]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, weight=[[1]])
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, weight=[1, 1])
-    pytest.raises(ValueError, beignet.orthax.legfit, [1], [1], (-1,))
-    pytest.raises(ValueError, beignet.orthax.legfit, [1], [1], (2, -1, 6))
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], ())
-
     coef3 = beignet.orthax.legfit(linspace(0, 2), f(linspace(0, 2)), 3)
     assert_array_almost_equal(len(coef3), 4)
     assert_array_almost_equal(
@@ -4104,8 +3998,8 @@ def test_legfit():
 
     assert_array_almost_equal(
         beignet.orthax.legfit(
-            [1, 1j, -1, -1j],
-            [1, 1j, -1, -1j],
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
             1,
         ),
         [0, 1],
@@ -4113,8 +4007,8 @@ def test_legfit():
 
     assert_array_almost_equal(
         beignet.orthax.legfit(
-            [1, 1j, -1, -1j],
-            [1, 1j, -1, -1j],
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
             (0, 1),
         ),
         [0, 1],
@@ -4960,18 +4854,6 @@ def test_polyfit():
 
     def g(x):
         return x**4 + x**2 + 1
-
-    pytest.raises(ValueError, beignet.orthax.polyfit, [1], [1], -1)
-    pytest.raises(TypeError, beignet.orthax.polyfit, [[1]], [1], 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, array([]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [[[1]]], 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, array([1, 2]), [1], 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, weight=[[1]])
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, weight=[1, 1])
-    pytest.raises(ValueError, beignet.orthax.polyfit, [1], [1], (-1,))
-    pytest.raises(ValueError, beignet.orthax.polyfit, [1], [1], (2, -1, 6))
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], ())
 
     coef3 = beignet.orthax.polyfit(
         linspace(0, 2),
@@ -5904,7 +5786,7 @@ def test_polyvander3d():
                 x1,
                 x2,
                 x3,
-                (1, 2, 3),
+                degree=(1, 2, 3),
             ),
             c.ravel(),
         ),
@@ -5920,7 +5802,7 @@ def test_polyvander3d():
         [x1],
         [x2],
         [x3],
-        (1, 2, 3),
+        degree=(1, 2, 3),
     )
 
     assert van.shape == (1, 5, 24)
