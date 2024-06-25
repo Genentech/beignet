@@ -30,6 +30,7 @@ from jax.numpy import (
     ones_like,
     prod,
     promote_types,
+    reshape,
     roll,
     sin,
     sort,
@@ -107,7 +108,7 @@ def _div(func, input, other):
     if lc2 == 1:
         return input / other[-1], zeros_like(input[:1])
 
-    def _ldordidx(x):  # index of highest order nonzero term
+    def _ldordidx(x):
         return len(x) - 1 - nonzero(x[::-1], size=1)[0][0]
 
     quotient = zeros(lc1 - lc2 + 1, dtype=input.dtype)
@@ -121,7 +122,7 @@ def _div(func, input, other):
     y1 = quotient, input, y, ridx
 
     for index in range(0, sz):
-        quotient1, remainder1, y2, ridx1 = y1
+        quotient, remainder, y2, ridx1 = y1
 
         i = sz - index
 
@@ -129,20 +130,20 @@ def _div(func, input, other):
 
         pidx = _ldordidx(p)
 
-        t = remainder1[ridx1] / p[pidx]
+        t = remainder[ridx1] / p[pidx]
 
-        remainder1 = _subtract(
-            remainder1.at[ridx1].set(0),
+        remainder = _subtract(
+            remainder.at[ridx1].set(0),
             t * p.at[pidx].set(0),
-        )[: len(remainder1)]
+        )[: len(remainder)]
 
-        quotient1 = quotient1.at[i].set(t)
+        quotient = quotient.at[i].set(t)
 
         ridx1 = ridx1 - 1
 
         y2 = roll(y2, -1)
 
-        y1 = quotient1, remainder1, y2, ridx1
+        y1 = quotient, remainder, y2, ridx1
 
     quotient, remainder, _, _ = y1
 
@@ -232,15 +233,12 @@ def _from_roots(f, g, input):
 
     retlen = len(input) + 1
 
-    def p_scan_fun(carry, x):
-        return carry, _add(zeros(retlen, dtype=x.dtype), f(-x, 1))
-
     carry = 0
 
     ys = []
 
     for x in input:
-        carry, y = p_scan_fun(carry, x)
+        carry, y = carry, _add(zeros(retlen, dtype=x.dtype), f(-x, 1))
 
         ys.append(y)
 
@@ -251,7 +249,9 @@ def _from_roots(f, g, input):
     p = asarray(p)
     n = len(p)
 
-    def body_fun(val):
+    val = (n, p)
+
+    while val[0] > 1:
         m, r = divmod(val[0], 2)
 
         arr = val[1]
@@ -268,12 +268,7 @@ def _from_roots(f, g, input):
         if r:
             tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[:retlen])
 
-        return m, tmp
-
-    val = (n, p)
-
-    while val[0] > 1:
-        val = body_fun(val)
+        val = m, tmp
 
     _, ret = val
 
@@ -426,11 +421,9 @@ def _evaluate(func, input, *args):
 def _vander_nd(vander_fs, points, degrees):
     n_dims = len(vander_fs)
     if n_dims != len(points):
-        raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(points)}"
-        )
+        raise ValueError
     if n_dims != len(degrees):
-        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
+        raise ValueError
     if n_dims == 0:
         raise ValueError
 
@@ -511,10 +504,7 @@ def cheb2poly(c):
     return polyadd(c0, polymulx(c1, "same"))
 
 
-def chebadd(
-    input,
-    other,
-):
+def chebadd(input, other):
     return _add(input, other)
 
 
@@ -743,13 +733,11 @@ def chebpow(c, pow, maxpower=16):
 
     output = _c_series_to_z_series(output)
 
-    def func(_, p):
-        return convolve(p, zs, mode="same")
-
-    b = power + 1
     y = output
-    for index in range(2, b):
-        y = func(index, y)
+
+    for _ in range(2, power + 1):
+        y = convolve(y, zs, mode="same")
+
     output = y
 
     output = _z_series_to_c_series(output)
@@ -2322,17 +2310,21 @@ def legweight(x):
 def _map_domain(x, old, new):
     x = asarray(x)
 
-    off, scl = _map_parameters(old, new)
+    oldlen = old[1] - old[0]
+    newlen = new[1] - new[0]
+    off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
+    scl1 = newlen / oldlen
+    off, scl = off1, scl1
 
     return off + scl * x
 
 
-def _map_parameters(old, new):
-    oldlen = old[1] - old[0]
+def _map_parameters(previous, new):
+    oldlen = previous[1] - previous[0]
 
     newlen = new[1] - new[0]
 
-    off = (old[1] * new[0] - old[0] * new[1]) / oldlen
+    off = (previous[1] * new[0] - previous[0] * new[1]) / oldlen
 
     scl = newlen / oldlen
 
@@ -2645,17 +2637,30 @@ def polyval(x, c, tensor=True):
 
     b = len(c) + 1
     y = c0
+
     for index in range(2, b):
         y = body(index, y)
+
     return y
 
 
 def polyval2d(x, y, c):
-    return _evaluate(polyval, c, x, y)
+    return _evaluate(
+        polyval,
+        c,
+        x,
+        y,
+    )
 
 
 def polyval3d(x, y, z, c):
-    return _evaluate(polyval, c, x, y, z)
+    return _evaluate(
+        polyval,
+        c,
+        x,
+        y,
+        z,
+    )
 
 
 def polyvalfromroots(x, r, tensor=True):
@@ -2664,38 +2669,30 @@ def polyvalfromroots(x, r, tensor=True):
     x = asarray(x)
 
     if tensor:
-        r = r.reshape(r.shape + (1,) * x.ndim)
+        r = reshape(r, r.shape + (1,) * x.ndim)
 
     if x.ndim >= r.ndim:
         raise ValueError
 
-    return prod(x - r, axis=0)
+    output = prod(x - r, axis=0)
+
+    return output
 
 
-def polyvander(x, degree):
+def polyvander(input, degree):
     if degree < 0:
         raise ValueError
 
-    x = array(x, ndmin=1)
+    input = array(input, ndmin=1)
 
-    dims = (degree + 1,) + x.shape
+    output = empty((degree + 1,) + input.shape, dtype=input.dtype)
 
-    dtyp = x.dtype
+    output = output.at[0].set(ones_like(input))
 
-    v = empty(dims, dtype=dtyp)
+    for index in range(1, degree + 1):
+        output = output.at[index].set(output[index - 1] * input)
 
-    v = v.at[0].set(ones_like(x))
-
-    def func(i, v):
-        return v.at[i].set(v[i - 1] * x)
-
-    b = degree + 1
-    y = v
-    for index in range(1, b):
-        y = func(index, y)
-    v = y
-
-    output = moveaxis(v, 0, -1)
+    output = moveaxis(output, 0, -1)
 
     return output
 
