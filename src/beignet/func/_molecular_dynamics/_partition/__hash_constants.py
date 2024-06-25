@@ -31,13 +31,11 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
     ValueError
         If the size of `cells_per_side` is not zero or `spatial_dimensions`.
     """
-    if cells_per_side.dim() != 1:
-        cells_per_side = cells_per_side.view(-1)
-
+    print(f"cells_per_side.numel(): {cells_per_side.numel()}")
     if cells_per_side.numel() == 1:
         constants = [[cells_per_side ** dim for dim in
                      range(spatial_dimensions)]]
-        return torch.tensor([constants], dtype=torch.int32)
+        return torch.tensor(constants, dtype=torch.int32)
 
     elif cells_per_side.numel() == spatial_dimensions:
         one = torch.tensor([1], dtype=torch.int32)
