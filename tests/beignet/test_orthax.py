@@ -5051,9 +5051,6 @@ def test_polygrid2d():
 
 
 def test_polygrid3d():
-    c1d = array([1.0, 2.0, 3.0])
-    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
-
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     y = beignet.orthax.polyval(x, array([1.0, 2.0, 3.0]))
 
@@ -5065,7 +5062,12 @@ def test_polygrid3d():
             x1,
             x2,
             x3,
-            c3d,
+            einsum(
+                "i,j,k->ijk",
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+            ),
         ),
         einsum(
             "i,j,k->ijk",
@@ -5075,11 +5077,19 @@ def test_polygrid3d():
         ),
     )
 
-    z = ones([2, 3])
+    output = beignet.orthax.polygrid3d(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j,k->ijk",
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+        ),
+    )
 
-    res = beignet.orthax.polygrid3d(z, z, z, c3d)
-
-    assert res.shape == (2, 3) * 3
+    assert output.shape == (2, 3) * 3
 
 
 def test_polyint():
@@ -5486,60 +5496,81 @@ def test_polyval():
     for i in range(3):
         dims = [2] * i
         x = zeros(dims)
-        numpy.testing.assert_equal(beignet.orthax.polyval(x, array([1])).shape, dims)
-        numpy.testing.assert_equal(beignet.orthax.polyval(x, array([1, 0])).shape, dims)
+
         numpy.testing.assert_equal(
-            beignet.orthax.polyval(x, array([1, 0, 0])).shape, dims
+            beignet.orthax.polyval(
+                x,
+                array([1]),
+            ).shape,
+            dims,
+        )
+
+        numpy.testing.assert_equal(
+            beignet.orthax.polyval(
+                x,
+                array([1, 0]),
+            ).shape,
+            dims,
+        )
+
+        numpy.testing.assert_equal(
+            beignet.orthax.polyval(
+                x,
+                array([1, 0, 0]),
+            ).shape,
+            dims,
         )
 
 
 def test_polyval2d():
-    c1d = array([1.0, 2.0, 3.0])
-    c2d = einsum("i,j->ij", c1d, c1d)
-
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     x1, x2, x3 = x
-    y1, y2, y3 = beignet.orthax.polyval(x, [1.0, 2.0, 3.0])
+
+    y1, y2, y3 = beignet.orthax.polyval(
+        x,
+        array([1.0, 2.0, 3.0]),
+    )
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyval2d(
             x1,
             x2,
-            c2d,
+            einsum(
+                "i,j->ij",
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+            ),
         ),
         y1 * y2,
     )
 
-    z = ones([2, 3])
-
-    res = beignet.orthax.polyval2d(
-        z,
-        z,
-        c2d,
+    output = beignet.orthax.polyval2d(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+        ),
     )
 
-    assert res.shape == (2, 3)
+    assert output.shape == (2, 3)
 
 
 def test_polyval3d():
-    c1d = array([1.0, 2.0, 3.0])
-    c3d = einsum(
-        "i,j,k->ijk",
-        c1d,
-        c1d,
-        c1d,
-    )
-
     x = jax.random.uniform(
         key,
         (3, 5),
         minval=-1,
         maxval=1,
     )
+
     x1, x2, x3 = x
+
     y1, y2, y3 = beignet.orthax.polyval(
         x,
-        [1.0, 2.0, 3.0],
+        array([1.0, 2.0, 3.0]),
     )
 
     numpy.testing.assert_array_almost_equal(
@@ -5547,19 +5578,29 @@ def test_polyval3d():
             x1,
             x2,
             x3,
-            c3d,
+            einsum(
+                "i,j,k->ijk",
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+                array([1.0, 2.0, 3.0]),
+            ),
         ),
         y1 * y2 * y3,
     )
 
-    z = ones([2, 3])
-    res = beignet.orthax.polyval3d(
-        z,
-        z,
-        z,
-        c3d,
+    output = beignet.orthax.polyval3d(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j,k->ijk",
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+            array([1.0, 2.0, 3.0]),
+        ),
     )
-    assert res.shape == (2, 3)
+
+    assert output.shape == (2, 3)
 
 
 def test_polyvalfromroots():
