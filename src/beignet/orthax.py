@@ -2336,15 +2336,11 @@ def poly2cheb(pol):
 
     degree = len(pol) - 1
 
-    res = zeros_like(pol)
+    y = zeros_like(pol)
 
-    def body(i, res):
-        return chebadd(chebmulx(res, mode="same"), pol[(degree - i)])
+    for index in range(0, degree + 1):
+        y = chebadd(chebmulx(y, mode="same"), pol[(degree - index)])
 
-    b = degree + 1
-    y = res
-    for index in range(0, b):
-        y = body(index, y)
     return y
 
 
@@ -2355,13 +2351,12 @@ def poly2herm(pol):
 
     res = zeros_like(pol)
 
-    def body(i, res):
-        return hermadd(hermmulx(res, mode="same"), pol[(degree - i)])
-
     b = degree + 1
     y = res
+
     for index in range(0, b):
-        y = body(index, y)
+        y = hermadd(hermmulx(y, mode="same"), pol[(degree - index)])
+
     return y
 
 
@@ -2370,32 +2365,22 @@ def poly2herme(pol):
 
     degree = len(pol) - 1
 
-    res = zeros_like(pol)
+    y = zeros_like(pol)
 
-    def body(i, res):
-        return hermeadd(hermemulx(res, mode="same"), pol[(degree - i)])
+    for index in range(0, degree + 1):
+        y = hermeadd(hermemulx(y, mode="same"), pol[(degree - index)])
 
-    b = degree + 1
-    y = res
-    for index in range(0, b):
-        y = body(index, y)
     return y
 
 
 def poly2lag(pol):
     pol = _as_series(pol)
 
-    res = zeros_like(pol)
+    y = zeros_like(pol)
 
-    def body(i, res):
-        res = lagadd(lagmulx(res, mode="same"), pol[::-1][i])
+    for index in range(0, len(pol)):
+        y = lagadd(lagmulx(y, mode="same"), pol[::-1][index])
 
-        return res
-
-    b = len(pol)
-    y = res
-    for index in range(0, b):
-        y = body(index, y)
     return y
 
 
@@ -2404,26 +2389,15 @@ def poly2leg(pol):
 
     degree = len(pol) - 1
 
-    res = zeros_like(pol)
+    y = zeros_like(pol)
 
-    def body(i, res):
-        k = degree - i
+    for index in range(0, degree + 1):
+        y = legadd(legmulx(y, mode="same"), pol[degree - index])
 
-        res = legadd(legmulx(res, mode="same"), pol[k])
-
-        return res
-
-    b = degree + 1
-    y = res
-    for index in range(0, b):
-        y = body(index, y)
     return y
 
 
-def polyadd(
-    input,
-    other,
-):
+def polyadd(input, other):
     return _add(input, other)
 
 
@@ -2460,10 +2434,10 @@ def polyder(c, order=1, scl=1, axis=0):
     if order >= n:
         c = zeros_like(c[:1])
     else:
-        D = arange(n)
+        d = arange(n)
 
-        def body(i, c):
-            c = (D * c.T).T
+        def body(_, c):
+            c = (d * c.T).T
 
             c = roll(c, -1, axis=0) * scl
 
@@ -2472,8 +2446,10 @@ def polyder(c, order=1, scl=1, axis=0):
             return c
 
         y = c
+
         for index in range(0, order):
             y = body(index, y)
+
         c = y
 
         c = c[:-order]
@@ -2483,10 +2459,7 @@ def polyder(c, order=1, scl=1, axis=0):
     return c
 
 
-def polydiv(
-    input,
-    other,
-):
+def polydiv(input, other):
     input, other = _as_series(input, other)
 
     return _div(polymul, input, other)
@@ -2560,8 +2533,10 @@ def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         return c
 
     y = c
+
     for index in range(0, order):
         y = body(index, y)
+
     c = y
 
     c = moveaxis(c, 0, axis)
@@ -2576,25 +2551,25 @@ def polyline(off, scl):
 def polymul(input, other, mode="full"):
     input, other = _as_series(input, other)
 
-    ret = convolve(input, other)
+    output = convolve(input, other)
 
     if mode == "same":
-        ret = ret[: max(len(input), len(other))]
+        output = output[: max(len(input), len(other))]
 
-    return ret
+    return output
 
 
-def polymulx(c, mode="full"):
-    c = _as_series(c)
+def polymulx(input, mode="full"):
+    input = _as_series(input)
 
-    prd = zeros(len(c) + 1, dtype=c.dtype)
+    output = zeros(len(input) + 1, dtype=input.dtype)
 
-    prd = prd.at[1:].set(c)
+    output = output.at[1:].set(input)
 
     if mode == "same":
-        prd = prd[: len(c)]
+        output = output[: len(input)]
 
-    return prd
+    return output
 
 
 def polypow(c, pow, maxpower=16):
