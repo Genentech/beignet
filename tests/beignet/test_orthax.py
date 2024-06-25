@@ -291,8 +291,10 @@ def test_chebadd():
 
 
 def test_chebcompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebcompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebcompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.chebcompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.chebcompanion([1])
 
     for i in range(1, 5):
         assert beignet.orthax.chebcompanion(array([0] * i + [1])).shape == (i, i)
@@ -963,9 +965,11 @@ def test_chebpow():
 
 
 def test_chebpts1():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebpts1, 1.5)
+    with pytest.raises(ValueError):
+        beignet.orthax.chebpts1(1.5)
 
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebpts1, 0)
+    with pytest.raises(ValueError):
+        beignet.orthax.chebpts1(0)
 
     numpy.testing.assert_array_almost_equal(beignet.orthax.chebpts1(1), [0])
 
@@ -984,9 +988,11 @@ def test_chebpts1():
 
 
 def test_chebpts2():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebpts2, 1.5)
+    with pytest.raises(ValueError):
+        beignet.orthax.chebpts2(1.5)
 
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebpts2, 1)
+    with pytest.raises(ValueError):
+        beignet.orthax.chebpts2(1)
 
     numpy.testing.assert_array_almost_equal(beignet.orthax.chebpts2(2), [-1, 1])
 
@@ -1268,8 +1274,10 @@ def test_hermadd():
 
 
 def test_hermcompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermcompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermcompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.hermcompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.hermcompanion([1])
 
     for i in range(1, 5):
         assert beignet.orthax.hermcompanion(array([0] * i + [1])).shape == (i, i)
