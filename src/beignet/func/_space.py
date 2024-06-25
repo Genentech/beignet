@@ -5,6 +5,8 @@ from torch import Tensor
 
 import beignet
 
+from beignet.func._molecular_dynamics._partition.__pairwise_displacement import pairwise_displacement
+from beignet.func._molecular_dynamics._partition.__periodic_displacement import periodic_displacement
 T = TypeVar("T")
 
 
@@ -171,8 +173,6 @@ def space(
                 if "updated_transform" in kwargs:
                     _transform = kwargs["updated_transform"]
 
-                print(f"input: {input}")
-                print(f"input shape: {input.shape}")
                 if len(input.shape) != 1:
                     raise ValueError
 
@@ -340,37 +340,32 @@ def space(
         perturbation: Tensor | None = None,
         **_,
     ) -> Tensor:
-        displacement = torch.remainder(
-            input - other + box * 0.5,
-            box,
-        )
 
-        print(f"displacement: {displacement.shape}")
 
-        print(f"perturbation: {perturbation}")
+        displacement = periodic_displacement(box, pairwise_displacement(input, other))
 
-        # if perturbation is not None:
-        #     transform = displacement - box * 0.5
-        #
-        #     match transform.ndim:
-        #         case 0:
-        #             return perturbation * transform
-        #         case 1:
-        #             return torch.einsum(
-        #                 "i,...i->...i",
-        #                 transform,
-        #                 perturbation,
-        #             )
-        #         case 2:
-        #             return torch.einsum(
-        #                 "ij,...j->...i",
-        #                 transform,
-        #                 perturbation,
-        #             )
-        #         case _:
-        #             raise ValueError
+        if perturbation is not None:
+            transform = displacement - box * 0.5
 
-        return displacement - box * 0.5
+            match transform.ndim:
+                case 0:
+                    return perturbation * transform
+                case 1:
+                    return torch.einsum(
+                        "i,...i->...i",
+                        transform,
+                        perturbation,
+                    )
+                case 2:
+                    return torch.einsum(
+                        "ij,...j->...i",
+                        transform,
+                        perturbation,
+                    )
+                case _:
+                    raise ValueError
+
+        return displacement
 
     if remapped:
 

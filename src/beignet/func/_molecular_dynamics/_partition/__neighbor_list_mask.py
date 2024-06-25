@@ -23,14 +23,8 @@ def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tens
       The masked tensor.
   """
   if is_neighbor_list_sparse(neighbor.format):
-    print(f"reference_positions.shape: {neighbor.reference_positions.shape}")
-    print(f"indexes.shape: {neighbor.indexes.shape}")
     mask = neighbor.indexes[0] < len(neighbor.reference_positions)
     torch.set_printoptions(profile="full")
-    print(f"indices: {neighbor.indexes[0]}")
-    print(f"length refs: {len(neighbor.reference_positions)}")
-    print(f"mask: {mask.shape}")
-    print(f"torch.count_nonzero(mask): {torch.count_nonzero(mask)}")
     if mask_self:
       mask = mask & (neighbor.indexes[0] != neighbor.indexes[1])
 

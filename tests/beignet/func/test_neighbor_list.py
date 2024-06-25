@@ -98,7 +98,6 @@ def test_neighbor_list_build_sparse(dim):
     mask = neighbor_list_mask(nbrs)
 
     true_count = torch.sum(mask).item()
-    print(f"true count: {true_count}")
 
     d = _map_bond(metric_fn)
     dR = d(safe_index(R, nbrs.indexes[0]), safe_index(R, nbrs.indexes[1]))
@@ -119,9 +118,5 @@ def test_neighbor_list_build_sparse(dim):
 
       dR_exact_row = dR_exact[i]
       dR_exact_row = torch.tensor(dR_exact_row[dR_exact_row > 0.])
-
-      print(f"Index: {i}")
-      print(f"dR_row shape: {dR_row.shape}, dR_row: {dR_row}")
-      print(f"dR_exact_row shape: {dR_exact_row.shape}, dR_exact_row: {dR_exact_row}")
 
       assert torch.allclose(dR_row, dR_exact_row)
