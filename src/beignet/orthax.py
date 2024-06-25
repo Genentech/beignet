@@ -477,7 +477,7 @@ def _as_series(*arrs, trim: bool = False):
 def cheb2poly(c):
     c = _as_series(c)
 
-    n = len(c)
+    n = c.shape[0]
 
     if n < 3:
         return c
@@ -507,12 +507,12 @@ def chebadd(input, other):
 
 def chebcompanion(c):
     c = _as_series(c)
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[-c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
 
     mat = zeros((n, n), dtype=c.dtype)
 
@@ -648,7 +648,7 @@ def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     for i in range(order):
-        n = len(c)
+        n = c.shape[0]
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
@@ -666,6 +666,7 @@ def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
 
 def chebinterpolate(func, degree, args=()):
     _deg = int(degree)
+
     if _deg != degree:
         raise ValueError
     if _deg < 0:
@@ -673,9 +674,13 @@ def chebinterpolate(func, degree, args=()):
 
     order = _deg + 1
     xcheb = chebpts1(order)
+
     yfunc = func(xcheb, *args)
+
     m = chebvander(xcheb, _deg)
+
     c = dot(transpose(m), yfunc)
+
     c = c.at[0].divide(order)
     c = c.at[1:].divide(0.5 * order)
 
@@ -709,11 +714,11 @@ def chebmul(
 def chebmulx(c, mode="full"):
     c = _as_series(c)
 
-    output = zeros(len(c) + 1, dtype=c.dtype)
+    output = zeros(c.shape[0] + 1, dtype=c.dtype)
 
     output = output.at[1].set(c[0])
 
-    if len(c) > 1:
+    if c.shape[0] > 1:
         tmp = c[1:] / 2
 
         output = output.at[2:].set(tmp)
@@ -721,7 +726,7 @@ def chebmulx(c, mode="full"):
         output = output.at[0:-2].add(tmp)
 
     if mode == "same":
-        output = output[: len(c)]
+        output = output[: c.shape[0]]
 
     return output
 
@@ -743,7 +748,7 @@ def chebpow(c, pow, maxpower=16):
     if power == 1:
         return c
 
-    output = zeros(len(c) * pow, dtype=c.dtype)
+    output = zeros(c.shape[0] * pow, dtype=c.dtype)
 
     output = chebadd(output, c)
 
@@ -800,10 +805,10 @@ def chebpts2(points):
 def chebroots(c):
     c = _as_series(c)
 
-    if len(c) <= 1:
+    if c.shape[0] <= 1:
         return array([], dtype=c.dtype)
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([-c[0] / c[1]])
 
     output = chebcompanion(c)
@@ -827,10 +832,10 @@ def chebval(x, c, tensor=True):
     if tensor:
         c = reshape(c, c.shape + (1,) * x.ndim)
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = c[0]
         c1 = 0
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = c[0]
         c1 = c[1]
     else:
@@ -920,7 +925,7 @@ def _get_domain(x: Array) -> Array:
 
 def herm2poly(c):
     c = _as_series(c)
-    n = len(c)
+    n = c.shape[0]
     if n == 1:
         return c
     if n == 2:
@@ -957,12 +962,12 @@ def hermadd(
 
 def hermcompanion(c):
     c = _as_series(c)
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[-0.5 * c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
     scl = hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
     scl = cumprod(scl)[::-1]
@@ -985,7 +990,7 @@ def hermder(c, order=1, scl=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    n = len(c)
+    n = c.shape[0]
     if order >= n:
         c = zeros_like(c[:1])
     else:
@@ -1009,7 +1014,7 @@ def hermdiv(
 
 def herme2poly(c):
     c = _as_series(c)
-    n = len(c)
+    n = c.shape[0]
     if n == 1:
         return c
     if n == 2:
@@ -1045,12 +1050,12 @@ def hermeadd(
 
 def hermecompanion(c):
     c = _as_series(c)
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[-c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
     scl = hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
     scl = cumprod(scl)[::-1]
@@ -1073,7 +1078,7 @@ def hermeder(c, order=1, scl=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    n = len(c)
+    n = c.shape[0]
     if order >= n:
         c = zeros_like(c[:1])
     else:
@@ -1182,7 +1187,7 @@ def hermeint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     for i in range(order):
-        n = len(c)
+        n = c.shape[0]
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
@@ -1209,14 +1214,14 @@ def hermemul(input, other, mode="full"):
         c = input
         xs = other
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = zeros(lc1 + lc2 - 1)
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         input = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
@@ -1228,7 +1233,7 @@ def hermemul(input, other, mode="full"):
             c1 = hermeadd(tmp, hermemulx(c1, "same"))
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x = (c0, input, nd)
         y = x
         for index in range(3, b):
@@ -1243,16 +1248,16 @@ def hermemul(input, other, mode="full"):
 
 def hermemulx(c, mode="full"):
     c = _as_series(c)
-    prd = zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0])
 
-    i = arange(1, len(c))
+    i = arange(1, c.shape[0])
 
     prd = prd.at[i + 1].set(c[i])
     prd = prd.at[i - 1].add(c[i] * i)
 
     if mode == "same":
-        prd = prd[: len(c)]
+        prd = prd[: c.shape[0]]
     return prd
 
 
@@ -1263,10 +1268,10 @@ def hermepow(c, pow, maxpower=16):
 def hermeroots(c):
     c = _as_series(c)
 
-    if len(c) <= 1:
+    if c.shape[0] <= 1:
         return array([], dtype=c.dtype)
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([-c[0] / c[1]])
 
     return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
@@ -1285,14 +1290,14 @@ def hermeval(x, c, tensor=True):
     if tensor:
         c = reshape(c, c.shape + (1,) * x.ndim)
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = c[0]
         c1 = 0
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = c[0]
         c1 = c[1]
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = c[-2] * ones_like(x)
         c1 = c[-1] * ones_like(x)
 
@@ -1304,7 +1309,7 @@ def hermeval(x, c, tensor=True):
             c1 = tmp + c1 * x
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
@@ -1446,7 +1451,7 @@ def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     for i in range(order):
-        n = len(c)
+        n = c.shape[0]
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
@@ -1475,14 +1480,14 @@ def hermmul(input, other, mode="full"):
         c = input
         xs = other
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = zeros(lc1 + lc2 - 1)
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         input = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
@@ -1494,7 +1499,7 @@ def hermmul(input, other, mode="full"):
             c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x = (c0, input, nd)
         y = x
         for index in range(3, b):
@@ -1509,16 +1514,16 @@ def hermmul(input, other, mode="full"):
 
 def hermmulx(c, mode="full"):
     c = _as_series(c)
-    prd = zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
     prd = prd.at[1].set(c[0] / 2)
 
-    i = arange(1, len(c))
+    i = arange(1, c.shape[0])
 
     prd = prd.at[i + 1].set(c[i] / 2)
     prd = prd.at[i - 1].add(c[i] * i)
 
     if mode == "same":
-        prd = prd[: len(c)]
+        prd = prd[: c.shape[0]]
 
     return prd
 
@@ -1530,10 +1535,10 @@ def hermpow(c, pow, maxpower=16):
 def hermroots(c):
     c = _as_series(c)
 
-    if len(c) <= 1:
+    if c.shape[0] <= 1:
         return array([], dtype=c.dtype)
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([-0.5 * c[0] / c[1]])
 
     return sort(eigvals(hermcompanion(c)[::-1, ::-1]))
@@ -1553,14 +1558,14 @@ def hermval(x, c, tensor=True):
         c = reshape(c, c.shape + (1,) * x.ndim)
 
     x2 = x * 2
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = c[0]
         c1 = 0
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = c[0]
         c1 = c[1]
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = c[-2] * ones_like(x)
         c1 = c[-1] * ones_like(x)
 
@@ -1572,7 +1577,7 @@ def hermval(x, c, tensor=True):
             c1 = tmp + c1 * x2
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
@@ -1632,7 +1637,7 @@ def hermweight(x):
 
 def lag2poly(c):
     c = _as_series(c)
-    n = len(c)
+    n = c.shape[0]
     if n == 1:
         return c
     else:
@@ -1667,13 +1672,13 @@ def lagadd(
 def lagcompanion(c):
     c = _as_series(c)
 
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[1 + c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
 
     mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
 
@@ -1695,7 +1700,7 @@ def lagder(c, order=1, scl=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    n = len(c)
+    n = c.shape[0]
     if order >= n:
         c = zeros_like(c[:1])
     else:
@@ -1813,7 +1818,7 @@ def lagint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     for i in range(order):
-        n = len(c)
+        n = c.shape[0]
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0])
@@ -1843,14 +1848,14 @@ def lagmul(input, other, mode="full"):
         c = input
         xs = other
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = zeros(lc1 + lc2 - 1)
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         input = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
@@ -1862,7 +1867,7 @@ def lagmul(input, other, mode="full"):
             c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x = (c0, input, nd)
         y = x
         for index in range(3, b):
@@ -1878,18 +1883,18 @@ def lagmul(input, other, mode="full"):
 def lagmulx(c, mode="full"):
     c = _as_series(c)
 
-    prd = zeros(len(c) + 1, dtype=c.dtype)
+    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
     prd = prd.at[0].set(c[0])
     prd = prd.at[1].set(-c[0])
 
-    i = arange(1, len(c))
+    i = arange(1, c.shape[0])
 
     prd = prd.at[i + 1].set(-c[i] * (i + 1))
     prd = prd.at[i].add(c[i] * (2 * i + 1))
     prd = prd.at[i - 1].add(-c[i] * i)
 
     if mode == "same":
-        prd = prd[: len(c)]
+        prd = prd[: c.shape[0]]
     return prd
 
 
@@ -1900,10 +1905,10 @@ def lagpow(c, pow, maxpower=16):
 def lagroots(c):
     c = _as_series(c)
 
-    if len(c) <= 1:
+    if c.shape[0] <= 1:
         return array([], dtype=c.dtype)
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([1 + c[0] / c[1]])
 
     return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
@@ -1919,14 +1924,14 @@ def lagval(x, c, tensor=True):
     if tensor:
         c = reshape(c, c.shape + (1,) * x.ndim)
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = c[0]
         c1 = 0
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = c[0]
         c1 = c[1]
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = c[-2] * ones_like(x)
         c1 = c[-1] * ones_like(x)
 
@@ -1938,7 +1943,7 @@ def lagval(x, c, tensor=True):
             c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
@@ -1997,7 +2002,7 @@ def lagweight(x):
 
 def leg2poly(c):
     c = _as_series(c)
-    n = len(c)
+    n = c.shape[0]
     if n < 3:
         return c
     else:
@@ -2031,12 +2036,12 @@ def legadd(
 
 def legcompanion(c):
     c = _as_series(c)
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[-c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
     scl = 1.0 / sqrt(2 * arange(n) + 1)
     shp = mat.shape
@@ -2058,7 +2063,7 @@ def legder(c, order=1, scl=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    n = len(c)
+    n = c.shape[0]
     if order >= n:
         c = zeros_like(c[:1])
     else:
@@ -2181,7 +2186,7 @@ def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     for i in range(order):
-        n = len(c)
+        n = c.shape[0]
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
@@ -2212,14 +2217,14 @@ def legmul(input, other, mode="full"):
         c = input
         xs = other
 
-    if len(c) == 1:
+    if c.shape[0] == 1:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = zeros(lc1 + lc2 - 1)
-    elif len(c) == 2:
+    elif c.shape[0] == 2:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         input = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = len(c)
+        nd = c.shape[0]
         c0 = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         input = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
@@ -2231,7 +2236,7 @@ def legmul(input, other, mode="full"):
             c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
             return c0, c1, nd
 
-        b = len(c) + 1
+        b = c.shape[0] + 1
         x = (c0, input, nd)
         y = x
         for index in range(3, b):
@@ -2260,15 +2265,15 @@ def legmulx(c, mode="full"):
 
         return output
 
-    b = len(c)
+    b = c.shape[0]
 
-    output = zeros(len(c) + 1, dtype=c.dtype).at[1].set(c[0])
+    output = zeros(c.shape[0] + 1, dtype=c.dtype).at[1].set(c[0])
 
     for index in range(1, b):
         output = body(index, output)
 
     if mode == "same":
-        output = output[: len(c)]
+        output = output[: c.shape[0]]
 
     return output
 
@@ -2280,19 +2285,16 @@ def legpow(c, pow, maxpower=16):
 def legroots(c):
     c = _as_series(c)
 
-    if len(c) <= 1:
+    if c.shape[0] <= 1:
         return array([], dtype=c.dtype)
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([-c[0] / c[1]])
 
     return sort(eigvals(legcompanion(c)[::-1, ::-1]))
 
 
-def legsub(
-    input,
-    other,
-):
+def legsub(input, other):
     return _subtract(input, other)
 
 
@@ -2481,13 +2483,13 @@ def polyadd(input, other):
 def polycompanion(c):
     c = _as_series(c)
 
-    if len(c) < 2:
+    if c.shape[0] < 2:
         raise ValueError
 
-    if len(c) == 2:
+    if c.shape[0] == 2:
         return array([[-c[0] / c[1]]])
 
-    n = len(c) - 1
+    n = c.shape[0] - 1
 
     mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
 
