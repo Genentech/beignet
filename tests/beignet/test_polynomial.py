@@ -4,7 +4,7 @@ import math
 import jax
 import numpy
 import pytest
-from beignet.orthax import (
+from beignet.polynomial import (
     _c_series_to_z_series,
     _fit,
     _get_domain,
