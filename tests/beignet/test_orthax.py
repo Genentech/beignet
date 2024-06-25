@@ -4,6 +4,7 @@ import math
 import beignet.orthax
 import jax
 import numpy.testing
+import pytest
 from jax.numpy import (
     arange,
     array,
@@ -300,8 +301,8 @@ def test_chebcompanion():
 
 
 def test_chebder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.chebder, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebder, [0], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.chebder, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebder, array([0]), -1)
 
     for i in range(5):
         numpy.testing.assert_array_equal(
@@ -732,18 +733,22 @@ def test_chebgrid3d():
 
 
 def test_chebint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.chebint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.chebint, [0], axis=0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.chebint, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, array([0]), -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.chebint, array([0]), 1, [0, 0]
+    )
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.chebint, array([0]), lbnd=[0]
+    )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.chebint, array([0]), scl=[0])
+    numpy.testing.assert_raises(TypeError, beignet.orthax.chebint, array([0]), axis=0.5)
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.chebtrim(
-                beignet.orthax.chebint([0], m=i, k=k), tol=0.000001
+                beignet.orthax.chebint(array([0]), m=i, k=k), tol=0.000001
             ),
             [0, 1],
         )
@@ -758,7 +763,7 @@ def test_chebint():
                 ),
                 tol=0.000001,
             ),
-            beignet.orthax.chebtrim([i] + [0] * i + [1 / (i + 1)], tol=0.000001),
+            beignet.orthax.chebtrim(array([i] + [0] * i + [1 / (i + 1)]), tol=0.000001),
         )
 
     for i in range(5):
@@ -785,7 +790,7 @@ def test_chebint():
                 ),
                 tol=0.000001,
             ),
-            beignet.orthax.chebtrim([i] + [0] * i + [2 / (i + 1)], tol=0.000001),
+            beignet.orthax.chebtrim(array([i] + [0] * i + [2 / (i + 1)]), tol=0.000001),
         )
 
     for i in range(5):
@@ -1273,8 +1278,8 @@ def test_hermcompanion():
 
 
 def test_hermder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermder, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermder, [0], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermder, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermder, array([0]), -1)
 
     for i in range(5):
         target = array([0] * i + [1])
@@ -1387,8 +1392,8 @@ def test_hermecompanion():
 
 
 def test_hermeder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermeder, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeder, [0], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermeder, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeder, array([0]), -1)
 
     for i in range(5):
         numpy.testing.assert_array_equal(
@@ -1781,16 +1786,24 @@ def test_hermegrid3d():
 
 
 def test_hermeint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermeint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermeint, [0], axis=0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermeint, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermeint, array([0]), -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermeint, array([0]), 1, [0, 0]
+    )
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermeint, array([0]), lbnd=[0]
+    )
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermeint, array([0]), scl=[0]
+    )
+    numpy.testing.assert_raises(
+        TypeError, beignet.orthax.hermeint, array([0]), axis=0.5
+    )
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
-        res = beignet.orthax.hermeint([0], m=i, k=k)
+        res = beignet.orthax.hermeint(array([0]), m=i, k=k)
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.hermetrim(res, tol=0.000001), [0, 1]
         )
@@ -2478,18 +2491,22 @@ def test_hermgrid3d():
 
 
 def test_hermint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermint, [0], axis=0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermint, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, array([0]), -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermint, array([0]), 1, [0, 0]
+    )
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.hermint, array([0]), lbnd=[0]
+    )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.hermint, array([0]), scl=[0])
+    numpy.testing.assert_raises(TypeError, beignet.orthax.hermint, array([0]), axis=0.5)
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.hermtrim(
-                beignet.orthax.hermint([0], m=i, k=k), tol=0.000001
+                beignet.orthax.hermint(array([0]), m=i, k=k), tol=0.000001
             ),
             [0, 0.5],
         )
@@ -2881,8 +2898,8 @@ def test_lagcompanion():
 
 
 def test_lagder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.lagder, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagder, [0], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.lagder, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.lagder, array([0]), -1)
 
     for i in range(5):
         numpy.testing.assert_array_equal(
@@ -3204,17 +3221,21 @@ def test_laggrid3d():
 
 
 def test_lagint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.lagint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.lagint, [0], axis=0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.lagint, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, array([0]), -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.lagint, array([0]), 1, [0, 0]
+    )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, array([0]), lbnd=[0])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.lagint, array([0]), scl=[0])
+    numpy.testing.assert_raises(TypeError, beignet.orthax.lagint, array([0]), axis=0.5)
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.lagtrim(beignet.orthax.lagint([0], m=i, k=k), tol=0.000001),
+            beignet.orthax.lagtrim(
+                beignet.orthax.lagint(array([0]), m=i, k=k), tol=0.000001
+            ),
             [1, -1],
         )
 
@@ -3628,8 +3649,8 @@ def test_legcompanion():
 
 
 def test_legder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.legder, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legder, [0], -1)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legder, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legder, array([0]), -1)
 
     for i in range(5):
         target = array([0] * i + [1])
@@ -4008,17 +4029,20 @@ def test_leggrid3d():
 
 
 def test_legint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.legint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.legint, [0], axis=0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legint, array([0]), 0.5)
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, array([0]), -1)
+    numpy.testing.assert_raises(
+        ValueError, beignet.orthax.legint, array([0]), 1, [0, 0]
+    )
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, array([0]), lbnd=[0])
+    numpy.testing.assert_raises(ValueError, beignet.orthax.legint, array([0]), scl=[0])
+    numpy.testing.assert_raises(TypeError, beignet.orthax.legint, array([0]), axis=0.5)
 
     for i in range(2, 5):
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.legtrim(
-                beignet.orthax.legint([0], m=i, k=([0] * (i - 2) + [1])), tol=0.000001
+                beignet.orthax.legint(array([0]), m=i, k=([0] * (i - 2) + [1])),
+                tol=0.000001,
             ),
             [0, 1],
         )
@@ -4035,7 +4059,7 @@ def test_legint():
                 ),
                 tol=0.000001,
             ),
-            beignet.orthax.legtrim([i] + [0] * i + [1 / (i + 1)], tol=0.000001),
+            beignet.orthax.legtrim(array([i] + [0] * i + [1 / (i + 1)]), tol=0.000001),
         )
 
     for i in range(5):
@@ -4065,7 +4089,7 @@ def test_legint():
                 ),
                 tol=0.000001,
             ),
-            beignet.orthax.legtrim([i] + [0] * i + [2 / (i + 1)], tol=0.000001),
+            beignet.orthax.legtrim(array([i] + [0] * i + [2 / (i + 1)]), tol=0.000001),
         )
 
     for i in range(5):
@@ -4178,11 +4202,11 @@ def test_legmulx():
     numpy.testing.assert_array_equal(
         beignet.orthax.legtrim(
             beignet.orthax.legmulx(
-                [0],
+                array([0]),
             ),
             tol=0.000001,
         ),
-        [0],
+        array([0]),
     )
 
     numpy.testing.assert_array_equal(
@@ -4528,7 +4552,7 @@ def test_polycompanion():
 
 
 def test_polyder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.polyder, [0], 0.5)
+    numpy.testing.assert_raises(TypeError, beignet.orthax.polyder, array([0]), 0.5)
 
     for i in range(5):
         target = array([0] * i + [1])
@@ -4897,18 +4921,29 @@ def test_polygrid3d():
 
 
 def test_polyint():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.polyint, [0], 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polyint, [0], -1)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polyint, [0], 1, [0, 0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polyint, [0], lbnd=[0])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polyint, [0], scl=[0])
-    numpy.testing.assert_raises(TypeError, beignet.orthax.polyint, [0], axis=0.5)
+    with pytest.raises(TypeError):
+        beignet.orthax.polyint(array([0]), 0.5)
+
+    with pytest.raises(ValueError):
+        beignet.orthax.polyint(array([0]), -1)
+
+    with pytest.raises(ValueError):
+        beignet.orthax.polyint(array([0]), 1, [0, 0])
+
+    with pytest.raises(ValueError):
+        beignet.orthax.polyint(array([0]), lbnd=[0])
+
+    with pytest.raises(ValueError):
+        beignet.orthax.polyint(array([0]), scl=[0])
+
+    with pytest.raises(TypeError):
+        beignet.orthax.polyint(array([0]), axis=0.5)
 
     for i in range(2, 5):
         numpy.testing.assert_array_almost_equal(
             beignet.orthax.polytrim(
                 beignet.orthax.polyint(
-                    [0],
+                    array([0]),
                     m=i,
                     k=([0] * (i - 2) + [1]),
                 ),
@@ -4928,7 +4963,7 @@ def test_polyint():
                 tol=0.000001,
             ),
             beignet.orthax.polytrim(
-                [i] + [0] * i + [1 / (i + 1)],
+                array([i] + [0] * i + [1 / (i + 1)]),
                 tol=0.000001,
             ),
         )
@@ -4959,7 +4994,7 @@ def test_polyint():
                 tol=0.000001,
             ),
             beignet.orthax.polytrim(
-                [i] + [0] * i + [2 / (i + 1)],
+                array([i] + [0] * i + [2 / (i + 1)]),
                 tol=0.000001,
             ),
         )
@@ -5257,7 +5292,7 @@ def test_polytrim():
 
     numpy.testing.assert_array_equal(
         beignet.orthax.polytrim(coef, 2),
-        [0],
+        array([0]),
     )
 
 
@@ -5509,7 +5544,12 @@ def test_polyvander3d():
             ),
             c.ravel(),
         ),
-        beignet.orthax.polyval3d(x1, x2, x3, c),
+        beignet.orthax.polyval3d(
+            x1,
+            x2,
+            x3,
+            c,
+        ),
     )
 
     van = beignet.orthax.polyvander3d(
