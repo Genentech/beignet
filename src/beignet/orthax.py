@@ -2711,13 +2711,10 @@ def polyval(x, c, tensor=True):
 
     c0 = c[-1] + zeros_like(x)
 
-    def body(i, c0):
-        return c[-i] + c0 * x
-
     y = c0
 
     for index in range(2, c.shape[0] + 1):
-        y = body(index, y)
+        y = c[-index] + y * x
 
     return y
 
@@ -2824,11 +2821,11 @@ legtrim = _trim_coefficients
 polytrim = _trim_coefficients
 
 __all__ = [
+    "_as_series",
     "_map_domain",
     "_map_parameters",
     "_trim_coefficients",
     "_trim_sequence",
-    "_as_series",
     "cheb2poly",
     "chebadd",
     "chebcompanion",
@@ -2902,6 +2899,7 @@ __all__ = [
     "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
+    "hermint",
     "hermint",
     "hermline",
     "hermmul",
