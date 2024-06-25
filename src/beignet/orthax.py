@@ -194,8 +194,8 @@ def _fit(
 
         vandermonde = vandermonde_func(input, maximum)[:, degree]
 
-    a = transpose(vandermonde)
-    b = transpose(other)
+    lhs = transpose(vandermonde)
+    rhs = transpose(other)
 
     if weight is not None:
         weight = asarray(weight)
@@ -206,20 +206,20 @@ def _fit(
         if input.shape[0] != weight.shape[0]:
             raise TypeError
 
-        a = a * weight
-        b = b * weight
+        lhs = lhs * weight
+        rhs = rhs * weight
 
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
-    if issubclass(a.dtype.type, complexfloating):
-        scale = square(a.real) + square(a.imag)
+    if issubclass(lhs.dtype.type, complexfloating):
+        scale = square(lhs.real) + square(lhs.imag)
 
         scale = sum(scale, 1)
 
         scale = sqrt(scale)
     else:
-        scale = square(a)
+        scale = square(lhs)
 
         scale = sum(scale, 1)
 
@@ -228,8 +228,8 @@ def _fit(
     scale = where(scale == 0, 1, scale)
 
     output, residuals, rank, s = lstsq(
-        transpose(a) / scale,
-        transpose(b),
+        transpose(lhs) / scale,
+        transpose(rhs),
         relative_condition,
     )
 
@@ -237,13 +237,13 @@ def _fit(
 
     if degree.ndim > 0:
         if output.ndim == 2:
-            output = zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
-
-            output = output.at[degree].set(output)
+            output = (
+                zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
+                .at[degree]
+                .set(output)
+            )
         else:
-            output = zeros(maximum + 1, dtype=output.dtype)
-
-            output = output.at[degree].set(output)
+            output = zeros(maximum + 1, dtype=output.dtype).at[degree].set(output)
 
     if full:
         return output, [residuals, rank, s, relative_condition]
@@ -507,16 +507,14 @@ def chebadd(input, other):
 
 def chebcompanion(c):
     c = _as_series(c)
-
     if len(c) < 2:
         raise ValueError
-
     if len(c) == 2:
         return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
 
-    mat = zeros([n, n], dtype=c.dtype)
+    mat = zeros((n, n), dtype=c.dtype)
 
     scl = ones(n).at[1:].set(sqrt(0.5))
 
@@ -1677,7 +1675,7 @@ def lagcompanion(c):
 
     n = len(c) - 1
 
-    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
+    mat = reshape(zeros((n, n), dtype=c.dtype))
 
     mat = mat.at[1 :: n + 1].set(-arange(1, n))
     mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
