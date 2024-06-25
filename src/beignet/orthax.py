@@ -1675,7 +1675,7 @@ def lagcompanion(c):
 
     n = len(c) - 1
 
-    mat = reshape(zeros((n, n), dtype=c.dtype))
+    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
 
     mat = mat.at[1 :: n + 1].set(-arange(1, n))
     mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
