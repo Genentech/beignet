@@ -1,3 +1,0 @@
-from .__trim_coefficients import _trim_coefficients
-
-trim_probabilists_hermite_series = _trim_coefficients
