@@ -971,7 +971,7 @@ def test_chebgauss():
 def test_chebgrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         chebgrid2d(
@@ -1042,7 +1042,10 @@ def test_chebint():
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         assert_array_almost_equal(
-            chebtrim(chebint(array([0]), order=i, k=k), tol=0.000001),
+            chebtrim(
+                chebint(array([0]), order=i, k=k),
+                tol=0.000001,
+            ),
             [0, 1],
         )
 
@@ -1052,7 +1055,10 @@ def test_chebint():
                 cheb2poly(chebint(poly2cheb(array([0] * i + [1])), order=1, k=[i])),
                 tol=0.000001,
             ),
-            chebtrim(array([i] + [0] * i + [1 / (i + 1)]), tol=0.000001),
+            chebtrim(
+                array([i] + [0] * i + [1 / (i + 1)]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -1082,7 +1088,10 @@ def test_chebint():
                 ),
                 tol=0.000001,
             ),
-            chebtrim(array([i] + [0] * i + [2 / (i + 1)]), tol=0.000001),
+            chebtrim(
+                array([i] + [0] * i + [2 / (i + 1)]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -1092,8 +1101,14 @@ def test_chebint():
             for _ in range(j):
                 target = chebint(target, order=1)
             assert_array_almost_equal(
-                chebtrim(chebint(pol, order=j), tol=0.000001),
-                chebtrim(target, tol=0.000001),
+                chebtrim(
+                    chebint(pol, order=j),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -1153,7 +1168,10 @@ def test_chebint():
                     chebint(pol, order=j, k=list(range(j)), scl=2),
                     tol=0.000001,
                 ),
-                chebtrim(target, tol=0.000001),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -1234,13 +1252,28 @@ def test_chebmul():
 
 
 def test_chebmulx():
-    assert_array_almost_equal(chebtrim(chebmulx([0]), tol=0.000001), [0])
+    assert_array_almost_equal(
+        chebtrim(
+            chebmulx([0]),
+            tol=0.000001,
+        ),
+        [0],
+    )
 
-    assert_array_almost_equal(chebtrim(chebmulx([1]), tol=0.000001), [0, 1])
+    assert_array_almost_equal(
+        chebtrim(
+            chebmulx([1]),
+            tol=0.000001,
+        ),
+        [0, 1],
+    )
 
     for i in range(1, 5):
         assert_array_almost_equal(
-            chebtrim(chebmulx(array([0] * i + [1])), tol=0.000001),
+            chebtrim(
+                chebmulx(array([0] * i + [1])),
+                tol=0.000001,
+            ),
             [0] * (i - 1) + [0.5, 0, 0.5],
         )
 
@@ -1256,7 +1289,10 @@ def test_chebpow():
     for i in range(5):
         for j in range(5):
             assert_array_almost_equal(
-                chebtrim(chebpow(arange(i + 1), j), tol=0.000001),
+                chebtrim(
+                    chebpow(arange(i + 1), j),
+                    tol=0.000001,
+                ),
                 chebtrim(
                     functools.reduce(
                         chebmul,
@@ -1578,8 +1614,14 @@ def test_hermder():
         target = array([0] * i + [1])
         res = hermder(target, order=0)
         assert_array_almost_equal(
-            hermtrim(res, tol=0.000001),
-            hermtrim(target, tol=0.000001),
+            hermtrim(
+                res,
+                tol=0.000001,
+            ),
+            hermtrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -1587,8 +1629,14 @@ def test_hermder():
             target = array([0] * i + [1])
             res = hermder(hermint(target, order=j), order=j)
             assert_array_almost_equal(
-                hermtrim(res, tol=0.000001),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    res,
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -1596,8 +1644,14 @@ def test_hermder():
             target = array([0] * i + [1])
             res = hermder(hermint(target, order=j, scl=2), order=j, scl=0.5)
             assert_array_almost_equal(
-                hermtrim(res, tol=0.000001),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    res,
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -1707,8 +1761,14 @@ def test_hermeder():
 
     for i in range(5):
         assert_array_almost_equal(
-            hermetrim(hermeder(array([0] * i + [1]), order=0), tol=0.000001),
-            hermetrim(array([0] * i + [1]), tol=0.000001),
+            hermetrim(
+                hermeder(array([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            hermetrim(
+                array([0] * i + [1]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -1721,7 +1781,10 @@ def test_hermeder():
                     ),
                     tol=0.000001,
                 ),
-                hermetrim(array([0] * i + [1]), tol=0.000001),
+                hermetrim(
+                    array([0] * i + [1]),
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -1735,7 +1798,10 @@ def test_hermeder():
                     ),
                     tol=0.000001,
                 ),
-                hermetrim(array([0] * i + [1]), tol=0.000001),
+                hermetrim(
+                    array([0] * i + [1]),
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -1765,7 +1831,10 @@ def test_hermediv():
                     hermeadd(hermemul(quotient, ci), remainder),
                     tol=0.000001,
                 ),
-                hermetrim(hermeadd(ci, cj), tol=0.000001),
+                hermetrim(
+                    hermeadd(ci, cj),
+                    tol=0.000001,
+                ),
             )
 
 
@@ -1851,7 +1920,7 @@ def test_hermefit():
     coef4 = hermefit(
         x,
         y,
-        (2, 3, 4, 1, 0),
+        degree=(2, 3, 4, 1, 0),
     )
 
     assert_array_almost_equal(
@@ -1867,7 +1936,7 @@ def test_hermefit():
     coef2d = hermefit(
         x,
         array([y, y]).T,
-        3,
+        degree=3,
     )
 
     assert_array_almost_equal(
@@ -1978,7 +2047,10 @@ def test_hermefit():
 def test_hermefromroots():
     res = hermefromroots(array([]))
     assert_array_almost_equal(
-        hermetrim(res, tol=0.000001),
+        hermetrim(
+            res,
+            tol=0.000001,
+        ),
         array([1]),
     )
     for i in range(1, 5):
@@ -2067,7 +2139,10 @@ def test_hermeint():
         k = [0] * (i - 2) + [1]
         res = hermeint(array([0]), order=i, k=k)
         assert_array_almost_equal(
-            hermetrim(res, tol=0.000001),
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
             array([0, 1]),
         )
 
@@ -2078,8 +2153,14 @@ def test_hermeint():
         hermepol = poly2herme(pol)
         res = herme2poly(hermeint(hermepol, order=1, k=[i]))
         assert_array_almost_equal(
-            hermetrim(res, tol=0.000001),
-            hermetrim(target, tol=0.000001),
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
+            hermetrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -2101,8 +2182,14 @@ def test_hermeint():
         hermepol = poly2herme(pol)
         res = herme2poly(hermeint(hermepol, order=1, k=[i], scl=2))
         assert_array_almost_equal(
-            hermetrim(res, tol=0.000001),
-            hermetrim(target, tol=0.000001),
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
+            hermetrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -2113,8 +2200,14 @@ def test_hermeint():
                 target = hermeint(target, order=1)
             res = hermeint(pol, order=j)
             assert_array_almost_equal(
-                hermetrim(res, tol=0.000001),
-                hermetrim(target, tol=0.000001),
+                hermetrim(
+                    res,
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2125,8 +2218,14 @@ def test_hermeint():
                 target = hermeint(target, order=1, k=[k])
 
             assert_array_almost_equal(
-                hermetrim(hermeint(pol, order=j, k=list(range(j))), tol=0.000001),
-                hermetrim(target, tol=0.000001),
+                hermetrim(
+                    hermeint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2139,7 +2238,10 @@ def test_hermeint():
                 hermetrim(
                     hermeint(pol, order=j, k=list(range(j)), lbnd=-1), tol=0.000001
                 ),
-                hermetrim(target, tol=0.000001),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2152,7 +2254,10 @@ def test_hermeint():
                 hermetrim(
                     hermeint(pol, order=j, k=list(range(j)), scl=2), tol=0.000001
                 ),
-                hermetrim(target, tol=0.000001),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -2206,11 +2311,26 @@ def test_hermemul():
 
 
 def test_hermemulx():
-    assert_array_almost_equal(hermetrim(hermemulx([0]), tol=0.000001), [0])
-    assert_array_almost_equal(hermetrim(hermemulx([1]), tol=0.000001), [0, 1])
+    assert_array_almost_equal(
+        hermetrim(
+            hermemulx([0]),
+            tol=0.000001,
+        ),
+        [0],
+    )
+    assert_array_almost_equal(
+        hermetrim(
+            hermemulx([1]),
+            tol=0.000001,
+        ),
+        [0, 1],
+    )
     for i in range(1, 5):
         assert_array_almost_equal(
-            hermetrim(hermemulx(array([0] * i + [1])), tol=0.000001),
+            hermetrim(
+                hermemulx(array([0] * i + [1])),
+                tol=0.000001,
+            ),
             [0] * (i - 1) + [i, 0, 1],
         )
 
@@ -2259,7 +2379,10 @@ def test_hermeroots():
                 ),
                 tol=0.000001,
             ),
-            hermetrim(linspace(-1, 1, i), tol=0.000001),
+            hermetrim(
+                linspace(-1, 1, i),
+                tol=0.000001,
+            ),
         )
 
 
@@ -2302,7 +2425,7 @@ def test_hermeval():
     x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in hermecoefficients]
     for i in range(10):
-        assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i], decimal=4)
+        assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i])
 
     for i in range(3):
         dims = [2] * i
@@ -2360,7 +2483,7 @@ def test_hermeval3d():
 
     target = y1 * y2 * y3
     res = hermeval3d(x1, x2, x3, c3d)
-    assert_array_almost_equal(res, target, decimal=4)
+    assert_array_almost_equal(res, target)
 
     z = ones([2, 3])
     res = hermeval3d(z, z, z, c3d)
@@ -2629,7 +2752,10 @@ def test_hermfit():
 def test_hermfromroots():
     res = hermfromroots(array([]))
     assert_array_almost_equal(
-        hermtrim(res, tol=0.000001),
+        hermtrim(
+            res,
+            tol=0.000001,
+        ),
         array([1]),
     )
     for i in range(1, 5):
@@ -2740,7 +2866,10 @@ def test_hermint():
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         assert_array_almost_equal(
-            hermtrim(hermint(array([0]), order=i, k=k), tol=0.000001),
+            hermtrim(
+                hermint(array([0]), order=i, k=k),
+                tol=0.000001,
+            ),
             [0, 0.5],
         )
 
@@ -2749,8 +2878,14 @@ def test_hermint():
         pol = array([0] * i + [1])
         hermpol = poly2herm(pol)
         assert_array_almost_equal(
-            hermtrim(herm2poly(hermint(hermpol, order=1, k=[i])), tol=0.000001),
-            hermtrim([i] + [0] * i + [1 / scl], tol=0.000001),
+            hermtrim(
+                herm2poly(hermint(hermpol, order=1, k=[i])),
+                tol=0.000001,
+            ),
+            hermtrim(
+                [i] + [0] * i + [1 / scl],
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -2765,8 +2900,14 @@ def test_hermint():
         pol = array([0] * i + [1])
         hermpol = poly2herm(pol)
         assert_array_almost_equal(
-            hermtrim(herm2poly(hermint(hermpol, order=1, k=[i], scl=2)), tol=0.000001),
-            hermtrim([i] + [0] * i + [2 / scl], tol=0.000001),
+            hermtrim(
+                herm2poly(hermint(hermpol, order=1, k=[i], scl=2)),
+                tol=0.000001,
+            ),
+            hermtrim(
+                [i] + [0] * i + [2 / scl],
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -2776,8 +2917,14 @@ def test_hermint():
             for _ in range(j):
                 target = hermint(target, order=1)
             assert_array_almost_equal(
-                hermtrim(hermint(pol, order=j), tol=0.000001),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    hermint(pol, order=j),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2787,8 +2934,14 @@ def test_hermint():
             for k in range(j):
                 target = hermint(target, order=1, k=[k])
             assert_array_almost_equal(
-                hermtrim(hermint(pol, order=j, k=list(range(j))), tol=0.000001),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    hermint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2802,7 +2955,10 @@ def test_hermint():
                     hermint(pol, order=j, k=list(range(j)), lbnd=-1),
                     tol=0.000001,
                 ),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -2816,7 +2972,10 @@ def test_hermint():
                     hermint(pol, order=j, k=list(range(j)), scl=2),
                     tol=0.000001,
                 ),
-                hermtrim(target, tol=0.000001),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -2869,7 +3028,13 @@ def test_hermmul():
 
 
 def test_hermmulx():
-    assert_array_almost_equal(hermtrim(hermmulx([0.0]), tol=0.000001), [0.0])
+    assert_array_almost_equal(
+        hermtrim(
+            hermmulx([0.0]),
+            tol=0.000001,
+        ),
+        [0.0],
+    )
     assert_array_almost_equal(hermmulx([1.0]), [0.0, 0.5])
     for i in range(1, 5):
         assert_array_almost_equal(
@@ -2887,7 +3052,10 @@ def test_hermpow():
         for j in range(5):
             c = arange(i + 1).astype(float)
             assert_array_almost_equal(
-                hermtrim(hermpow(c, j), tol=0.000001),
+                hermtrim(
+                    hermpow(c, j),
+                    tol=0.000001,
+                ),
                 hermtrim(
                     functools.reduce(hermmul, [c] * j, array([1])),
                     tol=0.000001,
@@ -2905,7 +3073,10 @@ def test_hermroots():
                 hermroots(hermfromroots(target)),
                 tol=0.000001,
             ),
-            hermtrim(target, tol=0.000001),
+            hermtrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
 
@@ -3128,8 +3299,14 @@ def test_lagder():
 
     for i in range(5):
         assert_array_almost_equal(
-            lagtrim(lagder(array([0] * i + [1]), order=0), tol=0.000001),
-            lagtrim(array([0] * i + [1]), tol=0.000001),
+            lagtrim(
+                lagder(array([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            lagtrim(
+                array([0] * i + [1]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -3139,7 +3316,10 @@ def test_lagder():
                     lagder(lagint(array([0] * i + [1]), order=j), order=j),
                     tol=0.000001,
                 ),
-                lagtrim(array([0] * i + [1]), tol=0.000001),
+                lagtrim(
+                    array([0] * i + [1]),
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -3153,7 +3333,10 @@ def test_lagder():
                     ),
                     tol=0.000001,
                 ),
-                lagtrim(array([0] * i + [1]), tol=0.000001),
+                lagtrim(
+                    array([0] * i + [1]),
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -3375,7 +3558,10 @@ def test_lagfit():
 def test_lagfromroots():
     res = lagfromroots(array([]))
     assert_array_almost_equal(
-        lagtrim(res, tol=0.000001),
+        lagtrim(
+            res,
+            tol=0.000001,
+        ),
         array([1]),
     )
     for i in range(1, 5):
@@ -3385,7 +3571,7 @@ def test_lagfromroots():
         target = 0
         assert len(pol) == i + 1
         assert_array_almost_equal(lag2poly(pol)[-1], 1)
-        assert_array_almost_equal(res, target, decimal=4)
+        assert_array_almost_equal(res, target)
 
 
 def test_laggauss():
@@ -3410,7 +3596,7 @@ def test_laggrid2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         laggrid2d(
@@ -3437,7 +3623,7 @@ def test_laggrid3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3466,7 +3652,10 @@ def test_lagint():
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
         assert_array_almost_equal(
-            lagtrim(lagint(array([0]), order=i, k=k), tol=0.000001),
+            lagtrim(
+                lagint(array([0]), order=i, k=k),
+                tol=0.000001,
+            ),
             [1, -1],
         )
 
@@ -3476,8 +3665,14 @@ def test_lagint():
         target = [i] + [0] * i + [1 / scl]
         res = lag2poly(lagint(poly2lag(pol), order=1, k=[i]))
         assert_array_almost_equal(
-            lagtrim(res, tol=0.000001),
-            lagtrim(target, tol=0.000001),
+            lagtrim(
+                res,
+                tol=0.000001,
+            ),
+            lagtrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -3498,8 +3693,14 @@ def test_lagint():
         target = [i] + [0] * i + [2 / scl]
         lagpol = poly2lag(pol)
         assert_array_almost_equal(
-            lagtrim(lag2poly(lagint(lagpol, order=1, k=[i], scl=2)), tol=0.000001),
-            lagtrim(target, tol=0.000001),
+            lagtrim(
+                lag2poly(lagint(lagpol, order=1, k=[i], scl=2)),
+                tol=0.000001,
+            ),
+            lagtrim(
+                target,
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -3509,8 +3710,14 @@ def test_lagint():
             for _ in range(j):
                 target = lagint(target, order=1)
             assert_array_almost_equal(
-                lagtrim(lagint(pol, order=j), tol=0.000001),
-                lagtrim(target, tol=0.000001),
+                lagtrim(
+                    lagint(pol, order=j),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -3520,8 +3727,14 @@ def test_lagint():
             for k in range(j):
                 target = lagint(target, order=1, k=[k])
             assert_array_almost_equal(
-                lagtrim(lagint(pol, order=j, k=list(range(j))), tol=0.000001),
-                lagtrim(target, tol=0.000001),
+                lagtrim(
+                    lagint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -3531,8 +3744,14 @@ def test_lagint():
             for k in range(j):
                 target = lagint(target, order=1, k=[k], lbnd=-1)
             assert_array_almost_equal(
-                lagtrim(lagint(pol, order=j, k=list(range(j)), lbnd=-1), tol=0.000001),
-                lagtrim(target, tol=0.000001),
+                lagtrim(
+                    lagint(pol, order=j, k=list(range(j)), lbnd=-1),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -3546,7 +3765,10 @@ def test_lagint():
                     lagint(pol, order=j, k=list(range(j)), scl=2),
                     tol=0.000001,
                 ),
-                lagtrim(target, tol=0.000001),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -3646,7 +3868,10 @@ def test_lagpow():
         for j in range(5):
             c = arange(i + 1)
             assert_array_almost_equal(
-                lagtrim(lagpow(c, j), tol=0.000001),
+                lagtrim(
+                    lagpow(c, j),
+                    tol=0.000001,
+                ),
                 lagtrim(
                     functools.reduce(lagmul, [c] * j, array([1])),
                     tol=0.000001,
@@ -3655,9 +3880,9 @@ def test_lagpow():
 
 
 def test_lagroots():
-    assert_array_almost_equal(lagroots([1]), array([]))
+    assert_array_almost_equal(lagroots(array([1])), array([]))
     assert_array_almost_equal(
-        lagroots([0, 1]),
+        lagroots(array([0, 1])),
         array([1]),
     )
     for i in range(2, 5):
@@ -3666,7 +3891,10 @@ def test_lagroots():
                 lagroots(lagfromroots(linspace(0, 3, i))),
                 tol=0.000001,
             ),
-            lagtrim(linspace(0, 3, i), tol=0.000001),
+            lagtrim(
+                linspace(0, 3, i),
+                tol=0.000001,
+            ),
         )
 
 
@@ -3730,7 +3958,7 @@ def test_lagval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3768,7 +3996,7 @@ def test_lagval3d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     pytest.raises(ValueError, lagval3d, x1, x2, x3[:2], c3d)
 
@@ -3858,10 +4086,10 @@ def test_lagzero():
 
 
 def test_leg2poly():
-    for index in range(10):
+    for i in range(10):
         assert_array_almost_equal(
-            leg2poly([0] * index + [1]),
-            legcoefficients[index],
+            leg2poly([0] * i + [1]),
+            legcoefficients[i],
         )
 
 
@@ -3907,20 +4135,27 @@ def test_legder():
     pytest.raises(ValueError, legder, array([0]), -1)
 
     for i in range(5):
-        target = array([0] * i + [1])
-        res = legder(target, order=0)
         assert_array_almost_equal(
-            legtrim(res, tol=0.000001),
-            legtrim(target, tol=0.000001),
+            legtrim(
+                legder(array([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            legtrim(
+                array([0] * i + [1]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
         for j in range(2, 5):
-            target = array([0] * i + [1])
-            res = legder(legint(target, order=j), order=j)
             assert_array_almost_equal(
-                legtrim(res, tol=0.000001),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    legder(legint(array([0] * i + [1]), order=j), order=j), tol=0.000001
+                ),
+                legtrim(
+                    array([0] * i + [1]),
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -3928,8 +4163,14 @@ def test_legder():
             target = array([0] * i + [1])
             res = legder(legint(target, order=j, scl=2), order=j, scale=0.5)
             assert_array_almost_equal(
-                legtrim(res, tol=0.000001),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    res,
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -4191,7 +4432,10 @@ def test_legfit():
 
 def test_legfromroots():
     assert_array_almost_equal(
-        legtrim(legfromroots(array([])), tol=0.000001),
+        legtrim(
+            legfromroots(array([])),
+            tol=0.000001,
+        ),
         [1],
     )
     for i in range(1, 5):
@@ -4233,7 +4477,7 @@ def test_leggrid2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         leggrid2d(
@@ -4261,7 +4505,7 @@ def test_leggrid3d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         leggrid3d(
@@ -4316,7 +4560,10 @@ def test_legint():
                 ),
                 tol=0.000001,
             ),
-            legtrim(array([i] + [0] * i + [1 / (i + 1)]), tol=0.000001),
+            legtrim(
+                array([i] + [0] * i + [1 / (i + 1)]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -4346,7 +4593,10 @@ def test_legint():
                 ),
                 tol=0.000001,
             ),
-            legtrim(array([i] + [0] * i + [2 / (i + 1)]), tol=0.000001),
+            legtrim(
+                array([i] + [0] * i + [2 / (i + 1)]),
+                tol=0.000001,
+            ),
         )
 
     for i in range(5):
@@ -4355,8 +4605,14 @@ def test_legint():
             for _ in range(j):
                 target = legint(target, order=1)
             assert_array_almost_equal(
-                legtrim(legint(array([0] * i + [1]), order=j), tol=0.000001),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    legint(array([0] * i + [1]), order=j),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -4366,8 +4622,14 @@ def test_legint():
             for k in range(j):
                 target = legint(target, order=1, k=[k])
             assert_array_almost_equal(
-                legtrim(legint(pol, order=j, k=list(range(j))), tol=0.000001),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    legint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -4381,7 +4643,10 @@ def test_legint():
                     legint(pol, order=j, k=list(range(j)), lbnd=-1),
                     tol=0.000001,
                 ),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -4395,7 +4660,10 @@ def test_legint():
                     legint(pol, order=j, k=list(range(j)), scl=2),
                     tol=0.000001,
                 ),
-                legtrim(target, tol=0.000001),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     c2d = jax.random.uniform(key, (3, 4))
@@ -4595,7 +4863,7 @@ def test_legval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -5172,7 +5440,7 @@ def test_polygrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         polygrid2d(
