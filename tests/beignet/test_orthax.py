@@ -13,7 +13,7 @@ from beignet.orthax import (
     _pow,
     _trim_coefficients,
     _trim_sequence,
-    _vander_nd,
+    _vandermonde,
     _z_series_to_c_series,
     cheb2poly,
     chebadd,
@@ -302,16 +302,114 @@ def test__c_series_to_z_series():
     for i in range(5):
         assert_array_almost_equal(
             _c_series_to_z_series(
-                array(
-                    [2] + [1] * i,
-                    numpy.double,
-                ),
+                array([2] + [1] * i, dtype=numpy.float64),
             ),
-            array(
-                [0.5] * i + [2] + [0.5] * i,
-                numpy.double,
-            ),
+            array([0.5] * i + [2] + [0.5] * i, dtype=numpy.float64),
         )
+
+
+def test__fit():
+    with pytest.raises(ValueError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=-1,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([[1]]),
+            array([1]),
+            degree=0,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([]),
+            array([1]),
+            degree=0,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([[[1]]]),
+            degree=0,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1, 2]),
+            array([1]),
+            degree=0,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1, 2]),
+            degree=0,
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=0,
+            weight=[[1]],
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=0,
+            weight=array([1, 1]),
+        )
+
+    with pytest.raises(ValueError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=(-1,),
+        )
+
+    with pytest.raises(ValueError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=(2, -1, 6),
+        )
+
+    with pytest.raises(TypeError):
+        _fit(
+            _vandermonde,
+            array([1]),
+            array([1]),
+            degree=(),
+        )
+
+
+def test__get_domain():
+    assert_array_almost_equal(
+        _get_domain(array([1, 10, 3, -1])),
+        array([-1, 10]),
+    )
+
+    assert_array_almost_equal(
+        _get_domain(array([1 + 1j, 1 - 1j, 0, 2])),
+        array([-1j, 2 + 1j]),
+    )
 
 
 def test__map_domain():
@@ -362,23 +460,21 @@ def test__map_parameters():
 
 
 def test__pow():
-    pytest.raises(
-        ValueError,
-        _pow,
-        (),
-        array([1, 2, 3]),
-        5,
-        4,
-    )
+    with pytest.raises(ValueError):
+        _pow(
+            (),
+            array([1, 2, 3]),
+            5,
+            4,
+        )
 
 
 def test__trim_coefficients():
-    pytest.raises(
-        ValueError,
-        _trim_coefficients,
-        array([2, -1, 1, 0]),
-        -1,
-    )
+    with pytest.raises(ValueError):
+        _trim_coefficients(
+            array([2, -1, 1, 0]),
+            tol=-1,
+        )
 
     assert_array_almost_equal(
         _trim_coefficients(
@@ -390,17 +486,15 @@ def test__trim_coefficients():
     assert_array_almost_equal(
         _trim_coefficients(
             array([2, -1, 1, 0]),
-            1,
+            tol=1,
         ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
         _trim_coefficients(
-            array(
-                array([2, -1, 1, 0]),
-            ),
-            2,
+            array(array([2, -1, 1, 0])),
+            tol=2,
         ),
         array([0]),
     )
@@ -415,44 +509,35 @@ def test__trim_sequence():
 
 
 def test__vandermonde():
-    pytest.raises(
-        ValueError,
-        _vander_nd,
-        (),
-        (1, 2, 3),
-        [90],
-    )
+    with pytest.raises(ValueError):
+        _vandermonde(
+            (),
+            (1, 2, 3),
+            array([90]),
+        )
 
-    pytest.raises(
-        ValueError,
-        _vander_nd,
-        (),
-        (),
-        [90.65],
-    )
+    with pytest.raises(ValueError):
+        _vandermonde(
+            (),
+            (),
+            array([90.65]),
+        )
 
-    pytest.raises(
-        ValueError,
-        _vander_nd,
-        (),
-        (),
-        array([]),
-    )
+    with pytest.raises(ValueError):
+        _vandermonde(
+            (),
+            (),
+            array([]),
+        )
 
 
 def test__z_series_to_c_series():
     for i in range(5):
         assert_array_almost_equal(
             _z_series_to_c_series(
-                array(
-                    [0.5] * i + [2] + [0.5] * i,
-                    numpy.float64,
-                ),
+                array([0.5] * i + [2] + [0.5] * i, dtype=numpy.float64),
             ),
-            array(
-                [2] + [1] * i,
-                numpy.float64,
-            ),
+            array([2] + [1] * i, dtype=numpy.float64),
         )
 
 
@@ -621,98 +706,6 @@ def test_chebdomain():
         chebdomain,
         array([-1, 1]),
     )
-
-
-def test__fit():
-    with pytest.raises(ValueError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=-1,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([[1]]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([[[1]]]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1, 2]),
-            array([1]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1, 2]),
-            degree=0,
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=0,
-            weight=[[1]],
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=0,
-            weight=array([1, 1]),
-        )
-
-    with pytest.raises(ValueError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=(-1,),
-        )
-
-    with pytest.raises(ValueError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=(2, -1, 6),
-        )
-
-    with pytest.raises(TypeError):
-        _fit(
-            _vander_nd,
-            array([1]),
-            array([1]),
-            degree=(),
-        )
 
 
 def test_chebfit():
@@ -1529,18 +1522,6 @@ def test_chebx():
 
 def test_chebzero():
     assert_array_almost_equal(chebzero, array([0]))
-
-
-def test__get_domain():
-    assert_array_almost_equal(
-        _get_domain(array([1, 10, 3, -1])),
-        array([-1, 10]),
-    )
-
-    assert_array_almost_equal(
-        _get_domain(array([1 + 1j, 1 - 1j, 0, 2])),
-        array([-1j, 2 + 1j]),
-    )
 
 
 def test_herm2poly():

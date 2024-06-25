@@ -427,7 +427,7 @@ def _evaluate(func: Callable, input: Array, *args):
     return output
 
 
-def _vander_nd(vander_fs, points, degrees):
+def _vandermonde(vander_fs, points, degrees):
     n_dims = len(vander_fs)
     if n_dims != len(points):
         raise ValueError
@@ -447,7 +447,7 @@ def _vander_nd(vander_fs, points, degrees):
 
 
 def _flattened_vandermonde(vander_fs, points, degrees):
-    v = _vander_nd(vander_fs, points, degrees)
+    v = _vandermonde(vander_fs, points, degrees)
     return reshape(v, v.shape[: -len(degrees)] + (-1,))
 
 
