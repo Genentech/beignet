@@ -3,7 +3,7 @@ import math
 
 import beignet.orthax
 import jax
-import numpy.testing
+import numpy
 import pytest
 from jax.numpy import (
     arange,
@@ -12,6 +12,8 @@ from jax.numpy import (
     dot,
     einsum,
     empty,
+    exp,
+    eye,
     linspace,
     ones,
     sqrt,
@@ -213,7 +215,7 @@ def test__trim_coefficients():
 
 def test__trim_sequence():
     for _ in range(5):
-        numpy.testing.assert_array_almost_equal(
+        assert_array_almost_equal(
             beignet.orthax._trim_sequence(array([1] + [0] * 5)),
             array([1]),
         )
@@ -251,12 +253,12 @@ def test__z_series_to_c_series():
             beignet.orthax._z_series_to_c_series(
                 array(
                     [0.5] * i + [2] + [0.5] * i,
-                    numpy.double,
+                    numpy.float64,
                 ),
             ),
             array(
                 [2] + [1] * i,
-                numpy.double,
+                numpy.float64,
             ),
         )
 
@@ -686,7 +688,7 @@ def test_chebgauss():
     vv = dot(v.T * w, v)
     vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
-    assert_array_almost_equal(vv, numpy.eye(100))
+    assert_array_almost_equal(vv, eye(100))
     assert_array_almost_equal(w.sum(), math.pi)
 
 
@@ -1758,7 +1760,7 @@ def test_hermegauss():
     vv = dot(v.T * w, v)
     vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
-    assert_array_almost_equal(vv, numpy.eye(100))
+    assert_array_almost_equal(vv, eye(100))
 
     target = sqrt(2 * math.pi)
     assert_array_almost_equal(w.sum(), target)
@@ -2157,7 +2159,7 @@ def test_hermevander3d():
 
 def test_hermeweight():
     x = linspace(-5, 5, 11)
-    target = numpy.exp(-0.5 * x**2)
+    target = exp(-0.5 * x**2)
     res = beignet.orthax.hermeweight(x)
     assert_array_almost_equal(
         res,
@@ -2411,7 +2413,7 @@ def test_hermgauss():
     vv = vd[:, None] * vv * vd
     assert_array_almost_equal(
         vv,
-        numpy.eye(100),
+        eye(100),
     )
 
     target = sqrt(math.pi)
@@ -2832,7 +2834,7 @@ def test_hermvander3d():
 def test_hermweight():
     assert_array_almost_equal(
         beignet.orthax.hermweight(linspace(-5, 5, 11)),
-        numpy.exp(-(linspace(-5, 5, 11) ** 2)),
+        exp(-(linspace(-5, 5, 11) ** 2)),
     )
 
 
@@ -3154,7 +3156,7 @@ def test_laggauss():
     vv = vd[:, None] * vv * vd
     assert_array_almost_equal(
         vv,
-        numpy.eye(100),
+        eye(100),
     )
 
     target = 1.0
@@ -3580,7 +3582,7 @@ def test_lagvander3d():
 def test_lagweight():
     assert_array_almost_equal(
         beignet.orthax.lagweight(linspace(0, 10, 11)),
-        numpy.exp(-linspace(0, 10, 11)),
+        exp(-linspace(0, 10, 11)),
     )
 
 
@@ -3954,7 +3956,7 @@ def test_leggauss():
 
     assert_array_almost_equal(
         vv,
-        numpy.eye(100),
+        eye(100),
     )
 
     assert_array_almost_equal(w.sum(), 2.0)
@@ -5268,7 +5270,7 @@ def test_polymulx():
 
 
 def test_polyone():
-    numpy.testing.assert_array_almost_equal(
+    assert_array_almost_equal(
         beignet.orthax.polyone,
         array([1]),
     )
