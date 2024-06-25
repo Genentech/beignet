@@ -467,11 +467,11 @@ def _z_series_to_c_series(zs):
     return c.at[1:n].multiply(2)
 
 
-def _as_series(*arrs, trim=False):
-    arrays = tuple(array(a, ndmin=1) for a in arrs)
+def _as_series(*arrs, trim: bool = False):
+    arrays = [array(a, ndmin=1) for a in arrs]
 
     if trim:
-        arrays = tuple(_trim_sequence(a) for a in arrays)
+        arrays = [_trim_sequence(a) for a in arrays]
 
     arrays = jax._src.numpy.util.promote_dtypes_inexact(*arrays)
 

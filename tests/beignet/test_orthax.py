@@ -2915,8 +2915,8 @@ def test_hermpow():
 
 
 def test_hermroots():
-    assert_array_almost_equal(hermroots([1]), array([]))
-    assert_array_almost_equal(hermroots([1, 1]), array([-0.5]))
+    assert_array_almost_equal(hermroots(array([1])), array([]))
+    assert_array_almost_equal(hermroots(array([1, 1])), array([-0.5]))
     for i in range(2, 5):
         target = linspace(-1, 1, i)
         assert_array_almost_equal(
