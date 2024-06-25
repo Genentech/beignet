@@ -253,46 +253,39 @@ def _fit(
 
 def _from_roots(f, g, input):
     if math.prod(input.shape) == 0:
-        return ones(1)
+        return ones([1])
 
     input = sort(input)
-
-    retlen = len(input) + 1
-
-    carry = 0
 
     ys = []
 
     for x in input:
-        carry, y = carry, _add(zeros(retlen, dtype=x.dtype), f(-x, 1))
+        y = _add(zeros(input.shape[0] + 1, dtype=x.dtype), f(-x, 1))
 
-        ys.append(y)
+        ys = [*ys, y]
 
-    result = carry, stack(ys)
+    p = stack(ys)
 
-    _, p = result
+    n = p.shape[0]
 
-    p = asarray(p)
-    n = len(p)
-
-    val = (n, p)
+    val = n, p
 
     while val[0] > 1:
         m, r = divmod(val[0], 2)
 
         arr = val[1]
 
-        tmp = array([zeros(retlen, dtype=p.dtype)] * len(p))
+        tmp = array([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
 
         val1 = tmp
 
         for i in range(0, m):
-            val1 = val1.at[i].set(g(arr[i], arr[i + m])[:retlen])
+            val1 = val1.at[i].set(g(arr[i], arr[i + m])[: input.shape[0] + 1])
 
         tmp = val1
 
         if r:
-            tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[:retlen])
+            tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[: input.shape[0] + 1])
 
         val = m, tmp
 
@@ -469,6 +462,8 @@ def _z_series_to_c_series(zs):
 
 def _as_series(*arrs, trim: bool = False):
     arrays = [array(a, ndmin=1) for a in arrs]
+
+    # arrays = arrs
 
     if trim:
         arrays = [_trim_sequence(a) for a in arrays]
@@ -832,7 +827,7 @@ def chebval(x, c, tensor=True):
     c = _as_series(c)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]
@@ -977,7 +972,7 @@ def hermcompanion(c):
     mat = mat.flatten()
     mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
-    mat = mat.reshape(shp)
+    mat = reshape(mat, shp)
     mat = mat.at[:, -1].add(-scl * c[:-1] / (2.0 * c[-1]))
     return mat
 
@@ -1065,7 +1060,7 @@ def hermecompanion(c):
     mat = mat.flatten()
     mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
-    mat = mat.reshape(shp)
+    mat = reshape(mat, shp)
     mat = mat.at[:, -1].add(-scl * c[:-1] / c[-1])
     return mat
 
@@ -1290,7 +1285,7 @@ def hermeval(x, c, tensor=True):
     c = _as_series(c)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]
@@ -1557,7 +1552,7 @@ def hermval(x, c, tensor=True):
     c = _as_series(c)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     x2 = x * 2
     if len(c) == 1:
@@ -1685,7 +1680,7 @@ def lagcompanion(c):
     mat = mat.at[1 :: n + 1].set(-arange(1, n))
     mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
     mat = mat.at[n :: n + 1].set(-arange(1, n))
-    mat = mat.reshape((n, n))
+    mat = reshape(mat, (n, n))
     mat = mat.at[:, -1].add((c[:-1] / c[-1]) * n)
     return mat
 
@@ -1922,7 +1917,7 @@ def lagval(x, c, tensor=True):
     c = _as_series(c)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]
@@ -2040,7 +2035,7 @@ def legcompanion(c):
     mat = mat.flatten()
     mat = mat.at[1 :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
     mat = mat.at[n :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
-    mat = mat.reshape(shp)
+    mat = reshape(mat, shp)
     mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * (n / (2 * n - 1)))
     return mat
 
@@ -2296,7 +2291,7 @@ def legval(x, c, tensor=True):
     c = _as_series(c)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     if len(c) == 1:
         c0 = c[0]
@@ -2493,7 +2488,7 @@ def polycompanion(c):
 
     mat = mat.at[n :: n + 1].set(1)
 
-    mat = mat.reshape((n, n))
+    mat = reshape(mat, (n, n))
 
     return mat.at[:, -1].add(-c[:-1] / c[-1])
 
