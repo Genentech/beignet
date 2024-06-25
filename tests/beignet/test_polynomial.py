@@ -1888,181 +1888,265 @@ def test_hermefit():
     def g(x):
         return x**4 + x**2 + 1
 
-    coef3 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=3,
+    input = linspace(0, 2, 50)
+
+    other = f(input)
+
+    assert_array_almost_equal(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
         hermeval(
-            linspace(0, 2, 50),
-            coef3,
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef3 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(0, 1, 2, 3),
+        other,
     )
 
     assert_array_almost_equal(
         hermeval(
-            linspace(0, 2, 50),
-            coef3,
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef4 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=4,
+        other,
     )
 
     assert_array_almost_equal(
         hermeval(
-            linspace(0, 2, 50),
-            coef4,
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef4 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(0, 1, 2, 3, 4),
+        other,
     )
 
     assert_array_almost_equal(
         hermeval(
-            linspace(0, 2, 50),
-            coef4,
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef4 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(2, 3, 4, 1, 0),
+        other,
     )
 
     assert_array_almost_equal(
-        hermeval(
-            linspace(0, 2, 50),
-            coef4,
+        hermefit(
+            input,
+            array([other, other]).T,
+            degree=3,
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef2d = hermefit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=3,
+        array(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
     assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
+        hermefit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        array(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
-    coef2d = hermefit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=(0, 1, 2, 3),
-    )
-
-    assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
-    )
-
-    weight = zeros_like(linspace(0, 2, 50))
+    weight = zeros_like(input)
 
     weight = weight.at[1::2].set(1)
 
-    wcoef3 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=3,
-        weight=weight,
+    assert_array_almost_equal(
+        hermefit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
     )
 
     assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-
-    wcoef3 = hermefit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(0, 1, 2, 3),
-        weight=weight,
-    )
-
-    assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-
-    wcoef2d = hermefit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        3,
-        weight=weight,
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
     )
 
     assert_array_almost_equal(
-        wcoef2d,
-        array([coef3, coef3]).T,
-    )
-
-    wcoef2d = hermefit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=(0, 1, 2, 3),
-        weight=weight,
+        hermefit(
+            input,
+            array([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
     assert_array_almost_equal(
-        wcoef2d,
-        array([coef3, coef3]).T,
+        hermefit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
-    x = array([1, 1j, -1, -1j])
-
     assert_array_almost_equal(
-        hermefit(x, x, 1),
+        hermefit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=1,
+        ),
         array([0, 1]),
     )
 
     assert_array_almost_equal(
-        hermefit(x, x, (0, 1)),
+        hermefit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
         array([0, 1]),
     )
 
-    x = linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
-    y = g(x)
-
-    coef1 = hermefit(x, y, degree=4)
+    other = g(input)
 
     assert_array_almost_equal(
-        hermeval(x, coef1),
-        y,
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
-        hermeval(x, hermefit(x, y, degree=(0, 2, 4))),
-        y,
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
-        coef1,
-        hermefit(x, y, degree=(0, 2, 4)),
+        hermefit(
+            input,
+            other,
+            degree=4,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
     )
 
 
