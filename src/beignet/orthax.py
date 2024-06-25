@@ -1,7 +1,7 @@
 import functools
 import math
 import operator
-from typing import Callable, Literal
+from typing import Literal
 
 import jax
 import jax.numpy
@@ -45,7 +45,6 @@ from jax.numpy.linalg import (
     eigvalsh,
     lstsq,
 )
-from jaxtyping import Array, Num
 
 chebdomain = array([-1, 1])
 chebone = array([1])
@@ -355,19 +354,7 @@ def _pad_along_axis(input, pad=(0, 0), axis=0):
     return moveaxis(output, 0, axis)
 
 
-def _pow(
-    func: Callable[
-        [
-            Num[Array, "..."],
-            Num[Array, "..."],
-            Literal["full", "same"],
-        ],
-        Num[Array, "..."],
-    ],
-    input: Num[Array, "..."],
-    exponent,
-    maximum_exponent,
-):
+def _pow(func, input, exponent, maximum_exponent):
     input = _as_series(input)
 
     power = int(exponent)
@@ -394,10 +381,7 @@ def _pow(
     return output
 
 
-def _subtract(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+def _subtract(input, other):
     input, other = _as_series(input, other)
 
     if len(input) > len(other):
@@ -414,11 +398,7 @@ def _subtract(
     return output
 
 
-def _evaluate(
-    func: Callable,
-    input: Num[Array, "..."],
-    *args,
-):
+def _evaluate(func, input, *args):
     xs = []
 
     for a in args:
@@ -532,9 +512,9 @@ def cheb2poly(c):
 
 
 def chebadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -557,21 +537,21 @@ def chebcompanion(c):
     return mat
 
 
-def chebder(c, m=1, scl=1, axis=0):
-    if m < 0:
+def chebder(c, order=1, scl=1, axis=0):
+    if order < 0:
         raise ValueError
 
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
     n = len(c)
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
-        for _ in range(m):
+        for _ in range(order):
             n = n - 1
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
@@ -599,10 +579,7 @@ def chebder(c, m=1, scl=1, axis=0):
     return c
 
 
-def chebdiv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+def chebdiv(input, other):
     return _div(chebmul, input, other)
 
 
@@ -641,7 +618,7 @@ def chebgrid3d(x, y, z, c):
     return _gridnd(chebval, c, x, y, z)
 
 
-def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = _as_series(c)
@@ -649,20 +626,20 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     if not iterable(k):
         k = [k]
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
     if ndim(lbnd) != 0:
         raise ValueError
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    for i in range(m):
+    for i in range(order):
         n = len(c)
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
@@ -702,10 +679,10 @@ def chebline(off, scl):
 
 
 def chebmul(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
+    input,
+    other,
     mode: Literal["full", "same"] = "full",
-) -> Num[Array, "..."]:
+):
     input, other = _as_series(input, other)
 
     z1 = _c_series_to_z_series(input)
@@ -835,9 +812,9 @@ def chebroots(c):
 
 
 def chebsub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
@@ -978,9 +955,9 @@ def herm2poly(c):
 
 
 def hermadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -1004,21 +981,21 @@ def hermcompanion(c):
     return mat
 
 
-def hermder(c, m=1, scl=1, axis=0):
-    if m < 0:
+def hermder(c, order=1, scl=1, axis=0):
+    if order < 0:
         raise ValueError
 
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
     n = len(c)
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
-        for _ in range(m):
+        for _ in range(order):
             n = n - 1
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
@@ -1030,9 +1007,9 @@ def hermder(c, m=1, scl=1, axis=0):
 
 
 def hermdiv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+    input,
+    other,
+):
     return _div(hermmul, input, other)
 
 
@@ -1066,9 +1043,9 @@ def herme2poly(c):
 
 
 def hermeadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -1092,21 +1069,21 @@ def hermecompanion(c):
     return mat
 
 
-def hermeder(c, m=1, scl=1, axis=0):
-    if m < 0:
+def hermeder(c, order=1, scl=1, axis=0):
+    if order < 0:
         raise ValueError
 
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
     n = len(c)
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
-        for _ in range(m):
+        for _ in range(order):
             n = n - 1
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
@@ -1118,9 +1095,9 @@ def hermeder(c, m=1, scl=1, axis=0):
 
 
 def hermediv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+    input,
+    other,
+):
     return _div(hermemul, input, other)
 
 
@@ -1165,7 +1142,7 @@ def hermegrid3d(x, y, z, c):
     return _gridnd(hermeval, c, x, y, z)
 
 
-def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def hermeint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
 
@@ -1176,7 +1153,7 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
 
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
 
     if ndim(lbnd) != 0:
@@ -1185,13 +1162,13 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    for i in range(m):
+    for i in range(order):
         n = len(c)
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
@@ -1283,9 +1260,9 @@ def hermeroots(c):
 
 
 def hermesub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
@@ -1417,7 +1394,7 @@ def hermgrid3d(x, y, z, c):
     return _gridnd(hermval, c, x, y, z)
 
 
-def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = _as_series(c)
@@ -1426,7 +1403,7 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
 
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
 
     if ndim(lbnd) != 0:
@@ -1435,13 +1412,13 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    for i in range(m):
+    for i in range(order):
         n = len(c)
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
@@ -1536,9 +1513,9 @@ def hermroots(c):
 
 
 def hermsub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
@@ -1660,9 +1637,9 @@ def lag2poly(c):
 
 
 def lagadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -1685,21 +1662,21 @@ def lagcompanion(c):
     return mat
 
 
-def lagder(c, m=1, scl=1, axis=0):
-    if m < 0:
+def lagder(c, order=1, scl=1, axis=0):
+    if order < 0:
         raise ValueError
 
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
     n = len(c)
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
-        for _ in range(m):
+        for _ in range(order):
             n = n - 1
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
@@ -1725,9 +1702,9 @@ def lagder(c, m=1, scl=1, axis=0):
 
 
 def lagdiv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+    input,
+    other,
+):
     return _div(lagmul, input, other)
 
 
@@ -1770,7 +1747,7 @@ def laggrid3d(x, y, z, c):
     return _gridnd(lagval, c, x, y, z)
 
 
-def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def lagint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = _as_series(c)
@@ -1778,20 +1755,20 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     if not iterable(k):
         k = [k]
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
     if ndim(lbnd) != 0:
         raise ValueError
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    for i in range(m):
+    for i in range(order):
         n = len(c)
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
@@ -1889,9 +1866,9 @@ def lagroots(c):
 
 
 def lagsub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
@@ -2003,9 +1980,9 @@ def leg2poly(c):
 
 
 def legadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -2028,21 +2005,21 @@ def legcompanion(c):
     return mat
 
 
-def legder(c, m=1, scl=1, axis=0):
-    if m < 0:
+def legder(c, order=1, scl=1, axis=0):
+    if order < 0:
         raise ValueError
 
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
     n = len(c)
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
-        for _ in range(m):
+        for _ in range(order):
             n = n - 1
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
@@ -2070,9 +2047,9 @@ def legder(c, m=1, scl=1, axis=0):
 
 
 def legdiv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+    input,
+    other,
+):
     return _div(legmul, input, other)
 
 
@@ -2118,7 +2095,7 @@ def leggrid3d(x, y, z, c):
     return _gridnd(legval, c, x, y, z)
 
 
-def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
     c = _as_series(c)
@@ -2126,20 +2103,20 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 
     if not iterable(k):
         k = [k]
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
     if ndim(lbnd) != 0:
         raise ValueError
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    for i in range(m):
+    for i in range(order):
         n = len(c)
         c *= scl
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
@@ -2250,9 +2227,9 @@ def legroots(c):
 
 
 def legsub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
@@ -2452,9 +2429,9 @@ def poly2leg(pol):
 
 
 def polyadd(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _add(input, other)
 
 
@@ -2478,17 +2455,17 @@ def polycompanion(c):
     return mat.at[:, -1].add(-c[:-1] / c[-1])
 
 
-def polyder(c, m=1, scl=1, axis=0):
+def polyder(c, order=1, scl=1, axis=0):
     c = _as_series(c)
 
-    if m == 0:
+    if order == 0:
         return c
 
     c = moveaxis(c, axis, 0)
 
     n = c.shape[0]
 
-    if m >= n:
+    if order >= n:
         c = zeros_like(c[:1])
     else:
         D = arange(n)
@@ -2503,11 +2480,11 @@ def polyder(c, m=1, scl=1, axis=0):
             return c
 
         y = c
-        for index in range(0, m):
+        for index in range(0, order):
             y = body(index, y)
         c = y
 
-        c = c[:-m]
+        c = c[:-order]
 
     c = moveaxis(c, 0, axis)
 
@@ -2515,9 +2492,9 @@ def polyder(c, m=1, scl=1, axis=0):
 
 
 def polydiv(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> (Num[Array, "..."], Num[Array, "..."]):
+    input,
+    other,
+):
     input, other = _as_series(input, other)
 
     return _div(polymul, input, other)
@@ -2539,7 +2516,7 @@ def polygrid3d(x, y, z, c):
     return _gridnd(polyval, c, x, y, z)
 
 
-def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
+def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     if k is None:
         k = []
 
@@ -2550,10 +2527,10 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
 
-    if m < 0:
+    if order < 0:
         raise ValueError
 
-    if len(k) > m:
+    if len(k) > order:
         raise ValueError
 
     if ndim(lbnd) != 0:
@@ -2562,18 +2539,18 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if ndim(scl) != 0:
         raise ValueError
 
-    if m == 0:
+    if order == 0:
         return c
 
-    k = array(list(k) + [0] * (m - len(k)), ndmin=1)
+    k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
     n = c.shape[axis]
 
-    c = _pad_along_axis(c, (0, m), axis)
+    c = _pad_along_axis(c, (0, order), axis)
 
     c = moveaxis(c, axis, 0)
 
-    D = arange(n + m) + 1
+    D = arange(n + order) + 1
 
     def body(i, c):
         c *= scl
@@ -2591,7 +2568,7 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         return c
 
     y = c
-    for index in range(0, m):
+    for index in range(0, order):
         y = body(index, y)
     c = y
 
@@ -2645,9 +2622,9 @@ def polyroots(c):
 
 
 def polysub(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+    input,
+    other,
+):
     return _subtract(input, other)
 
 
