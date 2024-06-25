@@ -74,13 +74,6 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def fori_loop(lower, upper, body_fun, init_val):
-    val = init_val
-    for i in range(lower, upper):
-        val = body_fun(i, val)
-    return val
-
-
 def _add(
     input: Num[Array, "..."],
     other: Num[Array, "..."],
@@ -241,6 +234,7 @@ def _from_roots(f, g, input):
 
     for x in input:
         carry, y = p_scan_fun(carry, x)
+
         ys.append(y)
 
     result = carry, stack(ys)
@@ -252,15 +246,16 @@ def _from_roots(f, g, input):
 
     def body_fun(val):
         m, r = divmod(val[0], 2)
+
         arr = val[1]
+
         tmp = array([zeros(retlen, dtype=p.dtype)] * len(p))
 
-        def inner_body_fun(i, val):
-            return val.at[i].set(g(arr[i], arr[i + m])[:retlen])
-
         val1 = tmp
+
         for i in range(0, m):
-            val1 = inner_body_fun(i, val1)
+            val1 = val1.at[i].set(g(arr[i], arr[i + m])[:retlen])
+
         tmp = val1
 
         if r:
@@ -278,11 +273,11 @@ def _from_roots(f, g, input):
     return ret[0]
 
 
-def _gridnd(val_f, c, *args):
-    for xi in args:
-        c = val_f(xi, c)
+def _gridnd(func, input, *args):
+    for arg in args:
+        output = func(arg, input)
 
-    return c
+    return output
 
 
 def _normed_hermite_e_n(x, n):
