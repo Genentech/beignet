@@ -4160,15 +4160,17 @@ def test_legder():
 
     for i in range(5):
         for j in range(2, 5):
-            target = array([0] * i + [1])
-            res = legder(legint(target, order=j, scl=2), order=j, scale=0.5)
             assert_array_almost_equal(
                 legtrim(
-                    res,
+                    legder(
+                        legint(array([0] * i + [1]), order=j, scl=2),
+                        order=j,
+                        scale=0.5,
+                    ),
                     tol=0.000001,
                 ),
                 legtrim(
-                    target,
+                    array([0] * i + [1]),
                     tol=0.000001,
                 ),
             )
