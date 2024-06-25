@@ -199,7 +199,7 @@ from beignet.foo import (
 from jax import Array
 from jax.numpy import (
     arange,
-    array,
+    # array,
     cos,
     dot,
     einsum,
@@ -217,6 +217,7 @@ from jax.numpy import (
 from numpy.testing import (
     assert_array_almost_equal,
 )
+from torch import tensor as array
 
 jax.config.update("jax_enable_x64", True)
 
