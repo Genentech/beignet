@@ -80,15 +80,15 @@ def _add(input, other):
     input, other = _as_series(input, other)
 
     if len(input) > len(other):
-        output = input.at[: other.size].add(other)
+        output = input.at[: math.prod(other.shape)].add(other)
     else:
-        output = other.at[: input.size].add(input)
+        output = other.at[: math.prod(input.shape)].add(input)
 
     return output
 
 
 def _c_series_to_z_series(input):
-    n = input.size
+    n = math.prod(input.shape)
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
 
@@ -162,12 +162,12 @@ def _fit(
     full: bool = False,
     weight: Array | None = None,
 ):
-    input = asarray(input)
-    other = asarray(other)
+    # input = asarray(input)
+    # other = asarray(other)
 
     degree = asarray(degree)
 
-    if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
+    if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
         raise TypeError
 
     if degree.min() < 0:
@@ -176,7 +176,7 @@ def _fit(
     if input.ndim != 1:
         raise TypeError
 
-    if input.size == 0:
+    if math.prod(input.shape) == 0:
         raise TypeError
 
     if other.ndim < 1 or other.ndim > 2:
@@ -212,7 +212,7 @@ def _fit(
         rhs = rhs * weight
 
     if relative_condition is None:
-        relative_condition = len(input) * finfo(input.dtype).eps
+        relative_condition = input.shape[0] * finfo(input.dtype).eps
 
     if issubclass(lhs.dtype.type, complexfloating):
         scale = square(lhs.real) + square(lhs.imag)
@@ -254,7 +254,7 @@ def _fit(
 def _from_roots(f, g, input):
     input = asarray(input)
 
-    if input.size == 0:
+    if math.prod(input.shape) == 0:
         return ones(1)
 
     input = sort(input)
@@ -303,11 +303,11 @@ def _from_roots(f, g, input):
     return ret[0]
 
 
-def _gridnd(func, c, *args):
-    for xi in args:
-        c = func(xi, c)
+def _gridnd(func, input, *args):
+    for arg in args:
+        input = func(arg, input)
 
-    return c
+    return input
 
 
 def _normed_hermite_e_n(x, n):
@@ -410,13 +410,13 @@ def _subtract(input, other):
     if len(input) > len(other):
         output = -other
 
-        output = input.at[: other.size].add(output)
+        output = input.at[: math.prod(other.shape)].add(output)
 
         return output
 
     output = -other
 
-    output = output.at[: input.size].add(input)
+    output = output.at[: math.prod(input.shape)].add(input)
 
     return output
 
@@ -475,7 +475,7 @@ def _z_series_mul(z1, z2, mode="full"):
 
 
 def _z_series_to_c_series(zs):
-    n = (zs.size + 1) // 2
+    n = (math.prod(zs.shape) + 1) // 2
     c = zs[n - 1 :].copy()
     return c.at[1:n].multiply(2)
 
@@ -597,12 +597,12 @@ def chebdiv(input, other):
 
 
 def chebfit(
-    input,
-    other,
-    degree,
-    relative_condition=None,
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
     full: bool = False,
-    weight=None,
+    weight: Array | None = None,
 ):
     return _fit(
         chebvander,
@@ -1126,8 +1126,23 @@ def hermediv(
     return _div(hermemul, input, other)
 
 
-def hermefit(x, y, degree, relative_condition=None, full=False, weight=None):
-    return _fit(hermevander, x, y, degree, relative_condition, full, weight)
+def hermefit(
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    return _fit(
+        hermevander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def hermefromroots(roots):
@@ -1379,8 +1394,23 @@ def hermeweight(x):
     return exp(-0.5 * x**2)
 
 
-def hermfit(x, y, degree, relative_condition=None, full=False, weight=None):
-    return _fit(hermvander, x, y, degree, relative_condition, full, weight)
+def hermfit(
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    return _fit(
+        hermvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def hermfromroots(roots):
@@ -1733,8 +1763,23 @@ def lagdiv(
     return _div(lagmul, input, other)
 
 
-def lagfit(x, y, degree, relative_condition=None, full=False, weight=None):
-    return _fit(lagvander, x, y, degree, relative_condition, full, weight)
+def lagfit(
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    return _fit(
+        lagvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def lagfromroots(roots):
@@ -2075,8 +2120,23 @@ def legdiv(
     return _div(legmul, input, other)
 
 
-def legfit(x, y, degree, relative_condition=None, full=False, weight=None):
-    return _fit(legvander, x, y, degree, relative_condition, full, weight)
+def legfit(
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    return _fit(
+        legvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def legfromroots(roots):
@@ -2512,8 +2572,23 @@ def polydiv(input, other):
     return _div(polymul, input, other)
 
 
-def polyfit(x, y, degree, relative_condition=None, full=False, weight=None):
-    return _fit(polyvander, x, y, degree, relative_condition, full, weight)
+def polyfit(
+    input: Array,
+    other: Array,
+    degree: Array | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    return _fit(
+        polyvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def polyfromroots(roots):
