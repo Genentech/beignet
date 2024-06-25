@@ -29,6 +29,7 @@ from jax.numpy import (
     nonzero,
     ones,
     ones_like,
+    pad,
     prod,
     promote_types,
     reshape,
@@ -183,15 +184,15 @@ def _fit(
         raise TypeError
 
     if degree.ndim == 0:
-        lmax = int(degree)
+        maximum = int(degree)
 
-        vandermonde = vandermonde_func(input, lmax)
+        vandermonde = vandermonde_func(input, maximum)
     else:
         degree = sort(degree)
 
-        lmax = int(degree[-1])
+        maximum = int(degree[-1])
 
-        vandermonde = vandermonde_func(input, lmax)[:, degree]
+        vandermonde = vandermonde_func(input, maximum)[:, degree]
 
     lhs = transpose(vandermonde)
     rhs = transpose(other)
@@ -227,7 +228,9 @@ def _fit(
     scale = where(scale == 0, 1, scale)
 
     output, residuals, rank, s = lstsq(
-        transpose(lhs) / scale, transpose(rhs), relative_condition
+        transpose(lhs) / scale,
+        transpose(rhs),
+        relative_condition,
     )
 
     output = transpose(transpose(output) / scale)
@@ -235,12 +238,12 @@ def _fit(
     if degree.ndim > 0:
         if output.ndim == 2:
             output = (
-                zeros((lmax + 1, output.shape[1]), dtype=output.dtype)
+                zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
                 .at[degree]
                 .set(output)
             )
         else:
-            output = zeros(lmax + 1, dtype=output.dtype).at[degree].set(output)
+            output = zeros(maximum + 1, dtype=output.dtype).at[degree].set(output)
 
     if full:
         return output, [residuals, rank, s, relative_condition]
@@ -298,13 +301,6 @@ def _from_roots(f, g, input):
     return ret[0]
 
 
-def _gridnd(func, input, *args):
-    for arg in args:
-        input = func(arg, input)
-
-    return input
-
-
 def _normed_hermite_e_n(x, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
@@ -356,20 +352,20 @@ def _nth_slice(i, ndim):
     return tuple(sl)
 
 
-def _pad_along_axis(input, pad=(0, 0), axis=0):
+def _pad_along_axis(input, padding=(0, 0), axis=0):
     input = moveaxis(input, axis, 0)
 
-    if pad[0] < 0:
-        input = input[abs(pad[0]) :]
-        pad = (0, pad[1])
-    if pad[1] < 0:
-        input = input[: -abs(pad[1])]
-        pad = (pad[0], 0)
+    if padding[0] < 0:
+        input = input[abs(padding[0]) :]
+        padding = (0, padding[1])
+    if padding[1] < 0:
+        input = input[: -abs(padding[1])]
+        padding = (padding[0], 0)
 
     npad = [(0, 0)] * input.ndim
-    npad[0] = pad
+    npad[0] = padding
 
-    output = jax.numpy.pad(input, pad_width=npad, mode="constant", constant_values=0)
+    output = pad(input, pad_width=npad, mode="constant", constant_values=0)
     return moveaxis(output, 0, axis)
 
 
@@ -418,13 +414,8 @@ def _subtract(input, other):
 
 
 def _evaluate(func, input, *args):
-    xs = []
-
-    for a in args:
-        xs = [*xs, asarray(a)]
-
-    if not all(a.shape == xs[0].shape for a in xs[1:]):
-        match len(xs):
+    if not all(a.shape == args[0].shape for a in args[1:]):
+        match len(args):
             case 2:
                 raise ValueError
             case 3:
@@ -432,11 +423,11 @@ def _evaluate(func, input, *args):
             case _:
                 raise ValueError
 
-    xs = iter(xs)
+    args = iter(args)
 
-    output = func(next(xs), input)
+    output = func(next(args), input)
 
-    for x in xs:
+    for x in args:
         output = func(x, output, tensor=False)
 
     return output
@@ -463,7 +454,7 @@ def _vander_nd(vander_fs, points, degrees):
 
 def _vander_nd_flat(vander_fs, points, degrees):
     v = _vander_nd(vander_fs, points, degrees)
-    return v.reshape(v.shape[: -len(degrees)] + (-1,))
+    return reshape(v, v.shape[: -len(degrees)] + (-1,))
 
 
 def _z_series_mul(z1, z2, mode="full"):
@@ -546,46 +537,42 @@ def chebcompanion(c):
     return mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5)
 
 
-def chebder(c, order=1, scl=1, axis=0):
+def chebder(input, order=1, scale=1, axis=0):
     if order < 0:
         raise ValueError
 
-    c = _as_series(c)
+    input = _as_series(input)
 
     if order == 0:
-        return c
+        return input
 
-    c = moveaxis(c, axis, 0)
-    n = len(c)
+    output = moveaxis(input, axis, 0)
+
+    n = len(output)
+
     if order >= n:
-        c = zeros_like(c[:1])
+        output = zeros_like(output[:1])
     else:
         for _ in range(order):
             n = n - 1
-            c *= scl
-            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
-            def body(k, der_c, n=n):
-                j = n - k
-                der, c = der_c
-                der = der.at[j - 1].set((2 * j) * c[j])
-                c = c.at[j - 2].add((j * c[j]) / (j - 2))
-                return der, c
+            output = output * scale
 
-            b = n - 2
-            x = (der, c)
-            y = x
-            for index in range(0, b):
-                y = body(index, y)
-            der, c = y
+            derivative = empty((n,) + output.shape[1:], dtype=output.dtype)
+
+            for i in range(0, n - 2):
+                j = n - i
+
+                derivative = derivative.at[j - 1].set((2 * j) * output[j])
+
+                output = output.at[j - 2].add((j * output[j]) / (j - 2))
 
             if n > 1:
-                der = der.at[1].set(4 * c[2])
-            der = der.at[0].set(c[1])
-            c = der
+                derivative = derivative.at[1].set(4 * output[2])
 
-    c = moveaxis(c, 0, axis)
-    return c
+            output = derivative.at[0].set(output[1])
+
+    return moveaxis(output, 0, axis)
 
 
 def chebdiv(input, other):
@@ -635,11 +622,15 @@ def chebgauss(degree):
 
 
 def chebgrid2d(x, y, c):
-    return _gridnd(chebval, c, x, y)
+    for arg in [x, y]:
+        c = chebval(arg, c)
+    return c
 
 
 def chebgrid3d(x, y, z, c):
-    return _gridnd(chebval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = chebval(arg, c)
+    return c
 
 
 def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
@@ -1160,11 +1151,15 @@ def hermegauss(degree):
 
 
 def hermegrid2d(x, y, c):
-    return _gridnd(hermeval, c, x, y)
+    for arg in [x, y]:
+        c = hermeval(arg, c)
+    return c
 
 
 def hermegrid3d(x, y, z, c):
-    return _gridnd(hermeval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = hermeval(arg, c)
+    return c
 
 
 def hermeint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
@@ -1421,11 +1416,15 @@ def hermgauss(degree):
 
 
 def hermgrid2d(x, y, c):
-    return _gridnd(hermval, c, x, y)
+    for arg in [x, y]:
+        c = hermval(arg, c)
+    return c
 
 
 def hermgrid3d(x, y, z, c):
-    return _gridnd(hermval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = hermval(arg, c)
+    return c
 
 
 def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
@@ -1784,11 +1783,15 @@ def laggauss(degree):
 
 
 def laggrid2d(x, y, c):
-    return _gridnd(lagval, c, x, y)
+    for arg in [x, y]:
+        c = lagval(arg, c)
+    return c
 
 
 def laggrid3d(x, y, z, c):
-    return _gridnd(lagval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = lagval(arg, c)
+    return c
 
 
 def lagint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
@@ -2140,11 +2143,15 @@ def leggauss(degree):
 
 
 def leggrid2d(x, y, c):
-    return _gridnd(legval, c, x, y)
+    for arg in [x, y]:
+        c = legval(arg, c)
+    return c
 
 
 def leggrid3d(x, y, z, c):
-    return _gridnd(legval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = legval(arg, c)
+    return c
 
 
 def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
@@ -2559,11 +2566,15 @@ def polyfromroots(roots):
 
 
 def polygrid2d(x, y, c):
-    return _gridnd(polyval, c, x, y)
+    for arg in [x, y]:
+        c = polyval(arg, c)
+    return c
 
 
 def polygrid3d(x, y, z, c):
-    return _gridnd(polyval, c, x, y, z)
+    for arg in [x, y, z]:
+        c = polyval(arg, c)
+    return c
 
 
 def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):

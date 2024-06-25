@@ -558,7 +558,7 @@ def test_chebder():
                             scl=2,
                         ),
                         order=j,
-                        scl=0.5,
+                        scale=0.5,
                     ),
                     tol=0.000001,
                 ),
@@ -1065,7 +1065,7 @@ def test_chebint():
     for i in range(5):
         assert_array_almost_equal(
             chebval(
-                -1,
+                array([-1]),
                 chebint(
                     poly2cheb(array([0] * i + [1])),
                     order=1,
@@ -1112,8 +1112,18 @@ def test_chebint():
                 target = chebint(target, order=1, k=[k])
 
             assert_array_almost_equal(
-                chebtrim(chebint(pol, order=j, k=list(range(j))), tol=0.000001),
-                chebtrim(target, tol=0.000001),
+                chebtrim(
+                    chebint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
@@ -1122,12 +1132,21 @@ def test_chebint():
             target = pol[:]
             for k in range(j):
                 target = chebint(target, order=1, k=[k], lbnd=-1)
+
             assert_array_almost_equal(
                 chebtrim(
-                    chebint(pol, order=j, k=list(range(j)), lbnd=-1),
+                    chebint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lbnd=-1,
+                    ),
                     tol=0.000001,
                 ),
-                chebtrim(target, tol=0.000001),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
             )
 
     for i in range(5):
