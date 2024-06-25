@@ -1803,7 +1803,7 @@ def test_hermefit():
     coef3 = hermefit(
         x,
         y,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert_array_almost_equal(
@@ -1878,7 +1878,7 @@ def test_hermefit():
     coef2d = hermefit(
         x,
         array([y, y]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert_array_almost_equal(
@@ -1908,7 +1908,7 @@ def test_hermefit():
     wcoef3 = hermefit(
         x,
         yw,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -1932,7 +1932,7 @@ def test_hermefit():
     wcoef2d = hermefit(
         x,
         array([yw, yw]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -2456,7 +2456,7 @@ def test_hermfit():
     coef3 = hermfit(
         x,
         y,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert len(coef3) == 4
@@ -2519,7 +2519,7 @@ def test_hermfit():
     coef2d = hermfit(
         x,
         array([y, y]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert_array_almost_equal(
@@ -2549,7 +2549,7 @@ def test_hermfit():
     wcoef3 = hermfit(
         x,
         yw,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -2573,7 +2573,7 @@ def test_hermfit():
     wcoef2d = hermfit(
         x,
         array([yw, yw]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -3237,7 +3237,7 @@ def test_lagfit():
     coef3 = lagfit(
         x,
         y,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert_array_almost_equal(
@@ -3296,7 +3296,7 @@ def test_lagfit():
     coef2d = lagfit(
         x,
         array([y, y]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
 
     assert_array_almost_equal(
@@ -3326,7 +3326,7 @@ def test_lagfit():
     wcoef3 = lagfit(
         x,
         yw,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -3350,7 +3350,7 @@ def test_lagfit():
     wcoef2d = lagfit(
         x,
         array([yw, yw]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -4011,7 +4011,7 @@ def test_legfit():
     coef3 = legfit(
         linspace(0, 2, 50),
         f(input),
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
     assert_array_almost_equal(
         len(coef3),
@@ -4078,7 +4078,7 @@ def test_legfit():
         legfit(
             linspace(0, 2, 50),
             array([(f(input)), (f(input))]).T,
-            (0, 1, 2, 3),
+            degree=(0, 1, 2, 3),
         ),
         array([coef3, coef3]).T,
     )
@@ -4107,7 +4107,7 @@ def test_legfit():
         legfit(
             linspace(0, 2, 50),
             yw,
-            (0, 1, 2, 3),
+            degree=(0, 1, 2, 3),
             weight=w,
         ),
         coef3,
@@ -4127,7 +4127,7 @@ def test_legfit():
         legfit(
             linspace(0, 2, 50),
             array([yw, yw]).T,
-            (0, 1, 2, 3),
+            degree=(0, 1, 2, 3),
             weight=w,
         ),
         array([coef3, coef3]).T,
@@ -4988,7 +4988,7 @@ def test_polyfit():
     coef3 = polyfit(
         linspace(0, 2, 50),
         f(a),
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
     assert len(coef3) == 4
     assert_array_almost_equal(
@@ -5029,7 +5029,7 @@ def test_polyfit():
     coef2d = polyfit(
         linspace(0, 2, 50),
         array([(f(a)), (f(a))]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
     assert_array_almost_equal(
         coef2d,
@@ -5056,7 +5056,7 @@ def test_polyfit():
     wcoef3 = polyfit(
         linspace(0, 2, 50),
         yw,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
         weight=w,
     )
 
@@ -5079,7 +5079,7 @@ def test_polyfit():
         polyfit(
             linspace(0, 2, 50),
             array([yw, yw]).T,
-            (0, 1, 2, 3),
+            degree=(0, 1, 2, 3),
             weight=w,
         ),
         array([coef3, coef3]).T,
