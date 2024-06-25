@@ -3576,73 +3576,77 @@ def test_lagfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
+    input = linspace(0, 2, 50)
+
+    other = f(input)
+
     assert_array_almost_equal(
         lagval(
-            linspace(0, 2, 50),
+            input,
             lagfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=3,
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         lagval(
-            linspace(0, 2, 50),
+            input,
             lagfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=(0, 1, 2, 3),
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         lagval(
-            linspace(0, 2, 50),
+            input,
             lagfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=4,
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         lagval(
-            linspace(0, 2, 50),
+            input,
             lagfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=(0, 1, 2, 3, 4),
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=3,
         ),
         array(
             [
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -3652,23 +3656,23 @@ def test_lagfit():
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=(0, 1, 2, 3),
         ),
         array(
             [
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -3676,42 +3680,42 @@ def test_lagfit():
         ).T,
     )
 
-    weight = zeros_like(linspace(0, 2, 50))
+    weight = zeros_like(input)
 
     weight = weight.at[1::2].set(1)
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=3,
             weight=weight,
         ),
         lagfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
         ),
     )
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
         lagfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
         ),
     )
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=3,
             weight=weight,
         ),
@@ -3719,15 +3723,15 @@ def test_lagfit():
             [
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -3737,8 +3741,8 @@ def test_lagfit():
 
     assert_array_almost_equal(
         lagfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
@@ -3746,15 +3750,15 @@ def test_lagfit():
             [
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     lagfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
