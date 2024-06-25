@@ -1383,7 +1383,7 @@ def test_chebtrim():
 def test_chebval():
     assert_array_almost_equal(chebval(array([]), [1]).size, 0)
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in chebcoefficients]
     for i in range(10):
         target = y[i]
@@ -1799,7 +1799,7 @@ def test_hermefit():
     def g(x):
         return x**4 + x**2 + 1
 
-    x = linspace(0, 2)
+    x = linspace(0, 2, 50)
 
     y = f(x)
 
@@ -1972,7 +1972,7 @@ def test_hermefit():
         array([0, 1]),
     )
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
 
     y = g(x)
 
@@ -2318,7 +2318,7 @@ def test_hermetrim():
 def test_hermeval():
     assert_array_almost_equal(hermeval(array([]), [1]).size, 0)
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in hermecoefficients]
     for i in range(10):
         assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i], decimal=4)
@@ -2455,7 +2455,7 @@ def test_hermfit():
     def g(x):
         return x**4 + x**2 + 1
 
-    x = linspace(0, 2)
+    x = linspace(0, 2, 50)
 
     y = f(x)
 
@@ -2613,7 +2613,7 @@ def test_hermfit():
         array([0, 0.5]),
     )
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
 
     y = g(x)
 
@@ -2967,7 +2967,7 @@ def test_hermtrim():
 def test_hermval():
     assert hermval(array([]), [1]).size == 0
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in hermcoefficients]
 
     for index in range(10):
@@ -3234,7 +3234,7 @@ def test_lagfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    x = linspace(0, 2)
+    x = linspace(0, 2, 50)
     y = f(x)
 
     coef3 = lagfit(
@@ -3728,7 +3728,7 @@ def test_lagtrim():
 def test_lagval():
     assert_array_almost_equal(lagval(array([]), [1]).size, 0)
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in lagcoefficients]
     for i in range(7):
         assert_array_almost_equal(
@@ -3945,7 +3945,7 @@ def test_legder():
     for i in range(5):
         for j in range(2, 5):
             target = array([0] * i + [1])
-            res = legder(legint(target, order=j, scl=2), order=j, scl=0.5)
+            res = legder(legint(target, order=j, scl=2), order=j, scale=0.5)
             assert_array_almost_equal(
                 legtrim(res, tol=0.000001),
                 legtrim(target, tol=0.000001),
@@ -4020,15 +4020,16 @@ def test_legfit():
     def g(x):
         return x**4 + x**2 + 1
 
-    coef3 = legfit(linspace(0, 2), f(linspace(0, 2)), 3)
+    input = linspace(0, 2, 50)
+    coef3 = legfit(linspace(0, 2, 50), f(input), 3)
     assert_array_almost_equal(len(coef3), 4)
     assert_array_almost_equal(
-        legval(linspace(0, 2), coef3),
-        f(linspace(0, 2)),
+        legval(linspace(0, 2, 50), coef3),
+        f(input),
     )
     coef3 = legfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(input),
         (0, 1, 2, 3),
     )
     assert_array_almost_equal(
@@ -4036,13 +4037,13 @@ def test_legfit():
         4,
     )
     assert_array_almost_equal(
-        legval(linspace(0, 2), coef3),
-        f(linspace(0, 2)),
+        legval(linspace(0, 2, 50), coef3),
+        f(input),
     )
 
     coef4 = legfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(input),
         4,
     )
     assert_array_almost_equal(
@@ -4050,12 +4051,12 @@ def test_legfit():
         5,
     )
     assert_array_almost_equal(
-        legval(linspace(0, 2), coef4),
-        f(linspace(0, 2)),
+        legval(linspace(0, 2, 50), coef4),
+        f(input),
     )
     coef4 = legfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(input),
         (0, 1, 2, 3, 4),
     )
     assert_array_almost_equal(
@@ -4063,13 +4064,13 @@ def test_legfit():
         5,
     )
     assert_array_almost_equal(
-        legval(linspace(0, 2), coef4),
-        f(linspace(0, 2)),
+        legval(linspace(0, 2, 50), coef4),
+        f(input),
     )
 
     coef4 = legfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(input),
         (2, 3, 4, 1, 0),
     )
 
@@ -4079,14 +4080,14 @@ def test_legfit():
     )
 
     assert_array_almost_equal(
-        legval(linspace(0, 2), coef4),
-        f(linspace(0, 2)),
+        legval(linspace(0, 2, 50), coef4),
+        f(input),
     )
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
-            array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
+            linspace(0, 2, 50),
+            array([(f(input)), (f(input))]).T,
             3,
         ),
         array([coef3, coef3]).T,
@@ -4094,26 +4095,26 @@ def test_legfit():
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
-            array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
+            linspace(0, 2, 50),
+            array([(f(input)), (f(input))]).T,
             (0, 1, 2, 3),
         ),
         array([coef3, coef3]).T,
     )
 
-    w = zeros_like(linspace(0, 2))
+    w = zeros_like(input)
 
-    yw = f(linspace(0, 2)).copy()
+    yw = f(input).copy()
 
     w = w.at[1::2].set(1)
 
-    i = f(linspace(0, 2))
+    i = f(input)
 
     i = i.at[0::2].set(0)
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             yw,
             3,
             weight=w,
@@ -4123,7 +4124,7 @@ def test_legfit():
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             yw,
             (0, 1, 2, 3),
             weight=w,
@@ -4133,7 +4134,7 @@ def test_legfit():
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             array([yw, yw]).T,
             3,
             weight=w,
@@ -4143,7 +4144,7 @@ def test_legfit():
 
     assert_array_almost_equal(
         legfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             array([yw, yw]).T,
             (0, 1, 2, 3),
             weight=w,
@@ -4171,9 +4172,9 @@ def test_legfit():
 
     assert_array_almost_equal(
         legval(
-            linspace(-1, 1),
+            linspace(-1, 1, 50),
             legfit(
-                linspace(-1, 1),
+                linspace(-1, 1, 50),
                 g(linspace(-1, 1)),
                 4,
             ),
@@ -4183,9 +4184,9 @@ def test_legfit():
 
     assert_array_almost_equal(
         legval(
-            linspace(-1, 1),
+            linspace(-1, 1, 50),
             legfit(
-                linspace(-1, 1),
+                linspace(-1, 1, 50),
                 g(linspace(-1, 1)),
                 (0, 2, 4),
             ),
@@ -4195,12 +4196,12 @@ def test_legfit():
 
     assert_array_almost_equal(
         legfit(
-            linspace(-1, 1),
+            linspace(-1, 1, 50),
             g(linspace(-1, 1)),
             4,
         ),
         legfit(
-            linspace(-1, 1),
+            linspace(-1, 1, 50),
             g(linspace(-1, 1)),
             (0, 2, 4),
         ),
@@ -4595,7 +4596,7 @@ def test_legtrim():
 def test_legval():
     assert_array_almost_equal(legval(array([]), [1]).size, 0)
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in legcoefficients]
     for i in range(10):
         assert_array_almost_equal(legval(x, array([0] * i + [1])), y[i])
@@ -4603,7 +4604,7 @@ def test_legval():
     for i in range(3):
         dims = [2] * i
         x = zeros(dims)
-        assert_array_almost_equal(legval(x, [1]).shape, dims)
+        assert_array_almost_equal(legval(x, array([1])).shape, dims)
         assert_array_almost_equal(legval(x, array([1, 0])).shape, dims)
         assert_array_almost_equal(legval(x, array([1, 0, 0])).shape, dims)
 
@@ -4992,51 +4993,52 @@ def test_polyfit():
     def g(x):
         return x**4 + x**2 + 1
 
+    a = linspace(0, 2, 50)
     coef3 = polyfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(a),
         3,
     )
     assert coef3.shape[0] == 4
     assert_array_almost_equal(
-        polyval(linspace(0, 2), coef3),
-        f(linspace(0, 2)),
+        polyval(linspace(0, 2, 50), coef3),
+        f(a),
     )
     coef3 = polyfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(a),
         (0, 1, 2, 3),
     )
     assert len(coef3) == 4
     assert_array_almost_equal(
-        polyval(linspace(0, 2), coef3),
-        f(linspace(0, 2)),
+        polyval(linspace(0, 2, 50), coef3),
+        f(a),
     )
 
     coef4 = polyfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(a),
         4,
     )
     assert len(coef4) == 5
     assert_array_almost_equal(
-        polyval(linspace(0, 2), coef4),
-        f(linspace(0, 2)),
+        polyval(linspace(0, 2, 50), coef4),
+        f(a),
     )
     coef4 = polyfit(
-        linspace(0, 2),
-        f(linspace(0, 2)),
+        linspace(0, 2, 50),
+        f(a),
         (0, 1, 2, 3, 4),
     )
     assert len(coef4) == 5
     assert_array_almost_equal(
-        polyval(linspace(0, 2), coef4),
-        f(linspace(0, 2)),
+        polyval(linspace(0, 2, 50), coef4),
+        f(a),
     )
 
     coef2d = polyfit(
-        linspace(0, 2),
-        array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
+        linspace(0, 2, 50),
+        array([(f(a)), (f(a))]).T,
         3,
     )
     assert_array_almost_equal(
@@ -5044,8 +5046,8 @@ def test_polyfit():
         array([coef3, coef3]).T,
     )
     coef2d = polyfit(
-        linspace(0, 2),
-        array([(f(linspace(0, 2))), (f(linspace(0, 2)))]).T,
+        linspace(0, 2, 50),
+        array([(f(a)), (f(a))]).T,
         (0, 1, 2, 3),
     )
     assert_array_almost_equal(
@@ -5053,13 +5055,13 @@ def test_polyfit():
         array([coef3, coef3]).T,
     )
 
-    w = zeros_like(linspace(0, 2))
+    w = zeros_like(a)
 
     w = w.at[1::2].set(1)
-    yw = f(linspace(0, 2)).at[0::2].set(0)
+    yw = f(a).at[0::2].set(0)
 
     wcoef3 = polyfit(
-        linspace(0, 2),
+        linspace(0, 2, 50),
         yw,
         3,
         weight=w,
@@ -5071,7 +5073,7 @@ def test_polyfit():
     )
 
     wcoef3 = polyfit(
-        linspace(0, 2),
+        linspace(0, 2, 50),
         yw,
         (0, 1, 2, 3),
         weight=w,
@@ -5084,7 +5086,7 @@ def test_polyfit():
 
     assert_array_almost_equal(
         polyfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             array([yw, yw]).T,
             3,
             weight=w,
@@ -5094,7 +5096,7 @@ def test_polyfit():
 
     assert_array_almost_equal(
         polyfit(
-            linspace(0, 2),
+            linspace(0, 2, 50),
             array([yw, yw]).T,
             (0, 1, 2, 3),
             weight=w,
@@ -5120,12 +5122,13 @@ def test_polyfit():
         array([0, 1]),
     )
 
+    linspace1 = linspace(-1, 1, 50)
     assert_array_almost_equal(
         polyval(
-            linspace(-1, 1),
+            linspace1,
             polyfit(
-                linspace(-1, 1),
-                g(linspace(-1, 1)),
+                linspace1,
+                g(linspace(-1, 1, 50)),
                 4,
             ),
         ),
@@ -5134,10 +5137,10 @@ def test_polyfit():
 
     assert_array_almost_equal(
         polyval(
-            linspace(-1, 1),
+            linspace1,
             polyfit(
-                linspace(-1, 1),
-                g(linspace(-1, 1)),
+                linspace1,
+                g(linspace(-1, 1, 50)),
                 (0, 2, 4),
             ),
         ),
@@ -5146,13 +5149,13 @@ def test_polyfit():
 
     assert_array_almost_equal(
         polyfit(
-            linspace(-1, 1),
-            g(linspace(-1, 1)),
+            linspace1,
+            g(linspace(-1, 1, 50)),
             4,
         ),
         polyfit(
-            linspace(-1, 1),
-            g(linspace(-1, 1)),
+            linspace1,
+            g(linspace(-1, 1, 50)),
             (0, 2, 4),
         ),
     )
@@ -5576,7 +5579,7 @@ def test_polypow():
 
 def test_polyroots():
     assert_array_almost_equal(
-        polyroots([1]),
+        polyroots(array([1])),
         array([]),
     )
 
@@ -5649,7 +5652,7 @@ def test_polytrim():
 def test_polyval():
     assert polyval(array([]), [1]).size == 0
 
-    x = linspace(-1, 1)
+    x = linspace(-1, 1, 50)
     y = [x**i for i in range(5)]
 
     for i in range(5):
@@ -5768,9 +5771,9 @@ def test_polyvalfromroots():
 
     assert polyvalfromroots(array([]), array([1])).shape == (0,)
 
-    assert polyvalfromroots(array([]), [[1] * 5]).size == 0
+    assert polyvalfromroots(array([]), array([[1] * 5])).size == 0
 
-    assert polyvalfromroots(array([]), [[1] * 5]).shape == (5, 0)
+    assert polyvalfromroots(array([]), array([[1] * 5])).shape == (5, 0)
 
     assert_array_almost_equal(
         polyvalfromroots(
@@ -5782,19 +5785,26 @@ def test_polyvalfromroots():
 
     assert polyvalfromroots(array([1]), ones((3, 3))).shape == (3, 1)
 
-    y = [linspace(-1, 1) ** i for i in range(5)]
+    input = linspace(-1, 1, 50)
+    y = [input**i for i in range(5)]
+
     for i in range(1, 5):
         target = y[i]
-        res = polyvalfromroots(linspace(-1, 1), [0] * i)
+
         assert_array_almost_equal(
-            res,
+            polyvalfromroots(
+                input,
+                array([0] * i),
+            ),
             target,
         )
-    target = linspace(-1, 1) * (linspace(-1, 1) - 1) * (linspace(-1, 1) + 1)
-    res = polyvalfromroots(linspace(-1, 1), array([-1, 0, 1]))
+
     assert_array_almost_equal(
-        res,
-        target,
+        polyvalfromroots(
+            input,
+            array([-1, 0, 1]),
+        ),
+        input * (input - 1) * (input + 1),
     )
 
     for i in range(3):
@@ -5805,22 +5815,22 @@ def test_polyvalfromroots():
         assert polyvalfromroots(x, array([1, 0, 0])).shape == dims
 
     ptest = array([15, 2, -16, -2, 1])
-    r = polyroots(ptest)
-    assert_array_almost_equal(
-        polyval(linspace(-1, 1), ptest),
-        polyvalfromroots(linspace(-1, 1), r),
-    )
 
-    rshape = (3, 5)
+    r = polyroots(ptest)
+
+    assert_array_almost_equal(
+        polyval(input, ptest),
+        polyvalfromroots(input, r),
+    )
 
     x = arange(-3, 2)
 
-    r = jax.random.randint(key, rshape, -5, 5)
+    r = jax.random.randint(key, [3, 5], -5, 5)
 
     target = empty(r.shape[1:])
 
-    for ii in range(target.size):
-        target = target.at[ii].set(polyvalfromroots(x[ii], r[:, ii]))
+    for i in range(target.size):
+        target = target.at[i].set(polyvalfromroots(x[i], r[:, i]))
 
     assert_array_almost_equal(
         polyvalfromroots(x, r, tensor=False),
@@ -5831,14 +5841,9 @@ def test_polyvalfromroots():
 
     target = empty(r.shape[1:] + x.shape)
 
-    for ii in range(r.shape[1]):
-        for jj in range(x.shape[0]):
-            target = target.at[ii, jj, :].set(
-                polyvalfromroots(
-                    x[jj],
-                    r[:, ii],
-                )
-            )
+    for i in range(r.shape[1]):
+        for j in range(x.shape[0]):
+            target = target.at[i, j, :].set(polyvalfromroots(x[j], r[:, i]))
 
     assert_array_almost_equal(
         polyvalfromroots(x, r, tensor=True),
@@ -5847,42 +5852,40 @@ def test_polyvalfromroots():
 
 
 def test_polyvander():
-    x = arange(3)
-
-    v = polyvander(x, 3)
-
-    assert v.shape == (3, 4)
-
-    for i in range(4):
-        assert_array_almost_equal(
-            v[..., i],
-            polyval(
-                x,
-                array([0] * i + [1]),
-            ),
-        )
-
-    x = array([[1, 2], [3, 4], [5, 6]])
-
-    v = polyvander(x, 3)
-
-    assert v.shape == (3, 2, 4)
-
-    for i in range(4):
-        assert_array_almost_equal(
-            v[..., i],
-            polyval(
-                x,
-                array([0] * i + [1]),
-            ),
-        )
-
-    pytest.raises(
-        ValueError,
-        polyvander,
+    output = polyvander(
         arange(3),
-        -1,
+        degree=3,
     )
+
+    assert output.shape == (3, 4)
+
+    for i in range(4):
+        assert_array_almost_equal(
+            output[..., i],
+            polyval(
+                arange(3),
+                array([0] * i + [1]),
+            ),
+        )
+
+    output = polyvander(
+        array([[1, 2], [3, 4], [5, 6]]),
+        degree=3,
+    )
+
+    assert output.shape == (3, 2, 4)
+
+    for i in range(4):
+        assert_array_almost_equal(
+            output[..., i],
+            polyval(
+                array([[1, 2], [3, 4], [5, 6]]),
+                array([0] * i + [1]),
+            ),
+        )
+
+    with pytest.raises(ValueError):
+        polyvander(arange(3), -1)
 
 
 def test_polyvander2d():

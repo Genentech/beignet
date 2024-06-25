@@ -32,6 +32,7 @@ from jax.numpy import (
     pad,
     prod,
     promote_types,
+    ravel,
     reshape,
     roll,
     sin,
@@ -445,7 +446,7 @@ def _vander_nd(vander_fs, points, degrees):
     return functools.reduce(operator.mul, vander_arrays)
 
 
-def _vander_nd_flat(vander_fs, points, degrees):
+def _flattened_vandermonde(vander_fs, points, degrees):
     v = _vander_nd(vander_fs, points, degrees)
     return reshape(v, v.shape[: -len(degrees)] + (-1,))
 
@@ -460,18 +461,26 @@ def _z_series_to_c_series(zs):
     return c.at[1:n].multiply(2)
 
 
-def _as_series(*arrs, trim: bool = False):
-    arrays = [array(a, ndmin=1) for a in arrs]
+def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
+    xs = ()
 
-    if trim:
-        arrays = [_trim_sequence(a) for a in arrays]
+    for arg in args:
+        x = array(arg)
 
-    arrays = jax._src.numpy.util.promote_dtypes_inexact(*arrays)
+        if x.ndim == 0:
+            x = ravel(x)
 
-    if len(arrays) == 1:
-        return arrays[0]
+        if trim:
+            x = _trim_sequence(x)
 
-    return tuple(arrays)
+        xs = *xs, x
+
+    xs = jax._src.numpy.util.promote_dtypes_inexact(*xs)
+
+    if len(xs) == 1:
+        return xs[0]
+
+    return xs
 
 
 def cheb2poly(input: Array) -> Array:
@@ -731,15 +740,15 @@ def chebmulx(c, mode="full"):
     return output
 
 
-def chebpow(c, pow, maxpower=16):
+def chebpow(c, exponent, maximum_exponent=16):
     c = _as_series(c)
 
-    power = int(pow)
+    power = int(exponent)
 
-    if power != pow or power < 0:
+    if power != exponent or power < 0:
         raise ValueError
 
-    if maxpower is not None and power > maxpower:
+    if maximum_exponent is not None and power > maximum_exponent:
         raise ValueError
 
     if power == 0:
@@ -748,7 +757,7 @@ def chebpow(c, pow, maxpower=16):
     if power == 1:
         return c
 
-    output = zeros(c.shape[0] * pow, dtype=c.dtype)
+    output = zeros(c.shape[0] * exponent, dtype=c.dtype)
 
     output = chebadd(output, c)
 
@@ -890,7 +899,7 @@ def chebvander(x, degree):
 
 
 def chebvander2d(x, y, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (chebvander, chebvander),
         (x, y),
         degree,
@@ -898,7 +907,7 @@ def chebvander2d(x, y, degree):
 
 
 def chebvander3d(x, y, z, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (chebvander, chebvander, chebvander),
         (x, y, z),
         degree,
@@ -1261,8 +1270,8 @@ def hermemulx(c, mode="full"):
     return prd
 
 
-def hermepow(c, pow, maxpower=16):
-    return _pow(hermemul, c, pow, maxpower)
+def hermepow(c, exponent, maximum_exponent=16):
+    return _pow(hermemul, c, exponent, maximum_exponent)
 
 
 def hermeroots(c):
@@ -1347,7 +1356,7 @@ def hermevander(x, degree):
 
 
 def hermevander2d(x, y, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (hermevander, hermevander),
         (x, y),
         degree,
@@ -1355,7 +1364,7 @@ def hermevander2d(x, y, degree):
 
 
 def hermevander3d(x, y, z, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (hermevander, hermevander, hermevander),
         (x, y, z),
         degree,
@@ -1528,8 +1537,8 @@ def hermmulx(c, mode="full"):
     return prd
 
 
-def hermpow(c, pow, maxpower=16):
-    return _pow(hermmul, c, pow, maxpower)
+def hermpow(c, exponent, maximum_exponent=16):
+    return _pow(hermmul, c, exponent, maximum_exponent)
 
 
 def hermroots(c):
@@ -1616,7 +1625,7 @@ def hermvander(x, degree):
 
 
 def hermvander2d(x, y, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (hermvander, hermvander),
         (x, y),
         degree,
@@ -1624,7 +1633,7 @@ def hermvander2d(x, y, degree):
 
 
 def hermvander3d(x, y, z, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (hermvander, hermvander, hermvander),
         (x, y, z),
         degree,
@@ -1898,11 +1907,11 @@ def lagmulx(c, mode="full"):
     return prd
 
 
-def lagpow(c, pow, maxpower=16):
-    return _pow(lagmul, c, pow, maxpower)
+def lagpow(c, exponent, maximum_exponent=16):
+    return _pow(lagmul, c, exponent, maximum_exponent)
 
 
-def lagroots(c):
+def lagroots(c: Array) -> Array:
     c = _as_series(c)
 
     if c.shape[0] <= 1:
@@ -1981,7 +1990,7 @@ def lagvander(x, degree):
 
 
 def lagvander2d(x, y, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (lagvander, lagvander),
         (x, y),
         degree,
@@ -1989,7 +1998,7 @@ def lagvander2d(x, y, degree):
 
 
 def lagvander3d(x, y, z, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (lagvander, lagvander, lagvander),
         (x, y, z),
         degree,
@@ -2002,35 +2011,38 @@ def lagweight(x):
 
 def leg2poly(c):
     c = _as_series(c)
+
     n = c.shape[0]
+
     if n < 3:
         return c
-    else:
-        c0 = zeros_like(c).at[0].set(c[-2])
-        c1 = zeros_like(c).at[0].set(c[-1])
 
-        def body(k, c0c1):
-            i = n - 1 - k
-            c0, c1 = c0c1
-            tmp = c0
-            c0 = polysub(c[i - 2], c1 * (i - 1) / i)
-            c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
-            return c0, c1
+    c0 = zeros_like(c).at[0].set(c[-2])
+    c1 = zeros_like(c).at[0].set(c[-1])
 
-        b = n - 2
-        x = (c0, c1)
-        y = x
-        for index in range(0, b):
-            y = body(index, y)
-        c0, c1 = y
+    def body(k, c0c1):
+        i = n - 1 - k
+        c0, c1 = c0c1
+        tmp = c0
+        c0 = polysub(c[i - 2], c1 * (i - 1) / i)
+        c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
+        return c0, c1
 
-        return polyadd(c0, polymulx(c1, "same"))
+    x = (c0, c1)
+
+    for i in range(0, n - 2):
+        x = body(i, x)
+
+    c0, c1 = x
+
+    output = polymulx(c1, "same")
+
+    output = polyadd(c0, output)
+
+    return output
 
 
-def legadd(
-    input,
-    other,
-):
+def legadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
@@ -2053,7 +2065,7 @@ def legcompanion(c):
     return mat
 
 
-def legder(c, order=1, scl=1, axis=0):
+def legder(c, order=1, scale=1, axis=0):
     if order < 0:
         raise ValueError
 
@@ -2063,13 +2075,15 @@ def legder(c, order=1, scl=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
+
     n = c.shape[0]
+
     if order >= n:
         c = zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
-            c *= scl
+            c *= scale
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
@@ -2080,14 +2094,21 @@ def legder(c, order=1, scl=1, axis=0):
                 return der, c
 
             b = n - 2
+
             x = (der, c)
+
             y = x
+
             for index in range(0, b):
                 y = body(index, y)
+
             der, c = y
+
             if n > 1:
                 der = der.at[1].set(3 * c[2])
+
             der = der.at[0].set(c[1])
+
             c = der
 
     c = moveaxis(c, 0, axis)
@@ -2278,8 +2299,8 @@ def legmulx(c, mode="full"):
     return output
 
 
-def legpow(c, pow, maxpower=16):
-    return _pow(legmul, c, pow, maxpower)
+def legpow(c, exponent, maximum_exponent=16):
+    return _pow(legmul, c, exponent, maximum_exponent)
 
 
 def legroots(c):
@@ -2363,7 +2384,7 @@ def legvander(x, degree):
 
 
 def legvander2d(x, y, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (legvander, legvander),
         (x, y),
         degree,
@@ -2371,7 +2392,7 @@ def legvander2d(x, y, degree):
 
 
 def legvander3d(x, y, z, degree):
-    return _vander_nd_flat(
+    return _flattened_vandermonde(
         (legvander, legvander, legvander),
         (x, y, z),
         degree,
@@ -2655,8 +2676,8 @@ def polymulx(input, mode="full"):
     return output
 
 
-def polypow(c, pow, maxpower=16):
-    return _pow(polymul, c, pow, maxpower)
+def polypow(c, exponent, maximum_exponent=16):
+    return _pow(polymul, c, exponent, maximum_exponent)
 
 
 def polyroots(input: Array) -> Array:
@@ -2675,7 +2696,7 @@ def polysub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def polyval(x, c, tensor=True):
+def polyval(x: Array, c: Array, tensor: bool = True) -> Array:
     c = _as_series(c)
 
     if tensor:
@@ -2691,7 +2712,7 @@ def polyval(x, c, tensor=True):
     return y
 
 
-def polyval2d(x, y, c):
+def polyval2d(x: Array, y: Array, c: Array) -> Array:
     return _evaluate(
         polyval,
         c,
@@ -2700,7 +2721,7 @@ def polyval2d(x, y, c):
     )
 
 
-def polyval3d(x, y, z, c):
+def polyval3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     return _evaluate(
         polyval,
         c,
@@ -2711,7 +2732,8 @@ def polyval3d(x, y, z, c):
 
 
 def polyvalfromroots(x, r, tensor=True):
-    r = array(r, ndmin=1)
+    if r.ndim == 0:
+        r = ravel(r)
 
     if tensor:
         r = reshape(r, r.shape + (1,) * x.ndim)
@@ -2724,11 +2746,12 @@ def polyvalfromroots(x, r, tensor=True):
     return output
 
 
-def polyvander(input, degree):
+def polyvander(input: Array, degree: Array) -> Array:
     if degree < 0:
         raise ValueError
 
-    input = array(input, ndmin=1)
+    if input.ndim == 0:
+        input = ravel(input)
 
     output = empty((degree + 1,) + input.shape, dtype=input.dtype)
 
@@ -2742,34 +2765,34 @@ def polyvander(input, degree):
     return output
 
 
-def polyvander2d(x, y, degree):
-    return _vander_nd_flat(
+def polyvander2d(x: Array, y: Array, degree: Array) -> Array:
+    return _flattened_vandermonde(
         (polyvander, polyvander),
         (x, y),
         degree,
     )
 
 
-def polyvander3d(x, y, z, degree):
-    return _vander_nd_flat(
+def polyvander3d(x: Array, y: Array, z: Array, degree: Array) -> Array:
+    return _flattened_vandermonde(
         (polyvander, polyvander, polyvander),
         (x, y, z),
         degree,
     )
 
 
-def _trim_coefficients(c, tol=0):
+def _trim_coefficients(input, tol=0):
     if tol < 0:
         raise ValueError
 
-    c = _as_series(c)
+    input = _as_series(input)
 
-    [ind] = nonzero(abs(c) > tol)
+    [ind] = nonzero(abs(input) > tol)
 
     if len(ind) == 0:
-        return c[:1] * 0
+        return input[:1] * 0
     else:
-        return c[: ind[-1] + 1].copy()
+        return input[: ind[-1] + 1]
 
 
 def _trim_sequence(seq):
