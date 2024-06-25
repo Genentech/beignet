@@ -971,7 +971,7 @@ def test_chebgauss():
 def test_chebgrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         chebgrid2d(
@@ -994,7 +994,7 @@ def test_chebgrid2d():
 def test_chebgrid3d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         chebgrid3d(
@@ -1399,7 +1399,7 @@ def test_chebval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -1437,7 +1437,7 @@ def test_chebval3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -2010,7 +2010,7 @@ def test_hermegrid2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -2040,7 +2040,7 @@ def test_hermegrid3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -2318,7 +2318,7 @@ def test_hermeval2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     pytest.raises(
         ValueError,
@@ -2351,7 +2351,7 @@ def test_hermeval3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -2667,7 +2667,7 @@ def test_hermgrid2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     target = einsum("i,j->ij", y1, y2)
     assert_array_almost_equal(
@@ -2701,7 +2701,7 @@ def test_hermgrid3d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         hermgrid3d(
@@ -2973,7 +2973,7 @@ def test_hermval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3011,7 +3011,7 @@ def test_hermval3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3410,7 +3410,7 @@ def test_laggrid2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         laggrid2d(
@@ -3437,7 +3437,7 @@ def test_laggrid3d():
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3730,7 +3730,7 @@ def test_lagval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -3768,7 +3768,7 @@ def test_lagval3d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     pytest.raises(ValueError, lagval3d, x1, x2, x3[:2], c3d)
 
@@ -4233,7 +4233,7 @@ def test_leggrid2d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         leggrid2d(
@@ -4261,7 +4261,7 @@ def test_leggrid3d():
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         leggrid3d(
@@ -4595,7 +4595,7 @@ def test_legval2d():
     c2d = einsum("i,j->ij", c1d, c1d)
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, [1.0, 2.0, 3.0])
+    y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -5172,7 +5172,7 @@ def test_polygrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, [1.0, 2.0, 3.0])
+    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
         polygrid2d(
