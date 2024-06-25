@@ -1286,8 +1286,11 @@ def test_hermcompanion():
 
 
 def test_hermder():
-    numpy.testing.assert_raises(TypeError, beignet.orthax.hermder, array([0]), 0.5)
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermder, array([0]), -1)
+    with pytest.raises(TypeError):
+        beignet.orthax.hermder(array([0]), 0.5)
+
+    with pytest.raises(ValueError):
+        beignet.orthax.hermder(array([0]), -1)
 
     for i in range(5):
         target = array([0] * i + [1])
@@ -1389,8 +1392,10 @@ def test_hermeadd():
 
 
 def test_hermecompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermecompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.hermecompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.hermecompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.hermecompanion([1])
 
     for i in range(1, 5):
         coef = array([0] * i + [1])
@@ -2895,8 +2900,10 @@ def test_lagadd():
 
 
 def test_lagcompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagcompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.lagcompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.lagcompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.lagcompanion([1])
 
     for i in range(1, 5):
         coef = array([0] * i + [1])
@@ -3646,8 +3653,10 @@ def test_legadd():
 
 
 def test_legcompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.legcompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.legcompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.legcompanion([1])
 
     for i in range(1, 5):
         coef = array([0] * i + [1])
@@ -4550,8 +4559,10 @@ def test_polyadd():
 
 
 def test_polycompanion():
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [])
-    numpy.testing.assert_raises(ValueError, beignet.orthax.polycompanion, [1])
+    with pytest.raises(ValueError):
+        beignet.orthax.polycompanion([])
+    with pytest.raises(ValueError):
+        beignet.orthax.polycompanion([1])
 
     for index in range(1, 5):
         assert beignet.orthax.polycompanion([0] * index + [1]).shape == (index, index)
