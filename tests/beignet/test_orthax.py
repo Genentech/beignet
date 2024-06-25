@@ -5,6 +5,7 @@ import beignet.orthax
 import jax
 import numpy
 import pytest
+from jax import Array
 from jax.numpy import (
     arange,
     array,
@@ -431,63 +432,124 @@ def test_chebdomain():
 
 
 def test_chebfit():
-    def f(x):
+    def f(x: Array) -> Array:
         return x * (x - 1) * (x - 2)
 
-    def g(x):
+    def g(x: Array) -> Array:
         return x**4 + x**2 + 1
 
-    pytest.raises(ValueError, beignet.orthax.chebfit, array([1]), array([1]), -1)
+    with pytest.raises(ValueError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=-1,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, [[1]], array([1]), 0)
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([[1]]),
+            array([1]),
+            degree=0,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([]), array([1]), 0)
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([]),
+            array([1]),
+            degree=0,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), [[[1]]], 0)
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([[[1]]]),
+            degree=0,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([1, 2]), [1], 0)
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1, 2]),
+            array([1]),
+            degree=0,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1, 2]), 0)
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1, 2]),
+            degree=0,
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1]), 0, w=[[1]])
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=0,
+            weight=[[1]],
+        )
 
-    pytest.raises(
-        TypeError, beignet.orthax.chebfit, array([1]), array([1]), 0, w=[1, 1]
-    )
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=0,
+            weight=array([1, 1]),
+        )
 
-    pytest.raises(ValueError, beignet.orthax.chebfit, array([1]), array([1]), (-1,))
+    with pytest.raises(ValueError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=(-1,),
+        )
 
-    pytest.raises(
-        ValueError, beignet.orthax.chebfit, array([1]), array([1]), (2, -1, 6)
-    )
+    with pytest.raises(ValueError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=(2, -1, 6),
+        )
 
-    pytest.raises(TypeError, beignet.orthax.chebfit, array([1]), array([1]), ())
+    with pytest.raises(TypeError):
+        beignet.orthax.chebfit(
+            array([1]),
+            array([1]),
+            degree=(),
+        )
 
-    x = linspace(0, 2)
+    x = linspace(0, 2, 50)
     y = f(x)
 
     coef3 = beignet.orthax.chebfit(
         x,
         y,
-        3,
+        degree=3,
     )
+
     assert_array_almost_equal(
         len(coef3),
         4,
     )
+
     assert_array_almost_equal(
-        beignet.orthax.chebval(x, coef3),
+        beignet.orthax.chebval(
+            x,
+            coef3,
+        ),
         y,
     )
+
     coef3 = beignet.orthax.chebfit(
         x,
         y,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
+
     assert_array_almost_equal(
         len(coef3),
         4,
     )
+
     assert_array_almost_equal(
         beignet.orthax.chebval(x, coef3),
         y,
@@ -496,8 +558,9 @@ def test_chebfit():
     coef4 = beignet.orthax.chebfit(
         x,
         y,
-        4,
+        degree=4,
     )
+
     assert_array_almost_equal(
         len(coef4),
         5,
@@ -509,7 +572,7 @@ def test_chebfit():
     coef4 = beignet.orthax.chebfit(
         x,
         y,
-        (0, 1, 2, 3, 4),
+        degree=(0, 1, 2, 3, 4),
     )
     assert_array_almost_equal(
         len(coef4),
@@ -523,7 +586,7 @@ def test_chebfit():
     coef4 = beignet.orthax.chebfit(
         x,
         y,
-        (2, 3, 4, 1, 0),
+        degree=(2, 3, 4, 1, 0),
     )
     assert_array_almost_equal(
         len(coef4),
@@ -537,17 +600,20 @@ def test_chebfit():
     coef2d = beignet.orthax.chebfit(
         x,
         array([y, y]).T,
-        3,
+        degree=3,
     )
+
     assert_array_almost_equal(
         coef2d,
         array([coef3, coef3]).T,
     )
+
     coef2d = beignet.orthax.chebfit(
         x,
         array([y, y]).T,
-        (0, 1, 2, 3),
+        degree=(0, 1, 2, 3),
     )
+
     assert_array_almost_equal(
         coef2d,
         array([coef3, coef3]).T,
@@ -557,13 +623,12 @@ def test_chebfit():
     yw = y.copy()
 
     w = w.at[1::2].set(1)
-    y = y.at[0::2].set(0)
 
     wcoef3 = beignet.orthax.chebfit(
         x,
         yw,
-        3,
-        w=w,
+        degree=3,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -574,8 +639,8 @@ def test_chebfit():
     wcoef3 = beignet.orthax.chebfit(
         x,
         yw,
-        (0, 1, 2, 3),
-        w=w,
+        degree=(0, 1, 2, 3),
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -586,8 +651,8 @@ def test_chebfit():
     wcoef2d = beignet.orthax.chebfit(
         x,
         array([yw, yw]).T,
-        3,
-        w=w,
+        degree=3,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -598,75 +663,86 @@ def test_chebfit():
     wcoef2d = beignet.orthax.chebfit(
         x,
         array([yw, yw]).T,
-        (0, 1, 2, 3),
-        w=w,
+        degree=(0, 1, 2, 3),
+        weight=w,
     )
 
     assert_array_almost_equal(
         wcoef2d,
-        array([coef3, coef3]).T,
-    )
-
-    x = [1, 1j, -1, -1j]
-
-    assert_array_almost_equal(
-        beignet.orthax.chebfit(
-            x,
-            x,
-            1,
-        ),
-        [0, 1],
+        array(
+            [
+                coef3,
+                coef3,
+            ],
+        ).T,
     )
 
     assert_array_almost_equal(
         beignet.orthax.chebfit(
-            x,
-            x,
-            (0, 1),
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=1,
         ),
-        [0, 1],
+        array([0, 1]),
     )
 
-    x = linspace(-1, 1)
-    y = g(x)
+    assert_array_almost_equal(
+        beignet.orthax.chebfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        array([0, 1]),
+    )
 
-    coef1 = beignet.orthax.chebfit(
-        x,
-        y,
-        4,
+    input = linspace(-1, 1, 50)
+
+    assert_array_almost_equal(
+        beignet.orthax.chebval(
+            input,
+            beignet.orthax.chebfit(
+                input,
+                g(input),
+                degree=4,
+            ),
+        ),
+        g(input),
     )
 
     assert_array_almost_equal(
         beignet.orthax.chebval(
-            x,
-            coef1,
+            input,
+            beignet.orthax.chebfit(
+                input,
+                g(input),
+                (0, 2, 4),
+            ),
         ),
-        y,
-    )
-
-    coef2 = beignet.orthax.chebfit(
-        x,
-        y,
-        (0, 2, 4),
+        g(input),
     )
 
     assert_array_almost_equal(
-        beignet.orthax.chebval(
-            x,
-            coef2,
+        beignet.orthax.chebfit(
+            input,
+            g(input),
+            degree=4,
         ),
-        y,
-    )
-
-    assert_array_almost_equal(
-        coef1,
-        coef2,
+        beignet.orthax.chebfit(
+            input,
+            g(input),
+            (0, 2, 4),
+        ),
     )
 
 
 def test_chebfromroots():
     assert_array_almost_equal(
-        beignet.orthax.chebtrim(beignet.orthax.chebfromroots(array([])), tol=0.000001),
+        beignet.orthax.chebtrim(
+            beignet.orthax.chebfromroots(
+                array([]),
+            ),
+            tol=0.000001,
+        ),
         array([1]),
     )
     for i in range(1, 5):
@@ -1535,8 +1611,8 @@ def test_hermefit():
     pytest.raises(TypeError, beignet.orthax.hermefit, [1], [[[1]]], 0)
     pytest.raises(TypeError, beignet.orthax.hermefit, array([1, 2]), [1], 0)
     pytest.raises(TypeError, beignet.orthax.hermefit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.hermefit, [1], [1], 0, w=[[1]])
-    pytest.raises(TypeError, beignet.orthax.hermefit, [1], [1], 0, w=[1, 1])
+    pytest.raises(TypeError, beignet.orthax.hermefit, [1], [1], 0, weight=[[1]])
+    pytest.raises(TypeError, beignet.orthax.hermefit, [1], [1], 0, weight=[1, 1])
     pytest.raises(
         ValueError,
         beignet.orthax.hermefit,
@@ -1671,7 +1747,7 @@ def test_hermefit():
         x,
         yw,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -1683,7 +1759,7 @@ def test_hermefit():
         x,
         yw,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -1695,7 +1771,7 @@ def test_hermefit():
         x,
         array([yw, yw]).T,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -1707,7 +1783,7 @@ def test_hermefit():
         x,
         array([yw, yw]).T,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -2213,9 +2289,9 @@ def test_hermfit():
     pytest.raises(TypeError, beignet.orthax.hermfit, [1], [[[1]]], 0)
     pytest.raises(TypeError, beignet.orthax.hermfit, array([1, 2]), [1], 0)
     pytest.raises(TypeError, beignet.orthax.hermfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, w=[[1]])
+    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, weight=[[1]])
 
-    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, w=[1, 1])
+    pytest.raises(TypeError, beignet.orthax.hermfit, [1], [1], 0, weight=[1, 1])
 
     pytest.raises(ValueError, beignet.orthax.hermfit, [1], [1], (-1))
 
@@ -2325,7 +2401,7 @@ def test_hermfit():
         x,
         yw,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -2337,7 +2413,7 @@ def test_hermfit():
         x,
         yw,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -2349,7 +2425,7 @@ def test_hermfit():
         x,
         array([yw, yw]).T,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -2361,7 +2437,7 @@ def test_hermfit():
         x,
         array([yw, yw]).T,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -3023,8 +3099,8 @@ def test_lagfit():
     pytest.raises(TypeError, beignet.orthax.lagfit, [1], [[[1]]], 0)
     pytest.raises(TypeError, beignet.orthax.lagfit, array([1, 2]), [1], 0)
     pytest.raises(TypeError, beignet.orthax.lagfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, w=[[1]])
-    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, w=[1, 1])
+    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, weight=[[1]])
+    pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], 0, weight=[1, 1])
     pytest.raises(ValueError, beignet.orthax.lagfit, [1], [1], (-1,))
     pytest.raises(ValueError, beignet.orthax.lagfit, [1], [1], (2, -1, 6))
     pytest.raises(TypeError, beignet.orthax.lagfit, [1], [1], ())
@@ -3129,7 +3205,7 @@ def test_lagfit():
         x,
         yw,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -3141,7 +3217,7 @@ def test_lagfit():
         x,
         yw,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -3153,7 +3229,7 @@ def test_lagfit():
         x,
         array([yw, yw]).T,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -3165,7 +3241,7 @@ def test_lagfit():
         x,
         array([yw, yw]).T,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -3835,8 +3911,8 @@ def test_legfit():
     pytest.raises(TypeError, beignet.orthax.legfit, [1], [[[1]]], 0)
     pytest.raises(TypeError, beignet.orthax.legfit, array([1, 2]), [1], 0)
     pytest.raises(TypeError, beignet.orthax.legfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[[1]])
-    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, w=[1, 1])
+    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, weight=[[1]])
+    pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], 0, weight=[1, 1])
     pytest.raises(ValueError, beignet.orthax.legfit, [1], [1], (-1,))
     pytest.raises(ValueError, beignet.orthax.legfit, [1], [1], (2, -1, 6))
     pytest.raises(TypeError, beignet.orthax.legfit, [1], [1], ())
@@ -3937,7 +4013,7 @@ def test_legfit():
             linspace(0, 2),
             yw,
             3,
-            w=w,
+            weight=w,
         ),
         coef3,
     )
@@ -3947,7 +4023,7 @@ def test_legfit():
             linspace(0, 2),
             yw,
             (0, 1, 2, 3),
-            w=w,
+            weight=w,
         ),
         coef3,
     )
@@ -3957,7 +4033,7 @@ def test_legfit():
             linspace(0, 2),
             array([yw, yw]).T,
             3,
-            w=w,
+            weight=w,
         ),
         array([coef3, coef3]).T,
     )
@@ -3967,7 +4043,7 @@ def test_legfit():
             linspace(0, 2),
             array([yw, yw]).T,
             (0, 1, 2, 3),
-            w=w,
+            weight=w,
         ),
         array([coef3, coef3]).T,
     )
@@ -4837,8 +4913,8 @@ def test_polyfit():
     pytest.raises(TypeError, beignet.orthax.polyfit, [1], [[[1]]], 0)
     pytest.raises(TypeError, beignet.orthax.polyfit, array([1, 2]), [1], 0)
     pytest.raises(TypeError, beignet.orthax.polyfit, [1], array([1, 2]), 0)
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[[1]])
-    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, w=[1, 1])
+    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, weight=[[1]])
+    pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], 0, weight=[1, 1])
     pytest.raises(ValueError, beignet.orthax.polyfit, [1], [1], (-1,))
     pytest.raises(ValueError, beignet.orthax.polyfit, [1], [1], (2, -1, 6))
     pytest.raises(TypeError, beignet.orthax.polyfit, [1], [1], ())
@@ -4913,7 +4989,7 @@ def test_polyfit():
         linspace(0, 2),
         yw,
         3,
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -4925,7 +5001,7 @@ def test_polyfit():
         linspace(0, 2),
         yw,
         (0, 1, 2, 3),
-        w=w,
+        weight=w,
     )
 
     assert_array_almost_equal(
@@ -4938,7 +5014,7 @@ def test_polyfit():
             linspace(0, 2),
             array([yw, yw]).T,
             3,
-            w=w,
+            weight=w,
         ),
         array([coef3, coef3]).T,
     )
@@ -4948,7 +5024,7 @@ def test_polyfit():
             linspace(0, 2),
             array([yw, yw]).T,
             (0, 1, 2, 3),
-            w=w,
+            weight=w,
         ),
         array([coef3, coef3]).T,
     )

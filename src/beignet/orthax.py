@@ -5,6 +5,7 @@ from typing import Literal
 
 import jax
 import jax.numpy
+from jax import Array
 from jax.numpy import (
     abs,
     arange,
@@ -37,6 +38,7 @@ from jax.numpy import (
     sqrt,
     square,
     stack,
+    sum,
     where,
     zeros,
     zeros_like,
@@ -150,9 +152,18 @@ def _div(func, input, other):
     return quotient, remainder
 
 
-def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
-    x = asarray(x)
-    y = asarray(y)
+def _fit(
+    vandermonde_func,
+    input: Array,
+    other: Array,
+    degree: int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Array | None = None,
+):
+    input = asarray(input)
+    other = asarray(other)
+
     degree = asarray(degree)
 
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or degree.size == 0:
@@ -161,53 +172,61 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
     if degree.min() < 0:
         raise ValueError
 
-    if x.ndim != 1:
+    if input.ndim != 1:
         raise TypeError
 
-    if x.size == 0:
+    if input.size == 0:
         raise TypeError
 
-    if y.ndim < 1 or y.ndim > 2:
+    if other.ndim < 1 or other.ndim > 2:
         raise TypeError
 
-    if len(x) != len(y):
+    if len(input) != len(other):
         raise TypeError
 
     if degree.ndim == 0:
         lmax = int(degree)
-        van = vander_f(x, lmax)
+
+        vandermonde = vandermonde_func(input, lmax)
     else:
         degree = sort(degree)
+
         lmax = int(degree[-1])
-        van = vander_f(x, lmax)[:, degree]
 
-    lhs = van.T
-    rhs = y.T
+        vandermonde = vandermonde_func(input, lmax)[:, degree]
 
-    if w is not None:
-        w = asarray(w)
+    lhs = vandermonde.T
+    rhs = other.T
 
-        if w.ndim != 1:
+    if weight is not None:
+        weight = asarray(weight)
+
+        if weight.ndim != 1:
             raise TypeError
 
-        if len(x) != len(w):
+        if len(input) != len(weight):
             raise TypeError
 
-        lhs = lhs * w
-        rhs = rhs * w
+        lhs = lhs * weight
+        rhs = rhs * weight
 
-    if rcond is None:
-        rcond = len(x) * finfo(x.dtype).eps
+    if relative_condition is None:
+        relative_condition = len(input) * finfo(input.dtype).eps
 
     if issubclass(lhs.dtype.type, complexfloating):
-        scl = sqrt((square(lhs.real) + square(lhs.imag)).sum(1))
+        scale = square(lhs.real) + square(lhs.imag)
+
+        scale = sum(scale, 1)
+
+        scale = sqrt(scale)
     else:
-        scl = sqrt(square(lhs).sum(1))
-    scl = where(scl == 0, 1, scl)
+        scale = sqrt(square(lhs).sum(1))
 
-    c, residuals, rank, s = lstsq(lhs.T / scl, rhs.T, rcond)
+    scale = where(scale == 0, 1, scale)
 
-    c = (c.T / scl).T
+    c, residuals, rank, s = lstsq(lhs.T / scale, rhs.T, relative_condition)
+
+    c = (c.T / scale).T
 
     if degree.ndim > 0:
         if c.ndim == 2:
@@ -218,7 +237,7 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
         c = cc.at[degree].set(c)
 
     if full:
-        return c, [residuals, rank, s, rcond]
+        return c, [residuals, rank, s, relative_condition]
     else:
         return c
 
@@ -568,8 +587,23 @@ def chebdiv(input, other):
     return _div(chebmul, input, other)
 
 
-def chebfit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(chebvander, x, y, degree, rcond, full, w)
+def chebfit(
+    input,
+    other,
+    degree,
+    relative_condition=None,
+    full=False,
+    weight=None,
+):
+    return _fit(
+        chebvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
 
 
 def chebfromroots(roots):
@@ -1083,8 +1117,8 @@ def hermediv(
     return _div(hermemul, input, other)
 
 
-def hermefit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(hermevander, x, y, degree, rcond, full, w)
+def hermefit(x, y, degree, relative_condition=None, full=False, weight=None):
+    return _fit(hermevander, x, y, degree, relative_condition, full, weight)
 
 
 def hermefromroots(roots):
@@ -1336,8 +1370,8 @@ def hermeweight(x):
     return exp(-0.5 * x**2)
 
 
-def hermfit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(hermvander, x, y, degree, rcond, full, w)
+def hermfit(x, y, degree, relative_condition=None, full=False, weight=None):
+    return _fit(hermvander, x, y, degree, relative_condition, full, weight)
 
 
 def hermfromroots(roots):
@@ -1690,8 +1724,8 @@ def lagdiv(
     return _div(lagmul, input, other)
 
 
-def lagfit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(lagvander, x, y, degree, rcond, full, w)
+def lagfit(x, y, degree, relative_condition=None, full=False, weight=None):
+    return _fit(lagvander, x, y, degree, relative_condition, full, weight)
 
 
 def lagfromroots(roots):
@@ -2032,8 +2066,8 @@ def legdiv(
     return _div(legmul, input, other)
 
 
-def legfit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(legvander, x, y, degree, rcond, full, w)
+def legfit(x, y, degree, relative_condition=None, full=False, weight=None):
+    return _fit(legvander, x, y, degree, relative_condition, full, weight)
 
 
 def legfromroots(roots):
@@ -2469,8 +2503,8 @@ def polydiv(input, other):
     return _div(polymul, input, other)
 
 
-def polyfit(x, y, degree, rcond=None, full=False, w=None):
-    return _fit(polyvander, x, y, degree, rcond, full, w)
+def polyfit(x, y, degree, relative_condition=None, full=False, weight=None):
+    return _fit(polyvander, x, y, degree, relative_condition, full, weight)
 
 
 def polyfromroots(roots):
@@ -2589,17 +2623,16 @@ def polyval(x, c, tensor=True):
     x = asarray(x)
 
     if tensor:
-        c = c.reshape(c.shape + (1,) * x.ndim)
+        c = reshape(c, c.shape + (1,) * x.ndim)
 
     c0 = c[-1] + zeros_like(x)
 
     def body(i, c0):
         return c[-i] + c0 * x
 
-    b = len(c) + 1
     y = c0
 
-    for index in range(2, b):
+    for index in range(2, c.shape[0] + 1):
         y = body(index, y)
 
     return y
