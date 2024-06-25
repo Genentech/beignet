@@ -20,6 +20,8 @@ from jax.numpy import (
 
 jax.config.update("jax_enable_x64", True)
 
+key = jax.random.PRNGKey(0)
+
 chebcoefficients = [
     [1],
     [0, 1],
@@ -5501,7 +5503,7 @@ def test_polyvander2d():
 
 
 def test_polyvander3d():
-    x1, x2, x3 = numpy.random.random((3, 5)) * 2 - 1
+    x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
     c = numpy.random.random((2, 3, 4))
 
