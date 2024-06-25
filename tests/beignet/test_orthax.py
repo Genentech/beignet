@@ -5389,29 +5389,11 @@ def test_polyval():
         dims = (2,) * i
         x = zeros(dims)
 
-        assert (
-            beignet.orthax.polyval(
-                x,
-                array([1]),
-            ).shape
-            == dims
-        )
+        assert beignet.orthax.polyval(x, array([1])).shape == dims
 
-        assert (
-            beignet.orthax.polyval(
-                x,
-                array([1, 0]),
-            ).shape
-            == dims
-        )
+        assert beignet.orthax.polyval(x, array([1, 0])).shape == dims
 
-        assert (
-            beignet.orthax.polyval(
-                x,
-                array([1, 0, 0]),
-            ).shape
-            == dims
-        )
+        assert beignet.orthax.polyval(x, array([1, 0, 0])).shape == dims
 
 
 def test_polyval2d():
