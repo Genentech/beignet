@@ -148,8 +148,6 @@ def neighbor_list(
         receiver_idx = torch.reshape(idx, (-1,))
         distances = displacement_fn(safe_index(position, sender_idx), safe_index(position, receiver_idx))
 
-        print(f"distances: {distances}")
-
         mask = (distances < squared_cutoff) & (receiver_idx < position.shape[0])
 
         if neighbor_list_format is _NeighborListFormat.ORDERED_SPARSE:
@@ -160,14 +158,11 @@ def neighbor_list(
         cumsum = torch.cumsum(torch.flatten(mask), dim=0)
         index = torch.where(mask, cumsum - 1, len(receiver_idx) - 1)
 
-        index = index.to(torch.int32)
+        index = index.to(torch.int64)
         sender_idx = sender_idx.to(torch.int32)
 
-        out_idx[index] = receiver_idx
-        receiver_idx = out_idx
-
-        out_idx[index] = sender_idx
-        sender_idx = out_idx
+        receiver_idx = out_idx.scatter(0, index, receiver_idx)
+        sender_idx = out_idx.scatter(0, index, sender_idx)
 
         max_occupancy = cumsum[-1]
 
@@ -241,16 +236,15 @@ def neighbor_list(
 
             if mask_self:
                 indexes = mask_self_fn(indexes)
+
             if mask_fn is not None:
                 indexes = mask_fn(indexes)
 
             if is_neighbor_list_sparse(neighbor_list_format):
-                print(f"pre prune neighbors: {indexes}")
-                print(f"pre prune posititons: {reference_positions}")
                 indexes, occupancy = prune_sparse_neighbor_list(
                     reference_positions, indexes, **kwargs
                 )
-                print(f"post prune neighbors: {indexes}")
+
             else:
                 indexes, occupancy = prune_dense_neighbor_list(
                     reference_positions, indexes, **kwargs
@@ -279,8 +273,6 @@ def neighbor_list(
                 if maximum_size > capacity_limit:
                     maximum_size = capacity_limit
 
-            print(f"max size: {maximum_size}")
-
             indexes = indexes[:, :maximum_size]
 
             if neighbors is None:
@@ -293,8 +285,6 @@ def neighbor_list(
                 _PartitionErrorKind.NEIGHBOR_LIST_OVERFLOW,
                 occupancy > maximum_size,
             )
-
-            print(f"neighbors: {indexes[0]}")
 
             return _NeighborList(
                 buffer_fn=buffer_fn,
