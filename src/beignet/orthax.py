@@ -477,31 +477,20 @@ def cheb2poly(c):
     c0 = zeros_like(c).at[0].set(c[-2])
     c1 = zeros_like(c).at[0].set(c[-1])
 
-    def body(k, c0c1):
-        i = n - 1 - k
-
-        c0, c1 = c0c1
+    for i in range(0, n - 2):
+        i1 = n - 1 - i
 
         tmp = c0
 
-        c0 = polysub(c[i - 2], c1)
+        c0 = polysub(c[i1 - 2], c1)
 
         c1 = polyadd(tmp, polymulx(c1, "same") * 2)
 
-        return c0, c1
+    output = polymulx(c1, "same")
 
-    b = n - 2
+    output = polyadd(c0, output)
 
-    x = (c0, c1)
-
-    y = x
-
-    for index in range(0, b):
-        y = body(index, y)
-
-    c0, c1 = y
-
-    return polyadd(c0, polymulx(c1, "same"))
+    return output
 
 
 def chebadd(input, other):
@@ -516,15 +505,21 @@ def chebcompanion(c):
         return array([[-c[0] / c[1]]])
 
     n = len(c) - 1
+
     mat = zeros((n, n), dtype=c.dtype)
+
     scl = ones(n).at[1:].set(sqrt(0.5))
+
     shp = mat.shape
+
     mat = mat.flatten()
+
     mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
     mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
-    mat = mat.reshape(shp)
-    mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5)
-    return mat
+
+    mat = reshape(mat, shp)
+
+    return mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5)
 
 
 def chebder(c, order=1, scl=1, axis=0):
@@ -799,10 +794,7 @@ def chebroots(c):
     return output
 
 
-def chebsub(
-    input,
-    other,
-):
+def chebsub(input, other):
     return _subtract(input, other)
 
 
@@ -833,8 +825,10 @@ def chebval(x, c, tensor=True):
         b = len(c) + 1
         x1 = (c0, c1)
         y = x1
+
         for index in range(3, b):
             y = body(index, y)
+
         c0, c1 = y
 
     return c0 + c1 * x
@@ -1853,10 +1847,7 @@ def lagroots(c):
     return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
-def lagsub(
-    input,
-    other,
-):
+def lagsub(input, other):
     return _subtract(input, other)
 
 
@@ -2170,8 +2161,6 @@ def legmul(input, other, mode="full"):
 
 def legmulx(c, mode="full"):
     c = _as_series(c)
-    prd = zeros(len(c) + 1, dtype=c.dtype)
-    prd = prd.at[1].set(c[0])
 
     def body(i, prd):
         j = i + 1
@@ -2187,10 +2176,10 @@ def legmulx(c, mode="full"):
         return prd
 
     b = len(c)
-    y = prd
+    prd = zeros(len(c) + 1, dtype=c.dtype).at[1].set(c[0])
+
     for index in range(1, b):
-        y = body(index, y)
-    prd = y
+        prd = body(index, prd)
 
     if mode == "same":
         prd = prd[: len(c)]
@@ -2286,21 +2275,30 @@ def legvander(x, degree):
         def body(i, v):
             return v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
 
-        b = degree + 1
         y = v
-        for index in range(2, b):
+
+        for index in range(2, degree + 1):
             y = body(index, y)
+
         v = y
 
     return moveaxis(v, 0, -1)
 
 
 def legvander2d(x, y, degree):
-    return _vander_nd_flat((legvander, legvander), (x, y), degree)
+    return _vander_nd_flat(
+        (legvander, legvander),
+        (x, y),
+        degree,
+    )
 
 
 def legvander3d(x, y, z, degree):
-    return _vander_nd_flat((legvander, legvander, legvander), (x, y, z), degree)
+    return _vander_nd_flat(
+        (legvander, legvander, legvander),
+        (x, y, z),
+        degree,
+    )
 
 
 def legweight(x):
@@ -2331,70 +2329,76 @@ def _map_parameters(previous, new):
     return off, scl
 
 
-def poly2cheb(pol):
-    pol = _as_series(pol)
+def poly2cheb(input):
+    input = _as_series(input)
 
-    degree = len(pol) - 1
+    y = zeros_like(input)
 
-    y = zeros_like(pol)
-
-    for index in range(0, degree + 1):
-        y = chebadd(chebmulx(y, mode="same"), pol[(degree - index)])
-
-    return y
-
-
-def poly2herm(pol):
-    pol = _as_series(pol)
-
-    degree = len(pol) - 1
-
-    res = zeros_like(pol)
-
-    b = degree + 1
-    y = res
-
-    for index in range(0, b):
-        y = hermadd(hermmulx(y, mode="same"), pol[(degree - index)])
+    for i in range(0, input.shape[0] - 1 + 1):
+        y = chebadd(
+            chebmulx(y, mode="same"),
+            input[input.shape[0] - 1 - i],
+        )
 
     return y
 
 
-def poly2herme(pol):
-    pol = _as_series(pol)
+def poly2herm(input):
+    input = _as_series(input)
 
-    degree = len(pol) - 1
+    output = zeros_like(input)
 
-    y = zeros_like(pol)
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = hermadd(
+            hermmulx(output, mode="same"),
+            input[input.shape[0] - 1 - i],
+        )
 
-    for index in range(0, degree + 1):
-        y = hermeadd(hermemulx(y, mode="same"), pol[(degree - index)])
-
-    return y
-
-
-def poly2lag(pol):
-    pol = _as_series(pol)
-
-    y = zeros_like(pol)
-
-    for index in range(0, len(pol)):
-        y = lagadd(lagmulx(y, mode="same"), pol[::-1][index])
-
-    return y
+    return output
 
 
-def poly2leg(pol):
-    pol = _as_series(pol)
+def poly2herme(input):
+    input = _as_series(input)
 
-    degree = len(pol) - 1
+    degree = input.shape[0] - 1
 
-    y = zeros_like(pol)
+    output = zeros_like(input)
 
-    for index in range(0, degree + 1):
-        y = legadd(legmulx(y, mode="same"), pol[degree - index])
+    for i in range(0, degree + 1):
+        output = hermeadd(
+            hermemulx(output, mode="same"),
+            input[degree - i],
+        )
 
-    return y
+    return output
+
+
+def poly2lag(input):
+    input = _as_series(input)
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0]):
+        output = lagadd(
+            lagmulx(output, mode="same"),
+            input[::-1][i],
+        )
+
+    return output
+
+
+def poly2leg(input):
+    input = _as_series(input)
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = legadd(
+            legmulx(output, mode="same"),
+            input[input.shape[0] - 1 - i],
+        )
+
+    return output
 
 
 def polyadd(input, other):
@@ -2515,33 +2519,20 @@ def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
 
     c = moveaxis(c, axis, 0)
 
-    D = arange(n + order) + 1
+    d = arange(n + order) + 1
 
-    def body(i, c):
-        c *= scl
+    for i in range(0, order):
+        c = c * scl
 
-        c = (c.T / D).T  # broadcasting correctly
+        c = (c.T / d).T
 
         c = roll(c, 1, axis=0)
 
         c = c.at[0].set(0)
 
-        offset = k[i] - polyval(lbnd, c)
+        c = c.at[0].add(k[i] - polyval(lbnd, c))
 
-        c = c.at[0].add(offset)
-
-        return c
-
-    y = c
-
-    for index in range(0, order):
-        y = body(index, y)
-
-    c = y
-
-    c = moveaxis(c, 0, axis)
-
-    return c
+    return moveaxis(c, 0, axis)
 
 
 def polyline(off, scl):
@@ -2576,22 +2567,19 @@ def polypow(c, pow, maxpower=16):
     return _pow(polymul, c, pow, maxpower)
 
 
-def polyroots(c):
-    c = _as_series(c)
+def polyroots(input):
+    input = _as_series(input)
 
-    if len(c) < 2:
-        return array([], dtype=c.dtype)
+    if len(input) < 2:
+        return array([], dtype=input.dtype)
 
-    if len(c) == 2:
-        return array([-c[0] / c[1]])
+    if len(input) == 2:
+        return array([-input[0] / input[1]])
 
-    return sort(eigvals(polycompanion(c)[::-1, ::-1]))
+    return sort(eigvals(polycompanion(input)[::-1, ::-1]))
 
 
-def polysub(
-    input,
-    other,
-):
+def polysub(input, other):
     return _subtract(input, other)
 
 
@@ -2606,9 +2594,7 @@ def polyval(x, c, tensor=True):
     c0 = c[-1] + zeros_like(x)
 
     def body(i, c0):
-        c0 = c[-i] + c0 * x
-
-        return c0
+        return c[-i] + c0 * x
 
     b = len(c) + 1
     y = c0
