@@ -346,7 +346,7 @@ def test_chebder():
                 beignet.orthax.chebtrim(array([0] * i + [1]), tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.chebder(c2d, axis=0),
@@ -835,7 +835,7 @@ def test_chebint():
                 beignet.orthax.chebtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.chebint(c) for c in c2d.T]).T
     numpy.testing.assert_array_almost_equal(
@@ -1168,7 +1168,7 @@ def test_chebvander():
 
 def test_chebvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
     van = beignet.orthax.chebvander2d(x1, x2, (1, 2))
     target = beignet.orthax.chebval2d(x1, x2, c)
     res = dot(van, c.ravel())
@@ -1183,7 +1183,7 @@ def test_chebvander2d():
 
 def test_chebvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
     van = beignet.orthax.chebvander3d(x1, x2, x3, (1, 2, 3))
     target = beignet.orthax.chebval3d(x1, x2, x3, c)
     res = dot(van, c.ravel())
@@ -1301,7 +1301,7 @@ def test_hermder():
                 beignet.orthax.hermtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.hermder(c) for c in c2d.T]).T
     res = beignet.orthax.hermder(c2d, axis=0)
@@ -1422,7 +1422,7 @@ def test_hermeder():
                 beignet.orthax.hermetrim(array([0] * i + [1]), tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.hermeder(c2d, axis=0),
@@ -1869,7 +1869,7 @@ def test_hermeint():
                 beignet.orthax.hermetrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.hermeint(c) for c in c2d.T]).T
     res = beignet.orthax.hermeint(c2d, axis=0)
@@ -2098,7 +2098,7 @@ def test_hermevander():
 
 def test_hermevander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.hermevander2d(x1, x2, (1, 2)), c.ravel()),
         beignet.orthax.hermeval2d(x1, x2, c),
@@ -2110,7 +2110,7 @@ def test_hermevander2d():
 
 def test_hermevander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
     van = beignet.orthax.hermevander3d(x1, x2, x3, (1, 2, 3))
     numpy.testing.assert_array_almost_equal(
         dot(van, c.ravel()), beignet.orthax.hermeval3d(x1, x2, x3, c)
@@ -2561,7 +2561,7 @@ def test_hermint():
                 beignet.orthax.hermtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.hermint(c) for c in c2d.T]).T
     numpy.testing.assert_array_almost_equal(beignet.orthax.hermint(c2d, axis=0), target)
@@ -2795,7 +2795,7 @@ def test_hermvander():
 
 def test_hermvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.hermvander2d(x1, x2, (1, 2)), c.ravel()),
         beignet.orthax.hermval2d(x1, x2, c),
@@ -2808,7 +2808,7 @@ def test_hermvander2d():
 
 def test_hermvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.hermvander3d(x1, x2, x3, (1, 2, 3)), c.ravel()),
         beignet.orthax.hermval3d(x1, x2, x3, c),
@@ -2913,7 +2913,7 @@ def test_lagder():
                 beignet.orthax.lagtrim(array([0] * i + [1]), tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.lagder(c2d, axis=0),
@@ -3292,7 +3292,7 @@ def test_lagint():
                 beignet.orthax.lagtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.lagint(c) for c in c2d.T]).T
     res = beignet.orthax.lagint(c2d, axis=0)
@@ -3549,7 +3549,7 @@ def test_lagvander():
 
 def test_lagvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.lagvander2d(x1, x2, (1, 2)), c.ravel()),
         beignet.orthax.lagval2d(x1, x2, c),
@@ -3562,7 +3562,7 @@ def test_lagvander2d():
 
 def test_lagvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.lagvander3d(x1, x2, x3, (1, 2, 3)), c.ravel()),
         beignet.orthax.lagval3d(x1, x2, x3, c),
@@ -3662,7 +3662,7 @@ def test_legder():
                 beignet.orthax.legtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     target = vstack([beignet.orthax.legder(c) for c in c2d.T]).T
     res = beignet.orthax.legder(c2d, axis=0)
@@ -4124,7 +4124,7 @@ def test_legint():
                 beignet.orthax.legtrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.legint(c2d, axis=0),
@@ -4411,7 +4411,7 @@ def test_legvander():
 
 def test_legvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.legvander2d(x1, x2, (1, 2)), c.ravel()),
         beignet.orthax.legval2d(x1, x2, c),
@@ -4424,7 +4424,7 @@ def test_legvander2d():
 
 def test_legvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
     numpy.testing.assert_array_almost_equal(
         dot(beignet.orthax.legvander3d(x1, x2, x3, (1, 2, 3)), c.ravel()),
         beignet.orthax.legval3d(x1, x2, x3, c),
@@ -4567,7 +4567,7 @@ def test_polyder():
                 beignet.orthax.polytrim(target, tol=0.000001),
             )
 
-    c2d = numpy.random.random((3, 4))
+    c2d = jax.random.uniform(key, (3, 4))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyder(c2d, axis=0),
@@ -5084,7 +5084,7 @@ def test_polyint():
                 ),
             )
 
-    c2d = numpy.random.random((3, 6))
+    c2d = jax.random.uniform(key, (3, 6))
 
     numpy.testing.assert_array_almost_equal(
         beignet.orthax.polyint(
@@ -5401,7 +5401,7 @@ def test_polyvalfromroots():
 
     x = arange(-3, 2)
 
-    r = numpy.random.randint(-5, 5, size=rshape)
+    r = jax.random.randint(key, rshape, -5, 5)
 
     res = beignet.orthax.polyvalfromroots(x, r, tensor=False)
 
@@ -5475,7 +5475,7 @@ def test_polyvander():
 def test_polyvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
-    c = numpy.random.random((2, 3))
+    c = jax.random.uniform(key, (2, 3))
 
     numpy.testing.assert_array_almost_equal(
         dot(
@@ -5505,7 +5505,7 @@ def test_polyvander2d():
 def test_polyvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
-    c = numpy.random.random((2, 3, 4))
+    c = jax.random.uniform(key, (2, 3, 4))
 
     numpy.testing.assert_array_almost_equal(
         dot(
