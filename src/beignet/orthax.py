@@ -463,8 +463,6 @@ def _z_series_to_c_series(zs):
 def _as_series(*arrs, trim: bool = False):
     arrays = [array(a, ndmin=1) for a in arrs]
 
-    # arrays = arrs
-
     if trim:
         arrays = [_trim_sequence(a) for a in arrays]
 
@@ -522,7 +520,7 @@ def chebcompanion(c):
 
     shp = mat.shape
 
-    mat = mat.flatten()
+    mat = reshape(mat, [-1])
 
     mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
     mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
@@ -969,7 +967,7 @@ def hermcompanion(c):
     scl = hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
     scl = cumprod(scl)[::-1]
     shp = mat.shape
-    mat = mat.flatten()
+    mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = reshape(mat, shp)
@@ -1057,7 +1055,7 @@ def hermecompanion(c):
     scl = hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
     scl = cumprod(scl)[::-1]
     shp = mat.shape
-    mat = mat.flatten()
+    mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
     mat = reshape(mat, shp)
@@ -1676,7 +1674,9 @@ def lagcompanion(c):
         return array([[1 + c[0] / c[1]]])
 
     n = len(c) - 1
-    mat = zeros((n, n), dtype=c.dtype).flatten()
+
+    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
+
     mat = mat.at[1 :: n + 1].set(-arange(1, n))
     mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
     mat = mat.at[n :: n + 1].set(-arange(1, n))
@@ -2032,7 +2032,7 @@ def legcompanion(c):
     mat = zeros((n, n), dtype=c.dtype)
     scl = 1.0 / sqrt(2 * arange(n) + 1)
     shp = mat.shape
-    mat = mat.flatten()
+    mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
     mat = mat.at[n :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
     mat = reshape(mat, shp)
@@ -2484,7 +2484,7 @@ def polycompanion(c):
 
     n = len(c) - 1
 
-    mat = zeros((n, n), dtype=c.dtype).flatten()
+    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
 
     mat = mat.at[n :: n + 1].set(1)
 
