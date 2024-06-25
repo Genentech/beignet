@@ -4475,188 +4475,262 @@ def test_legfit():
         return x**4 + x**2 + 1
 
     input = linspace(0, 2, 50)
-    coef3 = legfit(linspace(0, 2, 50), f(input), 3)
-    assert_array_almost_equal(len(coef3), 4)
-    assert_array_almost_equal(
-        legval(linspace(0, 2, 50), coef3),
-        f(input),
-    )
-    coef3 = legfit(
-        linspace(0, 2, 50),
-        f(input),
-        degree=(0, 1, 2, 3),
-    )
-    assert_array_almost_equal(
-        len(coef3),
-        4,
-    )
-    assert_array_almost_equal(
-        legval(linspace(0, 2, 50), coef3),
-        f(input),
-    )
 
-    coef4 = legfit(
-        linspace(0, 2, 50),
-        f(input),
-        degree=4,
-    )
-    assert_array_almost_equal(
-        len(coef4),
-        5,
-    )
-    assert_array_almost_equal(
-        legval(linspace(0, 2, 50), coef4),
-        f(input),
-    )
-    coef4 = legfit(
-        linspace(0, 2, 50),
-        f(input),
-        degree=(0, 1, 2, 3, 4),
-    )
-    assert_array_almost_equal(
-        len(coef4),
-        5,
-    )
-    assert_array_almost_equal(
-        legval(linspace(0, 2, 50), coef4),
-        f(input),
-    )
-
-    coef4 = legfit(
-        linspace(0, 2, 50),
-        f(input),
-        degree=(2, 3, 4, 1, 0),
-    )
+    other = f(input)
 
     assert_array_almost_equal(
-        len(coef4),
-        5,
-    )
-
-    assert_array_almost_equal(
-        legval(linspace(0, 2, 50), coef4),
-        f(input),
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            array([(f(input)), (f(input))]).T,
-            3,
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=3,
+            ),
         ),
-        array([coef3, coef3]).T,
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            array([(f(input)), (f(input))]).T,
-            degree=(0, 1, 2, 3),
-        ),
-        array([coef3, coef3]).T,
-    )
-
-    w = zeros_like(input)
-
-    yw = f(input).copy()
-
-    w = w.at[1::2].set(1)
-
-    i = f(input)
-
-    i = i.at[0::2].set(0)
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            yw,
-            3,
-            weight=w,
-        ),
-        coef3,
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            yw,
-            degree=(0, 1, 2, 3),
-            weight=w,
-        ),
-        coef3,
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            array([yw, yw]).T,
-            3,
-            weight=w,
-        ),
-        array([coef3, coef3]).T,
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            linspace(0, 2, 50),
-            array([yw, yw]).T,
-            degree=(0, 1, 2, 3),
-            weight=w,
-        ),
-        array([coef3, coef3]).T,
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            array([1, 1j, -1, -1j]),
-            array([1, 1j, -1, -1j]),
-            1,
-        ),
-        [0, 1],
-    )
-
-    assert_array_almost_equal(
-        legfit(
-            array([1, 1j, -1, -1j]),
-            array([1, 1j, -1, -1j]),
-            (0, 1),
-        ),
-        [0, 1],
+        other,
     )
 
     assert_array_almost_equal(
         legval(
-            linspace(-1, 1, 50),
+            input,
             legfit(
-                linspace(-1, 1, 50),
-                g(linspace(-1, 1, 50)),
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    assert_array_almost_equal(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
                 degree=4,
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         legval(
-            linspace(-1, 1, 50),
+            input,
             legfit(
-                linspace(-1, 1, 50),
-                g(linspace(-1, 1, 50)),
-                degree=(0, 2, 4),
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
+    )
+
+    assert_array_almost_equal(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
         legfit(
-            linspace(-1, 1, 50),
-            g(linspace(-1, 1, 50)),
+            input,
+            array([other, other]).T,
+            degree=3,
+        ),
+        array(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        array(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            array([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        array([0, 1]),
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        array([0, 1]),
+    )
+
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
+    assert_array_almost_equal(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_array_almost_equal(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    assert_array_almost_equal(
+        legfit(
+            input,
+            other,
             degree=4,
         ),
         legfit(
-            linspace(-1, 1, 50),
-            g(linspace(-1, 1, 50)),
+            input,
+            other,
             degree=(0, 2, 4),
         ),
     )
