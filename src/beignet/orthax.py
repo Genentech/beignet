@@ -39,6 +39,7 @@ from jax.numpy import (
     square,
     stack,
     sum,
+    transpose,
     where,
     zeros,
     zeros_like,
@@ -156,7 +157,7 @@ def _fit(
     vandermonde_func,
     input: Array,
     other: Array,
-    degree: int,
+    degree: Array | int,
     relative_condition: float | None = None,
     full: bool = False,
     weight: Array | None = None,
@@ -181,7 +182,7 @@ def _fit(
     if other.ndim < 1 or other.ndim > 2:
         raise TypeError
 
-    if len(input) != len(other):
+    if input.shape[0] != other.shape[0]:
         raise TypeError
 
     if degree.ndim == 0:
@@ -195,8 +196,8 @@ def _fit(
 
         vandermonde = vandermonde_func(input, lmax)[:, degree]
 
-    lhs = vandermonde.T
-    rhs = other.T
+    lhs = transpose(vandermonde)
+    rhs = transpose(other)
 
     if weight is not None:
         weight = asarray(weight)
@@ -204,7 +205,7 @@ def _fit(
         if weight.ndim != 1:
             raise TypeError
 
-        if len(input) != len(weight):
+        if input.shape[0] != weight.shape[0]:
             raise TypeError
 
         lhs = lhs * weight
@@ -220,26 +221,34 @@ def _fit(
 
         scale = sqrt(scale)
     else:
-        scale = sqrt(square(lhs).sum(1))
+        scale = square(lhs)
+
+        scale = sum(scale, 1)
+
+        scale = sqrt(scale)
 
     scale = where(scale == 0, 1, scale)
 
-    c, residuals, rank, s = lstsq(lhs.T / scale, rhs.T, relative_condition)
+    output, residuals, rank, s = lstsq(
+        transpose(lhs) / scale, transpose(rhs), relative_condition
+    )
 
-    c = (c.T / scale).T
+    output = transpose(transpose(output) / scale)
 
     if degree.ndim > 0:
-        if c.ndim == 2:
-            cc = zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
+        if output.ndim == 2:
+            output = (
+                zeros((lmax + 1, output.shape[1]), dtype=output.dtype)
+                .at[degree]
+                .set(output)
+            )
         else:
-            cc = zeros(lmax + 1, dtype=c.dtype)
-
-        c = cc.at[degree].set(c)
+            output = zeros(lmax + 1, dtype=output.dtype).at[degree].set(output)
 
     if full:
-        return c, [residuals, rank, s, relative_condition]
+        return output, [residuals, rank, s, relative_condition]
     else:
-        return c
+        return output
 
 
 def _from_roots(f, g, input):
@@ -592,7 +601,7 @@ def chebfit(
     other,
     degree,
     relative_condition=None,
-    full=False,
+    full: bool = False,
     weight=None,
 ):
     return _fit(
@@ -667,8 +676,8 @@ def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         if n > 1:
             tmp = tmp.at[2].set(c[1] / 4)
         j = arange(2, n)
-        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
-        tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
+        tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (2 * (j + 1))))
+        tmp = tmp.at[j - 1].add(-transpose(transpose(c[j]) / (2 * (j - 1))))
         tmp = tmp.at[0].add(k[i] - chebval(lbnd, tmp))
         c = tmp
     c = moveaxis(c, 0, axis)
@@ -686,7 +695,7 @@ def chebinterpolate(func, degree, args=()):
     xcheb = chebpts1(order)
     yfunc = func(xcheb, *args)
     m = chebvander(xcheb, _deg)
-    c = dot(m.T, yfunc)
+    c = dot(transpose(m), yfunc)
     c = c.at[0].divide(order)
     c = c.at[1:].divide(0.5 * order)
 
@@ -1016,7 +1025,7 @@ def hermder(c, order=1, scl=1, axis=0):
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
-            der = der.at[j - 1].set((2 * j * c[j].T).T)
+            der = der.at[j - 1].set(transpose(2 * j * transpose(c[j])))
             c = der
     c = moveaxis(c, 0, axis)
     return c
@@ -1104,7 +1113,7 @@ def hermeder(c, order=1, scl=1, axis=0):
             c *= scl
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
-            der = der.at[j - 1].set((j * c[j].T).T)
+            der = der.at[j - 1].set(transpose(j * transpose(c[j])))
             c = der
     c = moveaxis(c, 0, axis)
     return c
@@ -1191,7 +1200,7 @@ def hermeint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         j = arange(1, n)
-        tmp = tmp.at[j + 1].set((c[j].T / (j + 1)).T)
+        tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (j + 1)))
         tmp = tmp.at[0].add(k[i] - hermeval(lbnd, tmp))
         c = tmp
 
@@ -1441,7 +1450,7 @@ def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0] / 2)
         j = arange(1, n)
-        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+        tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (2 * (j + 1))))
         tmp = tmp.at[0].add(k[i] - hermval(lbnd, tmp))
         c = tmp
 
@@ -2138,7 +2147,7 @@ def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         if n > 1:
             tmp = tmp.at[2].set(c[1] / 3)
         j = arange(2, n)
-        t = (c[j].T / (2 * j + 1)).T
+        t = transpose(transpose(c[j]) / (2 * j + 1))
         tmp = tmp.at[j + 1].set(t)
         tmp = tmp.at[j - 1].add(-t)
         tmp = tmp.at[0].add(k[i] - legval(lbnd, tmp))
@@ -2475,7 +2484,7 @@ def polyder(c, order=1, scl=1, axis=0):
         d = arange(n)
 
         def body(_, c):
-            c = (d * c.T).T
+            c = transpose(d * transpose(c))
 
             c = roll(c, -1, axis=0) * scl
 
@@ -2558,7 +2567,7 @@ def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
     for i in range(0, order):
         c = c * scl
 
-        c = (c.T / d).T
+        c = transpose(transpose(c) / d)
 
         c = roll(c, 1, axis=0)
 
