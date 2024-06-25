@@ -1,7 +1,7 @@
 import functools
 import math
 import operator
-from typing import Callable, Literal, Union
+from typing import Callable, Literal
 
 import jax
 import jax.numpy
@@ -25,7 +25,6 @@ from jax.numpy import (
     linspace,
     moveaxis,
     ndim,
-    newaxis,
     nonzero,
     ones,
     ones_like,
@@ -74,35 +73,30 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def _add(
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Num[Array, "..."]:
+def _add(input, other):
     input, other = _as_series(input, other)
 
     if len(input) > len(other):
-        return input.at[: other.size].add(other)
+        output = input.at[: other.size].add(other)
+    else:
+        output = other.at[: input.size].add(input)
 
-    return other.at[: input.size].add(input)
+    return output
 
 
-def _c_series_to_z_series(
-    input: Num[Array, "..."],
-) -> Num[Array, "..."]:
+def _c_series_to_z_series(input):
     n = input.size
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
 
     zs = zs.at[n - 1 :].set(input / 2)
 
-    return zs + zs[::-1]
+    output = zs + zs[::-1]
+
+    return output
 
 
-def _div(
-    func,
-    input: Num[Array, "..."],
-    other: Num[Array, "..."],
-) -> Union[Num[Array, "..."], Num[Array, "..."]]:
+def _div(func, input, other):
     input, other = _as_series(input, other)
 
     lc1 = len(input)
@@ -117,30 +111,43 @@ def _div(
     def _ldordidx(x):  # index of highest order nonzero term
         return len(x) - 1 - nonzero(x[::-1], size=1)[0][0]
 
-    quo = zeros(lc1 - lc2 + 1, dtype=input.dtype)
-    rem = input
-    ridx = len(rem) - 1
+    quotient = zeros(lc1 - lc2 + 1, dtype=input.dtype)
+
+    ridx = len(input) - 1
+
     sz = lc1 - _ldordidx(other) - 1
+
     y = zeros(lc1 + lc2 + 1, dtype=input.dtype).at[sz].set(1.0)
 
-    def body(k, val):
-        quo, rem, y, ridx = val
-        i = sz - k
-        p = func(y, other)
-        pidx = _ldordidx(p)
-        t = rem[ridx] / p[pidx]
-        rem = _subtract(rem.at[ridx].set(0), t * p.at[pidx].set(0))[: len(rem)]
-        quo = quo.at[i].set(t)
-        ridx -= 1
-        y = roll(y, -1)
-        return quo, rem, y, ridx
+    y1 = quotient, input, y, ridx
 
-    x = (quo, rem, y, ridx)
-    y1 = x
     for index in range(0, sz):
-        y1 = body(index, y1)
-    quo, rem, _, _ = y1
-    return quo, rem
+        quotient1, remainder1, y2, ridx1 = y1
+
+        i = sz - index
+
+        p = func(y2, other)
+
+        pidx = _ldordidx(p)
+
+        t = remainder1[ridx1] / p[pidx]
+
+        remainder1 = _subtract(
+            remainder1.at[ridx1].set(0),
+            t * p.at[pidx].set(0),
+        )[: len(remainder1)]
+
+        quotient1 = quotient1.at[i].set(t)
+
+        ridx1 = ridx1 - 1
+
+        y2 = roll(y2, -1)
+
+        y1 = quotient1, remainder1, y2, ridx1
+
+    quotient, remainder, _, _ = y1
+
+    return quotient, remainder
 
 
 def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
@@ -198,7 +205,8 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
         scl = sqrt(square(lhs).sum(1))
     scl = where(scl == 0, 1, scl)
 
-    c, resids, rank, s = lstsq(lhs.T / scl, rhs.T, rcond)
+    c, residuals, rank, s = lstsq(lhs.T / scl, rhs.T, rcond)
+
     c = (c.T / scl).T
 
     if degree.ndim > 0:
@@ -206,11 +214,11 @@ def _fit(vander_f, x, y, degree, rcond=None, full=False, w=None):  # noqa:C901
             cc = zeros((lmax + 1, c.shape[1]), dtype=c.dtype)
         else:
             cc = zeros(lmax + 1, dtype=c.dtype)
-        cc = cc.at[degree].set(c)
-        c = cc
+
+        c = cc.at[degree].set(c)
 
     if full:
-        return c, [resids, rank, s, rcond]
+        return c, [residuals, rank, s, rcond]
     else:
         return c
 
@@ -273,86 +281,59 @@ def _from_roots(f, g, input):
     return ret[0]
 
 
-def _gridnd(func, input, *args):
-    for arg in args:
-        output = func(arg, input)
+def _gridnd(func, c, *args):
+    for xi in args:
+        c = func(xi, c)
 
-    return output
+    return c
 
 
 def _normed_hermite_e_n(x, n):
-    def truefun():
-        return full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
-
-    def falsefun():
+    if n == 0:
+        output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
+    else:
         c0 = zeros_like(x)
         c1 = ones_like(x) / sqrt(sqrt(2 * math.pi))
         nd = array(n).astype(float)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for _ in range(0, n - 1):
             tmp = c0
+
             c0 = -c1 * sqrt((nd - 1.0) / nd)
+
             c1 = tmp + c1 * x * sqrt(1.0 / nd)
+
             nd = nd - 1.0
-            return c0, c1, nd
 
-        b = n - 1
-
-        x1 = (c0, c1, nd)
-
-        y = x1
-
-        for index in range(0, b):
-            y = body(index, y)
-
-        c0, c1, _ = y
-
-        return c0 + c1 * x
-
-    if n == 0:
-        output = truefun()
-    else:
-        output = falsefun()
+        output = c0 + c1 * x
 
     return output
 
 
 def _normed_hermite_n(x, n):
-    def truefun():
-        return full(x.shape, 1 / sqrt(sqrt(math.pi)))
-
-    def falsefun():
+    if n == 0:
+        output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
+    else:
         c0 = zeros_like(x)
         c1 = ones_like(x) / sqrt(sqrt(math.pi))
         nd = array(n).astype(float)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for _ in range(0, n - 1):
             tmp = c0
+
             c0 = -c1 * sqrt((nd - 1.0) / nd)
+
             c1 = tmp + c1 * x * sqrt(2.0 / nd)
+
             nd = nd - 1.0
-            return c0, c1, nd
 
-        b = n - 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(0, b):
-            y = body(index, y)
-        c0, c1, _ = y
-        return c0 + c1 * x * sqrt(2)
-
-    if n == 0:
-        output = truefun()
-    else:
-        output = falsefun()
+        output = c0 + c1 * x * sqrt(2)
 
     return output
 
 
 def _nth_slice(i, ndim):
-    sl = [newaxis] * ndim
+    sl = [None] * ndim
     sl[i] = slice(None)
     return tuple(sl)
 
@@ -471,7 +452,7 @@ def _vander_nd(vander_fs, points, degrees):
     if n_dims != len(degrees):
         raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
     if n_dims == 0:
-        raise ValueError("Unable to guess a dtype or shape when no points are given")
+        raise ValueError
 
     points = tuple(array(tuple(points), copy=False) + 0.0)
 
@@ -560,7 +541,7 @@ def chebadd(
 def chebcompanion(c):
     c = _as_series(c)
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
     if len(c) == 2:
         return array([[-c[0] / c[1]]])
 
@@ -578,7 +559,7 @@ def chebcompanion(c):
 
 def chebder(c, m=1, scl=1, axis=0):
     if m < 0:
-        raise ValueError("The order of derivation must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
@@ -669,11 +650,11 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -701,9 +682,9 @@ def chebint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
 def chebinterpolate(func, degree, args=()):
     _deg = int(degree)
     if _deg != degree:
-        raise ValueError("degree must be integer")
+        raise ValueError
     if _deg < 0:
-        raise ValueError("expected degree >= 0")
+        raise ValueError
 
     order = _deg + 1
     xcheb = chebpts1(order)
@@ -1006,7 +987,7 @@ def hermadd(
 def hermcompanion(c):
     c = _as_series(c)
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
     if len(c) == 2:
         return array([[-0.5 * c[0] / c[1]]])
 
@@ -1025,7 +1006,7 @@ def hermcompanion(c):
 
 def hermder(c, m=1, scl=1, axis=0):
     if m < 0:
-        raise ValueError("The order of derivation must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
@@ -1094,7 +1075,7 @@ def hermeadd(
 def hermecompanion(c):
     c = _as_series(c)
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
     if len(c) == 2:
         return array([[-c[0] / c[1]]])
 
@@ -1113,7 +1094,7 @@ def hermecompanion(c):
 
 def hermeder(c, m=1, scl=1, axis=0):
     if m < 0:
-        raise ValueError("The order of derivation must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
@@ -1154,7 +1135,7 @@ def hermefromroots(roots):
 def hermegauss(degree):
     degree = int(degree)
     if degree <= 0:
-        raise ValueError("degree must be a positive integer")
+        raise ValueError
 
     c = zeros(degree + 1).at[-1].set(1)
     m = hermecompanion(c)
@@ -1196,13 +1177,13 @@ def hermeint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         k = [k]
 
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
 
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
 
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -1353,7 +1334,7 @@ def hermeval3d(x, y, z, c):
 
 def hermevander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
     x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
@@ -1407,7 +1388,7 @@ def hermfromroots(roots):
 def hermgauss(degree):
     degree = int(degree)
     if degree <= 0:
-        raise ValueError("degree must be a positive integer")
+        raise ValueError
 
     c = zeros(degree + 1).at[-1].set(1)
     x = eigvalsh(hermcompanion(c))
@@ -1446,13 +1427,13 @@ def hermint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         k = [k]
 
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
 
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
 
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -1607,7 +1588,7 @@ def hermval3d(x, y, z, c):
 
 def hermvander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
     x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
@@ -1689,7 +1670,7 @@ def lagcompanion(c):
     c = _as_series(c)
 
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
 
     if len(c) == 2:
         return array([[1 + c[0] / c[1]]])
@@ -1706,7 +1687,7 @@ def lagcompanion(c):
 
 def lagder(c, m=1, scl=1, axis=0):
     if m < 0:
-        raise ValueError("The order of derivation must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
@@ -1761,7 +1742,7 @@ def lagfromroots(roots):
 def laggauss(degree):
     degree = int(degree)
     if degree <= 0:
-        raise ValueError("degree must be a positive integer")
+        raise ValueError
 
     c = zeros(degree + 1).at[-1].set(1)
     m = lagcompanion(c)
@@ -1798,11 +1779,11 @@ def lagint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -1959,7 +1940,7 @@ def lagval3d(x, y, z, c):
 
 def lagvander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
     x = array(x, ndmin=1)
     dims = (degree + 1,) + x.shape
@@ -2031,7 +2012,7 @@ def legadd(
 def legcompanion(c):
     c = _as_series(c)
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
     if len(c) == 2:
         return array([[-c[0] / c[1]]])
 
@@ -2049,7 +2030,7 @@ def legcompanion(c):
 
 def legder(c, m=1, scl=1, axis=0):
     if m < 0:
-        raise ValueError("The order of derivation must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
@@ -2106,7 +2087,7 @@ def legfromroots(roots):
 def leggauss(degree):
     degree = int(degree)
     if degree <= 0:
-        raise ValueError("degree must be a positive integer")
+        raise ValueError
 
     c = zeros(degree + 1).at[-1].set(1)
     m = legcompanion(c)
@@ -2146,11 +2127,11 @@ def legint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
     if not iterable(k):
         k = [k]
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -2320,7 +2301,7 @@ def legval3d(x, y, z, c):
 
 def legvander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
     x = array(x, ndmin=1)
 
@@ -2481,7 +2462,7 @@ def polycompanion(c):
     c = _as_series(c)
 
     if len(c) < 2:
-        raise ValueError("Series must have maximum degree of at least 1.")
+        raise ValueError
 
     if len(c) == 2:
         return array([[-c[0] / c[1]]])
@@ -2570,16 +2551,16 @@ def polyint(c, m=1, k=None, lbnd=0, scl=1, axis=0):
         k = [k]
 
     if m < 0:
-        raise ValueError("The order of integration must be non-negative")
+        raise ValueError
 
     if len(k) > m:
-        raise ValueError("Too many integration constants")
+        raise ValueError
 
     if ndim(lbnd) != 0:
-        raise ValueError("lbnd must be a scalar.")
+        raise ValueError
 
     if ndim(scl) != 0:
-        raise ValueError("scl must be a scalar.")
+        raise ValueError
 
     if m == 0:
         return c
@@ -2709,14 +2690,14 @@ def polyvalfromroots(x, r, tensor=True):
         r = r.reshape(r.shape + (1,) * x.ndim)
 
     if x.ndim >= r.ndim:
-        raise ValueError("x.ndim must be < r.ndim when tensor == False")
+        raise ValueError
 
     return prod(x - r, axis=0)
 
 
 def polyvander(x, degree):
     if degree < 0:
-        raise ValueError("degree must be non-negative")
+        raise ValueError
 
     x = array(x, ndmin=1)
 
@@ -2760,7 +2741,7 @@ def polyvander3d(x, y, z, degree):
 
 def _trim_coefficients(c, tol=0):
     if tol < 0:
-        raise ValueError("tol must be non-negative")
+        raise ValueError
 
     c = _as_series(c)
 
