@@ -2492,7 +2492,6 @@ def test_hermint():
         )
 
     for i in range(5):
-        scl = i + 1
         pol = array([0] * i + [1])
         hermpol = beignet.orthax.poly2herm(pol)
         hermint = beignet.orthax.hermint(hermpol, m=1, k=[i], lbnd=-1)
@@ -2645,9 +2644,11 @@ def test_hermroots():
     numpy.testing.assert_array_almost_equal(beignet.orthax.hermroots([1, 1]), [-0.5])
     for i in range(2, 5):
         target = linspace(-1, 1, i)
-        res = beignet.orthax.hermroots(beignet.orthax.hermfromroots(target))
         numpy.testing.assert_array_almost_equal(
-            beignet.orthax.hermtrim(res, tol=0.000001),
+            beignet.orthax.hermtrim(
+                beignet.orthax.hermroots(beignet.orthax.hermfromroots(target)),
+                tol=0.000001,
+            ),
             beignet.orthax.hermtrim(target, tol=0.000001),
         )
 
