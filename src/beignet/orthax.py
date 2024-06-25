@@ -1976,11 +1976,19 @@ def lagvander(x, degree):
 
 
 def lagvander2d(x, y, degree):
-    return _vander_nd_flat((lagvander, lagvander), (x, y), degree)
+    return _vander_nd_flat(
+        (lagvander, lagvander),
+        (x, y),
+        degree,
+    )
 
 
 def lagvander3d(x, y, z, degree):
-    return _vander_nd_flat((lagvander, lagvander, lagvander), (x, y, z), degree)
+    return _vander_nd_flat(
+        (lagvander, lagvander, lagvander),
+        (x, y, z),
+        degree,
+    )
 
 
 def lagweight(x):
@@ -2239,29 +2247,30 @@ def legmul(input, other, mode="full"):
 def legmulx(c, mode="full"):
     c = _as_series(c)
 
-    def body(i, prd):
+    def body(i, output):
         j = i + 1
 
         k = i - 1
 
         s = i + j
 
-        prd = prd.at[j].set((c[i] * j) / s)
+        output = output.at[j].set((c[i] * j) / s)
 
-        prd = prd.at[k].add((c[i] * i) / s)
+        output = output.at[k].add((c[i] * i) / s)
 
-        return prd
+        return output
 
     b = len(c)
-    prd = zeros(len(c) + 1, dtype=c.dtype).at[1].set(c[0])
+
+    output = zeros(len(c) + 1, dtype=c.dtype).at[1].set(c[0])
 
     for index in range(1, b):
-        prd = body(index, prd)
+        output = body(index, output)
 
     if mode == "same":
-        prd = prd[: len(c)]
+        output = output[: len(c)]
 
-    return prd
+    return output
 
 
 def legpow(c, pow, maxpower=16):
