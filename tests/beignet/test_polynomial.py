@@ -3576,159 +3576,207 @@ def test_lagfit():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    x = linspace(0, 2, 50)
-    y = f(x)
-
-    coef3 = lagfit(
-        x,
-        y,
-        3,
+    assert_array_almost_equal(
+        lagval(
+            linspace(0, 2, 50),
+            lagfit(
+                linspace(0, 2, 50),
+                f(linspace(0, 2, 50)),
+                degree=3,
+            ),
+        ),
+        f(linspace(0, 2, 50)),
     )
 
     assert_array_almost_equal(
-        len(coef3),
-        4,
+        lagval(
+            linspace(0, 2, 50),
+            lagfit(
+                linspace(0, 2, 50),
+                f(linspace(0, 2, 50)),
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        f(linspace(0, 2, 50)),
     )
 
     assert_array_almost_equal(
-        lagval(x, coef3),
-        y,
-    )
-
-    coef3 = lagfit(
-        x,
-        y,
-        degree=(0, 1, 2, 3),
-    )
-
-    assert_array_almost_equal(
-        len(coef3),
-        4,
+        lagval(
+            linspace(0, 2, 50),
+            lagfit(
+                linspace(0, 2, 50),
+                f(linspace(0, 2, 50)),
+                degree=4,
+            ),
+        ),
+        f(linspace(0, 2, 50)),
     )
 
     assert_array_almost_equal(
-        lagval(x, coef3),
-        y,
-    )
-
-    coef4 = lagfit(
-        x,
-        y,
-        degree=4,
-    )
-
-    assert_array_almost_equal(
-        len(coef4),
-        5,
+        lagval(
+            linspace(0, 2, 50),
+            lagfit(
+                linspace(0, 2, 50),
+                f(linspace(0, 2, 50)),
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        f(linspace(0, 2, 50)),
     )
 
     assert_array_almost_equal(
-        lagval(x, coef4),
-        y,
-    )
-
-    coef4 = lagfit(
-        x,
-        y,
-        degree=(0, 1, 2, 3, 4),
-    )
-
-    assert_array_almost_equal(
-        len(coef4),
-        5,
-    )
-
-    assert_array_almost_equal(
-        lagval(x, coef4),
-        y,
-    )
-
-    coef2d = lagfit(
-        x,
-        array([y, y]).T,
-        3,
-    )
-
-    assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
-    )
-
-    coef2d = lagfit(
-        x,
-        array([y, y]).T,
-        degree=(0, 1, 2, 3),
+        lagfit(
+            linspace(0, 2, 50),
+            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            degree=3,
+        ),
+        array(
+            [
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
     assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
+        lagfit(
+            linspace(0, 2, 50),
+            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        array(
+            [
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
-    w = zeros_like(x)
+    weight = zeros_like(linspace(0, 2, 50))
 
-    yw = y.copy()
+    weight = weight.at[1::2].set(1)
 
-    w = w.at[1::2].set(1)
-    y = y.at[0::2].set(0)
-
-    wcoef3 = lagfit(
-        x,
-        yw,
-        3,
-        weight=w,
+    assert_array_almost_equal(
+        lagfit(
+            linspace(0, 2, 50),
+            f(linspace(0, 2, 50)),
+            degree=3,
+            weight=weight,
+        ),
+        lagfit(
+            linspace(0, 2, 50),
+            f(linspace(0, 2, 50)),
+            degree=(0, 1, 2, 3),
+        ),
     )
 
     assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-
-    wcoef3 = lagfit(
-        x,
-        yw,
-        degree=(0, 1, 2, 3),
-        weight=w,
-    )
-
-    assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-
-    wcoef2d = lagfit(
-        x,
-        array([yw, yw]).T,
-        3,
-        weight=w,
+        lagfit(
+            linspace(0, 2, 50),
+            f(linspace(0, 2, 50)),
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        lagfit(
+            linspace(0, 2, 50),
+            f(linspace(0, 2, 50)),
+            degree=(0, 1, 2, 3),
+        ),
     )
 
     assert_array_almost_equal(
-        wcoef2d,
-        array([coef3, coef3]).T,
-    )
-
-    wcoef2d = lagfit(
-        x,
-        array([yw, yw]).T,
-        degree=(0, 1, 2, 3),
-        weight=w,
+        lagfit(
+            linspace(0, 2, 50),
+            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            degree=3,
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ],
+        ).T,
     )
 
     assert_array_almost_equal(
-        wcoef2d,
-        array([coef3, coef3]).T,
+        lagfit(
+            linspace(0, 2, 50),
+            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    lagfit(
+                        linspace(0, 2, 50),
+                        f(linspace(0, 2, 50)),
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
-    x = array([1, 1j, -1, -1j])
-
     assert_array_almost_equal(
-        lagfit(x, x, 1),
+        lagfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=1,
+        ),
         array([1, -1]),
     )
 
     assert_array_almost_equal(
-        lagfit(x, x, (0, 1)),
+        lagfit(
+            array([1, 1j, -1, -1j]),
+            array([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
         array([1, -1]),
     )
 
