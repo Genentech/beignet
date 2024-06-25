@@ -2287,39 +2287,35 @@ def legsub(
     return _subtract(input, other)
 
 
-def legval(x, c, tensor=True):
-    c = _as_series(c)
+def legval(input: Array, other: Array, tensor=True) -> Array:
+    other = _as_series(other)
 
     if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
-    if len(c) == 1:
-        c0 = c[0]
-        c1 = 0
-    elif len(c) == 2:
-        c0 = c[0]
-        c1 = c[1]
-    else:
-        nd = len(c)
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
+    match other.shape[0]:
+        case 1:
+            a = other[0]
+            b = 0
+        case 2:
+            a = other[0]
+            b = other[1]
+        case _:
+            d = other.shape[0]
 
-        def body(i, val):
-            c0, c1, nd = val
-            tmp = c0
-            nd = nd - 1
-            c0 = c[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * x * (2 * nd - 1)) / nd
-            return c0, c1, nd
+            a = other[-2] * ones_like(input)
+            b = other[-1] * ones_like(input)
 
-        b = len(c) + 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(3, b):
-            y = body(index, y)
-        c0, c1, _ = y
+            for i in range(3, other.shape[0] + 1):
+                c = a
 
-    return c0 + c1 * x
+                d = d - 1
+
+                a = other[-i] - (b * (d - 1)) / d
+
+                b = c + (b * input * (2 * d - 1)) / d
+
+    return a + b * input
 
 
 def legval2d(x, y, c):
