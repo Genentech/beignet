@@ -568,7 +568,7 @@ def chebder(input, order=1, scale=1, axis=0):
     return moveaxis(output, 0, axis)
 
 
-def chebdiv(input, other):
+def chebdiv(input: Array, other: Array) -> Array:
     return _div(chebmul, input, other)
 
 
@@ -822,7 +822,7 @@ def chebroots(c):
     return output
 
 
-def chebsub(input, other):
+def chebsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
@@ -1914,7 +1914,7 @@ def lagroots(c):
     return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
 
 
-def lagsub(input, other):
+def lagsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
@@ -2294,7 +2294,7 @@ def legroots(c):
     return sort(eigvals(legcompanion(c)[::-1, ::-1]))
 
 
-def legsub(input, other):
+def legsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
@@ -2407,15 +2407,15 @@ def _map_parameters(previous, new):
 def poly2cheb(input):
     input = _as_series(input)
 
-    y = zeros_like(input)
+    output = zeros_like(input)
 
     for i in range(0, input.shape[0] - 1 + 1):
-        y = chebadd(
-            chebmulx(y, mode="same"),
+        output = chebadd(
+            chebmulx(output, mode="same"),
             input[input.shape[0] - 1 - i],
         )
 
-    return y
+    return output
 
 
 def poly2herm(input):
@@ -2435,14 +2435,12 @@ def poly2herm(input):
 def poly2herme(input):
     input = _as_series(input)
 
-    degree = input.shape[0] - 1
-
     output = zeros_like(input)
 
-    for i in range(0, degree + 1):
+    for i in range(0, input.shape[0] - 1 + 1):
         output = hermeadd(
             hermemulx(output, mode="same"),
-            input[degree - i],
+            input[input.shape[0] - 1 - i],
         )
 
     return output
@@ -2476,7 +2474,7 @@ def poly2leg(input):
     return output
 
 
-def polyadd(input, other):
+def polyadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
@@ -2538,7 +2536,7 @@ def polyder(c, order=1, scl=1, axis=0):
     return c
 
 
-def polydiv(input, other):
+def polydiv(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
     return _div(polymul, input, other)
@@ -2563,8 +2561,8 @@ def polyfit(
     )
 
 
-def polyfromroots(roots):
-    return _from_roots(polyline, polymul, roots)
+def polyfromroots(input: Array) -> Array:
+    return _from_roots(polyline, polymul, input)
 
 
 def polygrid2d(x, y, c):
@@ -2661,7 +2659,7 @@ def polypow(c, pow, maxpower=16):
     return _pow(polymul, c, pow, maxpower)
 
 
-def polyroots(input):
+def polyroots(input: Array) -> Array:
     input = _as_series(input)
 
     if len(input) < 2:
@@ -2673,7 +2671,7 @@ def polyroots(input):
     return sort(eigvals(polycompanion(input)[::-1, ::-1]))
 
 
-def polysub(input, other):
+def polysub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
