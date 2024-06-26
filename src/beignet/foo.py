@@ -1092,6 +1092,189 @@ def polysub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
+def chebval(input: Array, coefficients: Array, tensor: bool = True) -> Array:
+    coefficients = _as_series(coefficients)
+
+    if tensor:
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+
+    if coefficients.shape[0] == 1:
+        a = coefficients[0]
+        b = 0
+    elif coefficients.shape[0] == 2:
+        a = coefficients[0]
+        b = coefficients[1]
+    else:
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
+
+        for i in range(3, coefficients.shape[0] + 1):
+            c = a
+
+            a = coefficients[-i] - b
+
+            b = c + b * 2 * input
+
+    return a + b * input
+
+
+def lagval(input, other, tensor=True):
+    other = _as_series(other)
+
+    if tensor:
+        other = reshape(other, other.shape + (1,) * input.ndim)
+
+    if other.shape[0] == 1:
+        c0 = other[0]
+        c1 = 0
+    elif other.shape[0] == 2:
+        c0 = other[0]
+        c1 = other[1]
+    else:
+        nd = other.shape[0]
+        c0 = other[-2] * ones_like(input)
+        c1 = other[-1] * ones_like(input)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = other[-i] - (c1 * (nd - 1)) / nd
+            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
+            return c0, c1, nd
+
+        b = other.shape[0] + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
+
+    return c0 + c1 * (1 - input)
+
+
+def legval(input: Array, other: Array, tensor=True) -> Array:
+    other = _as_series(other)
+
+    if tensor:
+        other = reshape(other, other.shape + (1,) * input.ndim)
+
+    match other.shape[0]:
+        case 1:
+            a = other[0]
+            b = 0
+        case 2:
+            a = other[0]
+            b = other[1]
+        case _:
+            d = other.shape[0]
+
+            a = other[-2] * ones_like(input)
+            b = other[-1] * ones_like(input)
+
+            for i in range(3, other.shape[0] + 1):
+                c = a
+
+                d = d - 1
+
+                a = other[-i] - (b * (d - 1)) / d
+
+                b = c + (b * input * (2 * d - 1)) / d
+
+    return a + b * input
+
+
+def hermval(x, c, tensor=True):
+    c = _as_series(c)
+
+    if tensor:
+        c = reshape(c, c.shape + (1,) * x.ndim)
+
+    x2 = x * 2
+    if c.shape[0] == 1:
+        c0 = c[0]
+        c1 = 0
+    elif c.shape[0] == 2:
+        c0 = c[0]
+        c1 = c[1]
+    else:
+        nd = c.shape[0]
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = c[-i] - c1 * (2 * (nd - 1))
+            c1 = tmp + c1 * x2
+            return c0, c1, nd
+
+        b = c.shape[0] + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
+
+    return c0 + c1 * x2
+
+
+def hermeval(x, c, tensor=True):
+    c = _as_series(c)
+
+    if tensor:
+        c = reshape(c, c.shape + (1,) * x.ndim)
+
+    if c.shape[0] == 1:
+        c0 = c[0]
+        c1 = 0
+    elif c.shape[0] == 2:
+        c0 = c[0]
+        c1 = c[1]
+    else:
+        nd = c.shape[0]
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = c[-i] - c1 * (nd - 1)
+            c1 = tmp + c1 * x
+            return c0, c1, nd
+
+        b = c.shape[0] + 1
+
+        x1 = (c0, c1, nd)
+
+        y = x1
+
+        for index in range(3, b):
+            y = body(index, y)
+
+        c0, c1, _ = y
+
+    return c0 + c1 * x
+
+
+def polyval(input: Array, other: Array, tensor: bool = True) -> Array:
+    other = _as_series(other)
+
+    if tensor:
+        other = reshape(other, other.shape + (1,) * input.ndim)
+
+    c0 = other[-1] + zeros_like(input)
+
+    y = c0
+
+    for index in range(2, other.shape[0] + 1):
+        y = other[-index] + y * input
+
+    return y
+
+
 chebtrim = _trim_coefficients
 hermetrim = _trim_coefficients
 hermtrim = _trim_coefficients
