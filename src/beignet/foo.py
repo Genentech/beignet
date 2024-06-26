@@ -1266,7 +1266,9 @@ def polymulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def polypow(
-    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         polymul,
@@ -1280,18 +1282,22 @@ def polysub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def polyval(input: Array, other: Array, tensor: bool = True) -> Array:
-    other = _as_series(other)
+def polyval(
+    input: Array,
+    coefficients: Array,
+    tensor: bool = True,
+) -> Array:
+    coefficients = _as_series(coefficients)
 
     if tensor:
-        other = reshape(other, other.shape + (1,) * input.ndim)
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
 
-    c0 = other[-1] + zeros_like(input)
+    c0 = coefficients[-1] + zeros_like(input)
 
     y = c0
 
-    for index in range(2, other.shape[0] + 1):
-        y = other[-index] + y * input
+    for index in range(2, coefficients.shape[0] + 1):
+        y = coefficients[-index] + y * input
 
     return y
 
