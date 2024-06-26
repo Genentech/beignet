@@ -5249,7 +5249,7 @@ def test_legvander():
             v[..., index],
             legval(
                 x,
-                [0] * index + [1],
+                array([0] * index + [1]),
             ),
         )
 
@@ -5262,7 +5262,7 @@ def test_legvander():
             v[..., index],
             legval(
                 x,
-                [0] * index + [1],
+                array([0] * index + [1]),
             ),
         )
 
@@ -6487,7 +6487,7 @@ def test_polyvalfromroots():
 def test_polyvander():
     output = polyvander(
         arange(3),
-        degree=3,
+        degree=array(3),
     )
 
     assert output.shape == (3, 4)
@@ -6503,7 +6503,7 @@ def test_polyvander():
 
     output = polyvander(
         array([[1, 2], [3, 4], [5, 6]]),
-        degree=3,
+        degree=array(3),
     )
 
     assert output.shape == (3, 2, 4)
@@ -6534,7 +6534,7 @@ def test_polyvander2d():
             polyvander2d(
                 x1,
                 x2,
-                (1, 2),
+                degree=array([1, 2]),
             ),
             c.ravel(),
         ),
@@ -6548,7 +6548,7 @@ def test_polyvander2d():
     van = polyvander2d(
         [x1],
         [x2],
-        (1, 2),
+        degree=array([1, 2]),
     )
 
     assert van.shape == (1, 5, 6)
@@ -6565,7 +6565,7 @@ def test_polyvander3d():
                 x1,
                 x2,
                 x3,
-                degree=(1, 2, 3),
+                degree=array([1, 2, 3]),
             ),
             c.ravel(),
         ),
@@ -6581,7 +6581,7 @@ def test_polyvander3d():
         [x1],
         [x2],
         [x3],
-        degree=(1, 2, 3),
+        degree=array([1, 2, 3]),
     )
 
     assert van.shape == (1, 5, 24)

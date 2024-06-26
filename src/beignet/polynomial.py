@@ -216,13 +216,19 @@ def _fit(
     if issubclass(lhs.dtype.type, complexfloating):
         scale = square(lhs.real) + square(lhs.imag)
 
-        scale = sum(scale, 1)
+        scale = sum(
+            scale,
+            axis=1,
+        )
 
         scale = sqrt(scale)
     else:
         scale = square(lhs)
 
-        scale = sum(scale, 1)
+        scale = sum(
+            scale,
+            axis=1,
+        )
 
         scale = sqrt(scale)
 
@@ -514,16 +520,18 @@ def chebadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def chebcompanion(c):
+def chebcompanion(c: Array) -> Array:
     c = _as_series(c)
+
     if c.shape[0] < 2:
         raise ValueError
+
     if c.shape[0] == 2:
         return array([[-c[0] / c[1]]])
 
     n = c.shape[0] - 1
 
-    mat = zeros((n, n), dtype=c.dtype)
+    mat = zeros([n, n], dtype=c.dtype)
 
     scl = ones(n).at[1:].set(sqrt(0.5))
 
@@ -600,8 +608,8 @@ def chebfit(
     )
 
 
-def chebfromroots(roots):
-    return _from_roots(chebline, chebmul, roots)
+def chebfromroots(input: Array) -> Array:
+    return _from_roots(chebline, chebmul, input)
 
 
 def chebgauss(degree):
@@ -635,18 +643,23 @@ def chebgrid3d(x, y, z, c):
     return c
 
 
-def chebint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def chebint(c: Array, order=1, k=None, lbnd=0, scl=1, axis=0) -> Array:
     if k is None:
         k = []
+
     c = _as_series(c)
+
     lbnd, scl = map(asarray, (lbnd, scl))
 
     if not iterable(k):
         k = [k]
+
     if len(k) > order:
         raise ValueError
+
     if ndim(lbnd) != 0:
         raise ValueError
+
     if ndim(scl) != 0:
         raise ValueError
 
@@ -720,7 +733,7 @@ def chebmul(
     return output
 
 
-def chebmulx(c, mode="full"):
+def chebmulx(c: Array, mode="full") -> Array:
     c = _as_series(c)
 
     output = zeros(c.shape[0] + 1, dtype=c.dtype)
@@ -811,16 +824,16 @@ def chebpts2(points):
     return output
 
 
-def chebroots(c):
-    c = _as_series(c)
+def chebroots(input: Array) -> Array:
+    input = _as_series(input)
 
-    if c.shape[0] <= 1:
-        return array([], dtype=c.dtype)
+    if input.shape[0] <= 1:
+        return array([], dtype=input.dtype)
 
-    if c.shape[0] == 2:
-        return array([-c[0] / c[1]])
+    if input.shape[0] == 2:
+        return array([-input[0] / input[1]])
 
-    output = chebcompanion(c)
+    output = chebcompanion(input)
 
     output = output[::-1, ::-1]
 
@@ -835,38 +848,38 @@ def chebsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def chebval(x, c, tensor=True):
-    c = _as_series(c)
+def chebval(input: Array, other: Array, tensor: bool = True) -> Array:
+    other = _as_series(other)
 
     if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
-    if c.shape[0] == 1:
-        c0 = c[0]
+    if other.shape[0] == 1:
+        c0 = other[0]
         c1 = 0
-    elif c.shape[0] == 2:
-        c0 = c[0]
-        c1 = c[1]
+    elif other.shape[0] == 2:
+        c0 = other[0]
+        c1 = other[1]
     else:
-        x2 = 2 * x
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
+        x2 = 2 * input
+        c0 = other[-2] * ones_like(input)
+        c1 = other[-1] * ones_like(input)
 
         def body(i, val):
             c0, c1 = val
             tmp = c0
-            c0 = c[-i] - c1
+            c0 = other[-i] - c1
             c1 = tmp + c1 * x2
             return c0, c1
 
         x1 = (c0, c1)
 
-        for index in range(3, c.shape[0] + 1):
-            x1 = body(index, x1)
+        for i in range(3, other.shape[0] + 1):
+            x1 = body(i, x1)
 
         c0, c1 = x1
 
-    return c0 + c1 * x
+    return c0 + c1 * input
 
 
 def chebval2d(x, y, c):
@@ -914,12 +927,8 @@ def chebvander3d(x, y, z, degree):
     )
 
 
-def chebweight(x):
-    output = sqrt(1.0 + x) * sqrt(1.0 - x)
-
-    output = 1.0 / output
-
-    return output
+def chebweight(input: Array) -> Array:
+    return 1.0 / (sqrt(1.0 + input) * sqrt(1.0 - input))
 
 
 def _get_domain(x: Array) -> Array:
@@ -1014,10 +1023,7 @@ def hermder(c, order=1, scl=1, axis=0):
     return c
 
 
-def hermdiv(
-    input,
-    other,
-):
+def hermdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(hermmul, input, other)
 
 
@@ -1050,10 +1056,7 @@ def herme2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-def hermeadd(
-    input,
-    other,
-):
+def hermeadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
@@ -1102,10 +1105,7 @@ def hermeder(c, order=1, scl=1, axis=0):
     return c
 
 
-def hermediv(
-    input,
-    other,
-):
+def hermediv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(hermemul, input, other)
 
 
@@ -1128,8 +1128,8 @@ def hermefit(
     )
 
 
-def hermefromroots(roots):
-    return _from_roots(hermeline, hermemul, roots)
+def hermefromroots(input: Array) -> Array:
+    return _from_roots(hermeline, hermemul, input)
 
 
 def hermegauss(degree):
@@ -1257,17 +1257,17 @@ def hermemul(input, other, mode="full"):
 
 def hermemulx(c, mode="full"):
     c = _as_series(c)
-    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
-    prd = prd.at[1].set(c[0])
+    output = zeros(c.shape[0] + 1, dtype=c.dtype)
+    output = output.at[1].set(c[0])
 
     i = arange(1, c.shape[0])
 
-    prd = prd.at[i + 1].set(c[i])
-    prd = prd.at[i - 1].add(c[i] * i)
+    output = output.at[i + 1].set(c[i])
+    output = output.at[i - 1].add(c[i] * i)
 
     if mode == "same":
-        prd = prd[: c.shape[0]]
-    return prd
+        output = output[: c.shape[0]]
+    return output
 
 
 def hermepow(c, exponent, maximum_exponent=16):
@@ -1286,10 +1286,7 @@ def hermeroots(c):
     return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
 
 
-def hermesub(
-    input,
-    other,
-):
+def hermesub(input, other):
     return _subtract(input, other)
 
 
@@ -1511,8 +1508,10 @@ def hermmul(input, other, mode="full"):
         b = c.shape[0] + 1
         x = (c0, input, nd)
         y = x
+
         for index in range(3, b):
             y = body(index, y)
+
         c0, input, _ = y
 
     ret = hermadd(c0, hermmulx(input, "same") * 2)
@@ -1523,18 +1522,18 @@ def hermmul(input, other, mode="full"):
 
 def hermmulx(c, mode="full"):
     c = _as_series(c)
-    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
-    prd = prd.at[1].set(c[0] / 2)
+    output = zeros(c.shape[0] + 1, dtype=c.dtype)
+    output = output.at[1].set(c[0] / 2)
 
     i = arange(1, c.shape[0])
 
-    prd = prd.at[i + 1].set(c[i] / 2)
-    prd = prd.at[i - 1].add(c[i] * i)
+    output = output.at[i + 1].set(c[i] / 2)
+    output = output.at[i - 1].add(c[i] * i)
 
     if mode == "same":
-        prd = prd[: c.shape[0]]
+        output = output[: c.shape[0]]
 
-    return prd
+    return output
 
 
 def hermpow(c, exponent, maximum_exponent=16):
@@ -1892,19 +1891,19 @@ def lagmul(input, other, mode="full"):
 def lagmulx(c, mode="full"):
     c = _as_series(c)
 
-    prd = zeros(c.shape[0] + 1, dtype=c.dtype)
-    prd = prd.at[0].set(c[0])
-    prd = prd.at[1].set(-c[0])
+    output = zeros(c.shape[0] + 1, dtype=c.dtype)
+    output = output.at[0].set(c[0])
+    output = output.at[1].set(-c[0])
 
     i = arange(1, c.shape[0])
 
-    prd = prd.at[i + 1].set(-c[i] * (i + 1))
-    prd = prd.at[i].add(c[i] * (2 * i + 1))
-    prd = prd.at[i - 1].add(-c[i] * i)
+    output = output.at[i + 1].set(-c[i] * (i + 1))
+    output = output.at[i].add(c[i] * (2 * i + 1))
+    output = output.at[i - 1].add(-c[i] * i)
 
     if mode == "same":
-        prd = prd[: c.shape[0]]
-    return prd
+        output = output[: c.shape[0]]
+    return output
 
 
 def lagpow(c, exponent, maximum_exponent=16):
@@ -2425,7 +2424,7 @@ def _map_parameters(previous, new):
     return off, scl
 
 
-def poly2cheb(input):
+def poly2cheb(input: Array) -> Array:
     input = _as_series(input)
 
     output = zeros_like(input)
@@ -2439,7 +2438,7 @@ def poly2cheb(input):
     return output
 
 
-def poly2herm(input):
+def poly2herm(input: Array) -> Array:
     input = _as_series(input)
 
     output = zeros_like(input)
@@ -2453,7 +2452,7 @@ def poly2herm(input):
     return output
 
 
-def poly2herme(input):
+def poly2herme(input: Array) -> Array:
     input = _as_series(input)
 
     output = zeros_like(input)
@@ -2467,7 +2466,7 @@ def poly2herme(input):
     return output
 
 
-def poly2lag(input):
+def poly2lag(input: Array) -> Array:
     input = _as_series(input)
 
     output = zeros_like(input)
@@ -2481,7 +2480,7 @@ def poly2lag(input):
     return output
 
 
-def poly2leg(input):
+def poly2leg(input: Array) -> Array:
     input = _as_series(input)
 
     output = zeros_like(input)
@@ -2499,38 +2498,38 @@ def polyadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def polycompanion(c):
-    c = _as_series(c)
+def polycompanion(input: Array) -> Array:
+    input = _as_series(input)
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return array([[-c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return array([[-input[0] / input[1]]])
 
-    n = c.shape[0] - 1
+    n = input.shape[0] - 1
 
-    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
+    mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
 
     mat = mat.at[n :: n + 1].set(1)
 
     mat = reshape(mat, (n, n))
 
-    return mat.at[:, -1].add(-c[:-1] / c[-1])
+    return mat.at[:, -1].add(-input[:-1] / input[-1])
 
 
-def polyder(c, order=1, scl=1, axis=0):
-    c = _as_series(c)
+def polyder(input: Array, order=1, scl=1, axis=0) -> Array:
+    input = _as_series(input)
 
     if order == 0:
-        return c
+        return input
 
-    c = moveaxis(c, axis, 0)
+    input = moveaxis(input, axis, 0)
 
-    n = c.shape[0]
+    n = input.shape[0]
 
     if order >= n:
-        c = zeros_like(c[:1])
+        input = zeros_like(input[:1])
     else:
         d = arange(n)
 
@@ -2543,21 +2542,19 @@ def polyder(c, order=1, scl=1, axis=0):
 
             return c
 
-        y = c
+        y = input
 
         for index in range(0, order):
             y = body(index, y)
 
-        c = y
+        input = y
 
-        c = c[:-order]
+        input = input[:-order]
 
-    c = moveaxis(c, 0, axis)
-
-    return c
+    return moveaxis(input, 0, axis)
 
 
-def polydiv(input: Array, other: Array) -> Array:
+def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
     input, other = _as_series(input, other)
 
     return _div(polymul, input, other)
@@ -2598,11 +2595,11 @@ def polygrid3d(x, y, z, c):
     return c
 
 
-def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def polyint(input: Array, order=1, k=None, lbnd=0, scl=1, axis=0) -> Array:
     if k is None:
         k = []
 
-    c = _as_series(c)
+    input = _as_series(input)
 
     lbnd, scl = map(asarray, (lbnd, scl))
 
@@ -2622,37 +2619,37 @@ def polyint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
         raise ValueError
 
     if order == 0:
-        return c
+        return input
 
     k = array(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    n = c.shape[axis]
+    n = input.shape[axis]
 
-    c = _pad_along_axis(c, (0, order), axis)
+    input = _pad_along_axis(input, (0, order), axis)
 
-    c = moveaxis(c, axis, 0)
+    input = moveaxis(input, axis, 0)
 
     d = arange(n + order) + 1
 
     for i in range(0, order):
-        c = c * scl
+        input = input * scl
 
-        c = transpose(transpose(c) / d)
+        input = transpose(transpose(input) / d)
 
-        c = roll(c, 1, axis=0)
+        input = roll(input, 1, axis=0)
 
-        c = c.at[0].set(0)
+        input = input.at[0].set(0)
 
-        c = c.at[0].add(k[i] - polyval(lbnd, c))
+        input = input.at[0].add(k[i] - polyval(lbnd, input))
 
-    return moveaxis(c, 0, axis)
+    return moveaxis(input, 0, axis)
 
 
 def polyline(off, scl):
     return array([off, scl])
 
 
-def polymul(input, other, mode="full"):
+def polymul(input: Array, other: Array, mode="full") -> Array:
     input, other = _as_series(input, other)
 
     output = convolve(input, other)
@@ -2663,7 +2660,7 @@ def polymul(input, other, mode="full"):
     return output
 
 
-def polymulx(input, mode="full"):
+def polymulx(input: Array, mode="full") -> Array:
     input = _as_series(input)
 
     output = zeros(len(input) + 1, dtype=input.dtype)
@@ -2676,8 +2673,13 @@ def polymulx(input, mode="full"):
     return output
 
 
-def polypow(c, exponent, maximum_exponent=16):
-    return _pow(polymul, c, exponent, maximum_exponent)
+def polypow(input: Array, exponent: int, maximum_exponent: int = 16) -> Array:
+    return _pow(
+        polymul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
 
 
 def polyroots(input: Array) -> Array:
@@ -2696,18 +2698,18 @@ def polysub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def polyval(x: Array, c: Array, tensor: bool = True) -> Array:
-    c = _as_series(c)
+def polyval(input: Array, other: Array, tensor: bool = True) -> Array:
+    other = _as_series(other)
 
     if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
-    c0 = c[-1] + zeros_like(x)
+    c0 = other[-1] + zeros_like(input)
 
     y = c0
 
-    for index in range(2, c.shape[0] + 1):
-        y = c[-index] + y * x
+    for index in range(2, other.shape[0] + 1):
+        y = other[-index] + y * input
 
     return y
 
@@ -2731,17 +2733,17 @@ def polyval3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     )
 
 
-def polyvalfromroots(x, r, tensor=True):
-    if r.ndim == 0:
-        r = ravel(r)
+def polyvalfromroots(input, other, tensor=True):
+    if other.ndim == 0:
+        other = ravel(other)
 
     if tensor:
-        r = reshape(r, r.shape + (1,) * x.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
-    if x.ndim >= r.ndim:
+    if input.ndim >= other.ndim:
         raise ValueError
 
-    output = prod(x - r, axis=0)
+    output = prod(input - other, axis=0)
 
     return output
 
