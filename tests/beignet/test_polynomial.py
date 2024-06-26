@@ -1510,7 +1510,11 @@ def test_chebsub():
 
 
 def test_chebtrim():
-    pytest.raises(ValueError, chebtrim, array([2, -1, 1, 0]), -1)
+    with pytest.raises(ValueError):
+        chebtrim(
+            array([2, -1, 1, 0]),
+            -1,
+        )
 
     assert_array_almost_equal(
         chebtrim(
@@ -1559,10 +1563,17 @@ def test_chebval():
 
 def test_chebval2d():
     c1d = array([2.5, 2.0, 1.5])
-    c2d = einsum("i,j->ij", c1d, c1d)
+    c2d = einsum(
+        "i,j->ij",
+        c1d,
+        c1d,
+    )
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, array([1.0, 2.0, 3.0]))
+    y = polyval(
+        x,
+        array([1.0, 2.0, 3.0]),
+    )
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -1575,32 +1586,40 @@ def test_chebval2d():
         c2d,
     )
 
-    target = y1 * y2
-    res = chebval2d(
-        x1,
-        x2,
-        c2d,
-    )
     assert_array_almost_equal(
-        res,
-        target,
+        chebval2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        y1 * y2,
     )
 
     z = ones([2, 3])
+
     res = chebval2d(
         z,
         z,
         c2d,
     )
+
     assert res.shape == (2, 3)
 
 
 def test_chebval3d():
     c1d = array([2.5, 2.0, 1.5])
-    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
+    c3d = einsum(
+        "i,j,k->ijk",
+        c1d,
+        c1d,
+        c1d,
+    )
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(x, array([1.0, 2.0, 3.0]))
+    y = polyval(
+        x,
+        array([1.0, 2.0, 3.0]),
+    )
 
     x1, x2, x3 = x
     y1, y2, y3 = y
@@ -1608,9 +1627,13 @@ def test_chebval3d():
     pytest.raises(ValueError, chebval3d, x1, x2, x3[:2], c3d)
 
     target = y1 * y2 * y3
-    res = chebval3d(x1, x2, x3, c3d)
     assert_array_almost_equal(
-        res,
+        chebval3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
         target,
     )
 
