@@ -564,7 +564,9 @@ def chebline(input: Array, other: Array):
 
 
 def chebmul(
-    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
 
@@ -602,7 +604,9 @@ def chebmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def chebpow(
-    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     input = _as_series(input)
 
@@ -690,7 +694,11 @@ def hermeline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def hermemul(input: Array, other, mode: Literal["full", "same"] = "full") -> Array:
+def hermemul(
+    input: Array,
+    other,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -732,7 +740,10 @@ def hermemul(input: Array, other, mode: Literal["full", "same"] = "full") -> Arr
     return ret
 
 
-def hermemulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+def hermemulx(
+    input: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -751,7 +762,9 @@ def hermemulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def hermepow(
-    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         hermemul,
