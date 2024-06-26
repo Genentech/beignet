@@ -520,18 +520,18 @@ def chebadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def chebcompanion(c: Array) -> Array:
-    c = _as_series(c)
+def chebcompanion(input: Array) -> Array:
+    input = _as_series(input)
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return array([[-c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return array([[-input[0] / input[1]]])
 
-    n = c.shape[0] - 1
+    n = input.shape[0] - 1
 
-    mat = zeros([n, n], dtype=c.dtype)
+    mat = zeros([n, n], dtype=input.dtype)
 
     scl = ones(n).at[1:].set(sqrt(0.5))
 
@@ -544,7 +544,7 @@ def chebcompanion(c: Array) -> Array:
 
     mat = reshape(mat, shp)
 
-    return mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * 0.5)
+    return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scl / scl[-1]) * 0.5)
 
 
 def chebder(input, order=1, scale=1, axis=0):
@@ -612,7 +612,7 @@ def chebfromroots(input: Array) -> Array:
     return _from_roots(chebline, chebmul, input)
 
 
-def chebgauss(degree):
+def chebgauss(degree: int) -> Tuple[Array, Array]:
     degree = int(degree)
 
     if degree <= 0:
@@ -626,9 +626,9 @@ def chebgauss(degree):
 
     output = cos(output)
 
-    w = ones(degree) * (math.pi / degree)
+    weight = ones(degree) * (math.pi / degree)
 
-    return output, w
+    return output, weight
 
 
 def chebgrid2d(x, y, c):

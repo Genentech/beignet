@@ -195,6 +195,8 @@ from beignet.polynomial import (
     polyvander3d,
     polyx,
     polyzero,
+    sum,
+    transpose,
 )
 from jax.numpy import (
     arange,
@@ -786,19 +788,15 @@ def test_chebfit():
         ),
         array(
             [
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -812,19 +810,15 @@ def test_chebfit():
         ),
         array(
             [
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -871,19 +865,15 @@ def test_chebfit():
         ),
         array(
             [
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -898,19 +888,15 @@ def test_chebfit():
         ),
         array(
             [
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    chebfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ],
         ).T,
@@ -1001,36 +987,63 @@ def test_chebfromroots():
 
 
 def test_chebgauss():
-    x, w = chebgauss(100)
+    point, weight = chebgauss(100)
 
-    v = chebvander(x, 99)
-    vv = dot(v.T * w, v)
-    vd = 1 / sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-    assert_array_almost_equal(vv, eye(100))
-    assert_array_almost_equal(w.sum(), math.pi)
+    t = chebvander(point, 99)
+
+    u = dot(transpose(t) * weight, t)
+
+    v = 1 / sqrt(u.diagonal())
+
+    assert_array_almost_equal(
+        v[:, None] * u * v,
+        eye(100),
+    )
+
+    assert_array_almost_equal(
+        sum(weight),
+        math.pi,
+    )
 
 
 def test_chebgrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     x1, x2, x3 = x
-    y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
+
+    y1, y2, y3 = polyval(
+        x,
+        array([1.0, 2.0, 3.0]),
+    )
 
     assert_array_almost_equal(
         chebgrid2d(
             x1,
             x2,
-            einsum("i,j->ij", array([2.5, 2.0, 1.5]), array([2.5, 2.0, 1.5])),
+            einsum(
+                "i,j->ij",
+                array([2.5, 2.0, 1.5]),
+                array([2.5, 2.0, 1.5]),
+            ),
         ),
-        einsum("i,j->ij", y1, y2),
+        einsum(
+            "i,j->ij",
+            y1,
+            y2,
+        ),
     )
 
     z = ones([2, 3])
+
     res = chebgrid2d(
         z,
         z,
-        einsum("i,j->ij", array([2.5, 2.0, 1.5]), array([2.5, 2.0, 1.5])),
+        einsum(
+            "i,j->ij",
+            array([2.5, 2.0, 1.5]),
+            array([2.5, 2.0, 1.5]),
+        ),
     )
+
     assert res.shape == (2, 3) * 2
 
 
@@ -5292,7 +5305,10 @@ def test_legvander3d():
 
 
 def test_legweight():
-    assert_array_almost_equal(legweight(linspace(-1, 1, 11)), 1.0)
+    assert_array_almost_equal(
+        legweight(linspace(-1, 1, 11)),
+        1.0,
+    )
 
 
 def test_legx():
