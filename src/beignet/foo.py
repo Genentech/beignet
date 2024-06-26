@@ -541,7 +541,11 @@ def _vandermonde(vander_fs, points, degrees) -> Array:
     return functools.reduce(operator.mul, output)
 
 
-def _z_series_mul(input: Array, other: Array, mode="full") -> Array:
+def _z_series_mul(
+    input: Array,
+    other: Array,
+    mode="full",
+) -> Array:
     return convolve(input, other, mode=mode)
 
 
@@ -583,7 +587,10 @@ def chebmul(
     return output
 
 
-def chebmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+def chebmulx(
+    input: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -648,7 +655,11 @@ def chebsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def chebval(input: Array, coefficients: Array, tensor: bool = True) -> Array:
+def chebval(
+    input: Array,
+    coefficients: Array,
+    tensor: bool = True,
+) -> Array:
     coefficients = _as_series(coefficients)
 
     if tensor:
@@ -696,7 +707,7 @@ def hermeline(input: float, other: float) -> Array:
 
 def hermemul(
     input: Array,
-    other,
+    other: Array,
     mode: Literal["full", "same"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
@@ -1252,7 +1263,10 @@ def polymul(
     return output
 
 
-def polymulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+def polymulx(
+    input: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
