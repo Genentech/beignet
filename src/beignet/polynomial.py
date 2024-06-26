@@ -159,7 +159,7 @@ def _fit(
     vandermonde_func,
     input: Array,
     other: Array,
-    degree: Array,
+    degree: Array | int,
     relative_condition: float | None = None,
     full: bool = False,
     weight: Array | None = None,
