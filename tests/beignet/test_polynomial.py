@@ -5619,19 +5619,15 @@ def test_polyfit():
         ),
         array(
             [
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -5645,19 +5641,15 @@ def test_polyfit():
         ),
         array(
             [
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -5698,25 +5690,21 @@ def test_polyfit():
     assert_array_almost_equal(
         polyfit(
             input,
-            array([(other.at[0::2].set(0)), (other.at[0::2].set(0))]).T,
+            array([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
             degree=3,
             weight=weight,
         ),
         array(
             [
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -5731,19 +5719,15 @@ def test_polyfit():
         ),
         array(
             [
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    polyfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -6217,7 +6201,7 @@ def test_polypow():
                 polytrim(
                     functools.reduce(
                         polymul,
-                        [(arange(i + 1))] * j,
+                        [arange(i + 1)] * j,
                         array([1]),
                     ),
                     tol=0.000001,
@@ -6279,7 +6263,8 @@ def test_polysub():
 def test_polytrim():
     coef = array([2, -1, 1, 0])
 
-    pytest.raises(ValueError, polytrim, coef, -1)
+    with pytest.raises(ValueError):
+        polytrim(coef, -1)
 
     assert_array_almost_equal(
         polytrim(coef),
@@ -6298,7 +6283,7 @@ def test_polytrim():
 
 
 def test_polyval():
-    assert polyval(array([]), [1]).size == 0
+    assert polyval(array([]), array([1])).size == 0
 
     x = linspace(-1, 1, 50)
     y = [x**i for i in range(5)]
@@ -6310,7 +6295,7 @@ def test_polyval():
         )
 
     assert_array_almost_equal(
-        polyval(x, [0, -1, 0, 1]),
+        polyval(x, array([0, -1, 0, 1])),
         x * (x**2 - 1),
     )
 
@@ -6533,7 +6518,10 @@ def test_polyvander():
         )
 
     with pytest.raises(ValueError):
-        polyvander(arange(3), -1)
+        polyvander(
+            arange(3),
+            array([-1]),
+        )
 
 
 def test_polyvander2d():
