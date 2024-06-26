@@ -5455,7 +5455,7 @@ def test_polyder():
                             scl=2,
                         ),
                         order=j,
-                        scl=0.5,
+                        scale=0.5,
                     ),
                     tol=0.000001,
                 ),

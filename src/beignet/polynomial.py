@@ -2412,16 +2412,14 @@ def _map_domain(x, old, new):
     return off + scl * x
 
 
-def _map_parameters(previous, new):
-    oldlen = previous[1] - previous[0]
+def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
+    a = input[1] - input[0]
+    b = other[1] - other[0]
 
-    newlen = new[1] - new[0]
+    x = (input[1] * other[0] - input[0] * other[1]) / a
+    y = b / a
 
-    off = (previous[1] * new[0] - previous[0] * new[1]) / oldlen
-
-    scl = newlen / oldlen
-
-    return off, scl
+    return x, y
 
 
 def poly2cheb(input: Array) -> Array:
@@ -2518,7 +2516,12 @@ def polycompanion(input: Array) -> Array:
     return mat.at[:, -1].add(-input[:-1] / input[-1])
 
 
-def polyder(input: Array, order=1, scl=1, axis=0) -> Array:
+def polyder(
+    input: Array,
+    order: int = 1,
+    scale: float = 1,
+    axis: int = 0,
+) -> Array:
     input = _as_series(input)
 
     if order == 0:
@@ -2536,7 +2539,7 @@ def polyder(input: Array, order=1, scl=1, axis=0) -> Array:
         def body(_, c):
             c = transpose(d * transpose(c))
 
-            c = roll(c, -1, axis=0) * scl
+            c = roll(c, -1, axis=0) * scale
 
             c = c.at[-1].set(0)
 
@@ -2583,13 +2586,13 @@ def polyfromroots(input: Array) -> Array:
     return _from_roots(polyline, polymul, input)
 
 
-def polygrid2d(x, y, c):
+def polygrid2d(x: Array, y: Array, c: Array) -> Array:
     for arg in [x, y]:
         c = polyval(arg, c)
     return c
 
 
-def polygrid3d(x, y, z, c):
+def polygrid3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     for arg in [x, y, z]:
         c = polyval(arg, c)
     return c
@@ -2733,7 +2736,11 @@ def polyval3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     )
 
 
-def polyvalfromroots(input, other, tensor=True):
+def polyvalfromroots(
+    input: Array,
+    other: Array,
+    tensor: bool = True,
+) -> Array:
     if other.ndim == 0:
         other = ravel(other)
 
