@@ -1200,7 +1200,7 @@ def hermegauss(degree):
     w = (w + a) / 2
     x = (x - b) / 2
 
-    w *= sqrt(2 * math.pi) / w.sum()
+    w *= sqrt(2 * math.pi) / sum(w)
 
     return x, w
 
@@ -1490,7 +1490,7 @@ def hermgauss(degree):
     w = (w + a) / 2
     x = (x - b) / 2
 
-    w = w * (sqrt(math.pi) / w.sum())
+    w = w * (sqrt(math.pi) / sum(w))
 
     return x, w
 
@@ -1874,7 +1874,7 @@ def laggauss(degree):
     df /= abs(df).max()
     w = 1 / (fm * df)
 
-    w /= w.sum()
+    w /= sum(w)
 
     return x, w
 
@@ -2248,6 +2248,7 @@ def legfromroots(roots):
 
 def leggauss(degree):
     degree = int(degree)
+
     if degree <= 0:
         raise ValueError
 
@@ -2260,8 +2261,10 @@ def leggauss(degree):
     x -= dy / df
 
     fm = legval(x, c[1:])
+
     fm /= abs(fm).max()
     df /= abs(df).max()
+
     w = 1 / (fm * df)
 
     a = flip(w, axis=0)
@@ -2270,7 +2273,7 @@ def leggauss(degree):
     w = (w + a) / 2
     x = (x - b) / 2
 
-    w *= 2.0 / w.sum()
+    w = w * (2.0 / sum(w))
 
     return x, w
 
@@ -2891,8 +2894,8 @@ def polyvander(input: Array, degree: Array) -> Array:
 
     output = output.at[0].set(ones_like(input))
 
-    for index in range(1, degree + 1):
-        output = output.at[index].set(output[index - 1] * input)
+    for i in range(1, degree + 1):
+        output = output.at[i].set(output[i - 1] * input)
 
     output = moveaxis(output, 0, -1)
 
