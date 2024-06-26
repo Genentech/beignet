@@ -876,7 +876,11 @@ def lagmulx(input, mode="full"):
     return output
 
 
-def lagpow(input, exponent, maximum_exponent=16):
+def lagpow(
+    input: Array,
+    exponent: float,
+    maximum_exponent: float = 16,
+) -> Array:
     return _pow(lagmul, input, exponent, maximum_exponent)
 
 
@@ -888,12 +892,12 @@ def legadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def legdiv(input, other):
+def legdiv(input: Array, other: Array) -> Array:
     return _div(legmul, input, other)
 
 
-def legline(off, scale):
-    return array([off, scale])
+def legline(input: float, other: float) -> Array:
+    return array([input, other])
 
 
 def legmul(input, other, mode="full"):
@@ -985,8 +989,8 @@ def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(polymul, input, other)
 
 
-def polyline(off, scale):
-    return array([off, scale])
+def polyline(input: float, other: float) -> Array:
+    return array([input, other])
 
 
 def polymul(input: Array, other: Array, mode="full") -> Array:
