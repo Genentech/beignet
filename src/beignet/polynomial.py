@@ -139,7 +139,9 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
         return input / other[-1], zeros_like(input[:1])
 
     def _ldordidx(x):
-        return x.shape[0] - 1 - nonzero(flip(x, axis=0), size=1)[0][0]
+        indicies = nonzero(flip(x, axis=0), size=1)
+
+        return x.shape[0] - 1 - indicies[0][0]
 
     quotient = zeros(lc1 - lc2 + 1, dtype=input.dtype)
 
@@ -353,6 +355,16 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
     return ret[0]
 
 
+def _get_domain(x: Array) -> Array:
+    if iscomplexobj(x):
+        rmin, rmax = x.real.min(), x.real.max()
+        imin, imax = x.imag.min(), x.imag.max()
+
+        return array(((rmin + 1j * imin), (rmax + 1j * imax)))
+
+    return array((x.min(), x.max()))
+
+
 def _map_domain(x, old, new):
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
@@ -400,20 +412,22 @@ def _normed_hermite_n(x: Array, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
     else:
-        c0 = zeros_like(x)
-        c1 = ones_like(x) / sqrt(sqrt(math.pi))
-        nd = array(n).astype(float)
+        a = zeros_like(x)
+
+        b = ones_like(x) / sqrt(sqrt(math.pi))
+
+        d = array(n)
 
         for _ in range(0, n - 1):
-            tmp = c0
+            c = a
 
-            c0 = -c1 * sqrt((nd - 1.0) / nd)
+            a = -b * sqrt((d - 1.0) / d)
 
-            c1 = tmp + c1 * x * sqrt(2.0 / nd)
+            b = c + b * x * sqrt(2.0 / d)
 
-            nd = nd - 1.0
+            d = d - 1.0
 
-        output = c0 + c1 * x * sqrt(2)
+        output = a + b * x * math.sqrt(2)
 
     return output
 
@@ -487,30 +501,37 @@ def _subtract(input: Array, other: Array) -> Array:
 
 def _vandermonde(vander_fs, points, degrees):
     n_dims = len(vander_fs)
+
     if n_dims != len(points):
         raise ValueError
+
     if n_dims != len(degrees):
         raise ValueError
+
     if n_dims == 0:
         raise ValueError
 
-    points = tuple(array(tuple(points), copy=False) + 0.0)
+    points = tuple(array(tuple(points)) + 0.0)
 
-    vander_arrays = (
-        vander_fs[i](points[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
-        for i in range(n_dims)
-    )
+    output = []
 
-    return functools.reduce(operator.mul, vander_arrays)
+    for i in range(n_dims):
+        vandermonde = vander_fs[i](points[i], degrees[i])
+
+        vandermonde = vandermonde[(..., *_nth_slice(i, n_dims))]
+
+        output = [*output, vandermonde]
+
+    return functools.reduce(operator.mul, output)
 
 
-def _z_series_mul(z1, z2, mode="full"):
-    return convolve(z1, z2, mode=mode)
+def _z_series_mul(input: Array, other: Array, mode="full") -> Array:
+    return convolve(input, other, mode=mode)
 
 
-def _z_series_to_c_series(zs):
-    n = (math.prod(zs.shape) + 1) // 2
-    c = zs[n - 1 :].copy()
+def _z_series_to_c_series(input: Array) -> Array:
+    n = (math.prod(input.shape) + 1) // 2
+    c = input[n - 1 :]
     return c.at[1:n].multiply(2)
 
 
@@ -572,7 +593,7 @@ def chebcompanion(input: Array) -> Array:
     return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
 
 
-def chebder(input, order=1, scale=1, axis=0):
+def chebder(input: Array, order=1, scale=1, axis=0) -> Array:
     if order < 0:
         raise ValueError
 
@@ -684,8 +705,6 @@ def chebint(
     lower_bound = asarray(lower_bound)
     scale = asarray(scale)
 
-    # lower_bound, scale = map(asarray, (lower_bound, scale))
-
     if not iterable(k):
         k = [k]
 
@@ -769,22 +788,22 @@ def chebmul(
     return output
 
 
-def chebmulx(c: Array, mode="full") -> Array:
-    c = _as_series(c)
+def chebmulx(input: Array, mode="full") -> Array:
+    input = _as_series(input)
 
-    output = zeros(c.shape[0] + 1, dtype=c.dtype)
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[1].set(c[0])
+    output = output.at[1].set(input[0])
 
-    if c.shape[0] > 1:
-        tmp = c[1:] / 2
+    if input.shape[0] > 1:
+        tmp = input[1:] / 2
 
         output = output.at[2:].set(tmp)
 
         output = output.at[0:-2].add(tmp)
 
     if mode == "same":
-        output = output[: c.shape[0]]
+        output = output[: input.shape[0]]
 
     return output
 
@@ -830,7 +849,7 @@ def chebpow(
     return output
 
 
-def chebpts1(points):
+def chebpts1(points: int) -> Array:
     _points = int(points)
 
     if _points != points:
@@ -889,45 +908,37 @@ def chebsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def chebval(input: Array, other: Array, tensor: bool = True) -> Array:
-    other = _as_series(other)
+def chebval(input: Array, coefficients: Array, tensor: bool = True) -> Array:
+    coefficients = _as_series(coefficients)
 
     if tensor:
-        other = reshape(other, other.shape + (1,) * input.ndim)
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
 
-    if other.shape[0] == 1:
-        c0 = other[0]
-        c1 = 0
-    elif other.shape[0] == 2:
-        c0 = other[0]
-        c1 = other[1]
+    if coefficients.shape[0] == 1:
+        a = coefficients[0]
+        b = 0
+    elif coefficients.shape[0] == 2:
+        a = coefficients[0]
+        b = coefficients[1]
     else:
-        x2 = 2 * input
-        c0 = other[-2] * ones_like(input)
-        c1 = other[-1] * ones_like(input)
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
 
-        def body(i, val):
-            c0, c1 = val
-            tmp = c0
-            c0 = other[-i] - c1
-            c1 = tmp + c1 * x2
-            return c0, c1
+        for i in range(3, coefficients.shape[0] + 1):
+            c = a
 
-        x1 = (c0, c1)
+            a = coefficients[-i] - b
 
-        for i in range(3, other.shape[0] + 1):
-            x1 = body(i, x1)
+            b = c + b * 2 * input
 
-        c0, c1 = x1
-
-    return c0 + c1 * input
+    return a + b * input
 
 
-def chebval2d(x, y, c):
+def chebval2d(x: Array, y: Array, c: Array) -> Array:
     return _evaluate(chebval, c, x, y)
 
 
-def chebval3d(x, y, z, c):
+def chebval3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     return _evaluate(chebval, c, x, y, z)
 
 
@@ -972,16 +983,6 @@ def chebweight(input: Array) -> Array:
     return 1.0 / (sqrt(1.0 + input) * sqrt(1.0 - input))
 
 
-def _get_domain(x: Array) -> Array:
-    if iscomplexobj(x):
-        rmin, rmax = x.real.min(), x.real.max()
-        imin, imax = x.imag.min(), x.imag.max()
-
-        return array(((rmin + 1j * imin), (rmax + 1j * imax)))
-
-    return array((x.min(), x.max()))
-
-
 def herm2poly(c):
     c = _as_series(c)
     n = c.shape[0]
@@ -1012,10 +1013,7 @@ def herm2poly(c):
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def hermadd(
-    input,
-    other,
-):
+def hermadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
@@ -1759,10 +1757,7 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagadd(
-    input,
-    other,
-):
+def lagadd(input, other):
     return _add(input, other)
 
 
@@ -1826,10 +1821,7 @@ def lagder(c, order=1, scale=1, axis=0):
     return c
 
 
-def lagdiv(
-    input,
-    other,
-):
+def lagdiv(input, other):
     return _div(lagmul, input, other)
 
 
@@ -1984,38 +1976,38 @@ def lagmul(input, other, mode="full"):
     return ret
 
 
-def lagmulx(c, mode="full"):
-    c = _as_series(c)
+def lagmulx(input, mode="full"):
+    input = _as_series(input)
 
-    output = zeros(c.shape[0] + 1, dtype=c.dtype)
-    output = output.at[0].set(c[0])
-    output = output.at[1].set(-c[0])
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
+    output = output.at[0].set(input[0])
+    output = output.at[1].set(-input[0])
 
-    i = arange(1, c.shape[0])
+    i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(-c[i] * (i + 1))
-    output = output.at[i].add(c[i] * (2 * i + 1))
-    output = output.at[i - 1].add(-c[i] * i)
+    output = output.at[i + 1].set(-input[i] * (i + 1))
+    output = output.at[i].add(input[i] * (2 * i + 1))
+    output = output.at[i - 1].add(-input[i] * i)
 
     if mode == "same":
-        output = output[: c.shape[0]]
+        output = output[: input.shape[0]]
     return output
 
 
-def lagpow(c, exponent, maximum_exponent=16):
-    return _pow(lagmul, c, exponent, maximum_exponent)
+def lagpow(input, exponent, maximum_exponent=16):
+    return _pow(lagmul, input, exponent, maximum_exponent)
 
 
-def lagroots(c: Array) -> Array:
-    c = _as_series(c)
+def lagroots(input: Array) -> Array:
+    input = _as_series(input)
 
-    if c.shape[0] <= 1:
-        return array([], dtype=c.dtype)
+    if input.shape[0] <= 1:
+        return array([], dtype=input.dtype)
 
-    if c.shape[0] == 2:
-        return array([1 + c[0] / c[1]])
+    if input.shape[0] == 2:
+        return array([1 + input[0] / input[1]])
 
-    output = lagcompanion(c)
+    output = lagcompanion(input)
 
     output = flip(output, axis=0)
     output = flip(output, axis=1)
@@ -2031,39 +2023,39 @@ def lagsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def lagval(x, c, tensor=True):
-    c = _as_series(c)
+def lagval(input, other, tensor=True):
+    other = _as_series(other)
 
     if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
-    if c.shape[0] == 1:
-        c0 = c[0]
+    if other.shape[0] == 1:
+        c0 = other[0]
         c1 = 0
-    elif c.shape[0] == 2:
-        c0 = c[0]
-        c1 = c[1]
+    elif other.shape[0] == 2:
+        c0 = other[0]
+        c1 = other[1]
     else:
-        nd = c.shape[0]
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
+        nd = other.shape[0]
+        c0 = other[-2] * ones_like(input)
+        c1 = other[-1] * ones_like(input)
 
         def body(i, val):
             c0, c1, nd = val
             tmp = c0
             nd = nd - 1
-            c0 = c[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * ((2 * nd - 1) - x)) / nd
+            c0 = other[-i] - (c1 * (nd - 1)) / nd
+            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
             return c0, c1, nd
 
-        b = c.shape[0] + 1
+        b = other.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
             y = body(index, y)
         c0, c1, _ = y
 
-    return c0 + c1 * (1 - x)
+    return c0 + c1 * (1 - input)
 
 
 def lagval2d(x, y, c):
