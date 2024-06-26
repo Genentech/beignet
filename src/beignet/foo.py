@@ -564,9 +564,7 @@ def chebline(input: Array, other: Array):
 
 
 def chebmul(
-    input: Array,
-    other: Array,
-    mode: Literal["full", "same"] = "full",
+    input: Array, other: Array, mode: Literal["full", "same"] = "full"
 ) -> Array:
     input, other = _as_series(input, other)
 
@@ -604,9 +602,7 @@ def chebmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def chebpow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
 ) -> Array:
     input = _as_series(input)
 
@@ -648,6 +644,32 @@ def chebsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
+def chebval(input: Array, coefficients: Array, tensor: bool = True) -> Array:
+    coefficients = _as_series(coefficients)
+
+    if tensor:
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+
+    if coefficients.shape[0] == 1:
+        a = coefficients[0]
+        b = 0
+    elif coefficients.shape[0] == 2:
+        a = coefficients[0]
+        b = coefficients[1]
+    else:
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
+
+        for i in range(3, coefficients.shape[0] + 1):
+            c = a
+
+            a = coefficients[-i] - b
+
+            b = c + b * 2 * input
+
+    return a + b * input
+
+
 def hermadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
@@ -668,11 +690,7 @@ def hermeline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def hermemul(
-    input: Array,
-    other,
-    mode: Literal["full", "same"] = "full",
-) -> Array:
+def hermemul(input: Array, other, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -733,9 +751,7 @@ def hermemulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def hermepow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
 ) -> Array:
     return _pow(
         hermemul,
@@ -747,6 +763,45 @@ def hermepow(
 
 def hermesub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
+
+
+def hermeval(x, c, tensor=True):
+    c = _as_series(c)
+
+    if tensor:
+        c = reshape(c, c.shape + (1,) * x.ndim)
+
+    if c.shape[0] == 1:
+        c0 = c[0]
+        c1 = 0
+    elif c.shape[0] == 2:
+        c0 = c[0]
+        c1 = c[1]
+    else:
+        nd = c.shape[0]
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = c[-i] - c1 * (nd - 1)
+            c1 = tmp + c1 * x
+            return c0, c1, nd
+
+        b = c.shape[0] + 1
+
+        x1 = (c0, c1, nd)
+
+        y = x1
+
+        for index in range(3, b):
+            y = body(index, y)
+
+        c0, c1, _ = y
+
+    return c0 + c1 * x
 
 
 def hermline(input: Array, other: Array) -> Array:
@@ -799,10 +854,7 @@ def hermmul(
     return ret
 
 
-def hermmulx(
-    input: Array,
-    mode: Literal["full", "same"] = "full",
-) -> Array:
+def hermmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
     output = output.at[1].set(input[0] / 2)
@@ -819,9 +871,7 @@ def hermmulx(
 
 
 def hermpow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
 ) -> Array:
     return _pow(
         hermmul,
@@ -833,6 +883,42 @@ def hermpow(
 
 def hermsub(input: Array, other: Array):
     return _subtract(input, other)
+
+
+def hermval(x, c, tensor=True):
+    c = _as_series(c)
+
+    if tensor:
+        c = reshape(c, c.shape + (1,) * x.ndim)
+
+    x2 = x * 2
+    if c.shape[0] == 1:
+        c0 = c[0]
+        c1 = 0
+    elif c.shape[0] == 2:
+        c0 = c[0]
+        c1 = c[1]
+    else:
+        nd = c.shape[0]
+        c0 = c[-2] * ones_like(x)
+        c1 = c[-1] * ones_like(x)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = c[-i] - c1 * (2 * (nd - 1))
+            c1 = tmp + c1 * x2
+            return c0, c1, nd
+
+        b = c.shape[0] + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
+
+    return c0 + c1 * x2
 
 
 def lagadd(input: Array, other: Array) -> Array:
@@ -847,11 +933,7 @@ def lagline(input: Array, other: Array) -> Array:
     return array([input + other, -other])
 
 
-def lagmul(
-    input: Array,
-    other: Array,
-    mode: Literal["full", "same"] = "full",
-) -> Array:
+def lagmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
 
@@ -913,9 +995,7 @@ def lagmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def lagpow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
 ) -> Array:
     return _pow(
         lagmul,
@@ -927,6 +1007,41 @@ def lagpow(
 
 def lagsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
+
+
+def lagval(input, other, tensor=True):
+    other = _as_series(other)
+
+    if tensor:
+        other = reshape(other, other.shape + (1,) * input.ndim)
+
+    if other.shape[0] == 1:
+        c0 = other[0]
+        c1 = 0
+    elif other.shape[0] == 2:
+        c0 = other[0]
+        c1 = other[1]
+    else:
+        nd = other.shape[0]
+        c0 = other[-2] * ones_like(input)
+        c1 = other[-1] * ones_like(input)
+
+        def body(i, val):
+            c0, c1, nd = val
+            tmp = c0
+            nd = nd - 1
+            c0 = other[-i] - (c1 * (nd - 1)) / nd
+            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
+            return c0, c1, nd
+
+        b = other.shape[0] + 1
+        x1 = (c0, c1, nd)
+        y = x1
+        for index in range(3, b):
+            y = body(index, y)
+        c0, c1, _ = y
+
+    return c0 + c1 * (1 - input)
 
 
 def legadd(input: Array, other: Array) -> Array:
@@ -941,11 +1056,7 @@ def legline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def legmul(
-    input: Array,
-    other: Array,
-    mode: Literal["full", "same"] = "full",
-) -> Array:
+def legmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -1017,9 +1128,7 @@ def legmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def legpow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
 ) -> Array:
     return _pow(
         legmul,
@@ -1031,126 +1140,6 @@ def legpow(
 
 def legsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
-
-
-def polyadd(input: Array, other: Array) -> Array:
-    return _add(input, other)
-
-
-def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
-    input, other = _as_series(input, other)
-
-    return _div(polymul, input, other)
-
-
-def polyline(input: float, other: float) -> Array:
-    return array([input, other])
-
-
-def polymul(
-    input: Array,
-    other: Array,
-    mode: Literal["full", "same"] = "full",
-) -> Array:
-    input, other = _as_series(input, other)
-
-    output = convolve(input, other)
-
-    if mode == "same":
-        output = output[: max(input.shape[0], other.shape[0])]
-
-    return output
-
-
-def polymulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
-    input = _as_series(input)
-
-    output = zeros(input.shape[0] + 1, dtype=input.dtype)
-
-    output = output.at[1:].set(input)
-
-    if mode == "same":
-        output = output[: input.shape[0]]
-
-    return output
-
-
-def polypow(
-    input: Array,
-    exponent: float | Array,
-    maximum_exponent: float | Array = 16.0,
-) -> Array:
-    return _pow(
-        polymul,
-        input,
-        exponent,
-        maximum_exponent,
-    )
-
-
-def polysub(input: Array, other: Array) -> Array:
-    return _subtract(input, other)
-
-
-def chebval(input: Array, coefficients: Array, tensor: bool = True) -> Array:
-    coefficients = _as_series(coefficients)
-
-    if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
-
-    if coefficients.shape[0] == 1:
-        a = coefficients[0]
-        b = 0
-    elif coefficients.shape[0] == 2:
-        a = coefficients[0]
-        b = coefficients[1]
-    else:
-        a = coefficients[-2] * ones_like(input)
-        b = coefficients[-1] * ones_like(input)
-
-        for i in range(3, coefficients.shape[0] + 1):
-            c = a
-
-            a = coefficients[-i] - b
-
-            b = c + b * 2 * input
-
-    return a + b * input
-
-
-def lagval(input, other, tensor=True):
-    other = _as_series(other)
-
-    if tensor:
-        other = reshape(other, other.shape + (1,) * input.ndim)
-
-    if other.shape[0] == 1:
-        c0 = other[0]
-        c1 = 0
-    elif other.shape[0] == 2:
-        c0 = other[0]
-        c1 = other[1]
-    else:
-        nd = other.shape[0]
-        c0 = other[-2] * ones_like(input)
-        c1 = other[-1] * ones_like(input)
-
-        def body(i, val):
-            c0, c1, nd = val
-            tmp = c0
-            nd = nd - 1
-            c0 = other[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
-            return c0, c1, nd
-
-        b = other.shape[0] + 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(3, b):
-            y = body(index, y)
-        c0, c1, _ = y
-
-    return c0 + c1 * (1 - input)
 
 
 def legval(input: Array, other: Array, tensor=True) -> Array:
@@ -1184,79 +1173,59 @@ def legval(input: Array, other: Array, tensor=True) -> Array:
     return a + b * input
 
 
-def hermval(x, c, tensor=True):
-    c = _as_series(c)
-
-    if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
-
-    x2 = x * 2
-    if c.shape[0] == 1:
-        c0 = c[0]
-        c1 = 0
-    elif c.shape[0] == 2:
-        c0 = c[0]
-        c1 = c[1]
-    else:
-        nd = c.shape[0]
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
-
-        def body(i, val):
-            c0, c1, nd = val
-            tmp = c0
-            nd = nd - 1
-            c0 = c[-i] - c1 * (2 * (nd - 1))
-            c1 = tmp + c1 * x2
-            return c0, c1, nd
-
-        b = c.shape[0] + 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(3, b):
-            y = body(index, y)
-        c0, c1, _ = y
-
-    return c0 + c1 * x2
+def polyadd(input: Array, other: Array) -> Array:
+    return _add(input, other)
 
 
-def hermeval(x, c, tensor=True):
-    c = _as_series(c)
+def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
+    input, other = _as_series(input, other)
 
-    if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+    return _div(polymul, input, other)
 
-    if c.shape[0] == 1:
-        c0 = c[0]
-        c1 = 0
-    elif c.shape[0] == 2:
-        c0 = c[0]
-        c1 = c[1]
-    else:
-        nd = c.shape[0]
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
 
-        def body(i, val):
-            c0, c1, nd = val
-            tmp = c0
-            nd = nd - 1
-            c0 = c[-i] - c1 * (nd - 1)
-            c1 = tmp + c1 * x
-            return c0, c1, nd
+def polyline(input: float, other: float) -> Array:
+    return array([input, other])
 
-        b = c.shape[0] + 1
 
-        x1 = (c0, c1, nd)
+def polymul(
+    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+) -> Array:
+    input, other = _as_series(input, other)
 
-        y = x1
+    output = convolve(input, other)
 
-        for index in range(3, b):
-            y = body(index, y)
+    if mode == "same":
+        output = output[: max(input.shape[0], other.shape[0])]
 
-        c0, c1, _ = y
+    return output
 
-    return c0 + c1 * x
+
+def polymulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+    input = _as_series(input)
+
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
+
+    output = output.at[1:].set(input)
+
+    if mode == "same":
+        output = output[: input.shape[0]]
+
+    return output
+
+
+def polypow(
+    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+) -> Array:
+    return _pow(
+        polymul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
+
+
+def polysub(input: Array, other: Array) -> Array:
+    return _subtract(input, other)
 
 
 def polyval(input: Array, other: Array, tensor: bool = True) -> Array:

@@ -641,6 +641,36 @@ def test_chebtrim():
     )
 
 
+def test_chebval():
+    assert math.prod(chebval(array([]), array([1])).shape) == 0
+
+    x = linspace(-1, 1, 50)
+
+    y = [polyval(x, c) for c in chebcoefficients]
+
+    for i in range(10):
+        assert_array_almost_equal(
+            chebval(
+                x,
+                array([0] * i + [1]),
+            ),
+            y[i],
+        )
+
+    for i in range(3):
+        dims = [2] * i
+
+        dims = tuple(dims)
+
+        x = zeros(dims)
+
+        assert chebval(x, array([1])).shape == dims
+
+        assert chebval(x, array([1, 0])).shape == dims
+
+        assert chebval(x, array([1, 0, 0])).shape == dims
+
+
 def test_chebx():
     assert_array_almost_equal(
         chebx,
@@ -867,6 +897,22 @@ def test_hermetrim():
     assert_array_almost_equal(hermetrim(coef, 2), [0])
 
 
+def test_hermeval():
+    assert_array_almost_equal(hermeval(array([]), [1]).size, 0)
+
+    x = linspace(-1, 1, 50)
+    y = [polyval(x, c) for c in hermecoefficients]
+    for i in range(10):
+        assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i])
+
+    for i in range(3):
+        dims = [2] * i
+        x = zeros(dims)
+        assert_array_almost_equal(hermeval(x, [1]).shape, dims)
+        assert_array_almost_equal(hermeval(x, array([1, 0])).shape, dims)
+        assert_array_almost_equal(hermeval(x, array([1, 0, 0])).shape, dims)
+
+
 def test_hermex():
     assert_array_almost_equal(
         hermex,
@@ -1005,6 +1051,29 @@ def test_hermtrim():
         hermtrim(coef, 2),
         array([0]),
     )
+
+
+def test_hermval():
+    assert hermval(array([]), [1]).size == 0
+
+    x = linspace(-1, 1, 50)
+    y = [polyval(x, c) for c in hermcoefficients]
+
+    for index in range(10):
+        assert_array_almost_equal(
+            hermval(
+                x,
+                [0] * index + [1],
+            ),
+            y[index],
+        )
+
+    for index in range(3):
+        dims = (2,) * index
+        x = zeros(dims)
+        assert hermval(x, [1]).shape == dims
+        assert hermval(x, array([1, 0])).shape == dims
+        assert hermval(x, array([1, 0, 0])).shape == dims
 
 
 def test_hermx():
@@ -1189,6 +1258,25 @@ def test_lagtrim():
         lagtrim(array([2, -1, 1, 0]), 2),
         array([0]),
     )
+
+
+def test_lagval():
+    assert_array_almost_equal(lagval(array([]), [1]).size, 0)
+
+    x = linspace(-1, 1, 50)
+    y = [polyval(x, c) for c in lagcoefficients]
+    for i in range(7):
+        assert_array_almost_equal(
+            lagval(x, array([0] * i + [1])),
+            y[i],
+        )
+
+    for i in range(3):
+        dims = [2] * i
+        x = zeros(dims)
+        assert_array_almost_equal(lagval(x, [1]).shape, dims)
+        assert_array_almost_equal(lagval(x, array([1, 0])).shape, dims)
+        assert_array_almost_equal(lagval(x, array([1, 0, 0])).shape, dims)
 
 
 def test_lagx():
@@ -1394,6 +1482,22 @@ def test_legtrim():
         legtrim(array([2, -1, 1, 0]), 2),
         array([0]),
     )
+
+
+def test_legval():
+    assert_array_almost_equal(legval(array([]), [1]).size, 0)
+
+    x = linspace(-1, 1, 50)
+    y = [polyval(x, c) for c in legcoefficients]
+    for i in range(10):
+        assert_array_almost_equal(legval(x, array([0] * i + [1])), y[i])
+
+    for i in range(3):
+        dims = [2] * i
+        x = zeros(dims)
+        assert_array_almost_equal(legval(x, array([1])).shape, dims)
+        assert_array_almost_equal(legval(x, array([1, 0])).shape, dims)
+        assert_array_almost_equal(legval(x, array([1, 0, 0])).shape, dims)
 
 
 def test_legx():
@@ -1633,124 +1737,6 @@ def test_polytrim():
     )
 
 
-def test_polyx():
-    assert_array_almost_equal(
-        polyx,
-        array([0, 1]),
-    )
-
-
-def test_polyzero():
-    assert_array_almost_equal(
-        polyzero,
-        array([0]),
-    )
-
-
-def test_hermval():
-    assert hermval(array([]), [1]).size == 0
-
-    x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in hermcoefficients]
-
-    for index in range(10):
-        assert_array_almost_equal(
-            hermval(
-                x,
-                [0] * index + [1],
-            ),
-            y[index],
-        )
-
-    for index in range(3):
-        dims = (2,) * index
-        x = zeros(dims)
-        assert hermval(x, [1]).shape == dims
-        assert hermval(x, array([1, 0])).shape == dims
-        assert hermval(x, array([1, 0, 0])).shape == dims
-
-
-def test_chebval():
-    assert math.prod(chebval(array([]), array([1])).shape) == 0
-
-    x = linspace(-1, 1, 50)
-
-    y = [polyval(x, c) for c in chebcoefficients]
-
-    for i in range(10):
-        assert_array_almost_equal(
-            chebval(
-                x,
-                array([0] * i + [1]),
-            ),
-            y[i],
-        )
-
-    for i in range(3):
-        dims = [2] * i
-
-        dims = tuple(dims)
-
-        x = zeros(dims)
-
-        assert chebval(x, array([1])).shape == dims
-
-        assert chebval(x, array([1, 0])).shape == dims
-
-        assert chebval(x, array([1, 0, 0])).shape == dims
-
-
-def test_hermeval():
-    assert_array_almost_equal(hermeval(array([]), [1]).size, 0)
-
-    x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in hermecoefficients]
-    for i in range(10):
-        assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i])
-
-    for i in range(3):
-        dims = [2] * i
-        x = zeros(dims)
-        assert_array_almost_equal(hermeval(x, [1]).shape, dims)
-        assert_array_almost_equal(hermeval(x, array([1, 0])).shape, dims)
-        assert_array_almost_equal(hermeval(x, array([1, 0, 0])).shape, dims)
-
-
-def test_lagval():
-    assert_array_almost_equal(lagval(array([]), [1]).size, 0)
-
-    x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in lagcoefficients]
-    for i in range(7):
-        assert_array_almost_equal(
-            lagval(x, array([0] * i + [1])),
-            y[i],
-        )
-
-    for i in range(3):
-        dims = [2] * i
-        x = zeros(dims)
-        assert_array_almost_equal(lagval(x, [1]).shape, dims)
-        assert_array_almost_equal(lagval(x, array([1, 0])).shape, dims)
-        assert_array_almost_equal(lagval(x, array([1, 0, 0])).shape, dims)
-
-
-def test_legval():
-    assert_array_almost_equal(legval(array([]), [1]).size, 0)
-
-    x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in legcoefficients]
-    for i in range(10):
-        assert_array_almost_equal(legval(x, array([0] * i + [1])), y[i])
-
-    for i in range(3):
-        dims = [2] * i
-        x = zeros(dims)
-        assert_array_almost_equal(legval(x, array([1])).shape, dims)
-        assert_array_almost_equal(legval(x, array([1, 0])).shape, dims)
-        assert_array_almost_equal(legval(x, array([1, 0, 0])).shape, dims)
-
-
 def test_polyval():
     assert polyval(array([]), array([1])).size == 0
 
@@ -1777,3 +1763,17 @@ def test_polyval():
         assert polyval(x, array([1, 0])).shape == dims
 
         assert polyval(x, array([1, 0, 0])).shape == dims
+
+
+def test_polyx():
+    assert_array_almost_equal(
+        polyx,
+        array([0, 1]),
+    )
+
+
+def test_polyzero():
+    assert_array_almost_equal(
+        polyzero,
+        array([0]),
+    )
