@@ -3653,19 +3653,15 @@ def test_lagfit():
         ),
         array(
             [
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -3679,19 +3675,15 @@ def test_lagfit():
         ),
         array(
             [
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
@@ -3738,19 +3730,15 @@ def test_lagfit():
         ),
         array(
             [
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ],
         ).T,
@@ -3765,19 +3753,15 @@ def test_lagfit():
         ),
         array(
             [
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
-                (
-                    lagfit(
-                        input,
-                        other,
-                        degree=(0, 1, 2, 3),
-                    )
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
                 ),
             ]
         ).T,
