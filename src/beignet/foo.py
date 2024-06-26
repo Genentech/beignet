@@ -909,33 +909,37 @@ def hermsub(input: Array, other: Array):
     return _subtract(input, other)
 
 
-def hermval(x, c, tensor=True):
-    c = _as_series(c)
+def hermval(
+    input: Array,
+    coefficients: Array,
+    tensor: bool = True,
+):
+    coefficients = _as_series(coefficients)
 
     if tensor:
-        c = reshape(c, c.shape + (1,) * x.ndim)
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
 
-    x2 = x * 2
-    if c.shape[0] == 1:
-        c0 = c[0]
+    x2 = input * 2
+    if coefficients.shape[0] == 1:
+        c0 = coefficients[0]
         c1 = 0
-    elif c.shape[0] == 2:
-        c0 = c[0]
-        c1 = c[1]
+    elif coefficients.shape[0] == 2:
+        c0 = coefficients[0]
+        c1 = coefficients[1]
     else:
-        nd = c.shape[0]
-        c0 = c[-2] * ones_like(x)
-        c1 = c[-1] * ones_like(x)
+        nd = coefficients.shape[0]
+        c0 = coefficients[-2] * ones_like(input)
+        c1 = coefficients[-1] * ones_like(input)
 
         def body(i, val):
             c0, c1, nd = val
             tmp = c0
             nd = nd - 1
-            c0 = c[-i] - c1 * (2 * (nd - 1))
+            c0 = coefficients[-i] - c1 * (2 * (nd - 1))
             c1 = tmp + c1 * x2
             return c0, c1, nd
 
-        b = c.shape[0] + 1
+        b = coefficients.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
@@ -957,7 +961,11 @@ def lagline(input: Array, other: Array) -> Array:
     return array([input + other, -other])
 
 
-def lagmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
+def lagmul(
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
 
@@ -1000,7 +1008,10 @@ def lagmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -
     return ret
 
 
-def lagmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+def lagmulx(
+    input: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1019,7 +1030,9 @@ def lagmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def lagpow(
-    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         lagmul,
@@ -1033,32 +1046,36 @@ def lagsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def lagval(input, other, tensor=True):
-    other = _as_series(other)
+def lagval(
+    input: Array,
+    coefficients: Array,
+    tensor: bool = True,
+):
+    coefficients = _as_series(coefficients)
 
     if tensor:
-        other = reshape(other, other.shape + (1,) * input.ndim)
+        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
 
-    if other.shape[0] == 1:
-        c0 = other[0]
+    if coefficients.shape[0] == 1:
+        c0 = coefficients[0]
         c1 = 0
-    elif other.shape[0] == 2:
-        c0 = other[0]
-        c1 = other[1]
+    elif coefficients.shape[0] == 2:
+        c0 = coefficients[0]
+        c1 = coefficients[1]
     else:
-        nd = other.shape[0]
-        c0 = other[-2] * ones_like(input)
-        c1 = other[-1] * ones_like(input)
+        nd = coefficients.shape[0]
+        c0 = coefficients[-2] * ones_like(input)
+        c1 = coefficients[-1] * ones_like(input)
 
         def body(i, val):
             c0, c1, nd = val
             tmp = c0
             nd = nd - 1
-            c0 = other[-i] - (c1 * (nd - 1)) / nd
+            c0 = coefficients[-i] - (c1 * (nd - 1)) / nd
             c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
             return c0, c1, nd
 
-        b = other.shape[0] + 1
+        b = coefficients.shape[0] + 1
         x1 = (c0, c1, nd)
         y = x1
         for index in range(3, b):
@@ -1080,7 +1097,11 @@ def legline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def legmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
+def legmul(
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -1122,7 +1143,10 @@ def legmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -
     return ret
 
 
-def legmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
+def legmulx(
+    input: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input = _as_series(input)
 
     def body(i, output):
@@ -1152,7 +1176,9 @@ def legmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
 
 
 def legpow(
-    input: Array, exponent: float | Array, maximum_exponent: float | Array = 16.0
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         legmul,
@@ -1212,7 +1238,9 @@ def polyline(input: float, other: float) -> Array:
 
 
 def polymul(
-    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
 
