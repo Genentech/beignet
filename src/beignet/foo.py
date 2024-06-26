@@ -5,7 +5,6 @@ from typing import Callable, Literal, Tuple
 
 import jax
 import jax.numpy
-from jax import Array
 from jax.numpy import (
     abs,
     arange,
@@ -38,6 +37,7 @@ from jax.numpy import (
 from jax.numpy.linalg import (
     lstsq,
 )
+from torch import Tensor
 
 chebdomain = array([-1, 1])
 chebone = array([1])
@@ -65,7 +65,7 @@ polyx = array([0, 1])
 polyzero = array([0])
 
 
-def _add(input: Array, other: Array) -> Array:
+def _add(input: Tensor, other: Tensor) -> Tensor:
     input, other = _as_series(input, other)
 
     if input.shape[0] > other.shape[0]:
@@ -76,7 +76,7 @@ def _add(input: Array, other: Array) -> Array:
     return output
 
 
-def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
+def _as_series(*args, trim: bool = False) -> Tuple[Tensor, ...]:
     xs = ()
 
     for arg in args:
@@ -98,7 +98,7 @@ def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
     return xs
 
 
-def _c_series_to_z_series(input: Array) -> Array:
+def _c_series_to_z_series(input: Tensor) -> Tensor:
     n = math.prod(input.shape)
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
@@ -112,7 +112,7 @@ def _c_series_to_z_series(input: Array) -> Array:
     return output
 
 
-def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
+def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     input, other = _as_series(input, other)
 
     lc1 = input.shape[0]
@@ -170,7 +170,7 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
     return quotient, remainder
 
 
-def _evaluate(func: Callable, input: Array, *args) -> Array:
+def _evaluate(func: Callable, input: Tensor, *args) -> Tensor:
     if not all(a.shape == args[0].shape for a in args[1:]):
         match len(args):
             case 2:
@@ -192,12 +192,12 @@ def _evaluate(func: Callable, input: Array, *args) -> Array:
 
 def _fit(
     vandermonde_func,
-    input: Array,
-    other: Array,
-    degree: Array | int,
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
     relative_condition: float | None = None,
     full: bool = False,
-    weight: Array | None = None,
+    weight: Tensor | None = None,
 ):
     degree = asarray(degree)
 
@@ -298,7 +298,7 @@ def _flattened_vandermonde(vander_fs, points, degrees):
     return reshape(v, v.shape[: -len(degrees)] + (-1,))
 
 
-def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
+def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
         return ones([1])
 
@@ -341,7 +341,7 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
     return ret[0]
 
 
-def _get_domain(x: Array) -> Array:
+def _get_domain(x: Tensor) -> Tensor:
     if iscomplexobj(x):
         rmin, rmax = x.real.min(), x.real.max()
         imin, imax = x.imag.min(), x.imag.max()
@@ -361,7 +361,7 @@ def _map_domain(x, old, new):
     return off + scale * x
 
 
-def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
+def _map_parameters(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     a = input[1] - input[0]
     b = other[1] - other[0]
 
@@ -371,7 +371,7 @@ def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
     return x, y
 
 
-def _normed_hermite_e_n(x: Array, n):
+def _normed_hermite_e_n(x: Tensor, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
     else:
@@ -394,7 +394,7 @@ def _normed_hermite_e_n(x: Array, n):
     return output
 
 
-def _normed_hermite_n(x: Array, n):
+def _normed_hermite_n(x: Tensor, n):
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
     else:
@@ -424,7 +424,7 @@ def _nth_slice(i, ndim):
     return tuple(sl)
 
 
-def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
+def _pad_along_axis(input: Tensor, padding=(0, 0), axis=0):
     input = moveaxis(input, axis, 0)
 
     if padding[0] < 0:
@@ -441,7 +441,7 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
     return moveaxis(output, 0, axis)
 
 
-def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
+def _pow(func: Callable, input: Tensor, exponent, maximum_exponent) -> Tensor:
     input = _as_series(input)
 
     power = int(exponent)
@@ -468,7 +468,7 @@ def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
     return output
 
 
-def _subtract(input: Array, other: Array) -> Array:
+def _subtract(input: Tensor, other: Tensor) -> Tensor:
     input, other = _as_series(input, other)
 
     if input.shape[0] > other.shape[0]:
@@ -536,21 +536,21 @@ def _vandermonde(vander_fs, points, degrees):
     return functools.reduce(operator.mul, output)
 
 
-def _z_series_mul(input: Array, other: Array, mode="full") -> Array:
+def _z_series_mul(input: Tensor, other: Tensor, mode="full") -> Tensor:
     return convolve(input, other, mode=mode)
 
 
-def _z_series_to_c_series(input: Array) -> Array:
+def _z_series_to_c_series(input: Tensor) -> Tensor:
     n = (math.prod(input.shape) + 1) // 2
     c = input[n - 1 :]
     return c.at[1:n].multiply(2)
 
 
-def chebadd(input: Array, other: Array) -> Array:
+def chebadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
-def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
+def chebdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(chebmul, input, other)
 
 
@@ -578,7 +578,7 @@ def chebmul(
     return output
 
 
-def chebmulx(input: Array, mode="full") -> Array:
+def chebmulx(input: Tensor, mode="full") -> Tensor:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -599,7 +599,7 @@ def chebmulx(input: Array, mode="full") -> Array:
 
 
 def chebpow(
-    input: Array,
+    input: Tensor,
     exponent: int,
     maximum_exponent: int = 16,
 ):
@@ -639,27 +639,27 @@ def chebpow(
     return output
 
 
-def chebsub(input: Array, other: Array) -> Array:
+def chebsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def hermadd(input: Array, other: Array) -> Array:
+def hermadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
-def hermdiv(input: Array, other: Array) -> Tuple[Array, Array]:
+def hermdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(hermmul, input, other)
 
 
-def hermeadd(input: Array, other: Array) -> Array:
+def hermeadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
-def hermediv(input: Array, other: Array) -> Tuple[Array, Array]:
+def hermediv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(hermemul, input, other)
 
 
-def hermeline(input: float, other: float) -> Array:
+def hermeline(input: float, other: float) -> Tensor:
     return array([input, other])
 
 
@@ -727,7 +727,7 @@ def hermepow(c, exponent, maximum_exponent=16):
     return _pow(hermemul, c, exponent, maximum_exponent)
 
 
-def hermesub(input: Array, other: Array) -> Array:
+def hermesub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
@@ -803,7 +803,7 @@ def hermsub(input, other):
     return _subtract(input, other)
 
 
-def lagadd(input: Array, other: Array) -> Array:
+def lagadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -877,26 +877,26 @@ def lagmulx(input, mode="full"):
 
 
 def lagpow(
-    input: Array,
+    input: Tensor,
     exponent: float,
     maximum_exponent: float = 16,
-) -> Array:
+) -> Tensor:
     return _pow(lagmul, input, exponent, maximum_exponent)
 
 
-def lagsub(input: Array, other: Array) -> Array:
+def lagsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def legadd(input: Array, other: Array) -> Array:
+def legadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
-def legdiv(input: Array, other: Array) -> Array:
+def legdiv(input: Tensor, other: Tensor) -> Tensor:
     return _div(legmul, input, other)
 
 
-def legline(input: float, other: float) -> Array:
+def legline(input: float, other: float) -> Tensor:
     return array([input, other])
 
 
@@ -975,25 +975,25 @@ def legpow(c, exponent, maximum_exponent=16):
     return _pow(legmul, c, exponent, maximum_exponent)
 
 
-def legsub(input: Array, other: Array) -> Array:
+def legsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def polyadd(input: Array, other: Array) -> Array:
+def polyadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
-def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
+def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     input, other = _as_series(input, other)
 
     return _div(polymul, input, other)
 
 
-def polyline(input: float, other: float) -> Array:
+def polyline(input: float, other: float) -> Tensor:
     return array([input, other])
 
 
-def polymul(input: Array, other: Array, mode="full") -> Array:
+def polymul(input: Tensor, other: Tensor, mode="full") -> Tensor:
     input, other = _as_series(input, other)
 
     output = convolve(input, other)
@@ -1004,7 +1004,7 @@ def polymul(input: Array, other: Array, mode="full") -> Array:
     return output
 
 
-def polymulx(input: Array, mode="full") -> Array:
+def polymulx(input: Tensor, mode="full") -> Tensor:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1017,7 +1017,11 @@ def polymulx(input: Array, mode="full") -> Array:
     return output
 
 
-def polypow(input: Array, exponent: int, maximum_exponent: int = 16) -> Array:
+def polypow(
+    input: Tensor,
+    exponent: float,
+    maximum_exponent: float = 16,
+) -> Tensor:
     return _pow(
         polymul,
         input,
@@ -1026,7 +1030,7 @@ def polypow(input: Array, exponent: int, maximum_exponent: int = 16) -> Array:
     )
 
 
-def polysub(input: Array, other: Array) -> Array:
+def polysub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
