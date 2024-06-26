@@ -444,8 +444,8 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
 def _pow(
     func: Callable,
     input: Array,
-    exponent,
-    maximum_exponent,
+    exponent: float | Array,
+    maximum_exponent: float | Array,
 ) -> Array:
     input = _as_series(input)
 
@@ -605,8 +605,8 @@ def chebmulx(input: Array, mode="full") -> Array:
 
 def chebpow(
     input: Array,
-    exponent: int,
-    maximum_exponent: int = 16,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     input = _as_series(input)
 
@@ -728,8 +728,17 @@ def hermemulx(input: Array, mode="full") -> Array:
     return output
 
 
-def hermepow(input: Array, exponent, maximum_exponent=16) -> Array:
-    return _pow(hermemul, input, exponent, maximum_exponent)
+def hermepow(
+    input: Array,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
+) -> Array:
+    return _pow(
+        hermemul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
 
 
 def hermesub(input: Array, other: Array) -> Array:
@@ -805,8 +814,8 @@ def hermmulx(
 
 def hermpow(
     input: Array,
-    exponent,
-    maximum_exponent=16,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         hermmul,
@@ -895,8 +904,8 @@ def lagmulx(input: Array, mode="full") -> Array:
 
 def lagpow(
     input: Array,
-    exponent: float,
-    maximum_exponent: float = 16,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         lagmul,
@@ -995,8 +1004,8 @@ def legmulx(input: Array, mode="full") -> Array:
 
 def legpow(
     input: Array,
-    exponent,
-    maximum_exponent=16,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         legmul,
@@ -1050,8 +1059,8 @@ def polymulx(input: Array, mode="full") -> Array:
 
 def polypow(
     input: Array,
-    exponent: float,
-    maximum_exponent: float = 16,
+    exponent: float | Array,
+    maximum_exponent: float | Array = 16.0,
 ) -> Array:
     return _pow(
         polymul,
