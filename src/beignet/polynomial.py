@@ -311,7 +311,7 @@ def _normed_hermite_e_n(x: Array, n):
         a = zeros_like(x)
         b = ones_like(x) / sqrt(sqrt(2 * math.pi))
 
-        d = array(n)  # .astype(float)
+        d = array(n)
 
         for _ in range(0, n - 1):
             c = a
@@ -701,6 +701,7 @@ def chebinterpolate(func, degree, args=()):
 
     if _deg != degree:
         raise ValueError
+
     if _deg < 0:
         raise ValueError
 
@@ -1605,10 +1606,7 @@ def hermroots(input):
     return output
 
 
-def hermsub(
-    input,
-    other,
-):
+def hermsub(input, other):
     return _subtract(input, other)
 
 
