@@ -1265,8 +1265,8 @@ def hermeint(
     return moveaxis(c, 0, axis)
 
 
-def hermeline(off, scale):
-    return array([off, scale])
+def hermeline(input: float, other: float) -> Array:
+    return array([input, other])
 
 
 def hermemul(input, other, mode="full"):
@@ -1354,7 +1354,7 @@ def hermeroots(c):
     return output
 
 
-def hermesub(input, other):
+def hermesub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
@@ -1478,10 +1478,11 @@ def hermgauss(degree):
 
     dy = _normed_hermite_n(x, degree)
     df = _normed_hermite_n(x, degree - 1) * sqrt(2 * degree)
-    x -= dy / df
+
+    x = x - (dy / df)
 
     fm = _normed_hermite_n(x, degree - 1)
-    fm /= abs(fm).max()
+    fm = fm / abs(fm).max()
     w = 1 / (fm * fm)
 
     a = flip(w, axis=0)
@@ -1517,6 +1518,7 @@ def hermint(
 ):
     if k is None:
         k = []
+
     c = _as_series(c)
 
     lower_bound, scale = map(asarray, (lower_bound, scale))
@@ -1759,28 +1761,28 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagadd(input, other):
+def lagadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def lagcompanion(c):
-    c = _as_series(c)
+def lagcompanion(input):
+    input = _as_series(input)
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return array([[1 + c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return array([[1 + input[0] / input[1]]])
 
-    n = c.shape[0] - 1
+    n = input.shape[0] - 1
 
-    mat = reshape(zeros((n, n), dtype=c.dtype), [-1])
+    mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
 
     mat = mat.at[1 :: n + 1].set(-arange(1, n))
     mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
     mat = mat.at[n :: n + 1].set(-arange(1, n))
     mat = reshape(mat, (n, n))
-    mat = mat.at[:, -1].add((c[:-1] / c[-1]) * n)
+    mat = mat.at[:, -1].add((input[:-1] / input[-1]) * n)
     return mat
 
 
@@ -1861,14 +1863,14 @@ def laggauss(degree):
 
     dy = lagval(x, c)
     df = lagval(x, lagder(c))
-    x -= dy / df
+    x = x - (dy / df)
 
     fm = lagval(x, c[1:])
-    fm /= abs(fm).max()
-    df /= abs(df).max()
+    fm = fm / abs(fm).max()
+    df = df / abs(df).max()
     w = 1 / (fm * df)
 
-    w /= sum(w)
+    w = w / sum(w)
 
     return x, w
 
