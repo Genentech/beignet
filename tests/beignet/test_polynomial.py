@@ -978,7 +978,9 @@ def test_chebfromroots():
         array([1]),
     )
     for i in range(1, 5):
-        input = chebfromroots(cos(linspace(-math.pi, 0, 2 * i + 1)[1::2]))
+        input = chebfromroots(
+            cos(linspace(-math.pi, 0, 2 * i + 1)[1::2]),
+        )
 
         input = input * 2 ** (i - 1)
 
@@ -1016,6 +1018,7 @@ def test_chebgauss():
 
 def test_chebgrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     x1, x2, x3 = x
 
     y1, y2, y3 = polyval(
@@ -1040,11 +1043,9 @@ def test_chebgrid2d():
         ),
     )
 
-    z = ones([2, 3])
-
     res = chebgrid2d(
-        z,
-        z,
+        ones([2, 3]),
+        ones([2, 3]),
         einsum(
             "i,j->ij",
             array([2.5, 2.0, 1.5]),
@@ -1057,7 +1058,9 @@ def test_chebgrid2d():
 
 def test_chebgrid3d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     x1, x2, x3 = x
+
     y1, y2, y3 = polyval(
         x,
         array([1.0, 2.0, 3.0]),
@@ -1350,7 +1353,8 @@ def test_chebinterpolate():
     def f(x):
         return x * (x - 1) * (x - 2)
 
-    pytest.raises(ValueError, chebinterpolate, f, -1)
+    with pytest.raises(ValueError):
+        chebinterpolate(f, -1)
 
     for deg in range(1, 5):
         assert chebinterpolate(f, deg).shape == (deg + 1,)
@@ -1422,7 +1426,7 @@ def test_chebmulx():
             ),
             tol=0.000001,
         ),
-        [0, 1],
+        array([0, 1]),
     )
 
     for i in range(1, 5):
@@ -1433,7 +1437,7 @@ def test_chebmulx():
                 ),
                 tol=0.000001,
             ),
-            [0] * (i - 1) + [0.5, 0, 0.5],
+            array([0] * (i - 1) + [0.5, 0, 0.5]),
         )
 
 
@@ -1633,45 +1637,48 @@ def test_chebval():
 
 
 def test_chebval2d():
-    c1d = array([2.5, 2.0, 1.5])
-    c2d = einsum(
-        "i,j->ij",
-        c1d,
-        c1d,
-    )
-
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
         x,
         array([1.0, 2.0, 3.0]),
     )
-
-    x1, x2, x3 = x
-    y1, y2, y3 = y
 
     pytest.raises(
         ValueError,
         chebval2d,
         x1,
         x2[:2],
-        c2d,
+        einsum(
+            "i,j->ij",
+            array([2.5, 2.0, 1.5]),
+            array([2.5, 2.0, 1.5]),
+        ),
     )
 
     assert_array_almost_equal(
         chebval2d(
             x1,
             x2,
-            c2d,
+            einsum(
+                "i,j->ij",
+                array([2.5, 2.0, 1.5]),
+                array([2.5, 2.0, 1.5]),
+            ),
         ),
         y1 * y2,
     )
 
-    z = ones([2, 3])
-
     res = chebval2d(
-        z,
-        z,
-        c2d,
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            array([2.5, 2.0, 1.5]),
+            array([2.5, 2.0, 1.5]),
+        ),
     )
 
     assert res.shape == (2, 3)
@@ -1751,16 +1758,16 @@ def test_chebvander():
 
 def test_chebvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     c = jax.random.uniform(key, (2, 3))
-    van = chebvander2d(
-        x1,
-        x2,
-        (1, 2),
-    )
 
     assert_array_almost_equal(
         dot(
-            van,
+            chebvander2d(
+                x1,
+                x2,
+                (1, 2),
+            ),
             ravel(c),
         ),
         chebval2d(
@@ -1781,6 +1788,7 @@ def test_chebvander2d():
 
 def test_chebvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     c = jax.random.uniform(key, (2, 3, 4))
 
     assert_array_almost_equal(
@@ -1808,6 +1816,7 @@ def test_chebvander3d():
 
 def test_chebweight():
     x = linspace(-1, 1, 11)[1:-1]
+
     assert_array_almost_equal(
         chebweight(x),
         1.0 / (sqrt(1 + x) * sqrt(1 - x)),
