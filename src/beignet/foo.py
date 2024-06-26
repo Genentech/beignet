@@ -583,7 +583,7 @@ def chebmul(
     return output
 
 
-def chebmulx(input: Array, mode="full") -> Array:
+def chebmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -668,7 +668,7 @@ def hermeline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def hermemul(input: Array, other, mode="full") -> Array:
+def hermemul(input: Array, other, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -710,7 +710,7 @@ def hermemul(input: Array, other, mode="full") -> Array:
     return ret
 
 
-def hermemulx(input: Array, mode="full") -> Array:
+def hermemulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -749,7 +749,9 @@ def hermline(input: Array, other: Array) -> Array:
     return array([input, other / 2])
 
 
-def hermmul(input: Array, other: Array, mode="full") -> Array:
+def hermmul(
+    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -795,7 +797,7 @@ def hermmul(input: Array, other: Array, mode="full") -> Array:
 
 def hermmulx(
     input: Array,
-    mode="full",
+    mode: Literal["full", "same"] = "full",
 ) -> Array:
     input = _as_series(input)
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -841,7 +843,7 @@ def lagline(input: Array, other: Array) -> Array:
     return array([input + other, -other])
 
 
-def lagmul(input: Array, other: Array, mode="full") -> Array:
+def lagmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
 
@@ -884,7 +886,7 @@ def lagmul(input: Array, other: Array, mode="full") -> Array:
     return ret
 
 
-def lagmulx(input: Array, mode="full") -> Array:
+def lagmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -931,7 +933,7 @@ def legline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def legmul(input: Array, other: Array, mode="full") -> Array:
+def legmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -973,7 +975,7 @@ def legmul(input: Array, other: Array, mode="full") -> Array:
     return ret
 
 
-def legmulx(input: Array, mode="full") -> Array:
+def legmulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
 
     def body(i, output):
@@ -1033,7 +1035,9 @@ def polyline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def polymul(input: Array, other: Array, mode="full") -> Array:
+def polymul(
+    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+) -> Array:
     input, other = _as_series(input, other)
 
     output = convolve(input, other)
@@ -1044,7 +1048,7 @@ def polymul(input: Array, other: Array, mode="full") -> Array:
     return output
 
 
-def polymulx(input: Array, mode="full") -> Array:
+def polymulx(input: Array, mode: Literal["full", "same"] = "full") -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
