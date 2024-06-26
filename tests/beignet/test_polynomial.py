@@ -5468,7 +5468,7 @@ def test_polyder():
                         polyint(
                             array([0] * i + [1]),
                             order=j,
-                            scl=2,
+                            scale=2,
                         ),
                         order=j,
                         scale=0.5,
@@ -5928,10 +5928,10 @@ def test_polyint():
         )
 
     with pytest.raises(ValueError):
-        polyint(array([0]), lbnd=[0])
+        polyint(array([0]), lower_bound=[0])
 
     with pytest.raises(ValueError):
-        polyint(array([0]), scl=[0])
+        polyint(array([0]), scale=[0])
 
     with pytest.raises(TypeError):
         polyint(array([0]), axis=0.5)
@@ -5973,7 +5973,7 @@ def test_polyint():
                     array([0] * i + [1]),
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
@@ -5986,7 +5986,7 @@ def test_polyint():
                     array([0] * i + [1]),
                     order=1,
                     k=[i],
-                    scl=2,
+                    scale=2,
                 ),
                 tol=0.000001,
             ),
@@ -6061,7 +6061,7 @@ def test_polyint():
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
 
             assert_array_almost_equal(
@@ -6070,7 +6070,7 @@ def test_polyint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -6091,7 +6091,7 @@ def test_polyint():
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
 
             assert_array_almost_equal(
@@ -6100,7 +6100,7 @@ def test_polyint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),

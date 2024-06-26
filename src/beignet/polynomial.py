@@ -2688,18 +2688,18 @@ def polygrid3d(x: Array, y: Array, z: Array, c: Array) -> Array:
 
 def polyint(
     input: Array,
-    order=1,
+    order: int = 1,
     k=None,
-    lbnd=0,
-    scl=1,
-    axis=0,
+    lower_bound: float = 0,
+    scale: float = 1,
+    axis: int = 0,
 ) -> Array:
     if k is None:
         k = []
 
     input = _as_series(input)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
@@ -2710,10 +2710,10 @@ def polyint(
     if len(k) > order:
         raise ValueError
 
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
 
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -2730,7 +2730,7 @@ def polyint(
     d = arange(n + order) + 1
 
     for i in range(0, order):
-        input = input * scl
+        input = input * scale
 
         input = transpose(transpose(input) / d)
 
@@ -2738,7 +2738,7 @@ def polyint(
 
         input = input.at[0].set(0)
 
-        input = input.at[0].add(k[i] - polyval(lbnd, input))
+        input = input.at[0].add(k[i] - polyval(lower_bound, input))
 
     return moveaxis(input, 0, axis)
 
