@@ -1627,6 +1627,7 @@ def test_chebval3d():
     pytest.raises(ValueError, chebval3d, x1, x2, x3[:2], c3d)
 
     target = y1 * y2 * y3
+
     assert_array_almost_equal(
         chebval3d(
             x1,
@@ -1638,30 +1639,52 @@ def test_chebval3d():
     )
 
     z = ones([2, 3])
-    res = chebval3d(z, z, z, c3d)
+
+    res = chebval3d(
+        z,
+        z,
+        z,
+        c3d,
+    )
+
     assert res.shape == (2, 3)
 
 
 def test_chebvander():
     x = arange(3)
     v = chebvander(x, 3)
+
     assert v.shape == (3, 4)
+
     for i in range(4):
         coef = array([0] * i + [1])
-        assert_array_almost_equal(v[..., i], chebval(x, coef))
+        assert_array_almost_equal(
+            v[..., i],
+            chebval(x, coef),
+        )
 
     x = array([[1, 2], [3, 4], [5, 6]])
+
     v = chebvander(x, 3)
+
     assert v.shape == (3, 2, 4)
+
     for i in range(4):
         coef = array([0] * i + [1])
-        assert_array_almost_equal(v[..., i], chebval(x, coef))
+        assert_array_almost_equal(
+            v[..., i],
+            chebval(x, coef),
+        )
 
 
 def test_chebvander2d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     c = jax.random.uniform(key, (2, 3))
-    van = chebvander2d(x1, x2, (1, 2))
+    van = chebvander2d(
+        x1,
+        x2,
+        (1, 2),
+    )
 
     assert_array_almost_equal(
         dot(
@@ -1675,7 +1698,11 @@ def test_chebvander2d():
         ),
     )
 
-    van = chebvander2d([x1], [x2], (1, 2))
+    van = chebvander2d(
+        [x1],
+        [x2],
+        (1, 2),
+    )
     assert van.shape == (1, 5, 6)
 
 
@@ -1687,7 +1714,12 @@ def test_chebvander3d():
         chebval3d(x1, x2, x3, c),
     )
 
-    van = chebvander3d([x1], [x2], [x3], (1, 2, 3))
+    van = chebvander3d(
+        [x1],
+        [x2],
+        [x3],
+        (1, 2, 3),
+    )
     assert van.shape == (1, 5, 24)
 
 
@@ -1707,7 +1739,10 @@ def test_chebx():
 
 
 def test_chebzero():
-    assert_array_almost_equal(chebzero, array([0]))
+    assert_array_almost_equal(
+        chebzero,
+        array([0]),
+    )
 
 
 def test_herm2poly():
