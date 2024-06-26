@@ -351,7 +351,7 @@ def _get_domain(x: Array) -> Array:
     return array((x.min(), x.max()))
 
 
-def _map_domain(x, old, new):
+def _map_domain(x, old, new) -> Array:
     oldlen = old[1] - old[0]
     newlen = new[1] - new[0]
     off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
@@ -371,7 +371,7 @@ def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
     return x, y
 
 
-def _normed_hermite_e_n(x: Array, n):
+def _normed_hermite_e_n(x: Array, n) -> Array:
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
     else:
@@ -394,7 +394,7 @@ def _normed_hermite_e_n(x: Array, n):
     return output
 
 
-def _normed_hermite_n(x: Array, n):
+def _normed_hermite_n(x: Array, n) -> Array:
     if n == 0:
         output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
     else:
@@ -441,7 +441,12 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
     return moveaxis(output, 0, axis)
 
 
-def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
+def _pow(
+    func: Callable,
+    input: Array,
+    exponent,
+    maximum_exponent,
+) -> Array:
     input = _as_series(input)
 
     power = int(exponent)
@@ -485,7 +490,7 @@ def _subtract(input: Array, other: Array) -> Array:
     return output
 
 
-def _trim_coefficients(input, tol=0):
+def _trim_coefficients(input: Array, tol=0):
     if tol < 0:
         raise ValueError
 
@@ -510,7 +515,7 @@ def _trim_sequence(seq):
         return seq[: i + 1]
 
 
-def _vandermonde(vander_fs, points, degrees):
+def _vandermonde(vander_fs, points, degrees) -> Array:
     n_dims = len(vander_fs)
 
     if n_dims != len(points):
@@ -554,15 +559,15 @@ def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(chebmul, input, other)
 
 
-def chebline(off, scale):
-    return array([off, scale])
+def chebline(input: Array, other: Array):
+    return array([input, other])
 
 
 def chebmul(
-    input,
-    other,
+    input: Array,
+    other: Array,
     mode: Literal["full", "same"] = "full",
-):
+) -> Array:
     input, other = _as_series(input, other)
 
     z1 = _c_series_to_z_series(input)
@@ -602,7 +607,7 @@ def chebpow(
     input: Array,
     exponent: int,
     maximum_exponent: int = 16,
-):
+) -> Array:
     input = _as_series(input)
 
     power = int(exponent)
@@ -663,7 +668,7 @@ def hermeline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def hermemul(input, other, mode="full"):
+def hermemul(input: Array, other, mode="full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -705,37 +710,37 @@ def hermemul(input, other, mode="full"):
     return ret
 
 
-def hermemulx(c, mode="full"):
-    c = _as_series(c)
+def hermemulx(input: Array, mode="full") -> Array:
+    input = _as_series(input)
 
-    output = zeros(c.shape[0] + 1, dtype=c.dtype)
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[1].set(c[0])
+    output = output.at[1].set(input[0])
 
-    i = arange(1, c.shape[0])
+    i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(c[i])
-    output = output.at[i - 1].add(c[i] * i)
+    output = output.at[i + 1].set(input[i])
+    output = output.at[i - 1].add(input[i] * i)
 
     if mode == "same":
-        output = output[: c.shape[0]]
+        output = output[: input.shape[0]]
 
     return output
 
 
-def hermepow(c, exponent, maximum_exponent=16):
-    return _pow(hermemul, c, exponent, maximum_exponent)
+def hermepow(input: Array, exponent, maximum_exponent=16) -> Array:
+    return _pow(hermemul, input, exponent, maximum_exponent)
 
 
 def hermesub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def hermline(off, scale):
-    return array([off, scale / 2])
+def hermline(input: Array, other: Array) -> Array:
+    return array([input, other / 2])
 
 
-def hermmul(input, other, mode="full"):
+def hermmul(input: Array, other: Array, mode="full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -779,27 +784,39 @@ def hermmul(input, other, mode="full"):
     return ret
 
 
-def hermmulx(c, mode="full"):
-    c = _as_series(c)
-    output = zeros(c.shape[0] + 1, dtype=c.dtype)
-    output = output.at[1].set(c[0] / 2)
+def hermmulx(
+    input: Array,
+    mode="full",
+) -> Array:
+    input = _as_series(input)
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
+    output = output.at[1].set(input[0] / 2)
 
-    i = arange(1, c.shape[0])
+    i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(c[i] / 2)
-    output = output.at[i - 1].add(c[i] * i)
+    output = output.at[i + 1].set(input[i] / 2)
+    output = output.at[i - 1].add(input[i] * i)
 
     if mode == "same":
-        output = output[: c.shape[0]]
+        output = output[: input.shape[0]]
 
     return output
 
 
-def hermpow(c, exponent, maximum_exponent=16):
-    return _pow(hermmul, c, exponent, maximum_exponent)
+def hermpow(
+    input: Array,
+    exponent,
+    maximum_exponent=16,
+) -> Array:
+    return _pow(
+        hermmul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
 
 
-def hermsub(input, other):
+def hermsub(input: Array, other: Array):
     return _subtract(input, other)
 
 
@@ -807,15 +824,15 @@ def lagadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def lagdiv(input, other):
+def lagdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(lagmul, input, other)
 
 
-def lagline(off, scale):
-    return array([off + scale, -scale])
+def lagline(input: Array, other: Array) -> Array:
+    return array([input + other, -other])
 
 
-def lagmul(input, other, mode="full"):
+def lagmul(input: Array, other: Array, mode="full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
 
@@ -858,7 +875,7 @@ def lagmul(input, other, mode="full"):
     return ret
 
 
-def lagmulx(input, mode="full"):
+def lagmulx(input: Array, mode="full") -> Array:
     input = _as_series(input)
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -881,7 +898,12 @@ def lagpow(
     exponent: float,
     maximum_exponent: float = 16,
 ) -> Array:
-    return _pow(lagmul, input, exponent, maximum_exponent)
+    return _pow(
+        lagmul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
 
 
 def lagsub(input: Array, other: Array) -> Array:
@@ -900,7 +922,7 @@ def legline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def legmul(input, other, mode="full"):
+def legmul(input: Array, other: Array, mode="full") -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -942,8 +964,8 @@ def legmul(input, other, mode="full"):
     return ret
 
 
-def legmulx(c, mode="full"):
-    c = _as_series(c)
+def legmulx(input: Array, mode="full") -> Array:
+    input = _as_series(input)
 
     def body(i, output):
         j = i + 1
@@ -952,27 +974,36 @@ def legmulx(c, mode="full"):
 
         s = i + j
 
-        output = output.at[j].set((c[i] * j) / s)
+        output = output.at[j].set((input[i] * j) / s)
 
-        output = output.at[k].add((c[i] * i) / s)
+        output = output.at[k].add((input[i] * i) / s)
 
         return output
 
-    b = c.shape[0]
+    b = input.shape[0]
 
-    output = zeros(c.shape[0] + 1, dtype=c.dtype).at[1].set(c[0])
+    output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
 
     for i in range(1, b):
         output = body(i, output)
 
     if mode == "same":
-        output = output[: c.shape[0]]
+        output = output[: input.shape[0]]
 
     return output
 
 
-def legpow(c, exponent, maximum_exponent=16):
-    return _pow(legmul, c, exponent, maximum_exponent)
+def legpow(
+    input: Array,
+    exponent,
+    maximum_exponent=16,
+) -> Array:
+    return _pow(
+        legmul,
+        input,
+        exponent,
+        maximum_exponent,
+    )
 
 
 def legsub(input: Array, other: Array) -> Array:
