@@ -2183,10 +2183,7 @@ def legder(c, order=1, scale=1, axis=0):
     return c
 
 
-def legdiv(
-    input,
-    other,
-):
+def legdiv(input, other):
     return _div(legmul, input, other)
 
 
@@ -2368,8 +2365,8 @@ def legmulx(c, mode="full"):
 
     output = zeros(c.shape[0] + 1, dtype=c.dtype).at[1].set(c[0])
 
-    for index in range(1, b):
-        output = body(index, output)
+    for i in range(1, b):
+        output = body(i, output)
 
     if mode == "same":
         output = output[: c.shape[0]]
@@ -2617,32 +2614,25 @@ def polyder(
 
     input = moveaxis(input, axis, 0)
 
-    n = input.shape[0]
-
-    if order >= n:
-        input = zeros_like(input[:1])
+    if order >= input.shape[0]:
+        output = zeros_like(input[:1])
     else:
-        d = arange(n)
+        d = arange(input.shape[0])
 
-        def body(_, c):
-            c = transpose(d * transpose(c))
+        output = input
 
-            c = roll(c, -1, axis=0) * scale
+        for _ in range(0, order):
+            output = transpose(d * transpose(output))
 
-            c = c.at[-1].set(0)
+            output = roll(output, -1, axis=0) * scale
 
-            return c
+            output = output.at[-1].set(0)
 
-        y = input
+        output = output[:-order]
 
-        for index in range(0, order):
-            y = body(index, y)
+    output = moveaxis(output, 0, axis)
 
-        input = y
-
-        input = input[:-order]
-
-    return moveaxis(input, 0, axis)
+    return output
 
 
 def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
