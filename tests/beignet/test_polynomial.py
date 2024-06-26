@@ -1320,29 +1320,29 @@ def test_chebint():
 
     c2d = jax.random.uniform(key, (3, 4))
 
-    target = vstack([chebint(c) for c in c2d.T]).T
     assert_array_almost_equal(
-        chebint(c2d, axis=0),
-        target,
+        chebint(
+            c2d,
+            axis=0,
+        ),
+        vstack([chebint(c) for c in c2d.T]).T,
     )
 
-    target = vstack([chebint(c) for c in c2d])
     assert_array_almost_equal(
         chebint(
             c2d,
             axis=1,
         ),
-        target,
+        vstack([chebint(c) for c in c2d]),
     )
 
-    target = vstack([chebint(c, k=3) for c in c2d])
     assert_array_almost_equal(
         chebint(
             c2d,
             k=3,
             axis=1,
         ),
-        target,
+        vstack([chebint(c, k=3) for c in c2d]),
     )
 
 
@@ -1362,7 +1362,11 @@ def test_chebinterpolate():
 
     for deg in range(0, 10):
         for p in range(0, deg + 1):
-            c = chebinterpolate(powx, deg, (p,))
+            c = chebinterpolate(
+                powx,
+                deg,
+                (p,),
+            )
 
             assert_array_almost_equal(
                 chebval(x, c),
@@ -1424,7 +1428,9 @@ def test_chebmulx():
     for i in range(1, 5):
         assert_array_almost_equal(
             chebtrim(
-                chebmulx(array([0] * i + [1])),
+                chebmulx(
+                    array([0] * i + [1]),
+                ),
                 tol=0.000001,
             ),
             [0] * (i - 1) + [0.5, 0, 0.5],
@@ -1443,7 +1449,10 @@ def test_chebpow():
         for j in range(5):
             assert_array_almost_equal(
                 chebtrim(
-                    chebpow(arange(i + 1), j),
+                    chebpow(
+                        arange(i + 1),
+                        j,
+                    ),
                     tol=0.000001,
                 ),
                 chebtrim(
@@ -1605,16 +1614,19 @@ def test_chebval():
     x = linspace(-1, 1, 50)
     y = [polyval(x, c) for c in chebcoefficients]
     for i in range(10):
-        target = y[i]
-        res = chebval(x, array([0] * i + [1]))
         assert_array_almost_equal(
-            res,
-            target,
+            chebval(
+                x,
+                array([0] * i + [1]),
+            ),
+            y[i],
         )
 
     for i in range(3):
         dims = [2] * i
+
         x = zeros(dims)
+
         assert_array_almost_equal(chebval(x, [1]).shape, dims)
         assert_array_almost_equal(chebval(x, array([1, 0])).shape, dims)
         assert_array_almost_equal(chebval(x, array([1, 0, 0])).shape, dims)
