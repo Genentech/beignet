@@ -1099,12 +1099,42 @@ def test_chebgrid3d():
 
 
 def test_chebint():
-    pytest.raises(TypeError, chebint, array([0]), 0.5)
-    pytest.raises(ValueError, chebint, array([0]), -1)
-    pytest.raises(ValueError, chebint, array([0]), 1, [0, 0])
-    pytest.raises(ValueError, chebint, array([0]), lbnd=[0])
-    pytest.raises(ValueError, chebint, array([0]), scl=[0])
-    pytest.raises(TypeError, chebint, array([0]), axis=0.5)
+    with pytest.raises(TypeError):
+        chebint(
+            array([0]),
+            0.5,
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            array([0]),
+            -1,
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            array([0]),
+            1,
+            [0, 0],
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            array([0]),
+            lbnd=[0],
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            array([0]),
+            scl=[0],
+        )
+
+    with pytest.raises(TypeError):
+        chebint(
+            array([0]),
+            axis=0.5,
+        )
 
     for i in range(2, 5):
         k = [0] * (i - 2) + [1]
