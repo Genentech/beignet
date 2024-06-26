@@ -1937,10 +1937,10 @@ def test_hermder():
                 hermint(
                     target,
                     order=j,
-                    scl=2,
+                    scale=2,
                 ),
                 order=j,
-                scl=0.5,
+                scale=0.5,
             )
             assert_array_almost_equal(
                 hermtrim(
@@ -1955,21 +1955,17 @@ def test_hermder():
 
     c2d = jax.random.uniform(key, (3, 4))
 
-    target = vstack([hermder(c) for c in c2d.T]).T
-    res = hermder(c2d, axis=0)
     assert_array_almost_equal(
-        res,
-        target,
+        hermder(c2d, axis=0),
+        vstack([hermder(c) for c in c2d.T]).T,
     )
 
-    target = vstack([hermder(c) for c in c2d])
-    res = hermder(
-        c2d,
-        axis=1,
-    )
     assert_array_almost_equal(
-        res,
-        target,
+        hermder(
+            c2d,
+            axis=1,
+        ),
+        vstack([hermder(c) for c in c2d]),
     )
 
 
@@ -2094,10 +2090,10 @@ def test_hermeder():
                         hermeint(
                             array([0] * i + [1]),
                             order=j,
-                            scl=2,
+                            scale=2,
                         ),
                         order=j,
-                        scl=0.5,
+                        scale=0.5,
                     ),
                     tol=0.000001,
                 ),
@@ -2501,8 +2497,8 @@ def test_hermeint():
     pytest.raises(TypeError, hermeint, array([0]), 0.5)
     pytest.raises(ValueError, hermeint, array([0]), -1)
     pytest.raises(ValueError, hermeint, array([0]), 1, [0, 0])
-    pytest.raises(ValueError, hermeint, array([0]), lbnd=[0])
-    pytest.raises(ValueError, hermeint, array([0]), scl=[0])
+    pytest.raises(ValueError, hermeint, array([0]), lower_bound=[0])
+    pytest.raises(ValueError, hermeint, array([0]), scale=[0])
     pytest.raises(TypeError, hermeint, array([0]), axis=0.5)
 
     for i in range(2, 5):
@@ -2517,9 +2513,9 @@ def test_hermeint():
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
-        target = [i] + [0] * i + [1 / scl]
+        target = [i] + [0] * i + [1 / scale]
         hermepol = poly2herme(pol)
         res = herme2poly(hermeint(hermepol, order=1, k=[i]))
         assert_array_almost_equal(
@@ -2534,7 +2530,7 @@ def test_hermeint():
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
         hermepol = poly2herme(pol)
         assert_array_almost_equal(
@@ -2544,18 +2540,18 @@ def test_hermeint():
                     hermepol,
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
-        target = [i] + [0] * i + [2 / scl]
+        target = [i] + [0] * i + [2 / scale]
         hermepol = poly2herme(pol)
-        res = herme2poly(hermeint(hermepol, order=1, k=[i], scl=2))
+        res = herme2poly(hermeint(hermepol, order=1, k=[i], scale=2))
         assert_array_almost_equal(
             hermetrim(
                 res,
@@ -2612,7 +2608,7 @@ def test_hermeint():
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
             assert_array_almost_equal(
                 hermetrim(
@@ -2620,7 +2616,7 @@ def test_hermeint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -2639,7 +2635,7 @@ def test_hermeint():
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
             assert_array_almost_equal(
                 hermetrim(
@@ -2647,7 +2643,7 @@ def test_hermeint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),
@@ -3328,8 +3324,8 @@ def test_hermint():
         1,
         array([0, 0]),
     )
-    pytest.raises(ValueError, hermint, array([0]), lbnd=[0])
-    pytest.raises(ValueError, hermint, array([0]), scl=[0])
+    pytest.raises(ValueError, hermint, array([0]), lower_bound=[0])
+    pytest.raises(ValueError, hermint, array([0]), scale=[0])
     pytest.raises(TypeError, hermint, array([0]), axis=0.5)
 
     for i in range(2, 5):
@@ -3348,7 +3344,7 @@ def test_hermint():
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
         hermpol = poly2herm(pol)
         assert_array_almost_equal(
@@ -3363,7 +3359,7 @@ def test_hermint():
                 tol=0.000001,
             ),
             hermtrim(
-                [i] + [0] * i + [1 / scl],
+                [i] + [0] * i + [1 / scale],
                 tol=0.000001,
             ),
         )
@@ -3378,14 +3374,14 @@ def test_hermint():
                     hermpol,
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
         hermpol = poly2herm(pol)
         assert_array_almost_equal(
@@ -3395,13 +3391,13 @@ def test_hermint():
                         hermpol,
                         order=1,
                         k=[i],
-                        scl=2,
+                        scale=2,
                     ),
                 ),
                 tol=0.000001,
             ),
             hermtrim(
-                [i] + [0] * i + [2 / scl],
+                [i] + [0] * i + [2 / scale],
                 tol=0.000001,
             ),
         )
@@ -3456,7 +3452,7 @@ def test_hermint():
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
 
             assert_array_almost_equal(
@@ -3465,7 +3461,7 @@ def test_hermint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -3484,7 +3480,7 @@ def test_hermint():
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
 
             assert_array_almost_equal(
@@ -3493,7 +3489,7 @@ def test_hermint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),
@@ -3901,10 +3897,10 @@ def test_lagder():
                         lagint(
                             array([0] * i + [1]),
                             order=j,
-                            scl=2,
+                            scale=2,
                         ),
                         order=j,
-                        scl=0.5,
+                        scale=0.5,
                     ),
                     tol=0.000001,
                 ),
@@ -4256,8 +4252,8 @@ def test_lagint():
         1,
         array([0, 0]),
     )
-    pytest.raises(ValueError, lagint, array([0]), lbnd=[0])
-    pytest.raises(ValueError, lagint, array([0]), scl=[0])
+    pytest.raises(ValueError, lagint, array([0]), lower_bound=[0])
+    pytest.raises(ValueError, lagint, array([0]), scale=[0])
     pytest.raises(TypeError, lagint, array([0]), axis=0.5)
 
     for i in range(2, 5):
@@ -4271,9 +4267,9 @@ def test_lagint():
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
-        target = [i] + [0] * i + [1 / scl]
+        target = [i] + [0] * i + [1 / scale]
         res = lag2poly(lagint(poly2lag(pol), order=1, k=[i]))
         assert_array_almost_equal(
             lagtrim(
@@ -4287,7 +4283,7 @@ def test_lagint():
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
         lagpol = poly2lag(pol)
         assert_array_almost_equal(
@@ -4297,20 +4293,20 @@ def test_lagint():
                     lagpol,
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
         )
 
     for i in range(5):
-        scl = i + 1
+        scale = i + 1
         pol = array([0] * i + [1])
-        target = [i] + [0] * i + [2 / scl]
+        target = [i] + [0] * i + [2 / scale]
         lagpol = poly2lag(pol)
         assert_array_almost_equal(
             lagtrim(
-                lag2poly(lagint(lagpol, order=1, k=[i], scl=2)),
+                lag2poly(lagint(lagpol, order=1, k=[i], scale=2)),
                 tol=0.000001,
             ),
             lagtrim(
@@ -4362,7 +4358,7 @@ def test_lagint():
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
             assert_array_almost_equal(
                 lagtrim(
@@ -4370,7 +4366,7 @@ def test_lagint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -4389,7 +4385,7 @@ def test_lagint():
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
             assert_array_almost_equal(
                 lagtrim(
@@ -4397,7 +4393,7 @@ def test_lagint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),
@@ -4802,7 +4798,7 @@ def test_legder():
                         legint(
                             array([0] * i + [1]),
                             order=j,
-                            scl=2,
+                            scale=2,
                         ),
                         order=j,
                         scale=0.5,
@@ -5251,8 +5247,8 @@ def test_legint():
         1,
         array([0, 0]),
     )
-    pytest.raises(ValueError, legint, array([0]), lbnd=[0])
-    pytest.raises(ValueError, legint, array([0]), scl=[0])
+    pytest.raises(ValueError, legint, array([0]), lower_bound=[0])
+    pytest.raises(ValueError, legint, array([0]), scale=[0])
     pytest.raises(TypeError, legint, array([0]), axis=0.5)
 
     for i in range(2, 5):
@@ -5290,7 +5286,7 @@ def test_legint():
                     poly2leg(array([0] * i + [1])),
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
@@ -5304,7 +5300,7 @@ def test_legint():
                         poly2leg(array([0] * i + [1])),
                         order=1,
                         k=[i],
-                        scl=2,
+                        scale=2,
                     )
                 ),
                 tol=0.000001,
@@ -5357,7 +5353,7 @@ def test_legint():
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
             assert_array_almost_equal(
                 legtrim(
@@ -5365,7 +5361,7 @@ def test_legint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -5384,7 +5380,7 @@ def test_legint():
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
             assert_array_almost_equal(
                 legtrim(
@@ -5392,7 +5388,7 @@ def test_legint():
                         pol,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),

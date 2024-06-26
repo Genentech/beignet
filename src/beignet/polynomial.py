@@ -82,7 +82,7 @@ polyzero = array([0])
 def _add(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
-    if len(input) > len(other):
+    if input.shape[0] > other.shape[0]:
         output = input.at[: math.prod(other.shape)].add(other)
     else:
         output = other.at[: math.prod(input.shape)].add(input)
@@ -358,9 +358,9 @@ def _map_domain(x, old, new):
     newlen = new[1] - new[0]
     off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
     scl1 = newlen / oldlen
-    off, scl = off1, scl1
+    off, scale = off1, scl1
 
-    return off + scl * x
+    return off + scale * x
 
 
 def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
@@ -471,7 +471,7 @@ def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
 def _subtract(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
-    if len(input) > len(other):
+    if input.shape[0] > other.shape[0]:
         output = -other
 
         output = input.at[: math.prod(other.shape)].add(output)
@@ -558,7 +558,7 @@ def chebcompanion(input: Array) -> Array:
 
     mat = zeros([n, n], dtype=input.dtype)
 
-    scl = ones(n).at[1:].set(sqrt(0.5))
+    scale = ones(n).at[1:].set(sqrt(0.5))
 
     shp = mat.shape
 
@@ -569,7 +569,7 @@ def chebcompanion(input: Array) -> Array:
 
     mat = reshape(mat, shp)
 
-    return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scl / scl[-1]) * 0.5)
+    return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
 
 
 def chebder(input, order=1, scale=1, axis=0):
@@ -583,7 +583,7 @@ def chebder(input, order=1, scale=1, axis=0):
 
     output = moveaxis(input, axis, 0)
 
-    n = len(output)
+    n = output.shape[0]
 
     if order >= n:
         output = zeros_like(output[:1])
@@ -681,7 +681,10 @@ def chebint(
 
     c = _as_series(c)
 
-    lower_bound, scale = map(asarray, (lower_bound, scale))
+    lower_bound = asarray(lower_bound)
+    scale = asarray(scale)
+
+    # lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
@@ -742,8 +745,8 @@ def chebinterpolate(func, degree, args=()):
     return c
 
 
-def chebline(off, scl):
-    return array([off, scl])
+def chebline(off, scale):
+    return array([off, scale])
 
 
 def chebmul(
@@ -761,7 +764,7 @@ def chebmul(
     output = _z_series_to_c_series(output)
 
     if mode == "same":
-        output = output[: max(len(input), len(other))]
+        output = output[: max(input.shape[0], other.shape[0])]
 
     return output
 
@@ -1039,7 +1042,7 @@ def hermcompanion(c):
     return mat
 
 
-def hermder(c, order=1, scl=1, axis=0):
+def hermder(c, order=1, scale=1, axis=0):
     if order < 0:
         raise ValueError
 
@@ -1055,7 +1058,7 @@ def hermder(c, order=1, scl=1, axis=0):
     else:
         for _ in range(order):
             n = n - 1
-            c *= scl
+            c *= scale
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
             der = der.at[j - 1].set(transpose(2 * j * transpose(c[j])))
@@ -1122,7 +1125,7 @@ def hermecompanion(c):
     return mat
 
 
-def hermeder(c, order=1, scl=1, axis=0):
+def hermeder(c, order=1, scale=1, axis=0):
     if order < 0:
         raise ValueError
 
@@ -1138,7 +1141,7 @@ def hermeder(c, order=1, scl=1, axis=0):
     else:
         for _ in range(order):
             n = n - 1
-            c *= scl
+            c *= scale
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
             der = der.at[j - 1].set(transpose(j * transpose(c[j])))
@@ -1218,8 +1221,8 @@ def hermeint(
     c,
     order=1,
     k=None,
-    lbnd=0,
-    scl=1,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ):
     if k is None:
@@ -1227,7 +1230,8 @@ def hermeint(
 
     c = _as_series(c)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound = asarray(lower_bound)
+    scale = asarray(scale)
 
     if not iterable(k):
         k = [k]
@@ -1235,10 +1239,10 @@ def hermeint(
     if len(k) > order:
         raise ValueError
 
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
 
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -1249,25 +1253,25 @@ def hermeint(
 
     for i in range(order):
         n = c.shape[0]
-        c *= scl
+        c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         j = arange(1, n)
         tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (j + 1)))
-        tmp = tmp.at[0].add(k[i] - hermeval(lbnd, tmp))
+        tmp = tmp.at[0].add(k[i] - hermeval(lower_bound, tmp))
         c = tmp
 
     return moveaxis(c, 0, axis)
 
 
-def hermeline(off, scl):
-    return array([off, scl])
+def hermeline(off, scale):
+    return array([off, scale])
 
 
 def hermemul(input, other, mode="full"):
     input, other = _as_series(input, other)
-    lc1, lc2 = len(input), len(other)
+    lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
         c = other
         xs = input
@@ -1309,7 +1313,9 @@ def hermemul(input, other, mode="full"):
 
 def hermemulx(c, mode="full"):
     c = _as_series(c)
+
     output = zeros(c.shape[0] + 1, dtype=c.dtype)
+
     output = output.at[1].set(c[0])
 
     i = arange(1, c.shape[0])
@@ -1319,6 +1325,7 @@ def hermemulx(c, mode="full"):
 
     if mode == "same":
         output = output[: c.shape[0]]
+
     return output
 
 
@@ -1377,10 +1384,14 @@ def hermeval(x, c, tensor=True):
             return c0, c1, nd
 
         b = c.shape[0] + 1
+
         x1 = (c0, c1, nd)
+
         y = x1
+
         for index in range(3, b):
             y = body(index, y)
+
         c0, c1, _ = y
 
     return c0 + c1 * x
@@ -1404,6 +1415,7 @@ def hermevander(x, degree):
     x = x.astype(dtyp)
     v = empty(dims, dtype=dtyp)
     v = v.at[0].set(ones_like(x))
+
     if degree > 0:
         v = v.at[1].set(x)
 
@@ -1499,15 +1511,15 @@ def hermint(
     c,
     order=1,
     k=None,
-    lbnd=0,
-    scl=1,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ):
     if k is None:
         k = []
     c = _as_series(c)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
@@ -1515,10 +1527,10 @@ def hermint(
     if len(k) > order:
         raise ValueError
 
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
 
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -1529,13 +1541,13 @@ def hermint(
 
     for i in range(order):
         n = c.shape[0]
-        c *= scl
+        c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0] / 2)
         j = arange(1, n)
         tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (2 * (j + 1))))
-        tmp = tmp.at[0].add(k[i] - hermval(lbnd, tmp))
+        tmp = tmp.at[0].add(k[i] - hermval(lower_bound, tmp))
         c = tmp
 
     c = moveaxis(c, 0, axis)
@@ -1543,13 +1555,13 @@ def hermint(
     return c
 
 
-def hermline(off, scl):
-    return array([off, scl / 2])
+def hermline(off, scale):
+    return array([off, scale / 2])
 
 
 def hermmul(input, other, mode="full"):
     input, other = _as_series(input, other)
-    lc1, lc2 = len(input), len(other)
+    lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
         c = other
         xs = input
@@ -1775,7 +1787,7 @@ def lagcompanion(c):
     return mat
 
 
-def lagder(c, order=1, scl=1, axis=0):
+def lagder(c, order=1, scale=1, axis=0):
     if order < 0:
         raise ValueError
 
@@ -1791,7 +1803,7 @@ def lagder(c, order=1, scl=1, axis=0):
     else:
         for _ in range(order):
             n = n - 1
-            c *= scl
+            c *= scale
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
@@ -1883,8 +1895,8 @@ def lagint(
     c,
     order=1,
     k=None,
-    lbnd=0,
-    scl=1,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ):
     if k is None:
@@ -1892,15 +1904,15 @@ def lagint(
 
     c = _as_series(c)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
     if len(k) > order:
         raise ValueError
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -1911,27 +1923,27 @@ def lagint(
 
     for i in range(order):
         n = c.shape[0]
-        c *= scl
+        c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0])
         tmp = tmp.at[1].set(-c[0])
         j = arange(1, n)
         tmp = tmp.at[j].add(c[j])
         tmp = tmp.at[j + 1].add(-c[j])
-        tmp = tmp.at[0].add(k[i] - lagval(lbnd, tmp))
+        tmp = tmp.at[0].add(k[i] - lagval(lower_bound, tmp))
         c = tmp
 
     c = moveaxis(c, 0, axis)
     return c
 
 
-def lagline(off, scl):
-    return array([off + scl, -scl])
+def lagline(off, scale):
+    return array([off + scale, -scale])
 
 
 def lagmul(input, other, mode="full"):
     input, other = _as_series(input, other)
-    lc1, lc2 = len(input), len(other)
+    lc1, lc2 = input.shape[0], other.shape[0]
 
     if lc1 > lc2:
         c = other
@@ -2147,13 +2159,13 @@ def legcompanion(c):
 
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
-    scl = 1.0 / sqrt(2 * arange(n) + 1)
+    scale = 1.0 / sqrt(2 * arange(n) + 1)
     shp = mat.shape
     mat = reshape(mat, [-1])
-    mat = mat.at[1 :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
-    mat = mat.at[n :: n + 1].set(arange(1, n) * scl[: n - 1] * scl[1:n])
+    mat = mat.at[1 :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
+    mat = mat.at[n :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
     mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scl / scl[-1]) * (n / (2 * n - 1)))
+    mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1)))
     return mat
 
 
@@ -2279,8 +2291,8 @@ def legint(
     c,
     order=1,
     k=None,
-    lbnd=0,
-    scl=1,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ):
     if k is None:
@@ -2288,15 +2300,15 @@ def legint(
 
     c = _as_series(c)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
     if len(k) > order:
         raise ValueError
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -2307,7 +2319,7 @@ def legint(
 
     for i in range(order):
         n = c.shape[0]
-        c *= scl
+        c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
@@ -2317,19 +2329,19 @@ def legint(
         t = transpose(transpose(c[j]) / (2 * j + 1))
         tmp = tmp.at[j + 1].set(t)
         tmp = tmp.at[j - 1].add(-t)
-        tmp = tmp.at[0].add(k[i] - legval(lbnd, tmp))
+        tmp = tmp.at[0].add(k[i] - legval(lower_bound, tmp))
         c = tmp
     c = moveaxis(c, 0, axis)
     return c
 
 
-def legline(off, scl):
-    return array([off, scl])
+def legline(off, scale):
+    return array([off, scale])
 
 
 def legmul(input, other, mode="full"):
     input, other = _as_series(input, other)
-    lc1, lc2 = len(input), len(other)
+    lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
         c = other
         xs = input
@@ -2752,8 +2764,8 @@ def polyint(
     return moveaxis(input, 0, axis)
 
 
-def polyline(off, scl):
-    return array([off, scl])
+def polyline(off, scale):
+    return array([off, scale])
 
 
 def polymul(input: Array, other: Array, mode="full") -> Array:
@@ -2762,7 +2774,7 @@ def polymul(input: Array, other: Array, mode="full") -> Array:
     output = convolve(input, other)
 
     if mode == "same":
-        output = output[: max(len(input), len(other))]
+        output = output[: max(input.shape[0], other.shape[0])]
 
     return output
 
@@ -2770,12 +2782,12 @@ def polymul(input: Array, other: Array, mode="full") -> Array:
 def polymulx(input: Array, mode="full") -> Array:
     input = _as_series(input)
 
-    output = zeros(len(input) + 1, dtype=input.dtype)
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
     output = output.at[1:].set(input)
 
     if mode == "same":
-        output = output[: len(input)]
+        output = output[: input.shape[0]]
 
     return output
 
@@ -2792,10 +2804,10 @@ def polypow(input: Array, exponent: int, maximum_exponent: int = 16) -> Array:
 def polyroots(input: Array) -> Array:
     input = _as_series(input)
 
-    if len(input) < 2:
+    if input.shape[0] < 2:
         return array([], dtype=input.dtype)
 
-    if len(input) == 2:
+    if input.shape[0] == 2:
         return array([-input[0] / input[1]])
 
     output = polycompanion(input)
