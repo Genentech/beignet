@@ -253,7 +253,9 @@ def _fit(
                 .set(output)
             )
         else:
-            output = zeros(maximum + 1, dtype=output.dtype).at[degree].set(output)
+            x = zeros(maximum + 1, dtype=output.dtype)
+
+            output = x.at[degree].set(output)
 
     if full:
         return output, [residuals, rank, s, relative_condition]
@@ -311,7 +313,7 @@ def _normed_hermite_e_n(x: Array, n):
         a = zeros_like(x)
         b = ones_like(x) / sqrt(sqrt(2 * math.pi))
 
-        d = array(n).astype(float)
+        d = array(n)  # .astype(float)
 
         for _ in range(0, n - 1):
             c = a
