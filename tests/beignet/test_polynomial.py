@@ -1426,14 +1426,24 @@ def test_chebpts2():
     with pytest.raises(ValueError):
         chebpts2(1)
 
-    assert_array_almost_equal(chebpts2(2), [-1, 1])
-
-    assert_array_almost_equal(chebpts2(3), array([-1, 0, 1]))
-
-    assert_array_almost_equal(chebpts2(4), [-1, -0.5, 0.5, 1])
+    assert_array_almost_equal(
+        chebpts2(2),
+        [-1, 1],
+    )
 
     assert_array_almost_equal(
-        chebpts2(5), [-1.0, -0.707106781187, 0, 0.707106781187, 1.0]
+        chebpts2(3),
+        array([-1, 0, 1]),
+    )
+
+    assert_array_almost_equal(
+        chebpts2(4),
+        [-1, -0.5, 0.5, 1],
+    )
+
+    assert_array_almost_equal(
+        chebpts2(5),
+        [-1.0, -0.707106781187, 0, 0.707106781187, 1.0],
     )
 
 
