@@ -140,10 +140,10 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
 
         t = remainder[ridx1] / p[pidx]
 
-        remainder = _subtract(
-            remainder.at[ridx1].set(0),
-            t * p.at[pidx].set(0),
-        )[: len(remainder)]
+        a = remainder.at[ridx1].set(0)
+        b = t * p.at[pidx].set(0)
+
+        remainder = _subtract(a, b)[: remainder.shape[0]]
 
         quotient = quotient.at[i].set(t)
 
@@ -198,8 +198,8 @@ def _fit(
 
         vandermonde = vandermonde_func(input, maximum)[:, degree]
 
-    lhs = transpose(vandermonde)
-    rhs = transpose(other)
+    a = transpose(vandermonde)
+    b = transpose(other)
 
     if weight is not None:
         weight = asarray(weight)
@@ -210,14 +210,14 @@ def _fit(
         if input.shape[0] != weight.shape[0]:
             raise TypeError
 
-        lhs = lhs * weight
-        rhs = rhs * weight
+        a = a * weight
+        b = b * weight
 
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
-    if issubclass(lhs.dtype.type, complexfloating):
-        scale = square(lhs.real) + square(lhs.imag)
+    if issubclass(a.dtype.type, complexfloating):
+        scale = square(a.real) + square(a.imag)
 
         scale = sum(
             scale,
@@ -226,7 +226,7 @@ def _fit(
 
         scale = sqrt(scale)
     else:
-        scale = square(lhs)
+        scale = square(a)
 
         scale = sum(
             scale,
@@ -238,8 +238,8 @@ def _fit(
     scale = where(scale == 0, 1, scale)
 
     output, residuals, rank, s = lstsq(
-        transpose(lhs) / scale,
-        transpose(rhs),
+        transpose(a) / scale,
+        transpose(b),
         relative_condition,
     )
 
