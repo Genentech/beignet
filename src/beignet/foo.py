@@ -335,9 +335,9 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
 
         val = m, tmp
 
-    _, ret = val
+    _, output = val
 
-    return ret[0]
+    return output[0]
 
 
 def _get_domain(x: Array) -> Array:
@@ -713,7 +713,9 @@ def hermemul(
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
+
     lc1, lc2 = input.shape[0], other.shape[0]
+
     if lc1 > lc2:
         c = other
         xs = input
@@ -722,26 +724,32 @@ def hermemul(
         xs = other
 
     if c.shape[0] == 1:
-        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        a = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
-        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        a = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
-        c0 = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+
+        a = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        b = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = hermesub(c[-i] * xs, c1 * (nd - 1))
-            c1 = hermeadd(tmp, hermemulx(c1, "same"))
+            tmp = a
 
-    ret = hermeadd(c0, hermemulx(c1, "same"))
+            nd = nd - 1
+
+            a = hermesub(c[-i] * xs, b * (nd - 1))
+
+            b = hermeadd(tmp, hermemulx(b, "same"))
+
+    output = hermeadd(a, hermemulx(b, "same"))
+
     if mode == "same":
-        ret = ret[: max(lc1, lc2)]
-    return ret
+        output = output[: max(lc1, lc2)]
+
+    return output
 
 
 def hermemulx(
@@ -796,23 +804,27 @@ def hermeval(
         )
 
     if coefficients.shape[0] == 1:
-        c0 = coefficients[0]
-        c1 = 0
+        a = coefficients[0]
+        b = 0
     elif coefficients.shape[0] == 2:
-        c0 = coefficients[0]
-        c1 = coefficients[1]
+        a = coefficients[0]
+        b = coefficients[1]
     else:
         nd = coefficients.shape[0]
-        c0 = coefficients[-2] * ones_like(input)
-        c1 = coefficients[-1] * ones_like(input)
+
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = coefficients[-i] - c1 * (nd - 1)
-            c1 = tmp + c1 * input
+            tmp = a
 
-    return c0 + c1 * input
+            nd = nd - 1
+
+            a = coefficients[-i] - b * (nd - 1)
+
+            b = tmp + b * input
+
+    return a + b * input
 
 
 def hermline(input: Array, other: Array) -> Array:
@@ -825,7 +837,9 @@ def hermmul(
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
+
     lc1, lc2 = input.shape[0], other.shape[0]
+
     if lc1 > lc2:
         c = other
         xs = input
@@ -834,26 +848,32 @@ def hermmul(
         xs = other
 
     if c.shape[0] == 1:
-        c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        a = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
-        c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        a = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
-        c0 = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+
+        a = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        b = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = hermsub(c[-i] * xs, c1 * (2 * (nd - 1)))
-            c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
+            tmp = a
 
-    ret = hermadd(c0, hermmulx(c1, "same") * 2)
+            nd = nd - 1
+
+            a = hermsub(c[-i] * xs, b * (2 * (nd - 1)))
+
+            b = hermadd(tmp, hermmulx(b, "same") * 2)
+
+    output = hermadd(a, hermmulx(b, "same") * 2)
+
     if mode == "same":
-        ret = ret[: max(lc1, lc2)]
-    return ret
+        output = output[: max(lc1, lc2)]
+
+    return output
 
 
 def hermmulx(
@@ -907,23 +927,27 @@ def hermval(
 
     x2 = input * 2
     if coefficients.shape[0] == 1:
-        c0 = coefficients[0]
-        c1 = 0
+        a = coefficients[0]
+        b = 0
     elif coefficients.shape[0] == 2:
-        c0 = coefficients[0]
-        c1 = coefficients[1]
+        a = coefficients[0]
+        b = coefficients[1]
     else:
         nd = coefficients.shape[0]
-        c0 = coefficients[-2] * ones_like(input)
-        c1 = coefficients[-1] * ones_like(input)
+
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = coefficients[-i] - c1 * (2 * (nd - 1))
-            c1 = tmp + c1 * x2
+            tmp = a
 
-    return c0 + c1 * x2
+            nd = nd - 1
+
+            a = coefficients[-i] - b * (2 * (nd - 1))
+
+            b = tmp + b * x2
+
+    return a + b * x2
 
 
 def lagadd(input: Array, other: Array) -> Array:
@@ -944,6 +968,7 @@ def lagmul(
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
+
     lc1, lc2 = input.shape[0], other.shape[0]
 
     if lc1 > lc2:
@@ -954,26 +979,32 @@ def lagmul(
         xs = other
 
     if c.shape[0] == 1:
-        c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = zeros(lc1 + lc2 - 1)
+        a = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
-        c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        c1 = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        a = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
-        c0 = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        c1 = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+
+        a = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        b = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = lagsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
+            tmp = a
 
-    ret = lagadd(c0, lagsub(c1, lagmulx(c1, "same")))
+            nd = nd - 1
+
+            a = lagsub(c[-i] * xs, (b * (nd - 1)) / nd)
+
+            b = lagadd(tmp, lagsub((2 * nd - 1) * b, lagmulx(b, "same")) / nd)
+
+    output = lagadd(a, lagsub(b, lagmulx(b, "same")))
+
     if mode == "same":
-        ret = ret[: max(lc1, lc2)]
-    return ret
+        output = output[: max(lc1, lc2)]
+
+    return output
 
 
 def lagmulx(
@@ -1029,23 +1060,27 @@ def lagval(
         )
 
     if coefficients.shape[0] == 1:
-        c0 = coefficients[0]
-        c1 = 0
+        a = coefficients[0]
+        b = 0
     elif coefficients.shape[0] == 2:
-        c0 = coefficients[0]
-        c1 = coefficients[1]
+        a = coefficients[0]
+        b = coefficients[1]
     else:
-        nd = coefficients.shape[0]
-        c0 = coefficients[-2] * ones_like(input)
-        c1 = coefficients[-1] * ones_like(input)
+        d = coefficients.shape[0]
+
+        a = coefficients[-2] * ones_like(input)
+        b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            tmp = c0
-            nd = nd - 1
-            c0 = coefficients[-i] - (c1 * (nd - 1)) / nd
-            c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
+            c = a
 
-    return c0 + c1 * (1 - input)
+            d = d - 1
+
+            a = coefficients[-i] - (b * (d - 1)) / d
+
+            b = c + (b * ((2 * d - 1) - input)) / d
+
+    return a + b * (1 - input)
 
 
 def legadd(input: Array, other: Array) -> Array:
@@ -1077,40 +1112,32 @@ def legmul(
         xs = other
 
     if c.shape[0] == 1:
-        c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-
-        input = zeros(lc1 + lc2 - 1)
+        a = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
-        c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-
-        input = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        a = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+        b = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
 
-        c0 = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        a = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+        b = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
-        input = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        for i in range(3, c.shape[0] + 1):
+            tmp = a
 
-        b = c.shape[0] + 1
-        x = (c0, input, nd)
-        val = x
-
-        for i in range(3, b):
-            c0, c1, nd = val
-            tmp = c0
             nd = nd - 1
-            c0 = legsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
-            c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
-            val = c0, c1, nd
 
-        c0, input, _ = val
+            a = legsub(c[-i] * xs, (b * (nd - 1)) / nd)
 
-    ret = legadd(c0, legmulx(input, "same"))
+            b = legadd(tmp, (legmulx(b, "same") * (2 * nd - 1)) / nd)
+
+    output = legadd(a, legmulx(b, "same"))
 
     if mode == "same":
-        ret = ret[: max(lc1, lc2)]
+        output = output[: max(lc1, lc2)]
 
-    return ret
+    return output
 
 
 def legmulx(
