@@ -1243,11 +1243,23 @@ def test_chebint():
         for j in range(2, 5):
             pol = array([0] * i + [1])
             target = pol[:]
+
             for k in range(j):
-                target = chebint(target, order=1, k=[k], scl=2)
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scl=2,
+                )
+
             assert_array_almost_equal(
                 chebtrim(
-                    chebint(pol, order=j, k=list(range(j)), scl=2),
+                    chebint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scl=2,
+                    ),
                     tol=0.000001,
                 ),
                 chebtrim(
@@ -1724,7 +1736,15 @@ def test_hermder():
     for i in range(5):
         for j in range(2, 5):
             target = array([0] * i + [1])
-            res = hermder(hermint(target, order=j, scl=2), order=j, scl=0.5)
+            res = hermder(
+                hermint(
+                    target,
+                    order=j,
+                    scl=2,
+                ),
+                order=j,
+                scl=0.5,
+            )
             assert_array_almost_equal(
                 hermtrim(
                     res,
@@ -1874,7 +1894,11 @@ def test_hermeder():
             assert_array_almost_equal(
                 hermetrim(
                     hermeder(
-                        hermeint(array([0] * i + [1]), order=j, scl=2),
+                        hermeint(
+                            array([0] * i + [1]),
+                            order=j,
+                            scl=2,
+                        ),
                         order=j,
                         scl=0.5,
                     ),
@@ -2414,10 +2438,21 @@ def test_hermeint():
             pol = array([0] * i + [1])
             target = pol[:]
             for k in range(j):
-                target = hermeint(target, order=1, k=[k], scl=2)
+                target = hermeint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scl=2,
+                )
             assert_array_almost_equal(
                 hermetrim(
-                    hermeint(pol, order=j, k=list(range(j)), scl=2), tol=0.000001
+                    hermeint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scl=2,
+                    ),
+                    tol=0.000001,
                 ),
                 hermetrim(
                     target,
@@ -3159,7 +3194,12 @@ def test_hermint():
         assert_array_almost_equal(
             hermtrim(
                 herm2poly(
-                    hermint(hermpol, order=1, k=[i], scl=2),
+                    hermint(
+                        hermpol,
+                        order=1,
+                        k=[i],
+                        scl=2,
+                    ),
                 ),
                 tol=0.000001,
             ),
@@ -3661,7 +3701,11 @@ def test_lagder():
             assert_array_almost_equal(
                 lagtrim(
                     lagder(
-                        lagint(array([0] * i + [1]), order=j, scl=2),
+                        lagint(
+                            array([0] * i + [1]),
+                            order=j,
+                            scl=2,
+                        ),
                         order=j,
                         scl=0.5,
                     ),
@@ -4144,10 +4188,20 @@ def test_lagint():
             pol = array([0] * i + [1])
             target = pol[:]
             for k in range(j):
-                target = lagint(target, order=1, k=[k], scl=2)
+                target = lagint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scl=2,
+                )
             assert_array_almost_equal(
                 lagtrim(
-                    lagint(pol, order=j, k=list(range(j)), scl=2),
+                    lagint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scl=2,
+                    ),
                     tol=0.000001,
                 ),
                 lagtrim(
@@ -4548,7 +4602,11 @@ def test_legder():
             assert_array_almost_equal(
                 legtrim(
                     legder(
-                        legint(array([0] * i + [1]), order=j, scl=2),
+                        legint(
+                            array([0] * i + [1]),
+                            order=j,
+                            scl=2,
+                        ),
                         order=j,
                         scale=0.5,
                     ),
@@ -5125,10 +5183,20 @@ def test_legint():
             pol = array([0] * i + [1])
             target = pol[:]
             for k in range(j):
-                target = legint(target, order=1, k=[k], scl=2)
+                target = legint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scl=2,
+                )
             assert_array_almost_equal(
                 legtrim(
-                    legint(pol, order=j, k=list(range(j)), scl=2),
+                    legint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scl=2,
+                    ),
                     tol=0.000001,
                 ),
                 legtrim(
