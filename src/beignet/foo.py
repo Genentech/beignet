@@ -544,7 +544,7 @@ def _vandermonde(vander_fs, points, degrees) -> Array:
 def _z_series_mul(
     input: Array,
     other: Array,
-    mode="full",
+    mode: Literal["full", "same"] = "full",
 ) -> Array:
     return convolve(input, other, mode=mode)
 
