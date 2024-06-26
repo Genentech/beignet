@@ -1309,9 +1309,11 @@ def test_chebinterpolate():
         return x**p
 
     x = linspace(-1, 1, 10)
+
     for deg in range(0, 10):
         for p in range(0, deg + 1):
             c = chebinterpolate(powx, deg, (p,))
+
             assert_array_almost_equal(
                 chebval(x, c),
                 powx(x, p),
@@ -1319,7 +1321,10 @@ def test_chebinterpolate():
 
 
 def test_chebline():
-    assert_array_almost_equal(chebline(3, 4), array([3, 4]))
+    assert_array_almost_equal(
+        chebline(3, 4),
+        array([3, 4]),
+    )
 
 
 def test_chebmul():
@@ -1348,7 +1353,9 @@ def test_chebmul():
 def test_chebmulx():
     assert_array_almost_equal(
         chebtrim(
-            chebmulx([0]),
+            chebmulx(
+                array([0]),
+            ),
             tol=0.000001,
         ),
         [0],
@@ -1356,7 +1363,9 @@ def test_chebmulx():
 
     assert_array_almost_equal(
         chebtrim(
-            chebmulx([1]),
+            chebmulx(
+                array([1]),
+            ),
             tol=0.000001,
         ),
         [0, 1],
@@ -1607,26 +1616,22 @@ def test_chebval2d():
 
 
 def test_chebval3d():
-    c1d = array([2.5, 2.0, 1.5])
     c3d = einsum(
         "i,j,k->ijk",
-        c1d,
-        c1d,
-        c1d,
+        array([2.5, 2.0, 1.5]),
+        array([2.5, 2.0, 1.5]),
+        array([2.5, 2.0, 1.5]),
     )
 
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
-    y = polyval(
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
         x,
         array([1.0, 2.0, 3.0]),
     )
 
-    x1, x2, x3 = x
-    y1, y2, y3 = y
-
     pytest.raises(ValueError, chebval3d, x1, x2, x3[:2], c3d)
-
-    target = y1 * y2 * y3
 
     assert_array_almost_equal(
         chebval3d(
@@ -1635,56 +1640,49 @@ def test_chebval3d():
             x3,
             c3d,
         ),
-        target,
+        y1 * y2 * y3,
     )
 
-    z = ones([2, 3])
-
-    res = chebval3d(
-        z,
-        z,
-        z,
+    output = chebval3d(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
         c3d,
     )
 
-    assert res.shape == (2, 3)
+    assert output.shape == (2, 3)
 
 
 def test_chebvander():
-    x = arange(3)
     v = chebvander(
-        x,
+        arange(3),
         degree=3,
     )
 
     assert v.shape == (3, 4)
 
     for i in range(4):
-        coef = array([0] * i + [1])
         assert_array_almost_equal(
             v[..., i],
             chebval(
-                x,
-                coef,
+                arange(3),
+                array([0] * i + [1]),
             ),
         )
 
-    x = array([[1, 2], [3, 4], [5, 6]])
-
     v = chebvander(
-        x,
+        array([[1, 2], [3, 4], [5, 6]]),
         degree=3,
     )
 
     assert v.shape == (3, 2, 4)
 
     for i in range(4):
-        coef = array([0] * i + [1])
         assert_array_almost_equal(
             v[..., i],
             chebval(
-                x,
-                coef,
+                array([[1, 2], [3, 4], [5, 6]]),
+                array([0] * i + [1]),
             ),
         )
 
@@ -1722,9 +1720,18 @@ def test_chebvander2d():
 def test_chebvander3d():
     x1, x2, x3 = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
     c = jax.random.uniform(key, (2, 3, 4))
+
     assert_array_almost_equal(
-        dot(chebvander3d(x1, x2, x3, (1, 2, 3)), c.ravel()),
-        chebval3d(x1, x2, x3, c),
+        dot(
+            chebvander3d(x1, x2, x3, (1, 2, 3)),
+            c.ravel(),
+        ),
+        chebval3d(
+            x1,
+            x2,
+            x3,
+            c,
+        ),
     )
 
     van = chebvander3d(
@@ -1733,6 +1740,7 @@ def test_chebvander3d():
         [x3],
         (1, 2, 3),
     )
+
     assert van.shape == (1, 5, 24)
 
 
