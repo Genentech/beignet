@@ -18,6 +18,7 @@ from jax.numpy import (
     full,
     iscomplexobj,
     moveaxis,
+    ndim,
     nonzero,
     ones,
     ones_like,
@@ -82,7 +83,7 @@ def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
     for arg in args:
         x = array(arg)
 
-        if x.ndim == 0:
+        if ndim(x) == 0:
             x = ravel(x)
 
         if trim:
@@ -201,25 +202,29 @@ def _fit(
 ):
     degree = asarray(degree)
 
-    if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
+    if (
+        ndim(degree) > 1
+        or degree.dtype.kind not in "iu"
+        or math.prod(degree.shape) == 0
+    ):
         raise TypeError
 
     if degree.min() < 0:
         raise ValueError
 
-    if input.ndim != 1:
+    if ndim(input) != 1:
         raise TypeError
 
     if math.prod(input.shape) == 0:
         raise TypeError
 
-    if other.ndim < 1 or other.ndim > 2:
+    if ndim(other) < 1 or ndim(other) > 2:
         raise TypeError
 
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    if degree.ndim == 0:
+    if ndim(degree) == 0:
         maximum = int(degree)
 
         vandermonde = vandermonde_func(input, maximum)
@@ -236,7 +241,7 @@ def _fit(
     if weight is not None:
         weight = asarray(weight)
 
-        if weight.ndim != 1:
+        if ndim(weight) != 1:
             raise TypeError
 
         if input.shape[0] != weight.shape[0]:
@@ -251,19 +256,13 @@ def _fit(
     if issubclass(a.dtype.type, complexfloating):
         scale = square(a.real) + square(a.imag)
 
-        scale = sum(
-            scale,
-            axis=1,
-        )
+        scale = sum(scale, axis=1)
 
         scale = sqrt(scale)
     else:
         scale = square(a)
 
-        scale = sum(
-            scale,
-            axis=1,
-        )
+        scale = sum(scale, axis=1)
 
         scale = sqrt(scale)
 
@@ -277,8 +276,8 @@ def _fit(
 
     output = transpose(transpose(output) / scale)
 
-    if degree.ndim > 0:
-        if output.ndim == 2:
+    if ndim(degree) > 0:
+        if ndim(output) == 2:
             x = zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
 
             output = x.at[degree].set(output)
@@ -434,7 +433,7 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
         input = input[: -abs(padding[1])]
         padding = (padding[0], 0)
 
-    npad = [(0, 0)] * input.ndim
+    npad = [(0, 0)] * ndim(input)
     npad[0] = padding
 
     output = pad(input, pad_width=npad, mode="constant", constant_values=0)
@@ -544,7 +543,7 @@ def _vandermonde(vander_fs, points, degrees) -> Array:
 def _z_series_mul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     return convolve(input, other, mode=mode)
 
@@ -570,7 +569,7 @@ def chebline(input: Array, other: Array):
 def chebmul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
 
@@ -589,7 +588,7 @@ def chebmul(
 
 def chebmulx(
     input: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input = _as_series(input)
 
@@ -663,7 +662,10 @@ def chebval(
     coefficients = _as_series(coefficients)
 
     if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * ndim(input),
+        )
 
     if coefficients.shape[0] == 1:
         a = coefficients[0]
@@ -708,7 +710,7 @@ def hermeline(input: float, other: float) -> Array:
 def hermemul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
@@ -721,31 +723,22 @@ def hermemul(
 
     if c.shape[0] == 1:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = zeros(lc1 + lc2 - 1)
+        c1 = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
         c0 = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        input = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c1 = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, c.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = hermesub(c[-i] * xs, c1 * (nd - 1))
             c1 = hermeadd(tmp, hermemulx(c1, "same"))
-            return c0, c1, nd
 
-        b = c.shape[0] + 1
-        x = (c0, input, nd)
-        y = x
-        for index in range(3, b):
-            y = body(index, y)
-        c0, input, _ = y
-
-    ret = hermeadd(c0, hermemulx(input, "same"))
+    ret = hermeadd(c0, hermemulx(c1, "same"))
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -753,7 +746,7 @@ def hermemul(
 
 def hermemulx(
     input: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input = _as_series(input)
 
@@ -797,7 +790,10 @@ def hermeval(
     coefficients = _as_series(coefficients)
 
     if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * ndim(input),
+        )
 
     if coefficients.shape[0] == 1:
         c0 = coefficients[0]
@@ -810,24 +806,11 @@ def hermeval(
         c0 = coefficients[-2] * ones_like(input)
         c1 = coefficients[-1] * ones_like(input)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, coefficients.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = coefficients[-i] - c1 * (nd - 1)
             c1 = tmp + c1 * input
-            return c0, c1, nd
-
-        b = coefficients.shape[0] + 1
-
-        x1 = (c0, c1, nd)
-
-        y = x1
-
-        for index in range(3, b):
-            y = body(index, y)
-
-        c0, c1, _ = y
 
     return c0 + c1 * input
 
@@ -839,7 +822,7 @@ def hermline(input: Array, other: Array) -> Array:
 def hermmul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
@@ -852,33 +835,22 @@ def hermmul(
 
     if c.shape[0] == 1:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = zeros(lc1 + lc2 - 1)
+        c1 = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        c1 = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
         c0 = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        input = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c1 = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, c.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = hermsub(c[-i] * xs, c1 * (2 * (nd - 1)))
             c1 = hermadd(tmp, hermmulx(c1, "same") * 2)
-            return c0, c1, nd
 
-        b = c.shape[0] + 1
-        x = (c0, input, nd)
-        y = x
-
-        for index in range(3, b):
-            y = body(index, y)
-
-        c0, input, _ = y
-
-    ret = hermadd(c0, hermmulx(input, "same") * 2)
+    ret = hermadd(c0, hermmulx(c1, "same") * 2)
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -886,7 +858,7 @@ def hermmul(
 
 def hermmulx(
     input: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input = _as_series(input)
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -928,7 +900,10 @@ def hermval(
     coefficients = _as_series(coefficients)
 
     if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * ndim(input),
+        )
 
     x2 = input * 2
     if coefficients.shape[0] == 1:
@@ -942,20 +917,11 @@ def hermval(
         c0 = coefficients[-2] * ones_like(input)
         c1 = coefficients[-1] * ones_like(input)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, coefficients.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = coefficients[-i] - c1 * (2 * (nd - 1))
             c1 = tmp + c1 * x2
-            return c0, c1, nd
-
-        b = coefficients.shape[0] + 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(3, b):
-            y = body(index, y)
-        c0, c1, _ = y
 
     return c0 + c1 * x2
 
@@ -975,7 +941,7 @@ def lagline(input: Array, other: Array) -> Array:
 def lagmul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
@@ -989,31 +955,22 @@ def lagmul(
 
     if c.shape[0] == 1:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = zeros(lc1 + lc2 - 1)
+        c1 = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
-        input = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
+        c1 = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
         c0 = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
-        input = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
+        c1 = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, c.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = lagsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
             c1 = lagadd(tmp, lagsub((2 * nd - 1) * c1, lagmulx(c1, "same")) / nd)
-            return c0, c1, nd
 
-        b = c.shape[0] + 1
-        x = (c0, input, nd)
-        y = x
-        for index in range(3, b):
-            y = body(index, y)
-        c0, input, _ = y
-
-    ret = lagadd(c0, lagsub(input, lagmulx(input, "same")))
+    ret = lagadd(c0, lagsub(c1, lagmulx(c1, "same")))
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
     return ret
@@ -1021,7 +978,7 @@ def lagmul(
 
 def lagmulx(
     input: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input = _as_series(input)
 
@@ -1037,6 +994,7 @@ def lagmulx(
 
     if mode == "same":
         output = output[: input.shape[0]]
+
     return output
 
 
@@ -1065,7 +1023,10 @@ def lagval(
     coefficients = _as_series(coefficients)
 
     if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * ndim(input),
+        )
 
     if coefficients.shape[0] == 1:
         c0 = coefficients[0]
@@ -1078,20 +1039,11 @@ def lagval(
         c0 = coefficients[-2] * ones_like(input)
         c1 = coefficients[-1] * ones_like(input)
 
-        def body(i, val):
-            c0, c1, nd = val
+        for i in range(3, coefficients.shape[0] + 1):
             tmp = c0
             nd = nd - 1
             c0 = coefficients[-i] - (c1 * (nd - 1)) / nd
             c1 = tmp + (c1 * ((2 * nd - 1) - input)) / nd
-            return c0, c1, nd
-
-        b = coefficients.shape[0] + 1
-        x1 = (c0, c1, nd)
-        y = x1
-        for index in range(3, b):
-            y = body(index, y)
-        c0, c1, _ = y
 
     return c0 + c1 * (1 - input)
 
@@ -1111,10 +1063,12 @@ def legline(input: float, other: float) -> Array:
 def legmul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
+
     lc1, lc2 = input.shape[0], other.shape[0]
+
     if lc1 > lc2:
         c = other
         xs = input
@@ -1124,33 +1078,38 @@ def legmul(
 
     if c.shape[0] == 1:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+
         input = zeros(lc1 + lc2 - 1)
     elif c.shape[0] == 2:
         c0 = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
+
         input = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
         nd = c.shape[0]
+
         c0 = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
+
         input = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
-        def body(i, val):
+        b = c.shape[0] + 1
+        x = (c0, input, nd)
+        val = x
+
+        for i in range(3, b):
             c0, c1, nd = val
             tmp = c0
             nd = nd - 1
             c0 = legsub(c[-i] * xs, (c1 * (nd - 1)) / nd)
             c1 = legadd(tmp, (legmulx(c1, "same") * (2 * nd - 1)) / nd)
-            return c0, c1, nd
+            val = c0, c1, nd
 
-        b = c.shape[0] + 1
-        x = (c0, input, nd)
-        y = x
-        for index in range(3, b):
-            y = body(index, y)
-        c0, input, _ = y
+        c0, input, _ = val
 
     ret = legadd(c0, legmulx(input, "same"))
+
     if mode == "same":
         ret = ret[: max(lc1, lc2)]
+
     return ret
 
 
@@ -1160,7 +1119,11 @@ def legmulx(
 ) -> Array:
     input = _as_series(input)
 
-    def body(i, output):
+    b = input.shape[0]
+
+    output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
+
+    for i in range(1, b):
         j = i + 1
 
         k = i - 1
@@ -1170,15 +1133,6 @@ def legmulx(
         output = output.at[j].set((input[i] * j) / s)
 
         output = output.at[k].add((input[i] * i) / s)
-
-        return output
-
-    b = input.shape[0]
-
-    output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
-
-    for i in range(1, b):
-        output = body(i, output)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1213,7 +1167,7 @@ def legval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * input.ndim,
+            coefficients.shape + (1,) * ndim(input),
         )
 
     match coefficients.shape[0]:
@@ -1313,13 +1267,13 @@ def polyval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * input.ndim,
+            coefficients.shape + (1,) * ndim(input),
         )
 
     output = coefficients[-1] + zeros_like(input)
 
-    for index in range(2, coefficients.shape[0] + 1):
-        output = coefficients[-index] + output * input
+    for i in range(2, coefficients.shape[0] + 1):
+        output = coefficients[-i] + output * input
 
     return output
 
