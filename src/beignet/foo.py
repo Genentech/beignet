@@ -668,7 +668,11 @@ def hermeline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def hermemul(input: Array, other, mode: Literal["full", "same"] = "full") -> Array:
+def hermemul(
+    input: Array,
+    other,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -843,7 +847,11 @@ def lagline(input: Array, other: Array) -> Array:
     return array([input + other, -other])
 
 
-def lagmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
+def lagmul(
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
 
@@ -933,7 +941,11 @@ def legline(input: float, other: float) -> Array:
     return array([input, other])
 
 
-def legmul(input: Array, other: Array, mode: Literal["full", "same"] = "full") -> Array:
+def legmul(
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
+) -> Array:
     input, other = _as_series(input, other)
     lc1, lc2 = input.shape[0], other.shape[0]
     if lc1 > lc2:
@@ -1036,7 +1048,9 @@ def polyline(input: float, other: float) -> Array:
 
 
 def polymul(
-    input: Array, other: Array, mode: Literal["full", "same"] = "full"
+    input: Array,
+    other: Array,
+    mode: Literal["full", "same"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
 
