@@ -1512,14 +1512,26 @@ def test_chebsub():
 def test_chebtrim():
     pytest.raises(ValueError, chebtrim, array([2, -1, 1, 0]), -1)
 
-    assert_array_almost_equal(chebtrim(array([2, -1, 1, 0])), array([2, -1, 1, 0])[:-1])
-
     assert_array_almost_equal(
-        chebtrim(array([2, -1, 1, 0]), 1), array([2, -1, 1, 0])[:-3]
+        chebtrim(
+            array([2, -1, 1, 0]),
+        ),
+        array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        chebtrim(array([2, -1, 1, 0]), 2),
+        chebtrim(
+            array([2, -1, 1, 0]),
+            1,
+        ),
+        array([2, -1, 1, 0])[:-3],
+    )
+
+    assert_array_almost_equal(
+        chebtrim(
+            array([2, -1, 1, 0]),
+            2,
+        ),
         array([0]),
     )
 
