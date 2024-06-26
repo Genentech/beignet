@@ -1203,31 +1203,38 @@ def legsub(input: Array, other: Array) -> Array:
     return _subtract(input, other)
 
 
-def legval(input: Array, other: Array, tensor=True) -> Array:
-    other = _as_series(other)
+def legval(
+    input: Array,
+    coefficients: Array,
+    tensor: bool = True,
+) -> Array:
+    coefficients = _as_series(coefficients)
 
     if tensor:
-        other = reshape(other, other.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * input.ndim,
+        )
 
-    match other.shape[0]:
+    match coefficients.shape[0]:
         case 1:
-            a = other[0]
+            a = coefficients[0]
             b = 0
         case 2:
-            a = other[0]
-            b = other[1]
+            a = coefficients[0]
+            b = coefficients[1]
         case _:
-            d = other.shape[0]
+            d = coefficients.shape[0]
 
-            a = other[-2] * ones_like(input)
-            b = other[-1] * ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
-            for i in range(3, other.shape[0] + 1):
+            for i in range(3, coefficients.shape[0] + 1):
                 c = a
 
                 d = d - 1
 
-                a = other[-i] - (b * (d - 1)) / d
+                a = coefficients[-i] - (b * (d - 1)) / d
 
                 b = c + (b * input * (2 * d - 1)) / d
 
@@ -1251,7 +1258,7 @@ def polyline(input: float, other: float) -> Array:
 def polymul(
     input: Array,
     other: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input, other = _as_series(input, other)
 
@@ -1265,7 +1272,7 @@ def polymul(
 
 def polymulx(
     input: Array,
-    mode: Literal["full", "same"] = "full",
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Array:
     input = _as_series(input)
 
@@ -1304,16 +1311,17 @@ def polyval(
     coefficients = _as_series(coefficients)
 
     if tensor:
-        coefficients = reshape(coefficients, coefficients.shape + (1,) * input.ndim)
+        coefficients = reshape(
+            coefficients,
+            coefficients.shape + (1,) * input.ndim,
+        )
 
-    c0 = coefficients[-1] + zeros_like(input)
-
-    y = c0
+    output = coefficients[-1] + zeros_like(input)
 
     for index in range(2, coefficients.shape[0] + 1):
-        y = coefficients[-index] + y * input
+        output = coefficients[-index] + output * input
 
-    return y
+    return output
 
 
 chebtrim = _trim_coefficients
