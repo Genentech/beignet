@@ -714,87 +714,89 @@ def test_chebfit():
     def g(x):
         return x**4 + x**2 + 1
 
+    input = linspace(0, 2, 50)
+
+    other = f(input)
+
     assert_array_almost_equal(
         chebval(
-            linspace(0, 2, 50),
+            input,
             chebfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=3,
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebval(
-            linspace(0, 2, 50),
+            input,
             chebfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=(0, 1, 2, 3),
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebval(
-            linspace(0, 2, 50),
+            input,
             chebfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=4,
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebval(
-            linspace(0, 2, 50),
+            input,
             chebfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=(0, 1, 2, 3, 4),
             ),
         ),
-        f(linspace(0, 2, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebval(
-            linspace(0, 2, 50),
+            input,
             chebfit(
-                linspace(0, 2, 50),
-                f(linspace(0, 2, 50)),
+                input,
+                other,
                 degree=(2, 3, 4, 1, 0),
             ),
         ),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef2d = chebfit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=3,
+        other,
     )
 
     assert_array_almost_equal(
-        coef2d,
+        chebfit(
+            input,
+            array([other, other]).T,
+            degree=3,
+        ),
         array(
             [
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -802,27 +804,25 @@ def test_chebfit():
         ).T,
     )
 
-    coef2d = chebfit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=(0, 1, 2, 3),
-    )
-
     assert_array_almost_equal(
-        coef2d,
+        chebfit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
         array(
             [
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -830,42 +830,42 @@ def test_chebfit():
         ).T,
     )
 
-    weight = zeros_like(linspace(0, 2, 50))
+    weight = zeros_like(input)
 
     weight = weight.at[1::2].set(1)
 
     assert_array_almost_equal(
         chebfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=3,
             weight=weight,
         ),
         chebfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
         ),
     )
 
     assert_array_almost_equal(
         chebfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
         chebfit(
-            linspace(0, 2, 50),
-            f(linspace(0, 2, 50)),
+            input,
+            other,
             degree=(0, 1, 2, 3),
         ),
     )
 
     assert_array_almost_equal(
         chebfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=3,
             weight=weight,
         ),
@@ -873,15 +873,15 @@ def test_chebfit():
             [
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -891,8 +891,8 @@ def test_chebfit():
 
     assert_array_almost_equal(
         chebfit(
-            linspace(0, 2, 50),
-            array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
+            input,
+            array([other, other]).T,
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
@@ -900,15 +900,15 @@ def test_chebfit():
             [
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
                 (
                     chebfit(
-                        linspace(0, 2, 50),
-                        f(linspace(0, 2, 50)),
+                        input,
+                        other,
                         degree=(0, 1, 2, 3),
                     )
                 ),
@@ -934,39 +934,43 @@ def test_chebfit():
         array([0, 1]),
     )
 
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
     assert_array_almost_equal(
         chebval(
-            linspace(-1, 1, 50),
+            input,
             chebfit(
-                linspace(-1, 1, 50),
-                g(linspace(-1, 1, 50)),
+                input,
+                other,
                 degree=4,
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebval(
-            linspace(-1, 1, 50),
+            input,
             chebfit(
-                linspace(-1, 1, 50),
-                g(linspace(-1, 1, 50)),
+                input,
+                other,
                 degree=(0, 2, 4),
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         chebfit(
-            linspace(-1, 1, 50),
-            g(linspace(-1, 1, 50)),
+            input,
+            other,
             degree=4,
         ),
         chebfit(
-            linspace(-1, 1, 50),
-            g(linspace(-1, 1, 50)),
+            input,
+            other,
             degree=(0, 2, 4),
         ),
     )
@@ -5555,114 +5559,194 @@ def test_polyfit():
     def g(x):
         return x**4 + x**2 + 1
 
-    coef3 = polyfit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        3,
+    input = linspace(0, 2, 50)
+
+    other = f(input)
+
+    assert_array_almost_equal(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
-        polyval(linspace(0, 2, 50), coef3),
-        f(linspace(0, 2, 50)),
-    )
-    coef3 = polyfit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(0, 1, 2, 3),
-    )
-
-    assert_array_almost_equal(
-        polyval(linspace(0, 2, 50), coef3),
-        f(linspace(0, 2, 50)),
-    )
-
-    coef4 = polyfit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=4,
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
-        polyval(linspace(0, 2, 50), coef4),
-        f(linspace(0, 2, 50)),
-    )
-    coef4 = polyfit(
-        linspace(0, 2, 50),
-        f(linspace(0, 2, 50)),
-        degree=(0, 1, 2, 3, 4),
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
     )
 
     assert_array_almost_equal(
-        polyval(linspace(0, 2, 50), coef4),
-        f(linspace(0, 2, 50)),
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
     )
 
-    coef2d = polyfit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        3,
-    )
     assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
-    )
-    coef2d = polyfit(
-        linspace(0, 2, 50),
-        array([(f(linspace(0, 2, 50))), (f(linspace(0, 2, 50)))]).T,
-        degree=(0, 1, 2, 3),
-    )
-    assert_array_almost_equal(
-        coef2d,
-        array([coef3, coef3]).T,
+        polyfit(
+            input,
+            array([other, other]).T,
+            degree=3,
+        ),
+        array(
+            [
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
-    weight = zeros_like(linspace(0, 2, 50))
+    assert_array_almost_equal(
+        polyfit(
+            input,
+            array([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        array(
+            [
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = zeros_like(input)
 
     weight = weight.at[1::2].set(1)
-    yw = f(linspace(0, 2, 50)).at[0::2].set(0)
-
-    wcoef3 = polyfit(
-        linspace(0, 2, 50),
-        yw,
-        3,
-        weight=weight,
-    )
-
-    assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
-
-    wcoef3 = polyfit(
-        linspace(0, 2, 50),
-        yw,
-        degree=(0, 1, 2, 3),
-        weight=weight,
-    )
-
-    assert_array_almost_equal(
-        wcoef3,
-        coef3,
-    )
 
     assert_array_almost_equal(
         polyfit(
-            linspace(0, 2, 50),
-            array([yw, yw]).T,
-            3,
+            input,
+            other.at[0::2].set(0),
+            degree=3,
             weight=weight,
         ),
-        array([coef3, coef3]).T,
+        polyfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
     )
 
     assert_array_almost_equal(
         polyfit(
-            linspace(0, 2, 50),
-            array([yw, yw]).T,
+            input,
+            other.at[0::2].set(0),
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
-        array([coef3, coef3]).T,
+        polyfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    assert_array_almost_equal(
+        polyfit(
+            input,
+            array([(other.at[0::2].set(0)), (other.at[0::2].set(0))]).T,
+            degree=3,
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_array_almost_equal(
+        polyfit(
+            input,
+            array([(other.at[0::2].set(0)), (other.at[0::2].set(0))]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        array(
+            [
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    polyfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
     )
 
     assert_array_almost_equal(
@@ -5683,40 +5767,43 @@ def test_polyfit():
         array([0, 1]),
     )
 
-    linspace1 = linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
     assert_array_almost_equal(
         polyval(
-            linspace1,
+            input,
             polyfit(
-                linspace1,
-                g(linspace(-1, 1, 50)),
+                input,
+                other,
                 degree=4,
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         polyval(
-            linspace1,
+            input,
             polyfit(
-                linspace1,
-                g(linspace(-1, 1, 50)),
+                input,
+                other,
                 degree=(0, 2, 4),
             ),
         ),
-        g(linspace(-1, 1, 50)),
+        other,
     )
 
     assert_array_almost_equal(
         polyfit(
-            linspace1,
-            g(linspace(-1, 1, 50)),
+            input,
+            other,
             degree=4,
         ),
         polyfit(
-            linspace1,
-            g(linspace(-1, 1, 50)),
+            input,
+            other,
             degree=(0, 2, 4),
         ),
     )
