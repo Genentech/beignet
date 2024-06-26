@@ -19,6 +19,7 @@ from jax.numpy import (
     empty,
     exp,
     finfo,
+    flip,
     full,
     hstack,
     iscomplexobj,
@@ -96,7 +97,9 @@ def _c_series_to_z_series(input: Array) -> Array:
 
     zs = zs.at[n - 1 :].set(input / 2)
 
-    output = zs + zs[::-1]
+    output = flip(zs, axis=0)
+
+    output = output + zs
 
     return output
 
@@ -114,7 +117,7 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
         return input / other[-1], zeros_like(input[:1])
 
     def _ldordidx(x):
-        return len(x) - 1 - nonzero(x[::-1], size=1)[0][0]
+        return len(x) - 1 - nonzero(flip(x, axis=0), size=1)[0][0]
 
     quotient = zeros(lc1 - lc2 + 1, dtype=input.dtype)
 
@@ -835,7 +838,8 @@ def chebroots(input: Array) -> Array:
 
     output = chebcompanion(input)
 
-    output = output[::-1, ::-1]
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
 
     output = eigvals(output)
 
@@ -987,14 +991,17 @@ def hermcompanion(c):
 
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
-    scl = hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
-    scl = cumprod(scl)[::-1]
+
+    scale = hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
+    scale = cumprod(scale)
+    scale = flip(scale, axis=0)
+
     shp = mat.shape
     mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
     mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-scl * c[:-1] / (2.0 * c[-1]))
+    mat = mat.at[:, -1].add(-scale * c[:-1] / (2.0 * c[-1]))
     return mat
 
 
@@ -1069,14 +1076,15 @@ def hermecompanion(c):
 
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
-    scl = hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
-    scl = cumprod(scl)[::-1]
+    scale = hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
+    scale = cumprod(scale)
+    scale = flip(scale, axis=0)
     shp = mat.shape
     mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
     mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
     mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-scl * c[:-1] / c[-1])
+    mat = mat.at[:, -1].add(-scale * c[:-1] / c[-1])
     return mat
 
 
@@ -1149,8 +1157,11 @@ def hermegauss(degree):
     fm /= abs(fm).max()
     w = 1 / (fm * fm)
 
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
 
     w *= sqrt(2 * math.pi) / w.sum()
 
@@ -1283,7 +1294,16 @@ def hermeroots(c):
     if c.shape[0] == 2:
         return array([-c[0] / c[1]])
 
-    return sort(eigvals(hermecompanion(c)[::-1, ::-1]))
+    output = hermecompanion(c)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def hermesub(input, other):
@@ -1411,8 +1431,11 @@ def hermgauss(degree):
     fm /= abs(fm).max()
     w = 1 / (fm * fm)
 
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
 
     w = w * (sqrt(math.pi) / w.sum())
 
@@ -1540,16 +1563,25 @@ def hermpow(c, exponent, maximum_exponent=16):
     return _pow(hermmul, c, exponent, maximum_exponent)
 
 
-def hermroots(c):
-    c = _as_series(c)
+def hermroots(input):
+    input = _as_series(input)
 
-    if c.shape[0] <= 1:
-        return array([], dtype=c.dtype)
+    if input.shape[0] <= 1:
+        return array([], dtype=input.dtype)
 
-    if c.shape[0] == 2:
-        return array([-0.5 * c[0] / c[1]])
+    if input.shape[0] == 2:
+        return array([-0.5 * input[0] / input[1]])
 
-    return sort(eigvals(hermcompanion(c)[::-1, ::-1]))
+    output = hermcompanion(input)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def hermsub(
@@ -1919,7 +1951,16 @@ def lagroots(c: Array) -> Array:
     if c.shape[0] == 2:
         return array([1 + c[0] / c[1]])
 
-    return sort(eigvals(lagcompanion(c)[::-1, ::-1]))
+    output = lagcompanion(c)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def lagsub(input: Array, other: Array) -> Array:
@@ -2162,8 +2203,11 @@ def leggauss(degree):
     df /= abs(df).max()
     w = 1 / (fm * df)
 
-    w = (w + w[::-1]) / 2
-    x = (x - x[::-1]) / 2
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
 
     w *= 2.0 / w.sum()
 
@@ -2311,7 +2355,16 @@ def legroots(c):
     if c.shape[0] == 2:
         return array([-c[0] / c[1]])
 
-    return sort(eigvals(legcompanion(c)[::-1, ::-1]))
+    output = legcompanion(c)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def legsub(input: Array, other: Array) -> Array:
@@ -2472,7 +2525,7 @@ def poly2lag(input: Array) -> Array:
     for i in range(0, input.shape[0]):
         output = lagadd(
             lagmulx(output, mode="same"),
-            input[::-1][i],
+            flip(input, axis=0)[i],
         )
 
     return output
@@ -2694,7 +2747,16 @@ def polyroots(input: Array) -> Array:
     if len(input) == 2:
         return array([-input[0] / input[1]])
 
-    return sort(eigvals(polycompanion(input)[::-1, ::-1]))
+    output = polycompanion(input)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = eigvals(output)
+
+    output = sort(output)
+
+    return output
 
 
 def polysub(input: Array, other: Array) -> Array:
