@@ -643,7 +643,7 @@ def test_chebder():
                         chebint(
                             array([0] * i + [1]),
                             order=j,
-                            scl=2,
+                            scale=2,
                         ),
                         order=j,
                         scale=0.5,
@@ -1105,32 +1105,32 @@ def test_chebint():
     with pytest.raises(TypeError):
         chebint(
             array([0]),
-            0.5,
+            order=0.5,
         )
 
     with pytest.raises(ValueError):
         chebint(
             array([0]),
-            -1,
+            order=-1,
         )
 
     with pytest.raises(ValueError):
         chebint(
             array([0]),
-            1,
-            [0, 0],
+            order=1,
+            k=[0, 0],
         )
 
     with pytest.raises(ValueError):
         chebint(
             array([0]),
-            lbnd=[0],
+            lower_bound=[0],
         )
 
     with pytest.raises(ValueError):
         chebint(
             array([0]),
-            scl=[0],
+            scale=[0],
         )
 
     with pytest.raises(TypeError):
@@ -1151,7 +1151,7 @@ def test_chebint():
                 ),
                 tol=0.000001,
             ),
-            [0, 1],
+            array([0, 1]),
         )
 
     for i in range(5):
@@ -1184,7 +1184,7 @@ def test_chebint():
                     ),
                     order=1,
                     k=[i],
-                    lbnd=-1,
+                    lower_bound=-1,
                 ),
             ),
             i,
@@ -1200,7 +1200,7 @@ def test_chebint():
                         ),
                         order=1,
                         k=[i],
-                        scl=2,
+                        scale=2,
                     )
                 ),
                 tol=0.000001,
@@ -1213,8 +1213,8 @@ def test_chebint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = array([0] * i + [1])
-            target = pol[:]
+            input = array([0] * i + [1])
+            target = input[:]
 
             for _ in range(j):
                 target = chebint(
@@ -1225,7 +1225,7 @@ def test_chebint():
             assert_array_almost_equal(
                 chebtrim(
                     chebint(
-                        pol,
+                        input,
                         order=j,
                     ),
                     tol=0.000001,
@@ -1238,8 +1238,9 @@ def test_chebint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = array([0] * i + [1])
-            target = pol[:]
+            input = array([0] * i + [1])
+
+            target = input[:]
 
             for k in range(j):
                 target = chebint(
@@ -1251,7 +1252,7 @@ def test_chebint():
             assert_array_almost_equal(
                 chebtrim(
                     chebint(
-                        pol,
+                        input,
                         order=j,
                         k=list(range(j)),
                     ),
@@ -1265,24 +1266,24 @@ def test_chebint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = array([0] * i + [1])
-            target = pol[:]
+            input = array([0] * i + [1])
+            target = input[:]
 
             for k in range(j):
                 target = chebint(
                     target,
                     order=1,
                     k=[k],
-                    lbnd=-1,
+                    lower_bound=-1,
                 )
 
             assert_array_almost_equal(
                 chebtrim(
                     chebint(
-                        pol,
+                        input,
                         order=j,
                         k=list(range(j)),
-                        lbnd=-1,
+                        lower_bound=-1,
                     ),
                     tol=0.000001,
                 ),
@@ -1294,24 +1295,25 @@ def test_chebint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = array([0] * i + [1])
-            target = pol[:]
+            input = array([0] * i + [1])
+
+            target = input[:]
 
             for k in range(j):
                 target = chebint(
                     target,
                     order=1,
                     k=[k],
-                    scl=2,
+                    scale=2,
                 )
 
             assert_array_almost_equal(
                 chebtrim(
                     chebint(
-                        pol,
+                        input,
                         order=j,
                         k=list(range(j)),
-                        scl=2,
+                        scale=2,
                     ),
                     tol=0.000001,
                 ),
@@ -1356,25 +1358,25 @@ def test_chebinterpolate():
     with pytest.raises(ValueError):
         chebinterpolate(f, -1)
 
-    for deg in range(1, 5):
-        assert chebinterpolate(f, deg).shape == (deg + 1,)
+    for i in range(1, 5):
+        assert chebinterpolate(f, i).shape == (i + 1,)
 
     def powx(x, p):
         return x**p
 
     x = linspace(-1, 1, 10)
 
-    for deg in range(0, 10):
-        for p in range(0, deg + 1):
+    for i in range(0, 10):
+        for j in range(0, i + 1):
             c = chebinterpolate(
                 powx,
-                deg,
-                (p,),
+                i,
+                (j,),
             )
 
             assert_array_almost_equal(
                 chebval(x, c),
-                powx(x, p),
+                powx(x, j),
             )
 
 
@@ -1613,10 +1615,12 @@ def test_chebtrim():
 
 
 def test_chebval():
-    assert_array_almost_equal(chebval(array([]), [1]).size, 0)
+    assert math.prod(chebval(array([]), array([1])).shape) == 0
 
     x = linspace(-1, 1, 50)
+
     y = [polyval(x, c) for c in chebcoefficients]
+
     for i in range(10):
         assert_array_almost_equal(
             chebval(
@@ -1629,11 +1633,15 @@ def test_chebval():
     for i in range(3):
         dims = [2] * i
 
+        dims = tuple(dims)
+
         x = zeros(dims)
 
-        assert_array_almost_equal(chebval(x, [1]).shape, dims)
-        assert_array_almost_equal(chebval(x, array([1, 0])).shape, dims)
-        assert_array_almost_equal(chebval(x, array([1, 0, 0])).shape, dims)
+        assert chebval(x, array([1])).shape == dims
+
+        assert chebval(x, array([1, 0])).shape == dims
+
+        assert chebval(x, array([1, 0, 0])).shape == dims
 
 
 def test_chebval2d():
@@ -1794,7 +1802,7 @@ def test_chebvander3d():
     assert_array_almost_equal(
         dot(
             chebvander3d(x1, x2, x3, (1, 2, 3)),
-            c.ravel(),
+            ravel(c),
         ),
         chebval3d(
             x1,
@@ -1873,7 +1881,7 @@ def test_hermcompanion():
         hermcompanion(array([]))
 
     with pytest.raises(ValueError):
-        hermcompanion([1])
+        hermcompanion(array([1]))
 
     for i in range(1, 5):
         assert hermcompanion(array([0] * i + [1])).shape == (i, i)
@@ -6134,7 +6142,7 @@ def test_polyfit():
     assert_array_almost_equal(
         polyfit(
             input,
-            array([(other.at[0::2].set(0)), (other.at[0::2].set(0))]).T,
+            array([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
             degree=(0, 1, 2, 3),
             weight=weight,
         ),
@@ -6244,6 +6252,7 @@ def test_polygrid2d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
 
     x1, x2, x3 = x
+
     y1, y2, y3 = polyval(x, array([1.0, 2.0, 3.0]))
 
     assert_array_almost_equal(
@@ -6278,6 +6287,7 @@ def test_polygrid2d():
 
 def test_polygrid3d():
     x = jax.random.uniform(key, (3, 5), minval=-1, maxval=1)
+
     y = polyval(x, array([1.0, 2.0, 3.0]))
 
     x1, x2, x3 = x
@@ -6320,26 +6330,41 @@ def test_polygrid3d():
 
 def test_polyint():
     with pytest.raises(TypeError):
-        polyint(array([0]), 0.5)
-
-    with pytest.raises(ValueError):
-        polyint(array([0]), -1)
+        polyint(
+            array([0]),
+            order=0.5,
+        )
 
     with pytest.raises(ValueError):
         polyint(
             array([0]),
-            1,
-            array([0, 0]),
+            order=-1,
         )
 
     with pytest.raises(ValueError):
-        polyint(array([0]), lower_bound=[0])
+        polyint(
+            array([0]),
+            order=1,
+            k=array([0, 0]),
+        )
 
     with pytest.raises(ValueError):
-        polyint(array([0]), scale=[0])
+        polyint(
+            array([0]),
+            lower_bound=[0],
+        )
+
+    with pytest.raises(ValueError):
+        polyint(
+            array([0]),
+            scale=[0],
+        )
 
     with pytest.raises(TypeError):
-        polyint(array([0]), axis=0.5)
+        polyint(
+            array([0]),
+            axis=0.5,
+        )
 
     for i in range(2, 5):
         assert_array_almost_equal(

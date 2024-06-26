@@ -90,6 +90,28 @@ def _add(input: Array, other: Array) -> Array:
     return output
 
 
+def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
+    xs = ()
+
+    for arg in args:
+        x = array(arg)
+
+        if x.ndim == 0:
+            x = ravel(x)
+
+        if trim:
+            x = _trim_sequence(x)
+
+        xs = *xs, x
+
+    xs = jax._src.numpy.util.promote_dtypes_inexact(*xs)
+
+    if len(xs) == 1:
+        return xs[0]
+
+    return xs
+
+
 def _c_series_to_z_series(input: Array) -> Array:
     n = math.prod(input.shape)
 
@@ -156,6 +178,26 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
     quotient, remainder, _, _ = y1
 
     return quotient, remainder
+
+
+def _evaluate(func: Callable, input: Array, *args) -> Array:
+    if not all(a.shape == args[0].shape for a in args[1:]):
+        match len(args):
+            case 2:
+                raise ValueError
+            case 3:
+                raise ValueError
+            case _:
+                raise ValueError
+
+    args = iter(args)
+
+    output = func(next(args), input)
+
+    for x in args:
+        output = func(x, output, tensor=False)
+
+    return output
 
 
 def _fit(
@@ -261,6 +303,11 @@ def _fit(
         return output
 
 
+def _flattened_vandermonde(vander_fs, points, degrees):
+    v = _vandermonde(vander_fs, points, degrees)
+    return reshape(v, v.shape[: -len(degrees)] + (-1,))
+
+
 def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
     if math.prod(input.shape) == 0:
         return ones([1])
@@ -302,6 +349,26 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
     _, ret = val
 
     return ret[0]
+
+
+def _map_domain(x, old, new):
+    oldlen = old[1] - old[0]
+    newlen = new[1] - new[0]
+    off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
+    scl1 = newlen / oldlen
+    off, scl = off1, scl1
+
+    return off + scl * x
+
+
+def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
+    a = input[1] - input[0]
+    b = other[1] - other[0]
+
+    x = (input[1] * other[0] - input[0] * other[1]) / a
+    y = b / a
+
+    return x, y
 
 
 def _normed_hermite_e_n(x: Array, n):
@@ -416,26 +483,6 @@ def _subtract(input: Array, other: Array) -> Array:
     return output
 
 
-def _evaluate(func: Callable, input: Array, *args) -> Array:
-    if not all(a.shape == args[0].shape for a in args[1:]):
-        match len(args):
-            case 2:
-                raise ValueError
-            case 3:
-                raise ValueError
-            case _:
-                raise ValueError
-
-    args = iter(args)
-
-    output = func(next(args), input)
-
-    for x in args:
-        output = func(x, output, tensor=False)
-
-    return output
-
-
 def _vandermonde(vander_fs, points, degrees):
     n_dims = len(vander_fs)
     if n_dims != len(points):
@@ -455,11 +502,6 @@ def _vandermonde(vander_fs, points, degrees):
     return functools.reduce(operator.mul, vander_arrays)
 
 
-def _flattened_vandermonde(vander_fs, points, degrees):
-    v = _vandermonde(vander_fs, points, degrees)
-    return reshape(v, v.shape[: -len(degrees)] + (-1,))
-
-
 def _z_series_mul(z1, z2, mode="full"):
     return convolve(z1, z2, mode=mode)
 
@@ -468,28 +510,6 @@ def _z_series_to_c_series(zs):
     n = (math.prod(zs.shape) + 1) // 2
     c = zs[n - 1 :].copy()
     return c.at[1:n].multiply(2)
-
-
-def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
-    xs = ()
-
-    for arg in args:
-        x = array(arg)
-
-        if x.ndim == 0:
-            x = ravel(x)
-
-        if trim:
-            x = _trim_sequence(x)
-
-        xs = *xs, x
-
-    xs = jax._src.numpy.util.promote_dtypes_inexact(*xs)
-
-    if len(xs) == 1:
-        return xs[0]
-
-    return xs
 
 
 def cheb2poly(input: Array) -> Array:
@@ -650,8 +670,8 @@ def chebint(
     c: Array,
     order=1,
     k=None,
-    lbnd=0,
-    scl=1,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ) -> Array:
     if k is None:
@@ -659,7 +679,7 @@ def chebint(
 
     c = _as_series(c)
 
-    lbnd, scl = map(asarray, (lbnd, scl))
+    lower_bound, scale = map(asarray, (lower_bound, scale))
 
     if not iterable(k):
         k = [k]
@@ -667,10 +687,10 @@ def chebint(
     if len(k) > order:
         raise ValueError
 
-    if ndim(lbnd) != 0:
+    if ndim(lower_bound) != 0:
         raise ValueError
 
-    if ndim(scl) != 0:
+    if ndim(scale) != 0:
         raise ValueError
 
     if order == 0:
@@ -681,7 +701,7 @@ def chebint(
 
     for i in range(order):
         n = c.shape[0]
-        c *= scl
+        c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
@@ -690,7 +710,7 @@ def chebint(
         j = arange(2, n)
         tmp = tmp.at[j + 1].set(transpose(transpose(c[j]) / (2 * (j + 1))))
         tmp = tmp.at[j - 1].add(-transpose(transpose(c[j]) / (2 * (j - 1))))
-        tmp = tmp.at[0].add(k[i] - chebval(lbnd, tmp))
+        tmp = tmp.at[0].add(k[i] - chebval(lower_bound, tmp))
         c = tmp
     c = moveaxis(c, 0, axis)
     return c
@@ -2489,26 +2509,6 @@ def legweight(x):
     return ones_like(x)
 
 
-def _map_domain(x, old, new):
-    oldlen = old[1] - old[0]
-    newlen = new[1] - new[0]
-    off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
-    scl1 = newlen / oldlen
-    off, scl = off1, scl1
-
-    return off + scl * x
-
-
-def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
-    a = input[1] - input[0]
-    b = other[1] - other[0]
-
-    x = (input[1] * other[0] - input[0] * other[1]) / a
-    y = b / a
-
-    return x, y
-
-
 def poly2cheb(input: Array) -> Array:
     input = _as_series(input)
 
@@ -2516,7 +2516,10 @@ def poly2cheb(input: Array) -> Array:
 
     for i in range(0, input.shape[0] - 1 + 1):
         output = chebadd(
-            chebmulx(output, mode="same"),
+            chebmulx(
+                output,
+                mode="same",
+            ),
             input[input.shape[0] - 1 - i],
         )
 
@@ -2530,7 +2533,10 @@ def poly2herm(input: Array) -> Array:
 
     for i in range(0, input.shape[0] - 1 + 1):
         output = hermadd(
-            hermmulx(output, mode="same"),
+            hermmulx(
+                output,
+                mode="same",
+            ),
             input[input.shape[0] - 1 - i],
         )
 
@@ -2544,7 +2550,10 @@ def poly2herme(input: Array) -> Array:
 
     for i in range(0, input.shape[0] - 1 + 1):
         output = hermeadd(
-            hermemulx(output, mode="same"),
+            hermemulx(
+                output,
+                mode="same",
+            ),
             input[input.shape[0] - 1 - i],
         )
 
@@ -2558,7 +2567,10 @@ def poly2lag(input: Array) -> Array:
 
     for i in range(0, input.shape[0]):
         output = lagadd(
-            lagmulx(output, mode="same"),
+            lagmulx(
+                output,
+                mode="same",
+            ),
             flip(input, axis=0)[i],
         )
 
@@ -2572,7 +2584,10 @@ def poly2leg(input: Array) -> Array:
 
     for i in range(0, input.shape[0] - 1 + 1):
         output = legadd(
-            legmulx(output, mode="same"),
+            legmulx(
+                output,
+                mode="same",
+            ),
             input[input.shape[0] - 1 - i],
         )
 
