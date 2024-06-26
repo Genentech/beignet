@@ -1407,22 +1407,22 @@ def test_chebpts1():
 
     assert_array_almost_equal(
         chebpts1(1),
-        [0],
+        array([0]),
     )
 
     assert_array_almost_equal(
         chebpts1(2),
-        [-0.70710678118654746, 0.70710678118654746],
+        array([-0.70710678118654746, 0.70710678118654746]),
     )
 
     assert_array_almost_equal(
         chebpts1(3),
-        [-0.86602540378443871, 0, 0.86602540378443871],
+        array([-0.86602540378443871, 0, 0.86602540378443871]),
     )
 
     assert_array_almost_equal(
         chebpts1(4),
-        [-0.9238795325, -0.3826834323, 0.3826834323, 0.9238795325],
+        array([-0.9238795325, -0.3826834323, 0.3826834323, 0.9238795325]),
     )
 
 
@@ -1456,12 +1456,16 @@ def test_chebpts2():
 
 def test_chebroots():
     assert_array_almost_equal(
-        chebroots([1]),
+        chebroots(
+            array([1]),
+        ),
         array([]),
     )
 
     assert_array_almost_equal(
-        chebroots(array([1, 2])),
+        chebroots(
+            array([1, 2]),
+        ),
         array([-0.5]),
     )
 
