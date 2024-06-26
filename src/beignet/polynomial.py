@@ -247,11 +247,9 @@ def _fit(
 
     if degree.ndim > 0:
         if output.ndim == 2:
-            output = (
-                zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
-                .at[degree]
-                .set(output)
-            )
+            x = zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
+
+            output = x.at[degree].set(output)
         else:
             x = zeros(maximum + 1, dtype=output.dtype)
 
@@ -418,7 +416,7 @@ def _subtract(input: Array, other: Array) -> Array:
     return output
 
 
-def _evaluate(func: Callable, input: Array, *args):
+def _evaluate(func: Callable, input: Array, *args) -> Array:
     if not all(a.shape == args[0].shape for a in args[1:]):
         match len(args):
             case 2:
@@ -648,7 +646,14 @@ def chebgrid3d(x, y, z, c):
     return c
 
 
-def chebint(c: Array, order=1, k=None, lbnd=0, scl=1, axis=0) -> Array:
+def chebint(
+    c: Array,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+) -> Array:
     if k is None:
         k = []
 
@@ -1182,7 +1187,14 @@ def hermegrid3d(x, y, z, c):
     return c
 
 
-def hermeint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def hermeint(
+    c,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -1456,7 +1468,14 @@ def hermgrid3d(x, y, z, c):
     return c
 
 
-def hermint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def hermint(
+    c,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+):
     if k is None:
         k = []
     c = _as_series(c)
@@ -1836,7 +1855,14 @@ def laggrid3d(x, y, z, c):
     return c
 
 
-def lagint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def lagint(
+    c,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -2228,7 +2254,14 @@ def leggrid3d(x, y, z, c):
     return c
 
 
-def legint(c, order=1, k=None, lbnd=0, scl=1, axis=0):
+def legint(
+    c,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -2653,7 +2686,14 @@ def polygrid3d(x: Array, y: Array, z: Array, c: Array) -> Array:
     return c
 
 
-def polyint(input: Array, order=1, k=None, lbnd=0, scl=1, axis=0) -> Array:
+def polyint(
+    input: Array,
+    order=1,
+    k=None,
+    lbnd=0,
+    scl=1,
+    axis=0,
+) -> Array:
     if k is None:
         k = []
 
