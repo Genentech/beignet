@@ -1155,7 +1155,13 @@ def test_chebint():
         assert_array_almost_equal(
             chebtrim(
                 cheb2poly(
-                    chebint(poly2cheb(array([0] * i + [1])), order=1, k=[i]),
+                    chebint(
+                        poly2cheb(
+                            array([0] * i + [1]),
+                        ),
+                        order=1,
+                        k=[i],
+                    ),
                 ),
                 tol=0.000001,
             ),
@@ -1170,7 +1176,9 @@ def test_chebint():
             chebval(
                 array([-1]),
                 chebint(
-                    poly2cheb(array([0] * i + [1])),
+                    poly2cheb(
+                        array([0] * i + [1]),
+                    ),
                     order=1,
                     k=[i],
                     lbnd=-1,
@@ -1184,7 +1192,9 @@ def test_chebint():
             chebtrim(
                 cheb2poly(
                     chebint(
-                        poly2cheb(array([0] * i + [1])),
+                        poly2cheb(
+                            array([0] * i + [1]),
+                        ),
                         order=1,
                         k=[i],
                         scl=2,
@@ -1204,11 +1214,17 @@ def test_chebint():
             target = pol[:]
 
             for _ in range(j):
-                target = chebint(target, order=1)
+                target = chebint(
+                    target,
+                    order=1,
+                )
 
             assert_array_almost_equal(
                 chebtrim(
-                    chebint(pol, order=j),
+                    chebint(
+                        pol,
+                        order=j,
+                    ),
                     tol=0.000001,
                 ),
                 chebtrim(
@@ -1223,7 +1239,11 @@ def test_chebint():
             target = pol[:]
 
             for k in range(j):
-                target = chebint(target, order=1, k=[k])
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
 
             assert_array_almost_equal(
                 chebtrim(
