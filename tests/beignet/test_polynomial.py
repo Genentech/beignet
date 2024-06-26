@@ -1652,7 +1652,10 @@ def test_chebval3d():
 
 def test_chebvander():
     x = arange(3)
-    v = chebvander(x, 3)
+    v = chebvander(
+        x,
+        degree=3,
+    )
 
     assert v.shape == (3, 4)
 
@@ -1660,12 +1663,18 @@ def test_chebvander():
         coef = array([0] * i + [1])
         assert_array_almost_equal(
             v[..., i],
-            chebval(x, coef),
+            chebval(
+                x,
+                coef,
+            ),
         )
 
     x = array([[1, 2], [3, 4], [5, 6]])
 
-    v = chebvander(x, 3)
+    v = chebvander(
+        x,
+        degree=3,
+    )
 
     assert v.shape == (3, 2, 4)
 
@@ -1673,7 +1682,10 @@ def test_chebvander():
         coef = array([0] * i + [1])
         assert_array_almost_equal(
             v[..., i],
-            chebval(x, coef),
+            chebval(
+                x,
+                coef,
+            ),
         )
 
 
@@ -1703,6 +1715,7 @@ def test_chebvander2d():
         [x2],
         (1, 2),
     )
+
     assert van.shape == (1, 5, 6)
 
 
