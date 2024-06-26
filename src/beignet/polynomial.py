@@ -588,7 +588,7 @@ def chebder(input, order=1, scale=1, axis=0):
     return moveaxis(output, 0, axis)
 
 
-def chebdiv(input: Array, other: Array) -> Array:
+def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(chebmul, input, other)
 
 
@@ -764,8 +764,12 @@ def chebmulx(c: Array, mode="full") -> Array:
     return output
 
 
-def chebpow(c, exponent, maximum_exponent=16):
-    c = _as_series(c)
+def chebpow(
+    input: Array,
+    exponent: int,
+    maximum_exponent: int = 16,
+):
+    input = _as_series(input)
 
     power = int(exponent)
 
@@ -776,16 +780,16 @@ def chebpow(c, exponent, maximum_exponent=16):
         raise ValueError
 
     if power == 0:
-        return array([1], dtype=c.dtype)
+        return array([1], dtype=input.dtype)
 
     if power == 1:
-        return c
+        return input
 
-    output = zeros(c.shape[0] * exponent, dtype=c.dtype)
+    output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
-    output = chebadd(output, c)
+    output = chebadd(output, input)
 
-    zs = _c_series_to_z_series(c)
+    zs = _c_series_to_z_series(input)
 
     output = _c_series_to_z_series(output)
 
