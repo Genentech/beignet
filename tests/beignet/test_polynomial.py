@@ -1862,6 +1862,7 @@ def test_hermadd():
 def test_hermcompanion():
     with pytest.raises(ValueError):
         hermcompanion(array([]))
+
     with pytest.raises(ValueError):
         hermcompanion([1])
 
@@ -1879,30 +1880,35 @@ def test_hermder():
         hermder(array([0]), -1)
 
     for i in range(5):
-        target = array([0] * i + [1])
-        res = hermder(target, order=0)
         assert_array_almost_equal(
             hermtrim(
-                res,
+                hermder(
+                    array([0] * i + [1]),
+                    order=0,
+                ),
                 tol=0.000001,
             ),
             hermtrim(
-                target,
+                array([0] * i + [1]),
                 tol=0.000001,
             ),
         )
 
     for i in range(5):
         for j in range(2, 5):
-            target = array([0] * i + [1])
-            res = hermder(hermint(target, order=j), order=j)
             assert_array_almost_equal(
                 hermtrim(
-                    res,
+                    hermder(
+                        hermint(
+                            array([0] * i + [1]),
+                            order=j,
+                        ),
+                        order=j,
+                    ),
                     tol=0.000001,
                 ),
                 hermtrim(
-                    target,
+                    array([0] * i + [1]),
                     tol=0.000001,
                 ),
             )
