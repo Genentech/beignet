@@ -139,15 +139,16 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
         return input / other[-1], zeros_like(input[:1])
 
     def _ldordidx(x):
-        return len(x) - 1 - nonzero(flip(x, axis=0), size=1)[0][0]
+        return x.shape[0] - 1 - nonzero(flip(x, axis=0), size=1)[0][0]
 
     quotient = zeros(lc1 - lc2 + 1, dtype=input.dtype)
 
-    ridx = len(input) - 1
+    ridx = input.shape[0] - 1
 
     sz = lc1 - _ldordidx(other) - 1
 
-    y = zeros(lc1 + lc2 + 1, dtype=input.dtype).at[sz].set(1.0)
+    y = zeros(lc1 + lc2 + 1, dtype=input.dtype)
+    y = y.at[sz].set(1.0)
 
     y1 = quotient, input, y, ridx
 
@@ -165,7 +166,8 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
         a = remainder.at[ridx1].set(0)
         b = t * p.at[pidx].set(0)
 
-        remainder = _subtract(a, b)[: remainder.shape[0]]
+        remainder = _subtract(a, b)
+        remainder = remainder[: remainder.shape[0]]
 
         quotient = quotient.at[i].set(t)
 
@@ -456,7 +458,7 @@ def _pow(func: Callable, input: Array, exponent, maximum_exponent) -> Array:
     if power == 1:
         return input
 
-    output = zeros(len(input) * exponent, dtype=input.dtype)
+    output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
     output = _add(output, input)
 
