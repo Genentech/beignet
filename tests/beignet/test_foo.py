@@ -579,7 +579,7 @@ def test_chebpow():
                 chebtrim(
                     functools.reduce(
                         chebmul,
-                        [(arange(i + 1))] * j,
+                        [arange(i + 1)] * j,
                         array([1]),
                     ),
                     tol=0.000001,
@@ -646,7 +646,9 @@ def test_chebval():
 
     x = linspace(-1, 1, 50)
 
-    y = [polyval(x, c) for c in chebcoefficients]
+    y = []
+    for c in chebcoefficients:
+        y.append(polyval(x, c))
 
     for i in range(10):
         assert_array_almost_equal(
@@ -658,9 +660,7 @@ def test_chebval():
         )
 
     for i in range(3):
-        dims = [2] * i
-
-        dims = tuple(dims)
+        dims = (2,) * i
 
         x = zeros(dims)
 
@@ -935,9 +935,10 @@ def test_hermeval():
 
     for i in range(3):
         dims = (2,) * i
+
         x = zeros(dims)
 
-        assert hermeval(x, array([1])).shape == ()
+        assert hermeval(x, array([1])).shape == dims
 
         assert hermeval(x, array([1, 0])).shape == dims
 
@@ -969,11 +970,9 @@ def test_hermmul():
     x = linspace(-3, 3, 100)
 
     for i in range(5):
-        pol1 = array([0.0] * i + [1.0])
-
         val1 = hermval(
             x,
-            pol1,
+            array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
@@ -983,7 +982,7 @@ def test_hermmul():
                 pol2,
             )
             pol3 = hermmul(
-                pol1,
+                array([0.0] * i + [1.0]),
                 pol2,
             )
             val3 = hermval(
@@ -1036,12 +1035,10 @@ def test_hermone():
 def test_hermpow():
     for i in range(5):
         for j in range(5):
-            c = arange(i + 1)
-
             assert_array_almost_equal(
                 hermtrim(
                     hermpow(
-                        c,
+                        arange(i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1049,7 +1046,7 @@ def test_hermpow():
                 hermtrim(
                     functools.reduce(
                         hermmul,
-                        array([c] * j),
+                        array([arange(i + 1)] * j),
                         array([1]),
                     ),
                     tol=0.000001,
@@ -1106,7 +1103,10 @@ def test_hermval():
     assert hermval(array([]), array([1])).size == 0
 
     x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in hermcoefficients]
+
+    y = []
+    for c in hermcoefficients:
+        y.append(polyval(x, c))
 
     for index in range(10):
         assert_array_almost_equal(
@@ -1345,8 +1345,14 @@ def test_lagval():
         ).size,
         0,
     )
+
     x = linspace(-1, 1, 50)
-    y = [polyval(x, c) for c in lagcoefficients]
+
+    y = []
+
+    for c in lagcoefficients:
+        y.append(polyval(x, c))
+
     for i in range(7):
         assert_array_almost_equal(
             lagval(x, array([0] * i + [1])),
