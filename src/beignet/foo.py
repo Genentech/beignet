@@ -554,7 +554,7 @@ def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(chebmul, input, other)
 
 
-def chebline(input: Array, other: Array):
+def chebline(input: float, other: float):
     return array([input, other])
 
 
@@ -812,7 +812,7 @@ def hermeval(
     return a + b * input
 
 
-def hermline(input: Array, other: Array) -> Array:
+def hermline(input: float, other: float) -> Array:
     return array([input, other / 2])
 
 
@@ -940,7 +940,7 @@ def lagdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(lagmul, input, other)
 
 
-def lagline(input: Array, other: Array) -> Array:
+def lagline(input: float, other: float) -> Array:
     return array([input + other, -other])
 
 
