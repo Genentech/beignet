@@ -354,8 +354,8 @@ def test__pow():
         _pow(
             (),
             array([1, 2, 3]),
-            5,
-            4,
+            exponent=5,
+            maximum_exponent=4,
         )
 
 
@@ -647,6 +647,7 @@ def test_chebval():
     x = linspace(-1, 1, 50)
 
     y = []
+
     for c in chebcoefficients:
         y.append(polyval(x, c))
 
@@ -741,7 +742,10 @@ def test_hermdiv():
 
 
 def test_hermdomain():
-    assert_array_almost_equal(hermdomain, array([-1, 1]))
+    assert_array_almost_equal(
+        hermdomain,
+        array([-1, 1]),
+    )
 
 
 def test_hermeadd():
@@ -770,15 +774,12 @@ def test_hermeadd():
 def test_hermediv():
     for i in range(5):
         for j in range(5):
-            ci = array([0] * i + [1])
-            cj = array([0] * j + [1])
-
             quotient, remainder = hermediv(
                 hermeadd(
-                    ci,
-                    cj,
+                    array([0] * i + [1]),
+                    array([0] * j + [1]),
                 ),
-                ci,
+                array([0] * i + [1]),
             )
 
             assert_array_almost_equal(
@@ -786,7 +787,7 @@ def test_hermediv():
                     hermeadd(
                         hermemul(
                             quotient,
-                            ci,
+                            array([0] * i + [1]),
                         ),
                         remainder,
                     ),
@@ -794,8 +795,8 @@ def test_hermediv():
                 ),
                 hermetrim(
                     hermeadd(
-                        ci,
-                        cj,
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
                     ),
                     tol=0.000001,
                 ),
@@ -1644,15 +1645,24 @@ def test_legval():
 
     x = linspace(-1, 1, 50)
 
-    y = []
+    ys = []
 
-    for c in legcoefficients:
-        y.append(polyval(x, c))
+    for coefficient in legcoefficients:
+        ys = [
+            *ys,
+            polyval(
+                x,
+                coefficient,
+            ),
+        ]
 
     for i in range(10):
         assert_array_almost_equal(
-            legval(x, array([0] * i + [1])),
-            y[i],
+            legval(
+                x,
+                array([0] * i + [1]),
+            ),
+            ys[i],
         )
 
     for i in range(3):
@@ -1908,7 +1918,7 @@ def test_polyval():
     y = []
 
     for i in range(5):
-        y.append(x**i)
+        y = [*y, x**i]
 
     for i in range(5):
         assert_array_almost_equal(
