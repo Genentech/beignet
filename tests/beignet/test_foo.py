@@ -1190,16 +1190,33 @@ def test_lagmul():
 
     for i in range(5):
         pol1 = array([0] * i + [1])
-        val1 = lagval(x, pol1)
+        val1 = lagval(
+            x,
+            pol1,
+        )
         for j in range(5):
             pol2 = array([0] * j + [1])
-            val2 = lagval(x, pol2)
-            pol3 = lagtrim(lagmul(pol1, pol2))
-            val3 = lagval(x, pol3)
+            val2 = lagval(
+                x,
+                pol2,
+            )
+            pol3 = lagtrim(
+                lagmul(
+                    pol1,
+                    pol2,
+                ),
+            )
+            val3 = lagval(
+                x,
+                pol3,
+            )
 
             assert len(pol3) == i + j + 1
 
-            assert_array_almost_equal(val3, val1 * val2)
+            assert_array_almost_equal(
+                val3,
+                val1 * val2,
+            )
 
 
 def test_lagmulx():
