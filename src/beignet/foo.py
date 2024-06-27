@@ -73,7 +73,7 @@ def _add(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
     if input.shape[0] > other.shape[0]:
-        output = input + concatenate(
+        output = concatenate(
             [
                 other,
                 zeros(
@@ -82,8 +82,10 @@ def _add(input: Array, other: Array) -> Array:
                 ),
             ],
         )
+
+        output = input + output
     else:
-        output = other + concatenate(
+        output = concatenate(
             [
                 input,
                 zeros(
@@ -92,6 +94,8 @@ def _add(input: Array, other: Array) -> Array:
                 ),
             ]
         )
+
+        output = other + output
 
     return output
 
