@@ -961,17 +961,25 @@ def test_hermetrim():
         )
 
     assert_array_almost_equal(
-        hermetrim(array([2, -1, 1, 0])),
+        hermetrim(
+            array([2, -1, 1, 0]),
+        ),
         array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        hermetrim(array([2, -1, 1, 0]), 1),
+        hermetrim(
+            array([2, -1, 1, 0]),
+            1,
+        ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        hermetrim(array([2, -1, 1, 0]), 2),
+        hermetrim(
+            array([2, -1, 1, 0]),
+            2,
+        ),
         array([0]),
     )
 
@@ -1444,17 +1452,25 @@ def test_lagtrim():
         )
 
     assert_array_almost_equal(
-        lagtrim(array([2, -1, 1, 0])),
+        lagtrim(
+            array([2, -1, 1, 0]),
+        ),
         array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        lagtrim(array([2, -1, 1, 0]), 1),
+        lagtrim(
+            array([2, -1, 1, 0]),
+            1,
+        ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        lagtrim(array([2, -1, 1, 0]), 2),
+        lagtrim(
+            array([2, -1, 1, 0]),
+            2,
+        ),
         array([0]),
     )
 
