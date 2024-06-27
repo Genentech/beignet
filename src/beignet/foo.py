@@ -1118,19 +1118,19 @@ def legmul(
         a = legadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         b = legadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = c.shape[0]
+        d = c.shape[0]
 
         a = legadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         b = legadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = legsub(c[-i] * xs, (b * (nd - 1)) / nd)
+            a = legsub(c[-i] * xs, (b * (d - 1)) / d)
 
-            b = legadd(tmp, (legmulx(b, "same") * (2 * nd - 1)) / nd)
+            b = legadd(previous, (legmulx(b, "same") * (2 * d - 1)) / d)
 
     output = legadd(a, legmulx(b, "same"))
 
