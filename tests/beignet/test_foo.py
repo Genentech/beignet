@@ -200,7 +200,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=-1,
+            degree=array([-1]),
         )
 
     with pytest.raises(TypeError):
@@ -208,7 +208,7 @@ def test__fit():
             _vandermonde,
             array([[1]]),
             array([1]),
-            degree=0,
+            degree=array([0]),
         )
 
     with pytest.raises(TypeError):
@@ -216,7 +216,7 @@ def test__fit():
             _vandermonde,
             array([]),
             array([1]),
-            degree=0,
+            degree=array([0]),
         )
 
     with pytest.raises(TypeError):
@@ -224,7 +224,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([[[1]]]),
-            degree=0,
+            degree=array([0]),
         )
 
     with pytest.raises(TypeError):
@@ -232,7 +232,7 @@ def test__fit():
             _vandermonde,
             array([1, 2]),
             array([1]),
-            degree=0,
+            degree=array([0]),
         )
 
     with pytest.raises(TypeError):
@@ -240,7 +240,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1, 2]),
-            degree=0,
+            degree=array([0]),
         )
 
     with pytest.raises(TypeError):
@@ -248,7 +248,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=0,
+            degree=array([0]),
             weight=[[1]],
         )
 
@@ -257,7 +257,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=0,
+            degree=array([0]),
             weight=array([1, 1]),
         )
 
@@ -266,7 +266,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=(-1,),
+            degree=array([-1]),
         )
 
     with pytest.raises(ValueError):
@@ -274,7 +274,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=(2, -1, 6),
+            degree=array([2, -1, 6]),
         )
 
     with pytest.raises(TypeError):
@@ -282,7 +282,7 @@ def test__fit():
             _vandermonde,
             array([1]),
             array([1]),
-            degree=(),
+            degree=array([]),
         )
 
 

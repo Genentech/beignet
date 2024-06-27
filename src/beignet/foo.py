@@ -11,7 +11,6 @@ from jax.numpy import (
     any,
     arange,
     array,
-    asarray,
     convolve,
     finfo,
     flip,
@@ -199,7 +198,7 @@ def _fit(
     full: bool = False,
     weight: Array | None = None,
 ):
-    degree = asarray(degree)
+    # degree = asarray(degree)
 
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
         raise TypeError
@@ -234,8 +233,6 @@ def _fit(
     b = transpose(other)
 
     if weight is not None:
-        # weight = asarray(weight)
-
         if weight.ndim != 1:
             raise TypeError
 
