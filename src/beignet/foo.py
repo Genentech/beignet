@@ -10,6 +10,7 @@ from jax.numpy import (
     any,
     arange,
     array,
+    concatenate,
     convolve,
     finfo,
     flip,
@@ -69,9 +70,13 @@ def _add(input: Array, other: Array) -> Array:
     input, other = _as_series(input, other)
 
     if input.shape[0] > other.shape[0]:
-        output = input.at[: math.prod(other.shape)].add(other)
+        output = input + concatenate(
+            [other, zeros(input.shape[0] - other.shape[0], dtype=other.dtype)]
+        )
     else:
-        output = other.at[: math.prod(input.shape)].add(input)
+        output = other + concatenate(
+            [input, zeros(other.shape[0] - input.shape[0], dtype=input.dtype)]
+        )
 
     return output
 

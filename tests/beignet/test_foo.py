@@ -614,7 +614,7 @@ def test_chebtrim():
     with pytest.raises(ValueError):
         chebtrim(
             array([2, -1, 1, 0]),
-            -1,
+            tol=-1,
         )
 
     assert_array_almost_equal(
@@ -627,7 +627,7 @@ def test_chebtrim():
     assert_array_almost_equal(
         chebtrim(
             array([2, -1, 1, 0]),
-            1,
+            tol=1,
         ),
         array([2, -1, 1, 0])[:-3],
     )
@@ -635,7 +635,7 @@ def test_chebtrim():
     assert_array_almost_equal(
         chebtrim(
             array([2, -1, 1, 0]),
-            2,
+            tol=2,
         ),
         array([0]),
     )
@@ -1170,21 +1170,29 @@ def test_hermtrim():
     with pytest.raises(ValueError):
         hermtrim(
             array([2, -1, 1, 0]),
-            -1,
+            tol=-1,
         )
 
     assert_array_almost_equal(
-        hermtrim(array([2, -1, 1, 0])),
+        hermtrim(
+            array([2, -1, 1, 0]),
+        ),
         array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        hermtrim(array([2, -1, 1, 0]), 1),
+        hermtrim(
+            array([2, -1, 1, 0]),
+            tol=1,
+        ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        hermtrim(array([2, -1, 1, 0]), 2),
+        hermtrim(
+            array([2, -1, 1, 0]),
+            tol=2,
+        ),
         array([0]),
     )
 
@@ -1448,7 +1456,7 @@ def test_lagtrim():
     with pytest.raises(ValueError):
         lagtrim(
             array([2, -1, 1, 0]),
-            -1,
+            tol=-1,
         )
 
     assert_array_almost_equal(
@@ -1461,7 +1469,7 @@ def test_lagtrim():
     assert_array_almost_equal(
         lagtrim(
             array([2, -1, 1, 0]),
-            1,
+            tol=1,
         ),
         array([2, -1, 1, 0])[:-3],
     )
@@ -1469,7 +1477,7 @@ def test_lagtrim():
     assert_array_almost_equal(
         lagtrim(
             array([2, -1, 1, 0]),
-            2,
+            tol=2,
         ),
         array([0]),
     )
@@ -1735,7 +1743,7 @@ def test_legtrim():
     with pytest.raises(ValueError):
         legtrim(
             array([2, -1, 1, 0]),
-            -1,
+            tol=-1,
         )
 
     assert_array_almost_equal(
@@ -1748,7 +1756,7 @@ def test_legtrim():
     assert_array_almost_equal(
         legtrim(
             array([2, -1, 1, 0]),
-            1,
+            tol=1,
         ),
         array([2, -1, 1, 0])[:-3],
     )
@@ -1756,7 +1764,7 @@ def test_legtrim():
     assert_array_almost_equal(
         legtrim(
             array([2, -1, 1, 0]),
-            2,
+            tol=2,
         ),
         array([0]),
     )
@@ -2036,7 +2044,7 @@ def test_polytrim():
     with pytest.raises(ValueError):
         polytrim(
             array([2, -1, 1, 0]),
-            -1,
+            tol=-1,
         )
 
     assert_array_almost_equal(
@@ -2049,7 +2057,7 @@ def test_polytrim():
     assert_array_almost_equal(
         polytrim(
             array([2, -1, 1, 0]),
-            1,
+            tol=1,
         ),
         array([2, -1, 1, 0])[:-3],
     )
@@ -2057,7 +2065,7 @@ def test_polytrim():
     assert_array_almost_equal(
         polytrim(
             array([2, -1, 1, 0]),
-            2,
+            tol=2,
         ),
         array([0]),
     )
