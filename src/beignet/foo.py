@@ -482,7 +482,10 @@ def _subtract(input: Array, other: Array) -> Array:
     output = -other
 
     output = concatenate(
-        [output[: input.shape[0]] + input, output[input.shape[0] :]],
+        [
+            output[: input.shape[0]] + input,
+            output[input.shape[0] :],
+        ],
     )
 
     return output
