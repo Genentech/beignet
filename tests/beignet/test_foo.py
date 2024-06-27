@@ -1647,20 +1647,31 @@ def test_legsub():
 
 def test_legtrim():
     with pytest.raises(ValueError):
-        legtrim(array([2, -1, 1, 0]), -1)
+        legtrim(
+            array([2, -1, 1, 0]),
+            -1,
+        )
 
     assert_array_almost_equal(
-        legtrim(array([2, -1, 1, 0])),
+        legtrim(
+            array([2, -1, 1, 0]),
+        ),
         array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        legtrim(array([2, -1, 1, 0]), 1),
+        legtrim(
+            array([2, -1, 1, 0]),
+            1,
+        ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        legtrim(array([2, -1, 1, 0]), 2),
+        legtrim(
+            array([2, -1, 1, 0]),
+            2,
+        ),
         array([0]),
     )
 
