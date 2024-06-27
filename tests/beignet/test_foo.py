@@ -916,7 +916,7 @@ def test_hermepow():
             assert_array_almost_equal(
                 hermetrim(
                     hermepow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -924,7 +924,7 @@ def test_hermepow():
                 hermetrim(
                     functools.reduce(
                         hermemul,
-                        array([arange(i + 1)] * j),
+                        array([arange(0.0, i + 1)] * j),
                         array([1.0]),
                     ),
                     tol=0.000001,
@@ -1129,7 +1129,7 @@ def test_hermpow():
             assert_array_almost_equal(
                 hermtrim(
                     hermpow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1137,7 +1137,7 @@ def test_hermpow():
                 hermtrim(
                     functools.reduce(
                         hermmul,
-                        array([arange(i + 1)] * j),
+                        array([arange(0.0, i + 1)] * j),
                         array([1.0]),
                     ),
                     tol=0.000001,
@@ -1415,7 +1415,7 @@ def test_lagpow():
             assert_array_almost_equal(
                 lagtrim(
                     lagpow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1423,7 +1423,7 @@ def test_lagpow():
                 lagtrim(
                     functools.reduce(
                         lagmul,
-                        [arange(i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         array([1.0]),
                     ),
                     tol=0.000001,
@@ -1702,7 +1702,7 @@ def test_legpow():
             assert_array_almost_equal(
                 legtrim(
                     legpow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1710,7 +1710,7 @@ def test_legpow():
                 legtrim(
                     functools.reduce(
                         legmul,
-                        array([arange(i + 1)] * j),
+                        array([arange(0.0, i + 1)] * j),
                         array([1.0]),
                     ),
                     tol=0.000001,
@@ -1986,7 +1986,7 @@ def test_polymulx():
             polymulx(
                 array([0.0] * i + [1.0]),
             ),
-            array([0] * (i + 1) + [1]),
+            array([0.0] * (i + 1) + [1.0]),
         )
 
 
@@ -2003,7 +2003,7 @@ def test_polypow():
             assert_array_almost_equal(
                 polytrim(
                     polypow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -2011,7 +2011,7 @@ def test_polypow():
                 polytrim(
                     functools.reduce(
                         polymul,
-                        [arange(i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         array([1.0]),
                     ),
                     tol=0.000001,
