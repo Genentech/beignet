@@ -1673,9 +1673,13 @@ def test_legtrim():
 
 
 def test_legval():
-    assert legval(array([]), array([1])).size == 0
-
-    x = linspace(-1, 1, 50)
+    assert (
+        legval(
+            array([]),
+            array([1]),
+        ).size
+        == 0
+    )
 
     ys = []
 
@@ -1683,7 +1687,7 @@ def test_legval():
         ys = [
             *ys,
             polyval(
-                x,
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1691,20 +1695,34 @@ def test_legval():
     for i in range(10):
         assert_array_almost_equal(
             legval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
-            ys[i],
+            array(ys[i]),
         )
 
     for i in range(3):
-        dims = (2,) * i
-
-        x = zeros(dims)
-
-        assert legval(x, array([1])).shape == dims
-        assert legval(x, array([1, 0])).shape == dims
-        assert legval(x, array([1, 0, 0])).shape == dims
+        assert (
+            legval(
+                zeros((2,) * i),
+                array([1]),
+            ).shape
+            == (2,) * i
+        )
+        assert (
+            legval(
+                zeros((2,) * i),
+                array([1, 0]),
+            ).shape
+            == (2,) * i
+        )
+        assert (
+            legval(
+                zeros((2,) * i),
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * i
+        )
 
 
 def test_legx():
