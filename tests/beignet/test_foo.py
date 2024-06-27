@@ -1140,15 +1140,13 @@ def test_hermtrim():
 def test_hermval():
     assert hermval(array([]), array([1])).size == 0
 
-    x = linspace(-1, 1, 50)
-
     ys = []
 
     for coefficient in hermcoefficients:
         ys = [
             *ys,
             polyval(
-                x,
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1156,22 +1154,36 @@ def test_hermval():
     for index in range(10):
         assert_array_almost_equal(
             hermval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * index + [1]),
             ),
             ys[index],
         )
 
     for index in range(3):
-        dims = (2,) * index
+        assert (
+            hermval(
+                zeros((2,) * index),
+                array([1]),
+            ).shape
+            == (2,) * index
+        )
 
-        x = zeros(dims)
+        assert (
+            hermval(
+                zeros((2,) * index),
+                array([1, 0]),
+            ).shape
+            == (2,) * index
+        )
 
-        assert hermval(x, array([1])).shape == dims
-
-        assert hermval(x, array([1, 0])).shape == dims
-
-        assert hermval(x, array([1, 0, 0])).shape == dims
+        assert (
+            hermval(
+                zeros((2,) * index),
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * index
+        )
 
 
 def test_hermx():
