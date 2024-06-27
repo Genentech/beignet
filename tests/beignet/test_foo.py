@@ -772,14 +772,31 @@ def test_hermediv():
         for j in range(5):
             ci = array([0] * i + [1])
             cj = array([0] * j + [1])
-            quotient, remainder = hermediv(hermeadd(ci, cj), ci)
+
+            quotient, remainder = hermediv(
+                hermeadd(
+                    ci,
+                    cj,
+                ),
+                ci,
+            )
+
             assert_array_almost_equal(
                 hermetrim(
-                    hermeadd(hermemul(quotient, ci), remainder),
+                    hermeadd(
+                        hermemul(
+                            quotient,
+                            ci,
+                        ),
+                        remainder,
+                    ),
                     tol=0.000001,
                 ),
                 hermetrim(
-                    hermeadd(ci, cj),
+                    hermeadd(
+                        ci,
+                        cj,
+                    ),
                     tol=0.000001,
                 ),
             )
@@ -804,23 +821,25 @@ def test_hermemul():
 
     for i in range(5):
         pol1 = array([0] * i + [1])
+
         val1 = hermeval(
             x,
             pol1,
         )
 
         for j in range(5):
-            pol2 = array(
-                [0] * j + [1],
-            )
+            pol2 = array([0] * j + [1])
+
             val2 = hermeval(
                 x,
                 pol2,
             )
+
             pol3 = hermemul(
                 pol1,
                 pol2,
             )
+
             val3 = hermeval(
                 x,
                 pol3,
@@ -927,6 +946,7 @@ def test_hermeval():
     x = linspace(-1, 1, 50)
 
     y = []
+
     for c in hermecoefficients:
         y.append(polyval(x, c))
 
