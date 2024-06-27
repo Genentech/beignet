@@ -1013,7 +1013,10 @@ def test_hermmulx():
 
 
 def test_hermone():
-    assert_array_almost_equal(hermone, array([1]))
+    assert_array_almost_equal(
+        hermone,
+        array([1]),
+    )
 
 
 def test_hermpow():
