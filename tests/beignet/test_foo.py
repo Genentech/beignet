@@ -642,7 +642,15 @@ def test_chebtrim():
 
 
 def test_chebval():
-    assert math.prod(chebval(array([]), array([1])).shape) == 0
+    assert (
+        math.prod(
+            chebval(
+                array([]),
+                array([1]),
+            ).shape,
+        )
+        == 0
+    )
 
     ys = []
 
@@ -969,7 +977,15 @@ def test_hermetrim():
 
 
 def test_hermeval():
-    assert math.prod(hermeval(array([]), array([1])).shape) == 0
+    assert (
+        math.prod(
+            hermeval(
+                array([]),
+                array([1]),
+            ).shape,
+        )
+        == 0
+    )
 
     ys = []
 
@@ -1444,7 +1460,13 @@ def test_lagtrim():
 
 
 def test_lagval():
-    assert lagval(array([]), array([1])).size == 0
+    assert (
+        lagval(
+            array([]),
+            array([1]),
+        ).size
+        == 0
+    )
 
     ys = []
 
@@ -2026,7 +2048,13 @@ def test_polytrim():
 
 
 def test_polyval():
-    assert polyval(array([]), array([1])).size == 0
+    assert (
+        polyval(
+            array([]),
+            array([1]),
+        ).size
+        == 0
+    )
 
     y = []
 
