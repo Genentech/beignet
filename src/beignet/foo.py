@@ -40,6 +40,7 @@ from jax.numpy.linalg import (
     lstsq,
 )
 from torch import (
+    Tensor,
     tensor,
 )
 
@@ -573,7 +574,7 @@ def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(chebmul, input, other)
 
 
-def chebline(input: float, other: float):
+def chebline(input: float, other: float) -> Tensor:
     return tensor([input, other])
 
 
@@ -710,7 +711,7 @@ def hermediv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(hermemul, input, other)
 
 
-def hermeline(input: float, other: float) -> Array:
+def hermeline(input: float, other: float) -> Tensor:
     return tensor([input, other])
 
 
@@ -832,7 +833,7 @@ def hermeval(
     return a + b * input
 
 
-def hermline(input: float, other: float) -> Array:
+def hermline(input: float, other: float) -> Tensor:
     return tensor([input, other / 2])
 
 
@@ -960,7 +961,7 @@ def lagdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(lagmul, input, other)
 
 
-def lagline(input: float, other: float) -> Array:
+def lagline(input: float, other: float) -> Tensor:
     return tensor([input + other, -other])
 
 
@@ -1096,7 +1097,7 @@ def legdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(legmul, input, other)
 
 
-def legline(input: float, other: float) -> Array:
+def legline(input: float, other: float) -> Tensor:
     return tensor([input, other])
 
 
@@ -1226,7 +1227,7 @@ def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(polymul, input, other)
 
 
-def polyline(input: float, other: float) -> Array:
+def polyline(input: float, other: float) -> Tensor:
     return tensor([input, other])
 
 
