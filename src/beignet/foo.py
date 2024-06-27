@@ -678,11 +678,11 @@ def chebval(
         b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            c = a
+            previous = a
 
             a = coefficients[-i] - b
 
-            b = c + b * 2 * input
+            b = previous + b * 2 * input
 
     return a + b * input
 
@@ -730,19 +730,19 @@ def hermemul(
         a = hermeadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         b = hermeadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = c.shape[0]
+        d = c.shape[0]
 
         a = hermeadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         b = hermeadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = hermesub(c[-i] * xs, b * (nd - 1))
+            a = hermesub(c[-i] * xs, b * (d - 1))
 
-            b = hermeadd(tmp, hermemulx(b, "same"))
+            b = hermeadd(previous, hermemulx(b, "same"))
 
     output = hermeadd(a, hermemulx(b, "same"))
 
@@ -810,19 +810,19 @@ def hermeval(
         a = coefficients[0]
         b = coefficients[1]
     else:
-        nd = coefficients.shape[0]
+        d = coefficients.shape[0]
 
         a = coefficients[-2] * ones_like(input)
         b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = coefficients[-i] - b * (nd - 1)
+            a = coefficients[-i] - b * (d - 1)
 
-            b = tmp + b * input
+            b = previous + b * input
 
     return a + b * input
 
@@ -854,19 +854,19 @@ def hermmul(
         a = hermadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         b = hermadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = c.shape[0]
+        d = c.shape[0]
 
         a = hermadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         b = hermadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = hermsub(c[-i] * xs, b * (2 * (nd - 1)))
+            a = hermsub(c[-i] * xs, b * (2 * (d - 1)))
 
-            b = hermadd(tmp, hermmulx(b, "same") * 2)
+            b = hermadd(previous, hermmulx(b, "same") * 2)
 
     output = hermadd(a, hermmulx(b, "same") * 2)
 
@@ -925,7 +925,6 @@ def hermval(
             coefficients.shape + (1,) * ndim(input),
         )
 
-    x2 = input * 2
     if coefficients.shape[0] == 1:
         a = coefficients[0]
         b = 0
@@ -933,21 +932,21 @@ def hermval(
         a = coefficients[0]
         b = coefficients[1]
     else:
-        nd = coefficients.shape[0]
+        d = coefficients.shape[0]
 
         a = coefficients[-2] * ones_like(input)
         b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = coefficients[-i] - b * (2 * (nd - 1))
+            a = coefficients[-i] - b * (2 * (d - 1))
 
-            b = tmp + b * x2
+            b = previous + b * input * 2
 
-    return a + b * x2
+    return a + b * input * 2
 
 
 def lagadd(input: Array, other: Array) -> Array:
@@ -985,19 +984,19 @@ def lagmul(
         a = lagadd(zeros(lc1 + lc2 - 1), c[0] * xs)
         b = lagadd(zeros(lc1 + lc2 - 1), c[1] * xs)
     else:
-        nd = c.shape[0]
+        d = c.shape[0]
 
         a = lagadd(zeros(lc1 + lc2 - 1), c[-2] * xs)
         b = lagadd(zeros(lc1 + lc2 - 1), c[-1] * xs)
 
         for i in range(3, c.shape[0] + 1):
-            tmp = a
+            previous = a
 
-            nd = nd - 1
+            d = d - 1
 
-            a = lagsub(c[-i] * xs, (b * (nd - 1)) / nd)
+            a = lagsub(c[-i] * xs, (b * (d - 1)) / d)
 
-            b = lagadd(tmp, lagsub((2 * nd - 1) * b, lagmulx(b, "same")) / nd)
+            b = lagadd(previous, lagsub((2 * d - 1) * b, lagmulx(b, "same")) / d)
 
     output = lagadd(a, lagsub(b, lagmulx(b, "same")))
 
@@ -1072,13 +1071,13 @@ def lagval(
         b = coefficients[-1] * ones_like(input)
 
         for i in range(3, coefficients.shape[0] + 1):
-            c = a
+            previous = a
 
             d = d - 1
 
             a = coefficients[-i] - (b * (d - 1)) / d
 
-            b = c + (b * ((2 * d - 1) - input)) / d
+            b = previous + (b * ((2 * d - 1) - input)) / d
 
     return a + b * (1 - input)
 
@@ -1087,7 +1086,7 @@ def legadd(input: Array, other: Array) -> Array:
     return _add(input, other)
 
 
-def legdiv(input: Array, other: Array) -> Array:
+def legdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(legmul, input, other)
 
 
@@ -1211,13 +1210,13 @@ def legval(
             b = coefficients[-1] * ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
-                c = a
+                previous = a
 
                 d = d - 1
 
                 a = coefficients[-i] - (b * (d - 1)) / d
 
-                b = c + (b * input * (2 * d - 1)) / d
+                b = previous + (b * input * (2 * d - 1)) / d
 
     return a + b * input
 
