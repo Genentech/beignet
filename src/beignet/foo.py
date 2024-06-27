@@ -507,7 +507,7 @@ def _subtract(input: Array, other: Array) -> Array:
     return output
 
 
-def _trim_coefficients(input: Array, tol=0):
+def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
     if tol < 0:
         raise ValueError
 
