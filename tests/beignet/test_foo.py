@@ -355,7 +355,7 @@ def test__pow():
     with pytest.raises(ValueError):
         _pow(
             (),
-            array([1, 2, 3]),
+            array([1.0, 2.0, 3.0]),
             exponent=5,
             maximum_exponent=4,
         )
@@ -396,7 +396,7 @@ def test__trim_sequence():
     for _ in range(5):
         assert_array_almost_equal(
             _trim_sequence(
-                array([1] + [0] * 5),
+                array([1.0] + [0.0] * 5),
             ),
             array([1.0]),
         )
@@ -406,8 +406,8 @@ def test__vandermonde():
     with pytest.raises(ValueError):
         _vandermonde(
             (),
-            (1, 2, 3),
-            array([90]),
+            array([1.0, 2.0, 3.0]),
+            array([90.0]),
         )
 
     with pytest.raises(ValueError):
@@ -429,9 +429,9 @@ def test__z_series_to_c_series():
     for i in range(5):
         assert_array_almost_equal(
             _z_series_to_c_series(
-                array([0.5] * i + [2] + [0.5] * i, dtype=numpy.float64),
+                array([0.5] * i + [2.0] + [0.5] * i, dtype=numpy.float64),
             ),
-            array([2] + [1] * i, dtype=numpy.float64),
+            array([2.0] + [1.0] * i, dtype=numpy.float64),
         )
 
 
