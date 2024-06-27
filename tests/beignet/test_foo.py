@@ -1971,11 +1971,29 @@ def test_polyval():
     )
 
     for i in range(3):
-        assert polyval(zeros((2,) * i), array([1])).shape == (2,) * i
+        assert (
+            polyval(
+                zeros((2,) * i),
+                array([1]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert polyval(zeros((2,) * i), array([1, 0])).shape == (2,) * i
+        assert (
+            polyval(
+                zeros((2,) * i),
+                array([1, 0]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert polyval(zeros((2,) * i), array([1, 0, 0])).shape == (2,) * i
+        assert (
+            polyval(
+                zeros((2,) * i),
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * i
+        )
 
 
 def test_polyx():
