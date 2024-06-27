@@ -934,11 +934,26 @@ def test_hermesub():
 def test_hermetrim():
     coef = array([2, -1, 1, 0])
 
-    pytest.raises(ValueError, hermetrim, coef, -1)
+    with pytest.raises(ValueError):
+        hermetrim(
+            coef,
+            -1,
+        )
 
-    assert_array_almost_equal(hermetrim(coef), coef[:-1])
-    assert_array_almost_equal(hermetrim(coef, 1), coef[:-3])
-    assert_array_almost_equal(hermetrim(coef, 2), [0])
+    assert_array_almost_equal(
+        hermetrim(coef),
+        coef[:-1],
+    )
+
+    assert_array_almost_equal(
+        hermetrim(coef, 1),
+        coef[:-3],
+    )
+
+    assert_array_almost_equal(
+        hermetrim(coef, 2),
+        [0],
+    )
 
 
 def test_hermeval():
