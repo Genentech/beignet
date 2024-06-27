@@ -12,12 +12,12 @@ from jax.numpy import (
     arange,
     array,
     asarray,
-    complexfloating,
     convolve,
     finfo,
     flip,
     full,
     imag,
+    iscomplex,
     moveaxis,
     ndim,
     nonzero,
@@ -253,7 +253,7 @@ def _fit(
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
-    if issubclass(a.dtype.type, complexfloating):
+    if iscomplex(a):
         scale = sqrt(sum(square(real(a)) + square(imag(a)), axis=1))
     else:
         scale = sqrt(sum(square(a), axis=1))
@@ -565,10 +565,10 @@ def chebmul(
 ) -> Array:
     input, other = _as_series(input, other)
 
-    z1 = _c_series_to_z_series(input)
-    z2 = _c_series_to_z_series(other)
+    a = _c_series_to_z_series(input)
+    b = _c_series_to_z_series(other)
 
-    output = _z_series_mul(z1, z2, mode=mode)
+    output = _z_series_mul(a, b, mode=mode)
 
     output = _z_series_to_c_series(output)
 
@@ -830,25 +830,26 @@ def hermmul(
     else:
         x, y = input, other
 
-    if x.shape[0] == 1:
-        a = hermadd(zeros(m + n - 1), x[0] * y)
-        b = zeros(m + n - 1)
-    elif x.shape[0] == 2:
-        a = hermadd(zeros(m + n - 1), x[0] * y)
-        b = hermadd(zeros(m + n - 1), x[1] * y)
-    else:
-        size = x.shape[0]
+    match x.shape[0]:
+        case 1:
+            a = hermadd(zeros(m + n - 1), x[0] * y)
+            b = zeros(m + n - 1)
+        case 2:
+            a = hermadd(zeros(m + n - 1), x[0] * y)
+            b = hermadd(zeros(m + n - 1), x[1] * y)
+        case _:
+            size = x.shape[0]
 
-        a = hermadd(zeros(m + n - 1), x[-2] * y)
-        b = hermadd(zeros(m + n - 1), x[-1] * y)
+            a = hermadd(zeros(m + n - 1), x[-2] * y)
+            b = hermadd(zeros(m + n - 1), x[-1] * y)
 
-        for i in range(3, x.shape[0] + 1):
-            previous = a
+            for i in range(3, x.shape[0] + 1):
+                previous = a
 
-            size = size - 1
+                size = size - 1
 
-            a = hermsub(x[-i] * y, b * (2 * (size - 1.0)))
-            b = hermadd(previous, hermmulx(b, "same") * 2.0)
+                a = hermsub(x[-i] * y, b * (2 * (size - 1.0)))
+                b = hermadd(previous, hermmulx(b, "same") * 2.0)
 
     output = hermadd(a, hermmulx(b, "same") * 2)
 
@@ -907,25 +908,26 @@ def hermval(
             coefficients.shape + (1,) * ndim(input),
         )
 
-    if coefficients.shape[0] == 1:
-        a = coefficients[0]
-        b = 0
-    elif coefficients.shape[0] == 2:
-        a = coefficients[0]
-        b = coefficients[1]
-    else:
-        size = coefficients.shape[0]
+    match coefficients.shape[0]:
+        case 1:
+            a = coefficients[0]
+            b = 0
+        case 2:
+            a = coefficients[0]
+            b = coefficients[1]
+        case _:
+            size = coefficients.shape[0]
 
-        a = coefficients[-2] * ones_like(input)
-        b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
-        for i in range(3, coefficients.shape[0] + 1):
-            previous = a
+            for i in range(3, coefficients.shape[0] + 1):
+                previous = a
 
-            size = size - 1
+                size = size - 1
 
-            a = coefficients[-i] - b * (2.0 * (size - 1.0))
-            b = previous + b * input * 2.0
+                a = coefficients[-i] - b * (2.0 * (size - 1.0))
+                b = previous + b * input * 2.0
 
     return a + b * input * 2.0
 
