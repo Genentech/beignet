@@ -1924,20 +1924,31 @@ def test_polysub():
 
 def test_polytrim():
     with pytest.raises(ValueError):
-        polytrim(array([2, -1, 1, 0]), -1)
+        polytrim(
+            array([2, -1, 1, 0]),
+            -1,
+        )
 
     assert_array_almost_equal(
-        polytrim(array([2, -1, 1, 0])),
+        polytrim(
+            array([2, -1, 1, 0]),
+        ),
         array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        polytrim(array([2, -1, 1, 0]), 1),
+        polytrim(
+            array([2, -1, 1, 0]),
+            1,
+        ),
         array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        polytrim(array([2, -1, 1, 0]), 2),
+        polytrim(
+            array([2, -1, 1, 0]),
+            2,
+        ),
         array([0]),
     )
 
