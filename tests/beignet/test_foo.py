@@ -661,7 +661,7 @@ def test_chebval():
                 linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
-            ys[i],
+            array(ys[i]),
         )
 
     for i in range(3):
@@ -1429,15 +1429,33 @@ def test_lagval():
                 linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
-            ys[i],
+            array(array(ys[i])),
         )
 
     for i in range(3):
-        assert lagval(zeros((2,) * i), array([1])).shape == (2,) * i
+        assert (
+            lagval(
+                zeros((2,) * i),
+                array([1]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert lagval(zeros((2,) * i), array([1, 0])).shape == (2,) * i
+        assert (
+            lagval(
+                zeros((2,) * i),
+                array([1, 0]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert lagval(zeros((2,) * i), array([1, 0, 0])).shape == (2,) * i
+        assert (
+            lagval(
+                zeros((2,) * i),
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * i
+        )
 
 
 def test_lagx():
@@ -1533,13 +1551,13 @@ def test_legline():
 
 def test_legmul():
     for i in range(5):
-        val1 = legval(
+        a = legval(
             linspace(-1, 1, 100),
             array([0] * i + [1]),
         )
 
         for j in range(5):
-            val2 = legval(
+            b = legval(
                 linspace(-1, 1, 100),
                 array([0] * j + [1]),
             )
@@ -1552,7 +1570,7 @@ def test_legmul():
                         array([0] * j + [1]),
                     ),
                 ),
-                val1 * val2,
+                a * b,
             )
 
 
@@ -1709,6 +1727,7 @@ def test_legval():
             ).shape
             == (2,) * i
         )
+
         assert (
             legval(
                 zeros((2,) * i),
@@ -1716,6 +1735,7 @@ def test_legval():
             ).shape
             == (2,) * i
         )
+
         assert (
             legval(
                 zeros((2,) * i),
