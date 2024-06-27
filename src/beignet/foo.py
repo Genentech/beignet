@@ -8,6 +8,7 @@ import jax.numpy
 from jax import Array
 from jax.numpy import (
     abs,
+    any,
     arange,
     array,
     asarray,
@@ -16,7 +17,7 @@ from jax.numpy import (
     finfo,
     flip,
     full,
-    iscomplexobj,
+    imag,
     moveaxis,
     ndim,
     nonzero,
@@ -24,6 +25,7 @@ from jax.numpy import (
     ones_like,
     pad,
     ravel,
+    real,
     reshape,
     roll,
     sort,
@@ -104,13 +106,9 @@ def _c_series_to_z_series(input: Array) -> Array:
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
 
-    zs = zs.at[n - 1 :].set(input / 2)
+    zs = zs.at[n - 1 :].set(input / 2.0)
 
-    output = flip(zs, axis=0)
-
-    output = output + zs
-
-    return output
+    return flip(zs, axis=0) + zs
 
 
 def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
@@ -227,15 +225,15 @@ def _fit(
     if ndim(degree) == 0:
         maximum = int(degree)
 
-        vandermonde = vandermonde_func(input, maximum)
+        v = vandermonde_func(input, maximum)
     else:
         degree = sort(degree)
 
         maximum = int(degree[-1])
 
-        vandermonde = vandermonde_func(input, maximum)[:, degree]
+        v = vandermonde_func(input, maximum)[:, degree]
 
-    a = transpose(vandermonde)
+    a = transpose(v)
     b = transpose(other)
 
     if weight is not None:
@@ -254,7 +252,7 @@ def _fit(
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
     if issubclass(a.dtype.type, complexfloating):
-        scale = square(a.real) + square(a.imag)
+        scale = square(real(a)) + square(imag(a))
 
         scale = sum(scale, axis=1)
 
@@ -312,52 +310,50 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
 
     p = stack(ys)
 
-    n = p.shape[0]
+    m = p.shape[0]
 
-    val = n, p
+    x = m, p
 
-    while val[0] > 1:
-        m, r = divmod(val[0], 2)
+    while x[0] > 1:
+        m, r = divmod(x[0], 2)
 
-        arr = val[1]
+        z = x[1]
 
-        tmp = array([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
+        previous = array([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
 
-        val1 = tmp
+        y = previous
 
         for i in range(0, m):
-            val1 = val1.at[i].set(g(arr[i], arr[i + m])[: input.shape[0] + 1])
+            y = y.at[i].set(g(z[i], z[i + m])[: input.shape[0] + 1])
 
-        tmp = val1
+        previous = y
 
         if r:
-            tmp = tmp.at[0].set(g(tmp[0], arr[2 * m])[: input.shape[0] + 1])
+            previous = previous.at[0].set(
+                g(previous[0], z[2 * m])[: input.shape[0] + 1]
+            )
 
-        val = m, tmp
+        x = m, previous
 
-    _, output = val
+    _, output = x
 
     return output[0]
 
 
 def _get_domain(x: Array) -> Array:
-    if iscomplexobj(x):
-        rmin, rmax = x.real.min(), x.real.max()
-        imin, imax = x.imag.min(), x.imag.max()
+    if any(jax.numpy.iscomplex(x)):
+        rmin, rmax = real(x).min(), real(x).max()
+        imin, imax = imag(x).min(), imag(x).max()
 
-        return array(((rmin + 1j * imin), (rmax + 1j * imax)))
+        return array(((rmin + 1.0j * imin), (rmax + 1.0j * imax)))
 
     return array((x.min(), x.max()))
 
 
-def _map_domain(x, old, new) -> Array:
-    oldlen = old[1] - old[0]
-    newlen = new[1] - new[0]
-    off1 = (old[1] * new[0] - old[0] * new[1]) / oldlen
-    scl1 = newlen / oldlen
-    off, scale = off1, scl1
+def _map_domain(x: Array, y: Array, z: Array) -> Array:
+    (a, b), (c, d) = y, z
 
-    return off + scale * x
+    return (b * c - a * d) / (b - a) + (d - c) / (b - a) * x
 
 
 def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
@@ -372,10 +368,10 @@ def _map_parameters(input: Array, other: Array) -> Tuple[Array, Array]:
 
 def _normed_hermite_e_n(x: Array, n) -> Array:
     if n == 0:
-        output = full(x.shape, 1 / sqrt(sqrt(2 * math.pi)))
+        output = full(x.shape, 1.0 / sqrt(sqrt(2.0 * math.pi)))
     else:
         a = zeros_like(x)
-        b = ones_like(x) / sqrt(sqrt(2 * math.pi))
+        b = ones_like(x) / sqrt(sqrt(2.0 * math.pi))
 
         size = array(n)
 
@@ -412,7 +408,7 @@ def _normed_hermite_n(x: Array, n) -> Array:
 
             size = size - 1.0
 
-        output = a + b * x * math.sqrt(2)
+        output = a + b * x * math.sqrt(2.0)
 
     return output
 
@@ -434,9 +430,11 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
         padding = (padding[0], 0)
 
     npad = [(0, 0)] * ndim(input)
+
     npad[0] = padding
 
     output = pad(input, pad_width=npad, mode="constant", constant_values=0)
+
     return moveaxis(output, 0, axis)
 
 
@@ -448,25 +446,25 @@ def _pow(
 ) -> Array:
     input = _as_series(input)
 
-    power = int(exponent)
+    _exponent = int(exponent)
 
-    if power != exponent or power < 0:
+    if _exponent != exponent or _exponent < 0:
         raise ValueError
 
-    if maximum_exponent is not None and power > maximum_exponent:
+    if maximum_exponent is not None and _exponent > maximum_exponent:
         raise ValueError
 
-    if power == 0:
+    if _exponent == 0:
         return array([1], dtype=input.dtype)
 
-    if power == 1:
+    if _exponent == 1:
         return input
 
     output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
     output = _add(output, input)
 
-    for _ in range(2, power + 1):
+    for _ in range(2, _exponent + 1):
         output = func(output, input, mode="same")
 
     return output
@@ -503,15 +501,15 @@ def _trim_coefficients(input: Array, tol=0):
         return input[: ind[-1] + 1]
 
 
-def _trim_sequence(seq):
-    if len(seq) == 0:
-        return seq
+def _trim_sequence(sequence):
+    if len(sequence) == 0:
+        return sequence
     else:
-        for i in range(len(seq) - 1, -1, -1):
-            if seq[i] != 0:
+        for i in range(len(sequence) - 1, -1, -1):
+            if sequence[i] != 0:
                 break
 
-        return seq[: i + 1]
+        return sequence[: i + 1]
 
 
 def _vandermonde(vander_fs, points, degrees) -> Array:
@@ -616,18 +614,18 @@ def chebpow(
 ) -> Array:
     input = _as_series(input)
 
-    power = int(exponent)
+    _exponent = int(exponent)
 
-    if power != exponent or power < 0:
+    if _exponent != exponent or _exponent < 0:
         raise ValueError
 
-    if maximum_exponent is not None and power > maximum_exponent:
+    if maximum_exponent is not None and _exponent > maximum_exponent:
         raise ValueError
 
-    if power == 0:
+    if _exponent == 0:
         return array([1], dtype=input.dtype)
 
-    if power == 1:
+    if _exponent == 1:
         return input
 
     output = zeros(input.shape[0] * exponent, dtype=input.dtype)
@@ -638,12 +636,8 @@ def chebpow(
 
     output = _c_series_to_z_series(output)
 
-    y = output
-
-    for _ in range(2, power + 1):
-        y = convolve(y, zs, mode="same")
-
-    output = y
+    for _ in range(2, _exponent + 1):
+        output = convolve(output, zs, mode="same")
 
     output = _z_series_to_c_series(output)
 
@@ -667,22 +661,22 @@ def chebval(
             coefficients.shape + (1,) * ndim(input),
         )
 
-    if coefficients.shape[0] == 1:
-        a = coefficients[0]
-        b = 0
-    elif coefficients.shape[0] == 2:
-        a = coefficients[0]
-        b = coefficients[1]
-    else:
-        a = coefficients[-2] * ones_like(input)
-        b = coefficients[-1] * ones_like(input)
+    match coefficients.shape[0]:
+        case 1:
+            a = coefficients[0]
+            b = 0
+        case 2:
+            a = coefficients[0]
+            b = coefficients[1]
+        case _:
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
-        for i in range(3, coefficients.shape[0] + 1):
-            previous = a
+            for i in range(3, coefficients.shape[0] + 1):
+                previous = a
 
-            a = coefficients[-i] - b
-
-            b = previous + b * 2 * input
+                a = coefficients[-i] - b
+                b = previous + b * 2.0 * input
 
     return a + b * input
 
@@ -721,26 +715,26 @@ def hermemul(
     else:
         x, y = input, other
 
-    if x.shape[0] == 1:
-        a = hermeadd(zeros(m + n - 1), x[0] * y)
-        b = zeros(m + n - 1)
-    elif x.shape[0] == 2:
-        a = hermeadd(zeros(m + n - 1), x[0] * y)
-        b = hermeadd(zeros(m + n - 1), x[1] * y)
-    else:
-        size = x.shape[0]
+    match x.shape[0]:
+        case 1:
+            a = hermeadd(zeros(m + n - 1), x[0] * y)
+            b = zeros(m + n - 1)
+        case 2:
+            a = hermeadd(zeros(m + n - 1), x[0] * y)
+            b = hermeadd(zeros(m + n - 1), x[1] * y)
+        case _:
+            size = x.shape[0]
 
-        a = hermeadd(zeros(m + n - 1), x[-2] * y)
-        b = hermeadd(zeros(m + n - 1), x[-1] * y)
+            a = hermeadd(zeros(m + n - 1), x[-2] * y)
+            b = hermeadd(zeros(m + n - 1), x[-1] * y)
 
-        for i in range(3, x.shape[0] + 1):
-            previous = a
+            for i in range(3, x.shape[0] + 1):
+                previous = a
 
-            size = size - 1
+                size = size - 1
 
-            a = hermesub(x[-i] * y, b * (size - 1))
-
-            b = hermeadd(previous, hermemulx(b, "same"))
+                a = hermesub(x[-i] * y, b * (size - 1.0))
+                b = hermeadd(previous, hermemulx(b, "same"))
 
     output = hermeadd(a, hermemulx(b, "same"))
 
@@ -818,8 +812,7 @@ def hermeval(
 
             size = size - 1
 
-            a = coefficients[-i] - b * (size - 1)
-
+            a = coefficients[-i] - b * (size - 1.0)
             b = previous + b * input
 
     return a + b * input
@@ -860,9 +853,8 @@ def hermmul(
 
             size = size - 1
 
-            a = hermsub(x[-i] * y, b * (2 * (size - 1)))
-
-            b = hermadd(previous, hermmulx(b, "same") * 2)
+            a = hermsub(x[-i] * y, b * (2 * (size - 1.0)))
+            b = hermadd(previous, hermmulx(b, "same") * 2.0)
 
     output = hermadd(a, hermmulx(b, "same") * 2)
 
@@ -878,11 +870,11 @@ def hermmulx(
 ) -> Array:
     input = _as_series(input)
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
-    output = output.at[1].set(input[0] / 2)
+    output = output.at[1].set(input[0] / 2.0)
 
     i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(input[i] / 2)
+    output = output.at[i + 1].set(input[i] / 2.0)
     output = output.at[i - 1].add(input[i] * i)
 
     if mode == "same":
@@ -938,11 +930,10 @@ def hermval(
 
             size = size - 1
 
-            a = coefficients[-i] - b * (2 * (size - 1))
+            a = coefficients[-i] - b * (2.0 * (size - 1.0))
+            b = previous + b * input * 2.0
 
-            b = previous + b * input * 2
-
-    return a + b * input * 2
+    return a + b * input * 2.0
 
 
 def lagadd(input: Array, other: Array) -> Array:
@@ -989,10 +980,9 @@ def lagmul(
 
                 size = size - 1
 
-                a = lagsub(x[-i] * y, (b * (size - 1)) / size)
-
+                a = lagsub(x[-i] * y, (b * (size - 1.0)) / size)
                 b = lagadd(
-                    previous, lagsub((2 * size - 1) * b, lagmulx(b, "same")) / size
+                    previous, lagsub((2.0 * size - 1.0) * b, lagmulx(b, "same")) / size
                 )
 
     output = lagadd(a, lagsub(b, lagmulx(b, "same")))
@@ -1076,9 +1066,8 @@ def lagval(
 
                 size = size - 1
 
-                a = coefficients[-i] - (b * (size - 1)) / size
-
-                b = previous + (b * ((2 * size - 1) - input)) / size
+                a = coefficients[-i] - (b * (size - 1.0)) / size
+                b = previous + (b * ((2.0 * size - 1.0) - input)) / size
 
     return a + b * (1 - input)
 
@@ -1127,9 +1116,8 @@ def legmul(
 
                 size = size - 1
 
-                a = legsub(x[-i] * y, (b * (size - 1)) / size)
-
-                b = legadd(previous, (legmulx(b, "same") * (2 * size - 1)) / size)
+                a = legsub(x[-i] * y, (b * (size - 1.0)) / size)
+                b = legadd(previous, (legmulx(b, "same") * (2.0 * size - 1.0)) / size)
 
     output = legadd(a, legmulx(b, "same"))
 
@@ -1145,20 +1133,11 @@ def legmulx(
 ) -> Array:
     input = _as_series(input)
 
-    b = input.shape[0]
-
     output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
 
-    for i in range(1, b):
-        j = i + 1
-
-        k = i - 1
-
-        s = i + j
-
-        output = output.at[j].set((input[i] * j) / s)
-
-        output = output.at[k].add((input[i] * i) / s)
+    for i in range(1, input.shape[0]):
+        output = output.at[i + 1].set((input[i] * (i + 1)) / (i + i + 1))
+        output = output.at[i - 1].add((input[i] * (i + 0)) / (i + i + 1))
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1214,9 +1193,9 @@ def legval(
 
                 size = size - 1
 
-                a = coefficients[-i] - (b * (size - 1)) / size
+                a = coefficients[-i] - (b * (size - 1.0)) / size
 
-                b = previous + (b * input * (2 * size - 1)) / size
+                b = previous + (b * input * (2.0 * size - 1.0)) / size
 
     return a + b * input
 
