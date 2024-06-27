@@ -667,11 +667,29 @@ def test_chebval():
     for i in range(3):
         x = zeros((2,) * i)
 
-        assert chebval(x, array([1])).shape == (2,) * i
+        assert (
+            chebval(
+                x,
+                array([1]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert chebval(x, array([1, 0])).shape == (2,) * i
+        assert (
+            chebval(
+                x,
+                array([1, 0]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert chebval(x, array([1, 0, 0])).shape == (2,) * i
+        assert (
+            chebval(
+                x,
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * i
+        )
 
 
 def test_chebx():
@@ -974,13 +992,29 @@ def test_hermeval():
         )
 
     for i in range(3):
-        x = zeros((2,) * i)
+        assert (
+            hermeval(
+                zeros((2,) * i),
+                array([1]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert hermeval(x, array([1])).shape == (2,) * i
+        assert (
+            hermeval(
+                zeros((2,) * i),
+                array([1, 0]),
+            ).shape
+            == (2,) * i
+        )
 
-        assert hermeval(x, array([1, 0])).shape == (2,) * i
-
-        assert hermeval(x, array([1, 0, 0])).shape == (2,) * i
+        assert (
+            hermeval(
+                zeros((2,) * i),
+                array([1, 0, 0]),
+            ).shape
+            == (2,) * i
+        )
 
 
 def test_hermex():
@@ -1273,13 +1307,13 @@ def test_lagline():
 
 def test_lagmul():
     for i in range(5):
-        val1 = lagval(
+        a = lagval(
             linspace(-3, 3, 100),
             array([0] * i + [1]),
         )
 
         for j in range(5):
-            val2 = lagval(
+            b = lagval(
                 linspace(-3, 3, 100),
                 array([0] * j + [1]),
             )
@@ -1294,7 +1328,7 @@ def test_lagmul():
                         ),
                     ),
                 ),
-                val1 * val2,
+                a * b,
             )
 
 
