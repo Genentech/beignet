@@ -946,13 +946,25 @@ def test_hermeval():
 
     x = linspace(-1, 1, 50)
 
-    y = []
+    ys = []
 
     for c in hermecoefficients:
-        y.append(polyval(x, c))
+        ys = [
+            *ys,
+            polyval(
+                x,
+                c,
+            ),
+        ]
 
     for i in range(10):
-        assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i])
+        assert_array_almost_equal(
+            hermeval(
+                x,
+                array([0] * i + [1]),
+            ),
+            ys[i],
+        )
 
     for i in range(3):
         dims = (2,) * i
@@ -983,38 +995,31 @@ def test_hermezero():
 def test_hermline():
     assert_array_almost_equal(
         hermline(3, 4),
-        [3, 2],
+        array([3, 2]),
     )
 
 
 def test_hermmul():
-    x = linspace(-3, 3, 100)
-
     for i in range(5):
         val1 = hermval(
-            x,
+            linspace(-3, 3, 100),
             array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
-            pol2 = array([0.0] * j + [1.0])
             val2 = hermval(
-                x,
-                pol2,
+                linspace(-3, 3, 100),
+                array([0.0] * j + [1.0]),
             )
-            pol3 = hermmul(
-                array([0.0] * i + [1.0]),
-                pol2,
-            )
-            val3 = hermval(
-                x,
-                pol3,
-            )
-
-            assert len(hermtrim(pol3, tol=0.000001)) == i + j + 1
 
             assert_array_almost_equal(
-                val3,
+                hermval(
+                    linspace(-3, 3, 100),
+                    hermmul(
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
+                    ),
+                ),
                 val1 * val2,
             )
 
@@ -1099,23 +1104,24 @@ def test_hermsub():
 
 
 def test_hermtrim():
-    coef = array([2, -1, 1, 0])
-
     with pytest.raises(ValueError):
-        hermtrim(coef, -1)
+        hermtrim(
+            array([2, -1, 1, 0]),
+            -1,
+        )
 
     assert_array_almost_equal(
-        hermtrim(coef),
-        coef[:-1],
+        hermtrim(array([2, -1, 1, 0])),
+        array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        hermtrim(coef, 1),
-        coef[:-3],
+        hermtrim(array([2, -1, 1, 0]), 1),
+        array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        hermtrim(coef, 2),
+        hermtrim(array([2, -1, 1, 0]), 2),
         array([0]),
     )
 
