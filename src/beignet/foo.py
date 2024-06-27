@@ -470,13 +470,20 @@ def _subtract(input: Array, other: Array) -> Array:
     if input.shape[0] > other.shape[0]:
         output = -other
 
-        output = input.at[: math.prod(other.shape)].add(output)
+        output = input + concatenate(
+            [
+                output,
+                zeros(input.shape[0] - other.shape[0], dtype=other.dtype),
+            ],
+        )
 
         return output
 
     output = -other
 
-    output = output.at[: math.prod(input.shape)].add(input)
+    output = concatenate(
+        [output[: input.shape[0]] + input, output[input.shape[0] :]],
+    )
 
     return output
 
