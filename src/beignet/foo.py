@@ -682,7 +682,7 @@ def chebval(
     match coefficients.shape[0]:
         case 1:
             a = coefficients[0]
-            b = 0
+            b = 0.0
         case 2:
             a = coefficients[0]
             b = coefficients[1]
@@ -752,6 +752,7 @@ def hermemul(
                 size = size - 1
 
                 a = hermesub(x[-i] * y, b * (size - 1.0))
+
                 b = hermeadd(previous, hermemulx(b, "same"))
 
     output = hermeadd(a, hermemulx(b, "same"))
@@ -832,6 +833,7 @@ def hermeval(
                 size = size - 1
 
                 a = coefficients[-i] - b * (size - 1.0)
+
                 b = previous + b * input
 
     return a + b * input
@@ -874,6 +876,7 @@ def hermmul(
                 size = size - 1
 
                 a = hermsub(x[-i] * y, b * (2 * (size - 1.0)))
+
                 b = hermadd(previous, hermmulx(b, "same") * 2.0)
 
     output = hermadd(a, hermmulx(b, "same") * 2)
@@ -952,6 +955,7 @@ def hermval(
                 size = size - 1
 
                 a = coefficients[-i] - b * (2.0 * (size - 1.0))
+
                 b = previous + b * input * 2.0
 
     return a + b * input * 2.0
@@ -1088,9 +1092,10 @@ def lagval(
                 size = size - 1
 
                 a = coefficients[-i] - (b * (size - 1.0)) / size
+
                 b = previous + (b * ((2.0 * size - 1.0) - input)) / size
 
-    return a + b * (1 - input)
+    return a + b * (1.0 - input)
 
 
 def legadd(input: Array, other: Array) -> Array:
@@ -1138,6 +1143,7 @@ def legmul(
                 size = size - 1
 
                 a = legsub(x[-i] * y, (b * (size - 1.0)) / size)
+
                 b = legadd(previous, (legmulx(b, "same") * (2.0 * size - 1.0)) / size)
 
     output = legadd(a, legmulx(b, "same"))
