@@ -197,8 +197,6 @@ def _fit(
     full: bool = False,
     weight: Array | None = None,
 ):
-    # degree = asarray(degree)
-
     if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
         raise TypeError
 
