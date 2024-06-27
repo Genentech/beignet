@@ -533,7 +533,7 @@ def test_chebmulx():
             ),
             tol=0.000001,
         ),
-        [0],
+        array([0]),
     )
 
     assert_array_almost_equal(
@@ -644,15 +644,13 @@ def test_chebtrim():
 def test_chebval():
     assert math.prod(chebval(array([]), array([1])).shape) == 0
 
-    x = linspace(-1, 1, 50)
-
     ys = []
 
     for coefficient in chebcoefficients:
         ys = [
             *ys,
             polyval(
-                x,
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -660,7 +658,7 @@ def test_chebval():
     for i in range(10):
         assert_array_almost_equal(
             chebval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
             ys[i],
