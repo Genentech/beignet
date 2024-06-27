@@ -1943,29 +1943,36 @@ def test_polyval():
     y = []
 
     for i in range(5):
-        y = [*y, x**i]
+        y = [
+            *y,
+            x**i,
+        ]
 
     for i in range(5):
         assert_array_almost_equal(
-            polyval(x, array([0] * i + [1])),
+            polyval(
+                x,
+                array([0] * i + [1]),
+            ),
             y[i],
         )
 
     assert_array_almost_equal(
-        polyval(x, array([0, -1, 0, 1])),
+        polyval(
+            x,
+            array([0, -1, 0, 1]),
+        ),
         x * (x**2 - 1),
     )
 
     for i in range(3):
-        dims = (2,) * i
+        x = zeros((2,) * i)
 
-        x = zeros(dims)
+        assert polyval(x, array([1])).shape == (2,) * i
 
-        assert polyval(x, array([1])).shape == dims
+        assert polyval(x, array([1, 0])).shape == (2,) * i
 
-        assert polyval(x, array([1, 0])).shape == dims
-
-        assert polyval(x, array([1, 0, 0])).shape == dims
+        assert polyval(x, array([1, 0, 0])).shape == (2,) * i
 
 
 def test_polyx():
