@@ -71,11 +71,17 @@ def _add(input: Array, other: Array) -> Array:
 
     if input.shape[0] > other.shape[0]:
         output = input + concatenate(
-            [other, zeros(input.shape[0] - other.shape[0], dtype=other.dtype)]
+            [
+                other,
+                zeros(input.shape[0] - other.shape[0], dtype=other.dtype),
+            ],
         )
     else:
         output = other + concatenate(
-            [input, zeros(other.shape[0] - input.shape[0], dtype=input.dtype)]
+            [
+                input,
+                zeros(other.shape[0] - input.shape[0], dtype=input.dtype),
+            ]
         )
 
     return output
