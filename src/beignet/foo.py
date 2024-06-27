@@ -19,7 +19,6 @@ from jax.numpy import (
     imag,
     iscomplex,
     moveaxis,
-    ndim,
     nonzero,
     ones,
     ones_like,
@@ -85,7 +84,7 @@ def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
     for arg in args:
         x = array(arg)
 
-        if ndim(x) == 0:
+        if x.ndim == 0:
             x = ravel(x)
 
         if trim:
@@ -202,29 +201,25 @@ def _fit(
 ):
     degree = asarray(degree)
 
-    if (
-        ndim(degree) > 1
-        or degree.dtype.kind not in "iu"
-        or math.prod(degree.shape) == 0
-    ):
+    if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
         raise TypeError
 
     if degree.min() < 0:
         raise ValueError
 
-    if ndim(input) != 1:
+    if input.ndim != 1:
         raise TypeError
 
     if math.prod(input.shape) == 0:
         raise TypeError
 
-    if ndim(other) < 1 or ndim(other) > 2:
+    if other.ndim < 1 or other.ndim > 2:
         raise TypeError
 
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    if ndim(degree) == 0:
+    if degree.ndim == 0:
         maximum = int(degree)
 
         v = vandermonde_func(input, maximum)
@@ -239,9 +234,9 @@ def _fit(
     b = transpose(other)
 
     if weight is not None:
-        weight = asarray(weight)
+        # weight = asarray(weight)
 
-        if ndim(weight) != 1:
+        if weight.ndim != 1:
             raise TypeError
 
         if input.shape[0] != weight.shape[0]:
@@ -268,8 +263,8 @@ def _fit(
 
     output = transpose(transpose(output) / scale)
 
-    if ndim(degree) > 0:
-        if ndim(output) == 2:
+    if degree.ndim > 0:
+        if output.ndim == 2:
             x = zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
 
             output = x.at[degree].set(output)
@@ -423,7 +418,7 @@ def _pad_along_axis(input: Array, padding=(0, 0), axis=0):
         input = input[: -abs(padding[1])]
         padding = (padding[0], 0)
 
-    npad = [(0, 0)] * ndim(input)
+    npad = [(0, 0)] * input.ndim
 
     npad[0] = padding
 
@@ -652,7 +647,7 @@ def chebval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     match coefficients.shape[0]:
@@ -786,7 +781,7 @@ def hermeval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     match coefficients.shape[0]:
@@ -906,7 +901,7 @@ def hermval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     match coefficients.shape[0]:
@@ -1042,7 +1037,7 @@ def lagval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     match coefficients.shape[0]:
@@ -1169,7 +1164,7 @@ def legval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     match coefficients.shape[0]:
@@ -1269,7 +1264,7 @@ def polyval(
     if tensor:
         coefficients = reshape(
             coefficients,
-            coefficients.shape + (1,) * ndim(input),
+            coefficients.shape + (1,) * input.ndim,
         )
 
     output = coefficients[-1] + zeros_like(input)
