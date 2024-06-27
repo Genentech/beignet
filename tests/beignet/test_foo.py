@@ -4,6 +4,7 @@ import math
 import jax
 import numpy
 import pytest
+import torch.testing
 from beignet.foo import (
     _c_series_to_z_series,
     _fit,
@@ -103,6 +104,7 @@ from jax.numpy import (
 from numpy.testing import (
     assert_array_almost_equal,
 )
+from torch import tensor
 
 jax.config.update("jax_enable_x64", True)
 
@@ -491,7 +493,7 @@ def test_chebdiv():
 def test_chebdomain():
     assert_array_almost_equal(
         chebdomain,
-        array([-1, 1]),
+        tensor([-1, 1]),
     )
 
 
@@ -559,9 +561,9 @@ def test_chebmulx():
 
 
 def test_chebone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         chebone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -701,16 +703,16 @@ def test_chebval():
 
 
 def test_chebx():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         chebx,
-        array([0, 1]),
+        tensor([0, 1]),
     )
 
 
 def test_chebzero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         chebzero,
-        array([0]),
+        tensor([0]),
     )
 
 
@@ -770,9 +772,9 @@ def test_hermdiv():
 
 
 def test_hermdomain():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermdomain,
-        array([-1, 1]),
+        tensor([-1, 1]),
     )
 
 
@@ -832,9 +834,9 @@ def test_hermediv():
 
 
 def test_hermedomain():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermedomain,
-        array([-1, 1]),
+        tensor([-1, 1]),
     )
 
 
@@ -902,9 +904,9 @@ def test_hermemulx():
 
 
 def test_hermeone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermeone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -1042,16 +1044,16 @@ def test_hermeval():
 
 
 def test_hermex():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermex,
-        array([0, 1]),
+        tensor([0, 1]),
     )
 
 
 def test_hermezero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermezero,
-        array([0]),
+        tensor([0]),
     )
 
 
@@ -1115,9 +1117,9 @@ def test_hermmulx():
 
 
 def test_hermone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -1255,16 +1257,16 @@ def test_hermval():
 
 
 def test_hermx():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermx,
-        array([0, 0.5]),
+        tensor([0, 0.5]),
     )
 
 
 def test_hermzero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermzero,
-        array([0]),
+        tensor([0]),
     )
 
 
@@ -1324,9 +1326,9 @@ def test_lagdiv():
 
 
 def test_lagdomain():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         lagdomain,
-        array([0, 1]),
+        tensor([0, 1]),
     )
 
 
@@ -1401,9 +1403,9 @@ def test_lagmulx():
 
 
 def test_lagone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         lagone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -1539,16 +1541,16 @@ def test_lagval():
 
 
 def test_lagx():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         lagx,
-        array([1, -1]),
+        tensor([1, -1]),
     )
 
 
 def test_lagzero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         lagzero,
-        array([0]),
+        tensor([0]),
     )
 
 
@@ -1608,9 +1610,9 @@ def test_legdiv():
 
 
 def test_legdomain():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         legdomain,
-        array([-1, 1]),
+        tensor([-1, 1]),
     )
 
 
@@ -1688,9 +1690,9 @@ def test_legmulx():
 
 
 def test_legone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         legone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -1826,16 +1828,16 @@ def test_legval():
 
 
 def test_legx():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         legx,
-        array([0, 1]),
+        tensor([0, 1]),
     )
 
 
 def test_legzero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         legzero,
-        array([0]),
+        tensor([0]),
     )
 
 
@@ -1924,9 +1926,9 @@ def test_polydiv():
 
 
 def test_polydomain():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polydomain,
-        array([-1, 1]),
+        tensor([-1, 1]),
     )
 
 
@@ -1989,9 +1991,9 @@ def test_polymulx():
 
 
 def test_polyone():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polyone,
-        array([1]),
+        tensor([1]),
     )
 
 
@@ -2132,14 +2134,14 @@ def test_polyval():
 
 
 def test_polyx():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polyx,
-        array([0, 1]),
+        tensor([0, 1]),
     )
 
 
 def test_polyzero():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polyzero,
-        array([0]),
+        tensor([0]),
     )
