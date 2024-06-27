@@ -3,9 +3,8 @@ import math
 import operator
 from typing import Callable, Literal, Tuple
 
-import jax
-import jax.numpy
 from jax import Array
+from jax._src.numpy.util import promote_dtypes_inexact
 from jax.numpy import (
     abs,
     any,
@@ -91,7 +90,7 @@ def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
 
         xs = *xs, x
 
-    xs = jax._src.numpy.util.promote_dtypes_inexact(*xs)
+    xs = promote_dtypes_inexact(*xs)
 
     if len(xs) == 1:
         return xs[0]
@@ -327,7 +326,7 @@ def _from_roots(f: Callable, g: Callable, input: Array) -> Array:
 
 
 def _get_domain(x: Array) -> Array:
-    if any(jax.numpy.iscomplex(x)):
+    if any(iscomplex(x)):
         rmin, rmax = real(x).min(), real(x).max()
         imin, imax = imag(x).min(), imag(x).max()
 
