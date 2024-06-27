@@ -69,7 +69,7 @@ polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
 
 
-def _add(input: Array, other: Array) -> Array:
+def _add(input: Tensor, other: Tensor) -> Tensor:
     input, other = _as_series(input, other)
 
     if input.shape[0] > other.shape[0]:
@@ -574,7 +574,7 @@ def _z_series_to_c_series(input: Array) -> Array:
     return c.at[1:n].multiply(2.0)
 
 
-def chebadd(input: Array, other: Array) -> Array:
+def chebadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -703,7 +703,7 @@ def chebval(
     return a + b * input
 
 
-def hermadd(input: Array, other: Array) -> Array:
+def hermadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -711,7 +711,7 @@ def hermdiv(input: Array, other: Array) -> Tuple[Array, Array]:
     return _div(hermmul, input, other)
 
 
-def hermeadd(input: Array, other: Array) -> Array:
+def hermeadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -965,7 +965,7 @@ def hermval(
     return a + b * input * 2.0
 
 
-def lagadd(input: Array, other: Array) -> Array:
+def lagadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -1102,7 +1102,7 @@ def lagval(
     return a + b * (1.0 - input)
 
 
-def legadd(input: Array, other: Array) -> Array:
+def legadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
@@ -1231,7 +1231,7 @@ def legval(
     return a + b * input
 
 
-def polyadd(input: Array, other: Array) -> Array:
+def polyadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 

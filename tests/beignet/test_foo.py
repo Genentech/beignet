@@ -438,16 +438,16 @@ def test__z_series_to_c_series():
 def test_chebadd():
     for i in range(5):
         for j in range(5):
-            target = zeros(max(i, j) + 1)
+            target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             assert_array_almost_equal(
                 chebtrim(
                     chebadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -719,16 +719,16 @@ def test_chebzero():
 def test_hermadd():
     for i in range(5):
         for j in range(5):
-            target = zeros(max(i, j) + 1)
+            target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             assert_array_almost_equal(
                 hermtrim(
                     hermadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -789,8 +789,8 @@ def test_hermeadd():
             assert_array_almost_equal(
                 hermetrim(
                     hermeadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1273,16 +1273,16 @@ def test_hermzero():
 def test_lagadd():
     for i in range(5):
         for j in range(5):
-            target = zeros(max(i, j) + 1)
+            target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             assert_array_almost_equal(
                 lagtrim(
                     lagadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1557,16 +1557,16 @@ def test_lagzero():
 def test_legadd():
     for i in range(5):
         for j in range(5):
-            target = zeros(max(i, j) + 1)
+            target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             assert_array_almost_equal(
                 legtrim(
                     legadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1844,16 +1844,16 @@ def test_legzero():
 def test_polyadd():
     for i in range(5):
         for j in range(5):
-            target = zeros(max(i, j) + 1)
+            target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             assert_array_almost_equal(
                 polytrim(
                     polyadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        tensor([0.0] * i + [1.0]),
+                        tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
