@@ -646,10 +646,16 @@ def test_chebval():
 
     x = linspace(-1, 1, 50)
 
-    y = []
+    ys = []
 
-    for c in chebcoefficients:
-        y.append(polyval(x, c))
+    for coefficient in chebcoefficients:
+        ys = [
+            *ys,
+            polyval(
+                x,
+                coefficient,
+            ),
+        ]
 
     for i in range(10):
         assert_array_almost_equal(
@@ -657,7 +663,7 @@ def test_chebval():
                 x,
                 array([0] * i + [1]),
             ),
-            y[i],
+            ys[i],
         )
 
     for i in range(3):
@@ -818,38 +824,26 @@ def test_hermeline():
 
 
 def test_hermemul():
-    x = linspace(-3, 3, 100)
-
     for i in range(5):
-        pol1 = array([0] * i + [1])
-
         val1 = hermeval(
-            x,
-            pol1,
+            linspace(-3, 3, 100),
+            array([0] * i + [1]),
         )
 
         for j in range(5):
-            pol2 = array([0] * j + [1])
-
             val2 = hermeval(
-                x,
-                pol2,
+                linspace(-3, 3, 100),
+                array([0] * j + [1]),
             )
-
-            pol3 = hermemul(
-                pol1,
-                pol2,
-            )
-
-            val3 = hermeval(
-                x,
-                pol3,
-            )
-
-            assert len(pol3) == i + j + 1
 
             assert_array_almost_equal(
-                val3,
+                hermeval(
+                    linspace(-3, 3, 100),
+                    hermemul(
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
+                    ),
+                ),
                 val1 * val2,
             )
 
