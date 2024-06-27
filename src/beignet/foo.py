@@ -123,50 +123,52 @@ def _div(func: Callable, input: Array, other: Array) -> Tuple[Array, Array]:
     if n == 1:
         return input / other[-1], zeros_like(input[:1])
 
-    def _ldordidx(x):
-        indicies = nonzero(flip(x, axis=0), size=1)
+    def f(x: Array) -> Array:
+        indicies = flip(x, axis=0)
+
+        indicies = nonzero(indicies, size=1)
 
         return x.shape[0] - 1 - indicies[0][0]
 
-    quotient = zeros(m - n + 1, dtype=input.dtype)
+    q = zeros(m - n + 1, dtype=input.dtype)
 
     ridx = input.shape[0] - 1
 
-    sz = m - _ldordidx(other) - 1
+    sz = m - f(other) - 1
 
     y = zeros(m + n + 1, dtype=input.dtype)
     y = y.at[sz].set(1.0)
 
-    y1 = quotient, input, y, ridx
+    x = q, input, y, ridx
 
     for index in range(0, sz):
-        quotient, remainder, y2, ridx1 = y1
+        q, r, y2, ridx1 = x
 
-        i = sz - index
+        j = sz - index
 
         p = func(y2, other)
 
-        pidx = _ldordidx(p)
+        pidx = f(p)
 
-        t = remainder[ridx1] / p[pidx]
+        t = r[ridx1] / p[pidx]
 
-        a = remainder.at[ridx1].set(0)
-        b = t * p.at[pidx].set(0)
+        a = r.at[ridx1].set(0.0)
+        b = t * p.at[pidx].set(0.0)
 
-        remainder = _subtract(a, b)
-        remainder = remainder[: remainder.shape[0]]
+        r = _subtract(a, b)
+        r = r[: r.shape[0]]
 
-        quotient = quotient.at[i].set(t)
+        q = q.at[j].set(t)
 
         ridx1 = ridx1 - 1
 
         y2 = roll(y2, -1)
 
-        y1 = quotient, remainder, y2, ridx1
+        x = q, r, y2, ridx1
 
-    quotient, remainder, _, _ = y1
+    q, r, _, _ = x
 
-    return quotient, remainder
+    return q, r
 
 
 def _evaluate(func: Callable, input: Array, *args) -> Array:
@@ -252,21 +254,13 @@ def _fit(
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
     if issubclass(a.dtype.type, complexfloating):
-        scale = square(real(a)) + square(imag(a))
-
-        scale = sum(scale, axis=1)
-
-        scale = sqrt(scale)
+        scale = sqrt(sum(square(real(a)) + square(imag(a)), axis=1))
     else:
-        scale = square(a)
-
-        scale = sum(scale, axis=1)
-
-        scale = sqrt(scale)
+        scale = sqrt(sum(square(a), axis=1))
 
     scale = where(scale == 0, 1, scale)
 
-    output, residuals, rank, s = lstsq(
+    output, residuals, rank, scale = lstsq(
         transpose(a) / scale,
         transpose(b),
         relative_condition,
@@ -285,7 +279,7 @@ def _fit(
             output = x.at[degree].set(output)
 
     if full:
-        return output, [residuals, rank, s, relative_condition]
+        return output, [residuals, rank, scale, relative_condition]
     else:
         return output
 
