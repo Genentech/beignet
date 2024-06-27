@@ -73,14 +73,20 @@ def _add(input: Array, other: Array) -> Array:
         output = input + concatenate(
             [
                 other,
-                zeros(input.shape[0] - other.shape[0], dtype=other.dtype),
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
             ],
         )
     else:
         output = other + concatenate(
             [
                 input,
-                zeros(other.shape[0] - input.shape[0], dtype=input.dtype),
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
             ]
         )
 
@@ -473,7 +479,10 @@ def _subtract(input: Array, other: Array) -> Array:
         output = input + concatenate(
             [
                 output,
-                zeros(input.shape[0] - other.shape[0], dtype=other.dtype),
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
             ],
         )
 
