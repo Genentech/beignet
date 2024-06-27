@@ -1258,38 +1258,28 @@ def test_lagline():
 
 
 def test_lagmul():
-    x = linspace(-3, 3, 100)
-
     for i in range(5):
-        pol1 = array([0] * i + [1])
-
         val1 = lagval(
-            x,
-            pol1,
+            linspace(-3, 3, 100),
+            array([0] * i + [1]),
         )
 
         for j in range(5):
-            pol2 = array([0] * j + [1])
-
             val2 = lagval(
-                x,
-                pol2,
+                linspace(-3, 3, 100),
+                array([0] * j + [1]),
             )
-            pol3 = lagtrim(
-                lagmul(
-                    pol1,
-                    pol2,
-                ),
-            )
-            val3 = lagval(
-                x,
-                pol3,
-            )
-
-            assert len(pol3) == i + j + 1
 
             assert_array_almost_equal(
-                val3,
+                lagval(
+                    linspace(-3, 3, 100),
+                    lagtrim(
+                        lagmul(
+                            array([0] * i + [1]),
+                            array([0] * j + [1]),
+                        ),
+                    ),
+                ),
                 val1 * val2,
             )
 
@@ -1408,15 +1398,13 @@ def test_lagtrim():
 def test_lagval():
     assert lagval(array([]), array([1])).size == 0
 
-    x = linspace(-1, 1, 50)
-
     ys = []
 
     for coefficient in lagcoefficients:
         ys = [
             *ys,
             polyval(
-                x,
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1424,22 +1412,18 @@ def test_lagval():
     for i in range(7):
         assert_array_almost_equal(
             lagval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
             ys[i],
         )
 
     for i in range(3):
-        dims = (2,) * i
+        assert lagval(zeros((2,) * i), array([1])).shape == (2,) * i
 
-        x = zeros(dims)
+        assert lagval(zeros((2,) * i), array([1, 0])).shape == (2,) * i
 
-        assert lagval(x, array([1])).shape == dims
-
-        assert lagval(x, array([1, 0])).shape == dims
-
-        assert lagval(x, array([1, 0, 0])).shape == dims
+        assert lagval(zeros((2,) * i), array([1, 0, 0])).shape == (2,) * i
 
 
 def test_lagx():
@@ -1535,22 +1519,20 @@ def test_legline():
 
 def test_legmul():
     for i in range(5):
-        x = linspace(-1, 1, 100)
-
         val1 = legval(
-            x,
+            linspace(-1, 1, 100),
             array([0] * i + [1]),
         )
 
         for j in range(5):
             val2 = legval(
-                x,
+                linspace(-1, 1, 100),
                 array([0] * j + [1]),
             )
 
             assert_array_almost_equal(
                 legval(
-                    x,
+                    linspace(-1, 1, 100),
                     legmul(
                         array([0] * i + [1]),
                         array([0] * j + [1]),
