@@ -916,24 +916,26 @@ def test_hermetrim():
 
 
 def test_hermeval():
-    assert_array_almost_equal(hermeval(array([]), array([1])).size, 0)
+    assert hermeval(array([]), array([1])).size == 0
 
     x = linspace(-1, 1, 50)
 
-    y = [polyval(x, c) for c in hermecoefficients]
+    y = []
+    for c in hermecoefficients:
+        y.append(polyval(x, c))
 
     for i in range(10):
         assert_array_almost_equal(hermeval(x, array([0] * i + [1])), y[i])
 
-    # for i in range(3):
-    #     dims = [2] * i
-    #     x = zeros(dims)
-    #
-    #     assert hermeval(x, array([1])).shape == ()
-    #
-    #     assert hermeval(x, array([1, 0])).shape == dims
-    #
-    #     assert hermeval(x, array([1, 0, 0])).shape == dims
+    for i in range(3):
+        dims = (2,) * i
+        x = zeros(dims)
+
+        assert hermeval(x, array([1])).shape == ()
+
+        assert hermeval(x, array([1, 0])).shape == dims
+
+        assert hermeval(x, array([1, 0, 0])).shape == dims
 
 
 def test_hermex():
@@ -994,21 +996,27 @@ def test_hermmul():
 def test_hermmulx():
     assert_array_almost_equal(
         hermtrim(
-            hermmulx(array([0.0])),
+            hermmulx(
+                array([0.0]),
+            ),
             tol=0.000001,
         ),
         array([0.0]),
     )
+
     assert_array_almost_equal(
-        hermmulx(array([1.0])),
+        hermmulx(
+            array([1.0]),
+        ),
         array([0.0, 0.5]),
     )
+
     for i in range(1, 5):
         assert_array_almost_equal(
             hermmulx(
                 array([0.0] * i + [1.0]),
             ),
-            [0.0] * (i - 1) + [i, 0.0, 0.5],
+            array([0.0] * (i - 1) + [i, 0.0, 0.5]),
         )
 
 
