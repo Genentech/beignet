@@ -574,7 +574,7 @@ def chebdiv(input: Array, other: Array) -> Tuple[Array, Array]:
 
 
 def chebline(input: float, other: float):
-    return array([input, other])
+    return tensor([input, other])
 
 
 def chebmul(
@@ -711,7 +711,7 @@ def hermediv(input: Array, other: Array) -> Tuple[Array, Array]:
 
 
 def hermeline(input: float, other: float) -> Array:
-    return array([input, other])
+    return tensor([input, other])
 
 
 def hermemul(
@@ -833,7 +833,7 @@ def hermeval(
 
 
 def hermline(input: float, other: float) -> Array:
-    return array([input, other / 2])
+    return tensor([input, other / 2])
 
 
 def hermmul(
@@ -961,7 +961,7 @@ def lagdiv(input: Array, other: Array) -> Tuple[Array, Array]:
 
 
 def lagline(input: float, other: float) -> Array:
-    return array([input + other, -other])
+    return tensor([input + other, -other])
 
 
 def lagmul(
@@ -1097,7 +1097,7 @@ def legdiv(input: Array, other: Array) -> Tuple[Array, Array]:
 
 
 def legline(input: float, other: float) -> Array:
-    return array([input, other])
+    return tensor([input, other])
 
 
 def legmul(
@@ -1227,7 +1227,7 @@ def polydiv(input: Array, other: Array) -> Tuple[Array, Array]:
 
 
 def polyline(input: float, other: float) -> Array:
-    return array([input, other])
+    return tensor([input, other])
 
 
 def polymul(

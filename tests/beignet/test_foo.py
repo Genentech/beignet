@@ -498,9 +498,9 @@ def test_chebdomain():
 
 
 def test_chebline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         chebline(3, 4),
-        array([3, 4]),
+        tensor([3, 4]),
     )
 
 
@@ -841,9 +841,9 @@ def test_hermedomain():
 
 
 def test_hermeline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermeline(3, 4),
-        array([3, 4]),
+        tensor([3, 4]),
     )
 
 
@@ -1058,9 +1058,9 @@ def test_hermezero():
 
 
 def test_hermline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         hermline(3, 4),
-        array([3, 2]),
+        tensor([3.0, 2.0]),
     )
 
 
@@ -1333,9 +1333,9 @@ def test_lagdomain():
 
 
 def test_lagline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         lagline(3, 4),
-        array([7, -4]),
+        tensor([7, -4]),
     )
 
 
@@ -1617,9 +1617,9 @@ def test_legdomain():
 
 
 def test_legline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         legline(3, 4),
-        array([3, 4]),
+        tensor([3, 4]),
     )
 
     assert_array_almost_equal(
@@ -1627,7 +1627,7 @@ def test_legline():
             legline(3, 0),
             tol=0.000001,
         ),
-        array([3]),
+        tensor([3]),
     )
 
 
@@ -1933,14 +1933,14 @@ def test_polydomain():
 
 
 def test_polyline():
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polyline(3, 4),
-        array([3, 4]),
+        tensor([3, 4]),
     )
 
-    assert_array_almost_equal(
+    torch.testing.assert_close(
         polyline(3, 0),
-        array([3, 0]),
+        tensor([3, 0]),
     )
 
 
