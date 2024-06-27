@@ -786,11 +786,17 @@ def test_hermediv():
 
 
 def test_hermedomain():
-    assert_array_almost_equal(hermedomain, [-1, 1])
+    assert_array_almost_equal(
+        hermedomain,
+        array([-1, 1]),
+    )
 
 
 def test_hermeline():
-    assert_array_almost_equal(hermeline(3, 4), array([3, 4]))
+    assert_array_almost_equal(
+        hermeline(3, 4),
+        array([3, 4]),
+    )
 
 
 def test_hermemul():
@@ -1422,7 +1428,7 @@ def test_legdiv():
 
 
 def test_legdomain():
-    assert_array_almost_equal(legdomain, [-1, 1])
+    assert_array_almost_equal(legdomain, array([-1, 1]))
 
 
 def test_legline():
