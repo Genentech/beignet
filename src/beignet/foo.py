@@ -234,13 +234,7 @@ def _fit(
 
     degree = sort(degree)
 
-    maximum = degree[-1]
-
-    vandermonde = vandermonde_func(input, maximum)[:, degree]
-
-    vandermonde = transpose(vandermonde)
-
-    b = transpose(other)
+    vandermonde = transpose(vandermonde_func(input, degree[-1])[:, degree])
 
     if weight is not None:
         if weight.ndim != 1:
@@ -250,7 +244,10 @@ def _fit(
             raise TypeError
 
         vandermonde = vandermonde * weight
-        b = b * weight
+
+        b = transpose(other) * weight
+    else:
+        b = transpose(other)
 
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
@@ -272,13 +269,17 @@ def _fit(
 
     if degree.ndim > 0:
         if output.ndim == 2:
-            x = zeros((maximum + 1, output.shape[1]), dtype=output.dtype)
-
-            output = x.at[degree].set(output)
+            x = zeros(
+                [degree[-1] + 1, output.shape[1]],
+                dtype=output.dtype,
+            )
         else:
-            x = zeros(maximum + 1, dtype=output.dtype)
+            x = zeros(
+                degree[-1] + 1,
+                dtype=output.dtype,
+            )
 
-            output = x.at[degree].set(output)
+        output = x.at[degree].set(output)
 
     if full:
         return output, [residuals, rank, scale, relative_condition]
