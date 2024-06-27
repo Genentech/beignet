@@ -1138,7 +1138,15 @@ def test_hermtrim():
 
 
 def test_hermval():
-    assert hermval(array([]), array([1])).size == 0
+    assert (
+        math.prod(
+            hermval(
+                array([]),
+                array([1]),
+            ).shape,
+        )
+        == 0
+    )
 
     ys = []
 
