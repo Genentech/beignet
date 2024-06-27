@@ -789,25 +789,26 @@ def hermeval(
             coefficients.shape + (1,) * ndim(input),
         )
 
-    if coefficients.shape[0] == 1:
-        a = coefficients[0]
-        b = 0
-    elif coefficients.shape[0] == 2:
-        a = coefficients[0]
-        b = coefficients[1]
-    else:
-        size = coefficients.shape[0]
+    match coefficients.shape[0]:
+        case 1:
+            a = coefficients[0]
+            b = 0.0
+        case 2:
+            a = coefficients[0]
+            b = coefficients[1]
+        case _:
+            size = coefficients.shape[0]
 
-        a = coefficients[-2] * ones_like(input)
-        b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
-        for i in range(3, coefficients.shape[0] + 1):
-            previous = a
+            for i in range(3, coefficients.shape[0] + 1):
+                previous = a
 
-            size = size - 1
+                size = size - 1
 
-            a = coefficients[-i] - b * (size - 1.0)
-            b = previous + b * input
+                a = coefficients[-i] - b * (size - 1.0)
+                b = previous + b * input
 
     return a + b * input
 
@@ -911,7 +912,7 @@ def hermval(
     match coefficients.shape[0]:
         case 1:
             a = coefficients[0]
-            b = 0
+            b = 0.0
         case 2:
             a = coefficients[0]
             b = coefficients[1]
@@ -1047,7 +1048,7 @@ def lagval(
     match coefficients.shape[0]:
         case 1:
             a = coefficients[0]
-            b = 0
+            b = 0.0
         case 2:
             a = coefficients[0]
             b = coefficients[1]
@@ -1174,7 +1175,7 @@ def legval(
     match coefficients.shape[0]:
         case 1:
             a = coefficients[0]
-            b = 0
+            b = 0.0
         case 2:
             a = coefficients[0]
             b = coefficients[1]
