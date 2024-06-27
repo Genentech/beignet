@@ -232,18 +232,14 @@ def _fit(
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    if degree.ndim == 0:
-        maximum = int(degree)
+    degree = sort(degree)
 
-        v = vandermonde_func(input, maximum)
-    else:
-        degree = sort(degree)
+    maximum = degree[-1]
 
-        maximum = int(degree[-1])
+    vandermonde = vandermonde_func(input, maximum)[:, degree]
 
-        v = vandermonde_func(input, maximum)[:, degree]
+    vandermonde = transpose(vandermonde)
 
-    a = transpose(v)
     b = transpose(other)
 
     if weight is not None:
@@ -253,21 +249,21 @@ def _fit(
         if input.shape[0] != weight.shape[0]:
             raise TypeError
 
-        a = a * weight
+        vandermonde = vandermonde * weight
         b = b * weight
 
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
-    if iscomplex(a):
-        scale = sqrt(sum(square(real(a)) + square(imag(a)), axis=1))
+    if iscomplex(vandermonde):
+        scale = sqrt(sum(square(real(vandermonde)) + square(imag(vandermonde)), axis=1))
     else:
-        scale = sqrt(sum(square(a), axis=1))
+        scale = sqrt(sum(square(vandermonde), axis=1))
 
     scale = where(scale == 0, 1, scale)
 
     output, residuals, rank, scale = lstsq(
-        transpose(a) / scale,
+        transpose(vandermonde) / scale,
         transpose(b),
         relative_condition,
     )
