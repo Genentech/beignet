@@ -665,15 +665,13 @@ def test_chebval():
         )
 
     for i in range(3):
-        dims = (2,) * i
+        x = zeros((2,) * i)
 
-        x = zeros(dims)
+        assert chebval(x, array([1])).shape == (2,) * i
 
-        assert chebval(x, array([1])).shape == dims
+        assert chebval(x, array([1, 0])).shape == (2,) * i
 
-        assert chebval(x, array([1, 0])).shape == dims
-
-        assert chebval(x, array([1, 0, 0])).shape == dims
+        assert chebval(x, array([1, 0, 0])).shape == (2,) * i
 
 
 def test_chebx():
@@ -948,45 +946,41 @@ def test_hermetrim():
 
     assert_array_almost_equal(
         hermetrim(array([2, -1, 1, 0]), 2),
-        [0],
+        array([0]),
     )
 
 
 def test_hermeval():
-    assert hermeval(array([]), array([1])).size == 0
-
-    x = linspace(-1, 1, 50)
+    assert math.prod(hermeval(array([]), array([1])).shape) == 0
 
     ys = []
 
-    for c in hermecoefficients:
+    for coefficient in hermecoefficients:
         ys = [
             *ys,
             polyval(
-                x,
-                c,
+                linspace(-1, 1, 50),
+                coefficient,
             ),
         ]
 
     for i in range(10):
         assert_array_almost_equal(
             hermeval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
             ys[i],
         )
 
     for i in range(3):
-        dims = (2,) * i
+        x = zeros((2,) * i)
 
-        x = zeros(dims)
+        assert hermeval(x, array([1])).shape == (2,) * i
 
-        assert hermeval(x, array([1])).shape == dims
+        assert hermeval(x, array([1, 0])).shape == (2,) * i
 
-        assert hermeval(x, array([1, 0])).shape == dims
-
-        assert hermeval(x, array([1, 0, 0])).shape == dims
+        assert hermeval(x, array([1, 0, 0])).shape == (2,) * i
 
 
 def test_hermex():
@@ -1951,20 +1945,18 @@ def test_polytrim():
 def test_polyval():
     assert polyval(array([]), array([1])).size == 0
 
-    x = linspace(-1, 1, 50)
-
     y = []
 
     for i in range(5):
         y = [
             *y,
-            x**i,
+            linspace(-1, 1, 50) ** i,
         ]
 
     for i in range(5):
         assert_array_almost_equal(
             polyval(
-                x,
+                linspace(-1, 1, 50),
                 array([0] * i + [1]),
             ),
             y[i],
@@ -1972,20 +1964,18 @@ def test_polyval():
 
     assert_array_almost_equal(
         polyval(
-            x,
+            linspace(-1, 1, 50),
             array([0, -1, 0, 1]),
         ),
-        x * (x**2 - 1),
+        linspace(-1, 1, 50) * (linspace(-1, 1, 50) ** 2 - 1),
     )
 
     for i in range(3):
-        x = zeros((2,) * i)
+        assert polyval(zeros((2,) * i), array([1])).shape == (2,) * i
 
-        assert polyval(x, array([1])).shape == (2,) * i
+        assert polyval(zeros((2,) * i), array([1, 0])).shape == (2,) * i
 
-        assert polyval(x, array([1, 0])).shape == (2,) * i
-
-        assert polyval(x, array([1, 0, 0])).shape == (2,) * i
+        assert polyval(zeros((2,) * i), array([1, 0, 0])).shape == (2,) * i
 
 
 def test_polyx():
