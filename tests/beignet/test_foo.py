@@ -857,25 +857,31 @@ def test_hermemul():
 def test_hermemulx():
     assert_array_almost_equal(
         hermetrim(
-            hermemulx(array([0])),
+            hermemulx(
+                array([0]),
+            ),
             tol=0.000001,
         ),
-        [0],
+        array([0]),
     )
     assert_array_almost_equal(
         hermetrim(
-            hermemulx(array([1])),
+            hermemulx(
+                array([1]),
+            ),
             tol=0.000001,
         ),
-        [0, 1],
+        array([0, 1]),
     )
     for i in range(1, 5):
         assert_array_almost_equal(
             hermetrim(
-                hermemulx(array([0] * i + [1])),
+                hermemulx(
+                    array([0] * i + [1]),
+                ),
                 tol=0.000001,
             ),
-            [0] * (i - 1) + [i, 0, 1],
+            array([0] * (i - 1) + [i, 0, 1]),
         )
 
 
@@ -932,26 +938,24 @@ def test_hermesub():
 
 
 def test_hermetrim():
-    coef = array([2, -1, 1, 0])
-
     with pytest.raises(ValueError):
         hermetrim(
-            coef,
+            array([2, -1, 1, 0]),
             -1,
         )
 
     assert_array_almost_equal(
-        hermetrim(coef),
-        coef[:-1],
+        hermetrim(array([2, -1, 1, 0])),
+        array([2, -1, 1, 0])[:-1],
     )
 
     assert_array_almost_equal(
-        hermetrim(coef, 1),
-        coef[:-3],
+        hermetrim(array([2, -1, 1, 0]), 1),
+        array([2, -1, 1, 0])[:-3],
     )
 
     assert_array_almost_equal(
-        hermetrim(coef, 2),
+        hermetrim(array([2, -1, 1, 0]), 2),
         [0],
     )
 
