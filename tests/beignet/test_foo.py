@@ -190,9 +190,9 @@ def test__c_series_to_z_series():
     for i in range(5):
         assert_array_almost_equal(
             _c_series_to_z_series(
-                array([2] + [1] * i, dtype=numpy.float64),
+                array([2.0] + [1.0] * i, dtype=numpy.float64),
             ),
-            array([0.5] * i + [2] + [0.5] * i, dtype=numpy.float64),
+            array([0.5] * i + [2.0] + [0.5] * i, dtype=numpy.float64),
         )
 
 
@@ -200,90 +200,90 @@ def test__fit():
     with pytest.raises(ValueError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
-            degree=array([-1]),
+            array([1.0]),
+            array([1.0]),
+            degree=array([-1.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([[1]]),
-            array([1]),
-            degree=array([0]),
+            array([[1.0]]),
+            array([1.0]),
+            degree=array([0.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
             array([]),
-            array([1]),
-            degree=array([0]),
+            array([1.0]),
+            degree=array([0.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([[[1]]]),
-            degree=array([0]),
+            array([1.0]),
+            array([[[1.0]]]),
+            degree=array([0.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1, 2]),
-            array([1]),
-            degree=array([0]),
+            array([1.0, 2.0]),
+            array([1.0]),
+            degree=array([0.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1, 2]),
-            degree=array([0]),
+            array([1.0]),
+            array([1.0, 2.0]),
+            degree=array([0.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
-            degree=array([0]),
-            weight=[[1]],
+            array([1.0]),
+            array([1.0]),
+            degree=array([0.0]),
+            weight=[[1.0]],
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
-            degree=array([0]),
-            weight=array([1, 1]),
+            array([1.0]),
+            array([1.0]),
+            degree=array([0.0]),
+            weight=array([1.0, 1.0]),
         )
 
     with pytest.raises(ValueError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
-            degree=array([-1]),
+            array([1.0]),
+            array([1.0]),
+            degree=array([-1.0]),
         )
 
     with pytest.raises(ValueError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
-            degree=array([2, -1, 6]),
+            array([1.0]),
+            array([1.0]),
+            degree=array([2.0, -1.0, 6.0]),
         )
 
     with pytest.raises(TypeError):
         _fit(
             _vandermonde,
-            array([1]),
-            array([1]),
+            array([1.0]),
+            array([1.0]),
             degree=array([]),
         )
 
@@ -291,27 +291,27 @@ def test__fit():
 def test__get_domain():
     assert_array_almost_equal(
         _get_domain(
-            array([1, 10, 3, -1]),
+            array([1.0, 10.0, 3.0, -1.0]),
         ),
-        array([-1, 10]),
+        array([-1.0, 10.0]),
     )
 
     assert_array_almost_equal(
         _get_domain(
-            array([1 + 1j, 1 - 1j, 0, 2]),
+            array([1.0 + 1j, 1.0 - 1j, 0.0, 2]),
         ),
-        array([-1j, 2 + 1j]),
+        array([-1.0j, 2.0 + 1j]),
     )
 
 
 def test__map_domain():
     assert_array_almost_equal(
         _map_domain(
-            array([0, 4]),
-            array([0, 4]),
-            array([1, 3]),
+            array([0.0, 4.0]),
+            array([0.0, 4.0]),
+            array([1.0, 3.0]),
         ),
-        array([1, 3]),
+        array([1.0, 3.0]),
     )
 
     assert_array_almost_equal(
@@ -326,20 +326,20 @@ def test__map_domain():
     assert_array_almost_equal(
         _map_domain(
             array([[0, 4], [0, 4]]),
-            array([0, 4]),
-            array([1, 3]),
+            array([0.0, 4.0]),
+            array([1.0, 3.0]),
         ),
-        array([[1, 3], [1, 3]]),
+        array([[1.0, 3.0], [1.0, 3.0]]),
     )
 
 
 def test__map_parameters():
     assert_array_almost_equal(
         _map_parameters(
-            array([0, 4]),
-            array([1, 3]),
+            array([0.0, 4.0]),
+            array([1.0, 3.0]),
         ),
-        array([1, 0.5]),
+        array([1.0, 0.5]),
     )
 
     assert_array_almost_equal(
@@ -364,31 +364,31 @@ def test__pow():
 def test__trim_coefficients():
     with pytest.raises(ValueError):
         _trim_coefficients(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         _trim_coefficients(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         _trim_coefficients(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         _trim_coefficients(
-            array(array([2, -1, 1, 0])),
+            array(array([2.0, -1.0, 1.0, 0.0])),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -398,7 +398,7 @@ def test__trim_sequence():
             _trim_sequence(
                 array([1] + [0] * 5),
             ),
-            array([1]),
+            array([1.0]),
         )
 
 
@@ -446,8 +446,8 @@ def test_chebadd():
             assert_array_almost_equal(
                 chebtrim(
                     chebadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -463,10 +463,10 @@ def test_chebdiv():
         for j in range(5):
             quotient, remainder = chebdiv(
                 chebadd(
-                    array([0] * i + [1]),
-                    array([0] * j + [1]),
+                    array([0.0] * i + [1.0]),
+                    array([0.0] * j + [1.0]),
                 ),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             )
 
             assert_array_almost_equal(
@@ -474,7 +474,7 @@ def test_chebdiv():
                     chebadd(
                         chebmul(
                             quotient,
-                            array([0] * i + [1]),
+                            array([0.0] * i + [1.0]),
                         ),
                         remainder,
                     ),
@@ -482,8 +482,8 @@ def test_chebdiv():
                 ),
                 chebtrim(
                     chebadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -515,8 +515,8 @@ def test_chebmul():
             assert_array_almost_equal(
                 chebtrim(
                     chebmul(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -531,32 +531,32 @@ def test_chebmulx():
     assert_array_almost_equal(
         chebtrim(
             chebmulx(
-                array([0]),
+                array([0.0]),
             ),
             tol=0.000001,
         ),
-        array([0]),
+        array([0.0]),
     )
 
     assert_array_almost_equal(
         chebtrim(
             chebmulx(
-                array([1]),
+                array([1.0]),
             ),
             tol=0.000001,
         ),
-        array([0, 1]),
+        array([0.0, 1.0]),
     )
 
     for i in range(1, 5):
         assert_array_almost_equal(
             chebtrim(
                 chebmulx(
-                    array([0] * i + [1]),
+                    array([0.0] * i + [1.0]),
                 ),
                 tol=0.000001,
             ),
-            array([0] * (i - 1) + [0.5, 0, 0.5]),
+            array([0.0] * (i - 1) + [0.5, 0, 0.5]),
         )
 
 
@@ -573,7 +573,7 @@ def test_chebpow():
             assert_array_almost_equal(
                 chebtrim(
                     chebpow(
-                        arange(i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -581,8 +581,8 @@ def test_chebpow():
                 chebtrim(
                     functools.reduce(
                         chebmul,
-                        [arange(i + 1)] * j,
-                        array([1]),
+                        [arange(0.0, i + 1)] * j,
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -600,8 +600,8 @@ def test_chebsub():
             assert_array_almost_equal(
                 chebtrim(
                     chebsub(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -615,31 +615,31 @@ def test_chebsub():
 def test_chebtrim():
     with pytest.raises(ValueError):
         chebtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         chebtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         chebtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         chebtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -648,7 +648,7 @@ def test_chebval():
         math.prod(
             chebval(
                 array([]),
-                array([1]),
+                array([1.0]),
             ).shape,
         )
         == 0
@@ -669,7 +669,7 @@ def test_chebval():
         assert_array_almost_equal(
             chebval(
                 linspace(-1, 1, 50),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             array(ys[i]),
         )
@@ -680,7 +680,7 @@ def test_chebval():
         assert (
             chebval(
                 x,
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * i
         )
@@ -688,7 +688,7 @@ def test_chebval():
         assert (
             chebval(
                 x,
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -696,7 +696,7 @@ def test_chebval():
         assert (
             chebval(
                 x,
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -789,8 +789,8 @@ def test_hermeadd():
             assert_array_almost_equal(
                 hermetrim(
                     hermeadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -806,10 +806,10 @@ def test_hermediv():
         for j in range(5):
             quotient, remainder = hermediv(
                 hermeadd(
-                    array([0] * i + [1]),
-                    array([0] * j + [1]),
+                    array([0.0] * i + [1.0]),
+                    array([0.0] * j + [1.0]),
                 ),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             )
 
             assert_array_almost_equal(
@@ -817,7 +817,7 @@ def test_hermediv():
                     hermeadd(
                         hermemul(
                             quotient,
-                            array([0] * i + [1]),
+                            array([0.0] * i + [1.0]),
                         ),
                         remainder,
                     ),
@@ -825,8 +825,8 @@ def test_hermediv():
                 ),
                 hermetrim(
                     hermeadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -851,21 +851,21 @@ def test_hermemul():
     for i in range(5):
         val1 = hermeval(
             linspace(-3, 3, 100),
-            array([0] * i + [1]),
+            array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             val2 = hermeval(
                 linspace(-3, 3, 100),
-                array([0] * j + [1]),
+                array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
                 hermeval(
                     linspace(-3, 3, 100),
                     hermemul(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                 ),
                 val1 * val2,
@@ -876,26 +876,26 @@ def test_hermemulx():
     assert_array_almost_equal(
         hermetrim(
             hermemulx(
-                array([0]),
+                array([0.0]),
             ),
             tol=0.000001,
         ),
-        array([0]),
+        array([0.0]),
     )
     assert_array_almost_equal(
         hermetrim(
             hermemulx(
-                array([1]),
+                array([1.0]),
             ),
             tol=0.000001,
         ),
-        array([0, 1]),
+        array([0.0, 1.0]),
     )
     for i in range(1, 5):
         assert_array_almost_equal(
             hermetrim(
                 hermemulx(
-                    array([0] * i + [1]),
+                    array([0.0] * i + [1.0]),
                 ),
                 tol=0.000001,
             ),
@@ -925,7 +925,7 @@ def test_hermepow():
                     functools.reduce(
                         hermemul,
                         array([arange(i + 1)] * j),
-                        array([1]),
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -943,8 +943,8 @@ def test_hermesub():
             assert_array_almost_equal(
                 hermetrim(
                     hermesub(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -958,31 +958,31 @@ def test_hermesub():
 def test_hermetrim():
     with pytest.raises(ValueError):
         hermetrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             -1,
         )
 
     assert_array_almost_equal(
         hermetrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         hermetrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         hermetrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -991,7 +991,7 @@ def test_hermeval():
         math.prod(
             hermeval(
                 array([]),
-                array([1]),
+                array([1.0]),
             ).shape,
         )
         == 0
@@ -1012,7 +1012,7 @@ def test_hermeval():
         assert_array_almost_equal(
             hermeval(
                 linspace(-1, 1, 50),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             ys[i],
         )
@@ -1021,7 +1021,7 @@ def test_hermeval():
         assert (
             hermeval(
                 zeros((2,) * i),
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * i
         )
@@ -1029,7 +1029,7 @@ def test_hermeval():
         assert (
             hermeval(
                 zeros((2,) * i),
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1037,7 +1037,7 @@ def test_hermeval():
         assert (
             hermeval(
                 zeros((2,) * i),
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1138,7 +1138,7 @@ def test_hermpow():
                     functools.reduce(
                         hermmul,
                         array([arange(i + 1)] * j),
-                        array([1]),
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1171,31 +1171,31 @@ def test_hermsub():
 def test_hermtrim():
     with pytest.raises(ValueError):
         hermtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         hermtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         hermtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         hermtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -1204,7 +1204,7 @@ def test_hermval():
         math.prod(
             hermval(
                 array([]),
-                array([1]),
+                array([1.0]),
             ).shape,
         )
         == 0
@@ -1234,7 +1234,7 @@ def test_hermval():
         assert (
             hermval(
                 zeros((2,) * index),
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * index
         )
@@ -1242,7 +1242,7 @@ def test_hermval():
         assert (
             hermval(
                 zeros((2,) * index),
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * index
         )
@@ -1250,7 +1250,7 @@ def test_hermval():
         assert (
             hermval(
                 zeros((2,) * index),
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * index
         )
@@ -1281,8 +1281,8 @@ def test_lagadd():
             assert_array_almost_equal(
                 lagtrim(
                     lagadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1298,10 +1298,10 @@ def test_lagdiv():
         for j in range(5):
             quotient, remainder = lagdiv(
                 lagadd(
-                    array([0] * i + [1]),
-                    array([0] * j + [1]),
+                    array([0.0] * i + [1.0]),
+                    array([0.0] * j + [1.0]),
                 ),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             )
 
             assert_array_almost_equal(
@@ -1309,7 +1309,7 @@ def test_lagdiv():
                     lagadd(
                         lagmul(
                             quotient,
-                            array([0] * i + [1]),
+                            array([0.0] * i + [1.0]),
                         ),
                         remainder,
                     ),
@@ -1317,8 +1317,8 @@ def test_lagdiv():
                 ),
                 lagtrim(
                     lagadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1343,13 +1343,13 @@ def test_lagmul():
     for i in range(5):
         a = lagval(
             linspace(-3, 3, 100),
-            array([0] * i + [1]),
+            array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             b = lagval(
                 linspace(-3, 3, 100),
-                array([0] * j + [1]),
+                array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
@@ -1357,8 +1357,8 @@ def test_lagmul():
                     linspace(-3, 3, 100),
                     lagtrim(
                         lagmul(
-                            array([0] * i + [1]),
-                            array([0] * j + [1]),
+                            array([0.0] * i + [1.0]),
+                            array([0.0] * j + [1.0]),
                         ),
                     ),
                 ),
@@ -1370,17 +1370,17 @@ def test_lagmulx():
     assert_array_almost_equal(
         lagtrim(
             lagmulx(
-                array([0]),
+                array([0.0]),
             ),
             tol=0.000001,
         ),
-        array([0]),
+        array([0.0]),
     )
 
     assert_array_almost_equal(
         lagtrim(
             lagmulx(
-                array([1]),
+                array([1.0]),
             ),
             tol=0.000001,
         ),
@@ -1391,12 +1391,12 @@ def test_lagmulx():
         assert_array_almost_equal(
             lagtrim(
                 lagmulx(
-                    array([0] * i + [1]),
+                    array([0.0] * i + [1.0]),
                 ),
                 tol=0.000001,
             ),
             lagtrim(
-                array([0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]),
+                array([0.0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]),
                 tol=0.000001,
             ),
         )
@@ -1424,7 +1424,7 @@ def test_lagpow():
                     functools.reduce(
                         lagmul,
                         [arange(i + 1)] * j,
-                        array([1]),
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1442,8 +1442,8 @@ def test_lagsub():
             assert_array_almost_equal(
                 lagtrim(
                     lagsub(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1457,31 +1457,31 @@ def test_lagsub():
 def test_lagtrim():
     with pytest.raises(ValueError):
         lagtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         lagtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         lagtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         lagtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -1489,7 +1489,7 @@ def test_lagval():
     assert (
         lagval(
             array([]),
-            array([1]),
+            array([1.0]),
         ).size
         == 0
     )
@@ -1509,7 +1509,7 @@ def test_lagval():
         assert_array_almost_equal(
             lagval(
                 linspace(-1, 1, 50),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             array(array(ys[i])),
         )
@@ -1518,7 +1518,7 @@ def test_lagval():
         assert (
             lagval(
                 zeros((2,) * i),
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * i
         )
@@ -1526,7 +1526,7 @@ def test_lagval():
         assert (
             lagval(
                 zeros((2,) * i),
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1534,7 +1534,7 @@ def test_lagval():
         assert (
             lagval(
                 zeros((2,) * i),
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1565,8 +1565,8 @@ def test_legadd():
             assert_array_almost_equal(
                 legtrim(
                     legadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1582,10 +1582,10 @@ def test_legdiv():
         for j in range(5):
             quotient, remainder = legdiv(
                 legadd(
-                    array([0] * i + [1]),
-                    array([0] * j + [1]),
+                    array([0.0] * i + [1.0]),
+                    array([0.0] * j + [1.0]),
                 ),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             )
 
             assert_array_almost_equal(
@@ -1593,7 +1593,7 @@ def test_legdiv():
                     legadd(
                         legmul(
                             quotient,
-                            array([0] * i + [1]),
+                            array([0.0] * i + [1.0]),
                         ),
                         remainder,
                     ),
@@ -1601,8 +1601,8 @@ def test_legdiv():
                 ),
                 legtrim(
                     legadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1635,21 +1635,21 @@ def test_legmul():
     for i in range(5):
         a = legval(
             linspace(-1, 1, 100),
-            array([0] * i + [1]),
+            array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             b = legval(
                 linspace(-1, 1, 100),
-                array([0] * j + [1]),
+                array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
                 legval(
                     linspace(-1, 1, 100),
                     legmul(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                 ),
                 a * b,
@@ -1660,28 +1660,28 @@ def test_legmulx():
     assert_array_almost_equal(
         legtrim(
             legmulx(
-                array([0]),
+                array([0.0]),
             ),
             tol=0.000001,
         ),
-        array([0]),
+        array([0.0]),
     )
 
     assert_array_almost_equal(
         legtrim(
             legmulx(
-                array([1]),
+                array([1.0]),
             ),
             tol=0.000001,
         ),
-        array([0, 1]),
+        array([0.0, 1.0]),
     )
 
     for i in range(1, 5):
         assert_array_almost_equal(
             legtrim(
                 legmulx(
-                    array([0] * i + [1]),
+                    array([0.0] * i + [1.0]),
                 ),
                 tol=0.000001,
             ),
@@ -1711,7 +1711,7 @@ def test_legpow():
                     functools.reduce(
                         legmul,
                         array([arange(i + 1)] * j),
-                        array([1]),
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1729,8 +1729,8 @@ def test_legsub():
             assert_array_almost_equal(
                 legtrim(
                     legsub(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1744,31 +1744,31 @@ def test_legsub():
 def test_legtrim():
     with pytest.raises(ValueError):
         legtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         legtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         legtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         legtrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -1776,7 +1776,7 @@ def test_legval():
     assert (
         legval(
             array([]),
-            array([1]),
+            array([1.0]),
         ).size
         == 0
     )
@@ -1796,7 +1796,7 @@ def test_legval():
         assert_array_almost_equal(
             legval(
                 linspace(-1, 1, 50),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             array(ys[i]),
         )
@@ -1805,7 +1805,7 @@ def test_legval():
         assert (
             legval(
                 zeros((2,) * i),
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * i
         )
@@ -1813,7 +1813,7 @@ def test_legval():
         assert (
             legval(
                 zeros((2,) * i),
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1821,7 +1821,7 @@ def test_legval():
         assert (
             legval(
                 zeros((2,) * i),
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -1852,8 +1852,8 @@ def test_polyadd():
             assert_array_almost_equal(
                 polytrim(
                     polyadd(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1872,12 +1872,12 @@ def test_polydiv():
 
     assert_array_almost_equal(
         quotient,
-        array([1]),
+        array([1.0]),
     )
 
     assert_array_almost_equal(
         remainder,
-        array([0]),
+        array([0.0]),
     )
 
     quotient, remainder = polydiv(
@@ -1887,12 +1887,12 @@ def test_polydiv():
 
     assert_array_almost_equal(
         quotient,
-        array([1, 1]),
+        array([1.0, 1.0]),
     )
 
     assert_array_almost_equal(
         remainder,
-        array([0]),
+        array([0.0]),
     )
 
     for i in range(5):
@@ -1954,8 +1954,8 @@ def test_polymul():
             assert_array_almost_equal(
                 polytrim(
                     polymul(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -1969,22 +1969,22 @@ def test_polymul():
 def test_polymulx():
     assert_array_almost_equal(
         polymulx(
-            array([0]),
+            array([0.0]),
         ),
         array([0, 0]),
     )
 
     assert_array_almost_equal(
         polymulx(
-            array([1]),
+            array([1.0]),
         ),
-        array([0, 1]),
+        array([0.0, 1.0]),
     )
 
     for i in range(1, 5):
         assert_array_almost_equal(
             polymulx(
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             array([0] * (i + 1) + [1]),
         )
@@ -2012,7 +2012,7 @@ def test_polypow():
                     functools.reduce(
                         polymul,
                         [arange(i + 1)] * j,
-                        array([1]),
+                        array([1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -2030,8 +2030,8 @@ def test_polysub():
             assert_array_almost_equal(
                 polytrim(
                     polysub(
-                        array([0] * i + [1]),
-                        array([0] * j + [1]),
+                        array([0.0] * i + [1.0]),
+                        array([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -2045,31 +2045,31 @@ def test_polysub():
 def test_polytrim():
     with pytest.raises(ValueError):
         polytrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=-1,
         )
 
     assert_array_almost_equal(
         polytrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
         ),
-        array([2, -1, 1, 0])[:-1],
+        array([2.0, -1.0, 1.0, 0.0])[:-1],
     )
 
     assert_array_almost_equal(
         polytrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=1,
         ),
-        array([2, -1, 1, 0])[:-3],
+        array([2.0, -1.0, 1.0, 0.0])[:-3],
     )
 
     assert_array_almost_equal(
         polytrim(
-            array([2, -1, 1, 0]),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
-        array([0]),
+        array([0.0]),
     )
 
 
@@ -2077,7 +2077,7 @@ def test_polyval():
     assert (
         polyval(
             array([]),
-            array([1]),
+            array([1.0]),
         ).size
         == 0
     )
@@ -2094,7 +2094,7 @@ def test_polyval():
         assert_array_almost_equal(
             polyval(
                 linspace(-1, 1, 50),
-                array([0] * i + [1]),
+                array([0.0] * i + [1.0]),
             ),
             y[i],
         )
@@ -2111,7 +2111,7 @@ def test_polyval():
         assert (
             polyval(
                 zeros((2,) * i),
-                array([1]),
+                array([1.0]),
             ).shape
             == (2,) * i
         )
@@ -2119,7 +2119,7 @@ def test_polyval():
         assert (
             polyval(
                 zeros((2,) * i),
-                array([1, 0]),
+                array([1.0, 0.0]),
             ).shape
             == (2,) * i
         )
@@ -2127,7 +2127,7 @@ def test_polyval():
         assert (
             polyval(
                 zeros((2,) * i),
-                array([1, 0, 0]),
+                array([1.0, 0.0, 0.0]),
             ).shape
             == (2,) * i
         )

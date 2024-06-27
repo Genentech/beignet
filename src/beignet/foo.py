@@ -4,7 +4,6 @@ import operator
 from typing import Callable, Literal, Tuple
 
 from jax import Array
-from jax._src.numpy.util import promote_dtypes_inexact
 from jax.numpy import (
     abs,
     any,
@@ -111,7 +110,7 @@ def _as_series(*args, trim: bool = False) -> Tuple[Array, ...]:
 
         xs = *xs, x
 
-    xs = promote_dtypes_inexact(*xs)
+    # xs = promote_dtypes_inexact(*xs)
 
     if len(xs) == 1:
         return xs[0]
@@ -218,8 +217,11 @@ def _fit(
     full: bool = False,
     weight: Array | None = None,
 ):
-    if degree.ndim > 1 or degree.dtype.kind not in "iu" or math.prod(degree.shape) == 0:
+    if degree.ndim > 1 or math.prod(degree.shape) == 0:
         raise TypeError
+
+    # if torch.is_floating_point(degree) or degree.is_complex(degree):
+    #     raise TypeError
 
     if degree.min() < 0:
         raise ValueError
@@ -562,8 +564,10 @@ def _z_series_mul(
 
 def _z_series_to_c_series(input: Array) -> Array:
     n = (math.prod(input.shape) + 1) // 2
+
     c = input[n - 1 :]
-    return c.at[1:n].multiply(2)
+
+    return c.at[1:n].multiply(2.0)
 
 
 def chebadd(input: Array, other: Array) -> Array:
@@ -637,7 +641,7 @@ def chebpow(
         raise ValueError
 
     if _exponent == 0:
-        return array([1], dtype=input.dtype)
+        return array([1.0], dtype=input.dtype)
 
     if _exponent == 1:
         return input
