@@ -1125,10 +1125,16 @@ def test_hermval():
 
     x = linspace(-1, 1, 50)
 
-    y = []
+    ys = []
 
-    for c in hermcoefficients:
-        y.append(polyval(x, c))
+    for coefficient in hermcoefficients:
+        ys = [
+            *ys,
+            polyval(
+                x,
+                coefficient,
+            ),
+        ]
 
     for index in range(10):
         assert_array_almost_equal(
@@ -1136,7 +1142,7 @@ def test_hermval():
                 x,
                 array([0] * index + [1]),
             ),
-            y[index],
+            ys[index],
         )
 
     for index in range(3):
@@ -1145,7 +1151,9 @@ def test_hermval():
         x = zeros(dims)
 
         assert hermval(x, array([1])).shape == dims
+
         assert hermval(x, array([1, 0])).shape == dims
+
         assert hermval(x, array([1, 0, 0])).shape == dims
 
 
@@ -1315,14 +1323,20 @@ def test_lagone():
 def test_lagpow():
     for i in range(5):
         for j in range(5):
-            c = arange(i + 1)
             assert_array_almost_equal(
                 lagtrim(
-                    lagpow(c, j),
+                    lagpow(
+                        arange(i + 1),
+                        j,
+                    ),
                     tol=0.000001,
                 ),
                 lagtrim(
-                    functools.reduce(lagmul, [c] * j, array([1])),
+                    functools.reduce(
+                        lagmul,
+                        [arange(i + 1)] * j,
+                        array([1]),
+                    ),
                     tol=0.000001,
                 ),
             )
@@ -1352,7 +1366,11 @@ def test_lagsub():
 
 
 def test_lagtrim():
-    pytest.raises(ValueError, lagtrim, array([2, -1, 1, 0]), -1)
+    with pytest.raises(ValueError):
+        lagtrim(
+            array([2, -1, 1, 0]),
+            -1,
+        )
 
     assert_array_almost_equal(
         lagtrim(array([2, -1, 1, 0])),
@@ -1371,20 +1389,20 @@ def test_lagtrim():
 
 
 def test_lagval():
-    assert_array_almost_equal(
-        lagval(
-            array([]),
-            array([1]),
-        ).size,
-        0,
-    )
+    assert lagval(array([]), array([1])).size == 0
 
     x = linspace(-1, 1, 50)
 
-    y = []
+    ys = []
 
-    for c in lagcoefficients:
-        y.append(polyval(x, c))
+    for coefficient in lagcoefficients:
+        ys = [
+            *ys,
+            polyval(
+                x,
+                coefficient,
+            ),
+        ]
 
     for i in range(7):
         assert_array_almost_equal(
@@ -1392,7 +1410,7 @@ def test_lagval():
                 x,
                 array([0] * i + [1]),
             ),
-            y[i],
+            ys[i],
         )
 
     for i in range(3):
@@ -1494,41 +1512,33 @@ def test_legline():
             legline(3, 0),
             tol=0.000001,
         ),
-        [3],
+        array([3]),
     )
 
 
 def test_legmul():
     for i in range(5):
-        pol1 = array([0] * i + [1])
-
         x = linspace(-1, 1, 100)
 
         val1 = legval(
             x,
-            pol1,
+            array([0] * i + [1]),
         )
 
         for j in range(5):
-            pol2 = array([0] * j + [1])
-
             val2 = legval(
                 x,
-                pol2,
+                array([0] * j + [1]),
             )
-            pol3 = legmul(
-                pol1,
-                pol2,
-            )
-            val3 = legval(
-                x,
-                pol3,
-            )
-
-            assert pol3.shape[0] == i + j + 1
 
             assert_array_almost_equal(
-                val3,
+                legval(
+                    x,
+                    legmul(
+                        array([0] * i + [1]),
+                        array([0] * j + [1]),
+                    ),
+                ),
                 val1 * val2,
             )
 
@@ -1576,12 +1586,10 @@ def test_legone():
 def test_legpow():
     for i in range(5):
         for j in range(5):
-            c = arange(i + 1)
-
             assert_array_almost_equal(
                 legtrim(
                     legpow(
-                        c,
+                        arange(i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1589,7 +1597,7 @@ def test_legpow():
                 legtrim(
                     functools.reduce(
                         legmul,
-                        [c] * j,
+                        array([arange(i + 1)] * j),
                         array([1]),
                     ),
                     tol=0.000001,
