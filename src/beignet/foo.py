@@ -1311,10 +1311,15 @@ def polyval(
 
 
 chebtrim = _trim_coefficients
+
 hermetrim = _trim_coefficients
+
 hermtrim = _trim_coefficients
+
 lagtrim = _trim_coefficients
+
 legtrim = _trim_coefficients
+
 polytrim = _trim_coefficients
 
 __all__ = [
