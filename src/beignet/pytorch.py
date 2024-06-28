@@ -28,11 +28,9 @@ from torch import (
     roll,
     sort,
     sqrt,
-    square,
     stack,
     sum,
     tensor,
-    transpose,
     where,
     zeros,
     zeros_like,
@@ -175,46 +173,46 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
         return x.shape[0] - 1 - indicies[0][0]
 
-    q = zeros(m - n + 1, dtype=input.dtype)
+    quotient = zeros(m - n + 1, dtype=input.dtype)
 
     ridx = input.shape[0] - 1
 
-    sz = m - f(other) - 1
+    size = m - f(other) - 1
 
     y = zeros(m + n + 1, dtype=input.dtype)
 
-    y[sz] = 1.0
+    y[size] = 1.0
 
-    x = q, input, y, ridx
+    x = quotient, input, y, ridx
 
-    for index in range(0, sz):
-        q, r, y2, ridx1 = x
+    for index in range(0, size):
+        quotient, remainder, y2, ridx1 = x
 
-        j = sz - index
+        j = size - index
 
         p = func(y2, other)
 
         pidx = f(p)
 
-        t = r[ridx1] / p[pidx]
+        t = remainder[ridx1] / p[pidx]
 
-        a = r.at[ridx1].set(0.0)
+        a = remainder.at[ridx1].set(0.0)
         b = t * p.at[pidx].set(0.0)
 
-        r = _subtract(a, b)
-        r = r[: r.shape[0]]
+        remainder = _subtract(a, b)
+        remainder = remainder[: remainder.shape[0]]
 
-        q[j] = t
+        quotient[j] = t
 
         ridx1 = ridx1 - 1
 
         y2 = roll(y2, -1)
 
-        x = q, r, y2, ridx1
+        x = quotient, remainder, y2, ridx1
 
-    q, r, _, _ = x
+    quotient, remainder, _, _ = x
 
-    return q, r
+    return quotient, remainder
 
 
 def _evaluate(func: Callable, input: Tensor, *args) -> Tensor:
@@ -269,7 +267,7 @@ def _fit(
 
     degree = sort(degree)
 
-    vandermonde = transpose(vandermonde_func(input, degree[-1])[:, degree])
+    vandermonde = vandermonde_func(input, degree[-1])[:, degree].T
 
     if weight is not None:
         if weight.ndim != 1:
@@ -280,27 +278,31 @@ def _fit(
 
         vandermonde = vandermonde * weight
 
-        b = transpose(other) * weight
+        b = other.T * weight
     else:
-        b = transpose(other)
+        b = other.T
 
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
     if torch.is_complex(vandermonde):
-        scale = sqrt(sum(square(real(vandermonde)) + square(imag(vandermonde)), axis=1))
+        scale = vandermonde.real**2.0 + vandermonde.imag**2.0
+        scale = sum(scale, dim=1)
+        scale = sqrt(scale)
     else:
-        scale = sqrt(sum(square(vandermonde), axis=1))
+        scale = vandermonde**2.0
+        scale = sum(scale, dim=1)
+        scale = sqrt(scale)
 
     scale = where(scale == 0, 1, scale)
 
     output, residuals, rank, scale = torch.linalg.lstsq(
-        transpose(vandermonde) / scale,
-        transpose(b),
+        vandermonde.T / scale,
+        b.T,
         relative_condition,
     )
 
-    output = transpose(transpose(output) / scale)
+    output = (output.T / scale).T
 
     if degree.ndim > 0:
         if output.ndim == 2:
@@ -646,14 +648,12 @@ def chebmulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output[1].set(input[0])
+    output[1] = input[0]
 
     if input.shape[0] > 1:
-        tmp = input[1:] / 2
+        output[2:] = input[1:] / 2
 
-        output[2:].set(tmp)
-
-        output[0:-2].set(output[0:-2] + tmp)
+        output[0:-2] = output[0:-2] + input[1:] / 2
 
     if mode == "same":
         output = output[: input.shape[0]]

@@ -312,7 +312,7 @@ def test__map_domain():
 
     torch.testing.assert_close(
         _map_domain(
-            torch.tensor([[0, 4], [0, 4]]),
+            torch.tensor([[0.0, 4.0], [0.0, 4.0]]),
             torch.tensor([0.0, 4.0]),
             torch.tensor([1.0, 3.0]),
         ),
@@ -891,15 +891,16 @@ def test_hermemulx():
         ),
         torch.tensor([0.0, 1.0]),
     )
-    for i in range(1, 5):
+
+    for index in range(1, 5):
         torch.testing.assert_close(
             hermetrim(
                 hermemulx(
-                    torch.tensor([0.0] * i + [1.0]),
+                    torch.tensor([0.0] * index + [1.0]),
                 ),
                 tol=0.000001,
             ),
-            torch.tensor([0] * (i - 1) + [i, 0, 1]),
+            torch.tensor([0] * (index - 1) + [index, 0.0, 1.0]),
         )
 
 
@@ -1140,7 +1141,7 @@ def test_hermpow():
                 hermtrim(
                     functools.reduce(
                         hermmul,
-                        torch.tensor([torch.arange(0.0, i + 1)] * j),
+                        [torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -1389,19 +1390,21 @@ def test_lagmulx():
             ),
             tol=0.000001,
         ),
-        torch.tensor([1, -1]),
+        torch.tensor([1.0, -1.0]),
     )
 
-    for i in range(1, 5):
+    for index in range(1, 5):
         torch.testing.assert_close(
             lagtrim(
                 lagmulx(
-                    torch.tensor([0.0] * i + [1.0]),
+                    torch.tensor([0.0] * index + [1.0]),
                 ),
                 tol=0.000001,
             ),
             lagtrim(
-                torch.tensor([0.0] * (i - 1) + [-i, 2 * i + 1, -(i + 1)]),
+                torch.tensor(
+                    [0.0] * (index - 1) + [-index, 2.0 * index + 1.0, -(index + 1.0)]
+                ),
                 tol=0.000001,
             ),
         )
@@ -1718,7 +1721,7 @@ def test_legpow():
                 legtrim(
                     functools.reduce(
                         legmul,
-                        torch.tensor([torch.arange(0.0, i + 1)] * j),
+                        [torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -1889,8 +1892,8 @@ def test_polydiv():
     )
 
     quotient, remainder = polydiv(
-        torch.tensor([2, 2]),
-        torch.tensor([2]),
+        torch.tensor([2.0, 2.0]),
+        torch.tensor([2.0]),
     )
 
     torch.testing.assert_close(
