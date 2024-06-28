@@ -6,12 +6,8 @@ from unittest.mock import patch
 from beignet.func._partition import _particles_per_cell
 
 
-@patch(
-    "beignet.func._partition._cell_dimensions"
-)
-@patch(
-    "beignet.func._partition._hash_constants"
-)
+@patch("beignet.func._partition._cell_dimensions")
+@patch("beignet.func._partition._hash_constants")
 @patch("beignet.func._partition._segment_sum")
 def test_particles_per_cell(
     mock_segment_sum, mock_hash_constants, mock_cell_dimensions
