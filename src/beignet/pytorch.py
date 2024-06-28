@@ -3,26 +3,25 @@ import math
 import operator
 from typing import Callable, List, Literal, Tuple
 
-import numpy
 import torch
-from jax.numpy import (
+import torch._numpy._funcs_impl
+import torch.linalg
+import torchaudio.functional
+from torch import (
+    Tensor,
     abs,
     any,
     arange,
-    array,
     atleast_1d,
     concatenate,
-    convolve,
     finfo,
     flip,
     full,
     imag,
-    iscomplex,
     moveaxis,
     nonzero,
     ones,
     ones_like,
-    pad,
     promote_types,
     real,
     reshape,
@@ -32,50 +31,42 @@ from jax.numpy import (
     square,
     stack,
     sum,
+    tensor,
     transpose,
     where,
     zeros,
     zeros_like,
 )
-from jax.numpy.linalg import (
-    lstsq,
-)
-from torch import (
-    Tensor,
-    tensor,
-)
 
-chebdomain = tensor([-1.0, 1.0])
-chebone = tensor([1.0])
-chebx = tensor([0.0, 1.0])
-chebzero = tensor([0.0])
-hermdomain = tensor([-1.0, 1.0])
-hermedomain = tensor([-1.0, 1.0])
-hermeone = tensor([1.0])
-hermex = tensor([0.0, 1.0])
-hermezero = tensor([0.0])
-hermone = tensor([1.0])
-hermx = tensor([0.0, 1.0 / 2.0])
-hermzero = tensor([0.0])
-lagdomain = tensor([0.0, 1.0])
-lagone = tensor([1.0])
-lagx = tensor([1.0, -1.0])
-lagzero = tensor([0.0])
-legdomain = tensor([-1.0, 1.0])
-legone = tensor([1.0])
-legx = tensor([0.0, 1.0])
-legzero = tensor([0.0])
-polydomain = tensor([-1.0, 1.0])
-polyone = tensor([1.0])
-polyx = tensor([0.0, 1.0])
-polyzero = tensor([0.0])
+torch.set_default_dtype(torch.float64)
+
+chebdomain = torch.tensor([-1.0, 1.0])
+chebone = torch.tensor([1.0])
+chebx = torch.tensor([0.0, 1.0])
+chebzero = torch.tensor([0.0])
+hermdomain = torch.tensor([-1.0, 1.0])
+hermedomain = torch.tensor([-1.0, 1.0])
+hermeone = torch.tensor([1.0])
+hermex = torch.tensor([0.0, 1.0])
+hermezero = torch.tensor([0.0])
+hermone = torch.tensor([1.0])
+hermx = torch.tensor([0.0, 1.0 / 2.0])
+hermzero = torch.tensor([0.0])
+lagdomain = torch.tensor([0.0, 1.0])
+lagone = torch.tensor([1.0])
+lagx = torch.tensor([1.0, -1.0])
+lagzero = torch.tensor([0.0])
+legdomain = torch.tensor([-1.0, 1.0])
+legone = torch.tensor([1.0])
+legx = torch.tensor([0.0, 1.0])
+legzero = torch.tensor([0.0])
+polydomain = torch.tensor([-1.0, 1.0])
+polyone = torch.tensor([1.0])
+polyx = torch.tensor([0.0, 1.0])
+polyzero = torch.tensor([0.0])
 
 
 def _nonzero(input, size=1, fill_value=0):
-    input = numpy.array(input)
-
-    input = torch.from_numpy(input)
-
     output = torch.nonzero(input, as_tuple=False)
 
     if output.shape[0] > size:
@@ -95,7 +86,7 @@ def _nonzero(input, size=1, fill_value=0):
             0,
         )
 
-    return output.numpy()
+    return output
 
 
 def _add(input: Tensor, other: Tensor) -> Tensor:
@@ -133,9 +124,7 @@ def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
     outputs = []
 
     for item in items:
-        output = array(item)
-
-        output = atleast_1d(output)
+        output = atleast_1d(item)
 
         if trim:
             output = _trim_sequence(output)
@@ -297,14 +286,14 @@ def _fit(
     if relative_condition is None:
         relative_condition = input.shape[0] * finfo(input.dtype).eps
 
-    if iscomplex(vandermonde):
+    if torch.is_complex(vandermonde):
         scale = sqrt(sum(square(real(vandermonde)) + square(imag(vandermonde)), axis=1))
     else:
         scale = sqrt(sum(square(vandermonde), axis=1))
 
     scale = where(scale == 0, 1, scale)
 
-    output, residuals, rank, scale = lstsq(
+    output, residuals, rank, scale = torch.linalg.lstsq(
         transpose(vandermonde) / scale,
         transpose(b),
         relative_condition,
@@ -361,7 +350,7 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
 
         z = x[1]
 
-        previous = array([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
+        previous = tensor([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
 
         y = previous
 
@@ -383,13 +372,13 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
 
 
 def _get_domain(x: Tensor) -> Tensor:
-    if any(iscomplex(x)):
+    if any(torch.is_complex(x)):
         rmin, rmax = real(x).min(), real(x).max()
         imin, imax = imag(x).min(), imag(x).max()
 
-        return array(((rmin + 1.0j * imin), (rmax + 1.0j * imax)))
+        return tensor(((rmin + 1.0j * imin), (rmax + 1.0j * imax)))
 
-    return array((x.min(), x.max()))
+    return tensor((x.min(), x.max()))
 
 
 def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
@@ -415,7 +404,7 @@ def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
         a = zeros_like(x)
         b = ones_like(x) / sqrt(sqrt(2.0 * math.pi))
 
-        size = array(n)
+        size = tensor(n)
 
         for _ in range(0, n - 1):
             previous = a
@@ -439,7 +428,7 @@ def _normed_hermite_n(x: Tensor, n) -> Tensor:
 
         b = ones_like(x) / sqrt(sqrt(math.pi))
 
-        size = array(n)
+        size = tensor(n)
 
         for _ in range(0, n - 1):
             previous = a
@@ -471,11 +460,13 @@ def _pad_along_axis(input: Tensor, padding=(0, 0), axis=0):
         input = input[: -abs(padding[1])]
         padding = (padding[0], 0)
 
-    npad = [(0, 0)] * input.ndim
+    npad = torch.tensor([(0, 0)] * input.ndim)
 
     npad[0] = padding
 
-    output = pad(input, pad_width=npad, mode="constant", constant_values=0)
+    output = torch._numpy._funcs_impl.pad(
+        input, pad_width=npad, mode="constant", constant_values=0
+    )
 
     return moveaxis(output, 0, axis)
 
@@ -498,7 +489,7 @@ def _pow(
 
     match _exponent:
         case 0:
-            output = array([1], dtype=input.dtype)
+            output = tensor([1], dtype=input.dtype)
         case 1:
             output = input
         case _:
@@ -547,7 +538,7 @@ def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
 
     [input] = _as_series([input])
 
-    [indices] = nonzero(abs(input) > tol)
+    indices = nonzero(abs(input) > tol)
 
     if indices.shape[0] == 0:
         output = input[:1] * 0
@@ -584,7 +575,7 @@ def _vandermonde(vander_fs, points: Tensor, degrees: Tensor) -> Tensor:
     if n_dims == 0:
         raise ValueError
 
-    points = tuple(array(tuple(points)) + 0.0)
+    points = tuple(tensor(tuple(points)) + 0.0)
 
     output = []
 
@@ -603,7 +594,7 @@ def _z_series_mul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    return convolve(input, other, mode=mode)
+    return torchaudio.functional.convolve(input, other, mode=mode)
 
 
 def _z_series_to_c_series(input: Tensor) -> Tensor:
@@ -625,7 +616,7 @@ def chebdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 
 def chebline(input: float, other: float) -> Tensor:
-    return tensor([input, other])
+    return torch.tensor([input, other])
 
 
 def chebmul(
@@ -656,14 +647,14 @@ def chebmulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[1].set(input[0])
+    output[1].set(input[0])
 
     if input.shape[0] > 1:
         tmp = input[1:] / 2
 
-        output = output.at[2:].set(tmp)
+        output[2:].set(tmp)
 
-        output = output.at[0:-2].set(output[0:-2] + tmp)
+        output[0:-2].set(output[0:-2] + tmp)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -687,7 +678,7 @@ def chebpow(
         raise ValueError
 
     if _exponent == 0:
-        return array([1.0], dtype=input.dtype)
+        return tensor([1.0], dtype=input.dtype)
 
     if _exponent == 1:
         return input
@@ -701,7 +692,7 @@ def chebpow(
     output = _c_series_to_z_series(output)
 
     for _ in range(2, _exponent + 1):
-        output = convolve(output, zs, mode="same")
+        output = torchaudio.functional.convolve(output, zs, mode="same")
 
     output = _z_series_to_c_series(output)
 
@@ -762,7 +753,7 @@ def hermediv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 
 def hermeline(input: float, other: float) -> Tensor:
-    return tensor([input, other])
+    return torch.tensor([input, other])
 
 
 def hermemul(
@@ -817,12 +808,12 @@ def hermemulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[1].set(input[0])
+    output[1].set(input[0])
 
     i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(input[i])
-    output = output.at[i - 1].set(output[i - 1] + input[i] * i)
+    output[i + 1].set(input[i])
+    output[i - 1].set(output[i - 1] + input[i] * i)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -886,7 +877,7 @@ def hermeval(
 
 
 def hermline(input: float, other: float) -> Tensor:
-    return tensor([input, other / 2])
+    return torch.tensor([input, other / 2])
 
 
 def hermmul(
@@ -1016,7 +1007,7 @@ def lagdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 
 def lagline(input: float, other: float) -> Tensor:
-    return tensor([input + other, -other])
+    return torch.tensor([input + other, -other])
 
 
 def lagmul(
@@ -1153,7 +1144,7 @@ def legdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 
 def legline(input: float, other: float) -> Tensor:
-    return tensor([input, other])
+    return torch.tensor([input, other])
 
 
 def legmul(
@@ -1286,7 +1277,7 @@ def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 
 def polyline(input: float, other: float) -> Tensor:
-    return tensor([input, other])
+    return torch.tensor([input, other])
 
 
 def polymul(
@@ -1296,7 +1287,7 @@ def polymul(
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
-    output = convolve(input, other)
+    output = torchaudio.functional.convolve(input, other)
 
     if mode == "same":
         output = output[: max(input.shape[0], other.shape[0])]
@@ -1312,7 +1303,7 @@ def polymulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[1:].set(input)
+    output[1:].set(input)
 
     if mode == "same":
         output = output[: input.shape[0]]
