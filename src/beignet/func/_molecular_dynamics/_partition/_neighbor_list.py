@@ -38,6 +38,38 @@ def neighbor_list(
     neighbor_list_format: _NeighborListFormat = _NeighborListFormat.DENSE,
     **_,
 ) -> _NeighborListFunctionList:
+    r"""Creates a neighbor list function list based on the given parameters.
+
+    Parameters
+    ----------
+    displacement_fn : Callable[[Tensor, Tensor], Tensor]
+        A function that computes the displacement between two tensors.
+    space : Tensor
+        The space in which the particles are located.
+    neighborhood_radius : float
+        The radius within which neighbors are considered.
+    maximum_distance : float, optional
+        The maximum distance for considering neighbors (default is 0.0).
+    buffer_size_multiplier : float, optional
+        A multiplier for the buffer size (default is 1.25).
+    disable_unit_list : bool, optional
+        Whether to disable the unit list (default is False).
+    mask_self : bool, optional
+        Whether to mask self interactions (default is True).
+    mask_fn : Optional[Callable[[Tensor], Tensor]], optional
+        A function to mask certain interactions (default is None).
+    normalized : bool, optional
+        Whether the space is normalized (default is False).
+    neighbor_list_format : _NeighborListFormat, optional
+        The format of the neighbor list (default is _NeighborListFormat.DENSE).
+    **_
+        Additional keyword arguments.
+
+    Returns
+    -------
+    _NeighborListFunctionList
+        A function list for setting up and updating the neighbor list.
+    """
     _is_neighbor_list_format_valid(neighbor_list_format)
 
     space = space.detach()
@@ -51,7 +83,9 @@ def neighbor_list(
     metric_sq = _to_square_metric_fn(displacement_fn)
 
     def _neighbor_candidate_fn(shape: tuple[int, ...]) -> Tensor:
-        return torch.broadcast_to(torch.arange(shape[0], dtype=torch.int32)[None, :], (shape[0], shape[0]))
+        return torch.broadcast_to(
+            torch.arange(shape[0], dtype=torch.int32)[None, :], (shape[0], shape[0])
+        )
 
     def _cell_list_neighbor_candidate_fn(unit_indexes_buffer, shape) -> Tensor:
         n, spatial_dimension = shape
@@ -61,7 +95,7 @@ def neighbor_list(
         unit_indexes = [indexes]
 
         for dindex in _neighboring_cell_lists(spatial_dimension):
-            if numpy.all(dindex == 0):
+            if torch.all(dindex == 0):
                 continue
 
             unit_indexes += [_shift(indexes, dindex)]
@@ -146,7 +180,9 @@ def neighbor_list(
 
         sender_idx = torch.reshape(sender_idx, (-1,))
         receiver_idx = torch.reshape(idx, (-1,))
-        distances = displacement_fn(safe_index(position, sender_idx), safe_index(position, receiver_idx))
+        distances = displacement_fn(
+            safe_index(position, sender_idx), safe_index(position, receiver_idx)
+        )
 
         mask = (distances < squared_cutoff) & (receiver_idx < position.shape[0])
 

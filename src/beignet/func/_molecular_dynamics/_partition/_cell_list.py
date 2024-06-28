@@ -79,7 +79,9 @@ def cell_list(
         )
 
         if excess is None:
-            buffer_size = _estimate_cell_capacity(positions, size, unit_size, buffer_size_multiplier)
+            buffer_size = _estimate_cell_capacity(
+                positions, size, unit_size, buffer_size_multiplier
+            )
 
             buffer_size = buffer_size + excess_buffer_size
 
@@ -124,7 +126,8 @@ def cell_list(
             parameters[name] = 100000 * torch.ones(
                 (unit_count * buffer_size,) + kwarg_shape,
                 dtype=parameter.dtype,
-                device=parameter.device)
+                device=parameter.device,
+            )
 
         hashes = torch.sum(
             (positions / unit_size).to(dtype=torch.int32)

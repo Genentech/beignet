@@ -1,10 +1,11 @@
 from typing import Generator
 
-import numpy
+import torch
+from torch import Tensor
 
 
 def _neighboring_cell_lists(
     dimension: int,
-) -> Generator[numpy.ndarray, None, None]:
-    for index in numpy.ndindex(*([3] * dimension)):
-        yield numpy.array(index, dtype=numpy.int32) - 1
+) -> Generator[Tensor, None, None]:
+    for index in torch.cartesian_prod(*[torch.arange(3) for _ in range(dimension)]):
+        yield index - 1

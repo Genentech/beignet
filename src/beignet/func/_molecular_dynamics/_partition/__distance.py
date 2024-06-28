@@ -1,10 +1,10 @@
 import torch
 from torch import Tensor
 
-from src.beignet.func._molecular_dynamics._partition.__safe_mask import \
-  safe_mask
-from src.beignet.func._molecular_dynamics._partition.__square_distance import \
-  square_distance
+from src.beignet.func._molecular_dynamics._partition.__safe_mask import safe_mask
+from src.beignet.func._molecular_dynamics._partition.__square_distance import (
+    square_distance,
+)
 
 
 def distance(dR: Tensor) -> Tensor:

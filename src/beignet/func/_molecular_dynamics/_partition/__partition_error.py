@@ -25,6 +25,7 @@ class _PartitionError:
     __repr__() -> str
         Alias for __str__().
     """
+
     code: Tensor
 
     def update(self, bit: bytes, predicate: Tensor) -> "_PartitionError":

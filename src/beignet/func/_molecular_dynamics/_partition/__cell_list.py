@@ -32,18 +32,13 @@ class _CellList:
     item size: A tensor specifying the size of each cell in the cell list.
     update_fn: A function that updates the cell list at a fixed capacity.
     """
+
     exceeded_maximum_size: Tensor
-
     indexes: Tensor
-
     item_size: float = static_field()
-
     parameters: Dict[str, Tensor]
-
     positions_buffer: Tensor
-
     size: int = static_field()
-
     update_fn: Callable[..., "_CellList"] = static_field()
 
     def update(self, positions: Tensor, **kwargs) -> "_CellList":

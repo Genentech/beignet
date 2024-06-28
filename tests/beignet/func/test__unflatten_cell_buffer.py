@@ -72,7 +72,9 @@ def test__unflatten_cell_buffer_cells_per_side_2d_length_2(expected_tensor):
     assert result.shape == expected_shape
 
 
-def test__unflatten_cell_buffer_cells_per_side_2d_with_values_in_each_dimension(expected_tensor):
+def test__unflatten_cell_buffer_cells_per_side_2d_with_values_in_each_dimension(
+    expected_tensor,
+):
     buffer = torch.arange(24)
     cells_per_side = torch.tensor([[4, 3], [2, 3]])
     dim = 2

@@ -10,4 +10,4 @@ def square_distance(input: Tensor) -> Tensor:
     Returns:
     Matrix of squared distances; `Tensor(shape=[...])`.
     """
-    return torch.sum(input ** 2, dim=-1)
+    return torch.sum(input**2, dim=-1)
