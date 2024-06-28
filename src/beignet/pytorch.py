@@ -151,7 +151,7 @@ def _c_series_to_z_series(input: Tensor) -> Tensor:
 
     zs = zeros(2 * n - 1, dtype=input.dtype)
 
-    zs = zs.at[n - 1 :].set(input / 2.0)
+    zs[n - 1 :] = input / 2.0
 
     return flip(zs, [0]) + zs
 
@@ -182,7 +182,8 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     sz = m - f(other) - 1
 
     y = zeros(m + n + 1, dtype=input.dtype)
-    y = y.at[sz].set(1.0)
+
+    y[sz] = 1.0
 
     x = q, input, y, ridx
 
@@ -203,7 +204,7 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
         r = _subtract(a, b)
         r = r[: r.shape[0]]
 
-        q = q.at[j].set(t)
+        q[j] = t
 
         ridx1 = ridx1 - 1
 
@@ -355,14 +356,12 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
         y = previous
 
         for i in range(0, m):
-            y = y.at[i].set(g(z[i], z[i + m])[: input.shape[0] + 1])
+            y[i] = g(z[i], z[i + m])[: input.shape[0] + 1]
 
         previous = y
 
         if r:
-            previous = previous.at[0].set(
-                g(previous[0], z[2 * m])[: input.shape[0] + 1]
-            )
+            previous[0] = g(previous[0], z[2 * m])[: input.shape[0] + 1]
 
         x = m, previous
 
@@ -602,7 +601,7 @@ def _z_series_to_c_series(input: Tensor) -> Tensor:
 
     c = input[n - 1 :]
 
-    c = c.at[1:n].set(c[1:n] * 2.0)
+    c[1:n] = c[1:n] * 2.0
 
     return c
 
@@ -808,12 +807,12 @@ def hermemulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output[1].set(input[0])
+    output[1] = input[0]
 
-    i = arange(1, input.shape[0])
+    index = arange(1, input.shape[0])
 
-    output[i + 1].set(input[i])
-    output[i - 1].set(output[i - 1] + input[i] * i)
+    output[index + 1] = input[index]
+    output[index - 1] = output[index - 1] + input[index] * index
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -929,13 +928,15 @@ def hermmulx(
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input] = _as_series([input])
+
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
-    output = output.at[1].set(input[0] / 2.0)
+
+    output[1] = input[0] / 2.0
 
     i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(input[i] / 2.0)
-    output = output.at[i - 1].set(output[i - 1] + input[i] * i)
+    output[i + 1] = input[i] / 2.0
+    output[i - 1] = output[i - 1] + input[i] * i
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1063,16 +1064,16 @@ def lagmulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output = output.at[0].set(+input[0])
-    output = output.at[1].set(-input[0])
+    output[0] = +input[0]
+    output[1] = -input[0]
 
     i = arange(1, input.shape[0])
 
-    output = output.at[i + 1].set(-input[i] * (i + 1))
+    output[i + 1] = -input[i] * (i + 1)
 
-    output = output.at[i].set(output[i] + input[i] * (2 * i + 1))
+    output[i] = output[i] + input[i] * (2 * i + 1)
 
-    output = output.at[i - 1].set(output[i - 1] - input[i] * i)
+    output[i - 1] = output[i - 1] - input[i] * i
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1197,13 +1198,12 @@ def legmulx(
 ) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
+    output = zeros(input.shape[0] + 1, dtype=input.dtype)
+    output[1] = input[0]
 
     for i in range(1, input.shape[0]):
-        output = output.at[i + 1].set((input[i] * (i + 1)) / (i + i + 1))
-        output = output.at[i - 1].set(
-            output[i - 1] + (input[i] * (i + 0)) / (i + i + 1)
-        )
+        output[i + 1] = (input[i] * (i + 1)) / (i + i + 1)
+        output[i - 1] = output[i - 1] + (input[i] * (i + 0)) / (i + i + 1)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1303,7 +1303,7 @@ def polymulx(
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
-    output[1:].set(input)
+    output[1:] = input
 
     if mode == "same":
         output = output[: input.shape[0]]

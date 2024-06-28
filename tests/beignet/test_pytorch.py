@@ -1979,7 +1979,7 @@ def test_polymulx():
         polymulx(
             torch.tensor([0.0]),
         ),
-        torch.tensor([0, 0]),
+        torch.tensor([0.0, 0.0]),
     )
 
     torch.testing.assert_close(
