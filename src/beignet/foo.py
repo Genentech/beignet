@@ -483,8 +483,8 @@ def _pad_along_axis(input: Tensor, padding=(0, 0), axis=0):
 def _pow(
     func: Callable,
     input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor,
+    exponent: int | Tensor,
+    maximum_exponent: int | Tensor,
 ) -> Tensor:
     [input] = _as_series([input])
 
@@ -496,18 +496,18 @@ def _pow(
     if maximum_exponent is not None and _exponent > maximum_exponent:
         raise ValueError
 
-    if _exponent == 0:
-        return array([1], dtype=input.dtype)
+    match _exponent:
+        case 0:
+            output = array([1], dtype=input.dtype)
+        case 1:
+            output = input
+        case _:
+            output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
-    if _exponent == 1:
-        return input
+            output = _add(output, input)
 
-    output = zeros(input.shape[0] * exponent, dtype=input.dtype)
-
-    output = _add(output, input)
-
-    for _ in range(2, _exponent + 1):
-        output = func(output, input, mode="same")
+            for _ in range(2, _exponent + 1):
+                output = func(output, input, mode="same")
 
     return output
 
@@ -572,7 +572,7 @@ def _trim_sequence(input: Tensor) -> Tensor:
     return output
 
 
-def _vandermonde(vander_fs, points, degrees) -> Tensor:
+def _vandermonde(vander_fs, points: Tensor, degrees: Tensor) -> Tensor:
     n_dims = len(vander_fs)
 
     if n_dims != len(points):
