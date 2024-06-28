@@ -129,7 +129,7 @@ def _add(input: Tensor, other: Tensor) -> Tensor:
     return output
 
 
-def _as_series(items, trim: bool = False) -> List[Tensor]:
+def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
     outputs = []
 
     for item in items:
@@ -518,7 +518,7 @@ def _subtract(input: Tensor, other: Tensor) -> Tensor:
     if input.shape[0] > other.shape[0]:
         output = -other
 
-        output = input + concatenate(
+        output = concatenate(
             [
                 output,
                 zeros(
@@ -527,17 +527,16 @@ def _subtract(input: Tensor, other: Tensor) -> Tensor:
                 ),
             ],
         )
+        output = input + output
+    else:
+        output = -other
 
-        return output
-
-    output = -other
-
-    output = concatenate(
-        [
-            output[: input.shape[0]] + input,
-            output[input.shape[0] :],
-        ],
-    )
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
 
     return output
 
@@ -548,23 +547,29 @@ def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
 
     [input] = _as_series([input])
 
-    [ind] = nonzero(abs(input) > tol)
+    [indices] = nonzero(abs(input) > tol)
 
-    if len(ind) == 0:
-        return input[:1] * 0
+    if indices.shape[0] == 0:
+        output = input[:1] * 0
     else:
-        return input[: ind[-1] + 1]
+        output = input[: indices[-1] + 1]
+
+    return output
 
 
-def _trim_sequence(sequence):
-    if len(sequence) == 0:
-        return sequence
+def _trim_sequence(input: Tensor) -> Tensor:
+    if input.shape[0] == 0:
+        output = input
     else:
-        for i in range(len(sequence) - 1, -1, -1):
-            if sequence[i] != 0:
+        index = 0
+
+        for index in range(input.shape[0] - 1, -1, -1):
+            if input[index] != 0:
                 break
 
-        return sequence[: i + 1]
+        output = input[: index + 1]
+
+    return output
 
 
 def _vandermonde(vander_fs, points, degrees) -> Tensor:

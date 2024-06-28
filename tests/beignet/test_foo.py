@@ -385,7 +385,7 @@ def test__trim_coefficients():
 
     assert_array_almost_equal(
         _trim_coefficients(
-            array(array([2.0, -1.0, 1.0, 0.0])),
+            array([2.0, -1.0, 1.0, 0.0]),
             tol=2,
         ),
         array([0.0]),
