@@ -983,7 +983,12 @@ def test_hermetrim():
 
 
 def test_hermeval():
-    assert math.prod(hermeval(array([]), array([1.0])).shape) == 0
+    output = hermeval(
+        array([]),
+        array([1.0]),
+    )
+
+    assert math.prod(output.shape) == 0
 
     ys = []
 
@@ -1189,7 +1194,12 @@ def test_hermtrim():
 
 
 def test_hermval():
-    assert math.prod(hermval(array([]), array([1.0])).shape) == 0
+    output = hermval(
+        array([]),
+        array([1.0]),
+    )
+
+    assert math.prod(output.shape) == 0
 
     ys = []
 
@@ -1468,7 +1478,11 @@ def test_lagtrim():
 
 
 def test_lagval():
-    assert math.prod(lagval(array([]), array([1.0])).shape) == 0
+    output = lagval(
+        array([]),
+        array([1.0]),
+    )
+    assert math.prod(output.shape) == 0
 
     ys = []
 
@@ -1750,7 +1764,12 @@ def test_legtrim():
 
 
 def test_legval():
-    assert math.prod(legval(array([]), array([1.0])).shape) == 0
+    output = legval(
+        array([]),
+        array([1.0]),
+    )
+
+    assert math.prod(output.shape) == 0
 
     ys = []
 
@@ -2046,7 +2065,12 @@ def test_polytrim():
 
 
 def test_polyval():
-    assert math.prod(polyval(array([]), array([1.0])).shape) == 0
+    output = polyval(
+        array([]),
+        array([1.0]),
+    )
+
+    assert math.prod(output.shape) == 0
 
     y = []
 
