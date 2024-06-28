@@ -1877,8 +1877,8 @@ def test_polyadd():
 
 def test_polydiv():
     quotient, remainder = polydiv(
-        torch.tensor([2]),
-        torch.tensor([2]),
+        torch.tensor([2.0]),
+        torch.tensor([2.0]),
     )
 
     torch.testing.assert_close(
@@ -1906,16 +1906,17 @@ def test_polydiv():
         torch.tensor([0.0]),
     )
 
-    for i in range(5):
-        for j in range(5):
-            target = polyadd(
-                torch.tensor([0.0] * i + [1.0, 2.0]),
-                torch.tensor([0.0] * j + [1.0, 2.0]),
-            )
+    for j in range(5):
+        for k in range(5):
+            input = torch.tensor([0.0] * j + [1.0, 2.0])
+            other = torch.tensor([0.0] * k + [1.0, 2.0])
 
             quotient, remainder = polydiv(
-                target,
-                torch.tensor([0.0] * i + [1.0, 2.0]),
+                polyadd(
+                    input,
+                    other,
+                ),
+                input,
             )
 
             torch.testing.assert_close(
@@ -1923,14 +1924,17 @@ def test_polydiv():
                     polyadd(
                         polymul(
                             quotient,
-                            torch.tensor([0.0] * i + [1.0, 2.0]),
+                            input,
                         ),
                         remainder,
                     ),
                     tol=0.000001,
                 ),
                 polytrim(
-                    target,
+                    polyadd(
+                        input,
+                        other,
+                    ),
                     tol=0.000001,
                 ),
             )
@@ -1956,17 +1960,17 @@ def test_polyline():
 
 
 def test_polymul():
-    for i in range(5):
-        for j in range(5):
-            target = torch.zeros(i + j + 1)
+    for j in range(5):
+        for k in range(5):
+            target = torch.zeros(j + k + 1)
 
-            target[i + j] = target[i + j] + 1
+            target[j + k] = target[j + k] + 1
 
             torch.testing.assert_close(
                 polytrim(
                     polymul(
-                        torch.tensor([0.0] * i + [1.0]),
                         torch.tensor([0.0] * j + [1.0]),
+                        torch.tensor([0.0] * k + [1.0]),
                     ),
                     tol=0.000001,
                 ),
