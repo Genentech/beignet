@@ -99,7 +99,7 @@ def _nonzero(input, size=1, fill_value=0):
 
 
 def _add(input: Tensor, other: Tensor) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -129,7 +129,7 @@ def _add(input: Tensor, other: Tensor) -> Tensor:
     return output
 
 
-def _as_series(*items, trim: bool = False) -> List[Tensor]:
+def _as_series(items, trim: bool = False) -> List[Tensor]:
     outputs = []
 
     for item in items:
@@ -154,9 +154,6 @@ def _as_series(*items, trim: bool = False) -> List[Tensor]:
         if output.dtype != dtype:
             outputs[index] = output.astype(dtype)
 
-    if len(outputs) == 1:
-        return outputs[0]
-
     return outputs
 
 
@@ -171,7 +168,7 @@ def _c_series_to_z_series(input: Tensor) -> Tensor:
 
 
 def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     m = input.shape[0]
     n = other.shape[0]
@@ -489,7 +486,7 @@ def _pow(
     exponent: float | Tensor,
     maximum_exponent: float | Tensor,
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     _exponent = int(exponent)
 
@@ -516,7 +513,7 @@ def _pow(
 
 
 def _subtract(input: Tensor, other: Tensor) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -549,7 +546,7 @@ def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
     if tol < 0:
         raise ValueError
 
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     [ind] = nonzero(abs(input) > tol)
 
@@ -629,7 +626,7 @@ def chebmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     a = _c_series_to_z_series(input)
     b = _c_series_to_z_series(other)
@@ -648,7 +645,7 @@ def chebmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -672,7 +669,7 @@ def chebpow(
     exponent: float | Tensor,
     maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     _exponent = int(exponent)
 
@@ -713,7 +710,7 @@ def chebval(
     coefficients: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -766,7 +763,7 @@ def hermemul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -809,7 +806,7 @@ def hermemulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -848,7 +845,7 @@ def hermeval(
     coefficients: Tensor,
     tensor: bool = True,
 ):
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -890,7 +887,7 @@ def hermmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -933,7 +930,7 @@ def hermmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
     output = output.at[1].set(input[0] / 2.0)
 
@@ -970,7 +967,7 @@ def hermval(
     coefficients: Tensor,
     tensor: bool = True,
 ):
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -1020,7 +1017,7 @@ def lagmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -1064,7 +1061,7 @@ def lagmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -1107,7 +1104,7 @@ def lagval(
     coefficients: Tensor,
     tensor: bool = True,
 ):
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -1157,7 +1154,7 @@ def legmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -1200,7 +1197,7 @@ def legmulx(
     input: Tensor,
     mode: Literal["full", "same"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype).at[1].set(input[0])
 
@@ -1236,7 +1233,7 @@ def legval(
     coefficients: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -1274,7 +1271,7 @@ def polyadd(input: Tensor, other: Tensor) -> Tensor:
 
 
 def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     return _div(polymul, input, other)
 
@@ -1288,7 +1285,7 @@ def polymul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input, other = _as_series(input, other)
+    [input, other] = _as_series([input, other])
 
     output = convolve(input, other)
 
@@ -1302,7 +1299,7 @@ def polymulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    input = _as_series(input)
+    [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -1336,7 +1333,7 @@ def polyval(
     coefficients: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    coefficients = _as_series(coefficients)
+    [coefficients] = _as_series([coefficients])
 
     if tensor:
         coefficients = reshape(
