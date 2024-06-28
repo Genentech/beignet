@@ -3,6 +3,8 @@ import math
 import operator
 from typing import Callable, List, Literal, Tuple
 
+import numpy
+import torch
 from jax.numpy import (
     abs,
     any,
@@ -67,6 +69,28 @@ polydomain = tensor([-1.0, 1.0])
 polyone = tensor([1.0])
 polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
+
+
+def nonzero_with_size(x, size=1, fill_value=0):
+    x = numpy.array(x)
+
+    x = torch.tensor(x)
+
+    # Get non-zero indices
+    nonzero_indices = torch.nonzero(x, as_tuple=False)
+
+    # If more non-zero elements than size, truncate
+    if nonzero_indices.shape[0] > size:
+        nonzero_indices = nonzero_indices[:size]
+    # If fewer non-zero elements than size, pad with fill_value
+    elif nonzero_indices.shape[0] < size:
+        padding = size - nonzero_indices.shape[0]
+        pad_indices = full(
+            (padding, nonzero_indices.shape[1]), fill_value, dtype=nonzero_indices.dtype
+        )
+        nonzero_indices = concatenate([nonzero_indices, pad_indices], 0)
+
+    return nonzero_indices.numpy()
 
 
 def _add(input: Tensor, other: Tensor) -> Tensor:
@@ -138,7 +162,7 @@ def _c_series_to_z_series(input: Tensor) -> Tensor:
 
     zs = zs.at[n - 1 :].set(input / 2.0)
 
-    return flip(zs, axis=0) + zs
+    return flip(zs, [0]) + zs
 
 
 def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
@@ -154,9 +178,10 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
         return input / other[-1], zeros_like(input[:1])
 
     def f(x: Tensor) -> Tensor:
-        indicies = flip(x, axis=0)
+        indicies = flip(x, [0])
 
-        indicies = nonzero(indicies, size=1)
+        # indicies = nonzero(indicies, size=1)
+        indicies = nonzero_with_size(indicies, size=1)
 
         return x.shape[0] - 1 - indicies[0][0]
 
