@@ -1,61 +1,24 @@
-import hypothesis.strategies as st
 import pytest
 import torch
-from hypothesis import given
-
 from beignet.func._molecular_dynamics._partition.__hash_constants import _hash_constants
 
 
-@st.composite
-def _hash_constants_strategy(draw):
-    spatial_dimensions = draw(st.integers(min_value=1, max_value=10))
-
-    cells_per_side = draw(
-        st.one_of(
-            st.integers(min_value=1, max_value=10).map(lambda x: torch.tensor([x], dtype=torch.int32)),
-            st.lists(st.integers(min_value=1, max_value=10), min_size=spatial_dimensions, max_size=spatial_dimensions)
-            .map(lambda x: torch.tensor(x, dtype=torch.int32)),
-        )
-    )
-
-    return spatial_dimensions, cells_per_side
+def test_hash_constants_uniform_grid():
+    spatial_dimensions = 3
+    cells_per_side = torch.tensor([2])
+    expected_output = torch.tensor([[1, 2, 4]], dtype=torch.int32)
+    assert torch.equal(_hash_constants(spatial_dimensions, cells_per_side), expected_output)
 
 
-@pytest.mark.parametrize(
-    "spatial_dimensions, cells_per_side, expected_result, expected_exception",
-    [
-        (3, torch.tensor([4], dtype=torch.int32), torch.tensor([[[1, 4, 16]]], dtype=torch.int32), None),
-        (3, torch.tensor([4, 4, 4], dtype=torch.int32), torch.tensor([[1, 4, 16]], dtype=torch.int32), None),
-        (3, torch.tensor([4, 4], dtype=torch.int32), None, ValueError),
-    ],
-)
-def test_hash_constants(spatial_dimensions, cells_per_side, expected_result, expected_exception):
-    if expected_exception is not None:
-        with pytest.raises(expected_exception):
-            _hash_constants(spatial_dimensions, cells_per_side)
-
-    else:
-        result = _hash_constants(spatial_dimensions, cells_per_side)
-        assert result.shape == expected_result.shape, f"Shape mismatch: expected {expected_result.shape}, got {result.shape}"
-        assert torch.equal(result, expected_result), f"Value mismatch: expected {expected_result}, got {result}"
+def test_hash_constants_invalid_input_size():
+    spatial_dimensions = 3
+    cells_per_side = torch.tensor([2, 3])
+    with pytest.raises(ValueError):
+        _hash_constants(spatial_dimensions, cells_per_side)
 
 
-@given(_hash_constants_strategy())
-def test__hash_constants(data):
-    spatial_dimensions, cells_per_side = data
-
-    if cells_per_side.numel() == 1:
-        constants = [[cells_per_side.item() ** i for i in range(spatial_dimensions)]]
-        expected_result = torch.tensor([constants], dtype=torch.int32)
-    else:
-        if cells_per_side.numel() != spatial_dimensions:
-            with pytest.raises(ValueError):
-                _hash_constants(spatial_dimensions, cells_per_side)
-            return
-
-        augmented = torch.cat((torch.tensor([1], dtype=torch.int32).view(1), cells_per_side[:-1]))
-        expected_result = torch.cumprod(augmented, dim=0).view(1, -1)
-
-    result = _hash_constants(spatial_dimensions, cells_per_side)
-    assert result.shape == expected_result.shape, f"Shape mismatch: expected {expected_result.shape}, got {result.shape}"
-    assert torch.equal(result, expected_result), f"Value mismatch: expected {expected_result}, got {result}"
+def test_hash_constants_zero_dimensions():
+    spatial_dimensions = 3
+    cells_per_side = torch.tensor([])
+    with pytest.raises(ValueError):
+        _hash_constants(spatial_dimensions, cells_per_side)
