@@ -1,13 +1,14 @@
 import functools
 import math
 import operator
-from typing import Callable, Literal, Tuple
+from typing import Callable, List, Literal, Tuple
 
 from jax.numpy import (
     abs,
     any,
     arange,
     array,
+    atleast_1d,
     concatenate,
     convolve,
     finfo,
@@ -20,7 +21,7 @@ from jax.numpy import (
     ones,
     ones_like,
     pad,
-    ravel,
+    promote_types,
     real,
     reshape,
     roll,
@@ -99,26 +100,35 @@ def _add(input: Tensor, other: Tensor) -> Tensor:
     return output
 
 
-def _as_series(*args, trim: bool = False) -> Tuple[Tensor, ...]:
-    xs = ()
+def _as_series(*items, trim: bool = False) -> List[Tensor]:
+    outputs = []
 
-    for arg in args:
-        x = array(arg)
+    for item in items:
+        output = array(item)
 
-        if x.ndim == 0:
-            x = ravel(x)
+        output = atleast_1d(output)
 
         if trim:
-            x = _trim_sequence(x)
+            output = _trim_sequence(output)
 
-        xs = *xs, x
+        outputs = [
+            *outputs,
+            output,
+        ]
 
-    # xs = promote_dtypes_inexact(*xs)
+    dtype = outputs[0].dtype
 
-    if len(xs) == 1:
-        return xs[0]
+    for output in outputs[1:]:
+        dtype = promote_types(dtype, output.dtype)
 
-    return xs
+    for index, output in enumerate(outputs):
+        if output.dtype != dtype:
+            outputs[index] = output.astype(dtype)
+
+    if len(outputs) == 1:
+        return outputs[0]
+
+    return outputs
 
 
 def _c_series_to_z_series(input: Tensor) -> Tensor:
