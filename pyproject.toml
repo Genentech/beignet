@@ -30,6 +30,7 @@ docs = [
 ]
 test = [
     "hypothesis",
+    "numpy",
     "pytest",
     "pytest-mock",
     "scipy",
