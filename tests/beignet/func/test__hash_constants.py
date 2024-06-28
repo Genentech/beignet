@@ -1,6 +1,7 @@
 import pytest
 import torch
-from beignet.func._molecular_dynamics._partition.__hash_constants import _hash_constants
+
+from beignet.func._partition import _hash_constants
 
 
 def test_hash_constants_uniform_grid():

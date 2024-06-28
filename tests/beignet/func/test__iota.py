@@ -3,7 +3,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__iota import _iota
+from beignet.func._partition import _iota
 
 
 @st.composite

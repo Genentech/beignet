@@ -3,9 +3,7 @@ import torch
 import pytest
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__normalize_cell_size import (
-    _normalize_cell_size,
-)
+from beignet.func._partition import _normalize_cell_size
 
 
 @st.composite

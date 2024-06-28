@@ -5,9 +5,7 @@ import pytest
 import torch
 from torch import Tensor
 
-from beignet.func._molecular_dynamics._partition.__cell_dimensions import (
-    _cell_dimensions,
-)
+from beignet.func._partition import _cell_dimensions
 
 
 @st.composite

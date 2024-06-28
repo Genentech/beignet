@@ -3,18 +3,16 @@ import torch
 from torch import Tensor
 from unittest.mock import patch
 
-from beignet.func._molecular_dynamics._partition.__particles_per_cell import (
-    _particles_per_cell,
-)
+from beignet.func._partition import _particles_per_cell
 
 
 @patch(
-    "beignet.func._molecular_dynamics._partition.__particles_per_cell._cell_dimensions"
+    "beignet.func._partition._cell_dimensions"
 )
 @patch(
-    "beignet.func._molecular_dynamics._partition.__particles_per_cell._hash_constants"
+    "beignet.func._partition._hash_constants"
 )
-@patch("beignet.func._molecular_dynamics._partition.__particles_per_cell._segment_sum")
+@patch("beignet.func._partition._segment_sum")
 def test_particles_per_cell(
     mock_segment_sum, mock_hash_constants, mock_cell_dimensions
 ):

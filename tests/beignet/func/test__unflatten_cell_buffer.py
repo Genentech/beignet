@@ -1,9 +1,7 @@
 import pytest
 import torch
 
-from beignet.func._molecular_dynamics._partition.__unflatten_cell_buffer import (
-    _unflatten_cell_buffer,
-)
+from beignet.func._partition import _unflatten_cell_buffer
 
 
 def test__unflatten_cell_buffer_cells_per_side_is_scalar():

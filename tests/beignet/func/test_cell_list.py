@@ -1,7 +1,8 @@
 import unittest
 import torch
 from torch.testing import assert_allclose
-from beignet.func._molecular_dynamics._partition._cell_list import cell_list
+
+from beignet.func._partition import cell_list
 
 
 class CellListTest(unittest.TestCase):
