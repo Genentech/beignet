@@ -611,7 +611,9 @@ def _z_series_to_c_series(input: Tensor) -> Tensor:
 
     c = input[n - 1 :]
 
-    return c.at[1:n].multiply(2.0)
+    c = c.at[1:n].set(c[1:n] * 2.0)
+
+    return c
 
 
 def chebadd(input: Tensor, other: Tensor) -> Tensor:
@@ -661,7 +663,7 @@ def chebmulx(
 
         output = output.at[2:].set(tmp)
 
-        output = output.at[0:-2].add(tmp)
+        output = output.at[0:-2].set(output[0:-2] + tmp)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -820,7 +822,7 @@ def hermemulx(
     i = arange(1, input.shape[0])
 
     output = output.at[i + 1].set(input[i])
-    output = output.at[i - 1].add(input[i] * i)
+    output = output.at[i - 1].set(output[i - 1] + input[i] * i)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -942,7 +944,7 @@ def hermmulx(
     i = arange(1, input.shape[0])
 
     output = output.at[i + 1].set(input[i] / 2.0)
-    output = output.at[i - 1].add(input[i] * i)
+    output = output.at[i - 1].set(output[i - 1] + input[i] * i)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1077,9 +1079,9 @@ def lagmulx(
 
     output = output.at[i + 1].set(-input[i] * (i + 1))
 
-    output = output.at[i].add(input[i] * (2 * i + 1))
+    output = output.at[i].set(output[i] + input[i] * (2 * i + 1))
 
-    output = output.at[i - 1].add(-input[i] * i)
+    output = output.at[i - 1].set(output[i - 1] - input[i] * i)
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1208,7 +1210,9 @@ def legmulx(
 
     for i in range(1, input.shape[0]):
         output = output.at[i + 1].set((input[i] * (i + 1)) / (i + i + 1))
-        output = output.at[i - 1].add((input[i] * (i + 0)) / (i + i + 1))
+        output = output.at[i - 1].set(
+            output[i - 1] + (input[i] * (i + 0)) / (i + i + 1)
+        )
 
     if mode == "same":
         output = output[: input.shape[0]]
