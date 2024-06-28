@@ -286,7 +286,7 @@ def test__get_domain():
 
     torch.testing.assert_close(
         _get_domain(
-            torch.tensor([1.0 + 1j, 1.0 - 1j, 0.0, 2]),
+            torch.tensor([(1 + 1j), (1 - 1j), 0.0, 2]),
         ),
         torch.tensor([-1.0j, 2.0 + 1j]),
     )
