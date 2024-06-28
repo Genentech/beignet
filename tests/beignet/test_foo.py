@@ -644,15 +644,12 @@ def test_chebtrim():
 
 
 def test_chebval():
-    assert (
-        math.prod(
-            chebval(
-                array([]),
-                array([1.0]),
-            ).shape,
-        )
-        == 0
+    output = chebval(
+        array([]),
+        array([1.0]),
     )
+
+    assert math.prod(output.shape) == 0
 
     ys = []
 
@@ -665,41 +662,40 @@ def test_chebval():
             ),
         ]
 
-    for i in range(10):
+    for index in range(10):
         assert_array_almost_equal(
             chebval(
                 linspace(-1, 1, 50),
-                array([0.0] * i + [1.0]),
+                array([0.0] * index + [1.0]),
             ),
-            array(ys[i]),
+            array(ys[index]),
         )
 
-    for i in range(3):
-        x = zeros((2,) * i)
+    for index in range(3):
+        shape = (2,) * index
 
-        assert (
-            chebval(
-                x,
-                array([1.0]),
-            ).shape
-            == (2,) * i
+        input = zeros(shape)
+
+        output = chebval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            chebval(
-                x,
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = chebval(
+            input,
+            array([1.0, 0.0]),
         )
 
-        assert (
-            chebval(
-                x,
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = chebval(
+            input,
+            array([1.0, 0.0, 0.0]),
         )
+
+        assert output.shape == shape
 
 
 def test_chebx():
@@ -1009,30 +1005,31 @@ def test_hermeval():
             ys[i],
         )
 
-    for i in range(3):
-        assert (
-            hermeval(
-                zeros((2,) * i),
-                array([1.0]),
-            ).shape
-            == (2,) * i
+    for index in range(3):
+        shape = (2,) * index
+
+        input = zeros(shape)
+
+        output = hermeval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            hermeval(
-                zeros((2,) * i),
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = hermeval(
+            input,
+            array([1.0, 0.0]),
         )
 
-        assert (
-            hermeval(
-                zeros((2,) * i),
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = hermeval(
+            input,
+            array([1.0, 0.0, 0.0]),
         )
+
+        assert output.shape == shape
 
 
 def test_hermex():
@@ -1215,29 +1212,30 @@ def test_hermval():
         )
 
     for index in range(3):
-        assert (
-            hermval(
-                zeros((2,) * index),
-                array([1.0]),
-            ).shape
-            == (2,) * index
+        shape = (2,) * index
+
+        input = zeros(shape)
+
+        output = hermval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            hermval(
-                zeros((2,) * index),
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * index
+        assert output.shape == shape
+
+        output = hermval(
+            input,
+            array([1.0, 0.0]),
         )
 
-        assert (
-            hermval(
-                zeros((2,) * index),
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * index
+        assert output.shape == shape
+
+        output = hermval(
+            input,
+            array([1.0, 0.0, 0.0]),
         )
+
+        assert output.shape == shape
 
 
 def test_hermx():
@@ -1492,30 +1490,31 @@ def test_lagval():
             array(array(ys[i])),
         )
 
-    for i in range(3):
-        assert (
-            lagval(
-                zeros((2,) * i),
-                array([1.0]),
-            ).shape
-            == (2,) * i
+    for index in range(3):
+        shape = (2,) * index
+
+        input = zeros(shape)
+
+        output = lagval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            lagval(
-                zeros((2,) * i),
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = lagval(
+            input,
+            array([1.0, 0.0]),
         )
 
-        assert (
-            lagval(
-                zeros((2,) * i),
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = lagval(
+            input,
+            array([1.0, 0.0, 0.0]),
         )
+
+        assert output.shape == shape
 
 
 def test_lagx():
@@ -1773,30 +1772,31 @@ def test_legval():
             array(ys[i]),
         )
 
-    for i in range(3):
-        assert (
-            legval(
-                zeros((2,) * i),
-                array([1.0]),
-            ).shape
-            == (2,) * i
+    for index in range(3):
+        shape = (2,) * index
+
+        input = zeros(shape)
+
+        output = legval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            legval(
-                zeros((2,) * i),
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = legval(
+            input,
+            array([1.0, 0.0]),
         )
 
-        assert (
-            legval(
-                zeros((2,) * i),
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * i
+        assert output.shape == shape
+
+        output = legval(
+            input,
+            array([1.0, 0.0, 0.0]),
         )
+
+        assert output.shape == shape
 
 
 def test_legx():
@@ -2050,19 +2050,19 @@ def test_polyval():
 
     y = []
 
-    for i in range(5):
+    for index in range(5):
         y = [
             *y,
-            linspace(-1, 1, 50) ** i,
+            linspace(-1, 1, 50) ** index,
         ]
 
-    for i in range(5):
+    for index in range(5):
         assert_array_almost_equal(
             polyval(
                 linspace(-1, 1, 50),
-                array([0.0] * i + [1.0]),
+                array([0.0] * index + [1.0]),
             ),
-            y[i],
+            y[index],
         )
 
     assert_array_almost_equal(
@@ -2073,8 +2073,8 @@ def test_polyval():
         linspace(-1, 1, 50) * (linspace(-1, 1, 50) ** 2 - 1),
     )
 
-    for i in range(3):
-        shape = (2,) * i
+    for index in range(3):
+        shape = (2,) * index
 
         input = zeros(shape)
 
@@ -2089,12 +2089,14 @@ def test_polyval():
             input,
             array([1.0, 0.0]),
         )
+
         assert output.shape == shape
 
         output = polyval(
             input,
             array([1.0, 0.0, 0.0]),
         )
+
         assert output.shape == shape
 
 
