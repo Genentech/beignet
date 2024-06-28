@@ -9,6 +9,7 @@ requires = [
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
+    "optree",
     "pooch",
     "torch==2.2.2",
     "tqdm",
@@ -29,6 +30,7 @@ docs = [
 ]
 test = [
     "hypothesis",
+    "numpy==1.26.4",
     "pytest",
     "pytest-mock",
     "scipy",
