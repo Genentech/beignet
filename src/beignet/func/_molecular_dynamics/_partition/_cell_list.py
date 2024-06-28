@@ -6,6 +6,7 @@ from torch import Tensor
 from .__cell_dimensions import _cell_dimensions
 from .__cell_list import _CellList
 from .__cell_list_function_list import _CellListFunctionList
+from .__estimate_cell_capacity import _estimate_cell_capacity
 from .__hash_constants import _hash_constants
 from .__iota import _iota
 from .__particles_per_cell import _particles_per_cell
@@ -78,12 +79,7 @@ def cell_list(
         )
 
         if excess is None:
-            print(f"positions: {positions}")
-            print(f"box size: {size}")
-            print(f"cell_size: {unit_size}")
-            cell_capacity = torch.max(_particles_per_cell(positions, size, unit_size))
-
-            buffer_size = int(cell_capacity * buffer_size_multiplier)
+            buffer_size = _estimate_cell_capacity(positions, size, unit_size, buffer_size_multiplier)
 
             buffer_size = buffer_size + excess_buffer_size
 

@@ -51,7 +51,7 @@ def neighbor_list(
     metric_sq = _to_square_metric_fn(displacement_fn)
 
     def _neighbor_candidate_fn(shape: tuple[int, ...]) -> Tensor:
-        return torch.broadcast_to(torch.arange(shape[0])[None, :], (shape[0], shape[0]))
+        return torch.broadcast_to(torch.arange(shape[0], dtype=torch.int32)[None, :], (shape[0], shape[0]))
 
     def _cell_list_neighbor_candidate_fn(unit_indexes_buffer, shape) -> Tensor:
         n, spatial_dimension = shape
@@ -313,7 +313,7 @@ def neighbor_list(
             maximum_size=updated_neighbors.maximum_size,
         )
 
-        if space and not disable_unit_list:
+        if "space" in kwargs and not disable_unit_list:
             if not normalized:
                 raise ValueError
 
@@ -343,7 +343,7 @@ def neighbor_list(
 
         displacement_fn = functools.partial(metric_sq, **kwargs)
 
-        displacement_fn = _map_bond(displacement_fn)
+        displacement_fn = torch.vmap(displacement_fn)
 
         predicate = torch.any(
             displacement_fn(positions, updated_neighbors.reference_positions)
@@ -351,7 +351,7 @@ def neighbor_list(
         )
 
         if predicate:
-            return (positions, updated_neighbors.partition_error)
+            return _fn((positions, updated_neighbors.partition_error))
 
         else:
             return neighbor_fn((positions, updated_neighbors.partition_error))
