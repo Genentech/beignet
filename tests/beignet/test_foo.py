@@ -5,7 +5,7 @@ import jax
 import numpy
 import pytest
 import torch.testing
-from beignet.foo import (
+from beignet.pytorch import (
     _c_series_to_z_series,
     _fit,
     _get_domain,
@@ -844,24 +844,26 @@ def test_hermeline():
 
 
 def test_hermemul():
-    for i in range(5):
+    for j in range(5):
+        input = linspace(-3, 3, 100)
+
         val1 = hermeval(
-            linspace(-3, 3, 100),
-            array([0.0] * i + [1.0]),
+            input,
+            array([0.0] * j + [1.0]),
         )
 
-        for j in range(5):
+        for k in range(5):
             val2 = hermeval(
-                linspace(-3, 3, 100),
-                array([0.0] * j + [1.0]),
+                input,
+                array([0.0] * k + [1.0]),
             )
 
             assert_array_almost_equal(
                 hermeval(
-                    linspace(-3, 3, 100),
+                    input,
                     hermemul(
-                        array([0.0] * i + [1.0]),
                         array([0.0] * j + [1.0]),
+                        array([0.0] * k + [1.0]),
                     ),
                 ),
                 val1 * val2,
@@ -1060,20 +1062,22 @@ def test_hermline():
 
 def test_hermmul():
     for i in range(5):
+        input = linspace(-3, 3, 100)
+
         val1 = hermval(
-            linspace(-3, 3, 100),
+            input,
             array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             val2 = hermval(
-                linspace(-3, 3, 100),
+                input,
                 array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
                 hermval(
-                    linspace(-3, 3, 100),
+                    input,
                     hermmul(
                         array([0.0] * i + [1.0]),
                         array([0.0] * j + [1.0]),
@@ -1203,11 +1207,13 @@ def test_hermval():
 
     ys = []
 
+    input = linspace(-1, 1, 50)
+
     for coefficient in hermcoefficients:
         ys = [
             *ys,
             polyval(
-                linspace(-1, 1, 50),
+                input,
                 coefficient,
             ),
         ]
@@ -1215,7 +1221,7 @@ def test_hermval():
     for index in range(10):
         assert_array_almost_equal(
             hermval(
-                linspace(-1, 1, 50),
+                input,
                 array([0] * index + [1]),
             ),
             ys[index],
@@ -1333,20 +1339,22 @@ def test_lagline():
 
 def test_lagmul():
     for i in range(5):
+        input = linspace(-3, 3, 100)
+
         a = lagval(
-            linspace(-3, 3, 100),
+            input,
             array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             b = lagval(
-                linspace(-3, 3, 100),
+                input,
                 array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
                 lagval(
-                    linspace(-3, 3, 100),
+                    input,
                     lagtrim(
                         lagmul(
                             array([0.0] * i + [1.0]),
@@ -1486,11 +1494,13 @@ def test_lagval():
 
     ys = []
 
+    input = linspace(-1, 1, 50)
+
     for coefficient in lagcoefficients:
         ys = [
             *ys,
             polyval(
-                linspace(-1, 1, 50),
+                input,
                 coefficient,
             ),
         ]
@@ -1498,7 +1508,7 @@ def test_lagval():
     for i in range(7):
         assert_array_almost_equal(
             lagval(
-                linspace(-1, 1, 50),
+                input,
                 array([0.0] * i + [1.0]),
             ),
             array(array(ys[i])),
@@ -1624,20 +1634,22 @@ def test_legline():
 
 def test_legmul():
     for i in range(5):
+        input = linspace(-1, 1, 100)
+
         a = legval(
-            linspace(-1, 1, 100),
+            input,
             array([0.0] * i + [1.0]),
         )
 
         for j in range(5):
             b = legval(
-                linspace(-1, 1, 100),
+                input,
                 array([0.0] * j + [1.0]),
             )
 
             assert_array_almost_equal(
                 legval(
-                    linspace(-1, 1, 100),
+                    input,
                     legmul(
                         array([0.0] * i + [1.0]),
                         array([0.0] * j + [1.0]),
@@ -2074,16 +2086,18 @@ def test_polyval():
 
     y = []
 
+    input = linspace(-1, 1, 50)
+
     for index in range(5):
         y = [
             *y,
-            linspace(-1, 1, 50) ** index,
+            input**index,
         ]
 
     for index in range(5):
         assert_array_almost_equal(
             polyval(
-                linspace(-1, 1, 50),
+                input,
                 array([0.0] * index + [1.0]),
             ),
             y[index],
@@ -2091,10 +2105,10 @@ def test_polyval():
 
     assert_array_almost_equal(
         polyval(
-            linspace(-1, 1, 50),
+            input,
             array([0, -1, 0, 1]),
         ),
-        linspace(-1, 1, 50) * (linspace(-1, 1, 50) ** 2 - 1),
+        input * (input**2 - 1),
     )
 
     for index in range(3):
