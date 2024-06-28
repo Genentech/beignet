@@ -1,7 +1,6 @@
 import functools
 import math
 
-import numpy
 import pytest
 import torch
 import torch.testing
@@ -414,12 +413,12 @@ def test__vandermonde():
 
 
 def test__z_series_to_c_series():
-    for i in range(5):
+    for index in range(5):
         torch.testing.assert_close(
             _z_series_to_c_series(
-                torch.tensor([0.5] * i + [2.0] + [0.5] * i, dtype=numpy.float64),
+                torch.tensor([0.5] * index + [2.0] + [0.5] * index),
             ),
-            torch.tensor([2.0] + [1.0] * i, dtype=numpy.float64),
+            torch.tensor([2.0] + [1.0] * index),
         )
 
 
@@ -500,8 +499,8 @@ def test_chebmul():
         for k in range(5):
             target = torch.zeros(j + k + 1)
 
-            target = target.at[abs(j + k)].set(target[abs(j + k)] + 0.5)
-            target = target.at[abs(j - k)].set(target[abs(j - k)] + 0.5)
+            target[abs(j + k)] = target[abs(j + k)] + 0.5
+            target[abs(j - k)] = target[abs(j - k)] + 0.5
 
             input = torch.tensor([0.0] * j + [1.0])
             other = torch.tensor([0.0] * k + [1.0])
@@ -588,8 +587,8 @@ def test_chebsub():
         for k in range(5):
             target = torch.zeros(max(j, k) + 1)
 
-            target = target.at[j].set(target[j] + 1)
-            target = target.at[k].set(target[k] - 1)
+            target[j] = target[j] + 1
+            target[k] = target[k] - 1
 
             input = torch.tensor([0.0] * j + [1.0])
             other = torch.tensor([0.0] * k + [1.0])
@@ -779,8 +778,8 @@ def test_hermeadd():
         for j in range(5):
             target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] + 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] + 1
 
             torch.testing.assert_close(
                 hermetrim(
@@ -938,8 +937,8 @@ def test_hermesub():
         for k in range(5):
             target = torch.zeros(max(j, k) + 1)
 
-            target = target.at[j].set(target[j] + 1)
-            target = target.at[k].set(target[k] - 1)
+            target[j] = target[j] + 1
+            target[k] = target[k] - 1
 
             input = torch.tensor([0.0] * j + [1.0])
             other = torch.tensor([0.0] * k + [1.0])
@@ -1154,8 +1153,8 @@ def test_hermsub():
         for j in range(5):
             target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
 
             torch.testing.assert_close(
                 hermtrim(
@@ -1442,8 +1441,8 @@ def test_lagsub():
         for j in range(5):
             target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
 
             torch.testing.assert_close(
                 lagtrim(
@@ -1732,8 +1731,8 @@ def test_legsub():
         for j in range(5):
             target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
 
             torch.testing.assert_close(
                 legtrim(
@@ -1958,7 +1957,7 @@ def test_polymul():
         for j in range(5):
             target = torch.zeros(i + j + 1)
 
-            target = target.at[i + j].set(target[i + j] + 1)
+            target[i + j] = target[i + j] + 1
 
             torch.testing.assert_close(
                 polytrim(
@@ -2033,8 +2032,8 @@ def test_polysub():
         for j in range(5):
             target = torch.zeros(max(i, j) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target[i] = target[i] + 1
+            target[j] = target[j] - 1
 
             torch.testing.assert_close(
                 polytrim(
