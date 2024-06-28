@@ -925,7 +925,7 @@ def test_hermepow():
                 hermetrim(
                     functools.reduce(
                         hermemul,
-                        torch.tensor([torch.arange(0.0, j + 1)] * k),
+                        [torch.arange(0.0, j + 1)] * k,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
