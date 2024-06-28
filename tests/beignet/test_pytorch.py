@@ -561,20 +561,20 @@ def test_chebone():
 
 
 def test_chebpow():
-    for i in range(5):
-        for j in range(5):
+    for j in range(5):
+        for k in range(5):
             torch.testing.assert_close(
                 chebtrim(
                     chebpow(
-                        torch.arange(0.0, i + 1),
-                        j,
+                        torch.arange(0.0, j + 1),
+                        k,
                     ),
                     tol=0.000001,
                 ),
                 chebtrim(
                     functools.reduce(
                         chebmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [torch.arange(0.0, j + 1)] * k,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -774,18 +774,18 @@ def test_hermdomain():
 
 
 def test_hermeadd():
-    for i in range(5):
-        for j in range(5):
-            target = torch.zeros(max(i, j) + 1)
+    for j in range(5):
+        for k in range(5):
+            target = torch.zeros(max(j, k) + 1)
 
-            target[i] = target[i] + 1
             target[j] = target[j] + 1
+            target[k] = target[k] + 1
 
             torch.testing.assert_close(
                 hermetrim(
                     hermeadd(
-                        torch.tensor([0.0] * i + [1.0]),
                         torch.tensor([0.0] * j + [1.0]),
+                        torch.tensor([0.0] * k + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -911,20 +911,20 @@ def test_hermeone():
 
 
 def test_hermepow():
-    for i in range(5):
-        for j in range(5):
+    for j in range(5):
+        for k in range(5):
             torch.testing.assert_close(
                 hermetrim(
                     hermepow(
-                        torch.arange(0.0, i + 1),
-                        j,
+                        torch.arange(0.0, j + 1),
+                        k,
                     ),
                     tol=0.000001,
                 ),
                 hermetrim(
                     functools.reduce(
                         hermemul,
-                        torch.tensor([torch.arange(0.0, i + 1)] * j),
+                        torch.tensor([torch.arange(0.0, j + 1)] * k),
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
