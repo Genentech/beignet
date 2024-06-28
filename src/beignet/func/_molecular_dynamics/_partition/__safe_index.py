@@ -2,15 +2,19 @@ from torch import Tensor
 
 
 def safe_index(array: Tensor, indices: Tensor) -> Tensor:
-    """
-    Safely index into a tensor, clamping out-of-bounds indices to the nearest valid index.
+    r"""Safely index into a tensor, clamping out-of-bounds indices to the nearest valid index.
 
-    Parameters:
-    array (Tensor): The tensor to index.
-    indices (Tensor): The indices to use for indexing.
+    Parameters
+    ----------
+    array : Tensor
+        The tensor to index.
+    indices : Tensor
+        The indices to use for indexing.
 
-    Returns:
-    Tensor: The resulting tensor after indexing.
+    Returns
+    -------
+    Tensor
+        The resulting tensor after indexing.
     """
     max_index = array.shape[0] - 1
 

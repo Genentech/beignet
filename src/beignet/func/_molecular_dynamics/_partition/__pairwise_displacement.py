@@ -13,13 +13,13 @@ def pairwise_displacement(Ra: Tensor, Rb: Tensor) -> Tensor:
     """
     if len(Ra.shape) != 1:
         msg = (
-          'Can only compute displacements between vectors. To compute '
-          'displacements between sets of vectors use vmap or TODO.'
+            "Can only compute displacements between vectors. To compute "
+            "displacements between sets of vectors use vmap or TODO."
         )
         raise ValueError(msg)
 
     if Ra.shape != Rb.shape:
-        msg = 'Can only compute displacement between vectors of equal dimension.'
+        msg = "Can only compute displacement between vectors of equal dimension."
         raise ValueError(msg)
 
     return Ra - Rb

@@ -37,9 +37,7 @@ def _particles_per_cell(
     """
     dim = positions.shape[1]
 
-    size, unit_size, per_side, n = _cell_dimensions(
-        dim, size, minimum_size
-    )
+    size, unit_size, per_side, n = _cell_dimensions(dim, size, minimum_size)
 
     hash_multipliers = _hash_constants(dim, per_side)
 

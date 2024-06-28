@@ -5,19 +5,15 @@ from beignet.func._molecular_dynamics._partition._cell_list import cell_list
 
 
 class CellListTest(unittest.TestCase):
-
     def test_cell_list_emplace_2d(self):
         dtype = torch.float32
         box_size = torch.tensor([8.65, 8.0], dtype=torch.float32)
         cell_size = 1.0
 
         # Test particle positions
-        R = torch.tensor([
-            [0.25, 0.25],
-            [8.5, 1.95],
-            [8.1, 1.5],
-            [3.7, 7.9]
-        ], dtype=dtype)
+        R = torch.tensor(
+            [[0.25, 0.25], [8.5, 1.95], [8.1, 1.5], [3.7, 7.9]], dtype=dtype
+        )
 
         cell_fn = cell_list(box_size, cell_size)
 
@@ -72,7 +68,11 @@ class CellListTest(unittest.TestCase):
         particle_count = 10
         torch.manual_seed(1)
 
-        box_size = torch.tensor([9.0, 3.25], dtype=dtype) if dim == 2 else torch.tensor([9.0, 3.0, 7.25], dtype=dtype)
+        box_size = (
+            torch.tensor([9.0, 3.25], dtype=dtype)
+            if dim == 2
+            else torch.tensor([9.0, 3.0, 7.25], dtype=dtype)
+        )
         cell_size = 1.0
 
         R = box_size * torch.rand((particle_count, dim), dtype=dtype)
@@ -94,7 +94,11 @@ class CellListTest(unittest.TestCase):
         particle_count = 10
         torch.manual_seed(1)
 
-        box_size = torch.tensor([9.0, 4.25], dtype=dtype) if dim == 2 else torch.tensor([9.0, 4.0, 7.25], dtype=dtype)
+        box_size = (
+            torch.tensor([9.0, 4.25], dtype=dtype)
+            if dim == 2
+            else torch.tensor([9.0, 4.0, 7.25], dtype=dtype)
+        )
         cell_size = 1.23
 
         R = box_size * torch.rand((particle_count, dim), dtype=dtype)
@@ -110,7 +114,9 @@ class CellListTest(unittest.TestCase):
         R_out[id_flat] = R_flat
         R_out = R_out[:-1]
 
-        side_data_flat = cell_list_instance.parameters['side_data'].view(-1, side_data_dim)
+        side_data_flat = cell_list_instance.parameters["side_data"].view(
+            -1, side_data_dim
+        )
         side_data_out = torch.zeros((particle_count + 1, side_data_dim), dtype=dtype)
         side_data_out[id_flat] = side_data_flat
         side_data_out = side_data_out[:-1]

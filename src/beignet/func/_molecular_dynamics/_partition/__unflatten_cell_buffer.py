@@ -2,7 +2,9 @@ import torch
 from torch import Tensor
 
 
-def _unflatten_cell_buffer(buffer: Tensor, cells_per_side: [int, float, Tensor], dim: int):
+def _unflatten_cell_buffer(
+    buffer: Tensor, cells_per_side: [int, float, Tensor], dim: int
+):
     r"""Reshape a flat buffer into a multidimensional cell buffer.
 
     Parameters
@@ -20,7 +22,11 @@ def _unflatten_cell_buffer(buffer: Tensor, cells_per_side: [int, float, Tensor],
         The reshaped buffer tensor.
     """
     # if cells per side is an int, float, or a tensor with 0 dimensions (scalar) -> return tuple
-    if (isinstance(cells_per_side, int) or isinstance(cells_per_side, float) or (torch.is_tensor(cells_per_side) and not cells_per_side.shape)):
+    if (
+        isinstance(cells_per_side, int)
+        or isinstance(cells_per_side, float)
+        or (torch.is_tensor(cells_per_side) and not cells_per_side.shape)
+    ):
         cells_per_side = (int(cells_per_side),) * dim
 
     # if cells per side is a 1D tensor, reverse the tensor, and place each elem into a tuple

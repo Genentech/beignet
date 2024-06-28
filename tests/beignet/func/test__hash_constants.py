@@ -7,7 +7,9 @@ def test_hash_constants_uniform_grid():
     spatial_dimensions = 3
     cells_per_side = torch.tensor([2])
     expected_output = torch.tensor([[1, 2, 4]], dtype=torch.int32)
-    assert torch.equal(_hash_constants(spatial_dimensions, cells_per_side), expected_output)
+    assert torch.equal(
+        _hash_constants(spatial_dimensions, cells_per_side), expected_output
+    )
 
 
 def test_hash_constants_invalid_input_size():
