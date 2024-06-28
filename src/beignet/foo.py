@@ -71,26 +71,31 @@ polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
 
 
-def nonzero_with_size(x, size=1, fill_value=0):
-    x = numpy.array(x)
+def _nonzero(input, size=1, fill_value=0):
+    input = numpy.array(input)
 
-    x = torch.tensor(x)
+    input = torch.from_numpy(input)
 
-    # Get non-zero indices
-    nonzero_indices = torch.nonzero(x, as_tuple=False)
+    output = torch.nonzero(input, as_tuple=False)
 
-    # If more non-zero elements than size, truncate
-    if nonzero_indices.shape[0] > size:
-        nonzero_indices = nonzero_indices[:size]
-    # If fewer non-zero elements than size, pad with fill_value
-    elif nonzero_indices.shape[0] < size:
-        padding = size - nonzero_indices.shape[0]
-        pad_indices = full(
-            (padding, nonzero_indices.shape[1]), fill_value, dtype=nonzero_indices.dtype
+    if output.shape[0] > size:
+        output = output[:size]
+    elif output.shape[0] < size:
+        output = concatenate(
+            [
+                output,
+                full(
+                    [
+                        size - output.shape[0],
+                        output.shape[1],
+                    ],
+                    fill_value,
+                ),
+            ],
+            0,
         )
-        nonzero_indices = concatenate([nonzero_indices, pad_indices], 0)
 
-    return nonzero_indices.numpy()
+    return output.numpy()
 
 
 def _add(input: Tensor, other: Tensor) -> Tensor:
@@ -180,8 +185,7 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     def f(x: Tensor) -> Tensor:
         indicies = flip(x, [0])
 
-        # indicies = nonzero(indicies, size=1)
-        indicies = nonzero_with_size(indicies, size=1)
+        indicies = _nonzero(indicies, size=1)
 
         return x.shape[0] - 1 - indicies[0][0]
 
