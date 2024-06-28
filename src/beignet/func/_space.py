@@ -5,8 +5,13 @@ from torch import Tensor
 
 import beignet
 
-from beignet.func._molecular_dynamics._partition.__pairwise_displacement import pairwise_displacement
-from beignet.func._molecular_dynamics._partition.__periodic_displacement import periodic_displacement
+from beignet.func._molecular_dynamics._partition.__pairwise_displacement import (
+    pairwise_displacement,
+)
+from beignet.func._molecular_dynamics._partition.__periodic_displacement import (
+    periodic_displacement,
+)
+
 T = TypeVar("T")
 
 
