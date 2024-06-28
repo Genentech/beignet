@@ -987,15 +987,7 @@ def test_hermetrim():
 
 
 def test_hermeval():
-    assert (
-        math.prod(
-            hermeval(
-                array([]),
-                array([1.0]),
-            ).shape,
-        )
-        == 0
-    )
+    assert math.prod(hermeval(array([]), array([1.0])).shape) == 0
 
     ys = []
 
@@ -1200,15 +1192,7 @@ def test_hermtrim():
 
 
 def test_hermval():
-    assert (
-        math.prod(
-            hermval(
-                array([]),
-                array([1.0]),
-            ).shape,
-        )
-        == 0
-    )
+    assert math.prod(hermval(array([]), array([1.0])).shape) == 0
 
     ys = []
 
@@ -1486,13 +1470,7 @@ def test_lagtrim():
 
 
 def test_lagval():
-    assert (
-        lagval(
-            array([]),
-            array([1.0]),
-        ).size
-        == 0
-    )
+    assert math.prod(lagval(array([]), array([1.0])).shape) == 0
 
     ys = []
 
@@ -1773,13 +1751,7 @@ def test_legtrim():
 
 
 def test_legval():
-    assert (
-        legval(
-            array([]),
-            array([1.0]),
-        ).size
-        == 0
-    )
+    assert math.prod(legval(array([]), array([1.0])).shape) == 0
 
     ys = []
 
@@ -2074,13 +2046,7 @@ def test_polytrim():
 
 
 def test_polyval():
-    assert (
-        polyval(
-            array([]),
-            array([1.0]),
-        ).size
-        == 0
-    )
+    assert math.prod(polyval(array([]), array([1.0])).shape) == 0
 
     y = []
 
@@ -2108,29 +2074,28 @@ def test_polyval():
     )
 
     for i in range(3):
-        assert (
-            polyval(
-                zeros((2,) * i),
-                array([1.0]),
-            ).shape
-            == (2,) * i
+        shape = (2,) * i
+
+        input = zeros(shape)
+
+        output = polyval(
+            input,
+            array([1.0]),
         )
 
-        assert (
-            polyval(
-                zeros((2,) * i),
-                array([1.0, 0.0]),
-            ).shape
-            == (2,) * i
-        )
+        assert output.shape == shape
 
-        assert (
-            polyval(
-                zeros((2,) * i),
-                array([1.0, 0.0, 0.0]),
-            ).shape
-            == (2,) * i
+        output = polyval(
+            input,
+            array([1.0, 0.0]),
         )
+        assert output.shape == shape
+
+        output = polyval(
+            input,
+            array([1.0, 0.0, 0.0]),
+        )
+        assert output.shape == shape
 
 
 def test_polyx():
