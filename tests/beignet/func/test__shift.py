@@ -2,7 +2,7 @@ import hypothesis.strategies as st
 import torch
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__shift import _shift
+from beignet.func._partition import _shift
 
 
 @st.composite

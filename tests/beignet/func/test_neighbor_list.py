@@ -5,18 +5,9 @@ from functools import partial
 from torch import Tensor, vmap
 from typing import Callable
 
+from beignet.func._partition import metric, neighbor_list, safe_index, \
+    map_product, _NeighborListFormat, neighbor_list_mask, _map_bond
 from src.beignet.func import space
-from src.beignet.func._molecular_dynamics._partition.__map_bond import _map_bond
-from src.beignet.func._molecular_dynamics._partition.__neighbor_list_format import (
-    _NeighborListFormat,
-)
-from src.beignet.func._molecular_dynamics._partition.__neighbor_list_mask import (
-    neighbor_list_mask,
-)
-from src.beignet.func._molecular_dynamics._partition.__safe_index import safe_index
-from src.beignet.func._molecular_dynamics._partition._neighbor_list import neighbor_list
-from src.beignet.func._molecular_dynamics._partition.__metric import metric
-from src.beignet.func._molecular_dynamics._partition.__map_product import map_product
 
 PARTICLE_COUNT = 1000
 POSITION_DTYPE = [torch.float32, torch.float64]  # Example values

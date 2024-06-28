@@ -4,9 +4,7 @@ import torch
 from hypothesis import given
 from torch import Tensor
 
-from src.beignet.func._molecular_dynamics._partition.__to_square_metric_fn import (
-    _to_square_metric_fn,
-)
+from beignet.func._partition import _to_square_metric_fn
 
 
 def dummy_fn(a: Tensor, b: Tensor, **kwargs) -> Tensor:

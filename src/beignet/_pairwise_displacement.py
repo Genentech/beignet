@@ -2,14 +2,18 @@ from torch import Tensor
 
 
 def pairwise_displacement(Ra: Tensor, Rb: Tensor) -> Tensor:
-    """Compute a matrix of pairwise displacements given two sets of positions.
+    r"""Compute a matrix of pairwise displacements given two sets of positions.
 
-    Args:
-      Ra: Vector of positions; `Tensor(shape=[spatial_dim])`.
-      Rb: Vector of positions; `Tensor(shape=[spatial_dim])`.
+    Parameters
+    ----------
+    Ra : Tensor
+        Vector of positions
+    Rb : Tensor
+        Vector of positions
 
     Returns:
-      Matrix of displacements; `Tensor(shape=[spatial_dim])`.
+    Tensor(shape=[spatial_dim]
+      Matrix of displacements
     """
     if len(Ra.shape) != 1:
         msg = (

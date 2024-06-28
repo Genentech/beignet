@@ -3,7 +3,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from beignet.func._molecular_dynamics._partition.__cell_size import _cell_size
+from beignet.func._partition import _cell_size
 
 
 @st.composite
