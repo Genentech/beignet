@@ -436,18 +436,18 @@ def test__z_series_to_c_series():
 
 
 def test_chebadd():
-    for i in range(5):
-        for j in range(5):
-            target = torch.zeros(max(i, j) + 1)
+    for j in range(5):
+        for k in range(5):
+            target = torch.zeros(max(j, k) + 1)
 
-            target[i] = target[i] + 1
             target[j] = target[j] + 1
+            target[k] = target[k] + 1
 
             assert_array_almost_equal(
                 chebtrim(
                     chebadd(
-                        tensor([0.0] * i + [1.0]),
                         tensor([0.0] * j + [1.0]),
+                        tensor([0.0] * k + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -459,14 +459,17 @@ def test_chebadd():
 
 
 def test_chebdiv():
-    for i in range(5):
-        for j in range(5):
+    for j in range(5):
+        for k in range(5):
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
+
             quotient, remainder = chebdiv(
                 chebadd(
-                    array([0.0] * i + [1.0]),
-                    array([0.0] * j + [1.0]),
+                    input,
+                    other,
                 ),
-                array([0.0] * i + [1.0]),
+                input,
             )
 
             assert_array_almost_equal(
@@ -474,7 +477,7 @@ def test_chebdiv():
                     chebadd(
                         chebmul(
                             quotient,
-                            array([0.0] * i + [1.0]),
+                            input,
                         ),
                         remainder,
                     ),
@@ -482,8 +485,8 @@ def test_chebdiv():
                 ),
                 chebtrim(
                     chebadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
@@ -505,18 +508,21 @@ def test_chebline():
 
 
 def test_chebmul():
-    for i in range(5):
-        for j in range(5):
-            target = zeros(i + j + 1)
+    for j in range(5):
+        for k in range(5):
+            target = zeros(j + k + 1)
 
-            target = target.at[abs(i + j)].set(target[abs(i + j)] + 0.5)
-            target = target.at[abs(i - j)].set(target[abs(i - j)] + 0.5)
+            target = target.at[abs(j + k)].set(target[abs(j + k)] + 0.5)
+            target = target.at[abs(j - k)].set(target[abs(j - k)] + 0.5)
+
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
 
             assert_array_almost_equal(
                 chebtrim(
                     chebmul(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
@@ -548,15 +554,15 @@ def test_chebmulx():
         array([0.0, 1.0]),
     )
 
-    for i in range(1, 5):
+    for index in range(1, 5):
         assert_array_almost_equal(
             chebtrim(
                 chebmulx(
-                    array([0.0] * i + [1.0]),
+                    array([0.0] * index + [1.0]),
                 ),
                 tol=0.000001,
             ),
-            array([0.0] * (i - 1) + [0.5, 0, 0.5]),
+            array([0.0] * (index - 1) + [0.5, 0, 0.5]),
         )
 
 
@@ -590,18 +596,21 @@ def test_chebpow():
 
 
 def test_chebsub():
-    for i in range(5):
-        for j in range(5):
-            target = zeros(max(i, j) + 1)
+    for j in range(5):
+        for k in range(5):
+            target = zeros(max(j, k) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target = target.at[j].set(target[j] + 1)
+            target = target.at[k].set(target[k] - 1)
+
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
 
             assert_array_almost_equal(
                 chebtrim(
                     chebsub(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
@@ -713,18 +722,18 @@ def test_chebzero():
 
 
 def test_hermadd():
-    for i in range(5):
-        for j in range(5):
-            target = torch.zeros(max(i, j) + 1)
+    for j in range(5):
+        for k in range(5):
+            target = torch.zeros(max(j, k) + 1)
 
-            target[i] = target[i] + 1
             target[j] = target[j] + 1
+            target[k] = target[k] + 1
 
             assert_array_almost_equal(
                 hermtrim(
                     hermadd(
-                        tensor([0.0] * i + [1.0]),
                         tensor([0.0] * j + [1.0]),
+                        tensor([0.0] * k + [1.0]),
                     ),
                     tol=0.000001,
                 ),
@@ -736,14 +745,17 @@ def test_hermadd():
 
 
 def test_hermdiv():
-    for i in range(5):
-        for j in range(5):
+    for j in range(5):
+        for k in range(5):
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
+
             quotient, remainder = hermdiv(
                 hermadd(
-                    array([0.0] * i + [1.0]),
-                    array([0.0] * j + [1.0]),
+                    input,
+                    other,
                 ),
-                array([0.0] * i + [1.0]),
+                input,
             )
 
             assert_array_almost_equal(
@@ -751,7 +763,7 @@ def test_hermdiv():
                     hermadd(
                         hermmul(
                             quotient,
-                            array([0.0] * i + [1.0]),
+                            input,
                         ),
                         remainder,
                     ),
@@ -759,8 +771,8 @@ def test_hermdiv():
                 ),
                 hermtrim(
                     hermadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
@@ -798,14 +810,17 @@ def test_hermeadd():
 
 
 def test_hermediv():
-    for i in range(5):
-        for j in range(5):
+    for j in range(5):
+        for k in range(5):
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
+
             quotient, remainder = hermediv(
                 hermeadd(
-                    array([0.0] * i + [1.0]),
-                    array([0.0] * j + [1.0]),
+                    input,
+                    other,
                 ),
-                array([0.0] * i + [1.0]),
+                input,
             )
 
             assert_array_almost_equal(
@@ -813,7 +828,7 @@ def test_hermediv():
                     hermeadd(
                         hermemul(
                             quotient,
-                            array([0.0] * i + [1.0]),
+                            input,
                         ),
                         remainder,
                     ),
@@ -821,8 +836,8 @@ def test_hermediv():
                 ),
                 hermetrim(
                     hermeadd(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
@@ -844,12 +859,12 @@ def test_hermeline():
 
 
 def test_hermemul():
-    for j in range(5):
+    for index in range(5):
         input = linspace(-3, 3, 100)
 
         val1 = hermeval(
             input,
-            array([0.0] * j + [1.0]),
+            array([0.0] * index + [1.0]),
         )
 
         for k in range(5):
@@ -862,7 +877,7 @@ def test_hermemul():
                 hermeval(
                     input,
                     hermemul(
-                        array([0.0] * j + [1.0]),
+                        array([0.0] * index + [1.0]),
                         array([0.0] * k + [1.0]),
                     ),
                 ),
@@ -931,18 +946,21 @@ def test_hermepow():
 
 
 def test_hermesub():
-    for i in range(5):
-        for j in range(5):
-            target = zeros(max(i, j) + 1)
+    for j in range(5):
+        for k in range(5):
+            target = zeros(max(j, k) + 1)
 
-            target = target.at[i].set(target[i] + 1)
-            target = target.at[j].set(target[j] - 1)
+            target = target.at[j].set(target[j] + 1)
+            target = target.at[k].set(target[k] - 1)
+
+            input = array([0.0] * j + [1.0])
+            other = array([0.0] * k + [1.0])
 
             assert_array_almost_equal(
                 hermetrim(
                     hermesub(
-                        array([0.0] * i + [1.0]),
-                        array([0.0] * j + [1.0]),
+                        input,
+                        other,
                     ),
                     tol=0.000001,
                 ),
