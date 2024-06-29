@@ -15,71 +15,159 @@ from beignet.pytorch import (
     _trim_sequence,
     _vandermonde,
     _z_series_to_c_series,
+    cheb2poly,
     chebadd,
+    chebcompanion,
+    chebder,
     chebdiv,
     chebdomain,
+    chebfit,
+    chebfromroots,
+    chebgauss,
+    chebgrid2d,
+    chebgrid3d,
+    chebint,
+    chebinterpolate,
     chebline,
     chebmul,
     chebmulx,
     chebone,
     chebpow,
+    chebpts1,
+    chebpts2,
+    chebroots,
     chebsub,
     chebtrim,
     chebval,
+    chebval2d,
+    chebval3d,
+    chebvander,
+    chebvander2d,
+    chebvander3d,
+    chebweight,
     chebx,
     chebzero,
+    herm2poly,
     hermadd,
+    hermcompanion,
+    hermder,
     hermdiv,
     hermdomain,
+    herme2poly,
     hermeadd,
+    hermecompanion,
+    hermeder,
     hermediv,
     hermedomain,
+    hermefit,
+    hermefromroots,
+    hermegauss,
+    hermegrid2d,
+    hermegrid3d,
+    hermeint,
     hermeline,
     hermemul,
     hermemulx,
     hermeone,
     hermepow,
+    hermeroots,
     hermesub,
     hermetrim,
     hermeval,
+    hermeval2d,
+    hermeval3d,
+    hermevander,
+    hermevander2d,
+    hermevander3d,
+    hermeweight,
     hermex,
     hermezero,
+    hermfit,
+    hermfromroots,
+    hermgauss,
+    hermgrid2d,
+    hermgrid3d,
+    hermint,
     hermline,
     hermmul,
     hermmulx,
     hermone,
     hermpow,
+    hermroots,
     hermsub,
     hermtrim,
     hermval,
+    hermval2d,
+    hermval3d,
+    hermvander,
+    hermvander2d,
+    hermvander3d,
+    hermweight,
     hermx,
     hermzero,
+    lag2poly,
     lagadd,
+    lagcompanion,
+    lagder,
     lagdiv,
     lagdomain,
+    lagfit,
+    lagfromroots,
+    laggauss,
+    laggrid2d,
+    laggrid3d,
+    lagint,
     lagline,
     lagmul,
     lagmulx,
     lagone,
     lagpow,
+    lagroots,
     lagsub,
     lagtrim,
     lagval,
+    lagval2d,
+    lagval3d,
+    lagvander,
+    lagvander2d,
+    lagvander3d,
+    lagweight,
     lagx,
     lagzero,
+    leg2poly,
     legadd,
+    legcompanion,
+    legder,
     legdiv,
     legdomain,
+    legfit,
+    legfromroots,
+    leggauss,
+    leggrid2d,
+    leggrid3d,
+    legint,
     legline,
     legmul,
     legmulx,
     legone,
     legpow,
+    legroots,
     legsub,
     legtrim,
     legval,
+    legval2d,
+    legval3d,
+    legvander,
+    legvander2d,
+    legvander3d,
+    legweight,
     legx,
     legzero,
+    poly2cheb,
+    poly2herm,
+    poly2herme,
+    poly2lag,
+    poly2leg,
     polyadd,
     polycompanion,
     polydiv,
@@ -458,6 +546,100 @@ def test_chebadd():
             )
 
 
+def test_chebcompanion():
+    with pytest.raises(ValueError):
+        chebcompanion(torch.tensor([]))
+
+    with pytest.raises(ValueError):
+        chebcompanion(torch.tensor([1]))
+
+    for i in range(1, 5):
+        assert chebcompanion(torch.tensor([0] * i + [1])).shape == (i, i)
+
+    assert chebcompanion(torch.tensor([1, 2]))[0, 0] == -0.5
+
+
+def test_chebder():
+    with pytest.raises(TypeError):
+        chebder(torch.tensor([0]), 0.5)
+
+    with pytest.raises(ValueError):
+        chebder(torch.tensor([0]), -1)
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebtrim(
+                chebder(
+                    torch.tensor([0] * i + [1]),
+                    order=0,
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                chebtrim(
+                    chebder(
+                        chebint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                        ),
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                chebtrim(
+                    chebder(
+                        chebint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                            scale=2,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        chebder(
+            c2d,
+            axis=0,
+        ),
+        torch.vstack([chebder(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        chebder(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([chebder(c) for c in c2d]),
+    )
+
+
 def test_chebdiv():
     for j in range(5):
         for k in range(5):
@@ -498,6 +680,672 @@ def test_chebdomain():
         chebdomain,
         torch.tensor([-1.0, 1.0]),
     )
+
+
+def test_chebfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def g(x):
+        return x**4 + x**2 + 1
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    weight = torch.zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        chebfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        chebfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ],
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=4,
+        ),
+        chebfit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
+    )
+
+
+def test_chebfromroots():
+    torch.testing.assert_close(
+        chebtrim(
+            chebfromroots(
+                torch.tensor([]),
+            ),
+            tol=0.000001,
+        ),
+        torch.tensor([1]),
+    )
+    for i in range(1, 5):
+        input = chebfromroots(
+            torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2]),
+        )
+
+        input = input * 2 ** (i - 1)
+
+        torch.testing.assert_close(
+            chebtrim(
+                input,
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+
+def test_chebgauss():
+    point, weight = chebgauss(100)
+
+    t = chebvander(point, 99)
+
+    u = torch.dot(t.T * weight, t)
+
+    v = 1 / torch.sqrt(u.diagonal())
+
+    torch.testing.assert_close(
+        v[:, None] * u * v,
+        torch.eye(100),
+    )
+
+    torch.testing.assert_close(
+        sum(weight),
+        math.pi,
+    )
+
+
+def test_chebgrid2d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    torch.testing.assert_close(
+        chebgrid2d(
+            x1,
+            x2,
+            torch.einsum(
+                "i,j->ij",
+                torch.tensor([2.5, 2.0, 1.5]),
+                torch.tensor([2.5, 2.0, 1.5]),
+            ),
+        ),
+        torch.einsum(
+            "i,j->ij",
+            y1,
+            y2,
+        ),
+    )
+
+    res = chebgrid2d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j->ij",
+            torch.tensor([2.5, 2.0, 1.5]),
+            torch.tensor([2.5, 2.0, 1.5]),
+        ),
+    )
+
+    assert res.shape == (2, 3) * 2
+
+
+def test_chebgrid3d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    torch.testing.assert_close(
+        chebgrid3d(
+            x1,
+            x2,
+            x3,
+            torch.einsum(
+                "i,j,k->ijk",
+                torch.tensor([2.5, 2.0, 1.5]),
+                torch.tensor([2.5, 2.0, 1.5]),
+                torch.tensor([2.5, 2.0, 1.5]),
+            ),
+        ),
+        torch.einsum(
+            "i,j,k->ijk",
+            y1,
+            y2,
+            y3,
+        ),
+    )
+
+    output = chebgrid3d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j,k->ijk",
+            torch.tensor([2.5, 2.0, 1.5]),
+            torch.tensor([2.5, 2.0, 1.5]),
+            torch.tensor([2.5, 2.0, 1.5]),
+        ),
+    )
+
+    assert output.shape == (2, 3) * 3
+
+
+def test_chebint():
+    with pytest.raises(TypeError):
+        chebint(
+            torch.tensor([0]),
+            order=0.5,
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            torch.tensor([0]),
+            order=-1,
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            torch.tensor([0]),
+            order=1,
+            k=[0, 0],
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            torch.tensor([0]),
+            lower_bound=[0],
+        )
+
+    with pytest.raises(ValueError):
+        chebint(
+            torch.tensor([0]),
+            scale=[0],
+        )
+
+    with pytest.raises(TypeError):
+        chebint(
+            torch.tensor([0]),
+            axis=0.5,
+        )
+
+    for i in range(2, 5):
+        k = [0] * (i - 2) + [1]
+
+        torch.testing.assert_close(
+            chebtrim(
+                chebint(
+                    torch.tensor([0]),
+                    order=i,
+                    k=k,
+                ),
+                tol=0.000001,
+            ),
+            torch.tensor([0, 1]),
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebtrim(
+                cheb2poly(
+                    chebint(
+                        poly2cheb(
+                            torch.tensor([0] * i + [1]),
+                        ),
+                        order=1,
+                        k=[i],
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([i] + [0] * i + [1 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebval(
+                torch.tensor([-1]),
+                chebint(
+                    poly2cheb(
+                        torch.tensor([0] * i + [1]),
+                    ),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebtrim(
+                cheb2poly(
+                    chebint(
+                        poly2cheb(
+                            torch.tensor([0] * i + [1]),
+                        ),
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    )
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([i] + [0] * i + [2 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0] * i + [1])
+            target = input[:]
+
+            for _ in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0] * i + [1])
+
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0] * i + [1])
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0] * i + [1])
+
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            axis=0,
+        ),
+        torch.vstack([chebint(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([chebint(c) for c in c2d]),
+    )
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        torch.vstack([chebint(c, k=3) for c in c2d]),
+    )
+
+
+def test_chebinterpolate():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    with pytest.raises(ValueError):
+        chebinterpolate(f, -1)
+
+    for i in range(1, 5):
+        assert chebinterpolate(f, i).shape == (i + 1,)
+
+    def powx(x, p):
+        return x**p
+
+    x = torch.linspace(-1, 1, 10)
+
+    for i in range(0, 10):
+        for j in range(0, i + 1):
+            c = chebinterpolate(
+                powx,
+                i,
+                (j,),
+            )
+
+            torch.testing.assert_close(
+                chebval(x, c),
+                powx(x, j),
+            )
 
 
 def test_chebline():
@@ -579,7 +1427,7 @@ def test_chebpow():
             torch.testing.assert_close(
                 chebtrim(
                     chebpow(
-                        torch.arange(0.0, j + 1),
+                        torch.torch.arange(0.0, j + 1),
                         k,
                     ),
                     tol=0.000001,
@@ -587,12 +1435,100 @@ def test_chebpow():
                 chebtrim(
                     functools.reduce(
                         chebmul,
-                        [torch.arange(0.0, j + 1)] * k,
+                        [torch.torch.arange(0.0, j + 1)] * k,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
                 ),
             )
+
+
+def test_chebpts1():
+    with pytest.raises(ValueError):
+        chebpts1(1.5)
+
+    with pytest.raises(ValueError):
+        chebpts1(0)
+
+    torch.testing.assert_close(
+        chebpts1(1),
+        torch.tensor([0]),
+    )
+
+    torch.testing.assert_close(
+        chebpts1(2),
+        torch.tensor([-0.70710678118654746, 0.70710678118654746]),
+    )
+
+    torch.testing.assert_close(
+        chebpts1(3),
+        torch.tensor([-0.86602540378443871, 0, 0.86602540378443871]),
+    )
+
+    torch.testing.assert_close(
+        chebpts1(4),
+        torch.tensor([-0.9238795325, -0.3826834323, 0.3826834323, 0.9238795325]),
+    )
+
+
+def test_chebpts2():
+    with pytest.raises(ValueError):
+        chebpts2(1.5)
+
+    with pytest.raises(ValueError):
+        chebpts2(1)
+
+    torch.testing.assert_close(
+        chebpts2(2),
+        torch.tensor([-1, 1]),
+    )
+
+    torch.testing.assert_close(
+        chebpts2(3),
+        torch.tensor([-1, 0, 1]),
+    )
+
+    torch.testing.assert_close(
+        chebpts2(4),
+        torch.tensor([-1, -0.5, 0.5, 1]),
+    )
+
+    torch.testing.assert_close(
+        chebpts2(5),
+        torch.tensor([-1.0, -0.707106781187, 0, 0.707106781187, 1.0]),
+    )
+
+
+def test_chebroots():
+    torch.testing.assert_close(
+        chebroots(
+            torch.tensor([1]),
+        ),
+        torch.tensor([]),
+    )
+
+    torch.testing.assert_close(
+        chebroots(
+            torch.tensor([1, 2]),
+        ),
+        torch.tensor([-0.5]),
+    )
+
+    for i in range(2, 5):
+        torch.testing.assert_close(
+            chebtrim(
+                chebroots(
+                    chebfromroots(
+                        torch.linspace(-1, 1, i),
+                    )
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.linspace(-1, 1, i),
+                tol=0.000001,
+            ),
+        )
 
 
 def test_chebsub():
@@ -666,7 +1602,7 @@ def test_chebval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -674,7 +1610,7 @@ def test_chebval():
     for index in range(10):
         torch.testing.assert_close(
             chebval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * index + [1.0]),
             ),
             torch.tensor(ys[index]),
@@ -707,6 +1643,193 @@ def test_chebval():
         assert output.shape == shape
 
 
+def test_chebval2d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    pytest.raises(
+        ValueError,
+        chebval2d,
+        x1,
+        x2[:2],
+        torch.einsum(
+            "i,j->ij",
+            torch.tensor([2.5, 2.0, 1.5]),
+            torch.tensor([2.5, 2.0, 1.5]),
+        ),
+    )
+
+    torch.testing.assert_close(
+        chebval2d(
+            x1,
+            x2,
+            torch.einsum(
+                "i,j->ij",
+                torch.tensor([2.5, 2.0, 1.5]),
+                torch.tensor([2.5, 2.0, 1.5]),
+            ),
+        ),
+        y1 * y2,
+    )
+
+    res = chebval2d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j->ij",
+            torch.tensor([2.5, 2.0, 1.5]),
+            torch.tensor([2.5, 2.0, 1.5]),
+        ),
+    )
+
+    assert res.shape == (2, 3)
+
+
+def test_chebval3d():
+    c3d = torch.einsum(
+        "i,j,k->ijk",
+        torch.tensor([2.5, 2.0, 1.5]),
+        torch.tensor([2.5, 2.0, 1.5]),
+        torch.tensor([2.5, 2.0, 1.5]),
+    )
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    pytest.raises(ValueError, chebval3d, x1, x2, x3[:2], c3d)
+
+    torch.testing.assert_close(
+        chebval3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        y1 * y2 * y3,
+    )
+
+    output = chebval3d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        c3d,
+    )
+
+    assert output.shape == (2, 3)
+
+
+def test_chebvander():
+    v = chebvander(
+        torch.arange(3),
+        degree=3,
+    )
+
+    assert v.shape == (3, 4)
+
+    for i in range(4):
+        torch.testing.assert_close(
+            v[..., i],
+            chebval(
+                torch.arange(3),
+                torch.tensor([0] * i + [1]),
+            ),
+        )
+
+    v = chebvander(
+        torch.tensor([[1, 2], [3, 4], [5, 6]]),
+        degree=3,
+    )
+
+    assert v.shape == (3, 2, 4)
+
+    for i in range(4):
+        torch.testing.assert_close(
+            v[..., i],
+            chebval(
+                torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                torch.tensor([0] * i + [1]),
+            ),
+        )
+
+
+def test_chebvander2d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+
+    c = torch.rand(2, 3)
+
+    torch.testing.assert_close(
+        torch.dot(
+            chebvander2d(
+                x1,
+                x2,
+                (1, 2),
+            ),
+            torch.ravel(c),
+        ),
+        chebval2d(
+            x1,
+            x2,
+            c,
+        ),
+    )
+
+    van = chebvander2d(
+        [x1],
+        [x2],
+        (1, 2),
+    )
+
+    assert van.shape == (1, 5, 6)
+
+
+def test_chebvander3d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+
+    c = torch.rand(2, 3, 4)
+
+    torch.testing.assert_close(
+        torch.dot(
+            chebvander3d(x1, x2, x3, (1, 2, 3)),
+            torch.ravel(c),
+        ),
+        chebval3d(
+            x1,
+            x2,
+            x3,
+            c,
+        ),
+    )
+
+    van = chebvander3d(
+        [x1],
+        [x2],
+        [x3],
+        (1, 2, 3),
+    )
+
+    assert van.shape == (1, 5, 24)
+
+
+def test_chebweight():
+    x = torch.linspace(-1, 1, 11)[1:-1]
+
+    torch.testing.assert_close(
+        chebweight(x),
+        1.0 / (torch.sqrt(1 + x) * torch.sqrt(1 - x)),
+    )
+
+
 def test_chebx():
     torch.testing.assert_close(
         chebx,
@@ -719,6 +1842,14 @@ def test_chebzero():
         chebzero,
         torch.tensor([0.0]),
     )
+
+
+def test_herm2poly():
+    for i in range(10):
+        torch.testing.assert_close(
+            herm2poly(torch.tensor([0] * i + [1])),
+            hermcoefficients[i],
+        )
 
 
 def test_hermadd():
@@ -742,6 +1873,99 @@ def test_hermadd():
                     tol=0.000001,
                 ),
             )
+
+
+def test_hermcompanion():
+    with pytest.raises(ValueError):
+        hermcompanion(torch.tensor([]))
+
+    with pytest.raises(ValueError):
+        hermcompanion(torch.tensor([1]))
+
+    for i in range(1, 5):
+        assert hermcompanion(torch.tensor([0] * i + [1])).shape == (i, i)
+
+    assert hermcompanion(torch.tensor([1, 2]))[0, 0] == -0.25
+
+
+def test_hermder():
+    with pytest.raises(TypeError):
+        hermder(torch.tensor([0]), 0.5)
+
+    with pytest.raises(ValueError):
+        hermder(torch.tensor([0]), -1)
+
+    for i in range(5):
+        torch.testing.assert_close(
+            hermtrim(
+                hermder(
+                    torch.tensor([0] * i + [1]),
+                    order=0,
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                hermtrim(
+                    hermder(
+                        hermint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                        ),
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = torch.tensor([0] * i + [1])
+            res = hermder(
+                hermint(
+                    target,
+                    order=j,
+                    scale=2,
+                ),
+                order=j,
+                scale=0.5,
+            )
+            torch.testing.assert_close(
+                hermtrim(
+                    res,
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        hermder(c2d, axis=0),
+        torch.vstack([hermder(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        hermder(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([hermder(c) for c in c2d]),
+    )
 
 
 def test_hermdiv():
@@ -786,6 +2010,14 @@ def test_hermdomain():
     )
 
 
+def test_herme2poly():
+    for i in range(10):
+        torch.testing.assert_close(
+            herme2poly(torch.tensor([0] * i + [1])),
+            hermecoefficients[i],
+        )
+
+
 def test_hermeadd():
     for j in range(5):
         for k in range(5):
@@ -807,6 +2039,89 @@ def test_hermeadd():
                     tol=0.000001,
                 ),
             )
+
+
+def test_hermecompanion():
+    with pytest.raises(ValueError):
+        hermecompanion(torch.tensor([]))
+
+    with pytest.raises(ValueError):
+        hermecompanion([1])
+
+    for i in range(1, 5):
+        coef = torch.tensor([0] * i + [1])
+        assert hermecompanion(coef).shape == (i, i)
+
+    assert hermecompanion(torch.tensor([1, 2]))[0, 0] == -0.5
+
+
+def test_hermeder():
+    pytest.raises(TypeError, hermeder, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, hermeder, torch.tensor([0]), -1)
+
+    for i in range(5):
+        torch.testing.assert_close(
+            hermetrim(
+                hermeder(torch.tensor([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            hermetrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                hermetrim(
+                    hermeder(
+                        hermeint(torch.tensor([0] * i + [1]), order=j),
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                hermetrim(
+                    hermeder(
+                        hermeint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                            scale=2,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        hermeder(c2d, axis=0),
+        torch.vstack([hermeder(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        hermeder(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([hermeder(c) for c in c2d]),
+    )
 
 
 def test_hermediv():
@@ -851,6 +2166,547 @@ def test_hermedomain():
     )
 
 
+def test_hermefit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def g(x):
+        return x**4 + x**2 + 1
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = torch.zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermefit(
+            input,
+            other,
+            degree=4,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
+    )
+
+
+def test_hermefromroots():
+    res = hermefromroots(torch.tensor([]))
+    torch.testing.assert_close(
+        hermetrim(
+            res,
+            tol=0.000001,
+        ),
+        torch.tensor([1]),
+    )
+    for i in range(1, 5):
+        roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        pol = hermefromroots(roots)
+        assert len(pol) == i + 1
+        torch.testing.assert_close(herme2poly(pol)[-1], 1)
+        torch.testing.assert_close(
+            hermeval(roots, pol),
+            0,
+        )
+
+
+def test_hermegauss():
+    x, w = hermegauss(100)
+
+    v = hermevander(x, 99)
+    vv = torch.dot(v.T * w, v)
+    vd = 1 / torch.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    torch.testing.assert_close(vv, torch.eye(100))
+
+    target = torch.sqrt(2 * math.pi)
+    torch.testing.assert_close(w.sum(), target)
+
+
+def test_hermegrid2d():
+    c1d = torch.tensor([4.0, 2.0, 3.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    target = torch.einsum("i,j->ij", y1, y2)
+    res = hermegrid2d(
+        x1,
+        x2,
+        c2d,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+    z = torch.ones([2, 3])
+    res = hermegrid2d(
+        z,
+        z,
+        c2d,
+    )
+    assert res.shape == (2, 3) * 2
+
+
+def test_hermegrid3d():
+    c1d = torch.tensor([4.0, 2.0, 3.0])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    torch.testing.assert_close(
+        hermegrid3d(x1, x2, x3, c3d),
+        torch.einsum("i,j,k->ijk", y1, y2, y3),
+    )
+
+    z = torch.ones([2, 3])
+    res = hermegrid3d(z, z, z, c3d)
+    assert res.shape == (2, 3) * 3
+
+
+def test_hermeint():
+    pytest.raises(TypeError, hermeint, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, hermeint, torch.tensor([0]), -1)
+    pytest.raises(ValueError, hermeint, torch.tensor([0]), 1, [0, 0])
+    pytest.raises(ValueError, hermeint, torch.tensor([0]), lower_bound=[0])
+    pytest.raises(ValueError, hermeint, torch.tensor([0]), scale=[0])
+    pytest.raises(TypeError, hermeint, torch.tensor([0]), axis=0.5)
+
+    for i in range(2, 5):
+        k = [0] * (i - 2) + [1]
+        res = hermeint(torch.tensor([0]), order=i, k=k)
+        torch.testing.assert_close(
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
+            torch.tensor([0, 1]),
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        target = [i] + [0] * i + [1 / scale]
+        hermepol = poly2herme(pol)
+        res = herme2poly(hermeint(hermepol, order=1, k=[i]))
+        torch.testing.assert_close(
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
+            hermetrim(
+                target,
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        hermepol = poly2herme(pol)
+        torch.testing.assert_close(
+            hermeval(
+                torch.tensor([-1]),
+                hermeint(
+                    hermepol,
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        target = [i] + [0] * i + [2 / scale]
+        hermepol = poly2herme(pol)
+        res = herme2poly(hermeint(hermepol, order=1, k=[i], scale=2))
+        torch.testing.assert_close(
+            hermetrim(
+                res,
+                tol=0.000001,
+            ),
+            hermetrim(
+                target,
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for _ in range(j):
+                target = hermeint(target, order=1)
+            res = hermeint(pol, order=j)
+            torch.testing.assert_close(
+                hermetrim(
+                    res,
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermeint(target, order=1, k=[k])
+
+            torch.testing.assert_close(
+                hermetrim(
+                    hermeint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermeint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+            torch.testing.assert_close(
+                hermetrim(
+                    hermeint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermeint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+            torch.testing.assert_close(
+                hermetrim(
+                    hermeint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                hermetrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        hermeint(c2d, axis=0),
+        torch.vstack([hermeint(c) for c in c2d.T]).T,
+    )
+
+    target = torch.vstack([hermeint(c) for c in c2d])
+    res = hermeint(
+        c2d,
+        axis=1,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+    target = torch.vstack([hermeint(c, k=3) for c in c2d])
+    res = hermeint(
+        c2d,
+        k=3,
+        axis=1,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+
 def test_hermeline():
     torch.testing.assert_close(
         hermeline(3.0, 4.0),
@@ -860,7 +2716,7 @@ def test_hermeline():
 
 def test_hermemul():
     for index in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = torch.torch.linspace(-3, 3, 100)
 
         val1 = hermeval(
             input,
@@ -930,7 +2786,7 @@ def test_hermepow():
             torch.testing.assert_close(
                 hermetrim(
                     hermepow(
-                        torch.arange(0.0, j + 1),
+                        torch.torch.arange(0.0, j + 1),
                         k,
                     ),
                     tol=0.000001,
@@ -938,12 +2794,34 @@ def test_hermepow():
                 hermetrim(
                     functools.reduce(
                         hermemul,
-                        [torch.arange(0.0, j + 1)] * k,
+                        [torch.torch.arange(0.0, j + 1)] * k,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
                 ),
             )
+
+
+def test_hermeroots():
+    torch.testing.assert_close(hermeroots([1]), torch.tensor([]))
+
+    torch.testing.assert_close(hermeroots([1, 1]), [-1])
+
+    for i in range(2, 5):
+        torch.testing.assert_close(
+            hermetrim(
+                hermeroots(
+                    hermefromroots(
+                        torch.linspace(-1, 1, i),
+                    )
+                ),
+                tol=0.000001,
+            ),
+            hermetrim(
+                torch.linspace(-1, 1, i),
+                tol=0.000001,
+            ),
+        )
 
 
 def test_hermesub():
@@ -1017,7 +2895,7 @@ def test_hermeval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1025,7 +2903,7 @@ def test_hermeval():
     for i in range(10):
         torch.testing.assert_close(
             hermeval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * i + [1.0]),
             ),
             ys[i],
@@ -1058,6 +2936,111 @@ def test_hermeval():
         assert output.shape == shape
 
 
+def test_hermeval2d():
+    c1d = torch.tensor([4.0, 2.0, 3.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    pytest.raises(
+        ValueError,
+        hermeval2d,
+        x1,
+        x2[:2],
+        c2d,
+    )
+
+    torch.testing.assert_close(
+        hermeval2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        y1 * y2,
+    )
+
+    z = torch.ones([2, 3])
+    res = hermeval2d(
+        z,
+        z,
+        c2d,
+    )
+    assert res.shape == (2, 3)
+
+
+def test_hermeval3d():
+    c1d = torch.tensor([4.0, 2.0, 3.0])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    pytest.raises(ValueError, hermeval3d, x1, x2, x3[:2], c3d)
+
+    target = y1 * y2 * y3
+    res = hermeval3d(x1, x2, x3, c3d)
+    torch.testing.assert_close(res, target)
+
+    z = torch.ones([2, 3])
+    res = hermeval3d(z, z, z, c3d)
+    assert res.shape == (2, 3)
+
+
+def test_hermevander():
+    x = torch.arange(3)
+    v = hermevander(x, 3)
+    assert v.shape == (3, 4)
+    for i in range(4):
+        coef = torch.tensor([0] * i + [1])
+        torch.testing.assert_close(v[..., i], hermeval(x, coef))
+
+    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    v = hermevander(x, 3)
+    assert v.shape == (3, 2, 4)
+    for i in range(4):
+        coef = torch.tensor([0] * i + [1])
+        torch.testing.assert_close(v[..., i], hermeval(x, coef))
+
+
+def test_hermevander2d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3)
+    torch.testing.assert_close(
+        torch.dot(hermevander2d(x1, x2, (1, 2)), c.torch.ravel()),
+        hermeval2d(x1, x2, c),
+    )
+
+    van = hermevander2d([x1], [x2], (1, 2))
+    assert van.shape == (1, 5, 6)
+
+
+def test_hermevander3d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3, 4)
+    van = hermevander3d(x1, x2, x3, (1, 2, 3))
+    torch.testing.assert_close(
+        torch.dot(van, c.torch.ravel()), hermeval3d(x1, x2, x3, c)
+    )
+
+    van = hermevander3d([x1], [x2], [x3], (1, 2, 3))
+    assert van.shape == (1, 5, 24)
+
+
+def test_hermeweight():
+    x = torch.linspace(-5, 5, 11)
+    target = torch.exp(-0.5 * x**2)
+    res = hermeweight(x)
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+
 def test_hermex():
     torch.testing.assert_close(
         hermex,
@@ -1072,6 +3055,586 @@ def test_hermezero():
     )
 
 
+def test_hermfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def g(x):
+        return x**4 + x**2 + 1
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ],
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = torch.zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([0, 0.5]),
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        torch.tensor([0, 0.5]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        hermfit(
+            input,
+            other,
+            degree=4,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
+    )
+
+
+def test_hermfromroots():
+    res = hermfromroots(torch.tensor([]))
+    torch.testing.assert_close(
+        hermtrim(
+            res,
+            tol=0.000001,
+        ),
+        torch.tensor([1]),
+    )
+    for i in range(1, 5):
+        roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        pol = hermfromroots(roots)
+        res = hermval(roots, pol)
+        target = 0
+        assert len(pol) == i + 1
+        torch.testing.assert_close(herm2poly(pol)[-1], 1)
+        torch.testing.assert_close(
+            res,
+            target,
+        )
+
+
+def test_hermgauss():
+    x, w = hermgauss(100)
+
+    v = hermvander(x, 99)
+    vv = torch.dot(v.T * w, v)
+    vd = 1 / torch.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    torch.testing.assert_close(
+        vv,
+        torch.eye(100),
+    )
+
+    target = torch.sqrt(math.pi)
+    torch.testing.assert_close(w.sum(), target)
+
+
+def test_hermgrid2d():
+    c1d = torch.tensor([2.5, 1.0, 0.75])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    target = torch.einsum("i,j->ij", y1, y2)
+    torch.testing.assert_close(
+        hermgrid2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        target,
+    )
+
+    z = torch.ones([2, 3])
+    assert (
+        hermgrid2d(
+            z,
+            z,
+            c2d,
+        ).shape
+        == (2, 3) * 2
+    )
+
+
+def test_hermgrid3d():
+    c1d = torch.tensor([2.5, 1.0, 0.75])
+    c3d = torch.einsum(
+        "i,j,k->ijk",
+        c1d,
+        c1d,
+        c1d,
+    )
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    torch.testing.assert_close(
+        hermgrid3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        torch.einsum(
+            "i,j,k->ijk",
+            y1,
+            y2,
+            y3,
+        ),
+    )
+
+    z = torch.ones([2, 3])
+
+    assert hermgrid3d(z, z, z, c3d).shape == (2, 3) * 3
+
+
+def test_hermint():
+    pytest.raises(TypeError, hermint, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, hermint, torch.tensor([0]), -1)
+    pytest.raises(
+        ValueError,
+        hermint,
+        torch.tensor([0]),
+        1,
+        torch.tensor([0, 0]),
+    )
+    pytest.raises(ValueError, hermint, torch.tensor([0]), lower_bound=[0])
+    pytest.raises(ValueError, hermint, torch.tensor([0]), scale=[0])
+    pytest.raises(TypeError, hermint, torch.tensor([0]), axis=0.5)
+
+    for i in range(2, 5):
+        k = [0] * (i - 2) + [1]
+
+        torch.testing.assert_close(
+            hermtrim(
+                hermint(
+                    torch.tensor([0]),
+                    order=i,
+                    k=k,
+                ),
+                tol=0.000001,
+            ),
+            [0, 0.5],
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        hermpol = poly2herm(pol)
+        torch.testing.assert_close(
+            hermtrim(
+                herm2poly(
+                    hermint(
+                        hermpol,
+                        order=1,
+                        k=[i],
+                    )
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                [i] + [0] * i + [1 / scale],
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        pol = torch.tensor([0] * i + [1])
+        hermpol = poly2herm(pol)
+        torch.testing.assert_close(
+            hermval(
+                torch.tensor(-1),
+                hermint(
+                    hermpol,
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        hermpol = poly2herm(pol)
+        torch.testing.assert_close(
+            hermtrim(
+                herm2poly(
+                    hermint(
+                        hermpol,
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                [i] + [0] * i + [2 / scale],
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for _ in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                )
+
+            torch.testing.assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermint(target, order=1, k=[k])
+            torch.testing.assert_close(
+                hermtrim(
+                    hermint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+
+            torch.testing.assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+
+            torch.testing.assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    target = torch.vstack([hermint(c) for c in c2d.T]).T
+    torch.testing.assert_close(hermint(c2d, axis=0), target)
+
+    target = torch.vstack([hermint(c) for c in c2d])
+    torch.testing.assert_close(
+        hermint(
+            c2d,
+            axis=1,
+        ),
+        target,
+    )
+
+    target = torch.vstack([hermint(c, k=3) for c in c2d])
+
+    torch.testing.assert_close(
+        hermint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        target,
+    )
+
+
 def test_hermline():
     torch.testing.assert_close(
         hermline(3, 4),
@@ -1081,7 +3644,7 @@ def test_hermline():
 
 def test_hermmul():
     for i in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = torch.torch.linspace(-3, 3, 100)
 
         val1 = hermval(
             input,
@@ -1146,7 +3709,7 @@ def test_hermpow():
             torch.testing.assert_close(
                 hermtrim(
                     hermpow(
-                        torch.arange(0.0, i + 1),
+                        torch.torch.arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1154,12 +3717,46 @@ def test_hermpow():
                 hermtrim(
                     functools.reduce(
                         hermmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [torch.torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
                 ),
             )
+
+
+def test_hermroots():
+    torch.testing.assert_close(
+        hermroots(
+            torch.tensor([1]),
+        ),
+        torch.tensor([]),
+    )
+
+    torch.testing.assert_close(
+        hermroots(
+            torch.tensor([1, 1]),
+        ),
+        torch.tensor([-0.5]),
+    )
+
+    for i in range(2, 5):
+        input = torch.linspace(-1, 1, i)
+
+        torch.testing.assert_close(
+            hermtrim(
+                hermroots(
+                    hermfromroots(
+                        input,
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                input,
+                tol=0.000001,
+            ),
+        )
 
 
 def test_hermsub():
@@ -1226,7 +3823,7 @@ def test_hermval():
 
     ys = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = torch.torch.linspace(-1, 1, 50)
 
     for coefficient in hermcoefficients:
         ys = [
@@ -1273,6 +3870,109 @@ def test_hermval():
         assert output.shape == shape
 
 
+def test_hermval2d():
+    c1d = torch.tensor([2.5, 1.0, 0.75])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    pytest.raises(
+        ValueError,
+        hermval2d,
+        x1,
+        x2[:2],
+        c2d,
+    )
+
+    torch.testing.assert_close(
+        hermval2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        y1 * y2,
+    )
+
+    z = torch.ones([2, 3])
+    res = hermval2d(
+        z,
+        z,
+        c2d,
+    )
+    assert res.shape == (2, 3)
+
+
+def test_hermval3d():
+    c1d = torch.tensor([2.5, 1.0, 0.75])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    pytest.raises(ValueError, hermval3d, x1, x2, x3[:2], c3d)
+
+    target = y1 * y2 * y3
+    torch.testing.assert_close(
+        hermval3d(x1, x2, x3, c3d),
+        target,
+    )
+
+    z = torch.ones([2, 3])
+    assert hermval3d(z, z, z, c3d).shape == (2, 3)
+
+
+def test_hermvander():
+    x = torch.arange(3)
+    v = hermvander(x, 3)
+    assert v.shape == (3, 4)
+    for i in range(4):
+        coef = torch.tensor([0] * i + [1])
+        torch.testing.assert_close(v[..., i], hermval(x, coef))
+
+    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    v = hermvander(x, 3)
+    assert v.shape == (3, 2, 4)
+    for i in range(4):
+        coef = torch.tensor([0] * i + [1])
+        torch.testing.assert_close(v[..., i], hermval(x, coef))
+
+
+def test_hermvander2d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3)
+    torch.testing.assert_close(
+        torch.dot(hermvander2d(x1, x2, (1, 2)), c.torch.ravel()),
+        hermval2d(x1, x2, c),
+    )
+
+    assert hermvander2d([x1], [x2], (1, 2)).shape == (1, 5, 6)
+
+
+def test_hermvander3d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3, 4)
+    torch.testing.assert_close(
+        torch.dot(hermvander3d(x1, x2, x3, (1, 2, 3)), c.torch.ravel()),
+        hermval3d(x1, x2, x3, c),
+    )
+
+    assert hermvander3d([x1], [x2], [x3], (1, 2, 3)).shape == (1, 5, 24)
+
+
+def test_hermweight():
+    torch.testing.assert_close(
+        hermweight(torch.linspace(-5, 5, 11)),
+        torch.exp(-(torch.linspace(-5, 5, 11) ** 2)),
+    )
+
+
 def test_hermx():
     torch.testing.assert_close(
         hermx,
@@ -1285,6 +3985,13 @@ def test_hermzero():
         hermzero,
         torch.tensor([0.0]),
     )
+
+
+def test_lag2poly():
+    for i in range(7):
+        torch.testing.assert_close(
+            lag2poly(torch.tensor([0] * i + [1])), lagcoefficients[i]
+        )
 
 
 def test_lagadd():
@@ -1308,6 +4015,85 @@ def test_lagadd():
                     tol=0.000001,
                 ),
             )
+
+
+def test_lagcompanion():
+    with pytest.raises(ValueError):
+        lagcompanion(torch.tensor([]))
+    with pytest.raises(ValueError):
+        lagcompanion([1])
+
+    for i in range(1, 5):
+        coef = torch.tensor([0] * i + [1])
+        assert lagcompanion(coef).shape == (i, i)
+
+    assert lagcompanion(torch.tensor([1, 2]))[0, 0] == 1.5
+
+
+def test_lagder():
+    pytest.raises(TypeError, lagder, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, lagder, torch.tensor([0]), -1)
+
+    for i in range(5):
+        torch.testing.assert_close(
+            lagtrim(
+                lagder(torch.tensor([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            lagtrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                lagtrim(
+                    lagder(lagint(torch.tensor([0] * i + [1]), order=j), order=j),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                lagtrim(
+                    lagder(
+                        lagint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                            scale=2,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        lagder(c2d, axis=0),
+        torch.vstack([lagder(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        lagder(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([lagder(c) for c in c2d]),
+    )
 
 
 def test_lagdiv():
@@ -1349,6 +4135,474 @@ def test_lagdomain():
     )
 
 
+def test_lagfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        lagval(
+            input,
+            lagfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        lagval(
+            input,
+            lagfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        lagval(
+            input,
+            lagfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        lagval(
+            input,
+            lagfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    weight = torch.zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        lagfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        lagfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ],
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                lagfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([1, -1]),
+    )
+
+    torch.testing.assert_close(
+        lagfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        torch.tensor([1, -1]),
+    )
+
+
+def test_lagfromroots():
+    res = lagfromroots(torch.tensor([]))
+    torch.testing.assert_close(
+        lagtrim(
+            res,
+            tol=0.000001,
+        ),
+        torch.tensor([1]),
+    )
+    for i in range(1, 5):
+        roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        pol = lagfromroots(roots)
+        res = lagval(roots, pol)
+        target = 0
+        assert len(pol) == i + 1
+        torch.testing.assert_close(lag2poly(pol)[-1], 1)
+        torch.testing.assert_close(res, target)
+
+
+def test_laggauss():
+    x, w = laggauss(100)
+
+    v = lagvander(x, 99)
+    vv = torch.dot(v.T * w, v)
+    vd = 1 / torch.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+    torch.testing.assert_close(
+        vv,
+        torch.eye(100),
+    )
+
+    target = 1.0
+    torch.testing.assert_close(w.sum(), target)
+
+
+def test_laggrid2d():
+    c1d = torch.tensor([9.0, -14.0, 6.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    torch.testing.assert_close(
+        laggrid2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        torch.einsum("i,j->ij", y1, y2),
+    )
+
+    z = torch.ones([2, 3])
+    assert (
+        laggrid2d(
+            z,
+            z,
+            c2d,
+        ).shape
+        == (2, 3) * 2
+    )
+
+
+def test_laggrid3d():
+    c1d = torch.tensor([9.0, -14.0, 6.0])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    target = torch.einsum("i,j,k->ijk", y1, y2, y3)
+    torch.testing.assert_close(laggrid3d(x1, x2, x3, c3d), target, decimal=3)
+
+    z = torch.ones([2, 3])
+    assert laggrid3d(z, z, z, c3d).shape == (2, 3) * 3
+
+
+def test_lagint():
+    pytest.raises(TypeError, lagint, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, lagint, torch.tensor([0]), -1)
+    pytest.raises(
+        ValueError,
+        lagint,
+        torch.tensor([0]),
+        1,
+        torch.tensor([0, 0]),
+    )
+    pytest.raises(ValueError, lagint, torch.tensor([0]), lower_bound=[0])
+    pytest.raises(ValueError, lagint, torch.tensor([0]), scale=[0])
+    pytest.raises(TypeError, lagint, torch.tensor([0]), axis=0.5)
+
+    for i in range(2, 5):
+        k = [0] * (i - 2) + [1]
+        torch.testing.assert_close(
+            lagtrim(
+                lagint(torch.tensor([0]), order=i, k=k),
+                tol=0.000001,
+            ),
+            [1, -1],
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        target = [i] + [0] * i + [1 / scale]
+        res = lag2poly(lagint(poly2lag(pol), order=1, k=[i]))
+        torch.testing.assert_close(
+            lagtrim(
+                res,
+                tol=0.000001,
+            ),
+            lagtrim(
+                target,
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        lagpol = poly2lag(pol)
+        torch.testing.assert_close(
+            lagval(
+                torch.tensor([-1]),
+                lagint(
+                    lagpol,
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        scale = i + 1
+        pol = torch.tensor([0] * i + [1])
+        target = [i] + [0] * i + [2 / scale]
+        lagpol = poly2lag(pol)
+        torch.testing.assert_close(
+            lagtrim(
+                lag2poly(lagint(lagpol, order=1, k=[i], scale=2)),
+                tol=0.000001,
+            ),
+            lagtrim(
+                target,
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for _ in range(j):
+                target = lagint(target, order=1)
+            torch.testing.assert_close(
+                lagtrim(
+                    lagint(pol, order=j),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = lagint(target, order=1, k=[k])
+            torch.testing.assert_close(
+                lagtrim(
+                    lagint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = lagint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+            torch.testing.assert_close(
+                lagtrim(
+                    lagint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = lagint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+            torch.testing.assert_close(
+                lagtrim(
+                    lagint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    target = torch.vstack([lagint(c) for c in c2d.T]).T
+    torch.testing.assert_close(
+        lagint(c2d, axis=0),
+        target,
+    )
+
+    target = torch.vstack([lagint(c) for c in c2d])
+    res = lagint(
+        c2d,
+        axis=1,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+    target = torch.vstack([lagint(c, k=3) for c in c2d])
+    res = lagint(
+        c2d,
+        k=3,
+        axis=1,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+
 def test_lagline():
     torch.testing.assert_close(
         lagline(3.0, 4.0),
@@ -1358,7 +4612,7 @@ def test_lagline():
 
 def test_lagmul():
     for i in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = torch.torch.linspace(-3, 3, 100)
 
         a = lagval(
             input,
@@ -1436,7 +4690,7 @@ def test_lagpow():
             torch.testing.assert_close(
                 lagtrim(
                     lagpow(
-                        torch.arange(0.0, i + 1),
+                        torch.torch.arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1444,12 +4698,31 @@ def test_lagpow():
                 lagtrim(
                     functools.reduce(
                         lagmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [torch.torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
                 ),
             )
+
+
+def test_lagroots():
+    torch.testing.assert_close(lagroots(torch.tensor([1])), torch.tensor([]))
+    torch.testing.assert_close(
+        lagroots(torch.tensor([0, 1])),
+        torch.tensor([1]),
+    )
+    for i in range(2, 5):
+        torch.testing.assert_close(
+            lagtrim(
+                lagroots(lagfromroots(torch.linspace(0, 3, i))),
+                tol=0.000001,
+            ),
+            lagtrim(
+                torch.linspace(0, 3, i),
+                tol=0.000001,
+            ),
+        )
 
 
 def test_lagsub():
@@ -1515,7 +4788,7 @@ def test_lagval():
 
     ys = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = torch.torch.linspace(-1, 1, 50)
 
     for coefficient in lagcoefficients:
         ys = [
@@ -1562,6 +4835,129 @@ def test_lagval():
         assert output.shape == shape
 
 
+def test_lagval2d():
+    c1d = torch.tensor([9.0, -14.0, 6.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    pytest.raises(
+        ValueError,
+        lagval2d,
+        x1,
+        x2[:2],
+        c2d,
+    )
+
+    target = y1 * y2
+    torch.testing.assert_close(
+        lagval2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        target,
+        decimal=3,
+    )
+
+    z = torch.ones([2, 3])
+    assert lagval2d(
+        z,
+        z,
+        c2d,
+    ).shape == (2, 3)
+
+
+def test_lagval3d():
+    c1d = torch.tensor([9.0, -14.0, 6.0])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    pytest.raises(ValueError, lagval3d, x1, x2, x3[:2], c3d)
+
+    torch.testing.assert_close(
+        lagval3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        y1 * y2 * y3,
+    )
+
+    assert lagval3d(
+        torch.ones([2, 3]), torch.ones([2, 3]), torch.ones([2, 3]), c3d
+    ).shape == (2, 3)
+
+
+def test_lagvander():
+    x = torch.arange(3)
+
+    v = lagvander(x, 3)
+
+    assert v.shape == (3, 4)
+
+    for i in range(4):
+        torch.testing.assert_close(
+            v[..., i],
+            lagval(
+                x,
+                torch.tensor([0] * i + [1]),
+            ),
+        )
+
+    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+
+    v = lagvander(x, 3)
+
+    assert v.shape == (3, 2, 4)
+
+    for i in range(4):
+        torch.testing.assert_close(
+            v[..., i],
+            lagval(
+                x,
+                torch.tensor([0] * i + [1]),
+            ),
+        )
+
+
+def test_lagvander2d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3)
+    torch.testing.assert_close(
+        torch.dot(lagvander2d(x1, x2, (1, 2)), c.torch.ravel()),
+        lagval2d(x1, x2, c),
+    )
+
+    assert lagvander2d([x1], [x2], (1, 2)).shape == (1, 5, 6)
+
+
+def test_lagvander3d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3, 4)
+    torch.testing.assert_close(
+        torch.dot(lagvander3d(x1, x2, x3, (1, 2, 3)), c.torch.ravel()),
+        lagval3d(x1, x2, x3, c),
+    )
+
+    assert lagvander3d([x1], [x2], [x3], (1, 2, 3)).shape == (1, 5, 24)
+
+
+def test_lagweight():
+    torch.testing.assert_close(
+        lagweight(torch.linspace(0, 10, 11)),
+        torch.exp(-torch.linspace(0, 10, 11)),
+    )
+
+
 def test_lagx():
     torch.testing.assert_close(
         lagx,
@@ -1574,6 +4970,14 @@ def test_lagzero():
         lagzero,
         torch.tensor([0.0]),
     )
+
+
+def test_leg2poly():
+    for i in range(10):
+        torch.testing.assert_close(
+            leg2poly([0] * i + [1]),
+            legcoefficients[i],
+        )
 
 
 def test_legadd():
@@ -1597,6 +5001,96 @@ def test_legadd():
                     tol=0.000001,
                 ),
             )
+
+
+def test_legcompanion():
+    with pytest.raises(ValueError):
+        legcompanion(torch.tensor([]))
+
+    with pytest.raises(ValueError):
+        legcompanion(torch.tensor([1]))
+
+    for i in range(1, 5):
+        coef = torch.tensor([0] * i + [1])
+        assert legcompanion(coef).shape == (i, i)
+
+    assert legcompanion(torch.tensor([1, 2]))[0, 0] == -0.5
+
+
+def test_legder():
+    pytest.raises(TypeError, legder, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, legder, torch.tensor([0]), -1)
+
+    for i in range(5):
+        torch.testing.assert_close(
+            legtrim(
+                legder(torch.tensor([0] * i + [1]), order=0),
+                tol=0.000001,
+            ),
+            legtrim(
+                torch.tensor([0] * i + [1]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                legtrim(
+                    legder(legint(torch.tensor([0] * i + [1]), order=j), order=j),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                legtrim(
+                    legder(
+                        legint(
+                            torch.tensor([0] * i + [1]),
+                            order=j,
+                            scale=2,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    torch.tensor([0] * i + [1]),
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    target = torch.vstack([legder(c) for c in c2d.T]).T
+    res = legder(c2d, axis=0)
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+    target = torch.vstack([legder(c) for c in c2d])
+    res = legder(
+        c2d,
+        axis=1,
+    )
+    torch.testing.assert_close(
+        res,
+        target,
+    )
+
+    c = (1, 2, 3, 4)
+    torch.testing.assert_close(
+        legder(c, 4),
+        torch.tensor([0]),
+    )
 
 
 def test_legdiv():
@@ -1638,6 +5132,566 @@ def test_legdomain():
     )
 
 
+def test_legfit():
+    def f(x):
+        return x * (x - 1) * (x - 2)
+
+    def g(x):
+        return x**4 + x**2 + 1
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(2, 3, 4, 1, 0),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = torch.zeros_like(input)
+
+    weight = weight.at[1::2].set(1)
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=(0, 1, 2, 3),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=(0, 1),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        legfit(
+            input,
+            other,
+            degree=4,
+        ),
+        legfit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
+    )
+
+
+def test_legfromroots():
+    torch.testing.assert_close(
+        legtrim(
+            legfromroots(torch.tensor([])),
+            tol=0.000001,
+        ),
+        [1],
+    )
+    for i in range(1, 5):
+        assert (
+            legfromroots(torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])).shape[
+                -1
+            ]
+            == i + 1
+        )
+        torch.testing.assert_close(
+            leg2poly(
+                legfromroots(torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2]))
+            )[-1],
+            1,
+        )
+        torch.testing.assert_close(
+            legval(
+                torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2]),
+                legfromroots(torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])),
+            ),
+            0,
+        )
+
+
+def test_leggauss():
+    x, w = leggauss(100)
+
+    v = legvander(x, 99)
+    vv = torch.dot(v.T * w, v)
+    vd = 1 / torch.sqrt(vv.diagonal())
+    vv = vd[:, None] * vv * vd
+
+    torch.testing.assert_close(
+        vv,
+        torch.eye(100),
+    )
+
+    torch.testing.assert_close(w.sum(), 2.0)
+
+
+def test_leggrid2d():
+    c1d = torch.tensor([2.0, 2.0, 2.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    torch.testing.assert_close(
+        leggrid2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        torch.einsum("i,j->ij", y1, y2),
+    )
+
+    z = torch.ones([2, 3])
+    assert (
+        leggrid2d(
+            z,
+            z,
+            c2d,
+        ).shape
+        == (2, 3) * 2
+    )
+
+
+def test_leggrid3d():
+    c1d = torch.tensor([2.0, 2.0, 2.0])
+    c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    torch.testing.assert_close(
+        leggrid3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        torch.einsum(
+            "i,j,k->ijk",
+            y1,
+            y2,
+            y3,
+        ),
+    )
+
+    assert (
+        leggrid3d(torch.ones([2, 3]), torch.ones([2, 3]), torch.ones([2, 3]), c3d).shape
+        == (2, 3) * 3
+    )
+
+
+def test_legint():
+    pytest.raises(TypeError, legint, torch.tensor([0]), 0.5)
+    pytest.raises(ValueError, legint, torch.tensor([0]), -1)
+    pytest.raises(
+        ValueError,
+        legint,
+        torch.tensor([0]),
+        1,
+        torch.tensor([0, 0]),
+    )
+    pytest.raises(ValueError, legint, torch.tensor([0]), lower_bound=[0])
+    pytest.raises(ValueError, legint, torch.tensor([0]), scale=[0])
+    pytest.raises(TypeError, legint, torch.tensor([0]), axis=0.5)
+
+    for i in range(2, 5):
+        torch.testing.assert_close(
+            legtrim(
+                legint(torch.tensor([0]), order=i, k=([0] * (i - 2) + [1])),
+                tol=0.000001,
+            ),
+            [0, 1],
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            legtrim(
+                leg2poly(
+                    legint(
+                        poly2leg(torch.tensor([0] * i + [1])),
+                        order=1,
+                        k=[i],
+                    )
+                ),
+                tol=0.000001,
+            ),
+            legtrim(
+                torch.tensor([i] + [0] * i + [1 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            legval(
+                torch.tensor([-1]),
+                legint(
+                    poly2leg(torch.tensor([0] * i + [1])),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            legtrim(
+                leg2poly(
+                    legint(
+                        poly2leg(torch.tensor([0] * i + [1])),
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    )
+                ),
+                tol=0.000001,
+            ),
+            legtrim(
+                torch.tensor([i] + [0] * i + [2 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = (torch.tensor([0] * i + [1]))[:]
+            for _ in range(j):
+                target = legint(target, order=1)
+            torch.testing.assert_close(
+                legtrim(
+                    legint(torch.tensor([0] * i + [1]), order=j),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = legint(target, order=1, k=[k])
+            torch.testing.assert_close(
+                legtrim(
+                    legint(pol, order=j, k=list(range(j))),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = legint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+            torch.testing.assert_close(
+                legtrim(
+                    legint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0] * i + [1])
+            target = pol[:]
+            for k in range(j):
+                target = legint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+            torch.testing.assert_close(
+                legtrim(
+                    legint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                legtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        legint(c2d, axis=0),
+        torch.vstack([legint(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        legint(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([legint(c) for c in c2d]),
+    )
+
+    torch.testing.assert_close(
+        legint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        torch.vstack([legint(c, k=3) for c in c2d]),
+    )
+
+    torch.testing.assert_close(legint((1, 2, 3), 0), (1, 2, 3))
+
+
 def test_legline():
     torch.testing.assert_close(
         legline(3.0, 4.0),
@@ -1655,7 +5709,7 @@ def test_legline():
 
 def test_legmul():
     for i in range(5):
-        input = torch.linspace(-1, 1, 100)
+        input = torch.torch.linspace(-1, 1, 100)
 
         a = legval(
             input,
@@ -1726,7 +5780,7 @@ def test_legpow():
             torch.testing.assert_close(
                 legtrim(
                     legpow(
-                        torch.arange(0.0, i + 1),
+                        torch.torch.arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -1734,12 +5788,33 @@ def test_legpow():
                 legtrim(
                     functools.reduce(
                         legmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [torch.torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
                 ),
             )
+
+
+def test_legroots():
+    torch.testing.assert_close(legroots([1]), torch.tensor([]))
+    torch.testing.assert_close(legroots(torch.tensor([1, 2])), torch.tensor([-0.5]))
+
+    for index in range(2, 5):
+        torch.testing.assert_close(
+            legtrim(
+                legroots(
+                    legfromroots(
+                        torch.linspace(-1, 1, index),
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            legtrim(
+                torch.linspace(-1, 1, index),
+                tol=0.000001,
+            ),
+        )
 
 
 def test_legsub():
@@ -1810,7 +5885,7 @@ def test_legval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1818,7 +5893,7 @@ def test_legval():
     for i in range(10):
         torch.testing.assert_close(
             legval(
-                torch.linspace(-1, 1, 50),
+                torch.torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * i + [1.0]),
             ),
             torch.tensor(ys[i]),
@@ -1851,6 +5926,129 @@ def test_legval():
         assert output.shape == shape
 
 
+def test_legval2d():
+    c1d = torch.tensor([2.0, 2.0, 2.0])
+    c2d = torch.einsum("i,j->ij", c1d, c1d)
+
+    x = torch.rand(3, 5) * 2 - 1
+    y = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    pytest.raises(
+        ValueError,
+        legval2d,
+        x1,
+        x2[:2],
+        c2d,
+    )
+
+    torch.testing.assert_close(
+        legval2d(
+            x1,
+            x2,
+            c2d,
+        ),
+        y1 * y2,
+    )
+
+    z = torch.ones([2, 3])
+    assert legval2d(
+        z,
+        z,
+        c2d,
+    ).shape == (2, 3)
+
+
+def test_legval3d():
+    c1d = torch.tensor([2.0, 2.0, 2.0])
+    c3d = torch.einsum(
+        "i,j,k->ijk",
+        c1d,
+        c1d,
+        c1d,
+    )
+
+    x = torch.rand(3, 5) * 2 - 1
+    x1, x2, x3 = x
+    y1, y2, y3 = polyval(x, torch.tensor([1.0, 2.0, 3.0]))
+
+    pytest.raises(ValueError, legval3d, x1, x2, x3[:2], c3d)
+
+    torch.testing.assert_close(
+        legval3d(
+            x1,
+            x2,
+            x3,
+            c3d,
+        ),
+        y1 * y2 * y3,
+    )
+
+    z = torch.ones([2, 3])
+    assert legval3d(z, z, z, c3d).shape == (2, 3)
+
+
+def test_legvander():
+    x = torch.arange(3)
+    v = legvander(x, 3)
+    assert v.shape == (3, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            v[..., index],
+            legval(
+                x,
+                torch.tensor([0] * index + [1]),
+            ),
+        )
+
+    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    v = legvander(x, 3)
+    assert v.shape == (3, 2, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            v[..., index],
+            legval(
+                x,
+                torch.tensor([0] * index + [1]),
+            ),
+        )
+
+    pytest.raises(ValueError, legvander, (1, 2, 3), -1)
+
+
+def test_legvander2d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3)
+    torch.testing.assert_close(
+        torch.dot(legvander2d(x1, x2, (1, 2)), c.torch.ravel()),
+        legval2d(x1, x2, c),
+    )
+
+    assert legvander2d([x1], [x2], (1, 2)).shape == (1, 5, 6)
+
+
+def test_legvander3d():
+    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    c = torch.rand(2, 3, 4)
+    torch.testing.assert_close(
+        torch.dot(legvander3d(x1, x2, x3, (1, 2, 3)), c.torch.ravel()),
+        legval3d(x1, x2, x3, c),
+    )
+
+    assert legvander3d([x1], [x2], [x3], (1, 2, 3)).shape == (1, 5, 24)
+
+
+def test_legweight():
+    torch.testing.assert_close(
+        legweight(torch.linspace(-1, 1, 11)),
+        1.0,
+    )
+
+
 def test_legx():
     torch.testing.assert_close(
         legx,
@@ -1863,6 +6061,59 @@ def test_legzero():
         legzero,
         torch.tensor([0.0]),
     )
+
+
+def test_poly2cheb():
+    for i in range(10):
+        torch.testing.assert_close(
+            poly2cheb(
+                chebcoefficients[i],
+            ),
+            torch.tensor([0] * i + [1]),
+        )
+
+
+def test_poly2herm():
+    for i in range(10):
+        torch.testing.assert_close(
+            hermtrim(
+                poly2herm(
+                    hermcoefficients[i],
+                ),
+                tol=0.000001,
+            ),
+            torch.tensor([0] * i + [1]),
+        )
+
+
+def test_poly2herme():
+    for i in range(10):
+        torch.testing.assert_close(
+            poly2herme(
+                hermecoefficients[i],
+            ),
+            torch.tensor([0] * i + [1]),
+        )
+
+
+def test_poly2lag():
+    for i in range(7):
+        torch.testing.assert_close(
+            poly2lag(
+                lagcoefficients[i],
+            ),
+            torch.tensor([0] * i + [1]),
+        )
+
+
+def test_poly2leg():
+    for i in range(10):
+        torch.testing.assert_close(
+            poly2leg(
+                legcoefficients[i],
+            ),
+            torch.tensor([0.0] * i + [1.0]),
+        )
 
 
 def test_polyadd():
@@ -1988,7 +6239,7 @@ def test_polyfit():
     def g(x: Tensor) -> Tensor:
         return x**4 + x**2 + 1
 
-    input = torch.linspace(0, 2, 50)
+    input = torch.torch.linspace(0, 2, 50)
 
     other = f(input)
 
@@ -2084,142 +6335,142 @@ def test_polyfit():
         ).T,
     )
 
-    # weight = torch.zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         input,
-    #         other.at[0::2].set(0),
-    #         degree=3,
-    #         weight=weight,
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=(0, 1, 2, 3),
-    #     ),
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         input,
-    #         other.at[0::2].set(0),
-    #         degree=(0, 1, 2, 3),
-    #         weight=weight,
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=(0, 1, 2, 3),
-    #     ),
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         input,
-    #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
-    #         degree=3,
-    #         weight=weight,
-    #     ),
-    #     torch.tensor(
-    #         [
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=(0, 1, 2, 3),
-    #             ),
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=(0, 1, 2, 3),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         input,
-    #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
-    #         degree=(0, 1, 2, 3),
-    #         weight=weight,
-    #     ),
-    #     torch.tensor(
-    #         [
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=(0, 1, 2, 3),
-    #             ),
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=(0, 1, 2, 3),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         torch.tensor([1, 1j, -1, -1j]),
-    #         torch.tensor([1, 1j, -1, -1j]),
-    #         1,
-    #     ),
-    #     torch.tensor([0, 1]),
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         torch.tensor([1, 1j, -1, -0-1j]),
-    #         torch.tensor([1, 1j, -1, -0-1j]),
-    #         (0, 1),
-    #     ),
-    #     torch.tensor([0, 1]),
-    # )
-    #
-    # input = torch.linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # torch.testing.assert_close(
-    #     polyval(
-    #         input,
-    #         polyfit(
-    #             input,
-    #             other,
-    #             degree=4,
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyval(
-    #         input,
-    #         polyfit(
-    #             input,
-    #             other,
-    #             degree=(0, 2, 4),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # torch.testing.assert_close(
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=4,
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=(0, 2, 4),
-    #     ),
-    # )
+    weight = torch.torch.zeros_like(input)
+
+    weight[1::2] = 1.0
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other.at[0::2].set(0),
+            degree=3,
+            weight=weight,
+        ),
+        polyfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other.at[0::2].set(0),
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        polyfit(
+            input,
+            other,
+            degree=(0, 1, 2, 3),
+        ),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+            degree=(0, 1, 2, 3),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            1,
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            torch.tensor([1, 1j, -1, -0 - 1j]),
+            torch.tensor([1, 1j, -1, -0 - 1j]),
+            (0, 1),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=(0, 2, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other,
+            degree=4,
+        ),
+        polyfit(
+            input,
+            other,
+            degree=(0, 2, 4),
+        ),
+    )
 
 
 def test_polyfromroots():
@@ -2234,11 +6485,11 @@ def test_polyfromroots():
     )
 
     for index in range(1, 5):
-        input = torch.linspace(-math.pi, 0.0, 2 * index + 1)
+        input = torch.torch.linspace(-math.pi, 0.0, 2 * index + 1)
 
         input = input[1::2]
 
-        input = torch.cos(input)
+        input = torch.torch.cos(input)
 
         output = polyfromroots(input) * 2 ** (index - 1)
 
@@ -2268,13 +6519,13 @@ def test_polygrid2d():
         polygrid2d(
             x1,
             x2,
-            torch.einsum(
+            torch.torch.einsum(
                 "i,j->ij",
                 torch.tensor([1.0, 2.0, 3.0]),
                 torch.tensor([1.0, 2.0, 3.0]),
             ),
         ),
-        torch.einsum(
+        torch.torch.einsum(
             "i,j->ij",
             y1,
             y2,
@@ -2282,9 +6533,9 @@ def test_polygrid2d():
     )
 
     output = polygrid2d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.einsum(
             "i,j->ij",
             torch.tensor([1.0, 2.0, 3.0]),
             torch.tensor([1.0, 2.0, 3.0]),
@@ -2310,14 +6561,14 @@ def test_polygrid3d():
             x1,
             x2,
             x3,
-            torch.einsum(
+            torch.torch.einsum(
                 "i,j,k->ijk",
                 torch.tensor([1.0, 2.0, 3.0]),
                 torch.tensor([1.0, 2.0, 3.0]),
                 torch.tensor([1.0, 2.0, 3.0]),
             ),
         ),
-        torch.einsum(
+        torch.torch.einsum(
             "i,j,k->ijk",
             y1,
             y2,
@@ -2326,10 +6577,10 @@ def test_polygrid3d():
     )
 
     output = polygrid3d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.einsum(
             "i,j,k->ijk",
             torch.tensor([1.0, 2.0, 3.0]),
             torch.tensor([1.0, 2.0, 3.0]),
@@ -2411,7 +6662,7 @@ def test_polypow():
             torch.testing.assert_close(
                 polytrim(
                     polypow(
-                        torch.arange(0.0, i + 1),
+                        torch.torch.arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -2419,7 +6670,7 @@ def test_polypow():
                 polytrim(
                     functools.reduce(
                         polymul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [torch.torch.arange(0.0, i + 1)] * j,
                         torch.tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -2439,7 +6690,7 @@ def test_polyroots():
     )
 
     for index in range(2, 5):
-        input = torch.linspace(-1, 1, index)
+        input = torch.torch.linspace(-1, 1, index)
 
         torch.testing.assert_close(
             polytrim(
@@ -2521,7 +6772,7 @@ def test_polyval():
 
     y = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = torch.torch.linspace(-1, 1, 50)
 
     for index in range(5):
         y = [
@@ -2587,7 +6838,7 @@ def test_polyval2d():
         polyval2d(
             x1,
             x2,
-            torch.einsum(
+            torch.torch.einsum(
                 "i,j->ij",
                 torch.tensor([1.0, 2.0, 3.0]),
                 torch.tensor([1.0, 2.0, 3.0]),
@@ -2597,9 +6848,9 @@ def test_polyval2d():
     )
 
     output = polyval2d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.einsum(
             "i,j->ij",
             torch.tensor([1.0, 2.0, 3.0]),
             torch.tensor([1.0, 2.0, 3.0]),
@@ -2624,7 +6875,7 @@ def test_polyval3d():
             x1,
             x2,
             x3,
-            torch.einsum(
+            torch.torch.einsum(
                 "i,j,k->ijk",
                 torch.tensor([1.0, 2.0, 3.0]),
                 torch.tensor([1.0, 2.0, 3.0]),
@@ -2635,10 +6886,10 @@ def test_polyval3d():
     )
 
     output = polyval3d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.ones([2, 3]),
+        torch.torch.einsum(
             "i,j,k->ijk",
             torch.tensor([1.0, 2.0, 3.0]),
             torch.tensor([1.0, 2.0, 3.0]),
@@ -2685,12 +6936,12 @@ def test_polyvalfromroots():
 
     output = polyvalfromroots(
         torch.tensor([1.0]),
-        torch.ones([3, 3]),
+        torch.torch.ones([3, 3]),
     )
 
     assert output.shape == (3, 1)
 
-    input = torch.linspace(-1, 1, 50)
+    input = torch.torch.linspace(-1, 1, 50)
 
     evaluations = []
 
@@ -2757,7 +7008,7 @@ def test_polyvalfromroots():
     #     ),
     # )
 
-    # x = torch.arange(-3, 2)
+    # x = torch.torch.arange(-3, 2)
     #
     # r = jax.random.randint(key, [3, 5], -5, 5)
     #
@@ -2771,7 +7022,7 @@ def test_polyvalfromroots():
     #     target,
     # )
     #
-    # x = torch.vstack([x, 2 * x])
+    # x = torch.torch.vstack([x, 2 * x])
     #
     # target = torch.empty(r.shape[1:] + x.shape)
     #
@@ -2787,7 +7038,7 @@ def test_polyvalfromroots():
 
 def test_polyvander():
     output = polyvander(
-        torch.arange(3),
+        torch.torch.arange(3),
         degree=torch.tensor(3),
     )
 
@@ -2797,7 +7048,7 @@ def test_polyvander():
         torch.testing.assert_close(
             output[..., index],
             polyval(
-                torch.arange(3),
+                torch.torch.arange(3),
                 torch.tensor([0] * index + [1]),
             ),
         )
@@ -2820,7 +7071,7 @@ def test_polyvander():
 
     with pytest.raises(ValueError):
         polyvander(
-            torch.arange(3),
+            torch.torch.arange(3),
             torch.tensor([-1]),
         )
 
@@ -2831,13 +7082,13 @@ def test_polyvander2d():
     coefficients = torch.rand(2, 3)
 
     torch.testing.assert_close(
-        torch.dot(
+        torch.torch.dot(
             polyvander2d(
                 a,
                 b,
                 degree=torch.tensor([1, 2]),
             ),
-            torch.ravel(coefficients),
+            torch.torch.ravel(coefficients),
         ),
         polyval2d(
             a,
@@ -2861,14 +7112,14 @@ def test_polyvander3d():
     coefficients = torch.rand(2, 3, 4)
 
     torch.testing.assert_close(
-        torch.dot(
+        torch.torch.dot(
             polyvander3d(
                 a,
                 b,
                 c,
                 degree=torch.tensor([1.0, 2.0, 3.0]),
             ),
-            torch.ravel(coefficients),
+            torch.torch.ravel(coefficients),
         ),
         polyval3d(
             a,

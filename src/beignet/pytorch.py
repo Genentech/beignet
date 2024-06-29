@@ -3,6 +3,7 @@ import math
 import operator
 from typing import Callable, List, Literal, Tuple
 
+import numpy
 import torch
 import torch._numpy._funcs_impl
 import torch.linalg
@@ -58,29 +59,6 @@ polydomain = torch.tensor([-1.0, 1.0])
 polyone = torch.tensor([1.0])
 polyx = torch.tensor([0.0, 1.0])
 polyzero = torch.tensor([0.0])
-
-
-def _nonzero(input, size=1, fill_value=0):
-    output = torch.nonzero(input, as_tuple=False)
-
-    if output.shape[0] > size:
-        output = output[:size]
-    elif output.shape[0] < size:
-        output = concatenate(
-            [
-                output,
-                full(
-                    [
-                        size - output.shape[0],
-                        output.shape[1],
-                    ],
-                    fill_value,
-                ),
-            ],
-            0,
-        )
-
-    return output
 
 
 def _add(input: Tensor, other: Tensor) -> Tensor:
@@ -342,7 +320,7 @@ def _flattened_vandermonde(vandermonde_functions, points, degrees):
 
 def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
-        return torch.ones([1])
+        return torch.torch.ones([1])
 
     input, _ = sort(input)
 
@@ -417,6 +395,29 @@ def _map_parameters(input: Tensor, other: Tensor) -> Tensor:
     y = b / a
 
     return tensor([x, y])
+
+
+def _nonzero(input, size=1, fill_value=0):
+    output = torch.nonzero(input, as_tuple=False)
+
+    if output.shape[0] > size:
+        output = output[:size]
+    elif output.shape[0] < size:
+        output = concatenate(
+            [
+                output,
+                full(
+                    [
+                        size - output.shape[0],
+                        output.shape[1],
+                    ],
+                    fill_value,
+                ),
+            ],
+            0,
+        )
+
+    return output
 
 
 def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
@@ -612,9 +613,7 @@ def _vandermonde(vander_fs, points: Tensor, degrees: Tensor) -> Tensor:
 
 
 def _z_series_mul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     return torchaudio.functional.convolve(input, other, mode=mode)
 
@@ -629,12 +628,226 @@ def _z_series_to_c_series(input: Tensor) -> Tensor:
     return c
 
 
+def cheb2poly(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    n = input.shape[0]
+
+    if n < 3:
+        return input
+
+    c0 = zeros_like(input).at[0].set(input[-2])
+    c1 = zeros_like(input).at[0].set(input[-1])
+
+    for i in range(0, n - 2):
+        i1 = n - 1 - i
+
+        tmp = c0
+
+        c0 = polysub(input[i1 - 2], c1)
+
+        c1 = polyadd(tmp, polymulx(c1, "same") * 2)
+
+    output = polymulx(c1, "same")
+
+    output = polyadd(c0, output)
+
+    return output
+
+
 def chebadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
+def chebcompanion(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    if input.shape[0] < 2:
+        raise ValueError
+
+    if input.shape[0] == 2:
+        return torch.tensor([[-input[0] / input[1]]])
+
+    n = input.shape[0] - 1
+
+    mat = zeros([n, n], dtype=input.dtype)
+
+    scale = torch.ones(n).at[1:].set(math.sqrt(0.5))
+
+    shp = mat.shape
+
+    mat = reshape(mat, [-1])
+
+    mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
+    mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
+
+    mat = reshape(mat, shp)
+
+    return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
+
+
+def chebder(input: Tensor, order=1, scale=1, axis=0) -> Tensor:
+    if order < 0:
+        raise ValueError
+
+    [input] = _as_series([input])
+
+    if order == 0:
+        return input
+
+    output = moveaxis(input, axis, 0)
+
+    n = output.shape[0]
+
+    if order >= n:
+        output = zeros_like(output[:1])
+    else:
+        for _ in range(order):
+            n = n - 1
+
+            output = output * scale
+
+            derivative = torch.empty((n,) + output.shape[1:], dtype=output.dtype)
+
+            for i in range(0, n - 2):
+                j = n - i
+
+                derivative = derivative.at[j - 1].set((2 * j) * output[j])
+
+                output = output.at[j - 2].add((j * output[j]) / (j - 2))
+
+            if n > 1:
+                derivative = derivative.at[1].set(4 * output[2])
+
+            output = derivative.at[0].set(output[1])
+
+    return moveaxis(output, 0, axis)
+
+
 def chebdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(chebmul, input, other)
+
+
+def chebfit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        chebvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def chebfromroots(input: Tensor) -> Tensor:
+    return _from_roots(chebline, chebmul, input)
+
+
+def chebgauss(degree: int) -> Tuple[Tensor, Tensor]:
+    degree = int(degree)
+
+    if degree <= 0:
+        raise ValueError
+
+    output = arange(1, 2 * degree, 2)
+
+    output = output / (2.0 * degree)
+
+    output = output * math.pi
+
+    output = torch.cos(output)
+
+    weight = torch.ones(degree) * (math.pi / degree)
+
+    return output, weight
+
+
+def chebgrid2d(x, y, c):
+    for arg in [x, y]:
+        c = chebval(arg, c)
+    return c
+
+
+def chebgrid3d(x, y, z, c):
+    for arg in [x, y, z]:
+        c = chebval(arg, c)
+    return c
+
+
+def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tensor:
+    if k is None:
+        k = []
+
+    [c] = _as_series([c])
+
+    lower_bound = torch.tensor(lower_bound)
+    scale = torch.tensor(scale)
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    for i in range(order):
+        n = c.shape[0]
+        c *= scale
+        tmp = torch.torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = tmp.at[0].set(c[0] * 0)
+        tmp = tmp.at[1].set(c[0])
+        if n > 1:
+            tmp = tmp.at[2].set(c[1] / 4)
+        j = arange(2, n)
+        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+        tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
+        tmp = tmp.at[0].add(k[i] - chebval(lower_bound, tmp))
+        c = tmp
+    c = moveaxis(c, 0, axis)
+    return c
+
+
+def chebinterpolate(func, degree, args=()):
+    _deg = int(degree)
+
+    if _deg != degree:
+        raise ValueError
+
+    if _deg < 0:
+        raise ValueError
+
+    order = _deg + 1
+    xcheb = chebpts1(order)
+
+    yfunc = func(xcheb, *args)
+
+    m = chebvander(xcheb, _deg)
+
+    c = torch.dot(m.T, yfunc)
+
+    c = c.at[0].divide(order)
+    c = c.at[1:].divide(0.5 * order)
+
+    return c
 
 
 def chebline(input: float, other: float) -> Tensor:
@@ -642,9 +855,7 @@ def chebline(input: float, other: float) -> Tensor:
 
 
 def chebmul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -661,10 +872,7 @@ def chebmul(
     return output
 
 
-def chebmulx(
-    input: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
-) -> Tensor:
+def chebmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -683,9 +891,7 @@ def chebmulx(
 
 
 def chebpow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     [input] = _as_series([input])
 
@@ -719,15 +925,66 @@ def chebpow(
     return output
 
 
+def chebpts1(points: int) -> Tensor:
+    _points = int(points)
+
+    if _points != points:
+        raise ValueError
+
+    if _points < 1:
+        raise ValueError
+
+    output = arange(-_points + 1, _points + 1, 2)
+
+    output = 0.5 * math.pi / _points * output
+
+    output = torch.sin(output)
+
+    return output
+
+
+def chebpts2(points):
+    _points = int(points)
+
+    if _points != points:
+        raise ValueError
+
+    if _points < 2:
+        raise ValueError
+
+    output = torch.linspace(-math.pi, 0, _points)
+
+    output = torch.cos(output)
+
+    return output
+
+
+def chebroots(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    if input.shape[0] <= 1:
+        return torch.tensor([], dtype=input.dtype)
+
+    if input.shape[0] == 2:
+        return torch.tensor([-input[0] / input[1]])
+
+    output = chebcompanion(input)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = torch.eigvals(output)
+
+    output = sort(output)
+
+    return output
+
+
 def chebsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def chebval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-) -> Tensor:
+def chebval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -756,20 +1013,328 @@ def chebval(
     return a + b * input
 
 
+def chebval2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+    return _evaluate(chebval, c, x, y)
+
+
+def chebval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+    return _evaluate(chebval, c, x, y, z)
+
+
+def chebvander(x, degree):
+    if degree < 0:
+        raise ValueError
+
+    x = torch.tensor(x, ndmin=1)
+    dims = (degree + 1,) + x.shape
+    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+    x = x.astype(dtyp)
+    v = torch.empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
+
+    if degree > 0:
+        v = v.at[1].set(x)
+        x2 = 2 * x
+
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x2 - v[i - 2])
+
+    return moveaxis(v, 0, -1)
+
+
+def chebvander2d(x, y, degree):
+    return _flattened_vandermonde(
+        (chebvander, chebvander),
+        (x, y),
+        degree,
+    )
+
+
+def chebvander3d(x, y, z, degree):
+    return _flattened_vandermonde(
+        (chebvander, chebvander, chebvander),
+        (x, y, z),
+        degree,
+    )
+
+
+def chebweight(input: Tensor) -> Tensor:
+    return 1.0 / (sqrt(1.0 + input) * sqrt(1.0 - input))
+
+
+def herm2poly(c):
+    [c] = _as_series([c])
+    n = c.shape[0]
+    if n == 1:
+        return c
+    if n == 2:
+        c = c.at[1].multiply(2)
+        return c
+    else:
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
+
+        def body(k, c0c1):
+            i = n - 1 - k
+            c0, c1 = c0c1
+            tmp = c0
+            c0 = polysub(c[i - 2], c1 * (2 * (i - 1)))
+            c1 = polyadd(tmp, polymulx(c1, "same") * 2)
+            return c0, c1
+
+        x = (c0, c1)
+
+        y = x
+
+        for index in range(0, n - 2):
+            y = body(index, y)
+
+        c0, c1 = y
+
+        return polyadd(c0, polymulx(c1, "same") * 2)
+
+
 def hermadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
+
+
+def hermcompanion(c):
+    [c] = _as_series([c])
+    if c.shape[0] < 2:
+        raise ValueError
+    if c.shape[0] == 2:
+        return torch.tensor([[-0.5 * c[0] / c[1]]])
+
+    n = c.shape[0] - 1
+    mat = zeros((n, n), dtype=c.dtype)
+
+    scale = torch.hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
+    scale = torch.cumprod(scale)
+    scale = flip(scale, axis=0)
+
+    shp = mat.shape
+    mat = reshape(mat, [-1])
+    mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
+    mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
+    mat = reshape(mat, shp)
+    mat = mat.at[:, -1].add(-scale * c[:-1] / (2.0 * c[-1]))
+    return mat
+
+
+def hermder(c, order=1, scale=1, axis=0):
+    if order < 0:
+        raise ValueError
+
+    [c] = _as_series([c])
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    n = c.shape[0]
+    if order >= n:
+        c = zeros_like(c[:1])
+    else:
+        for _ in range(order):
+            n = n - 1
+            c *= scale
+            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            j = arange(n, 0, -1)
+            der = der.at[j - 1].set((2 * j * (c[j]).T).T)
+            c = der
+    c = moveaxis(c, 0, axis)
+    return c
 
 
 def hermdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(hermmul, input, other)
 
 
+def herme2poly(c):
+    [c] = _as_series([c])
+    n = c.shape[0]
+    if n == 1:
+        return c
+    if n == 2:
+        return c
+    else:
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
+
+        def body(k, c0c1):
+            i = n - 1 - k
+            c0, c1 = c0c1
+            tmp = c0
+            c0 = polysub(c[i - 2], c1 * (i - 1))
+            c1 = polyadd(tmp, polymulx(c1, "same"))
+            return c0, c1
+
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
+
+        return polyadd(c0, polymulx(c1, "same"))
+
+
 def hermeadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
+def hermecompanion(c):
+    [c] = _as_series([c])
+    if c.shape[0] < 2:
+        raise ValueError
+    if c.shape[0] == 2:
+        return torch.tensor([[-c[0] / c[1]]])
+
+    n = c.shape[0] - 1
+    mat = zeros((n, n), dtype=c.dtype)
+    scale = torch.hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
+    scale = torch.cumprod(scale)
+    scale = flip(scale, axis=0)
+    shp = mat.shape
+    mat = reshape(mat, [-1])
+    mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
+    mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
+    mat = reshape(mat, shp)
+    mat = mat.at[:, -1].add(-scale * c[:-1] / c[-1])
+    return mat
+
+
+def hermeder(c, order=1, scale=1, axis=0):
+    if order < 0:
+        raise ValueError
+
+    [c] = _as_series([c])
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    n = c.shape[0]
+    if order >= n:
+        c = zeros_like(c[:1])
+    else:
+        for _ in range(order):
+            n = n - 1
+            c *= scale
+            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            j = arange(n, 0, -1)
+            der = der.at[j - 1].set((j * (c[j]).T).T)
+            c = der
+    c = moveaxis(c, 0, axis)
+    return c
+
+
 def hermediv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(hermemul, input, other)
+
+
+def hermefit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        hermevander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def hermefromroots(input: Tensor) -> Tensor:
+    return _from_roots(hermeline, hermemul, input)
+
+
+def hermegauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError
+
+    c = zeros(degree + 1).at[-1].set(1)
+    m = hermecompanion(c)
+    x = torch.linalg.eigvalsh(m)
+
+    dy = _normed_hermite_e_n(x, degree)
+    df = _normed_hermite_e_n(x, degree - 1) * sqrt(degree)
+    x -= dy / df
+
+    fm = _normed_hermite_e_n(x, degree - 1)
+    fm /= abs(fm).max()
+    w = 1 / (fm * fm)
+
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
+
+    w *= sqrt(2 * math.pi) / sum(w)
+
+    return x, w
+
+
+def hermegrid2d(x, y, c):
+    for arg in [x, y]:
+        c = hermeval(arg, c)
+    return c
+
+
+def hermegrid3d(x, y, z, c):
+    for arg in [x, y, z]:
+        c = hermeval(arg, c)
+    return c
+
+
+def hermeint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+    if k is None:
+        k = []
+
+    [c] = _as_series([c])
+
+    lower_bound = torch.tensor(lower_bound)
+    scale = torch.tensor(scale)
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    for i in range(order):
+        n = c.shape[0]
+        c *= scale
+        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = tmp.at[0].set(c[0] * 0)
+        tmp = tmp.at[1].set(c[0])
+        j = arange(1, n)
+        tmp = tmp.at[j + 1].set((c[j].T / (j + 1)).T)
+        tmp = tmp.at[0].add(k[i] - hermeval(lower_bound, tmp))
+        c = tmp
+
+    return moveaxis(c, 0, axis)
 
 
 def hermeline(input: float, other: float) -> Tensor:
@@ -777,9 +1342,7 @@ def hermeline(input: float, other: float) -> Tensor:
 
 
 def hermemul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -820,10 +1383,7 @@ def hermemul(
     return output
 
 
-def hermemulx(
-    input: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
-) -> Tensor:
+def hermemulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -842,9 +1402,7 @@ def hermemulx(
 
 
 def hermepow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     return _pow(
         hermemul,
@@ -854,15 +1412,32 @@ def hermepow(
     )
 
 
+def hermeroots(c):
+    [c] = _as_series([c])
+
+    if c.shape[0] <= 1:
+        return torch.tensor([], dtype=c.dtype)
+
+    if c.shape[0] == 2:
+        return torch.tensor([-c[0] / c[1]])
+
+    output = hermecompanion(c)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = torch.eigvals(output)
+
+    output = sort(output)
+
+    return output
+
+
 def hermesub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def hermeval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-):
+def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -896,14 +1471,165 @@ def hermeval(
     return a + b * input
 
 
+def hermeval2d(x, y, c):
+    return _evaluate(hermeval, c, x, y)
+
+
+def hermeval3d(x, y, z, c):
+    return _evaluate(hermeval, c, x, y, z)
+
+
+def hermevander(x, degree):
+    if degree < 0:
+        raise ValueError
+
+    x = torch.tensor(x, ndmin=1)
+    dims = (degree + 1,) + x.shape
+    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+    x = x.astype(dtyp)
+    v = torch.empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
+
+    if degree > 0:
+        v = v.at[1].set(x)
+
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
+
+    return moveaxis(v, 0, -1)
+
+
+def hermevander2d(x, y, degree):
+    return _flattened_vandermonde(
+        (hermevander, hermevander),
+        (x, y),
+        degree,
+    )
+
+
+def hermevander3d(x, y, z, degree):
+    return _flattened_vandermonde(
+        (hermevander, hermevander, hermevander),
+        (x, y, z),
+        degree,
+    )
+
+
+def hermeweight(x):
+    return torch.exp(-0.5 * x**2)
+
+
+def hermfit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        hermvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def hermfromroots(roots):
+    return _from_roots(hermline, hermmul, roots)
+
+
+def hermgauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError
+
+    c = zeros(degree + 1).at[-1].set(1)
+    x = torch.linalg.eigvalsh(hermcompanion(c))
+
+    dy = _normed_hermite_n(x, degree)
+    df = _normed_hermite_n(x, degree - 1) * sqrt(2 * degree)
+
+    x = x - (dy / df)
+
+    fm = _normed_hermite_n(x, degree - 1)
+    fm = fm / abs(fm).max()
+    w = 1 / (fm * fm)
+
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
+
+    w = w * (sqrt(math.pi) / sum(w))
+
+    return x, w
+
+
+def hermgrid2d(x, y, c):
+    for arg in [x, y]:
+        c = hermval(arg, c)
+    return c
+
+
+def hermgrid3d(x, y, z, c):
+    for arg in [x, y, z]:
+        c = hermval(arg, c)
+    return c
+
+
+def hermint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+    if k is None:
+        k = []
+
+    [c] = _as_series([c])
+
+    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    for i in range(order):
+        n = c.shape[0]
+        c *= scale
+        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = tmp.at[0].set(c[0] * 0)
+        tmp = tmp.at[1].set(c[0] / 2)
+        j = arange(1, n)
+        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+        tmp = tmp.at[0].add(k[i] - hermval(lower_bound, tmp))
+        c = tmp
+
+    c = moveaxis(c, 0, axis)
+
+    return c
+
+
 def hermline(input: float, other: float) -> Tensor:
     return torch.tensor([input, other / 2])
 
 
 def hermmul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -944,10 +1670,7 @@ def hermmul(
     return output
 
 
-def hermmulx(
-    input: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
-) -> Tensor:
+def hermmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -966,9 +1689,7 @@ def hermmulx(
 
 
 def hermpow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     return _pow(
         hermmul,
@@ -978,15 +1699,32 @@ def hermpow(
     )
 
 
+def hermroots(input):
+    [input] = _as_series([input])
+
+    if input.shape[0] <= 1:
+        return torch.tensor([], dtype=input.dtype)
+
+    if input.shape[0] == 2:
+        return torch.tensor([-0.5 * input[0] / input[1]])
+
+    output = hermcompanion(input)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = torch.eigvals(output)
+
+    output = sort(output)
+
+    return output
+
+
 def hermsub(input: Tensor, other: Tensor):
     return _subtract(input, other)
 
 
-def hermval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-):
+def hermval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -1020,12 +1758,246 @@ def hermval(
     return a + b * input * 2.0
 
 
+def hermval2d(x, y, c):
+    return _evaluate(hermval, c, x, y)
+
+
+def hermval3d(x, y, z, c):
+    return _evaluate(hermval, c, x, y, z)
+
+
+def hermvander(x, degree):
+    if degree < 0:
+        raise ValueError
+
+    x = torch.tensor(x, ndmin=1)
+    dims = (degree + 1,) + x.shape
+    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+    x = x.astype(dtyp)
+    v = torch.empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
+    if degree > 0:
+        x2 = x * 2
+        v = v.at[1].set(x2)
+
+        for i in range(2, degree + 1):
+            v = v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
+
+    return moveaxis(v, 0, -1)
+
+
+def hermvander2d(x, y, degree):
+    return _flattened_vandermonde(
+        (hermvander, hermvander),
+        (x, y),
+        degree,
+    )
+
+
+def hermvander3d(x, y, z, degree):
+    return _flattened_vandermonde(
+        (hermvander, hermvander, hermvander),
+        (x, y, z),
+        degree,
+    )
+
+
+def hermweight(x):
+    return torch.exp(-(x**2))
+
+
+def lag2poly(c):
+    [c] = _as_series([c])
+    n = c.shape[0]
+    if n == 1:
+        return c
+    else:
+        c0 = zeros_like(c).at[0].set(c[-2])
+        c1 = zeros_like(c).at[0].set(c[-1])
+
+        def body(k, c0c1):
+            i = n - 1 - k
+            c0, c1 = c0c1
+            tmp = c0
+            c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
+            c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1, "same")) / i)
+            return c0, c1
+
+        b = n - 2
+        x = (c0, c1)
+        y = x
+        for index in range(0, b):
+            y = body(index, y)
+        c0, c1 = y
+
+        return polyadd(c0, polysub(c1, polymulx(c1, "same")))
+
+
 def lagadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
+def lagcompanion(input):
+    [input] = _as_series([input])
+
+    if input.shape[0] < 2:
+        raise ValueError
+
+    if input.shape[0] == 2:
+        return torch.tensor([[1 + input[0] / input[1]]])
+
+    n = input.shape[0] - 1
+
+    mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
+
+    mat = mat.at[1 :: n + 1].set(-arange(1, n))
+    mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
+    mat = mat.at[n :: n + 1].set(-arange(1, n))
+    mat = reshape(mat, (n, n))
+    mat = mat.at[:, -1].add((input[:-1] / input[-1]) * n)
+    return mat
+
+
+def lagder(c, order=1, scale=1, axis=0):
+    if order < 0:
+        raise ValueError
+
+    [c] = _as_series([c])
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    n = c.shape[0]
+    if order >= n:
+        c = zeros_like(c[:1])
+    else:
+        for _ in range(order):
+            n = n - 1
+            c *= scale
+            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+
+            def body(k, der_c, n=n):
+                j = n - k
+                der, c = der_c
+                der = der.at[j - 1].set(-c[j])
+                c = c.at[j - 1].add(c[j])
+                return der, c
+
+            b = n - 1
+            x = (der, c)
+            y = x
+            for index in range(0, b):
+                y = body(index, y)
+            der, c = y
+            der = der.at[0].set(-c[1])
+            c = der
+
+    c = moveaxis(c, 0, axis)
+    return c
+
+
 def lagdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(lagmul, input, other)
+
+
+def lagfit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        lagvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def lagfromroots(roots):
+    return _from_roots(lagline, lagmul, roots)
+
+
+def laggauss(degree):
+    degree = int(degree)
+    if degree <= 0:
+        raise ValueError
+
+    c = zeros(degree + 1).at[-1].set(1)
+    m = lagcompanion(c)
+    x = torch.linalg.eigvalsh(m)
+
+    dy = lagval(x, c)
+    df = lagval(x, lagder(c))
+    x = x - (dy / df)
+
+    fm = lagval(x, c[1:])
+    fm = fm / abs(fm).max()
+    df = df / abs(df).max()
+    w = 1 / (fm * df)
+
+    w = w / sum(w)
+
+    return x, w
+
+
+def laggrid2d(x, y, c):
+    for arg in [x, y]:
+        c = lagval(arg, c)
+    return c
+
+
+def laggrid3d(x, y, z, c):
+    for arg in [x, y, z]:
+        c = lagval(arg, c)
+    return c
+
+
+def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+    if k is None:
+        k = []
+
+    [c] = _as_series([c])
+
+    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+
+    if not numpy.iterable(k):
+        k = [k]
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    for i in range(order):
+        n = c.shape[0]
+        c *= scale
+        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = tmp.at[0].set(c[0])
+        tmp = tmp.at[1].set(-c[0])
+        j = arange(1, n)
+        tmp = tmp.at[j].add(c[j])
+        tmp = tmp.at[j + 1].add(-c[j])
+        tmp = tmp.at[0].add(k[i] - lagval(lower_bound, tmp))
+        c = tmp
+
+    c = moveaxis(c, 0, axis)
+    return c
 
 
 def lagline(input: float, other: float) -> Tensor:
@@ -1033,9 +2005,7 @@ def lagline(input: float, other: float) -> Tensor:
 
 
 def lagmul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -1077,10 +2047,7 @@ def lagmul(
     return output
 
 
-def lagmulx(
-    input: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
-) -> Tensor:
+def lagmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1103,9 +2070,7 @@ def lagmulx(
 
 
 def lagpow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     return _pow(
         lagmul,
@@ -1115,15 +2080,32 @@ def lagpow(
     )
 
 
+def lagroots(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    if input.shape[0] <= 1:
+        return torch.tensor([], dtype=input.dtype)
+
+    if input.shape[0] == 2:
+        return torch.tensor([1 + input[0] / input[1]])
+
+    output = lagcompanion(input)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = torch.eigvals(output)
+
+    output = sort(output)
+
+    return output
+
+
 def lagsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def lagval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-):
+def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -1157,12 +2139,272 @@ def lagval(
     return a + b * (1.0 - input)
 
 
+def lagval2d(x, y, c):
+    return _evaluate(lagval, c, x, y)
+
+
+def lagval3d(x, y, z, c):
+    return _evaluate(lagval, c, x, y, z)
+
+
+def lagvander(x, degree):
+    if degree < 0:
+        raise ValueError
+
+    x = torch.tensor(x, ndmin=1)
+    dims = (degree + 1,) + x.shape
+    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+    x = x.astype(dtyp)
+    v = torch.empty(dims, dtype=dtyp)
+    v = v.at[0].set(ones_like(x))
+    if degree > 0:
+        v = v.at[1].set(1 - x)
+
+        for i in range(2, degree + 1):
+            v = v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
+
+    return moveaxis(v, 0, -1)
+
+
+def lagvander2d(x, y, degree):
+    return _flattened_vandermonde(
+        (lagvander, lagvander),
+        (x, y),
+        degree,
+    )
+
+
+def lagvander3d(x, y, z, degree):
+    return _flattened_vandermonde(
+        (lagvander, lagvander, lagvander),
+        (x, y, z),
+        degree,
+    )
+
+
+def lagweight(x):
+    return torch.exp(-x)
+
+
+def leg2poly(c):
+    [c] = _as_series([c])
+
+    n = c.shape[0]
+
+    if n < 3:
+        return c
+
+    c0 = zeros_like(c).at[0].set(c[-2])
+    c1 = zeros_like(c).at[0].set(c[-1])
+
+    def body(k, c0c1):
+        i = n - 1 - k
+        c0, c1 = c0c1
+        tmp = c0
+        c0 = polysub(c[i - 2], c1 * (i - 1) / i)
+        c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
+        return c0, c1
+
+    x = (c0, c1)
+
+    for i in range(0, n - 2):
+        x = body(i, x)
+
+    c0, c1 = x
+
+    output = polymulx(c1, "same")
+
+    output = polyadd(c0, output)
+
+    return output
+
+
 def legadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
+def legcompanion(c):
+    [c] = _as_series([c])
+    if c.shape[0] < 2:
+        raise ValueError
+    if c.shape[0] == 2:
+        return torch.tensor([[-c[0] / c[1]]])
+
+    n = c.shape[0] - 1
+    mat = zeros((n, n), dtype=c.dtype)
+    scale = 1.0 / sqrt(2 * arange(n) + 1)
+    shp = mat.shape
+    mat = reshape(mat, [-1])
+    mat = mat.at[1 :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
+    mat = mat.at[n :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
+    mat = reshape(mat, shp)
+    mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1)))
+    return mat
+
+
+def legder(c, order=1, scale=1, axis=0):
+    if order < 0:
+        raise ValueError
+
+    [c] = _as_series([c])
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+
+    n = c.shape[0]
+
+    if order >= n:
+        c = zeros_like(c[:1])
+    else:
+        for _ in range(order):
+            n = n - 1
+            c *= scale
+            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+
+            def body(k, der_c, n=n):
+                j = n - k
+                der, c = der_c
+                der = der.at[j - 1].set((2 * j - 1) * c[j])
+                c = c.at[j - 2].add(c[j])
+                return der, c
+
+            b = n - 2
+
+            x = (der, c)
+
+            y = x
+
+            for index in range(0, b):
+                y = body(index, y)
+
+            der, c = y
+
+            if n > 1:
+                der = der.at[1].set(3 * c[2])
+
+            der = der.at[0].set(c[1])
+
+            c = der
+
+    c = moveaxis(c, 0, axis)
+    return c
+
+
 def legdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return _div(legmul, input, other)
+
+
+def legfit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        legvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def legfromroots(roots):
+    return _from_roots(legline, legmul, roots)
+
+
+def leggauss(degree):
+    degree = int(degree)
+
+    if degree <= 0:
+        raise ValueError
+
+    c = zeros(degree + 1).at[-1].set(1)
+    m = legcompanion(c)
+    x = torch.linalg.eigvalsh(m)
+
+    dy = legval(x, c)
+    df = legval(x, legder(c))
+    x -= dy / df
+
+    fm = legval(x, c[1:])
+
+    fm /= abs(fm).max()
+    df /= abs(df).max()
+
+    w = 1 / (fm * df)
+
+    a = flip(w, axis=0)
+    b = flip(x, axis=0)
+
+    w = (w + a) / 2
+    x = (x - b) / 2
+
+    w = w * (2.0 / sum(w))
+
+    return x, w
+
+
+def leggrid2d(x, y, c):
+    for arg in [x, y]:
+        c = legval(arg, c)
+    return c
+
+
+def leggrid3d(x, y, z, c):
+    for arg in [x, y, z]:
+        c = legval(arg, c)
+    return c
+
+
+def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+    if k is None:
+        k = []
+
+    [c] = _as_series([c])
+
+    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return c
+
+    c = moveaxis(c, axis, 0)
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    for i in range(order):
+        n = c.shape[0]
+        c *= scale
+        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = tmp.at[0].set(c[0] * 0)
+        tmp = tmp.at[1].set(c[0])
+        if n > 1:
+            tmp = tmp.at[2].set(c[1] / 3)
+        j = arange(2, n)
+        t = (c[j].T / (2 * j + 1)).T
+        tmp = tmp.at[j + 1].set(t)
+        tmp = tmp.at[j - 1].add(-t)
+        tmp = tmp.at[0].add(k[i] - legval(lower_bound, tmp))
+        c = tmp
+    c = moveaxis(c, 0, axis)
+    return c
 
 
 def legline(input: float, other: float) -> Tensor:
@@ -1170,9 +2412,7 @@ def legline(input: float, other: float) -> Tensor:
 
 
 def legmul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -1213,10 +2453,7 @@ def legmul(
     return output
 
 
-def legmulx(
-    input: Tensor,
-    mode: Literal["full", "same"] = "full",
-) -> Tensor:
+def legmulx(input: Tensor, mode: Literal["full", "same"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1235,9 +2472,7 @@ def legmulx(
 
 
 def legpow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     return _pow(
         legmul,
@@ -1247,15 +2482,32 @@ def legpow(
     )
 
 
+def legroots(c):
+    [c] = _as_series([c])
+
+    if c.shape[0] <= 1:
+        return torch.tensor([], dtype=c.dtype)
+
+    if c.shape[0] == 2:
+        return torch.tensor([-c[0] / c[1]])
+
+    output = legcompanion(c)
+
+    output = flip(output, axis=0)
+    output = flip(output, axis=1)
+
+    output = torch.eigvals(output)
+
+    output = sort(output)
+
+    return output
+
+
 def legsub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def legval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-) -> Tensor:
+def legval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -1289,6 +2541,144 @@ def legval(
     return a + b * input
 
 
+def legval2d(x, y, c):
+    return _evaluate(legval, c, x, y)
+
+
+def legval3d(x, y, z, c):
+    return _evaluate(legval, c, x, y, z)
+
+
+def legvander(x, degree):
+    if degree < 0:
+        raise ValueError
+
+    x = torch.tensor(x, ndmin=1)
+
+    dims = (degree + 1,) + x.shape
+
+    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+
+    x = x.astype(dtyp)
+
+    v = torch.empty(dims, dtype=dtyp)
+
+    v = v.at[0].set(ones_like(x))
+
+    if degree > 0:
+        v = v.at[1].set(x)
+
+        for i in range(2, degree + 1):
+            v = v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
+
+    return moveaxis(v, 0, -1)
+
+
+def legvander2d(x, y, degree):
+    return _flattened_vandermonde(
+        (legvander, legvander),
+        (x, y),
+        degree,
+    )
+
+
+def legvander3d(x, y, z, degree):
+    return _flattened_vandermonde(
+        (legvander, legvander, legvander),
+        (x, y, z),
+        degree,
+    )
+
+
+def legweight(x):
+    return ones_like(x)
+
+
+def poly2cheb(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = chebadd(
+            chebmulx(
+                output,
+                mode="same",
+            ),
+            input[input.shape[0] - 1 - i],
+        )
+
+    return output
+
+
+def poly2herm(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = hermadd(
+            hermmulx(
+                output,
+                mode="same",
+            ),
+            input[input.shape[0] - 1 - i],
+        )
+
+    return output
+
+
+def poly2herme(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = hermeadd(
+            hermemulx(
+                output,
+                mode="same",
+            ),
+            input[input.shape[0] - 1 - i],
+        )
+
+    return output
+
+
+def poly2lag(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0]):
+        output = lagadd(
+            lagmulx(
+                output,
+                mode="same",
+            ),
+            flip(input, axis=0)[i],
+        )
+
+    return output
+
+
+def poly2leg(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = legadd(
+            legmulx(
+                output,
+                mode="same",
+            ),
+            input[input.shape[0] - 1 - i],
+        )
+
+    return output
+
+
 def polyadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
@@ -1317,6 +2707,35 @@ def polycompanion(input: Tensor) -> Tensor:
     )
 
     output[:, -1] = output[:, -1] + (-input[:-1] / input[-1])
+
+    return output
+
+
+def polyder(input: Tensor, order: int = 1, scale: float = 1, axis: int = 0) -> Tensor:
+    [input] = _as_series([input])
+
+    if order == 0:
+        return input
+
+    input = moveaxis(input, axis, 0)
+
+    if order >= input.shape[0]:
+        output = zeros_like(input[:1])
+    else:
+        d = arange(input.shape[0])
+
+        output = input
+
+        for _ in range(0, order):
+            output = (d * output.T).T
+
+            output = roll(output, -1, axis=0) * scale
+
+            output = output.at[-1].set(0)
+
+        output = output[:-order]
+
+    output = moveaxis(output, 0, axis)
 
     return output
 
@@ -1368,14 +2787,69 @@ def polygrid3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     return c
 
 
+def polyint(
+    input: Tensor,
+    order: int = 1,
+    k=None,
+    lower_bound: float = 0,
+    scale: float = 1,
+    axis: int = 0,
+) -> Tensor:
+    if k is None:
+        k = []
+
+    [input] = _as_series([input])
+
+    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if order < 0:
+        raise ValueError
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
+        raise ValueError
+
+    if order == 0:
+        return input
+
+    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    n = input.shape[axis]
+
+    input = _pad_along_axis(input, (0, order), axis)
+
+    input = moveaxis(input, axis, 0)
+
+    d = arange(n + order) + 1
+
+    for i in range(0, order):
+        input = input * scale
+
+        input = (input.T / d).T
+
+        input = roll(input, 1, axis=0)
+
+        input = input.at[0].set(0)
+
+        input = input.at[0].add(k[i] - polyval(lower_bound, input))
+
+    return moveaxis(input, 0, axis)
+
+
 def polyline(input: float, other: float) -> Tensor:
     return torch.tensor([input, other])
 
 
 def polymul(
-    input: Tensor,
-    other: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
+    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -1387,10 +2861,7 @@ def polymul(
     return output
 
 
-def polymulx(
-    input: Tensor,
-    mode: Literal["full", "same", "valid"] = "full",
-) -> Tensor:
+def polymulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1404,9 +2875,7 @@ def polymulx(
 
 
 def polypow(
-    input: Tensor,
-    exponent: float | Tensor,
-    maximum_exponent: float | Tensor = 16.0,
+    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
 ) -> Tensor:
     return _pow(
         polymul,
@@ -1430,7 +2899,7 @@ def polyroots(input: Tensor) -> Tensor:
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = torch.linalg.torch.eigvals(output)
 
     output, _ = torch.sort(output)
 
@@ -1441,11 +2910,7 @@ def polysub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
 
-def polyval(
-    input: Tensor,
-    coefficients: Tensor,
-    tensor: bool = True,
-) -> Tensor:
+def polyval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -1481,11 +2946,7 @@ def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     )
 
 
-def polyvalfromroots(
-    input: Tensor,
-    other: Tensor,
-    tensor: bool = True,
-) -> Tensor:
+def polyvalfromroots(input: Tensor, other: Tensor, tensor: bool = True) -> Tensor:
     if other.ndim == 0:
         other = torch.ravel(other)
 
@@ -1507,7 +2968,7 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     if input.ndim == 0:
         input = torch.ravel(input)
 
-    output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
+    output = torch.torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
     output[0] = torch.ones_like(input)
 
