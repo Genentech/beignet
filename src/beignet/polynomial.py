@@ -868,7 +868,12 @@ def chebgrid2d(
     return c
 
 
-def chebgrid3d(x, y, z, c):
+def chebgrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = chebval(arg, c)
     return c
@@ -1135,7 +1140,10 @@ def chebval3d(
     return _evaluate(chebval, c, x, y, z)
 
 
-def chebvander(x, degree):
+def chebvander(
+    x: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -1460,7 +1468,12 @@ def hermegrid2d(
     return c
 
 
-def hermegrid3d(x, y, z, c):
+def hermegrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = hermeval(arg, c)
     return c
@@ -1657,11 +1670,19 @@ def hermeval2d(
     return _evaluate(hermeval, c, x, y)
 
 
-def hermeval3d(x, y, z, c):
+def hermeval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(hermeval, c, x, y, z)
 
 
-def hermevander(x, degree):
+def hermevander(
+    x: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -1706,7 +1727,7 @@ def hermevander3d(
     )
 
 
-def hermeweight(x):
+def hermeweight(x: Tensor) -> Tensor:
     return torch.exp(-0.5 * x**2)
 
 
@@ -1771,7 +1792,12 @@ def hermgrid2d(
     return c
 
 
-def hermgrid3d(x, y, z, c):
+def hermgrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = hermval(arg, c)
     return c
@@ -1966,11 +1992,19 @@ def hermval2d(
     return _evaluate(hermval, c, x, y)
 
 
-def hermval3d(x, y, z, c):
+def hermval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(hermval, c, x, y, z)
 
 
-def hermvander(x, degree):
+def hermvander(
+    x: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -2015,7 +2049,7 @@ def hermvander3d(
     )
 
 
-def hermweight(x):
+def hermweight(x: Tensor) -> Tensor:
     return torch.exp(-(x**2))
 
 
@@ -2176,7 +2210,12 @@ def laggrid2d(
     return c
 
 
-def laggrid3d(x, y, z, c):
+def laggrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = lagval(arg, c)
     return c
@@ -2231,7 +2270,9 @@ def lagline(input: float, other: float) -> Tensor:
 
 
 def lagmul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -2383,11 +2424,19 @@ def lagval2d(
     return _evaluate(lagval, c, x, y)
 
 
-def lagval3d(x, y, z, c):
+def lagval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(lagval, c, x, y, z)
 
 
-def lagvander(x, degree):
+def lagvander(
+    x: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -2437,7 +2486,7 @@ def lagvander3d(
     )
 
 
-def lagweight(x):
+def lagweight(x: Tensor) -> Tensor:
     return torch.exp(-x)
 
 
@@ -2629,7 +2678,12 @@ def leggrid2d(
     return c
 
 
-def leggrid3d(x, y, z, c):
+def leggrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = legval(arg, c)
     return c
@@ -2826,11 +2880,19 @@ def legval2d(
     return _evaluate(legval, c, x, y)
 
 
-def legval3d(x, y, z, c):
+def legval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(legval, c, x, y, z)
 
 
-def legvander(x, degree):
+def legvander(
+    x: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -2883,7 +2945,7 @@ def legvander3d(
     )
 
 
-def legweight(x):
+def legweight(x: Tensor) -> Tensor:
     return torch.ones_like(x)
 
 
