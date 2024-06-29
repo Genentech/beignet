@@ -1454,7 +1454,7 @@ def test_chebpts1():
 
     torch.testing.assert_close(
         chebpts1(1),
-        torch.tensor([0]),
+        torch.tensor([0.0]),
     )
 
     torch.testing.assert_close(
@@ -1482,17 +1482,17 @@ def test_chebpts2():
 
     torch.testing.assert_close(
         chebpts2(2),
-        torch.tensor([-1, 1]),
+        torch.tensor([-1.0, 1.0]),
     )
 
     torch.testing.assert_close(
         chebpts2(3),
-        torch.tensor([-1, 0, 1]),
+        torch.tensor([-1.0, 0.0, 1.0]),
     )
 
     torch.testing.assert_close(
         chebpts2(4),
-        torch.tensor([-1, -0.5, 0.5, 1]),
+        torch.tensor([-1.0, -0.5, 0.5, 1.0]),
     )
 
     torch.testing.assert_close(
@@ -1504,14 +1504,14 @@ def test_chebpts2():
 def test_chebroots():
     torch.testing.assert_close(
         chebroots(
-            torch.tensor([1]),
+            torch.tensor([1.0]),
         ),
         torch.tensor([]),
     )
 
     torch.testing.assert_close(
         chebroots(
-            torch.tensor([1, 2]),
+            torch.tensor([1.0, 2.0]),
         ),
         torch.tensor([-0.5]),
     )
@@ -4926,7 +4926,6 @@ def test_lagval2d():
             c2d,
         ),
         target,
-        decimal=3,
     )
 
     z = torch.ones([2, 3])
