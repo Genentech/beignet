@@ -970,8 +970,8 @@ def chebroots(input: Tensor) -> Tensor:
 
     output = chebcompanion(input)
 
-    output = flip(output, axis=0)
-    output = flip(output, axis=1)
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
 
     output = torch.eigvals(output)
 
@@ -1116,7 +1116,7 @@ def hermcompanion(c):
 
     scale = torch.hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
     scale = torch.cumprod(scale)
-    scale = flip(scale, axis=0)
+    scale = flip(scale, dims=[0])
 
     shp = mat.shape
     mat = reshape(mat, [-1])
@@ -1209,7 +1209,7 @@ def hermecompanion(c):
     mat = zeros((n, n), dtype=c.dtype)
     scale = torch.hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
     scale = torch.cumprod(scale)
-    scale = flip(scale, axis=0)
+    scale = flip(scale, dims=[0])
     shp = mat.shape
     mat = reshape(mat, [-1])
     mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
@@ -1288,8 +1288,8 @@ def hermegauss(degree):
     fm /= abs(fm).max()
     w = 1 / (fm * fm)
 
-    a = flip(w, axis=0)
-    b = flip(x, axis=0)
+    a = flip(w, dims=[0])
+    b = flip(x, dims=[0])
 
     w = (w + a) / 2
     x = (x - b) / 2
@@ -1438,8 +1438,8 @@ def hermeroots(c):
 
     output = hermecompanion(c)
 
-    output = flip(output, axis=0)
-    output = flip(output, axis=1)
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
 
     output = torch.eigvals(output)
 
@@ -1574,8 +1574,8 @@ def hermgauss(degree):
     fm = fm / abs(fm).max()
     w = 1 / (fm * fm)
 
-    a = flip(w, axis=0)
-    b = flip(x, axis=0)
+    a = flip(w, dims=[0])
+    b = flip(x, dims=[0])
 
     w = (w + a) / 2
     x = (x - b) / 2
@@ -1725,8 +1725,8 @@ def hermroots(input):
 
     output = hermcompanion(input)
 
-    output = flip(output, axis=0)
-    output = flip(output, axis=1)
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
 
     output = torch.eigvals(output)
 
@@ -2106,8 +2106,8 @@ def lagroots(input: Tensor) -> Tensor:
 
     output = lagcompanion(input)
 
-    output = flip(output, axis=0)
-    output = flip(output, axis=1)
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
 
     output = torch.eigvals(output)
 
@@ -2368,8 +2368,8 @@ def leggauss(degree):
 
     w = 1 / (fm * df)
 
-    a = flip(w, axis=0)
-    b = flip(x, axis=0)
+    a = flip(w, dims=[0])
+    b = flip(x, dims=[0])
 
     w = (w + a) / 2
     x = (x - b) / 2
@@ -2521,8 +2521,8 @@ def legroots(c):
 
     output = legcompanion(c)
 
-    output = flip(output, axis=0)
-    output = flip(output, axis=1)
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
 
     output = torch.eigvals(output)
 
@@ -2765,7 +2765,7 @@ def polyder(
         for _ in range(0, order):
             output = (d * output.T).T
 
-            output = roll(output, -1, axis=0) * scale
+            output = roll(output, -1, dims=[0]) * scale
 
             output = output.at[-1].set(0)
 
@@ -2871,7 +2871,7 @@ def polyint(
 
         input = (input.T / d).T
 
-        input = roll(input, 1, axis=0)
+        input = roll(input, 1, dims=[0])
 
         input = input.at[0].set(0)
 
