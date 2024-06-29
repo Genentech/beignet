@@ -402,14 +402,14 @@ def test__map_domain():
         torch.tensor([1.0, 3.0]),
     )
 
-    # torch.testing.assert_close(
-    #     _map_domain(
-    #         torch.tensor([-0 - 1j, 2 + 1j]),
-    #         torch.tensor([-0 - 1j, 2 + 1j]),
-    #         torch.tensor([-2.0, 2.0]),
-    #     ),
-    #     torch.tensor([-2.0, 2.0]),
-    # )
+    torch.testing.assert_close(
+        _map_domain(
+            torch.tensor([-0 - 1j, 2 + 1j]),
+            torch.tensor([-0 - 1j, 2 + 1j]),
+            torch.tensor([-2.0, 2.0]),
+        ),
+        torch.tensor([-2.0, 2.0]),
+    )
 
     torch.testing.assert_close(
         _map_domain(
@@ -7023,7 +7023,7 @@ def test_polyval():
 def test_polyval2d():
     x = torch.rand(3, 5) * 2 - 1
 
-    x1, x2, x3 = x
+    a, b, c = x
 
     y1, y2, y3 = polyval(
         x,
@@ -7032,8 +7032,8 @@ def test_polyval2d():
 
     torch.testing.assert_close(
         polyval2d(
-            x1,
-            x2,
+            a,
+            b,
             torch.torch.einsum(
                 "i,j->ij",
                 torch.tensor([1.0, 2.0, 3.0]),
@@ -7189,47 +7189,47 @@ def test_polyvalfromroots():
 
         assert output.shape == shape
 
-    # ptest = torch.tensor([15, 2, -16, -2, 1])
-    #
-    # r = polyroots(ptest)
-    #
-    # torch.testing.assert_close(
-    #     polyval(
-    #         input,
-    #         ptest,
-    #     ),
-    #     polyvalfromroots(
-    #         input,
-    #         r,
-    #     ),
-    # )
+    ptest = torch.tensor([15, 2, -16, -2, 1])
 
-    # x = torch.torch.arange(-3, 2)
-    #
+    r = polyroots(ptest)
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            ptest,
+        ),
+        polyvalfromroots(
+            input,
+            r,
+        ),
+    )
+
+    x = torch.torch.arange(-3, 2)
+
     # r = jax.random.randint(key, [3, 5], -5, 5)
-    #
-    # target = torch.empty(r.shape[1:])
-    #
-    # for j in range(target.size):
-    #     target = target.at[j].set(polyvalfromroots(x[j], r[:, j]))
-    #
-    # torch.testing.assert_close(
-    #     polyvalfromroots(x, r, tensor=False),
-    #     target,
-    # )
-    #
-    # x = torch.torch.vstack([x, 2 * x])
-    #
-    # target = torch.empty(r.shape[1:] + x.shape)
-    #
-    # for j in range(r.shape[1]):
-    #     for k in range(x.shape[0]):
-    #         target[j, k, :] = polyvalfromroots(x[k], r[:, j])
-    #
-    # torch.testing.assert_close(
-    #     polyvalfromroots(x, r, tensor=True),
-    #     target,
-    # )
+
+    target = torch.empty(r.shape[1:])
+
+    for j in range(target.size):
+        target = target.at[j].set(polyvalfromroots(x[j], r[:, j]))
+
+    torch.testing.assert_close(
+        polyvalfromroots(x, r, tensor=False),
+        target,
+    )
+
+    x = torch.torch.vstack([x, 2 * x])
+
+    target = torch.empty(r.shape[1:] + x.shape)
+
+    for j in range(r.shape[1]):
+        for k in range(x.shape[0]):
+            target[j, k, :] = polyvalfromroots(x[k], r[:, j])
+
+    torch.testing.assert_close(
+        polyvalfromroots(x, r, tensor=True),
+        target,
+    )
 
 
 def test_polyvander():
