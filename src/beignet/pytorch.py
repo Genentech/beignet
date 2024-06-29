@@ -337,7 +337,7 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
         return ones([1])
 
-    input = sort(input)
+    input, _ = sort(input)
 
     ys = []
 

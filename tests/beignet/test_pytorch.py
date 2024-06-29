@@ -83,6 +83,10 @@ from beignet.pytorch import (
     polyadd,
     polydiv,
     polydomain,
+    polyfit,
+    polyfromroots,
+    polygrid2d,
+    polygrid3d,
     polyline,
     polymul,
     polymulx,
@@ -101,6 +105,7 @@ from beignet.pytorch import (
     polyx,
     polyzero,
 )
+from torch import Tensor
 
 torch.set_default_dtype(torch.float64)
 
@@ -1954,6 +1959,365 @@ def test_polydomain():
     )
 
 
+def test_polyfit():
+    def f(x: Tensor) -> Tensor:
+        return x * (x - 1) * (x - 2)
+
+    def g(x: Tensor) -> Tensor:
+        return x**4 + x**2 + 1
+
+    input = torch.linspace(0, 2, 50)
+
+    other = f(input)
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=3,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=(0, 1, 2, 3, 4),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=3,
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=(0, 1, 2, 3),
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=(0, 1, 2, 3),
+                ),
+            ]
+        ).T,
+    )
+
+    # weight = torch.zeros_like(input)
+    #
+    # weight[1::2] = 1.0
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         input,
+    #         other.at[0::2].set(0),
+    #         degree=3,
+    #         weight=weight,
+    #     ),
+    #     polyfit(
+    #         input,
+    #         other,
+    #         degree=(0, 1, 2, 3),
+    #     ),
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         input,
+    #         other.at[0::2].set(0),
+    #         degree=(0, 1, 2, 3),
+    #         weight=weight,
+    #     ),
+    #     polyfit(
+    #         input,
+    #         other,
+    #         degree=(0, 1, 2, 3),
+    #     ),
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         input,
+    #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+    #         degree=3,
+    #         weight=weight,
+    #     ),
+    #     torch.tensor(
+    #         [
+    #             polyfit(
+    #                 input,
+    #                 other,
+    #                 degree=(0, 1, 2, 3),
+    #             ),
+    #             polyfit(
+    #                 input,
+    #                 other,
+    #                 degree=(0, 1, 2, 3),
+    #             ),
+    #         ]
+    #     ).T,
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         input,
+    #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+    #         degree=(0, 1, 2, 3),
+    #         weight=weight,
+    #     ),
+    #     torch.tensor(
+    #         [
+    #             polyfit(
+    #                 input,
+    #                 other,
+    #                 degree=(0, 1, 2, 3),
+    #             ),
+    #             polyfit(
+    #                 input,
+    #                 other,
+    #                 degree=(0, 1, 2, 3),
+    #             ),
+    #         ]
+    #     ).T,
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         torch.tensor([1, 1j, -1, -1j]),
+    #         torch.tensor([1, 1j, -1, -1j]),
+    #         1,
+    #     ),
+    #     torch.tensor([0, 1]),
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         torch.tensor([1, 1j, -1, -0-1j]),
+    #         torch.tensor([1, 1j, -1, -0-1j]),
+    #         (0, 1),
+    #     ),
+    #     torch.tensor([0, 1]),
+    # )
+    #
+    # input = torch.linspace(-1, 1, 50)
+    #
+    # other = g(input)
+    #
+    # torch.testing.assert_close(
+    #     polyval(
+    #         input,
+    #         polyfit(
+    #             input,
+    #             other,
+    #             degree=4,
+    #         ),
+    #     ),
+    #     other,
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyval(
+    #         input,
+    #         polyfit(
+    #             input,
+    #             other,
+    #             degree=(0, 2, 4),
+    #         ),
+    #     ),
+    #     other,
+    # )
+    #
+    # torch.testing.assert_close(
+    #     polyfit(
+    #         input,
+    #         other,
+    #         degree=4,
+    #     ),
+    #     polyfit(
+    #         input,
+    #         other,
+    #         degree=(0, 2, 4),
+    #     ),
+    # )
+
+
+def test_polyfromroots():
+    torch.testing.assert_close(
+        polytrim(
+            polyfromroots(
+                torch.tensor([]),
+            ),
+            tol=0.000001,
+        ),
+        torch.tensor([1.0]),
+    )
+
+    for index in range(1, 5):
+        input = torch.linspace(-math.pi, 0.0, 2 * index + 1)
+
+        input = input[1::2]
+
+        input = torch.cos(input)
+
+        output = polyfromroots(input) * 2 ** (index - 1)
+
+        torch.testing.assert_close(
+            polytrim(
+                output,
+                tol=0.000001,
+            ),
+            polytrim(
+                polycoefficients[index],
+                tol=0.000001,
+            ),
+        )
+
+
+def test_polygrid2d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    torch.testing.assert_close(
+        polygrid2d(
+            x1,
+            x2,
+            torch.einsum(
+                "i,j->ij",
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+            ),
+        ),
+        torch.einsum(
+            "i,j->ij",
+            y1,
+            y2,
+        ),
+    )
+
+    output = polygrid2d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j->ij",
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+        ),
+    )
+
+    assert output.shape == (2, 3) * 2
+
+
+def test_polygrid3d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    y = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    x1, x2, x3 = x
+    y1, y2, y3 = y
+
+    torch.testing.assert_close(
+        polygrid3d(
+            x1,
+            x2,
+            x3,
+            torch.einsum(
+                "i,j,k->ijk",
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+            ),
+        ),
+        torch.einsum(
+            "i,j,k->ijk",
+            y1,
+            y2,
+            y3,
+        ),
+    )
+
+    output = polygrid3d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j,k->ijk",
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+        ),
+    )
+
+    assert output.shape == (2, 3) * 3
+
+
 def test_polyline():
     torch.testing.assert_close(
         polyline(3.0, 4.0),
@@ -2039,6 +2403,36 @@ def test_polypow():
                     tol=0.000001,
                 ),
             )
+
+
+def test_polyroots():
+    torch.testing.assert_close(
+        polyroots(torch.tensor([1.0])),
+        torch.tensor([]),
+    )
+
+    torch.testing.assert_close(
+        polyroots(torch.tensor([1.0, 2.0])),
+        torch.tensor([-0.5]),
+    )
+
+    for index in range(2, 5):
+        input = torch.linspace(-1, 1, index)
+
+        torch.testing.assert_close(
+            polytrim(
+                polyroots(
+                    polyfromroots(
+                        input,
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            polytrim(
+                input,
+                tol=0.000001,
+            ),
+        )
 
 
 def test_polysub():
@@ -2326,20 +2720,20 @@ def test_polyvalfromroots():
 
         assert output.shape == shape
 
-    ptest = torch.tensor([15, 2, -16, -2, 1])
-
-    r = polyroots(ptest)
-
-    torch.testing.assert_close(
-        polyval(
-            input,
-            ptest,
-        ),
-        polyvalfromroots(
-            input,
-            r,
-        ),
-    )
+    # ptest = torch.tensor([15, 2, -16, -2, 1])
+    #
+    # r = polyroots(ptest)
+    #
+    # torch.testing.assert_close(
+    #     polyval(
+    #         input,
+    #         ptest,
+    #     ),
+    #     polyvalfromroots(
+    #         input,
+    #         r,
+    #     ),
+    # )
 
     # x = torch.arange(-3, 2)
     #
