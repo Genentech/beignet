@@ -4975,26 +4975,26 @@ def test_lagvander():
 
 
 def test_lagvander2d():
-    x1, x2, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, c = torch.rand(3, 5) * 2 - 1
 
     coefficients = torch.rand(2, 3)
 
     torch.testing.assert_close(
         torch.dot(
             lagvander2d(
-                x1,
-                x2,
-                (1, 2),
+                a,
+                b,
+                torch.tensor([1, 2]),
             ),
             torch.ravel(coefficients),
         ),
-        lagval2d(x1, x2, coefficients),
+        lagval2d(a, b, coefficients),
     )
 
     output = lagvander2d(
-        [x1],
-        [x2],
-        (1, 2),
+        [a],
+        [b],
+        torch.tensor([1, 2]),
     )
 
     assert output.shape == (1, 5, 6)
