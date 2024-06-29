@@ -890,7 +890,10 @@ def chebmul(
     return output
 
 
-def chebmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
+def chebmulx(
+    input: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1443,7 +1446,10 @@ def hermemul(
     return output
 
 
-def hermemulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
+def hermemulx(
+    input: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -1735,7 +1741,10 @@ def hermmul(
     return output
 
 
-def hermmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
+def hermmulx(
+    input: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -2120,7 +2129,10 @@ def lagmul(
     return output
 
 
-def lagmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
+def lagmulx(
+    input: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -2975,7 +2987,10 @@ def polymul(
     return output
 
 
-def polymulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> Tensor:
+def polymulx(
+    input: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
+) -> Tensor:
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
