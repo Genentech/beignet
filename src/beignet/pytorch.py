@@ -145,13 +145,13 @@ def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
 
 
 def _c_series_to_z_series(input: Tensor) -> Tensor:
-    n = math.prod(input.shape)
+    index = math.prod(input.shape)
 
-    zs = zeros(2 * n - 1, dtype=input.dtype)
+    zs = zeros(2 * index - 1, dtype=input.dtype)
 
-    zs[n - 1 :] = input / 2.0
+    zs[index - 1 :] = input / 2.0
 
-    return flip(zs, [0]) + zs
+    return flip(zs, dims=[0]) + zs
 
 
 def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
