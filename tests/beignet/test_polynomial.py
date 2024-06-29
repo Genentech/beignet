@@ -1448,9 +1448,6 @@ def test_chebpow():
 
 def test_chebpts1():
     with pytest.raises(ValueError):
-        chebpts1(1.5)
-
-    with pytest.raises(ValueError):
         chebpts1(0)
 
     torch.testing.assert_close(

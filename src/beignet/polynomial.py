@@ -14,14 +14,17 @@ from torch import (
     arange,
     atleast_1d,
     concatenate,
+    cos,
     finfo,
     flip,
     full,
+    linspace,
     moveaxis,
     nonzero,
     promote_types,
     reshape,
     roll,
+    sin,
     sqrt,
     stack,
     sum,
@@ -909,8 +912,11 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
 
     for i in range(order):
         n = c.shape[0]
+
         c *= scale
+
         tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+
         tmp[0] = c[0] * 0
         tmp[1] = c[0]
 
@@ -918,11 +924,17 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
             tmp[2] = c[1] / 4
 
         j = arange(2, n)
+
         tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+
         tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
+
         tmp = tmp.at[0].add(k[i] - chebval(lower_bound, tmp))
+
         c = tmp
+
     c = moveaxis(c, 0, axis)
+
     return c
 
 
@@ -945,6 +957,7 @@ def chebinterpolate(func, degree, args=()):
     c = torch.dot(m.T, yfunc)
 
     c = c.at[0].divide(order)
+
     c = c.at[1:].divide(0.5 * order)
 
     return c
@@ -955,7 +968,9 @@ def chebline(input: float, other: float) -> Tensor:
 
 
 def chebmul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -1030,38 +1045,18 @@ def chebpow(
     return output
 
 
-def chebpts1(points: int) -> Tensor:
-    _points = int(points)
-
-    if _points != points:
+def chebpts1(input: int) -> Tensor:
+    if input < 1:
         raise ValueError
 
-    if _points < 1:
+    return sin(0.5 * math.pi / input * arange(-input + 1, input + 1, 2))
+
+
+def chebpts2(input: int) -> Tensor:
+    if input < 2:
         raise ValueError
 
-    output = arange(-_points + 1, _points + 1, 2)
-
-    output = 0.5 * math.pi / _points * output
-
-    output = torch.sin(output)
-
-    return output
-
-
-def chebpts2(points):
-    _points = int(points)
-
-    if _points != points:
-        raise ValueError
-
-    if _points < 2:
-        raise ValueError
-
-    output = torch.linspace(-math.pi, 0, _points)
-
-    output = torch.cos(output)
-
-    return output
+    return cos(linspace(-math.pi, 0, input))
 
 
 def chebroots(
