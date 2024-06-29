@@ -3962,18 +3962,38 @@ def test_hermval3d():
 
 def test_hermvander():
     x = torch.arange(3)
-    v = hermvander(x, 3)
-    assert v.shape == (3, 4)
-    for i in range(4):
-        coef = torch.tensor([0.0] * i + [1.0])
-        torch.testing.assert_close(v[..., i], hermval(x, coef))
 
-    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
-    v = hermvander(x, 3)
-    assert v.shape == (3, 2, 4)
-    for i in range(4):
-        coef = torch.tensor([0.0] * i + [1.0])
-        torch.testing.assert_close(v[..., i], hermval(x, coef))
+    output = hermvander(
+        x,
+        degree=3,
+    )
+
+    assert output.shape == (3, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            output[..., index],
+            hermval(
+                x,
+                torch.tensor([0.0] * index + [1.0]),
+            ),
+        )
+
+    output = hermvander(
+        torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
+        degree=3,
+    )
+
+    assert output.shape == (3, 2, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            output[..., index],
+            hermval(
+                torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
+                torch.tensor([0.0] * index + [1.0]),
+            ),
+        )
 
 
 def test_hermvander2d():

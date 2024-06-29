@@ -1031,14 +1031,15 @@ def chebvander(x, degree):
     x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
 
-    v = v.at[0].set(torch.ones_like(x))
+    v[0] = torch.ones_like(x)
 
     if degree > 0:
-        v = v.at[1].set(x)
+        v[1] = x
+
         x2 = 2 * x
 
-        for i in range(2, degree + 1):
-            v = v.at[i].set(v[i - 1] * x2 - v[i - 2])
+        for index in range(2, degree + 1):
+            v[index] = v[index - 1] * x2 - v[index - 2]
 
     return moveaxis(v, 0, -1)
 
@@ -1504,13 +1505,13 @@ def hermevander(x, degree):
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
     x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
-    v = v.at[0].set(ones_like(x))
+    v[0] = torch.ones_like(x)
 
     if degree > 0:
-        v = v.at[1].set(x)
+        v[1] = x
 
-        for i in range(2, degree + 1):
-            v = v.at[i].set(v[i - 1] * x - v[i - 2] * (i - 1))
+        for index in range(2, degree + 1):
+            v[index] = v[index - 1] * x - v[index - 2] * (index - 1)
 
     return moveaxis(v, 0, -1)
 
@@ -1791,13 +1792,13 @@ def hermvander(x, degree):
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
     x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
-    v = v.at[0].set(ones_like(x))
-    if degree > 0:
-        x2 = x * 2
-        v = v.at[1].set(x2)
+    v[0] = torch.ones_like(x)
 
-        for i in range(2, degree + 1):
-            v = v.at[i].set(v[i - 1] * x2 - v[i - 2] * (2 * (i - 1)))
+    if degree > 0:
+        v[1] = x * 2
+
+        for index in range(2, degree + 1):
+            v[index] = v[index - 1] * x * 2 - v[index - 2] * (2 * (index - 1))
 
     return moveaxis(v, 0, -1)
 
