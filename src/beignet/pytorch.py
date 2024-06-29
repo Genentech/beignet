@@ -1286,10 +1286,67 @@ def polyadd(input: Tensor, other: Tensor) -> Tensor:
     return _add(input, other)
 
 
+def polycompanion(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    if input.shape[0] < 2:
+        raise ValueError
+
+    if input.shape[0] == 2:
+        return torch.tensor([[-input[0] / input[1]]])
+
+    n = input.shape[0] - 1
+
+    mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
+
+    mat = mat.at[n :: n + 1].set(1)
+
+    mat = reshape(mat, (n, n))
+
+    output = mat.at[:, -1].add(-input[:-1] / input[-1])
+
+    return output
+
+
 def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     [input, other] = _as_series([input, other])
 
     return _div(polymul, input, other)
+
+
+def polyfit(
+    input: Tensor,
+    other: Tensor,
+    degree: Tensor | int,
+    relative_condition: float | None = None,
+    full: bool = False,
+    weight: Tensor | None = None,
+):
+    return _fit(
+        polyvander,
+        input,
+        other,
+        degree,
+        relative_condition,
+        full,
+        weight,
+    )
+
+
+def polyfromroots(input: Tensor) -> Tensor:
+    return _from_roots(polyline, polymul, input)
+
+
+def polygrid2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+    for arg in [x, y]:
+        c = polyval(arg, c)
+    return c
+
+
+def polygrid3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+    for arg in [x, y, z]:
+        c = polyval(arg, c)
+    return c
 
 
 def polyline(input: float, other: float) -> Tensor:
@@ -1340,6 +1397,27 @@ def polypow(
     )
 
 
+def polyroots(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    if input.shape[0] < 2:
+        return torch.tensor([], dtype=input.dtype)
+
+    if input.shape[0] == 2:
+        return torch.tensor([-input[0] / input[1]])
+
+    output = polycompanion(input)
+
+    output = flip(output, dims=[0])
+    output = flip(output, dims=[1])
+
+    output = torch.linalg.eigvals(output)
+
+    output, _ = torch.sort(output)
+
+    return output
+
+
 def polysub(input: Tensor, other: Tensor) -> Tensor:
     return _subtract(input, other)
 
@@ -1384,6 +1462,25 @@ def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     )
 
 
+def polyvalfromroots(
+    input: Tensor,
+    other: Tensor,
+    tensor: bool = True,
+) -> Tensor:
+    if other.ndim == 0:
+        other = torch.ravel(other)
+
+    if tensor:
+        other = torch.reshape(other, other.shape + (1,) * input.ndim)
+
+    if input.ndim >= other.ndim:
+        raise ValueError
+
+    output = torch.prod(input - other, dim=0)
+
+    return output
+
+
 def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     if degree < 0:
         raise ValueError
@@ -1391,12 +1488,12 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     if input.ndim == 0:
         input = torch.ravel(input)
 
-    output = torch.empty((degree + 1,) + input.shape, dtype=input.dtype)
+    output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
     output[0] = ones_like(input)
 
-    for i in range(1, degree + 1):
-        output[i] = output[i - 1] * input
+    for index in range(1, degree + 1):
+        output[index] = output[index - 1] * input
 
     output = moveaxis(output, 0, -1)
 
