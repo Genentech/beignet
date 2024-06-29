@@ -22,7 +22,6 @@ from torch import (
     promote_types,
     reshape,
     roll,
-    sort,
     sqrt,
     stack,
     sum,
@@ -244,7 +243,7 @@ def _fit(
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    degree, _ = sort(degree)
+    degree, _ = torch.sort(degree)
 
     vandermonde = vandermonde_func(input, degree[-1])[:, degree].T
 
@@ -320,7 +319,7 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
         return torch.ones([1])
 
-    input, _ = sort(input)
+    input, _ = torch.sort(input)
 
     ys = []
 
@@ -811,16 +810,19 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
         return c
 
     c = moveaxis(c, axis, 0)
-    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+    k = torch.tensor(list(k) + [0] * (order - len(k)))
+    k = torch.atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
         c *= scale
         tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-        tmp = tmp.at[0].set(c[0] * 0)
-        tmp = tmp.at[1].set(c[0])
+        tmp[0] = c[0] * 0
+        tmp[1] = c[0]
+
         if n > 1:
-            tmp = tmp.at[2].set(c[1] / 4)
+            tmp[2] = c[1] / 4
+
         j = arange(2, n)
         tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
         tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
@@ -895,7 +897,9 @@ def chebmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> 
 
 
 def chebpow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     [input] = _as_series([input])
 
@@ -979,7 +983,7 @@ def chebroots(input: Tensor) -> Tensor:
 
     output = torch.eigvals(output)
 
-    output = sort(output)
+    output, _ = torch.sort(output)
 
     return output
 
@@ -1433,7 +1437,9 @@ def hermemulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") ->
 
 
 def hermepow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
         hermemul,
@@ -1459,7 +1465,7 @@ def hermeroots(c):
 
     output = torch.eigvals(output)
 
-    output = sort(output)
+    output, _ = torch.sort(output)
 
     return output
 
@@ -1720,7 +1726,9 @@ def hermmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> 
 
 
 def hermpow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
         hermmul,
@@ -1746,7 +1754,7 @@ def hermroots(input):
 
     output = torch.eigvals(output)
 
-    output = sort(output)
+    output, _ = torch.sort(output)
 
     return output
 
@@ -2104,7 +2112,9 @@ def lagmulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> T
 
 
 def lagpow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
         lagmul,
@@ -2130,7 +2140,7 @@ def lagroots(input: Tensor) -> Tensor:
 
     output = torch.eigvals(output)
 
-    output = sort(output)
+    output, _ = torch.sort(output)
 
     return output
 
@@ -2519,7 +2529,9 @@ def legmulx(input: Tensor, mode: Literal["full", "same"] = "full") -> Tensor:
 
 
 def legpow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
         legmul,
@@ -2545,7 +2557,7 @@ def legroots(c):
 
     output = torch.eigvals(output)
 
-    output = sort(output)
+    output, _ = torch.sort(output)
 
     return output
 
@@ -2930,7 +2942,9 @@ def polymulx(input: Tensor, mode: Literal["full", "same", "valid"] = "full") -> 
 
 
 def polypow(
-    input: Tensor, exponent: float | Tensor, maximum_exponent: float | Tensor = 16.0
+    input: Tensor,
+    exponent: float | Tensor,
+    maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
         polymul,

@@ -945,14 +945,15 @@ def test_chebfromroots():
             ),
             tol=0.000001,
         ),
-        torch.tensor([1]),
+        torch.tensor([1.0]),
     )
-    for i in range(1, 5):
+
+    for index in range(1, 5):
         input = chebfromroots(
-            torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2]),
+            torch.cos(torch.linspace(-math.pi, 0.0, 2 * index + 1)[1::2]),
         )
 
-        input = input * 2 ** (i - 1)
+        input = input * 2 ** (index - 1)
 
         torch.testing.assert_close(
             chebtrim(
@@ -960,7 +961,7 @@ def test_chebfromroots():
                 tol=0.000001,
             ),
             chebtrim(
-                torch.tensor([0.0] * i + [1.0]),
+                torch.tensor([0.0] * index + [1.0]),
                 tol=0.000001,
             ),
         )
