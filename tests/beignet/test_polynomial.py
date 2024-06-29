@@ -5913,8 +5913,17 @@ def test_legpow():
 
 
 def test_legroots():
-    torch.testing.assert_close(legroots([1]), torch.tensor([]))
-    torch.testing.assert_close(legroots(torch.tensor([1, 2])), torch.tensor([-0.5]))
+    torch.testing.assert_close(
+        legroots(
+            torch.tensor([1.0]),
+        ),
+        torch.tensor([]),
+    )
+
+    torch.testing.assert_close(
+        legroots(torch.tensor([1.0, 2.0])),
+        torch.tensor([-0.5]),
+    )
 
     for index in range(2, 5):
         torch.testing.assert_close(

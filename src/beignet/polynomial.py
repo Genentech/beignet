@@ -30,7 +30,6 @@ from torch import (
     tensor,
     where,
     zeros,
-    zeros_like,
 )
 
 torch.set_default_dtype(torch.float64)
@@ -135,10 +134,10 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     n = other.shape[0]
 
     if m < n:
-        return zeros_like(input[:1]), input
+        return torch.zeros_like(input[:1]), input
 
     if n == 1:
-        return input / other[-1], zeros_like(input[:1])
+        return input / other[-1], torch.zeros_like(input[:1])
 
     def f(x: Tensor) -> Tensor:
         indicies = flip(x, [0])
@@ -320,7 +319,7 @@ def _flattened_vandermonde(vandermonde_functions, points, degrees):
 
 def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
-        return torch.torch.ones([1])
+        return torch.ones([1])
 
     input, _ = sort(input)
 
@@ -424,7 +423,7 @@ def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
     if n == 0:
         output = full(x.shape, 1.0 / math.sqrt(math.sqrt(2.0 * math.pi)))
     else:
-        a = zeros_like(x)
+        a = torch.zeros_like(x)
         b = ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
 
         size = tensor(n)
@@ -447,7 +446,7 @@ def _normed_hermite_n(x: Tensor, n) -> Tensor:
     if n == 0:
         output = full(x.shape, 1 / math.sqrt(math.sqrt(math.pi)))
     else:
-        a = zeros_like(x)
+        a = torch.zeros_like(x)
 
         b = ones_like(x) / math.sqrt(math.sqrt(math.pi))
 
@@ -636,11 +635,14 @@ def cheb2poly(input: Tensor) -> Tensor:
     if n < 3:
         return input
 
-    c0 = zeros_like(input).at[0].set(input[-2])
-    c1 = zeros_like(input).at[0].set(input[-1])
+    c0 = torch.zeros_like(input)
+    c0[0] = input[-2]
 
-    for i in range(0, n - 2):
-        i1 = n - 1 - i
+    c1 = torch.zeros_like(input)
+    c1[0] = input[-1]
+
+    for index in range(0, n - 2):
+        i1 = n - 1 - index
 
         tmp = c0
 
@@ -672,14 +674,15 @@ def chebcompanion(input: Tensor) -> Tensor:
 
     mat = zeros([n, n], dtype=input.dtype)
 
-    scale = torch.ones(n).at[1:].set(math.sqrt(0.5))
+    scale = torch.ones(n)
+    scale[1:] = math.sqrt(0.5)
 
     shp = mat.shape
 
     mat = reshape(mat, [-1])
 
-    mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
-    mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(sqrt(0.5)))
+    mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
+    mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
 
     mat = reshape(mat, shp)
 
@@ -702,7 +705,7 @@ def chebder(input: Tensor, order=1, scale=1, axis=0) -> Tensor:
     n = output.shape[0]
 
     if order >= n:
-        output = zeros_like(output[:1])
+        output = torch.zeros_like(output[:1])
     else:
         for _ in range(order):
             n = n - 1
@@ -814,7 +817,7 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
     for i in range(order):
         n = c.shape[0]
         c *= scale
-        tmp = torch.torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         if n > 1:
@@ -1118,7 +1121,13 @@ def hermcompanion(c):
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
 
-    scale = torch.hstack((1.0, 1.0 / sqrt(2.0 * arange(n - 1, 0, -1))))
+    scale = torch.hstack(
+        [
+            torch.tensor([1.0]),
+            1.0 / torch.sqrt(2.0 * torch.arange(n - 1, 0, -1)),
+        ],
+    )
+
     scale = torch.cumprod(scale)
     scale = flip(scale, dims=[0])
 
@@ -1143,7 +1152,7 @@ def hermder(c, order=1, scale=1, axis=0):
     c = moveaxis(c, axis, 0)
     n = c.shape[0]
     if order >= n:
-        c = zeros_like(c[:1])
+        c = torch.zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
@@ -1211,7 +1220,9 @@ def hermecompanion(c):
 
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
+
     scale = torch.hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
+
     scale = torch.cumprod(scale)
     scale = flip(scale, dims=[0])
     shp = mat.shape
@@ -1235,7 +1246,7 @@ def hermeder(c, order=1, scale=1, axis=0):
     c = moveaxis(c, axis, 0)
     n = c.shape[0]
     if order >= n:
-        c = zeros_like(c[:1])
+        c = torch.zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
@@ -1244,7 +1255,9 @@ def hermeder(c, order=1, scale=1, axis=0):
             j = arange(n, 0, -1)
             der = der.at[j - 1].set((j * (c[j]).T).T)
             c = der
+
     c = moveaxis(c, 0, axis)
+
     return c
 
 
@@ -1831,8 +1844,8 @@ def lag2poly(c):
     if n == 1:
         return c
     else:
-        c0 = zeros_like(c).at[0].set(c[-2])
-        c1 = zeros_like(c).at[0].set(c[-1])
+        c0 = torch.zeros_like(c).at[0].set(c[-2])
+        c1 = torch.zeros_like(c).at[0].set(c[-1])
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -1889,7 +1902,7 @@ def lagder(c, order=1, scale=1, axis=0):
     c = moveaxis(c, axis, 0)
     n = c.shape[0]
     if order >= n:
-        c = zeros_like(c[:1])
+        c = torch.zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
@@ -2219,8 +2232,8 @@ def leg2poly(c):
     if n < 3:
         return c
 
-    c0 = zeros_like(c).at[0].set(c[-2])
-    c1 = zeros_like(c).at[0].set(c[-1])
+    c0 = torch.zeros_like(c).at[0].set(c[-2])
+    c1 = torch.zeros_like(c).at[0].set(c[-1])
 
     def body(k, c0c1):
         i = n - 1 - k
@@ -2288,7 +2301,7 @@ def legder(c, order=1, scale=1, axis=0):
     n = c.shape[0]
 
     if order >= n:
-        c = zeros_like(c[:1])
+        c = torch.zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
@@ -2760,7 +2773,7 @@ def polyder(
     input = moveaxis(input, axis, 0)
 
     if order >= input.shape[0]:
-        output = zeros_like(input[:1])
+        output = torch.zeros_like(input[:1])
     else:
         d = arange(input.shape[0])
 
@@ -2959,7 +2972,7 @@ def polyval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
             coefficients.shape + (1,) * input.ndim,
         )
 
-    output = coefficients[-1] + zeros_like(input)
+    output = coefficients[-1] + torch.zeros_like(input)
 
     for index in range(2, coefficients.shape[0] + 1):
         output = coefficients[-index] + output * input
@@ -3008,7 +3021,7 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     if input.ndim == 0:
         input = torch.ravel(input)
 
-    output = torch.torch.empty([degree + 1, *input.shape], dtype=input.dtype)
+    output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
     output[0] = torch.ones_like(input)
 
