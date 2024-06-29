@@ -113,7 +113,7 @@ def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
 
     for index, output in enumerate(outputs):
         if output.dtype != dtype:
-            outputs[index] = output.astype(dtype)
+            outputs[index] = output.to(dtype)
 
     return outputs
 
@@ -2592,7 +2592,7 @@ def legvander(x, degree):
 
     dtype = torch.promote_types(x.dtype, torch.tensor(0.0).dtype)
 
-    x = x.astype(dtype)
+    x = x.to(dtype)
 
     v = torch.empty(dims, dtype=dtype)
 
