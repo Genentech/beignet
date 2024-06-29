@@ -92,7 +92,10 @@ def _add(
     return output
 
 
-def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
+def _as_series(
+    items: List[Tensor],
+    trim: bool = False,
+) -> List[Tensor]:
     outputs = []
 
     for item in items:
@@ -315,7 +318,11 @@ def _fit(
         return output
 
 
-def _flattened_vandermonde(vandermonde_functions, points, degrees):
+def _flattened_vandermonde(
+    vandermonde_functions,
+    points,
+    degrees,
+):
     vandermonde = _vandermonde(
         vandermonde_functions,
         points,
@@ -328,7 +335,11 @@ def _flattened_vandermonde(vandermonde_functions, points, degrees):
     )
 
 
-def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
+def _from_roots(
+    f: Callable,
+    g: Callable,
+    input: Tensor,
+) -> Tensor:
     if math.prod(input.shape) == 0:
         return torch.ones([1])
 
@@ -371,7 +382,9 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     return output[0]
 
 
-def _get_domain(x: Tensor) -> Tensor:
+def _get_domain(
+    x: Tensor,
+) -> Tensor:
     if torch.is_complex(x):
         output = tensor(
             [
@@ -391,7 +404,11 @@ def _get_domain(x: Tensor) -> Tensor:
     return output
 
 
-def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
+def _map_domain(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+) -> Tensor:
     (a, b), (c, d) = y, z
 
     return (b * c - a * d) / (b - a) + (d - c) / (b - a) * x
@@ -410,7 +427,11 @@ def _map_parameters(
     return tensor([x, y])
 
 
-def _nonzero(input, size=1, fill_value=0):
+def _nonzero(
+    input,
+    size=1,
+    fill_value=0,
+):
     output = torch.nonzero(input, as_tuple=False)
 
     if output.shape[0] > size:
@@ -433,7 +454,10 @@ def _nonzero(input, size=1, fill_value=0):
     return output
 
 
-def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
+def _normed_hermite_e_n(
+    x: Tensor,
+    n,
+) -> Tensor:
     if n == 0:
         output = full(x.shape, 1.0 / math.sqrt(math.sqrt(2.0 * math.pi)))
     else:
@@ -456,7 +480,10 @@ def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
     return output
 
 
-def _normed_hermite_n(x: Tensor, n) -> Tensor:
+def _normed_hermite_n(
+    x: Tensor,
+    n,
+) -> Tensor:
     if n == 0:
         output = full(x.shape, 1 / math.sqrt(math.sqrt(math.pi)))
     else:
@@ -480,13 +507,20 @@ def _normed_hermite_n(x: Tensor, n) -> Tensor:
     return output
 
 
-def _nth_slice(i, ndim):
+def _nth_slice(
+    i,
+    ndim,
+):
     sl = [None] * ndim
     sl[i] = slice(None)
     return tuple(sl)
 
 
-def _pad_along_axis(input: Tensor, padding=(0, 0), axis=0):
+def _pad_along_axis(
+    input: Tensor,
+    padding=(0, 0),
+    axis=0,
+):
     input = moveaxis(input, axis, 0)
 
     if padding[0] < 0:
@@ -571,7 +605,10 @@ def _subtract(
     return output
 
 
-def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
+def _trim_coefficients(
+    input: Tensor,
+    tol: float = 0.0,
+) -> Tensor:
     if tol < 0:
         raise ValueError
 
@@ -604,7 +641,11 @@ def _trim_sequence(
     return output
 
 
-def _vandermonde(vander_fs, points: Tensor, degrees: Tensor) -> Tensor:
+def _vandermonde(
+    vander_fs,
+    points: Tensor,
+    degrees: Tensor,
+) -> Tensor:
     n_dims = len(vander_fs)
 
     if n_dims != len(points):
@@ -721,7 +762,12 @@ def chebcompanion(
     return output
 
 
-def chebder(input: Tensor, order=1, scale=1, axis=0) -> Tensor:
+def chebder(
+    input: Tensor,
+    order=1,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if order < 0:
         raise ValueError
 
@@ -791,7 +837,9 @@ def chebfromroots(
     return _from_roots(chebline, chebmul, input)
 
 
-def chebgauss(degree: int) -> Tuple[Tensor, Tensor]:
+def chebgauss(
+    degree: int,
+) -> Tuple[Tensor, Tensor]:
     degree = int(degree)
 
     if degree <= 0:
@@ -810,7 +858,11 @@ def chebgauss(degree: int) -> Tuple[Tensor, Tensor]:
     return output, weight
 
 
-def chebgrid2d(x, y, c):
+def chebgrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = chebval(arg, c)
     return c
@@ -1389,7 +1441,11 @@ def hermegauss(degree):
     return x, w
 
 
-def hermegrid2d(x, y, c):
+def hermegrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = hermeval(arg, c)
     return c
@@ -1584,7 +1640,11 @@ def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     return a + b * input
 
 
-def hermeval2d(x, y, c):
+def hermeval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(hermeval, c, x, y)
 
 
@@ -1683,7 +1743,11 @@ def hermgauss(degree):
     return x, w
 
 
-def hermgrid2d(x, y, c):
+def hermgrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = hermval(arg, c)
     return c
@@ -1876,7 +1940,11 @@ def hermval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     return a + b * input * 2.0
 
 
-def hermval2d(x, y, c):
+def hermval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(hermval, c, x, y)
 
 
@@ -2071,7 +2139,11 @@ def laggauss(degree):
     return x, w
 
 
-def laggrid2d(x, y, c):
+def laggrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = lagval(arg, c)
     return c
@@ -2276,7 +2348,11 @@ def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     return a + b * (1.0 - input)
 
 
-def lagval2d(x, y, c):
+def lagval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(lagval, c, x, y)
 
 
@@ -2507,7 +2583,11 @@ def leggauss(degree):
     return x, w
 
 
-def leggrid2d(x, y, c):
+def leggrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = legval(arg, c)
     return c
@@ -2702,7 +2782,11 @@ def legval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     return a + b * input
 
 
-def legval2d(x, y, c):
+def legval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(legval, c, x, y)
 
 
