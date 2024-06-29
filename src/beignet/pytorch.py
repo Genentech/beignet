@@ -1303,9 +1303,9 @@ def polycompanion(input: Tensor) -> Tensor:
 
     mat = reshape(mat, (n, n))
 
-    output = mat.at[:, -1].add(-input[:-1] / input[-1])
+    mat = mat.at[:, -1].add(-input[:-1] / input[-1])
 
-    return output
+    return mat
 
 
 def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
@@ -1340,12 +1340,14 @@ def polyfromroots(input: Tensor) -> Tensor:
 def polygrid2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
     for arg in [x, y]:
         c = polyval(arg, c)
+
     return c
 
 
 def polygrid3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     for arg in [x, y, z]:
         c = polyval(arg, c)
+
     return c
 
 
@@ -1490,12 +1492,12 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
 
     output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
 
-    output[0] = ones_like(input)
+    output[0] = torch.ones_like(input)
 
     for index in range(1, degree + 1):
         output[index] = output[index - 1] * input
 
-    output = moveaxis(output, 0, -1)
+    output = torch.moveaxis(output, 0, -1)
 
     return output
 
@@ -1617,5 +1619,8 @@ __all__ = [
     "polyvander2d",
     "polyvander3d",
     "polyx",
+    "polyvalfromroots",
+    "polycompanion",
+    "polyroots",
     "polyzero",
 ]
