@@ -1025,12 +1025,13 @@ def chebvander(x, degree):
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x, ndmin=1)
+    x = torch.atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
-    x = x.astype(dtyp)
+    x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
-    v = v.at[0].set(ones_like(x))
+
+    v = v.at[0].set(torch.ones_like(x))
 
     if degree > 0:
         v = v.at[1].set(x)
@@ -1498,10 +1499,10 @@ def hermevander(x, degree):
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x, ndmin=1)
+    x = torch.atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
-    x = x.astype(dtyp)
+    x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
     v = v.at[0].set(ones_like(x))
 
@@ -1785,10 +1786,10 @@ def hermvander(x, degree):
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x, ndmin=1)
+    x = torch.atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
-    x = x.astype(dtyp)
+    x = x.to(dtyp)
     v = torch.empty(dims, dtype=dtyp)
     v = v.at[0].set(ones_like(x))
     if degree > 0:
