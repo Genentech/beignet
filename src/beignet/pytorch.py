@@ -246,7 +246,7 @@ def _fit(
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    degree = sort(degree)
+    degree, _ = sort(degree)
 
     vandermonde = vandermonde_func(input, degree[-1])[:, degree].T
 
