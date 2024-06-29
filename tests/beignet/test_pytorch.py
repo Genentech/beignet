@@ -81,6 +81,7 @@ from beignet.pytorch import (
     legx,
     legzero,
     polyadd,
+    polycompanion,
     polydiv,
     polydomain,
     polyfit,
@@ -1885,6 +1886,27 @@ def test_polyadd():
                     tol=0.000001,
                 ),
             )
+
+
+def test_polycompanion():
+    with pytest.raises(ValueError):
+        polycompanion(torch.tensor([]))
+
+    with pytest.raises(ValueError):
+        polycompanion(torch.tensor([1]))
+
+    for i in range(1, 5):
+        output = polycompanion(
+            torch.tensor([0] * i + [1]),
+        )
+
+        assert output.shape == (i, i)
+
+    output = polycompanion(
+        torch.tensor([1, 2]),
+    )
+
+    assert output[0, 0] == -0.5
 
 
 def test_polydiv():

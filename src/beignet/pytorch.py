@@ -1298,11 +1298,11 @@ def polycompanion(input: Tensor) -> Tensor:
 
     mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
 
-    mat = mat.at[n :: n + 1].set(1)
+    mat[n :: n + 1] = 1.0
 
     mat = reshape(mat, (n, n))
 
-    mat = mat.at[:, -1].add(-input[:-1] / input[-1])
+    mat[:, -1] = mat[:, -1] + (-input[:-1] / input[-1])
 
     return mat
 
