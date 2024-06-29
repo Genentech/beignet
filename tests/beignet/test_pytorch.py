@@ -91,6 +91,8 @@ from beignet.pytorch import (
     polysub,
     polytrim,
     polyval,
+    polyval2d,
+    polyval3d,
     polyx,
     polyzero,
 )
@@ -2148,6 +2150,82 @@ def test_polyval():
         )
 
         assert output.shape == shape
+
+
+def test_polyval2d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    torch.testing.assert_close(
+        polyval2d(
+            x1,
+            x2,
+            torch.einsum(
+                "i,j->ij",
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+            ),
+        ),
+        y1 * y2,
+    )
+
+    output = polyval2d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j->ij",
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+        ),
+    )
+
+    assert output.shape == (2, 3)
+
+
+def test_polyval3d():
+    x = torch.rand(3, 5) * 2 - 1
+
+    x1, x2, x3 = x
+
+    y1, y2, y3 = polyval(
+        x,
+        torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    torch.testing.assert_close(
+        polyval3d(
+            x1,
+            x2,
+            x3,
+            torch.einsum(
+                "i,j,k->ijk",
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+                torch.tensor([1.0, 2.0, 3.0]),
+            ),
+        ),
+        y1 * y2 * y3,
+    )
+
+    output = polyval3d(
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.ones([2, 3]),
+        torch.einsum(
+            "i,j,k->ijk",
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+            torch.tensor([1.0, 2.0, 3.0]),
+        ),
+    )
+
+    assert output.shape == (2, 3)
 
 
 def test_polyx():

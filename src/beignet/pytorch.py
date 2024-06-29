@@ -1365,6 +1365,25 @@ def polyval(
     return output
 
 
+def polyval2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+    return _evaluate(
+        polyval,
+        c,
+        x,
+        y,
+    )
+
+
+def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+    return _evaluate(
+        polyval,
+        c,
+        x,
+        y,
+        z,
+    )
+
+
 chebtrim = _trim_coefficients
 
 hermetrim = _trim_coefficients
@@ -1460,6 +1479,8 @@ __all__ = [
     "polysub",
     "polytrim",
     "polyval",
+    "polyval2d",
+    "polyval3d",
     "polyx",
     "polyzero",
 ]
