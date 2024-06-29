@@ -1036,7 +1036,11 @@ def chebval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     return a + b * input
 
 
-def chebval2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+def chebval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(chebval, c, x, y)
 
 
@@ -2879,7 +2883,11 @@ def polyfromroots(input: Tensor) -> Tensor:
     )
 
 
-def polygrid2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+def polygrid2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y]:
         c = polyval(arg, c)
 
@@ -3038,7 +3046,11 @@ def polyval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
     return output
 
 
-def polyval2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
+def polyval2d(
+    x: Tensor,
+    y: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(
         polyval,
         c,
@@ -3057,7 +3069,11 @@ def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     )
 
 
-def polyvalfromroots(input: Tensor, other: Tensor, tensor: bool = True) -> Tensor:
+def polyvalfromroots(
+    input: Tensor,
+    other: Tensor,
+    tensor: bool = True,
+) -> Tensor:
     if other.ndim == 0:
         other = torch.ravel(other)
 
