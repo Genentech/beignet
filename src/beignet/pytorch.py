@@ -1384,6 +1384,41 @@ def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
     )
 
 
+def polyvander(input: Tensor, degree: Tensor) -> Tensor:
+    if degree < 0:
+        raise ValueError
+
+    if input.ndim == 0:
+        input = torch.ravel(input)
+
+    output = torch.empty((degree + 1,) + input.shape, dtype=input.dtype)
+
+    output[0] = ones_like(input)
+
+    for i in range(1, degree + 1):
+        output[i] = output[i - 1] * input
+
+    output = moveaxis(output, 0, -1)
+
+    return output
+
+
+def polyvander2d(x: Tensor, y: Tensor, degree: Tensor) -> Tensor:
+    return _flattened_vandermonde(
+        (polyvander, polyvander),
+        (x, y),
+        degree,
+    )
+
+
+def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:
+    return _flattened_vandermonde(
+        (polyvander, polyvander, polyvander),
+        (x, y, z),
+        degree,
+    )
+
+
 chebtrim = _trim_coefficients
 
 hermetrim = _trim_coefficients
@@ -1481,6 +1516,9 @@ __all__ = [
     "polyval",
     "polyval2d",
     "polyval3d",
+    "polyvander",
+    "polyvander2d",
+    "polyvander3d",
     "polyx",
     "polyzero",
 ]

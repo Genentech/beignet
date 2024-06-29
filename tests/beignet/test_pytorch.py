@@ -93,6 +93,9 @@ from beignet.pytorch import (
     polyval,
     polyval2d,
     polyval3d,
+    polyvander,
+    polyvander2d,
+    polyvander3d,
     polyx,
     polyzero,
 )
@@ -2226,6 +2229,109 @@ def test_polyval3d():
     )
 
     assert output.shape == (2, 3)
+
+
+def test_polyvander():
+    output = polyvander(
+        torch.arange(3),
+        degree=torch.tensor(3),
+    )
+
+    assert output.shape == (3, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            output[..., index],
+            polyval(
+                torch.arange(3),
+                torch.tensor([0] * index + [1]),
+            ),
+        )
+
+    output = polyvander(
+        torch.tensor([[1, 2], [3, 4], [5, 6]]),
+        degree=torch.tensor(3),
+    )
+
+    assert output.shape == (3, 2, 4)
+
+    for index in range(4):
+        torch.testing.assert_close(
+            output[..., index],
+            polyval(
+                torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                torch.tensor([0] * index + [1]),
+            ),
+        )
+
+    with pytest.raises(ValueError):
+        polyvander(
+            torch.arange(3),
+            torch.tensor([-1]),
+        )
+
+
+def test_polyvander2d():
+    a, b, c = torch.rand(3, 5) * 2 - 1
+
+    coefficients = torch.rand(2, 3)
+
+    torch.testing.assert_close(
+        torch.dot(
+            polyvander2d(
+                a,
+                b,
+                degree=torch.tensor([1, 2]),
+            ),
+            torch.ravel(coefficients),
+        ),
+        polyval2d(
+            a,
+            b,
+            coefficients,
+        ),
+    )
+
+    output = polyvander2d(
+        torch.tensor([a]),
+        torch.tensor([b]),
+        degree=torch.tensor([1, 2]),
+    )
+
+    assert output.shape == (1, 5, 6)
+
+
+def test_polyvander3d():
+    a, b, c = torch.rand(3, 5) * 2 - 1
+
+    coefficients = torch.rand(2, 3, 4)
+
+    torch.testing.assert_close(
+        torch.dot(
+            polyvander3d(
+                a,
+                b,
+                c,
+                degree=torch.tensor([1.0, 2.0, 3.0]),
+            ),
+            torch.ravel(coefficients),
+        ),
+        polyval3d(
+            a,
+            b,
+            c,
+            coefficients,
+        ),
+    )
+
+    output = polyvander3d(
+        torch.tensor([a]),
+        torch.tensor([b]),
+        torch.tensor([c]),
+        degree=torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    assert output.shape == (1, 5, 24)
 
 
 def test_polyx():
