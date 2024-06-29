@@ -18,7 +18,6 @@ from torch import (
     full,
     moveaxis,
     nonzero,
-    ones,
     ones_like,
     promote_types,
     reshape,
@@ -335,7 +334,7 @@ def _flattened_vandermonde(vander_fs, points, degrees):
 
 def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
     if math.prod(input.shape) == 0:
-        return ones([1])
+        return torch.ones([1])
 
     input, _ = sort(input)
 
@@ -1334,7 +1333,11 @@ def polyfit(
 
 
 def polyfromroots(input: Tensor) -> Tensor:
-    return _from_roots(polyline, polymul, input)
+    return _from_roots(
+        polyline,
+        polymul,
+        input,
+    )
 
 
 def polygrid2d(x: Tensor, y: Tensor, c: Tensor) -> Tensor:
