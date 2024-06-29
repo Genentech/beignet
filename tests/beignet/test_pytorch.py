@@ -88,6 +88,7 @@ from beignet.pytorch import (
     polymulx,
     polyone,
     polypow,
+    polyroots,
     polysub,
     polytrim,
     polyval,
@@ -2233,17 +2234,16 @@ def test_polyval3d():
 
 
 def test_polyvalfromroots():
-    pytest.raises(
-        ValueError,
-        polyvalfromroots,
-        torch.tensor([1]),
-        torch.tensor([1]),
-        tensor=False,
-    )
+    with pytest.raises(ValueError):
+        polyvalfromroots(
+            torch.tensor([1.0]),
+            torch.tensor([1.0]),
+            tensor=False,
+        )
 
     output = polyvalfromroots(
         torch.tensor([]),
-        torch.tensor([1]),
+        torch.tensor([1.0]),
     )
 
     assert math.prod(output.shape) == 0
@@ -2252,62 +2252,95 @@ def test_polyvalfromroots():
 
     output = polyvalfromroots(
         torch.tensor([]),
-        torch.tensor([[1] * 5]),
+        torch.tensor([[1.0] * 5]),
     )
 
     assert math.prod(output.shape) == 0
 
     assert output.shape == (5, 0)
 
-    # assert_array_almost_equal(
-    #     polyvalfromroots(
-    #         array([1]),
-    #         array([1]),
-    #     ),
-    #     array([0]),
-    # )
-    #
-    # assert polyvalfromroots(array([1]), ones((3, 3))).shape == (3, 1)
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # y = [input**i for i in range(5)]
-    #
-    # for j in range(1, 5):
-    #     target = y[j]
-    #
-    #     assert_array_almost_equal(
-    #         polyvalfromroots(
-    #             input,
-    #             array([0] * j),
-    #         ),
-    #         target,
-    #     )
-    #
-    # assert_array_almost_equal(
-    #     polyvalfromroots(
-    #         input,
-    #         array([-1, 0, 1]),
-    #     ),
-    #     input * (input - 1) * (input + 1),
-    # )
-    #
-    # for j in range(3):
-    #     dims = (2,) * j
-    #     x = zeros(dims)
-    #     assert polyvalfromroots(x, array([1])).shape == dims
-    #     assert polyvalfromroots(x, array([1, 0])).shape == dims
-    #     assert polyvalfromroots(x, array([1, 0, 0])).shape == dims
+    torch.testing.assert_close(
+        polyvalfromroots(
+            torch.tensor([1.0]),
+            torch.tensor([1.0]),
+        ),
+        torch.tensor([0.0]),
+    )
 
-    # ptest = array([15, 2, -16, -2, 1])
-    #
-    # r = polyroots(ptest)
-    #
-    # torch.testing.assert_close(
-    #     polyval(input, ptest),
-    #     polyvalfromroots(input, r),
-    # )
-    #
+    output = polyvalfromroots(
+        torch.tensor([1.0]),
+        torch.ones([3, 3]),
+    )
+
+    assert output.shape == (3, 1)
+
+    input = torch.linspace(-1, 1, 50)
+
+    evaluations = []
+
+    for index in range(5):
+        evaluations = [*evaluations, input**index]
+
+    for index in range(1, 5):
+        target = evaluations[index]
+
+        torch.testing.assert_close(
+            polyvalfromroots(
+                input,
+                torch.tensor([0.0] * index),
+            ),
+            target,
+        )
+
+    torch.testing.assert_close(
+        polyvalfromroots(
+            input,
+            torch.tensor([-1.0, 0.0, 1.0]),
+        ),
+        input * (input - 1.0) * (input + 1.0),
+    )
+
+    for index in range(3):
+        shape = (2,) * index
+
+        input = torch.zeros(shape)
+
+        output = polyvalfromroots(
+            input,
+            torch.tensor([1.0]),
+        )
+
+        assert output.shape == shape
+
+        output = polyvalfromroots(
+            input,
+            torch.tensor([1.0, 0.0]),
+        )
+
+        assert output.shape == shape
+
+        output = polyvalfromroots(
+            input,
+            torch.tensor([1.0, 0.0, 0.0]),
+        )
+
+        assert output.shape == shape
+
+    ptest = torch.tensor([15, 2, -16, -2, 1])
+
+    r = polyroots(ptest)
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            ptest,
+        ),
+        polyvalfromroots(
+            input,
+            r,
+        ),
+    )
+
     # x = torch.arange(-3, 2)
     #
     # r = jax.random.randint(key, [3, 5], -5, 5)
