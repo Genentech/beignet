@@ -2597,15 +2597,15 @@ def legweight(x):
 def poly2cheb(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros_like(input)
+    output = torch.zeros_like(input)
 
-    for i in range(0, input.shape[0] - 1 + 1):
+    for index in range(0, input.shape[0] - 1 + 1):
         output = chebadd(
             chebmulx(
                 output,
                 mode="same",
             ),
-            input[input.shape[0] - 1 - i],
+            input[input.shape[0] - 1 - index],
         )
 
     return output
@@ -2614,15 +2614,15 @@ def poly2cheb(input: Tensor) -> Tensor:
 def poly2herm(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros_like(input)
+    output = torch.zeros_like(input)
 
-    for i in range(0, input.shape[0] - 1 + 1):
+    for index in range(0, input.shape[0] - 1 + 1):
         output = hermadd(
             hermmulx(
                 output,
                 mode="same",
             ),
-            input[input.shape[0] - 1 - i],
+            input[input.shape[0] - 1 - index],
         )
 
     return output
@@ -2631,15 +2631,15 @@ def poly2herm(input: Tensor) -> Tensor:
 def poly2herme(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros_like(input)
+    output = torch.zeros_like(input)
 
-    for i in range(0, input.shape[0] - 1 + 1):
+    for index in range(0, input.shape[0] - 1 + 1):
         output = hermeadd(
             hermemulx(
                 output,
                 mode="same",
             ),
-            input[input.shape[0] - 1 - i],
+            input[input.shape[0] - 1 - index],
         )
 
     return output
@@ -2648,15 +2648,15 @@ def poly2herme(input: Tensor) -> Tensor:
 def poly2lag(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros_like(input)
+    output = torch.zeros_like(input)
 
-    for i in range(0, input.shape[0]):
+    for index in range(0, input.shape[0]):
         output = lagadd(
             lagmulx(
                 output,
                 mode="same",
             ),
-            flip(input, axis=0)[i],
+            torch.flip(input, dims=[0])[index],
         )
 
     return output
@@ -2665,15 +2665,15 @@ def poly2lag(input: Tensor) -> Tensor:
 def poly2leg(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
-    output = zeros_like(input)
+    output = torch.zeros_like(input)
 
-    for i in range(0, input.shape[0] - 1 + 1):
+    for index in range(0, input.shape[0] - 1 + 1):
         output = legadd(
             legmulx(
                 output,
                 mode="same",
             ),
-            input[input.shape[0] - 1 - i],
+            input[input.shape[0] - 1 - index],
         )
 
     return output
@@ -2711,7 +2711,12 @@ def polycompanion(input: Tensor) -> Tensor:
     return output
 
 
-def polyder(input: Tensor, order: int = 1, scale: float = 1, axis: int = 0) -> Tensor:
+def polyder(
+    input: Tensor,
+    order: int = 1,
+    scale: float = 1,
+    axis: int = 0,
+) -> Tensor:
     [input] = _as_series([input])
 
     if order == 0:
