@@ -1131,12 +1131,12 @@ def lagval(
             a = coefficients[-2] * ones_like(input)
             b = coefficients[-1] * ones_like(input)
 
-            for i in range(3, coefficients.shape[0] + 1):
+            for index in range(3, coefficients.shape[0] + 1):
                 previous = a
 
                 size = size - 1
 
-                a = coefficients[-i] - (b * (size - 1.0)) / size
+                a = coefficients[-index] - (b * (size - 1.0)) / size
 
                 b = previous + (b * ((2.0 * size - 1.0) - input)) / size
 
@@ -1182,12 +1182,12 @@ def legmul(
             a = legadd(zeros(m + n - 1), x[-2] * y)
             b = legadd(zeros(m + n - 1), x[-1] * y)
 
-            for i in range(3, x.shape[0] + 1):
+            for index in range(3, x.shape[0] + 1):
                 previous = a
 
                 size = size - 1
 
-                a = legsub(x[-i] * y, (b * (size - 1.0)) / size)
+                a = legsub(x[-index] * y, (b * (size - 1.0)) / size)
 
                 b = legadd(previous, (legmulx(b, "same") * (2.0 * size - 1.0)) / size)
 
@@ -1208,9 +1208,11 @@ def legmulx(
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
     output[1] = input[0]
 
-    for i in range(1, input.shape[0]):
-        output[i + 1] = (input[i] * (i + 1)) / (i + i + 1)
-        output[i - 1] = output[i - 1] + (input[i] * (i + 0)) / (i + i + 1)
+    for index in range(1, input.shape[0]):
+        output[index + 1] = (input[index] * (index + 1)) / (index + index + 1)
+        output[index - 1] = output[index - 1] + (input[index] * (index + 0)) / (
+            index + index + 1
+        )
 
     if mode == "same":
         output = output[: input.shape[0]]
@@ -1261,12 +1263,12 @@ def legval(
             a = coefficients[-2] * ones_like(input)
             b = coefficients[-1] * ones_like(input)
 
-            for i in range(3, coefficients.shape[0] + 1):
+            for index in range(3, coefficients.shape[0] + 1):
                 previous = a
 
                 size = size - 1
 
-                a = coefficients[-i] - (b * (size - 1.0)) / size
+                a = coefficients[-index] - (b * (size - 1.0)) / size
 
                 b = previous + (b * input * (2.0 * size - 1.0)) / size
 
@@ -1350,8 +1352,8 @@ def polyval(
 
     output = coefficients[-1] + zeros_like(input)
 
-    for i in range(2, coefficients.shape[0] + 1):
-        output = coefficients[-i] + output * input
+    for index in range(2, coefficients.shape[0] + 1):
+        output = coefficients[-index] + output * input
 
     return output
 
