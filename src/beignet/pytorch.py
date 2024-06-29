@@ -2264,9 +2264,8 @@ def legcompanion(c):
 
     output = reshape(output, shape)
 
-    output = output.at[:, -1].add(
-        -(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
-    )
+    values_to_add = -(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
+    output[:, -1] += values_to_add
 
     return output
 
