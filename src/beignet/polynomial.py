@@ -1158,7 +1158,11 @@ def chebvander(x, degree):
     return moveaxis(v, 0, -1)
 
 
-def chebvander2d(x, y, degree):
+def chebvander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (chebvander, chebvander),
         (x, y),
@@ -1166,7 +1170,12 @@ def chebvander2d(x, y, degree):
     )
 
 
-def chebvander3d(x, y, z, degree):
+def chebvander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (chebvander, chebvander, chebvander),
         (x, y, z),
@@ -1672,7 +1681,11 @@ def hermevander(x, degree):
     return moveaxis(v, 0, -1)
 
 
-def hermevander2d(x, y, degree):
+def hermevander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (hermevander, hermevander),
         (x, y),
@@ -1680,7 +1693,12 @@ def hermevander2d(x, y, degree):
     )
 
 
-def hermevander3d(x, y, z, degree):
+def hermevander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (hermevander, hermevander, hermevander),
         (x, y, z),
@@ -1972,7 +1990,11 @@ def hermvander(x, degree):
     return moveaxis(v, 0, -1)
 
 
-def hermvander2d(x, y, degree):
+def hermvander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (hermvander, hermvander),
         (x, y),
@@ -1980,7 +2002,12 @@ def hermvander2d(x, y, degree):
     )
 
 
-def hermvander3d(x, y, z, degree):
+def hermvander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (hermvander, hermvander, hermvander),
         (x, y, z),
@@ -2385,7 +2412,11 @@ def lagvander(x, degree):
     return moveaxis(v, 0, -1)
 
 
-def lagvander2d(x, y, degree):
+def lagvander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (lagvander, lagvander),
         (x, y),
@@ -2393,7 +2424,12 @@ def lagvander2d(x, y, degree):
     )
 
 
-def lagvander3d(x, y, z, degree):
+def lagvander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (lagvander, lagvander, lagvander),
         (x, y, z),
@@ -2822,7 +2858,11 @@ def legvander(x, degree):
     return moveaxis(v, 0, -1)
 
 
-def legvander2d(x, y, degree):
+def legvander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (legvander, legvander),
         (x, y),
@@ -2830,7 +2870,12 @@ def legvander2d(x, y, degree):
     )
 
 
-def legvander3d(x, y, z, degree):
+def legvander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (legvander, legvander, legvander),
         (x, y, z),
