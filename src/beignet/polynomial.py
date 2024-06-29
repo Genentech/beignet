@@ -19,7 +19,6 @@ from torch import (
     full,
     moveaxis,
     nonzero,
-    ones_like,
     promote_types,
     reshape,
     roll,
@@ -424,7 +423,7 @@ def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
         output = full(x.shape, 1.0 / math.sqrt(math.sqrt(2.0 * math.pi)))
     else:
         a = torch.zeros_like(x)
-        b = ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
+        b = torch.ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
 
         size = tensor(n)
 
@@ -448,7 +447,7 @@ def _normed_hermite_n(x: Tensor, n) -> Tensor:
     else:
         a = torch.zeros_like(x)
 
-        b = ones_like(x) / math.sqrt(math.sqrt(math.pi))
+        b = torch.ones_like(x) / math.sqrt(math.sqrt(math.pi))
 
         size = tensor(n)
 
@@ -1006,8 +1005,8 @@ def chebval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
             a = coefficients[0]
             b = coefficients[1]
         case _:
-            a = coefficients[-2] * ones_like(input)
-            b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * torch.ones_like(input)
+            b = coefficients[-1] * torch.ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -1488,8 +1487,8 @@ def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * ones_like(input)
-            b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * torch.ones_like(input)
+            b = coefficients[-1] * torch.ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -1775,8 +1774,8 @@ def hermval(input: Tensor, coefficients: Tensor, tensor: bool = True):
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * ones_like(input)
-            b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * torch.ones_like(input)
+            b = coefficients[-1] * torch.ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2019,9 +2018,12 @@ def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     for i in range(order):
         n = c.shape[0]
         c *= scale
+
         tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-        tmp = tmp.at[0].set(c[0])
-        tmp = tmp.at[1].set(-c[0])
+
+        tmp[0] = c[0]
+        tmp[1] = -c[0]
+
         j = arange(1, n)
         tmp = tmp.at[j].add(c[j])
         tmp = tmp.at[j + 1].add(-c[j])
@@ -2156,8 +2158,8 @@ def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * ones_like(input)
-            b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * torch.ones_like(input)
+            b = coefficients[-1] * torch.ones_like(input)
 
             for index in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2571,8 +2573,8 @@ def legval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * ones_like(input)
-            b = coefficients[-1] * ones_like(input)
+            a = coefficients[-2] * torch.ones_like(input)
+            b = coefficients[-1] * torch.ones_like(input)
 
             for index in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2639,7 +2641,7 @@ def legvander3d(x, y, z, degree):
 
 
 def legweight(x):
-    return ones_like(x)
+    return torch.ones_like(x)
 
 
 def poly2cheb(input: Tensor) -> Tensor:
