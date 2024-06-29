@@ -386,7 +386,12 @@ def _get_domain(x: Tensor) -> Tensor:
         )
         return output
     else:
-        output = tensor([torch.min(x), torch.max(x)])
+        output = tensor(
+            [
+                torch.min(x),
+                torch.max(x),
+            ],
+        )
 
     return output
 
