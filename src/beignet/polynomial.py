@@ -9,6 +9,7 @@ import torch._numpy._funcs_impl
 import torch.linalg
 import torchaudio.functional
 from torch import (
+    LongTensor,
     Tensor,
     abs,
     arange,
@@ -3043,6 +3044,17 @@ def polyadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    other : Tensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _add(input, other)
 
 
@@ -3114,6 +3126,17 @@ def polydiv(
     input: Tensor,
     other: Tensor,
 ) -> Tuple[Tensor, Tensor]:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    other : Tensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     [input, other] = _as_series([input, other])
 
     return _div(polymul, input, other)
@@ -3151,24 +3174,58 @@ def polyfromroots(
 def polygrid2d(
     x: Tensor,
     y: Tensor,
-    c: Tensor,
+    coefficients: Tensor,
 ) -> Tensor:
-    for arg in [x, y]:
-        c = polyval(arg, c)
+    r"""
+    Parameters
+    ----------
+    x : Tensor
 
-    return c
+    y : Tensor
+
+    coefficients : Tensor
+
+    Returns
+    -------
+    out : Tensor
+    """
+    for input in [x, y]:
+        coefficients = polyval(
+            input,
+            coefficients,
+        )
+
+    return coefficients
 
 
 def polygrid3d(
     x: Tensor,
     y: Tensor,
     z: Tensor,
-    c: Tensor,
+    coefficients: Tensor,
 ) -> Tensor:
-    for arg in [x, y, z]:
-        c = polyval(arg, c)
+    r"""
+    Parameters
+    ----------
+    x : Tensor
 
-    return c
+    y : Tensor
+
+    z : Tensor
+
+    coefficients : Tensor
+
+    Returns
+    -------
+    out : Tensor
+    """
+    for input in [x, y, z]:
+        coefficients = polyval(
+            input,
+            coefficients,
+        )
+
+    return coefficients
 
 
 def polyint(
@@ -3237,6 +3294,19 @@ def polymul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    other : Tensor
+
+    mode : Literal["full", "same", "valid"]
+
+    Returns
+    -------
+    output : Tensor
+    """
     [input, other] = _as_series([input, other])
 
     output = torchaudio.functional.convolve(input, other)
@@ -3303,10 +3373,38 @@ def polysub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    other : Tensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _subtract(input, other)
 
 
-def polyval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
+def polyval(
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
+) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    coefficients : Tensor
+
+    tensor : bool
+
+    Returns
+    -------
+    output : Tensor
+    """
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -3326,11 +3424,24 @@ def polyval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
 def polyval2d(
     x: Tensor,
     y: Tensor,
-    c: Tensor,
+    coefficients: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    x : Tensor
+
+    y : Tensor
+
+    coefficients : Tensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _evaluate(
         polyval,
-        c,
+        coefficients,
         x,
         y,
     )
@@ -3340,11 +3451,26 @@ def polyval3d(
     x: Tensor,
     y: Tensor,
     z: Tensor,
-    c: Tensor,
+    coefficients: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    x : Tensor
+
+    y : Tensor
+
+    z : Tensor
+
+    coefficients : Tensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _evaluate(
         polyval,
-        c,
+        coefficients,
         x,
         y,
         z,
@@ -3372,8 +3498,19 @@ def polyvalfromroots(
 
 def polyvander(
     input: Tensor,
-    degree: Tensor,
+    degree: LongTensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+
+    degree : LongTensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     if degree < 0:
         raise ValueError
 
@@ -3395,8 +3532,21 @@ def polyvander(
 def polyvander2d(
     x: Tensor,
     y: Tensor,
-    degree: Tensor,
+    degree: LongTensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    x : Tensor
+
+    y : Tensor
+
+    degree : LongTensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _flattened_vandermonde(
         (polyvander, polyvander),
         (x, y),
@@ -3410,6 +3560,21 @@ def polyvander3d(
     z: Tensor,
     degree: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    x : Tensor
+
+    y : Tensor
+
+    z : Tensor
+
+    degree : LongTensor
+
+    Returns
+    -------
+    output : Tensor
+    """
     return _flattened_vandermonde(
         (polyvander, polyvander, polyvander),
         (x, y, z),
