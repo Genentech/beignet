@@ -10,20 +10,17 @@ import torchaudio.functional
 from torch import (
     Tensor,
     abs,
-    any,
     arange,
     atleast_1d,
     concatenate,
     finfo,
     flip,
     full,
-    imag,
     moveaxis,
     nonzero,
     ones,
     ones_like,
     promote_types,
-    real,
     reshape,
     roll,
     sort,
@@ -380,13 +377,18 @@ def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
 
 
 def _get_domain(x: Tensor) -> Tensor:
-    if any(torch.is_complex(x)):
-        rmin, rmax = real(x).min(), real(x).max()
-        imin, imax = imag(x).min(), imag(x).max()
+    if torch.is_complex(x):
+        output = tensor(
+            [
+                torch.min(torch.real(x)) + 1.0j * torch.min(torch.imag(x)),
+                torch.max(torch.real(x)) + 1.0j * torch.max(torch.imag(x)),
+            ],
+        )
+        return output
+    else:
+        output = tensor([torch.min(x), torch.max(x)])
 
-        return tensor(((rmin + 1.0j * imin), (rmax + 1.0j * imax)))
-
-    return tensor((x.min(), x.max()))
+    return output
 
 
 def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
