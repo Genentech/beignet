@@ -118,7 +118,9 @@ def _as_series(items: List[Tensor], trim: bool = False) -> List[Tensor]:
     return outputs
 
 
-def _c_series_to_z_series(input: Tensor) -> Tensor:
+def _c_series_to_z_series(
+    input: Tensor,
+) -> Tensor:
     index = math.prod(input.shape)
 
     zs = zeros(2 * index - 1, dtype=input.dtype)
@@ -128,7 +130,11 @@ def _c_series_to_z_series(input: Tensor) -> Tensor:
     return flip(zs, dims=[0]) + zs
 
 
-def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def _div(
+    func: Callable,
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     [input, other] = _as_series([input, other])
 
     m = input.shape[0]
@@ -196,7 +202,11 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     return quotient, remainder
 
 
-def _evaluate(func: Callable, input: Tensor, *args) -> Tensor:
+def _evaluate(
+    func: Callable,
+    input: Tensor,
+    *args,
+) -> Tensor:
     if not all(a.shape == args[0].shape for a in args[1:]):
         match len(args):
             case 2:
@@ -577,7 +587,9 @@ def _trim_coefficients(input: Tensor, tol: float = 0.0) -> Tensor:
     return output
 
 
-def _trim_sequence(input: Tensor) -> Tensor:
+def _trim_sequence(
+    input: Tensor,
+) -> Tensor:
     if input.shape[0] == 0:
         output = input
     else:
@@ -619,12 +631,16 @@ def _vandermonde(vander_fs, points: Tensor, degrees: Tensor) -> Tensor:
 
 
 def _z_series_mul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     return torchaudio.functional.convolve(input, other, mode=mode)
 
 
-def _z_series_to_c_series(input: Tensor) -> Tensor:
+def _z_series_to_c_series(
+    input: Tensor,
+) -> Tensor:
     n = (math.prod(input.shape) + 1) // 2
 
     c = input[n - 1 :]
@@ -634,7 +650,9 @@ def _z_series_to_c_series(input: Tensor) -> Tensor:
     return c
 
 
-def cheb2poly(input: Tensor) -> Tensor:
+def cheb2poly(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     n = input.shape[0]
@@ -671,7 +689,9 @@ def chebadd(
     return _add(input, other)
 
 
-def chebcompanion(input: Tensor) -> Tensor:
+def chebcompanion(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -762,7 +782,9 @@ def chebfit(
     )
 
 
-def chebfromroots(input: Tensor) -> Tensor:
+def chebfromroots(
+    input: Tensor,
+) -> Tensor:
     return _from_roots(chebline, chebmul, input)
 
 
@@ -982,7 +1004,9 @@ def chebpts2(points):
     return output
 
 
-def chebroots(input: Tensor) -> Tensor:
+def chebroots(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] <= 1:
@@ -1090,7 +1114,9 @@ def chebvander3d(x, y, z, degree):
     )
 
 
-def chebweight(input: Tensor) -> Tensor:
+def chebweight(
+    input: Tensor,
+) -> Tensor:
     return 1.0 / (sqrt(1.0 + input) * sqrt(1.0 - input))
 
 
@@ -1315,7 +1341,9 @@ def hermefit(
     )
 
 
-def hermefromroots(input: Tensor) -> Tensor:
+def hermefromroots(
+    input: Tensor,
+) -> Tensor:
     return _from_roots(hermeline, hermemul, input)
 
 
@@ -2167,7 +2195,9 @@ def lagpow(
     )
 
 
-def lagroots(input: Tensor) -> Tensor:
+def lagroots(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] <= 1:
@@ -2708,7 +2738,9 @@ def legweight(x):
     return torch.ones_like(x)
 
 
-def poly2cheb(input: Tensor) -> Tensor:
+def poly2cheb(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
@@ -2725,7 +2757,9 @@ def poly2cheb(input: Tensor) -> Tensor:
     return output
 
 
-def poly2herm(input: Tensor) -> Tensor:
+def poly2herm(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
@@ -2742,7 +2776,9 @@ def poly2herm(input: Tensor) -> Tensor:
     return output
 
 
-def poly2herme(input: Tensor) -> Tensor:
+def poly2herme(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
@@ -2759,7 +2795,9 @@ def poly2herme(input: Tensor) -> Tensor:
     return output
 
 
-def poly2lag(input: Tensor) -> Tensor:
+def poly2lag(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
@@ -2776,7 +2814,9 @@ def poly2lag(input: Tensor) -> Tensor:
     return output
 
 
-def poly2leg(input: Tensor) -> Tensor:
+def poly2leg(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
@@ -2800,7 +2840,9 @@ def polyadd(
     return _add(input, other)
 
 
-def polycompanion(input: Tensor) -> Tensor:
+def polycompanion(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -2887,7 +2929,9 @@ def polyfit(
     )
 
 
-def polyfromroots(input: Tensor) -> Tensor:
+def polyfromroots(
+    input: Tensor,
+) -> Tensor:
     return _from_roots(
         polyline,
         polymul,
@@ -3016,7 +3060,9 @@ def polypow(
     )
 
 
-def polyroots(input: Tensor) -> Tensor:
+def polyroots(
+    input: Tensor,
+) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
