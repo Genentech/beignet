@@ -713,7 +713,7 @@ def test_chebfit():
             chebfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -737,7 +737,7 @@ def test_chebfit():
             chebfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -766,12 +766,12 @@ def test_chebfit():
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -781,19 +781,19 @@ def test_chebfit():
         chebfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -813,7 +813,7 @@ def test_chebfit():
         chebfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -821,13 +821,13 @@ def test_chebfit():
         chebfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         chebfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -843,12 +843,12 @@ def test_chebfit():
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -858,7 +858,7 @@ def test_chebfit():
         chebfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -866,12 +866,12 @@ def test_chebfit():
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 chebfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ],
         ).T,
@@ -2227,7 +2227,7 @@ def test_hermefit():
             hermefit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -2251,7 +2251,7 @@ def test_hermefit():
             hermefit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -2281,14 +2281,14 @@ def test_hermefit():
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -2299,7 +2299,7 @@ def test_hermefit():
         hermefit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
@@ -2307,14 +2307,14 @@ def test_hermefit():
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -2335,7 +2335,7 @@ def test_hermefit():
         hermefit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -2343,13 +2343,13 @@ def test_hermefit():
         hermefit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         hermefit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -2366,14 +2366,14 @@ def test_hermefit():
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -2384,7 +2384,7 @@ def test_hermefit():
         hermefit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -2393,14 +2393,14 @@ def test_hermefit():
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermefit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -3116,7 +3116,7 @@ def test_hermfit():
             hermfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -3140,7 +3140,7 @@ def test_hermfit():
             hermfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -3170,14 +3170,14 @@ def test_hermfit():
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ],
@@ -3188,7 +3188,7 @@ def test_hermfit():
         hermfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
@@ -3196,14 +3196,14 @@ def test_hermfit():
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -3224,7 +3224,7 @@ def test_hermfit():
         hermfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -3232,13 +3232,13 @@ def test_hermfit():
         hermfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         hermfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -3255,14 +3255,14 @@ def test_hermfit():
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -3273,7 +3273,7 @@ def test_hermfit():
         hermfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -3282,14 +3282,14 @@ def test_hermfit():
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     hermfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -4206,7 +4206,7 @@ def test_lagfit():
             lagfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -4230,7 +4230,7 @@ def test_lagfit():
             lagfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -4247,12 +4247,12 @@ def test_lagfit():
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -4262,19 +4262,19 @@ def test_lagfit():
         lagfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -4294,7 +4294,7 @@ def test_lagfit():
         lagfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -4302,13 +4302,13 @@ def test_lagfit():
         lagfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         lagfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -4324,12 +4324,12 @@ def test_lagfit():
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ],
         ).T,
@@ -4339,7 +4339,7 @@ def test_lagfit():
         lagfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -4347,12 +4347,12 @@ def test_lagfit():
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 lagfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -5085,9 +5085,12 @@ def test_legcompanion():
     with pytest.raises(ValueError):
         legcompanion(torch.tensor([1]))
 
-    for i in range(1, 5):
-        coef = torch.tensor([0.0] * i + [1.0])
-        assert legcompanion(coef).shape == (i, i)
+    for index in range(1, 5):
+        output = legcompanion(
+            torch.tensor([0.0] * index + [1.0]),
+        )
+
+        assert output.shape == (index, index)
 
     assert legcompanion(torch.tensor([1, 2]))[0, 0] == -0.5
 
@@ -5236,7 +5239,7 @@ def test_legfit():
             legfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -5260,7 +5263,7 @@ def test_legfit():
             legfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -5290,14 +5293,14 @@ def test_legfit():
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -5308,7 +5311,7 @@ def test_legfit():
         legfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
@@ -5316,14 +5319,14 @@ def test_legfit():
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -5344,7 +5347,7 @@ def test_legfit():
         legfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -5352,13 +5355,13 @@ def test_legfit():
         legfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         legfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -5375,14 +5378,14 @@ def test_legfit():
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -5393,7 +5396,7 @@ def test_legfit():
         legfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -5402,14 +5405,14 @@ def test_legfit():
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
                     legfit(
                         input,
                         other,
-                        degree=(0, 1, 2, 3),
+                        degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
             ]
@@ -6388,7 +6391,7 @@ def test_polyfit():
             polyfit(
                 input,
                 other,
-                degree=3,
+                degree=torch.tensor([3.0]),
             ),
         ),
         other,
@@ -6400,7 +6403,7 @@ def test_polyfit():
             polyfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3),
+                degree=torch.tensor([0, 1, 2, 3]),
             ),
         ),
         other,
@@ -6424,7 +6427,7 @@ def test_polyfit():
             polyfit(
                 input,
                 other,
-                degree=(0, 1, 2, 3, 4),
+                degree=torch.tensor([0, 1, 2, 3, 4]),
             ),
         ),
         other,
@@ -6441,12 +6444,12 @@ def test_polyfit():
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -6456,19 +6459,19 @@ def test_polyfit():
         polyfit(
             input,
             torch.tensor([other, other]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.tensor(
             [
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -6488,7 +6491,7 @@ def test_polyfit():
         polyfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -6496,13 +6499,13 @@ def test_polyfit():
         polyfit(
             input,
             other.at[0::2].set(0),
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         polyfit(
             input,
             other,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
         ),
     )
 
@@ -6518,12 +6521,12 @@ def test_polyfit():
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
@@ -6533,7 +6536,7 @@ def test_polyfit():
         polyfit(
             input,
             torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
-            degree=(0, 1, 2, 3),
+            degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
         torch.tensor(
@@ -6541,12 +6544,12 @@ def test_polyfit():
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
                 polyfit(
                     input,
                     other,
-                    degree=(0, 1, 2, 3),
+                    degree=torch.tensor([0, 1, 2, 3]),
                 ),
             ]
         ).T,
