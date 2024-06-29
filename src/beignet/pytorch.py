@@ -400,10 +400,10 @@ def _map_parameters(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
 def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
     if n == 0:
-        output = full(x.shape, 1.0 / sqrt(sqrt(2.0 * math.pi)))
+        output = full(x.shape, 1.0 / math.sqrt(math.sqrt(2.0 * math.pi)))
     else:
         a = zeros_like(x)
-        b = ones_like(x) / sqrt(sqrt(2.0 * math.pi))
+        b = ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
 
         size = tensor(n)
 
@@ -423,11 +423,11 @@ def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
 
 def _normed_hermite_n(x: Tensor, n) -> Tensor:
     if n == 0:
-        output = full(x.shape, 1 / sqrt(sqrt(math.pi)))
+        output = full(x.shape, 1 / math.sqrt(math.sqrt(math.pi)))
     else:
         a = zeros_like(x)
 
-        b = ones_like(x) / sqrt(sqrt(math.pi))
+        b = ones_like(x) / math.sqrt(math.sqrt(math.pi))
 
         size = tensor(n)
 
