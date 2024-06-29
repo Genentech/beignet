@@ -58,7 +58,10 @@ polyx = torch.tensor([0.0, 1.0])
 polyzero = torch.tensor([0.0])
 
 
-def _add(input: Tensor, other: Tensor) -> Tensor:
+def _add(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     [input, other] = _as_series([input, other])
 
     if input.shape[0] > other.shape[0]:
@@ -384,7 +387,10 @@ def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
     return (b * c - a * d) / (b - a) + (d - c) / (b - a) * x
 
 
-def _map_parameters(input: Tensor, other: Tensor) -> Tensor:
+def _map_parameters(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     a = input[1] - input[0]
     b = other[1] - other[0]
 
@@ -523,7 +529,10 @@ def _pow(
     return output
 
 
-def _subtract(input: Tensor, other: Tensor) -> Tensor:
+def _subtract(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     [input, other] = _as_series([input, other])
 
     if input.shape[0] > other.shape[0]:
@@ -655,7 +664,10 @@ def cheb2poly(input: Tensor) -> Tensor:
     return output
 
 
-def chebadd(input: Tensor, other: Tensor) -> Tensor:
+def chebadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -988,7 +1000,10 @@ def chebroots(input: Tensor) -> Tensor:
     return output
 
 
-def chebsub(input: Tensor, other: Tensor) -> Tensor:
+def chebsub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
@@ -1110,7 +1125,10 @@ def herm2poly(c):
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def hermadd(input: Tensor, other: Tensor) -> Tensor:
+def hermadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -1208,7 +1226,10 @@ def herme2poly(c):
         return polyadd(c0, polymulx(c1, "same"))
 
 
-def hermeadd(input: Tensor, other: Tensor) -> Tensor:
+def hermeadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -1470,7 +1491,10 @@ def hermeroots(c):
     return output
 
 
-def hermesub(input: Tensor, other: Tensor) -> Tensor:
+def hermesub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
@@ -1872,7 +1896,10 @@ def lag2poly(c):
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagadd(input: Tensor, other: Tensor) -> Tensor:
+def lagadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -2145,7 +2172,10 @@ def lagroots(input: Tensor) -> Tensor:
     return output
 
 
-def lagsub(input: Tensor, other: Tensor) -> Tensor:
+def lagsub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
@@ -2269,7 +2299,10 @@ def leg2poly(c):
     return output
 
 
-def legadd(input: Tensor, other: Tensor) -> Tensor:
+def legadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -2562,7 +2595,10 @@ def legroots(c):
     return output
 
 
-def legsub(input: Tensor, other: Tensor) -> Tensor:
+def legsub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
@@ -2741,7 +2777,10 @@ def poly2leg(input: Tensor) -> Tensor:
     return output
 
 
-def polyadd(input: Tensor, other: Tensor) -> Tensor:
+def polyadd(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _add(input, other)
 
 
@@ -2975,7 +3014,10 @@ def polyroots(input: Tensor) -> Tensor:
     return output
 
 
-def polysub(input: Tensor, other: Tensor) -> Tensor:
+def polysub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
