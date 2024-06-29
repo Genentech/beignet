@@ -402,14 +402,14 @@ def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
     return (b * c - a * d) / (b - a) + (d - c) / (b - a) * x
 
 
-def _map_parameters(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def _map_parameters(input: Tensor, other: Tensor) -> Tensor:
     a = input[1] - input[0]
     b = other[1] - other[0]
 
     x = (input[1] * other[0] - input[0] * other[1]) / a
     y = b / a
 
-    return x, y
+    return tensor([x, y])
 
 
 def _normed_hermite_e_n(x: Tensor, n) -> Tensor:
