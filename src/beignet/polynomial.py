@@ -1071,7 +1071,12 @@ def chebval2d(
     return _evaluate(chebval, c, x, y)
 
 
-def chebval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+def chebval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(chebval, c, x, y, z)
 
 
@@ -2950,7 +2955,12 @@ def polygrid2d(
     return c
 
 
-def polygrid3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+def polygrid3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     for arg in [x, y, z]:
         c = polyval(arg, c)
 
@@ -3120,7 +3130,12 @@ def polyval2d(
     )
 
 
-def polyval3d(x: Tensor, y: Tensor, z: Tensor, c: Tensor) -> Tensor:
+def polyval3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    c: Tensor,
+) -> Tensor:
     return _evaluate(
         polyval,
         c,
@@ -3149,7 +3164,10 @@ def polyvalfromroots(
     return output
 
 
-def polyvander(input: Tensor, degree: Tensor) -> Tensor:
+def polyvander(
+    input: Tensor,
+    degree: Tensor,
+) -> Tensor:
     if degree < 0:
         raise ValueError
 
@@ -3168,7 +3186,11 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     return output
 
 
-def polyvander2d(x: Tensor, y: Tensor, degree: Tensor) -> Tensor:
+def polyvander2d(
+    x: Tensor,
+    y: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (polyvander, polyvander),
         (x, y),
@@ -3176,7 +3198,12 @@ def polyvander2d(x: Tensor, y: Tensor, degree: Tensor) -> Tensor:
     )
 
 
-def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:
+def polyvander3d(
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
+) -> Tensor:
     return _flattened_vandermonde(
         (polyvander, polyvander, polyvander),
         (x, y, z),
