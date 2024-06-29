@@ -759,7 +759,10 @@ def chebder(input: Tensor, order=1, scale=1, axis=0) -> Tensor:
     return moveaxis(output, 0, axis)
 
 
-def chebdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def chebdiv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     return _div(chebmul, input, other)
 
 
@@ -1224,7 +1227,10 @@ def hermder(c, order=1, scale=1, axis=0):
     return c
 
 
-def hermdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def hermdiv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     return _div(hermmul, input, other)
 
 
@@ -1323,7 +1329,10 @@ def hermeder(c, order=1, scale=1, axis=0):
     return c
 
 
-def hermediv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def hermediv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     return _div(hermemul, input, other)
 
 
@@ -2009,7 +2018,10 @@ def lagder(c, order=1, scale=1, axis=0):
     return c
 
 
-def lagdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def lagdiv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     return _div(lagmul, input, other)
 
 
@@ -2433,7 +2445,10 @@ def legder(c, order=1, scale=1, axis=0):
     return c
 
 
-def legdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def legdiv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     return _div(legmul, input, other)
 
 
@@ -2909,7 +2924,10 @@ def polyder(
     return output
 
 
-def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
+def polydiv(
+    input: Tensor,
+    other: Tensor,
+) -> Tuple[Tensor, Tensor]:
     [input, other] = _as_series([input, other])
 
     return _div(polymul, input, other)
@@ -3029,7 +3047,9 @@ def polyline(input: float, other: float) -> Tensor:
 
 
 def polymul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
