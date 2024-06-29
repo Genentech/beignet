@@ -7210,7 +7210,7 @@ def test_polyvalfromroots():
 
     target = torch.empty(r.shape[1:])
 
-    for j in range(target.size):
+    for j in range(math.prod(target.shape)):
         target = target.at[j].set(polyvalfromroots(x[j], r[:, j]))
 
     torch.testing.assert_close(
