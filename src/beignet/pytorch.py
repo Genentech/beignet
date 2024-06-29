@@ -1065,14 +1065,20 @@ def chebweight(input: Tensor) -> Tensor:
 def herm2poly(c):
     [c] = _as_series([c])
     n = c.shape[0]
+
     if n == 1:
         return c
+
     if n == 2:
-        c = c.at[1].multiply(2)
+        c[1] = c[1] * 2
+
         return c
     else:
-        c0 = zeros_like(c).at[0].set(c[-2])
-        c1 = zeros_like(c).at[0].set(c[-1])
+        c0 = torch.zeros_like(c)
+        c0[0] = c[-2]
+
+        c1 = torch.zeros_like(c)
+        c1[0] = c[-1]
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -1153,13 +1159,18 @@ def hermdiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 def herme2poly(c):
     [c] = _as_series([c])
     n = c.shape[0]
+
     if n == 1:
         return c
+
     if n == 2:
         return c
     else:
-        c0 = zeros_like(c).at[0].set(c[-2])
-        c1 = zeros_like(c).at[0].set(c[-1])
+        c0 = torch.zeros_like(c)
+        c0[0] = c[-2]
+
+        c1 = torch.zeros_like(c)
+        c1[0] = c[-1]
 
         def body(k, c0c1):
             i = n - 1 - k
@@ -1172,8 +1183,10 @@ def herme2poly(c):
         b = n - 2
         x = (c0, c1)
         y = x
+
         for index in range(0, b):
             y = body(index, y)
+
         c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
@@ -1185,8 +1198,10 @@ def hermeadd(input: Tensor, other: Tensor) -> Tensor:
 
 def hermecompanion(c):
     [c] = _as_series([c])
+
     if c.shape[0] < 2:
         raise ValueError
+
     if c.shape[0] == 2:
         return torch.tensor([[-c[0] / c[1]]])
 
@@ -2225,21 +2240,29 @@ def legadd(input: Tensor, other: Tensor) -> Tensor:
 
 def legcompanion(c):
     [c] = _as_series([c])
+
     if c.shape[0] < 2:
         raise ValueError
+
     if c.shape[0] == 2:
         return torch.tensor([[-c[0] / c[1]]])
 
     n = c.shape[0] - 1
-    mat = zeros((n, n), dtype=c.dtype)
+    output = zeros((n, n), dtype=c.dtype)
     scale = 1.0 / sqrt(2 * arange(n) + 1)
-    shp = mat.shape
-    mat = reshape(mat, [-1])
-    mat = mat.at[1 :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
-    mat = mat.at[n :: n + 1].set(arange(1, n) * scale[: n - 1] * scale[1:n])
-    mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1)))
-    return mat
+    shape = output.shape
+    output = reshape(output, [-1])
+
+    output[1 :: n + 1] = arange(1, n) * scale[: n - 1] * scale[1:n]
+    output[n :: n + 1] = arange(1, n) * scale[: n - 1] * scale[1:n]
+
+    output = reshape(output, shape)
+
+    output = output.at[:, -1].add(
+        -(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
+    )
+
+    return output
 
 
 def legder(c, order=1, scale=1, axis=0):

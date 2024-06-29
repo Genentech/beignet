@@ -553,8 +553,10 @@ def test_chebcompanion():
     with pytest.raises(ValueError):
         chebcompanion(torch.tensor([1]))
 
-    for i in range(1, 5):
-        assert chebcompanion(torch.tensor([0] * i + [1])).shape == (i, i)
+    for index in range(1, 5):
+        output = chebcompanion(torch.tensor([0] * index + [1]))
+
+        assert output.shape == (index, index)
 
     assert chebcompanion(torch.tensor([1, 2]))[0, 0] == -0.5
 
@@ -4018,9 +4020,22 @@ def test_hermzero():
 
 
 def test_lag2poly():
-    for i in range(7):
+    coefficients = [
+        torch.tensor([1.0]) / 1,
+        torch.tensor([1.0, -1]) / 1,
+        torch.tensor([2.0, -4, 1]) / 2,
+        torch.tensor([6.0, -18, 9, -1]) / 6,
+        torch.tensor([24.0, -96, 72, -16, 1]) / 24,
+        torch.tensor([120.0, -600, 600, -200, 25, -1]) / 120,
+        torch.tensor([720.0, -4320, 5400, -2400, 450, -36, 1]) / 720,
+    ]
+
+    for index in range(7):
         torch.testing.assert_close(
-            lag2poly(torch.tensor([0] * i + [1])), lagcoefficients[i]
+            lag2poly(
+                torch.tensor([0.0] * index + [1.0]),
+            ),
+            coefficients[index],
         )
 
 
@@ -5003,10 +5018,25 @@ def test_lagzero():
 
 
 def test_leg2poly():
-    for i in range(10):
+    coefficients = [
+        torch.tensor([1.0]),
+        torch.tensor([0.0, 1.0]),
+        torch.tensor([-1.0, 0.0, 3.0]) / 2.0,
+        torch.tensor([0.0, -3.0, 0.0, 5.0]) / 2.0,
+        torch.tensor([3.0, 0.0, -30, 0, 35]) / 8,
+        torch.tensor([0.0, 15.0, 0, -70, 0, 63]) / 8,
+        torch.tensor([-5.0, 0.0, 105, 0, -315, 0, 231]) / 16,
+        torch.tensor([0.0, -35.0, 0, 315, 0, -693, 0, 429]) / 16,
+        torch.tensor([35.0, 0.0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128,
+        torch.tensor([0.0, 315.0, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128,
+    ]
+
+    for index in range(10):
         torch.testing.assert_close(
-            leg2poly([0] * i + [1]),
-            legcoefficients[i],
+            leg2poly(
+                [0.0] * index + [1.0],
+            ),
+            coefficients[index],
         )
 
 
