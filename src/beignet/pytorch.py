@@ -1296,15 +1296,21 @@ def polycompanion(input: Tensor) -> Tensor:
 
     n = input.shape[0] - 1
 
-    mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
+    output = torch.reshape(
+        torch.zeros([n, n], dtype=input.dtype),
+        [-1],
+    )
 
-    mat[n :: n + 1] = 1.0
+    output[n :: n + 1] = 1.0
 
-    mat = reshape(mat, (n, n))
+    output = torch.reshape(
+        output,
+        [n, n],
+    )
 
-    mat[:, -1] = mat[:, -1] + (-input[:-1] / input[-1])
+    output[:, -1] = output[:, -1] + (-input[:-1] / input[-1])
 
-    return mat
+    return output
 
 
 def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:

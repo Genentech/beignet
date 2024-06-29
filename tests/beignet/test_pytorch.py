@@ -1998,7 +1998,7 @@ def test_polyfit():
             polyfit(
                 input,
                 other,
-                degree=3,
+                degree=torch.tensor([3]),
             ),
         ),
         other,
