@@ -196,8 +196,15 @@ def _div(func: Callable, input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
 
         t = remainder[ridx1] / p[pidx]
 
-        a = remainder.at[ridx1].set(0.0)
-        b = t * p.at[pidx].set(0.0)
+        remainder_modified = remainder.clone()
+        remainder_modified[ridx1] = 0.0
+
+        a = remainder_modified
+
+        p_modified = p.clone()
+        p_modified[pidx] = 0.0
+
+        b = t * p_modified
 
         remainder = _subtract(a, b)
         remainder = remainder[: remainder.shape[0]]
@@ -676,24 +683,24 @@ def chebpow(
     if maximum_exponent is not None and _exponent > maximum_exponent:
         raise ValueError
 
-    if _exponent == 0:
-        return tensor([1.0], dtype=input.dtype)
+    match _exponent:
+        case 0:
+            output = tensor([1.0], dtype=input.dtype)
+        case 1:
+            output = input
+        case _:
+            output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
-    if _exponent == 1:
-        return input
+            output = chebadd(output, input)
 
-    output = zeros(input.shape[0] * exponent, dtype=input.dtype)
+            zs = _c_series_to_z_series(input)
 
-    output = chebadd(output, input)
+            output = _c_series_to_z_series(output)
 
-    zs = _c_series_to_z_series(input)
+            for _ in range(2, _exponent + 1):
+                output = torchaudio.functional.convolve(output, zs, mode="same")
 
-    output = _c_series_to_z_series(output)
-
-    for _ in range(2, _exponent + 1):
-        output = torchaudio.functional.convolve(output, zs, mode="same")
-
-    output = _z_series_to_c_series(output)
+            output = _z_series_to_c_series(output)
 
     return output
 
