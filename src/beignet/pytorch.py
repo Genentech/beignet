@@ -327,9 +327,17 @@ def _fit(
         return output
 
 
-def _flattened_vandermonde(vander_fs, points, degrees):
-    v = _vandermonde(vander_fs, points, degrees)
-    return reshape(v, v.shape[: -len(degrees)] + (-1,))
+def _flattened_vandermonde(vandermonde_functions, points, degrees):
+    vandermonde = _vandermonde(
+        vandermonde_functions,
+        points,
+        degrees,
+    )
+
+    return torch.reshape(
+        vandermonde,
+        vandermonde.shape[: -len(degrees)] + (-1,),
+    )
 
 
 def _from_roots(f: Callable, g: Callable, input: Tensor) -> Tensor:
