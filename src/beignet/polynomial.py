@@ -683,7 +683,9 @@ def chebcompanion(input: Tensor) -> Tensor:
 
     mat = reshape(mat, shp)
 
-    return mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
+    output = mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
+
+    return output
 
 
 def chebder(input: Tensor, order=1, scale=1, axis=0) -> Tensor:

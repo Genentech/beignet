@@ -1894,15 +1894,27 @@ def test_hermadd():
 
 def test_hermcompanion():
     with pytest.raises(ValueError):
-        hermcompanion(torch.tensor([]))
+        hermcompanion(
+            torch.tensor([]),
+        )
 
     with pytest.raises(ValueError):
-        hermcompanion(torch.tensor([1]))
+        hermcompanion(
+            torch.tensor([1.0]),
+        )
 
-    for i in range(1, 5):
-        assert hermcompanion(torch.tensor([0] * i + [1])).shape == (i, i)
+    for index in range(1, 5):
+        output = hermcompanion(
+            torch.tensor([0.0] * index + [1.0]),
+        )
 
-    assert hermcompanion(torch.tensor([1, 2]))[0, 0] == -0.25
+        assert output.shape == (index, index)
+
+    output = hermcompanion(
+        torch.tensor([1.0, 2.0]),
+    )
+
+    assert output[0, 0] == -0.25
 
 
 def test_hermder():
@@ -2080,11 +2092,18 @@ def test_hermecompanion():
     with pytest.raises(ValueError):
         hermecompanion([1])
 
-    for i in range(1, 5):
-        coef = torch.tensor([0.0] * i + [1.0])
-        assert hermecompanion(coef).shape == (i, i)
+    for index in range(1, 5):
+        output = hermecompanion(
+            torch.tensor([0.0] * index + [1.0]),
+        )
 
-    assert hermecompanion(torch.tensor([1, 2]))[0, 0] == -0.5
+        assert output.shape == (index, index)
+
+    output = hermecompanion(
+        torch.tensor([1.0, 2.0]),
+    )
+
+    assert output[0, 0] == -0.5
 
 
 def test_hermeder():
