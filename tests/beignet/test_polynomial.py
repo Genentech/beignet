@@ -1750,7 +1750,7 @@ def test_chebvander():
         )
 
     v = chebvander(
-        torch.tensor([[1, 2], [3, 4], [5, 6]]),
+        torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
         degree=3,
     )
 
@@ -1760,7 +1760,7 @@ def test_chebvander():
         torch.testing.assert_close(
             v[..., i],
             chebval(
-                torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
                 torch.tensor([0.0] * i + [1.0]),
             ),
         )
@@ -3051,7 +3051,7 @@ def test_hermevander():
         coef = torch.tensor([0.0] * i + [1.0])
         torch.testing.assert_close(v[..., i], hermeval(x, coef))
 
-    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
     v = hermevander(x, 3)
     assert v.shape == (3, 2, 4)
     for i in range(4):
@@ -4997,7 +4997,7 @@ def test_lagvander():
             ),
         )
 
-    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
 
     v = lagvander(x, 3)
 
@@ -6130,7 +6130,7 @@ def test_legvander():
             ),
         )
 
-    x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+    x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
 
     v = legvander(x, 3)
 
@@ -7250,7 +7250,7 @@ def test_polyvander():
         )
 
     output = polyvander(
-        torch.tensor([[1, 2], [3, 4], [5, 6]]),
+        torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
         degree=torch.tensor(3),
     )
 
@@ -7260,7 +7260,7 @@ def test_polyvander():
         torch.testing.assert_close(
             output[..., index],
             polyval(
-                torch.tensor([[1, 2], [3, 4], [5, 6]]),
+                torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
                 torch.tensor([0.0] * index + [1.0]),
             ),
         )
