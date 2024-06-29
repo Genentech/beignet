@@ -6103,7 +6103,9 @@ def test_legvander():
         )
 
     x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+
     v = legvander(x, 3)
+
     assert v.shape == (3, 2, 4)
 
     for index in range(4):
@@ -6115,7 +6117,11 @@ def test_legvander():
             ),
         )
 
-    pytest.raises(ValueError, legvander, (1, 2, 3), -1)
+    with pytest.raises(ValueError):
+        legvander(
+            (1, 2, 3),
+            -1,
+        )
 
 
 def test_legvander2d():
