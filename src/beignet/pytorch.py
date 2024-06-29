@@ -2166,17 +2166,23 @@ def lagvander(x, degree):
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x, ndmin=1)
-    dims = (degree + 1,) + x.shape
-    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
-    x = x.astype(dtyp)
-    v = torch.empty(dims, dtype=dtyp)
-    v = v.at[0].set(ones_like(x))
-    if degree > 0:
-        v = v.at[1].set(1 - x)
+    x = torch.atleast_1d(x)
 
-        for i in range(2, degree + 1):
-            v = v.at[i].set((v[i - 1] * (2 * i - 1 - x) - v[i - 2] * (i - 1)) / i)
+    dtype = promote_types(x.dtype, torch.get_default_dtype())
+
+    x = x.to(dtype)
+
+    v = torch.empty([degree + 1, *x.shape], dtype=dtype)
+
+    v[0] = torch.ones_like(x)
+
+    if degree > 0:
+        v[1] = 1 - x
+
+        for index in range(2, degree + 1):
+            v[index] = (
+                v[index - 1] * (2 * index - 1 - x) - v[index - 2] * (index - 1)
+            ) / index
 
     return moveaxis(v, 0, -1)
 
@@ -2576,23 +2582,26 @@ def legvander(x, degree):
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x, ndmin=1)
+    x = torch.tensor(x)
+    x = torch.atleast_1d(x)
 
     dims = (degree + 1,) + x.shape
 
-    dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
+    dtype = torch.promote_types(x.dtype, torch.tensor(0.0).dtype)
 
-    x = x.astype(dtyp)
+    x = x.astype(dtype)
 
-    v = torch.empty(dims, dtype=dtyp)
+    v = torch.empty(dims, dtype=dtype)
 
-    v = v.at[0].set(ones_like(x))
+    v[0] = torch.ones_like(x)
 
     if degree > 0:
-        v = v.at[1].set(x)
+        v[1] = x
 
-        for i in range(2, degree + 1):
-            v = v.at[i].set((v[i - 1] * x * (2 * i - 1) - v[i - 2] * (i - 1)) / i)
+        for index in range(2, degree + 1):
+            v[index] = (
+                v[index - 1] * x * (2 * index - 1) - v[index - 2] * (index - 1)
+            ) / index
 
     return moveaxis(v, 0, -1)
 
