@@ -701,7 +701,7 @@ def test_chebfit():
             chebfit(
                 input,
                 other,
-                degree=3,
+                degree=torch.tensor([3]),
             ),
         ),
         other,
@@ -749,7 +749,7 @@ def test_chebfit():
             chebfit(
                 input,
                 other,
-                degree=(2, 3, 4, 1, 0),
+                degree=torch.tensor([2, 3, 4, 1, 0]),
             ),
         ),
         other,
@@ -2280,7 +2280,7 @@ def test_hermefit():
             hermefit(
                 input,
                 other,
-                degree=(2, 3, 4, 1, 0),
+                degree=torch.tensor([2, 3, 4, 1, 0]),
             ),
         ),
         other,
@@ -3167,7 +3167,7 @@ def test_hermfit():
             hermfit(
                 input,
                 other,
-                degree=(2, 3, 4, 1, 0),
+                degree=torch.tensor([2, 3, 4, 1, 0]),
             ),
         ),
         other,
@@ -3775,14 +3775,14 @@ def test_hermpow():
 def test_hermroots():
     torch.testing.assert_close(
         hermroots(
-            torch.tensor([1]),
+            torch.tensor([1.0]),
         ),
         torch.tensor([]),
     )
 
     torch.testing.assert_close(
         hermroots(
-            torch.tensor([1, 1]),
+            torch.tensor([1.0, 1.0]),
         ),
         torch.tensor([-0.5]),
     )
@@ -4787,19 +4787,32 @@ def test_lagpow():
 
 
 def test_lagroots():
-    torch.testing.assert_close(lagroots(torch.tensor([1])), torch.tensor([]))
     torch.testing.assert_close(
-        lagroots(torch.tensor([0, 1])),
-        torch.tensor([1]),
+        lagroots(
+            torch.tensor([1.0]),
+        ),
+        torch.tensor([]),
     )
-    for i in range(2, 5):
+
+    torch.testing.assert_close(
+        lagroots(
+            torch.tensor([0.0, 1.0]),
+        ),
+        torch.tensor([1.0]),
+    )
+
+    for index in range(2, 5):
         torch.testing.assert_close(
             lagtrim(
-                lagroots(lagfromroots(torch.linspace(0, 3, i))),
+                lagroots(
+                    lagfromroots(
+                        torch.linspace(0, 3, index),
+                    ),
+                ),
                 tol=0.000001,
             ),
             lagtrim(
-                torch.linspace(0, 3, i),
+                torch.linspace(0, 3, index),
                 tol=0.000001,
             ),
         )
@@ -5309,7 +5322,7 @@ def test_legfit():
             legfit(
                 input,
                 other,
-                degree=(2, 3, 4, 1, 0),
+                degree=torch.tensor([2, 3, 4, 1, 0]),
             ),
         ),
         other,
@@ -7199,7 +7212,7 @@ def test_polyvalfromroots():
 
         assert output.shape == shape
 
-    ptest = torch.tensor([15, 2, -16, -2, 1])
+    ptest = torch.tensor([15.0, 2.0, -16.0, -2.0, 1.0])
 
     r = polyroots(ptest)
 
@@ -7216,12 +7229,15 @@ def test_polyvalfromroots():
 
     x = torch.torch.arange(-3, 2)
 
-    r = torch.randint(-5, 5, (3, 5))
+    r = torch.randint(-5, 5, (3, 5)).to(torch.float64)
 
     target = torch.empty(r.shape[1:])
 
     for j in range(math.prod(target.shape)):
-        target = target.at[j].set(polyvalfromroots(x[j], r[:, j]))
+        target[j] = polyvalfromroots(
+            x[j],
+            r[:, j],
+        )
 
     torch.testing.assert_close(
         polyvalfromroots(x, r, tensor=False),

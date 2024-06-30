@@ -668,10 +668,10 @@ def _vandermonde(
 
     output = []
 
-    for i in range(n_dims):
-        vandermonde = vander_fs[i](points[i], degrees[i])
+    for index in range(n_dims):
+        vandermonde = vander_fs[index](points[index], degrees[index])
 
-        vandermonde = vandermonde[(..., *_nth_slice(i, n_dims))]
+        vandermonde = vandermonde[(..., *_nth_slice(index, n_dims))]
 
         output = [*output, vandermonde]
 
@@ -1258,15 +1258,18 @@ def hermcompanion(c):
         ],
     )
 
-    scale = torch.cumprod(scale)
+    scale = torch.cumprod(scale, dim=0)
     scale = flip(scale, dims=[0])
 
     shp = mat.shape
     mat = reshape(mat, [-1])
-    mat = mat.at[1 :: n + 1].set(sqrt(0.5 * arange(1, n)))
-    mat = mat.at[n :: n + 1].set(sqrt(0.5 * arange(1, n)))
+
+    mat[1 :: n + 1] = sqrt(0.5 * arange(1, n))
+    mat[n :: n + 1] = sqrt(0.5 * arange(1, n))
+
     mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-scale * c[:-1] / (2.0 * c[-1]))
+    # mat = mat.at[:, -1].add(-scale * c[:-1] / (2.0 * c[-1]))
+    mat[:, -1] += -scale * c[:-1] / (2.0 * c[-1])
     return mat
 
 
@@ -1938,18 +1941,25 @@ def hermroots(input):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 
 
-def hermsub(input: Tensor, other: Tensor):
+def hermsub(
+    input: Tensor,
+    other: Tensor,
+) -> Tensor:
     return _subtract(input, other)
 
 
-def hermval(input: Tensor, coefficients: Tensor, tensor: bool = True):
+def hermval(
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
+):
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -2099,11 +2109,18 @@ def lagcompanion(input):
 
     mat = reshape(zeros((n, n), dtype=input.dtype), [-1])
 
-    mat = mat.at[1 :: n + 1].set(-arange(1, n))
-    mat = mat.at[0 :: n + 1].set(2.0 * arange(n) + 1.0)
-    mat = mat.at[n :: n + 1].set(-arange(1, n))
+    mat[1 :: n + 1] = -arange(1, n)
+
+    mat[0 :: n + 1] = 2.0 * arange(n) + 1.0
+
+    mat[n :: n + 1] = -arange(1, n)
+
     mat = reshape(mat, (n, n))
-    mat = mat.at[:, -1].add((input[:-1] / input[-1]) * n)
+
+    mat[:, -1] += (input[:-1] / input[-1]) * n
+
+    # mat = mat.at[:, -1].add((input[:-1] / input[-1]) * n)
+
     return mat
 
 
@@ -2367,9 +2384,9 @@ def lagroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 
@@ -2823,9 +2840,9 @@ def legroots(c):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 
