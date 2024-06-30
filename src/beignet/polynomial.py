@@ -16,10 +16,12 @@ from torch import (
     atleast_1d,
     concatenate,
     cos,
+    cumprod,
     empty,
     finfo,
     flip,
     full,
+    hstack,
     linspace,
     moveaxis,
     nonzero,
@@ -1255,14 +1257,14 @@ def hermcompanion(c):
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
 
-    scale = torch.hstack(
+    scale = hstack(
         [
             tensor([1.0]),
-            1.0 / torch.sqrt(2.0 * torch.arange(n - 1, 0, -1)),
+            1.0 / sqrt(2.0 * arange(n - 1, 0, -1)),
         ],
     )
 
-    scale = torch.cumprod(scale, dim=0)
+    scale = cumprod(scale, dim=0)
     scale = flip(scale, dims=[0])
 
     shp = mat.shape
@@ -1364,14 +1366,14 @@ def hermecompanion(c):
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
 
-    scale = torch.hstack(
+    scale = hstack(
         [
             tensor([1.0]),
             1.0 / sqrt(arange(n - 1, 0, -1)),
         ],
     )
 
-    scale = torch.cumprod(scale, dim=0)
+    scale = cumprod(scale, dim=0)
     scale = flip(scale, dims=[0])
     shp = mat.shape
     mat = reshape(mat, [-1])
