@@ -3115,39 +3115,82 @@ def test_hermeval3d():
 
 def test_hermevander():
     x = arange(3)
-    v = hermevander(x, 3)
+    v = hermevander(
+        x,
+        3,
+    )
     assert v.shape == (3, 4)
     for i in range(4):
-        coef = tensor([0.0] * i + [1.0])
-        assert_close(v[..., i], hermeval(x, coef))
+        coefficients = tensor([0.0] * i + [1.0])
+        assert_close(
+            v[..., i],
+            hermeval(x, coefficients),
+        )
 
     x = tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    v = hermevander(x, 3)
+    v = hermevander(
+        x,
+        3,
+    )
     assert v.shape == (3, 2, 4)
     for i in range(4):
-        coef = tensor([0.0] * i + [1.0])
-        assert_close(v[..., i], hermeval(x, coef))
+        coefficients = tensor([0.0] * i + [1.0])
+        assert_close(
+            v[..., i],
+            hermeval(x, coefficients),
+        )
 
 
 def test_hermevander2d():
     a, b, x3 = torch.rand(3, 5) * 2 - 1
-    c = torch.rand(2, 3)
+
+    coefficients = torch.rand(2, 3)
+
     assert_close(
-        torch.dot(hermevander2d(a, b, (1, 2)), c.torch.ravel()),
-        hermeval2d(a, b, c),
+        torch.dot(
+            hermevander2d(
+                a,
+                b,
+                degree=(1, 2),
+            ),
+            coefficients.ravel(),
+        ),
+        hermeval2d(
+            a,
+            b,
+            coefficients,
+        ),
     )
 
-    van = hermevander2d([a], [b], (1, 2))
-    assert van.shape == (1, 5, 6)
+    output = hermevander2d(
+        [a],
+        [b],
+        degree=(1, 2),
+    )
+
+    assert output.shape == (1, 5, 6)
 
 
 def test_hermevander3d():
     a, b, x3 = torch.rand(3, 5) * 2 - 1
     c = torch.rand(2, 3, 4)
-    van = hermevander3d(a, b, x3, (1, 2, 3))
-    assert_close(torch.dot(van, c.torch.ravel()), hermeval3d(a, b, x3, c))
+    van = hermevander3d(
+        a,
+        b,
+        x3,
+        (1, 2, 3),
+    )
+    assert_close(
+        torch.dot(van, c.torch.ravel()),
+        hermeval3d(a, b, x3, c),
+    )
 
-    van = hermevander3d([a], [b], [x3], (1, 2, 3))
+    van = hermevander3d(
+        [a],
+        [b],
+        [x3],
+        (1, 2, 3),
+    )
     assert van.shape == (1, 5, 24)
 
 
@@ -4508,29 +4551,45 @@ def test_lagfit():
 
 
 def test_lagfromroots():
-    res = lagfromroots(tensor([]))
     assert_close(
         lagtrim(
-            res,
+            lagfromroots(
+                tensor([]),
+            ),
             tol=0.000001,
         ),
-        tensor([1]),
+        tensor([1.0]),
     )
 
     for i in range(1, 5):
-        roots = cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        roots = linspace(-math.pi, 0, 2 * i + 1)
 
-        pol = lagfromroots(roots)
+        roots = roots[1::2]
 
-        res = lagval(roots, pol)
+        roots = cos(roots)
 
-        target = 0
+        output = lag2poly(
+            lagfromroots(
+                roots,
+            ),
+        )
 
-        assert len(pol) == i + 1
+        assert_close(
+            output,
+            torch.tensor([1.0]),
+        )
 
-        assert_close(lag2poly(pol)[-1], 1)
+        output = lagval(
+            roots,
+            lagfromroots(
+                roots,
+            ),
+        )
 
-        assert_close(res, target)
+        assert_close(
+            output,
+            torch.tensor([0.0]),
+        )
 
 
 def test_laggauss():
@@ -5769,11 +5828,11 @@ def test_legint():
                 legint(
                     tensor([0]),
                     order=i,
-                    k=([0] * (i - 2) + [1]),
+                    k=([0.0] * (i - 2) + [1.0]),
                 ),
                 tol=0.000001,
             ),
-            [0, 1],
+            torch.tensor([0.0, 1.0]),
         )
 
     for i in range(5):
@@ -6286,7 +6345,9 @@ def test_legvander():
 
 def test_legvander2d():
     a, b, x3 = torch.rand(3, 5) * 2 - 1
+
     coefficients = torch.rand(2, 3)
+
     assert_close(
         torch.dot(legvander2d(a, b, (1, 2)), coefficients.torch.ravel()),
         legval2d(a, b, coefficients),
