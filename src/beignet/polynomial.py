@@ -2969,7 +2969,9 @@ def legline(
 
 
 def legmul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -3114,7 +3116,12 @@ def legval2d(
     y: Tensor,
     c: Tensor,
 ) -> Tensor:
-    return _evaluate(legval, c, x, y)
+    return _evaluate(
+        legval,
+        c,
+        x,
+        y,
+    )
 
 
 def legval3d(
@@ -3123,7 +3130,13 @@ def legval3d(
     z: Tensor,
     c: Tensor,
 ) -> Tensor:
-    return _evaluate(legval, c, x, y, z)
+    return _evaluate(
+        legval,
+        c,
+        x,
+        y,
+        z,
+    )
 
 
 def legvander(
