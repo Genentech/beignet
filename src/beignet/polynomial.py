@@ -970,9 +970,9 @@ def chebinterpolate(func, degree, args=()):
 
     c = torch.dot(m.T, yfunc)
 
-    c = c.at[0].divide(order)
+    c[0] /= order
 
-    c = c.at[1:].divide(0.5 * order)
+    c[1:] /= 0.5 * order
 
     return c
 
