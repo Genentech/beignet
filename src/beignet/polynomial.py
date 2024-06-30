@@ -754,7 +754,48 @@ def chebadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _add(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def chebcompanion(
@@ -1273,7 +1314,48 @@ def hermadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _add(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def hermcompanion(
@@ -1410,7 +1492,48 @@ def hermeadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _add(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def hermecompanion(
@@ -2237,7 +2360,48 @@ def lagadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _add(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def lagcompanion(input):
@@ -2730,7 +2894,48 @@ def legadd(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _add(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def legcompanion(
@@ -3326,7 +3531,34 @@ def polyadd(
     output : Tensor
         Polynomial coefficients.
     """
-    return _add(input, other)
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = concatenate(
+            [
+                other,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = concatenate(
+            [
+                input,
+                zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
 
 
 def polycompanion(
