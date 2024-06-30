@@ -6,7 +6,6 @@ from typing import Callable, List, Literal, Tuple
 import numpy
 import torch
 import torch._numpy._funcs_impl
-import torch.linalg
 import torchaudio.functional
 from torch import (
     LongTensor,
@@ -40,6 +39,9 @@ from torch import (
     where,
     zeros,
     zeros_like,
+)
+from torch.linalg import (
+    eigvals,
 )
 
 torch.set_default_dtype(torch.float64)
@@ -920,7 +922,7 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
 
     c = moveaxis(c, axis, 0)
     k = tensor(list(k) + [0] * (order - len(k)))
-    k = torch.atleast_1d(k)
+    k = atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
@@ -1087,7 +1089,7 @@ def chebroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
@@ -1154,7 +1156,7 @@ def chebvander(
     if degree < 0:
         raise ValueError
 
-    x = torch.atleast_1d(x)
+    x = atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, tensor(0.0).dtype)
     x = x.to(dtyp)
@@ -1631,7 +1633,7 @@ def hermeroots(c):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
@@ -1703,7 +1705,7 @@ def hermevander(
     if degree < 0:
         raise ValueError
 
-    x = torch.atleast_1d(x)
+    x = atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, tensor(0.0).dtype)
     x = x.to(dtyp)
@@ -1956,7 +1958,7 @@ def hermroots(input):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
@@ -2032,7 +2034,7 @@ def hermvander(
     if degree < 0:
         raise ValueError
 
-    x = torch.atleast_1d(x)
+    x = atleast_1d(x)
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, tensor(0.0).dtype)
     x = x.to(dtyp)
@@ -2413,7 +2415,7 @@ def lagroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
@@ -2485,7 +2487,7 @@ def lagvander(
     if degree < 0:
         raise ValueError
 
-    x = torch.atleast_1d(x)
+    x = atleast_1d(x)
 
     dtype = promote_types(x.dtype, torch.get_default_dtype())
 
@@ -2770,7 +2772,7 @@ def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
 
     k = tensor(list(k) + [0] * (order - len(k)))
 
-    k = torch.atleast_1d(k)
+    k = atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
@@ -2894,7 +2896,7 @@ def legroots(c):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
@@ -2967,7 +2969,7 @@ def legvander(
         raise ValueError
 
     x = tensor(x)
-    x = torch.atleast_1d(x)
+    x = atleast_1d(x)
 
     dims = (degree + 1,) + x.shape
 
@@ -3545,7 +3547,7 @@ def polyroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.eigvals(output)
+    output = eigvals(output)
 
     output, _ = sort(output.real)
 
