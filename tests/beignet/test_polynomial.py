@@ -2295,7 +2295,7 @@ def test_hermefit():
             hermefit(
                 input,
                 other,
-                degree=3,
+                degree=tensor([3]),
             ),
         ),
         other,
@@ -3511,11 +3511,11 @@ def test_hermfit():
 
 
 def test_hermfromroots():
-    res = hermfromroots(tensor([]))
-
     assert_close(
         hermtrim(
-            res,
+            hermfromroots(
+                tensor([]),
+            ),
             tol=0.000001,
         ),
         tensor([1.0]),
@@ -3523,20 +3523,24 @@ def test_hermfromroots():
 
     for i in range(1, 5):
         roots = cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
-        pol = hermfromroots(roots)
-        res = hermval(roots, pol)
         target = 0
-        assert len(pol) == i + 1
 
         assert_close(
             herm2poly(
-                pol,
+                hermfromroots(
+                    roots,
+                ),
             )[-1],
             tensor([1.0]),
         )
 
         assert_close(
-            res,
+            hermval(
+                roots,
+                hermfromroots(
+                    roots,
+                ),
+            ),
             target,
         )
 
