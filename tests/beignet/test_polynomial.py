@@ -1037,7 +1037,7 @@ def test_chebgauss():
     )
 
     assert_close(
-        sum(weight),
+        weight.sum(),
         tensor(math.pi),
     )
 
@@ -3554,7 +3554,7 @@ def test_hermgauss():
     )
 
     assert_close(
-        sum(w, dim=0),
+        w.sum(),
         tensor(math.sqrt(math.pi)),
     )
 
