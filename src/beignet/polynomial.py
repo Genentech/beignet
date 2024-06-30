@@ -1956,7 +1956,8 @@ def hermint(
 
         tmp[j + 1] = (c[j].T / (2 * (j + 1))).T
 
-        tmp = tmp.at[0].add(k[i] - hermval(lower_bound, tmp))
+        tmp_value = hermval(lower_bound, tmp)
+        tmp[0] += k[i] - tmp_value
 
         c = tmp
 
