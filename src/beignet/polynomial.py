@@ -896,7 +896,14 @@ def chebgrid3d(
     return c
 
 
-def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tensor:
+def chebint(
+    c: Tensor,
+    order=1,
+    k=None,
+    lower_bound=0,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if k is None:
         k = []
 
@@ -952,7 +959,11 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
     return c
 
 
-def chebinterpolate(func, degree, args=()):
+def chebinterpolate(
+    func,
+    degree,
+    args=(),
+):
     _deg = int(degree)
 
     if _deg != degree:
