@@ -659,13 +659,13 @@ def _trim_sequence(
 
 
 def _vandermonde(
-    vander_fs,
-    points: Tensor,
+    functions,
+    input: Tensor,
     degrees: Tensor,
 ) -> Tensor:
-    n_dims = len(vander_fs)
+    n_dims = len(functions)
 
-    if n_dims != len(points):
+    if n_dims != len(input):
         raise ValueError
 
     if n_dims != len(degrees):
@@ -674,16 +674,21 @@ def _vandermonde(
     if n_dims == 0:
         raise ValueError
 
-    points = tuple(tensor(tuple(points)) + 0.0)
+    input = tuple(tensor(tuple(input)) + 0.0)
 
     output = []
 
     for index in range(n_dims):
-        vandermonde = vander_fs[index](points[index], degrees[index])
+        vandermonde = functions[index](input[index], degrees[index])
 
-        vandermonde = vandermonde[(..., *_nth_slice(index, n_dims))]
+        indices = _nth_slice(index, n_dims)
 
-        output = [*output, vandermonde]
+        indices = (..., *indices)
+
+        output = [
+            *output,
+            vandermonde[indices],
+        ]
 
     return functools.reduce(operator.mul, output)
 
@@ -934,7 +939,7 @@ def chebint(
     for i in range(order):
         n = c.shape[0]
 
-        c *= scale
+        c = c * scale
 
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
 
