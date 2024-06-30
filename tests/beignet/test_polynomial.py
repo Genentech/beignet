@@ -2,8 +2,6 @@ import functools
 import math
 
 import pytest
-import torch
-import torch.testing
 from beignet.polynomial import (
     _c_series_to_z_series,
     _fit,
@@ -200,10 +198,17 @@ from torch import (
     cos,
     dot,
     einsum,
+    empty,
     exp,
+    eye,
+    float64,
     linspace,
     ones,
+    rand,
+    randint,
     ravel,
+    set_default_dtype,
+    sqrt,
     tensor,
     vstack,
     zeros,
@@ -213,7 +218,7 @@ from torch.testing import (
     assert_close,
 )
 
-torch.set_default_dtype(torch.float64)
+set_default_dtype(float64)
 
 chebcoefficients = [
     tensor([1]),
@@ -662,11 +667,11 @@ def test_chebder():
                 ),
             )
 
-    input = torch.rand(3, 4)
+    input = rand(3, 4)
 
     target = [chebder(c) for c in input.T]
 
-    target = torch.vstack(target).T
+    target = vstack(target).T
 
     assert_close(
         chebder(
@@ -678,7 +683,7 @@ def test_chebder():
 
     target = [chebder(c) for c in input]
 
-    target = torch.vstack(target)
+    target = vstack(target)
 
     assert_close(
         chebder(
@@ -846,7 +851,7 @@ def test_chebfit():
         ).T,
     )
 
-    weight = torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -1019,26 +1024,26 @@ def test_chebgauss():
 
     vandermonde = chebvander(
         output,
-        degree=torch.tensor([99]),
+        degree=tensor([99]),
     )
 
     u = (vandermonde.T * weight) @ vandermonde
 
-    v = 1 / torch.sqrt(u.diagonal())
+    v = 1 / sqrt(u.diagonal())
 
     assert_close(
         v[:, None] * u * v,
-        torch.eye(100),
+        eye(100),
     )
 
     assert_close(
-        torch.sum(weight),
-        torch.tensor(math.pi),
+        sum(weight),
+        tensor(math.pi),
     )
 
 
 def test_chebgrid2d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, x3 = x
 
@@ -1078,7 +1083,7 @@ def test_chebgrid2d():
 
 
 def test_chebgrid3d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, x3 = x
 
@@ -1345,14 +1350,14 @@ def test_chebint():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
     assert_close(
         chebint(
             c2d,
             axis=0,
         ),
-        torch.vstack([chebint(c) for c in c2d.T]).T,
+        vstack([chebint(c) for c in c2d.T]).T,
     )
 
     assert_close(
@@ -1360,7 +1365,7 @@ def test_chebint():
             c2d,
             axis=1,
         ),
-        torch.vstack([chebint(c) for c in c2d]),
+        vstack([chebint(c) for c in c2d]),
     )
 
     assert_close(
@@ -1369,7 +1374,7 @@ def test_chebint():
             k=3,
             axis=1,
         ),
-        torch.vstack([chebint(c, k=3) for c in c2d]),
+        vstack([chebint(c, k=3) for c in c2d]),
     )
 
 
@@ -1695,7 +1700,7 @@ def test_chebval():
 
 
 def test_chebval2d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, x3 = x
 
@@ -1750,7 +1755,7 @@ def test_chebval3d():
         tensor([2.5, 2.0, 1.5]),
     )
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
 
     y1, y2, y3 = polyval(
@@ -1815,18 +1820,18 @@ def test_chebvander():
 
 
 def test_chebvander2d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, x3 = rand(3, 5) * 2 - 1
 
-    c = torch.rand(2, 3)
+    c = rand(2, 3)
 
     assert_close(
-        torch.dot(
+        dot(
             chebvander2d(
                 a,
                 b,
-                (1, 2),
+                degree=tensor([1, 2]),
             ),
-            torch.ravel(c),
+            ravel(c),
         ),
         chebval2d(
             a,
@@ -1838,38 +1843,43 @@ def test_chebvander2d():
     van = chebvander2d(
         [a],
         [b],
-        (1, 2),
+        degree=tensor([1, 2]),
     )
 
     assert van.shape == (1, 5, 6)
 
 
 def test_chebvander3d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
-    c = torch.rand(2, 3, 4)
+    coefficients = rand(2, 3, 4)
 
     assert_close(
-        torch.dot(
-            chebvander3d(a, b, x3, (1, 2, 3)),
-            torch.ravel(c),
+        dot(
+            chebvander3d(
+                a,
+                b,
+                c,
+                degree=tensor([1, 2, 3]),
+            ),
+            ravel(coefficients),
         ),
         chebval3d(
             a,
             b,
-            x3,
             c,
+            coefficients,
         ),
     )
 
-    van = chebvander3d(
+    output = chebvander3d(
         [a],
         [b],
-        [x3],
-        (1, 2, 3),
+        [c],
+        degree=tensor([1, 2, 3]),
     )
 
-    assert van.shape == (1, 5, 24)
+    assert output.shape == (1, 5, 24)
 
 
 def test_chebweight():
@@ -1877,7 +1887,7 @@ def test_chebweight():
 
     assert_close(
         chebweight(x),
-        1.0 / (torch.sqrt(1 + x) * torch.sqrt(1 - x)),
+        1.0 / (sqrt(1 + x) * sqrt(1 - x)),
     )
 
 
@@ -2030,11 +2040,11 @@ def test_hermder():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
     assert_close(
         hermder(c2d, axis=0),
-        torch.vstack([hermder(c) for c in c2d.T]).T,
+        vstack([hermder(c) for c in c2d.T]).T,
     )
 
     assert_close(
@@ -2042,7 +2052,7 @@ def test_hermder():
             c2d,
             axis=1,
         ),
-        torch.vstack([hermder(c) for c in c2d]),
+        vstack([hermder(c) for c in c2d]),
     )
 
 
@@ -2210,11 +2220,11 @@ def test_hermeder():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
     assert_close(
         hermeder(c2d, axis=0),
-        torch.vstack([hermeder(c) for c in c2d.T]).T,
+        vstack([hermeder(c) for c in c2d.T]).T,
     )
 
     assert_close(
@@ -2222,7 +2232,7 @@ def test_hermeder():
             c2d,
             axis=1,
         ),
-        torch.vstack([hermeder(c) for c in c2d]),
+        vstack([hermeder(c) for c in c2d]),
     )
 
 
@@ -2391,7 +2401,7 @@ def test_hermefit():
         ).T,
     )
 
-    weight = torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -2571,13 +2581,13 @@ def test_hermegauss():
 
     v = hermevander(x, 99)
     vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
+    vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
-    assert_close(vv, torch.eye(100))
+    assert_close(vv, eye(100))
 
     target = math.sqrt(2 * math.pi)
     assert_close(
-        torch.sum(w, dim=0),
+        w.sum(),
         tensor(target),
     )
 
@@ -2586,7 +2596,7 @@ def test_hermegrid2d():
     c1d = tensor([4.0, 2.0, 3.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -2616,7 +2626,7 @@ def test_hermegrid3d():
     c1d = tensor([4.0, 2.0, 3.0])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -2792,14 +2802,14 @@ def test_hermeint():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
     assert_close(
         hermeint(c2d, axis=0),
-        torch.vstack([hermeint(c) for c in c2d.T]).T,
+        vstack([hermeint(c) for c in c2d.T]).T,
     )
 
-    target = torch.vstack([hermeint(c) for c in c2d])
+    target = vstack([hermeint(c) for c in c2d])
     res = hermeint(
         c2d,
         axis=1,
@@ -2809,7 +2819,7 @@ def test_hermeint():
         target,
     )
 
-    target = torch.vstack([hermeint(c, k=3) for c in c2d])
+    target = vstack([hermeint(c, k=3) for c in c2d])
     res = hermeint(
         c2d,
         k=3,
@@ -3066,7 +3076,7 @@ def test_hermeval2d():
     c1d = tensor([4.0, 2.0, 3.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -3100,7 +3110,7 @@ def test_hermeval3d():
     c1d = tensor([4.0, 2.0, 3.0])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -3146,12 +3156,12 @@ def test_hermevander():
 
 
 def test_hermevander2d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, x3 = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3)
+    coefficients = rand(2, 3)
 
     assert_close(
-        torch.dot(
+        dot(
             hermevander2d(
                 a,
                 b,
@@ -3176,9 +3186,9 @@ def test_hermevander2d():
 
 
 def test_hermevander3d():
-    a, b, c = torch.rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3, 4)
+    coefficients = rand(2, 3, 4)
 
     van = hermevander3d(
         a,
@@ -3187,7 +3197,7 @@ def test_hermevander3d():
         (1, 2, 3),
     )
     assert_close(
-        torch.dot(
+        dot(
             van,
             ravel(coefficients),
         ),
@@ -3354,7 +3364,7 @@ def test_hermfit():
         ).T,
     )
 
-    weight = torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -3536,16 +3546,16 @@ def test_hermgauss():
 
     v = hermvander(x, 99)
     vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
+    vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     assert_close(
         vv,
-        torch.eye(100),
+        eye(100),
     )
 
     assert_close(
-        torch.sum(w, dim=0),
-        torch.tensor(math.sqrt(math.pi)),
+        sum(w, dim=0),
+        tensor(math.sqrt(math.pi)),
     )
 
 
@@ -3553,7 +3563,7 @@ def test_hermgrid2d():
     c1d = tensor([2.5, 1.0, 0.75])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -3587,7 +3597,7 @@ def test_hermgrid3d():
         c1d,
     )
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -3796,12 +3806,12 @@ def test_hermint():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
-    target = torch.vstack([hermint(c) for c in c2d.T]).T
+    target = vstack([hermint(c) for c in c2d.T]).T
     assert_close(hermint(c2d, axis=0), target)
 
-    target = torch.vstack([hermint(c) for c in c2d])
+    target = vstack([hermint(c) for c in c2d])
     assert_close(
         hermint(
             c2d,
@@ -3810,7 +3820,7 @@ def test_hermint():
         target,
     )
 
-    target = torch.vstack([hermint(c, k=3) for c in c2d])
+    target = vstack([hermint(c, k=3) for c in c2d])
 
     assert_close(
         hermint(
@@ -4061,7 +4071,7 @@ def test_hermval2d():
     c1d = tensor([2.5, 1.0, 0.75])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -4097,7 +4107,7 @@ def test_hermval3d():
     c1d = tensor([2.5, 1.0, 0.75])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -4152,10 +4162,10 @@ def test_hermvander():
 
 
 def test_hermvander2d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
-    c = torch.rand(2, 3)
+    a, b, x3 = rand(3, 5) * 2 - 1
+    c = rand(2, 3)
     assert_close(
-        torch.dot(hermvander2d(a, b, (1, 2)), c.torch.ravel()),
+        dot(hermvander2d(a, b, (1, 2)), c.ravel()),
         hermval2d(a, b, c),
     )
 
@@ -4163,10 +4173,10 @@ def test_hermvander2d():
 
 
 def test_hermvander3d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
-    c = torch.rand(2, 3, 4)
+    a, b, x3 = rand(3, 5) * 2 - 1
+    c = rand(2, 3, 4)
     assert_close(
-        torch.dot(hermvander3d(a, b, x3, (1, 2, 3)), c.torch.ravel()),
+        dot(hermvander3d(a, b, x3, (1, 2, 3)), c.ravel()),
         hermval3d(a, b, x3, c),
     )
 
@@ -4330,11 +4340,11 @@ def test_lagder():
     #             ),
     #         )
     #
-    # c2d = torch.rand(3, 4)
+    # c2d = rand(3, 4)
     #
     # assert_close(
     #     lagder(c2d, axis=0),
-    #     torch.vstack([lagder(c) for c in c2d.T]).T,
+    #     vstack([lagder(c) for c in c2d.T]).T,
     # )
     #
     # assert_close(
@@ -4342,7 +4352,7 @@ def test_lagder():
     #         c2d,
     #         axis=1,
     #     ),
-    #     torch.vstack([lagder(c) for c in c2d]),
+    #     vstack([lagder(c) for c in c2d]),
     # )
 
 
@@ -4485,7 +4495,7 @@ def test_lagfit():
         ).T,
     )
 
-    weight = torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -4608,7 +4618,7 @@ def test_lagfromroots():
 
         assert_close(
             output,
-            torch.tensor([1.0]),
+            tensor([1.0]),
         )
 
         output = lagval(
@@ -4620,7 +4630,7 @@ def test_lagfromroots():
 
         assert_close(
             output,
-            torch.tensor([0.0]),
+            tensor([0.0]),
         )
 
 
@@ -4629,11 +4639,11 @@ def test_laggauss():
 
     v = lagvander(x, 99)
     vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
+    vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     assert_close(
         vv,
-        torch.eye(100),
+        eye(100),
     )
 
     target = 1.0
@@ -4644,7 +4654,7 @@ def test_laggrid2d():
     c1d = tensor([9.0, -14.0, 6.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -4672,7 +4682,7 @@ def test_laggrid3d():
     c1d = tensor([9.0, -14.0, 6.0])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -4846,15 +4856,15 @@ def test_lagint():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
-    target = torch.vstack([lagint(c) for c in c2d.T]).T
+    target = vstack([lagint(c) for c in c2d.T]).T
     assert_close(
         lagint(c2d, axis=0),
         target,
     )
 
-    target = torch.vstack([lagint(c) for c in c2d])
+    target = vstack([lagint(c) for c in c2d])
     res = lagint(
         c2d,
         axis=1,
@@ -4864,7 +4874,7 @@ def test_lagint():
         target,
     )
 
-    target = torch.vstack([lagint(c, k=3) for c in c2d])
+    target = vstack([lagint(c, k=3) for c in c2d])
     res = lagint(
         c2d,
         k=3,
@@ -5125,7 +5135,7 @@ def test_lagval2d():
     c1d = tensor([9.0, -14.0, 6.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -5161,7 +5171,7 @@ def test_lagval3d():
     c1d = tensor([9.0, -14.0, 6.0])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -5213,18 +5223,18 @@ def test_lagvander():
 
 
 def test_lagvander2d():
-    a, b, c = torch.rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3)
+    coefficients = rand(2, 3)
 
     assert_close(
-        torch.dot(
+        dot(
             lagvander2d(
                 a,
                 b,
                 tensor([1, 2]),
             ),
-            torch.ravel(coefficients),
+            ravel(coefficients),
         ),
         lagval2d(a, b, coefficients),
     )
@@ -5239,10 +5249,10 @@ def test_lagvander2d():
 
 
 def test_lagvander3d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
-    c = torch.rand(2, 3, 4)
+    a, b, x3 = rand(3, 5) * 2 - 1
+    c = rand(2, 3, 4)
     assert_close(
-        torch.dot(lagvander3d(a, b, x3, (1, 2, 3)), c.torch.ravel()),
+        dot(lagvander3d(a, b, x3, (1, 2, 3)), c.ravel()),
         lagval3d(a, b, x3, c),
     )
 
@@ -5401,16 +5411,16 @@ def test_legder():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
-    target = torch.vstack([legder(c) for c in c2d.T]).T
+    target = vstack([legder(c) for c in c2d.T]).T
     res = legder(c2d, axis=0)
     assert_close(
         res,
         target,
     )
 
-    target = torch.vstack([legder(c) for c in c2d])
+    target = vstack([legder(c) for c in c2d])
     res = legder(
         c2d,
         axis=1,
@@ -5589,7 +5599,7 @@ def test_legfit():
         ).T,
     )
 
-    weight = torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -5788,17 +5798,17 @@ def test_leggauss():
 
     v = legvander(
         x,
-        degree=torch.tensor([99]),
+        degree=tensor([99]),
     )
 
     vv = (v.T * w) @ v
 
-    vd = 1 / torch.sqrt(vv.diagonal())
+    vd = 1 / sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
 
     assert_close(
         vv,
-        torch.eye(100),
+        eye(100),
     )
 
     assert_close(w.sum(), 2.0)
@@ -5808,7 +5818,7 @@ def test_leggrid2d():
     c1d = tensor([2.0, 2.0, 2.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -5836,7 +5846,7 @@ def test_leggrid3d():
     c1d = tensor([2.0, 2.0, 2.0])
     c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     a, b, x3 = x
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
@@ -5882,7 +5892,7 @@ def test_legint():
                 ),
                 tol=0.000001,
             ),
-            torch.tensor([0.0, 1.0]),
+            tensor([0.0, 1.0]),
         )
 
     for i in range(5):
@@ -6023,11 +6033,11 @@ def test_legint():
                 ),
             )
 
-    c2d = torch.rand(3, 4)
+    c2d = rand(3, 4)
 
     assert_close(
         legint(c2d, axis=0),
-        torch.vstack([legint(c) for c in c2d.T]).T,
+        vstack([legint(c) for c in c2d.T]).T,
     )
 
     assert_close(
@@ -6035,7 +6045,7 @@ def test_legint():
             c2d,
             axis=1,
         ),
-        torch.vstack([legint(c) for c in c2d]),
+        vstack([legint(c) for c in c2d]),
     )
 
     assert_close(
@@ -6044,7 +6054,7 @@ def test_legint():
             k=3,
             axis=1,
         ),
-        torch.vstack([legint(c, k=3) for c in c2d]),
+        vstack([legint(c, k=3) for c in c2d]),
     )
 
     assert_close(
@@ -6303,7 +6313,7 @@ def test_legval2d():
     c1d = tensor([2.0, 2.0, 2.0])
     c2d = einsum("i,j->ij", c1d, c1d)
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
     y = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     a, b, x3 = x
@@ -6344,7 +6354,7 @@ def test_legval3d():
         c1d,
     )
 
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, x3 = x
 
@@ -6406,22 +6416,22 @@ def test_legvander():
 
     with pytest.raises(ValueError):
         legvander(
-            torch.tensor([1, 2, 3]),
+            tensor([1, 2, 3]),
             -1,
         )
 
 
 def test_legvander2d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, x3 = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3)
+    coefficients = rand(2, 3)
 
     assert_close(
-        torch.dot(
+        dot(
             legvander2d(
                 a,
                 b,
-                degree=torch.tensor([1, 2]),
+                degree=tensor([1, 2]),
             ),
             ravel(coefficients),
         ),
@@ -6435,16 +6445,16 @@ def test_legvander2d():
     output = legvander2d(
         [a],
         [b],
-        degree=torch.tensor([1, 2]),
+        degree=tensor([1, 2]),
     )
 
     assert output.shape == (1, 5, 6)
 
 
 def test_legvander3d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
+    a, b, x3 = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3, 4)
+    coefficients = rand(2, 3, 4)
 
     target = legval3d(
         a,
@@ -6454,12 +6464,12 @@ def test_legvander3d():
     )
 
     assert_close(
-        torch.dot(
+        dot(
             legvander3d(
                 a,
                 b,
                 x3,
-                degree=torch.tensor([1, 2, 3]),
+                degree=tensor([1, 2, 3]),
             ),
             ravel(coefficients),
         ),
@@ -6470,7 +6480,7 @@ def test_legvander3d():
         [a],
         [b],
         [x3],
-        degree=torch.tensor([1, 2, 3]),
+        degree=tensor([1, 2, 3]),
     )
 
     assert output.shape == (1, 5, 24)
@@ -7017,7 +7027,7 @@ def test_polyfromroots():
 
 
 def test_polygrid2d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, x3 = x
 
@@ -7030,13 +7040,13 @@ def test_polygrid2d():
         polygrid2d(
             a,
             b,
-            torch.einsum(
+            einsum(
                 "i,j->ij",
                 tensor([1.0, 2.0, 3.0]),
                 tensor([1.0, 2.0, 3.0]),
             ),
         ),
-        torch.einsum(
+        einsum(
             "i,j->ij",
             y1,
             y2,
@@ -7044,9 +7054,9 @@ def test_polygrid2d():
     )
 
     output = polygrid2d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
             "i,j->ij",
             tensor([1.0, 2.0, 3.0]),
             tensor([1.0, 2.0, 3.0]),
@@ -7057,7 +7067,7 @@ def test_polygrid2d():
 
 
 def test_polygrid3d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     y = polyval(
         x,
@@ -7072,14 +7082,14 @@ def test_polygrid3d():
             a,
             b,
             x3,
-            torch.einsum(
+            einsum(
                 "i,j,k->ijk",
                 tensor([1.0, 2.0, 3.0]),
                 tensor([1.0, 2.0, 3.0]),
                 tensor([1.0, 2.0, 3.0]),
             ),
         ),
-        torch.einsum(
+        einsum(
             "i,j,k->ijk",
             y1,
             y2,
@@ -7088,10 +7098,10 @@ def test_polygrid3d():
     )
 
     output = polygrid3d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
             "i,j,k->ijk",
             tensor([1.0, 2.0, 3.0]),
             tensor([1.0, 2.0, 3.0]),
@@ -7336,7 +7346,7 @@ def test_polyval():
 
 
 def test_polyval2d():
-    x = torch.rand(3, 5) * 2 - 1
+    x = rand(3, 5) * 2 - 1
 
     a, b, c = x
 
@@ -7349,7 +7359,7 @@ def test_polyval2d():
         polyval2d(
             a,
             b,
-            torch.einsum(
+            einsum(
                 "i,j->ij",
                 tensor([1.0, 2.0, 3.0]),
                 tensor([1.0, 2.0, 3.0]),
@@ -7359,9 +7369,9 @@ def test_polyval2d():
     )
 
     output = polyval2d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
             "i,j->ij",
             tensor([1.0, 2.0, 3.0]),
             tensor([1.0, 2.0, 3.0]),
@@ -7372,7 +7382,7 @@ def test_polyval2d():
 
 
 def test_polyval3d():
-    input = torch.rand(3, 5) * 2 - 1
+    input = rand(3, 5) * 2 - 1
 
     a, b, c = input
 
@@ -7386,7 +7396,7 @@ def test_polyval3d():
             a,
             b,
             c,
-            torch.einsum(
+            einsum(
                 "i,j,k->ijk",
                 tensor([1.0, 2.0, 3.0]),
                 tensor([1.0, 2.0, 3.0]),
@@ -7397,10 +7407,10 @@ def test_polyval3d():
     )
 
     output = polyval3d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
             "i,j,k->ijk",
             tensor([1.0, 2.0, 3.0]),
             tensor([1.0, 2.0, 3.0]),
@@ -7447,7 +7457,7 @@ def test_polyvalfromroots():
 
     output = polyvalfromroots(
         tensor([1.0]),
-        torch.ones([3, 3]),
+        ones([3, 3]),
     )
 
     assert output.shape == (3, 1)
@@ -7521,9 +7531,9 @@ def test_polyvalfromroots():
 
     x = arange(-3, 2)
 
-    r = torch.randint(-5, 5, (3, 5)).to(torch.float64)
+    r = randint(-5, 5, (3, 5)).to(float64)
 
-    target = torch.empty(r.shape[1:])
+    target = empty(r.shape[1:])
 
     for j in range(math.prod(target.shape)):
         target[j] = polyvalfromroots(
@@ -7538,7 +7548,7 @@ def test_polyvalfromroots():
 
     x = vstack([x, 2 * x])
 
-    target = torch.empty(r.shape[1:] + x.shape)
+    target = empty(r.shape[1:] + x.shape)
 
     for j in range(r.shape[1]):
         for k in range(x.shape[0]):
@@ -7553,7 +7563,7 @@ def test_polyvalfromroots():
 def test_polyvander():
     output = polyvander(
         arange(3.0),
-        degree=torch.tensor([3]),
+        degree=tensor([3]),
     )
 
     assert output.shape == (3, 4)
@@ -7569,7 +7579,7 @@ def test_polyvander():
 
     output = polyvander(
         tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
-        degree=torch.tensor([3]),
+        degree=tensor([3]),
     )
 
     assert output.shape == (3, 2, 4)
@@ -7586,14 +7596,14 @@ def test_polyvander():
     with pytest.raises(ValueError):
         polyvander(
             arange(3),
-            degree=torch.tensor([-1]),
+            degree=tensor([-1]),
         )
 
 
 def test_polyvander2d():
-    a, b, c = torch.rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3)
+    coefficients = rand(2, 3)
 
     assert_close(
         dot(
@@ -7621,9 +7631,9 @@ def test_polyvander2d():
 
 
 def test_polyvander3d():
-    a, b, c = torch.rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
-    coefficients = torch.rand(2, 3, 4)
+    coefficients = rand(2, 3, 4)
 
     assert_close(
         dot(
@@ -7633,7 +7643,7 @@ def test_polyvander3d():
                 c,
                 degree=tensor([1.0, 2.0, 3.0]),
             ),
-            torch.ravel(coefficients),
+            ravel(coefficients),
         ),
         polyval3d(
             a,
