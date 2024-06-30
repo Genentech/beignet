@@ -1360,16 +1360,23 @@ def hermecompanion(c):
     n = c.shape[0] - 1
     mat = zeros((n, n), dtype=c.dtype)
 
-    scale = torch.hstack((1.0, 1.0 / sqrt(arange(n - 1, 0, -1))))
+    scale = torch.hstack(
+        [
+            torch.tensor([1.0]),
+            1.0 / sqrt(arange(n - 1, 0, -1)),
+        ],
+    )
 
-    scale = torch.cumprod(scale)
+    scale = torch.cumprod(scale, dim=0)
     scale = flip(scale, dims=[0])
     shp = mat.shape
     mat = reshape(mat, [-1])
-    mat = mat.at[1 :: n + 1].set(sqrt(arange(1, n)))
-    mat = mat.at[n :: n + 1].set(sqrt(arange(1, n)))
+
+    mat[1 :: n + 1] = sqrt(arange(1, n))
+    mat[n :: n + 1] = sqrt(arange(1, n))
+
     mat = reshape(mat, shp)
-    mat = mat.at[:, -1].add(-scale * c[:-1] / c[-1])
+    mat[:, -1] += -scale * c[:-1] / c[-1]
     return mat
 
 

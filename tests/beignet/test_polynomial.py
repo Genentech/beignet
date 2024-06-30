@@ -2090,7 +2090,9 @@ def test_hermecompanion():
         hermecompanion(torch.tensor([]))
 
     with pytest.raises(ValueError):
-        hermecompanion([1])
+        hermecompanion(
+            torch.tensor([1.0]),
+        )
 
     for index in range(1, 5):
         output = hermecompanion(
