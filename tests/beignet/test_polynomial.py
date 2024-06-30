@@ -202,6 +202,7 @@ from torch import (
     exp,
     linspace,
     ones,
+    ravel,
     tensor,
     zeros,
 )
@@ -3172,23 +3173,33 @@ def test_hermevander2d():
 
 
 def test_hermevander3d():
-    a, b, x3 = torch.rand(3, 5) * 2 - 1
-    c = torch.rand(2, 3, 4)
+    a, b, c = torch.rand(3, 5) * 2 - 1
+
+    coefficients = torch.rand(2, 3, 4)
+
     van = hermevander3d(
         a,
         b,
-        x3,
+        c,
         (1, 2, 3),
     )
     assert_close(
-        torch.dot(van, c.torch.ravel()),
-        hermeval3d(a, b, x3, c),
+        torch.dot(
+            van,
+            ravel(coefficients),
+        ),
+        hermeval3d(
+            a,
+            b,
+            c,
+            coefficients,
+        ),
     )
 
     van = hermevander3d(
         [a],
         [b],
-        [x3],
+        [c],
         (1, 2, 3),
     )
     assert van.shape == (1, 5, 24)
