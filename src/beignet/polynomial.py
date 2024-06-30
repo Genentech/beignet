@@ -1209,7 +1209,9 @@ def chebweight(
     return 1.0 / (sqrt(1.0 + input) * sqrt(1.0 - input))
 
 
-def herm2poly(c):
+def herm2poly(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
     n = c.shape[0]
 
@@ -1254,14 +1256,19 @@ def hermadd(
     return _add(input, other)
 
 
-def hermcompanion(c):
+def hermcompanion(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
+
     if c.shape[0] < 2:
         raise ValueError
+
     if c.shape[0] == 2:
         return tensor([[-0.5 * c[0] / c[1]]])
 
     n = c.shape[0] - 1
+
     mat = zeros((n, n), dtype=c.dtype)
 
     scale = hstack(
@@ -1272,16 +1279,20 @@ def hermcompanion(c):
     )
 
     scale = cumprod(scale, dim=0)
+
     scale = flip(scale, dims=[0])
 
     shp = mat.shape
+
     mat = reshape(mat, [-1])
 
     mat[1 :: n + 1] = sqrt(0.5 * arange(1, n))
     mat[n :: n + 1] = sqrt(0.5 * arange(1, n))
 
     mat = reshape(mat, shp)
+
     mat[:, -1] += -scale * c[:-1] / (2.0 * c[-1])
+
     return mat
 
 
@@ -1331,7 +1342,9 @@ def hermdiv(
     return _div(hermmul, input, other)
 
 
-def herme2poly(c):
+def herme2poly(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     n = c.shape[0]
@@ -1380,7 +1393,9 @@ def hermeadd(
     return _add(input, other)
 
 
-def hermecompanion(c):
+def hermecompanion(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     if c.shape[0] < 2:
@@ -1672,7 +1687,9 @@ def hermepow(
     )
 
 
-def hermeroots(c):
+def hermeroots(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     if c.shape[0] <= 1:
@@ -2151,7 +2168,9 @@ def hermweight(x: Tensor) -> Tensor:
     return torch.exp(-(x**2))
 
 
-def lag2poly(c):
+def lag2poly(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     n = c.shape[0]
@@ -2639,7 +2658,9 @@ def lagweight(x: Tensor) -> Tensor:
     return torch.exp(-x)
 
 
-def leg2poly(c):
+def leg2poly(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     n = c.shape[0]
@@ -2682,7 +2703,9 @@ def legadd(
     return _add(input, other)
 
 
-def legcompanion(c):
+def legcompanion(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     if c.shape[0] < 2:
@@ -2999,7 +3022,9 @@ def legpow(
     )
 
 
-def legroots(c):
+def legroots(
+    c: Tensor,
+) -> Tensor:
     [c] = _as_series([c])
 
     if c.shape[0] <= 1:
