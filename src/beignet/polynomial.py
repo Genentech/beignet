@@ -541,9 +541,12 @@ def _pad_along_axis(
 
     if padding[0] < 0:
         input = input[abs(padding[0]) :]
+
         padding = (0, padding[1])
+
     if padding[1] < 0:
         input = input[: -abs(padding[1])]
+
         padding = (padding[0], 0)
 
     npad = tensor([(0, 0)] * input.ndim)
@@ -551,7 +554,10 @@ def _pad_along_axis(
     npad[0] = padding
 
     output = torch._numpy._funcs_impl.pad(
-        input, pad_width=npad, mode="constant", constant_values=0
+        input,
+        pad_width=npad,
+        mode="constant",
+        constant_values=0,
     )
 
     return moveaxis(output, 0, axis)
