@@ -5331,13 +5331,25 @@ def test_legcompanion():
 
 
 def test_legder():
-    pytest.raises(TypeError, legder, tensor([0]), 0.5)
-    pytest.raises(ValueError, legder, tensor([0]), -1)
+    with pytest.raises(TypeError):
+        legder(
+            tensor([0.0]),
+            order=0.5,
+        )
+
+    with pytest.raises(ValueError):
+        legder(
+            tensor([0.0]),
+            order=-1,
+        )
 
     for i in range(5):
         assert_close(
             legtrim(
-                legder(tensor([0.0] * i + [1.0]), order=0),
+                legder(
+                    tensor([0.0] * i + [1.0]),
+                    order=0,
+                ),
                 tol=0.000001,
             ),
             legtrim(
@@ -5350,7 +5362,13 @@ def test_legder():
         for j in range(2, 5):
             assert_close(
                 legtrim(
-                    legder(legint(tensor([0.0] * i + [1.0]), order=j), order=j),
+                    legder(
+                        legint(
+                            tensor([0.0] * i + [1.0]),
+                            order=j,
+                        ),
+                        order=j,
+                    ),
                     tol=0.000001,
                 ),
                 legtrim(
