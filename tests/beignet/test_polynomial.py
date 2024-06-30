@@ -7459,14 +7459,14 @@ def test_polyvander3d():
         ),
     )
 
-    # output = polyvander3d(
-    #     torch.tensor([a]),
-    #     torch.tensor([b]),
-    #     torch.tensor([c]),
-    #     degree=torch.tensor([1.0, 2.0, 3.0]),
-    # )
-    #
-    # assert output.shape == (1, 5, 24)
+    output = polyvander3d(
+        torch.tensor([a]),
+        torch.tensor([b]),
+        torch.tensor([c]),
+        degree=torch.tensor([1.0, 2.0, 3.0]),
+    )
+
+    assert output.shape == (1, 5, 24)
 
 
 def test_polyx():
