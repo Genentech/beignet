@@ -198,13 +198,16 @@ from torch import (
     Tensor,
     arange,
     cos,
+    dot,
     einsum,
     exp,
     linspace,
     ones,
     ravel,
     tensor,
+    vstack,
     zeros,
+    zeros_like,
 )
 from torch.testing import (
     assert_close,
@@ -6830,7 +6833,7 @@ def test_polyfit():
         ).T,
     )
 
-    weight = torch.torch.zeros_like(input)
+    weight = zeros_like(input)
 
     weight[1::2] = 1.0
 
@@ -7533,7 +7536,7 @@ def test_polyvalfromroots():
         target,
     )
 
-    x = torch.torch.vstack([x, 2 * x])
+    x = vstack([x, 2 * x])
 
     target = torch.empty(r.shape[1:] + x.shape)
 
@@ -7593,13 +7596,13 @@ def test_polyvander2d():
     coefficients = torch.rand(2, 3)
 
     assert_close(
-        torch.torch.dot(
+        dot(
             polyvander2d(
                 a,
                 b,
                 degree=tensor([1, 2]),
             ),
-            torch.torch.ravel(coefficients),
+            ravel(coefficients),
         ),
         polyval2d(
             a,
@@ -7623,7 +7626,7 @@ def test_polyvander3d():
     coefficients = torch.rand(2, 3, 4)
 
     assert_close(
-        torch.torch.dot(
+        dot(
             polyvander3d(
                 a,
                 b,
