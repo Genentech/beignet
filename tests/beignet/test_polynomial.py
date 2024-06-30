@@ -2,6 +2,7 @@ import functools
 import math
 
 import pytest
+import torch
 from beignet.polynomial import (
     _c_series_to_z_series,
     _fit,
@@ -3710,149 +3711,152 @@ def test_hermint():
             axis=0.5,
         )
 
-    # for i in range(2, 5):
-    #     k = [0] * (i - 2) + [1]
-    #
-    #     assert_close(
-    #         hermtrim(
-    #             hermint(
-    #                 tensor([0]),
-    #                 order=i,
-    #                 k=k,
-    #             ),
-    #             tol=0.000001,
-    #         ),
-    #         [0, 0.5],
-    #     )
-    #
-    # for i in range(5):
-    #     scale = i + 1
-    #     pol = tensor([0.0] * i + [1.0])
-    #     hermpol = poly2herm(pol)
-    #     assert_close(
-    #         hermtrim(
-    #             herm2poly(
-    #                 hermint(
-    #                     hermpol,
-    #                     order=1,
-    #                     k=[i],
-    #                 )
-    #             ),
-    #             tol=0.000001,
-    #         ),
-    #         hermtrim(
-    #             [i] + [0] * i + [1 / scale],
-    #             tol=0.000001,
-    #         ),
-    #     )
-    #
-    # for i in range(5):
-    #     pol = tensor([0.0] * i + [1.0])
-    #     hermpol = poly2herm(pol)
-    #     assert_close(
-    #         hermval(
-    #             tensor(-1),
-    #             hermint(
-    #                 hermpol,
-    #                 order=1,
-    #                 k=[i],
-    #                 lower_bound=-1,
-    #             ),
-    #         ),
-    #         i,
-    #     )
-    #
-    # for i in range(5):
-    #     scale = i + 1
-    #     pol = tensor([0.0] * i + [1.0])
-    #     hermpol = poly2herm(pol)
-    #     assert_close(
-    #         hermtrim(
-    #             herm2poly(
-    #                 hermint(
-    #                     hermpol,
-    #                     order=1,
-    #                     k=[i],
-    #                     scale=2,
-    #                 ),
-    #             ),
-    #             tol=0.000001,
-    #         ),
-    #         hermtrim(
-    #             [i] + [0] * i + [2 / scale],
-    #             tol=0.000001,
-    #         ),
-    #     )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         pol = tensor([0.0] * i + [1.0])
-    #         target = pol[:]
-    #         for _ in range(j):
-    #             target = hermint(
-    #                 target,
-    #                 order=1,
-    #             )
-    #
-    #         assert_close(
-    #             hermtrim(
-    #                 hermint(
-    #                     pol,
-    #                     order=j,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             hermtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         pol = tensor([0.0] * i + [1.0])
-    #         target = pol[:]
-    #         for k in range(j):
-    #             target = hermint(target, order=1, k=[k])
-    #         assert_close(
-    #             hermtrim(
-    #                 hermint(pol, order=j, k=list(range(j))),
-    #                 tol=0.000001,
-    #             ),
-    #             hermtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         pol = tensor([0.0] * i + [1.0])
-    #         target = pol[:]
-    #         for k in range(j):
-    #             target = hermint(
-    #                 target,
-    #                 order=1,
-    #                 k=[k],
-    #                 lower_bound=-1,
-    #             )
-    #
-    #         assert_close(
-    #             hermtrim(
-    #                 hermint(
-    #                     pol,
-    #                     order=j,
-    #                     k=list(range(j)),
-    #                     lower_bound=-1,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             hermtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
+    for i in range(2, 5):
+        assert_close(
+            hermtrim(
+                hermint(
+                    tensor([0.0]),
+                    order=i,
+                    k=([0.0] * (i - 2) + [1.0]),
+                ),
+                tol=0.000001,
+            ),
+            tensor([0.0, 0.5]),
+        )
+
+    for i in range(5):
+        assert_close(
+            hermtrim(
+                herm2poly(
+                    hermint(
+                        poly2herm(
+                            tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                    )
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                tensor([i] + [0.0] * i + [1.0 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        assert_close(
+            hermval(
+                tensor([-1.0]),
+                hermint(
+                    poly2herm(
+                        tensor([0.0] * i + [1.0]),
+                    ),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            tensor([i], dtype=torch.get_default_dtype()),
+        )
+
+    for i in range(5):
+        assert_close(
+            hermtrim(
+                herm2poly(
+                    hermint(
+                        poly2herm(
+                            tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            hermtrim(
+                tensor([i] + [0.0] * i + [2.0 / (i + 1.0)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = tensor([0.0] * i + [1.0])[:]
+
+            for _ in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                )
+
+            assert_close(
+                hermtrim(
+                    hermint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = tensor([0.0] * i + [1.0])
+
+            target = pol[:]
+
+            for k in range(j):
+                target = hermint(target, order=1, k=[k])
+
+            assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            pol = tensor([0.0] * i + [1.0])
+            target = pol[:]
+            for k in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+
+            assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
     # for i in range(5):
     #     for j in range(2, 5):
     #         pol = tensor([0.0] * i + [1.0])
@@ -3880,31 +3884,39 @@ def test_hermint():
     #                 tol=0.000001,
     #             ),
     #         )
-    #
-    # c2d = rand(3, 4)
-    #
-    # target = vstack([hermint(c) for c in c2d.T]).T
-    # assert_close(hermint(c2d, axis=0), target)
-    #
-    # target = vstack([hermint(c) for c in c2d])
-    # assert_close(
-    #     hermint(
-    #         c2d,
-    #         axis=1,
-    #     ),
-    #     target,
-    # )
-    #
-    # target = vstack([hermint(c, k=3) for c in c2d])
-    #
-    # assert_close(
-    #     hermint(
-    #         c2d,
-    #         k=3,
-    #         axis=1,
-    #     ),
-    #     target,
-    # )
+
+    c2d = rand(3, 4)
+
+    target = vstack([hermint(c) for c in c2d.T]).T
+
+    assert_close(
+        hermint(
+            c2d,
+            axis=0,
+        ),
+        target,
+    )
+
+    target = vstack([hermint(c) for c in c2d])
+
+    assert_close(
+        hermint(
+            c2d,
+            axis=1,
+        ),
+        target,
+    )
+
+    target = vstack([hermint(c, k=3) for c in c2d])
+
+    assert_close(
+        hermint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        target,
+    )
 
 
 def test_hermline():
