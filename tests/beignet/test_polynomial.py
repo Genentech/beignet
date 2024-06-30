@@ -6396,11 +6396,19 @@ def test_legvander2d():
     coefficients = torch.rand(2, 3)
 
     assert_close(
-        torch.dot(legvander2d(a, b, (1, 2)), coefficients.torch.ravel()),
-        legval2d(a, b, coefficients),
+        torch.dot(
+            legvander2d(a, b, (1, 2)),
+            ravel(coefficients),
+        ),
+        legval2d(
+            a,
+            b,
+            coefficients,
+        ),
     )
 
-    assert legvander2d([a], [b], (1, 2)).shape == (1, 5, 6)
+    output = legvander2d([a], [b], (1, 2))
+    assert output.shape == (1, 5, 6)
 
 
 def test_legvander3d():
@@ -6408,12 +6416,34 @@ def test_legvander3d():
 
     coefficients = torch.rand(2, 3, 4)
 
-    assert_close(
-        torch.dot(legvander3d(a, b, x3, (1, 2, 3)), coefficients.torch.ravel()),
-        legval3d(a, b, x3, coefficients),
+    target = legval3d(
+        a,
+        b,
+        x3,
+        coefficients,
     )
 
-    assert legvander3d([a], [b], [x3], (1, 2, 3)).shape == (1, 5, 24)
+    assert_close(
+        torch.dot(
+            legvander3d(
+                a,
+                b,
+                x3,
+                degree=(1, 2, 3),
+            ),
+            ravel(coefficients),
+        ),
+        target,
+    )
+
+    output = legvander3d(
+        [a],
+        [b],
+        [x3],
+        degree=(1, 2, 3),
+    )
+
+    assert output.shape == (1, 5, 24)
 
 
 def test_legweight():
@@ -6733,7 +6763,7 @@ def test_polyfit():
         polyfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
