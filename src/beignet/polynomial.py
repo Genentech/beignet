@@ -975,7 +975,7 @@ def chebinterpolate(
 
     m = chebvander(xcheb, _deg)
 
-    c = torch.dot(m.T, yfunc)
+    c = m.T @ yfunc
 
     c[0] /= order
 
