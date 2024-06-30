@@ -1476,7 +1476,7 @@ def test_chebpow():
             assert_close(
                 chebtrim(
                     chebpow(
-                        torch.arange(0.0, j + 1),
+                        arange(0.0, j + 1),
                         k,
                     ),
                     tol=0.000001,
@@ -1484,7 +1484,7 @@ def test_chebpow():
                 chebtrim(
                     functools.reduce(
                         chebmul,
-                        [torch.arange(0.0, j + 1)] * k,
+                        [arange(0.0, j + 1)] * k,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -2892,7 +2892,7 @@ def test_hermepow():
             assert_close(
                 hermetrim(
                     hermepow(
-                        torch.arange(0.0, j + 1),
+                        arange(0.0, j + 1),
                         k,
                     ),
                     tol=0.000001,
@@ -2900,7 +2900,7 @@ def test_hermepow():
                 hermetrim(
                     functools.reduce(
                         hermemul,
-                        [torch.arange(0.0, j + 1)] * k,
+                        [arange(0.0, j + 1)] * k,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -3834,7 +3834,7 @@ def test_hermpow():
             assert_close(
                 hermtrim(
                     hermpow(
-                        torch.arange(0.0, i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -3842,7 +3842,7 @@ def test_hermpow():
                 hermtrim(
                     functools.reduce(
                         hermmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -4867,7 +4867,7 @@ def test_lagpow():
             assert_close(
                 lagtrim(
                     lagpow(
-                        torch.arange(0.0, i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -4875,7 +4875,7 @@ def test_lagpow():
                 lagtrim(
                     functools.reduce(
                         lagmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -6020,7 +6020,7 @@ def test_legpow():
             assert_close(
                 legtrim(
                     legpow(
-                        torch.arange(0.0, i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -6028,7 +6028,7 @@ def test_legpow():
                 legtrim(
                     functools.reduce(
                         legmul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -6996,7 +6996,7 @@ def test_polypow():
             assert_close(
                 polytrim(
                     polypow(
-                        torch.arange(0.0, i + 1),
+                        arange(0.0, i + 1),
                         j,
                     ),
                     tol=0.000001,
@@ -7004,7 +7004,7 @@ def test_polypow():
                 polytrim(
                     functools.reduce(
                         polymul,
-                        [torch.arange(0.0, i + 1)] * j,
+                        [arange(0.0, i + 1)] * j,
                         tensor([1.0]),
                     ),
                     tol=0.000001,
@@ -7342,7 +7342,7 @@ def test_polyvalfromroots():
         ),
     )
 
-    x = torch.arange(-3, 2)
+    x = arange(-3, 2)
 
     r = torch.randint(-5, 5, (3, 5)).to(torch.float64)
 
@@ -7385,7 +7385,7 @@ def test_polyvander():
         assert_close(
             output[..., index],
             polyval(
-                torch.arange(3),
+                arange(3),
                 tensor([0.0] * index + [1.0]),
             ),
         )
@@ -7408,7 +7408,7 @@ def test_polyvander():
 
     with pytest.raises(ValueError):
         polyvander(
-            torch.arange(3),
+            arange(3),
             degree=LongTensor([-1]),
         )
 
