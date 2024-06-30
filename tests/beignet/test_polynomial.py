@@ -3073,58 +3073,103 @@ def test_hermeval():
 
 
 def test_hermeval2d():
-    c1d = tensor([4.0, 2.0, 3.0])
-    c2d = einsum("i,j->ij", c1d, c1d)
+    input = rand(3, 5) * 2 - 1
 
-    x = rand(3, 5) * 2 - 1
-    a, b, x3 = x
-    y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
+    a, b, c = input
 
-    pytest.raises(
-        ValueError,
-        hermeval2d,
-        a,
-        b[:2],
-        c2d,
+    x, y, z = polyval(
+        input,
+        tensor([1.0, 2.0, 3.0]),
     )
+
+    with pytest.raises(ValueError):
+        hermeval2d(
+            a,
+            b[:2],
+            einsum(
+                "i,j->ij",
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+            ),
+        )
 
     assert_close(
         hermeval2d(
             a,
             b,
-            c2d,
+            einsum(
+                "i,j->ij",
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+            ),
         ),
-        y1 * y2,
+        x * y,
     )
 
-    z = ones([2, 3])
-    res = hermeval2d(
-        z,
-        z,
-        c2d,
+    output = hermeval2d(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            tensor([4.0, 2.0, 3.0]),
+            tensor([4.0, 2.0, 3.0]),
+        ),
     )
-    assert res.shape == (2, 3)
+
+    assert output.shape == (2, 3)
 
 
 def test_hermeval3d():
-    c1d = tensor([4.0, 2.0, 3.0])
-    c3d = einsum("i,j,k->ijk", c1d, c1d, c1d)
+    input = rand(3, 5) * 2 - 1
 
-    x = rand(3, 5) * 2 - 1
-    y = polyval(x, tensor([1.0, 2.0, 3.0]))
+    a, b, c = input
 
-    a, b, x3 = x
-    y1, y2, y3 = y
+    x, y, z = polyval(
+        input,
+        tensor([1.0, 2.0, 3.0]),
+    )
 
-    pytest.raises(ValueError, hermeval3d, a, b, x3[:2], c3d)
+    with pytest.raises(ValueError):
+        hermeval3d(
+            a,
+            b,
+            c[:2],
+            einsum(
+                "i,j,k->ijk",
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+            ),
+        )
 
-    target = y1 * y2 * y3
-    res = hermeval3d(a, b, x3, c3d)
-    assert_close(res, target)
+    assert_close(
+        hermeval3d(
+            a,
+            b,
+            c,
+            einsum(
+                "i,j,k->ijk",
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+            ),
+        ),
+        x * y * z,
+    )
 
-    z = ones([2, 3])
-    res = hermeval3d(z, z, z, c3d)
-    assert res.shape == (2, 3)
+    output = hermeval3d(
+        ones([2, 3]),
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j,k->ijk",
+            tensor([4.0, 2.0, 3.0]),
+            tensor([4.0, 2.0, 3.0]),
+            tensor([4.0, 2.0, 3.0]),
+        ),
+    )
+
+    assert output.shape == (2, 3)
 
 
 def test_hermevander():
@@ -3190,15 +3235,16 @@ def test_hermevander3d():
 
     coefficients = rand(2, 3, 4)
 
-    van = hermevander3d(
+    output = hermevander3d(
         a,
         b,
         c,
-        (1, 2, 3),
+        degree=tensor([1, 2, 3]),
     )
+
     assert_close(
         dot(
-            van,
+            output,
             ravel(coefficients),
         ),
         hermeval3d(
@@ -3209,13 +3255,14 @@ def test_hermevander3d():
         ),
     )
 
-    van = hermevander3d(
+    output = hermevander3d(
         [a],
         [b],
         [c],
-        (1, 2, 3),
+        degree=tensor([1, 2, 3]),
     )
-    assert van.shape == (1, 5, 24)
+
+    assert output.shape == (1, 5, 24)
 
 
 def test_hermeweight():
