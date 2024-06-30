@@ -7276,12 +7276,12 @@ def test_polyval2d():
 
 
 def test_polyval3d():
-    x = torch.rand(3, 5) * 2 - 1
+    input = torch.rand(3, 5) * 2 - 1
 
-    a, b, x3 = x
+    a, b, c = input
 
-    y1, y2, y3 = polyval(
-        x,
+    x, y, z = polyval(
+        input,
         tensor([1.0, 2.0, 3.0]),
     )
 
@@ -7289,7 +7289,7 @@ def test_polyval3d():
         polyval3d(
             a,
             b,
-            x3,
+            c,
             torch.einsum(
                 "i,j,k->ijk",
                 tensor([1.0, 2.0, 3.0]),
@@ -7297,7 +7297,7 @@ def test_polyval3d():
                 tensor([1.0, 2.0, 3.0]),
             ),
         ),
-        y1 * y2 * y3,
+        x * y * z,
     )
 
     output = polyval3d(
@@ -7360,16 +7360,16 @@ def test_polyvalfromroots():
 
     evaluations = []
 
-    for index in range(5):
-        evaluations = [*evaluations, input**index]
+    for i in range(5):
+        evaluations = [*evaluations, input**i]
 
-    for index in range(1, 5):
-        target = evaluations[index]
+    for i in range(1, 5):
+        target = evaluations[i]
 
         assert_close(
             polyvalfromroots(
                 input,
-                tensor([0.0] * index),
+                tensor([0.0] * i),
             ),
             target,
         )
@@ -7382,8 +7382,8 @@ def test_polyvalfromroots():
         input * (input - 1.0) * (input + 1.0),
     )
 
-    for index in range(3):
-        shape = (2,) * index
+    for i in range(3):
+        shape = (2,) * i
 
         input = zeros(shape)
 
@@ -7462,12 +7462,12 @@ def test_polyvander():
 
     assert output.shape == (3, 4)
 
-    for index in range(4):
+    for i in range(4):
         assert_close(
-            output[..., index],
+            output[..., i],
             polyval(
                 arange(3),
-                tensor([0.0] * index + [1.0]),
+                tensor([0.0] * i + [1.0]),
             ),
         )
 
@@ -7478,12 +7478,12 @@ def test_polyvander():
 
     assert output.shape == (3, 2, 4)
 
-    for index in range(4):
+    for i in range(4):
         assert_close(
-            output[..., index],
+            output[..., i],
             polyval(
                 tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
-                tensor([0.0] * index + [1.0]),
+                tensor([0.0] * i + [1.0]),
             ),
         )
 
