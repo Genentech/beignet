@@ -596,13 +596,13 @@ def test_chebcompanion():
 def test_chebder():
     with pytest.raises(TypeError):
         chebder(
-            tensor([0]),
+            tensor([0.0]),
             tensor([0.5]),
         )
 
     with pytest.raises(ValueError):
         chebder(
-            tensor([0]),
+            tensor([0.0]),
             tensor([-1.0]),
         )
 
@@ -654,10 +654,10 @@ def test_chebder():
                         chebint(
                             input,
                             order=j,
-                            scale=2,
+                            scale=tensor([2.0]),
                         ),
                         order=j,
-                        scale=0.5,
+                        scale=tensor([0.5]),
                     ),
                     tol=0.000001,
                 ),
@@ -1142,21 +1142,9 @@ def test_chebint():
 
     with pytest.raises(ValueError):
         chebint(
-            tensor([0]),
+            tensor([0.0]),
             order=1,
-            k=[0, 0],
-        )
-
-    with pytest.raises(ValueError):
-        chebint(
-            tensor([0]),
-            lower_bound=[0],
-        )
-
-    with pytest.raises(ValueError):
-        chebint(
-            tensor([0]),
-            scale=[0],
+            k=tensor([0.0, 0.0]),
         )
 
     with pytest.raises(TypeError):
@@ -1171,7 +1159,7 @@ def test_chebint():
                 chebint(
                     tensor([0.0]),
                     order=i,
-                    k=([0] * (i - 2) + [1]),
+                    k=tensor([0.0] * (i - 2) + [1.0]),
                 ),
                 tol=0.000001,
             ),
