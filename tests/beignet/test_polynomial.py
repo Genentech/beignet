@@ -811,7 +811,7 @@ def test_chebfit():
         chebfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
@@ -859,7 +859,7 @@ def test_chebfit():
         chebfit(
             input,
             other,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         chebfit(
@@ -887,7 +887,7 @@ def test_chebfit():
         chebfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         tensor(
@@ -933,7 +933,7 @@ def test_chebfit():
         chebfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=1,
+            degree=tensor([1]),
         ),
         tensor([0, 1]),
     )
@@ -942,7 +942,7 @@ def test_chebfit():
         chebfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=(0, 1),
+            degree=tensor([0, 1]),
         ),
         tensor([0, 1]),
     )
@@ -2353,7 +2353,7 @@ def test_hermefit():
         hermefit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
@@ -2409,7 +2409,7 @@ def test_hermefit():
         hermefit(
             input,
             other,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         hermefit(
@@ -2437,7 +2437,7 @@ def test_hermefit():
         hermefit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         tensor(
@@ -2491,7 +2491,7 @@ def test_hermefit():
         hermefit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=1,
+            degree=tensor([1]),
         ),
         tensor([0, 1]),
     )
@@ -2500,7 +2500,7 @@ def test_hermefit():
         hermefit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=(0, 1),
+            degree=tensor([0, 1]),
         ),
         tensor([0, 1]),
     )
@@ -3305,7 +3305,7 @@ def test_hermfit():
             hermfit(
                 input,
                 other,
-                degree=3,
+                degree=tensor([3]),
             ),
         ),
         other,
@@ -3363,7 +3363,7 @@ def test_hermfit():
         hermfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
@@ -3419,7 +3419,7 @@ def test_hermfit():
         hermfit(
             input,
             other,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         hermfit(
@@ -3447,7 +3447,7 @@ def test_hermfit():
         hermfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         tensor(
@@ -3501,7 +3501,7 @@ def test_hermfit():
         hermfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=1,
+            degree=tensor([1]),
         ),
         tensor([0, 0.5]),
     )
@@ -3510,7 +3510,7 @@ def test_hermfit():
         hermfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=(0, 1),
+            degree=tensor([0, 1]),
         ),
         tensor([0, 0.5]),
     )
@@ -4460,7 +4460,7 @@ def test_lagfit():
             lagfit(
                 input,
                 other,
-                degree=3,
+                degree=tensor([3]),
             ),
         ),
         other,
@@ -4506,7 +4506,7 @@ def test_lagfit():
         lagfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
@@ -4554,7 +4554,7 @@ def test_lagfit():
         lagfit(
             input,
             other,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         lagfit(
@@ -4582,7 +4582,7 @@ def test_lagfit():
         lagfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         tensor(
@@ -4628,7 +4628,7 @@ def test_lagfit():
         lagfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=1,
+            degree=tensor([1]),
         ),
         tensor([1, -1]),
     )
@@ -4637,7 +4637,7 @@ def test_lagfit():
         lagfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=(0, 1),
+            degree=tensor([0, 1]),
         ),
         tensor([1, -1]),
     )
@@ -5566,7 +5566,7 @@ def test_legfit():
             legfit(
                 input,
                 other,
-                degree=3,
+                degree=tensor([3]),
             ),
         ),
         other,
@@ -5624,7 +5624,7 @@ def test_legfit():
         legfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
         ),
         tensor(
             [
@@ -5680,7 +5680,7 @@ def test_legfit():
         legfit(
             input,
             other,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         legfit(
@@ -5708,7 +5708,7 @@ def test_legfit():
         legfit(
             input,
             tensor([other, other]).T,
-            degree=3,
+            degree=tensor([3]),
             weight=weight,
         ),
         tensor(
@@ -5762,7 +5762,7 @@ def test_legfit():
         legfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=1,
+            degree=tensor([1]),
         ),
         tensor([0, 1]),
     )
@@ -5771,7 +5771,7 @@ def test_legfit():
         legfit(
             tensor([1, 1j, -1, -1j]),
             tensor([1, 1j, -1, -1j]),
-            degree=(0, 1),
+            degree=tensor([0, 1]),
         ),
         tensor([0, 1]),
     )
