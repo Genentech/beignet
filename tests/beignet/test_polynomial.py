@@ -199,6 +199,7 @@ from torch import (
     Tensor,
     arange,
     einsum,
+    exp,
     linspace,
     ones,
     tensor,
@@ -1648,7 +1649,7 @@ def test_chebval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -1656,7 +1657,7 @@ def test_chebval():
     for index in range(10):
         assert_close(
             chebval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 tensor([0.0] * index + [1.0]),
             ),
             tensor(ys[index]),
@@ -2822,7 +2823,7 @@ def test_hermeline():
 
 def test_hermemul():
     for index in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = linspace(-3, 3, 100)
 
         val1 = hermeval(
             input,
@@ -3013,7 +3014,7 @@ def test_hermeval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -3021,7 +3022,7 @@ def test_hermeval():
     for i in range(10):
         assert_close(
             hermeval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 tensor([0.0] * i + [1.0]),
             ),
             ys[i],
@@ -3148,12 +3149,11 @@ def test_hermevander3d():
 
 
 def test_hermeweight():
-    x = linspace(-5, 5, 11)
-    target = torch.exp(-0.5 * x**2)
-    res = hermeweight(x)
     assert_close(
-        res,
-        target,
+        hermeweight(
+            linspace(-5, 5, 11),
+        ),
+        exp(-0.5 * linspace(-5, 5, 11) ** 2),
     )
 
 
@@ -3769,7 +3769,7 @@ def test_hermline():
 
 def test_hermmul():
     for i in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = linspace(-3, 3, 100)
 
         val1 = hermval(
             input,
@@ -3948,7 +3948,7 @@ def test_hermval():
 
     ys = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
     for coefficient in hermcoefficients:
         ys = [
@@ -4114,7 +4114,7 @@ def test_hermvander3d():
 def test_hermweight():
     assert_close(
         hermweight(linspace(-5, 5, 11)),
-        torch.exp(-(linspace(-5, 5, 11) ** 2)),
+        exp(-(linspace(-5, 5, 11) ** 2)),
     )
 
 
@@ -4789,7 +4789,7 @@ def test_lagline():
 
 def test_lagmul():
     for i in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = linspace(-3, 3, 100)
 
         a = lagval(
             input,
@@ -4978,7 +4978,7 @@ def test_lagval():
 
     ys = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
     for coefficient in lagcoefficients:
         ys = [
@@ -5156,7 +5156,7 @@ def test_lagvander3d():
 def test_lagweight():
     assert_close(
         lagweight(linspace(0, 10, 11)),
-        torch.exp(-linspace(0, 10, 11)),
+        exp(-linspace(0, 10, 11)),
     )
 
 
@@ -5949,7 +5949,7 @@ def test_legline():
 
 def test_legmul():
     for i in range(5):
-        input = torch.linspace(-1, 1, 100)
+        input = linspace(-1, 1, 100)
 
         a = legval(
             input,
@@ -6134,7 +6134,7 @@ def test_legval():
         ys = [
             *ys,
             polyval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 coefficient,
             ),
         ]
@@ -6142,7 +6142,7 @@ def test_legval():
     for i in range(10):
         assert_close(
             legval(
-                torch.linspace(-1, 1, 50),
+                linspace(-1, 1, 50),
                 tensor([0.0] * i + [1.0]),
             ),
             tensor(ys[i]),
@@ -6560,7 +6560,7 @@ def test_polyfit():
     def g(x: Tensor) -> Tensor:
         return x**4 + x**2 + 1
 
-    input = torch.linspace(0, 2, 50)
+    input = linspace(0, 2, 50)
 
     other = f(input)
 
@@ -6570,7 +6570,7 @@ def test_polyfit():
             polyfit(
                 input,
                 other,
-                degree=tensor([3.0]),
+                degree=tensor([3]),
             ),
         ),
         other,
@@ -6752,7 +6752,7 @@ def test_polyfit():
         tensor([0, 1]),
     )
 
-    input = torch.linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
     other = g(input)
 
@@ -6819,7 +6819,7 @@ def test_polyfromroots():
     )
 
     for index in range(1, 5):
-        input = torch.linspace(-math.pi, 0.0, 2 * index + 1)
+        input = linspace(-math.pi, 0.0, 2 * index + 1)
 
         input = input[1::2]
 
@@ -7024,7 +7024,7 @@ def test_polyroots():
     )
 
     for index in range(2, 5):
-        input = torch.linspace(-1, 1, index)
+        input = linspace(-1, 1, index)
 
         assert_close(
             polytrim(
@@ -7106,7 +7106,7 @@ def test_polyval():
 
     y = []
 
-    input = torch.linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
     for index in range(5):
         y = [
@@ -7275,7 +7275,7 @@ def test_polyvalfromroots():
 
     assert output.shape == (3, 1)
 
-    input = torch.linspace(-1, 1, 50)
+    input = linspace(-1, 1, 50)
 
     evaluations = []
 
