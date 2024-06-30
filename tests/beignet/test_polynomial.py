@@ -2652,77 +2652,91 @@ def test_hermeint():
     pytest.raises(TypeError, hermeint, tensor([0]), axis=0.5)
 
     for i in range(2, 5):
-        k = [0] * (i - 2) + [1]
-        res = hermeint(tensor([0]), order=i, k=k)
         assert_close(
             hermetrim(
-                res,
+                hermeint(
+                    tensor([0.0]),
+                    order=i,
+                    k=([0.0] * (i - 2) + [1.0]),
+                ),
                 tol=0.000001,
             ),
-            tensor([0, 1]),
+            tensor([0.0, 1.0]),
         )
 
     for i in range(5):
-        scale = i + 1
-        pol = tensor([0.0] * i + [1.0])
-        target = [i] + [0] * i + [1 / scale]
-        hermepol = poly2herme(pol)
-        res = herme2poly(hermeint(hermepol, order=1, k=[i]))
         assert_close(
             hermetrim(
-                res,
+                herme2poly(
+                    hermeint(
+                        poly2herme(
+                            tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                    ),
+                ),
                 tol=0.000001,
             ),
             hermetrim(
-                target,
+                tensor([i] + [0.0] * i + [1.0 / (i + 1.0)]),
                 tol=0.000001,
             ),
         )
 
     for i in range(5):
-        scale = i + 1
-        pol = tensor([0.0] * i + [1.0])
-        hermepol = poly2herme(pol)
         assert_close(
             hermeval(
                 tensor([-1]),
                 hermeint(
-                    hermepol,
+                    poly2herme(
+                        tensor([0.0] * i + [1.0]),
+                    ),
                     order=1,
                     k=[i],
                     lower_bound=-1,
                 ),
             ),
-            i,
+            tensor([i], dtype=torch.get_default_dtype()),
         )
 
     for i in range(5):
-        scale = i + 1
-        pol = tensor([0.0] * i + [1.0])
-        target = [i] + [0] * i + [2 / scale]
-        hermepol = poly2herme(pol)
-        res = herme2poly(hermeint(hermepol, order=1, k=[i], scale=2))
         assert_close(
             hermetrim(
-                res,
+                herme2poly(
+                    hermeint(
+                        poly2herme(
+                            tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    ),
+                ),
                 tol=0.000001,
             ),
             hermetrim(
-                target,
+                tensor([i] + [0.0] * i + [2.0 / (i + 1.0)]),
                 tol=0.000001,
             ),
         )
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for _ in range(j):
-                target = hermeint(target, order=1)
-            res = hermeint(pol, order=j)
+                target = hermeint(
+                    target,
+                    order=1,
+                )
+
             assert_close(
                 hermetrim(
-                    res,
+                    hermeint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                    ),
                     tol=0.000001,
                 ),
                 hermetrim(
@@ -2733,14 +2747,21 @@ def test_hermeint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
             for k in range(j):
-                target = hermeint(target, order=1, k=[k])
+                target = hermeint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
 
             assert_close(
                 hermetrim(
-                    hermeint(pol, order=j, k=list(range(j))),
+                    hermeint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                        k=list(range(j)),
+                    ),
                     tol=0.000001,
                 ),
                 hermetrim(
@@ -2751,8 +2772,8 @@ def test_hermeint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for k in range(j):
                 target = hermeint(
                     target,
@@ -2760,10 +2781,11 @@ def test_hermeint():
                     k=[k],
                     lower_bound=-1,
                 )
+
             assert_close(
                 hermetrim(
                     hermeint(
-                        pol,
+                        tensor([0.0] * i + [1.0]),
                         order=j,
                         k=list(range(j)),
                         lower_bound=-1,
@@ -2778,8 +2800,8 @@ def test_hermeint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for k in range(j):
                 target = hermeint(
                     target,
@@ -2787,10 +2809,11 @@ def test_hermeint():
                     k=[k],
                     scale=2,
                 )
+
             assert_close(
                 hermetrim(
                     hermeint(
-                        pol,
+                        tensor([0.0] * i + [1.0]),
                         order=j,
                         k=list(range(j)),
                         scale=2,
@@ -2806,29 +2829,28 @@ def test_hermeint():
     c2d = rand(3, 4)
 
     assert_close(
-        hermeint(c2d, axis=0),
+        hermeint(
+            c2d,
+            axis=0,
+        ),
         vstack([hermeint(c) for c in c2d.T]).T,
     )
 
-    target = vstack([hermeint(c) for c in c2d])
-    res = hermeint(
-        c2d,
-        axis=1,
-    )
     assert_close(
-        res,
-        target,
+        hermeint(
+            c2d,
+            axis=1,
+        ),
+        vstack([hermeint(c) for c in c2d]),
     )
 
-    target = vstack([hermeint(c, k=3) for c in c2d])
-    res = hermeint(
-        c2d,
-        k=3,
-        axis=1,
-    )
     assert_close(
-        res,
-        target,
+        hermeint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        vstack([hermeint(c, k=3) for c in c2d]),
     )
 
 
