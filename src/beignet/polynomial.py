@@ -955,60 +955,71 @@ def chebgrid3d(
 
 
 def chebint(
-    input: Tensor,
+    c: Tensor,
     order=1,
-    k: Tensor | None = None,
-    lower_bound: Tensor | None = None,
-    scale: Tensor | None = None,
+    k=None,
+    lower_bound=0,
+    scale=1,
     axis=0,
 ) -> Tensor:
-    [input] = _as_series([input])
-
     if k is None:
-        k = tensor([])
+        k = []
 
-    if lower_bound is None:
-        lower_bound = tensor([0.0])
+    [c] = _as_series([c])
 
-    if scale is None:
-        scale = tensor([1.0])
+    lower_bound = tensor(lower_bound)
 
-    if k.shape[0] > order:
+    scale = tensor(scale)
+
+    if not numpy.iterable(k):
+        k = [k]
+
+    if len(k) > order:
+        raise ValueError
+
+    if lower_bound.ndim != 0:
+        raise ValueError
+
+    if scale.ndim != 0:
         raise ValueError
 
     if order == 0:
-        return input
-    else:
-        input = moveaxis(input, axis, 0)
-        k = tensor(list(k) + [0] * (order - len(k)))
-        k = atleast_1d(k)
+        return c
 
-        for i in range(order):
-            n = input.shape[0]
+    c = moveaxis(c, axis, 0)
 
-            input = input * scale
+    k = tensor([*k] + [0.0] * (order - len(k)))
 
-            tmp = empty((n + 1,) + input.shape[1:], dtype=input.dtype)
+    k = atleast_1d(k)
 
-            tmp[0] = input[0] * 0
-            tmp[1] = input[0]
+    for i in range(order):
+        n = c.shape[0]
 
-            if n > 1:
-                tmp[2] = input[1] / 4
+        c = c * scale
 
+        tmp = empty([n + 1, *c.shape[1:]])
+
+        tmp[0] = c[0] * 0
+        tmp[1] = c[0]
+
+        if n > 1:
+            tmp[2] = c[1] / 4
+
+        if n < 2:
+            j = tensor([], dtype=torch.int32)
+        else:
             j = arange(2, n)
 
-            tmp[j + 1] = (input[j].T / (2 * (j + 1))).T
+        tmp[j + 1] = (c[j].T / (2 * (j + 1))).T
+        tmp[j - 1] = tmp[j - 1] + -(c[j] / (2 * (j - 1)))
 
-            tmp = tmp.at[j - 1].add(-(input[j].T / (2 * (j - 1))).T)
+        tmp[0] = tmp[0] + (k[i] - chebval(lower_bound, tmp))
 
-            tmp = tmp.at[0].add(k[i] - chebval(lower_bound, tmp))
+        c = tmp
 
-            input = tmp
+    c = moveaxis(c, 0, axis)
 
-        input = moveaxis(input, 0, axis)
-
-        return input
+    return c
 
 
 def chebinterpolate(
