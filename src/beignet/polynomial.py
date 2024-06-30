@@ -2535,8 +2535,11 @@ def leg2poly(c):
     if n < 3:
         return c
 
-    c0 = torch.zeros_like(c).at[0].set(c[-2])
-    c1 = torch.zeros_like(c).at[0].set(c[-1])
+    c0 = torch.zeros_like(c)
+    c0[0] = c[-2]
+
+    c1 = torch.zeros_like(c)
+    c1[0] = c[-1]
 
     def body(k, c0c1):
         i = n - 1 - k

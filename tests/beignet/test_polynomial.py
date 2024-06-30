@@ -5133,7 +5133,7 @@ def test_leg2poly():
     for index in range(10):
         torch.testing.assert_close(
             leg2poly(
-                [0.0] * index + [1.0],
+                torch.tensor([0.0] * index + [1.0]),
             ),
             coefficients[index],
         )
