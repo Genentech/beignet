@@ -5590,6 +5590,7 @@ def test_leggauss():
 
     v = legvander(x, 99)
     vv = torch.dot(v.T * w, v)
+
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
 
@@ -5675,7 +5676,11 @@ def test_legint():
     for i in range(2, 5):
         torch.testing.assert_close(
             legtrim(
-                legint(torch.tensor([0]), order=i, k=([0] * (i - 2) + [1])),
+                legint(
+                    torch.tensor([0]),
+                    order=i,
+                    k=([0] * (i - 2) + [1]),
+                ),
                 tol=0.000001,
             ),
             [0, 1],

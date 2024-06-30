@@ -2595,9 +2595,13 @@ def legder(c, order=1, scale=1, axis=0):
 
             def body(k, der_c, n=n):
                 j = n - k
+
                 der, c = der_c
-                der = der.at[j - 1].set((2 * j - 1) * c[j])
-                c = c.at[j - 2].add(c[j])
+
+                der[j - 1] = (2 * j - 1) * c[j]
+
+                c[j - 2] += c[j]
+
                 return der, c
 
             b = n - 2
@@ -2612,13 +2616,14 @@ def legder(c, order=1, scale=1, axis=0):
             der, c = y
 
             if n > 1:
-                der = der.at[1].set(3 * c[2])
+                der[1] = 3 * c[2]
 
-            der = der.at[0].set(c[1])
+            der[0] = c[1]
 
             c = der
 
     c = moveaxis(c, 0, axis)
+
     return c
 
 
@@ -2658,7 +2663,8 @@ def leggauss(degree):
     if degree <= 0:
         raise ValueError
 
-    c = zeros(degree + 1).at[-1].set(1)
+    c = torch.zeros(degree + 1)
+    c[-1] = 1.0
     m = legcompanion(c)
     x = torch.linalg.eigvalsh(m)
 
@@ -2729,23 +2735,39 @@ def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    k = torch.tensor(list(k) + [0] * (order - len(k)))
+
+    k = torch.atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
+
         c *= scale
+
         tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+
         tmp = tmp.at[0].set(c[0] * 0)
+
         tmp = tmp.at[1].set(c[0])
+
         if n > 1:
             tmp = tmp.at[2].set(c[1] / 3)
+
         j = arange(2, n)
+
         t = (c[j].T / (2 * j + 1)).T
+
         tmp = tmp.at[j + 1].set(t)
+
         tmp = tmp.at[j - 1].add(-t)
+
         tmp = tmp.at[0].add(k[i] - legval(lower_bound, tmp))
+
         c = tmp
+
     c = moveaxis(c, 0, axis)
+
     return c
 
 
