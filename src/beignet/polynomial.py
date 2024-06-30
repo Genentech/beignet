@@ -71,40 +71,6 @@ polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
 
 
-def _add(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = concatenate(
-            [
-                other,
-                zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = concatenate(
-            [
-                input,
-                zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
-
-
 def _as_series(
     items: List[Tensor],
     trim: bool = False,
@@ -202,7 +168,33 @@ def _div(
 
         b = t * p_modified
 
-        remainder = _subtract(a, b)
+        [a, b] = _as_series([a, b])
+
+        if a.shape[0] > b.shape[0]:
+            output = -b
+
+            output = concatenate(
+                [
+                    output,
+                    zeros(
+                        a.shape[0] - b.shape[0],
+                        dtype=b.dtype,
+                    ),
+                ],
+            )
+            output = a + output
+        else:
+            output = -b
+
+            output = concatenate(
+                [
+                    output[: a.shape[0]] + a,
+                    output[a.shape[0] :],
+                ],
+            )
+
+        remainder = output
+
         remainder = remainder[: remainder.shape[0]]
 
         quotient[j] = t
@@ -361,10 +353,35 @@ def _from_roots(
     ys = []
 
     for x in input:
-        y = _add(
-            zeros(input.shape[0] + 1, dtype=x.dtype),
-            f(-x, 1),
-        )
+        a = zeros(input.shape[0] + 1, dtype=x.dtype)
+        b = f(-x, 1)
+
+        [a, b] = _as_series([a, b])
+
+        if a.shape[0] > b.shape[0]:
+            y = concatenate(
+                [
+                    b,
+                    zeros(
+                        a.shape[0] - b.shape[0],
+                        dtype=b.dtype,
+                    ),
+                ],
+            )
+
+            y = a + y
+        else:
+            y = concatenate(
+                [
+                    a,
+                    zeros(
+                        b.shape[0] - a.shape[0],
+                        dtype=a.dtype,
+                    ),
+                ]
+            )
+
+            y = b + y
 
         ys = [*ys, y]
 
@@ -587,42 +604,35 @@ def _pow(
         case _:
             output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
-            output = _add(output, input)
+            [output, input] = _as_series([output, input])
+
+            if output.shape[0] > input.shape[0]:
+                input = concatenate(
+                    [
+                        input,
+                        zeros(
+                            output.shape[0] - input.shape[0],
+                            dtype=input.dtype,
+                        ),
+                    ],
+                )
+
+                output = output + input
+            else:
+                output = concatenate(
+                    [
+                        output,
+                        zeros(
+                            input.shape[0] - output.shape[0],
+                            dtype=output.dtype,
+                        ),
+                    ]
+                )
+
+                output = input + output
 
             for _ in range(2, _exponent + 1):
                 output = func(output, input, mode="same")
-
-    return output
-
-
-def _subtract(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = concatenate(
-            [
-                output,
-                zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
 
     return output
 
@@ -1160,7 +1170,46 @@ def chebsub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _subtract(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the difference.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def chebval(
@@ -1858,7 +1907,46 @@ def hermesub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _subtract(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the difference.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
@@ -2203,7 +2291,46 @@ def hermsub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _subtract(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the difference.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def hermval(
@@ -2736,7 +2863,46 @@ def lagsub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _subtract(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the difference.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
@@ -3289,7 +3455,46 @@ def legsub(
     input: Tensor,
     other: Tensor,
 ) -> Tensor:
-    return _subtract(input, other)
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the difference.
+    """
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def legval(
@@ -4026,7 +4231,32 @@ def polysub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    return _subtract(input, other)
+    [input, other] = _as_series([input, other])
+
+    if input.shape[0] > other.shape[0]:
+        output = -other
+
+        output = concatenate(
+            [
+                output,
+                zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+        output = input + output
+    else:
+        output = -other
+
+        output = concatenate(
+            [
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
+        )
+
+    return output
 
 
 def polyval(
