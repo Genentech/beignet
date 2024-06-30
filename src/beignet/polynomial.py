@@ -1079,9 +1079,9 @@ def chebroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 
@@ -1616,9 +1616,9 @@ def hermeroots(c):
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 

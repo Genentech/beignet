@@ -2852,22 +2852,34 @@ def test_hermepow():
 
 
 def test_hermeroots():
-    torch.testing.assert_close(hermeroots([1]), torch.tensor([]))
+    torch.testing.assert_close(
+        hermeroots(
+            [1.0],
+        ),
+        torch.tensor([]),
+    )
 
-    torch.testing.assert_close(hermeroots([1, 1]), [-1])
+    torch.testing.assert_close(
+        hermeroots(
+            [1.0, 1.0],
+        ),
+        torch.tensor([-1.0]),
+    )
 
-    for i in range(2, 5):
+    for index in range(2, 5):
+        input = torch.linspace(-1, 1, index)
+
         torch.testing.assert_close(
             hermetrim(
                 hermeroots(
                     hermefromroots(
-                        torch.linspace(-1, 1, i),
+                        input,
                     )
                 ),
                 tol=0.000001,
             ),
             hermetrim(
-                torch.linspace(-1, 1, i),
+                input,
                 tol=0.000001,
             ),
         )
