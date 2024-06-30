@@ -194,7 +194,7 @@ from beignet.polynomial import (
     polyx,
     polyzero,
 )
-from torch import Tensor
+from torch import LongTensor, Tensor
 
 torch.set_default_dtype(torch.float64)
 
@@ -7369,7 +7369,7 @@ def test_polyvalfromroots():
 def test_polyvander():
     output = polyvander(
         torch.arange(3.0),
-        degree=torch.tensor(3),
+        degree=LongTensor([3]),
     )
 
     assert output.shape == (3, 4)
@@ -7385,7 +7385,7 @@ def test_polyvander():
 
     output = polyvander(
         torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
-        degree=torch.tensor(3),
+        degree=LongTensor([3]),
     )
 
     assert output.shape == (3, 2, 4)
@@ -7402,7 +7402,7 @@ def test_polyvander():
     with pytest.raises(ValueError):
         polyvander(
             torch.torch.arange(3),
-            torch.tensor([-1]),
+            degree=LongTensor([-1]),
         )
 
 
