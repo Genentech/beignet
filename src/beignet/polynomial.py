@@ -25,12 +25,14 @@ from torch import (
     linspace,
     moveaxis,
     nonzero,
+    ones,
     ones_like,
     promote_types,
     ravel,
     reshape,
     roll,
     sin,
+    sort,
     sqrt,
     stack,
     sum,
@@ -269,7 +271,7 @@ def _fit(
     if input.shape[0] != other.shape[0]:
         raise TypeError
 
-    degree, _ = torch.sort(degree)
+    degree, _ = sort(degree)
 
     vandermonde = vandermonde_func(input, degree[-1])[:, degree].T
 
@@ -339,7 +341,7 @@ def _flattened_vandermonde(
         degrees,
     )
 
-    return torch.reshape(
+    return reshape(
         vandermonde,
         vandermonde.shape[: -len(degrees)] + (-1,),
     )
@@ -351,9 +353,9 @@ def _from_roots(
     input: Tensor,
 ) -> Tensor:
     if math.prod(input.shape) == 0:
-        return torch.ones([1])
+        return ones([1])
 
-    input, _ = torch.sort(input)
+    input, _ = sort(input)
 
     ys = []
 
@@ -376,7 +378,7 @@ def _from_roots(
 
         z = x[1]
 
-        previous = torch.zeros([len(p), input.shape[0] + 1])
+        previous = zeros([len(p), input.shape[0] + 1])
 
         y = previous
 
@@ -758,7 +760,7 @@ def chebcompanion(
 
     mat = zeros([n, n], dtype=input.dtype)
 
-    scale = torch.ones(n)
+    scale = ones(n)
     scale[1:] = math.sqrt(0.5)
 
     shp = mat.shape
@@ -866,7 +868,7 @@ def chebgauss(
 
     output = torch.cos(output)
 
-    weight = torch.ones(degree) * (math.pi / degree)
+    weight = ones(degree) * (math.pi / degree)
 
     return output, weight
 
@@ -1087,7 +1089,7 @@ def chebroots(
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -1631,7 +1633,7 @@ def hermeroots(c):
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -1956,7 +1958,7 @@ def hermroots(input):
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -2413,7 +2415,7 @@ def lagroots(
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -2693,7 +2695,7 @@ def leggauss(degree):
     if degree <= 0:
         raise ValueError
 
-    c = torch.zeros(degree + 1)
+    c = zeros(degree + 1)
     c[-1] = 1.0
     m = legcompanion(c)
     x = torch.linalg.eigvalsh(m)
@@ -2894,7 +2896,7 @@ def legroots(c):
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -3087,7 +3089,7 @@ def poly2lag(
                 output,
                 mode="same",
             ),
-            torch.flip(input, dims=[0])[index],
+            flip(input, dims=[0])[index],
         )
 
     return output
@@ -3157,14 +3159,14 @@ def polycompanion(
 
     n = input.shape[0] - 1
 
-    output = torch.reshape(
-        torch.zeros([n, n], dtype=input.dtype),
+    output = reshape(
+        zeros([n, n], dtype=input.dtype),
         [-1],
     )
 
     output[n :: n + 1] = 1.0
 
-    output = torch.reshape(
+    output = reshape(
         output,
         [n, n],
     )
@@ -3545,7 +3547,7 @@ def polyroots(
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output.real)
+    output, _ = sort(output.real)
 
     return output
 
@@ -3670,7 +3672,7 @@ def polyvalfromroots(
         other = ravel(other)
 
     if tensor:
-        other = torch.reshape(other, other.shape + (1,) * input.ndim)
+        other = reshape(other, other.shape + (1,) * input.ndim)
 
     if input.ndim >= other.ndim:
         raise ValueError
