@@ -551,10 +551,12 @@ def test_chebcompanion():
         chebcompanion(torch.tensor([]))
 
     with pytest.raises(ValueError):
-        chebcompanion(torch.tensor([1]))
+        chebcompanion(torch.tensor([1.0]))
 
     for index in range(1, 5):
-        output = chebcompanion(torch.tensor([0] * index + [1]))
+        output = chebcompanion(
+            torch.tensor([0.0] * index + [1.0]),
+        )
 
         assert output.shape == (index, index)
 
@@ -3385,20 +3387,29 @@ def test_hermfit():
 
 def test_hermfromroots():
     res = hermfromroots(torch.tensor([]))
+
     torch.testing.assert_close(
         hermtrim(
             res,
             tol=0.000001,
         ),
-        torch.tensor([1]),
+        torch.tensor([1.0]),
     )
+
     for i in range(1, 5):
         roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
         pol = hermfromroots(roots)
         res = hermval(roots, pol)
         target = 0
         assert len(pol) == i + 1
-        torch.testing.assert_close(herm2poly(pol)[-1], 1)
+
+        torch.testing.assert_close(
+            herm2poly(
+                pol,
+            )[-1],
+            torch.tensor([1.0]),
+        )
+
         torch.testing.assert_close(
             res,
             target,
@@ -4498,7 +4509,7 @@ def test_laggrid3d():
     y1, y2, y3 = y
 
     target = torch.einsum("i,j,k->ijk", y1, y2, y3)
-    torch.testing.assert_close(laggrid3d(a, b, x3, c3d), target, decimal=3)
+    torch.testing.assert_close(laggrid3d(a, b, x3, c3d), target)
 
     z = torch.ones([2, 3])
     assert laggrid3d(z, z, z, c3d).shape == (2, 3) * 3
