@@ -1610,7 +1610,8 @@ def hermeint(
 
         tmp[j + 1] = (c[j].T / (j + 1)).T
 
-        tmp = tmp.at[0].add(k[i] - hermeval(lower_bound, tmp))
+        hermeval_value = torch.tensor(hermeval(lower_bound, tmp))
+        tmp[0] += k[i] - hermeval_value
 
         c = tmp
 
@@ -3586,7 +3587,8 @@ def polyint(
     if order == 0:
         return input
 
-    k = tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+    k = tensor(list(k) + [0] * (order - len(k)))
+    k = atleast_1d(k)
 
     n = input.shape[dim]
 
