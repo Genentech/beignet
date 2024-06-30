@@ -4535,7 +4535,7 @@ def test_laggauss():
     x, w = laggauss(100)
 
     v = lagvander(x, 99)
-    vv = torch.dot(v.T * w, v)
+    vv = (v.T * w) @ v
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     assert_close(

@@ -2280,7 +2280,9 @@ def lagder(
     else:
         for _ in range(order):
             n = n - 1
+
             c *= scale
+
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
@@ -2290,7 +2292,7 @@ def lagder(
 
                 der[j - 1] = -c[j]
 
-                c = c.at[j - 1].add(c[j])
+                c[j - 1] += c[j]
 
                 return der, c
 
