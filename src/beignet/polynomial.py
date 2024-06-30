@@ -861,18 +861,10 @@ def chebfromroots(
 def chebgauss(
     degree: int,
 ) -> Tuple[Tensor, Tensor]:
-    degree = int(degree)
-
-    if degree <= 0:
+    if not degree > 0:
         raise ValueError
 
-    output = arange(1, 2 * degree, 2)
-
-    output = output / (2.0 * degree)
-
-    output = output * math.pi
-
-    output = torch.cos(output)
+    output = cos(arange(1, 2 * degree, 2) / (2 * degree) * math.pi)
 
     weight = ones(degree) * (math.pi / degree)
 

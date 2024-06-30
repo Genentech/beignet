@@ -1011,14 +1011,16 @@ def test_chebfromroots():
 
 
 def test_chebgauss():
-    point, weight = chebgauss(100)
+    output, weight = chebgauss(100)
 
-    t = chebvander(
-        point,
-        99,
+    print(output)
+
+    vandermonde = chebvander(
+        output,
+        degree=torch.tensor([99]),
     )
 
-    u = torch.dot(t.T * weight, t)
+    u = torch.dot(vandermonde.T * weight, vandermonde)
 
     v = 1 / torch.sqrt(u.diagonal())
 
