@@ -16,13 +16,16 @@ from torch import (
     atleast_1d,
     concatenate,
     cos,
+    empty,
     finfo,
     flip,
     full,
     linspace,
     moveaxis,
     nonzero,
+    ones_like,
     promote_types,
+    ravel,
     reshape,
     roll,
     sin,
@@ -469,7 +472,7 @@ def _normed_hermite_e_n(
         output = full(x.shape, 1.0 / math.sqrt(math.sqrt(2.0 * math.pi)))
     else:
         a = torch.zeros_like(x)
-        b = torch.ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
+        b = ones_like(x) / math.sqrt(math.sqrt(2.0 * math.pi))
 
         size = tensor(n)
 
@@ -496,7 +499,7 @@ def _normed_hermite_n(
     else:
         a = torch.zeros_like(x)
 
-        b = torch.ones_like(x) / math.sqrt(math.sqrt(math.pi))
+        b = ones_like(x) / math.sqrt(math.sqrt(math.pi))
 
         size = tensor(n)
 
@@ -795,7 +798,7 @@ def chebder(
 
             output = output * scale
 
-            derivative = torch.empty((n,) + output.shape[1:], dtype=output.dtype)
+            derivative = empty((n,) + output.shape[1:], dtype=output.dtype)
 
             for i in range(0, n - 2):
                 j = n - i
@@ -919,7 +922,7 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
 
         c *= scale
 
-        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
 
         tmp[0] = c[0] * 0
         tmp[1] = c[0]
@@ -1110,8 +1113,8 @@ def chebval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
             a = coefficients[0]
             b = coefficients[1]
         case _:
-            a = coefficients[-2] * torch.ones_like(input)
-            b = coefficients[-1] * torch.ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -1150,9 +1153,9 @@ def chebvander(
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
     x = x.to(dtyp)
-    v = torch.empty(dims, dtype=dtyp)
+    v = empty(dims, dtype=dtyp)
 
-    v[0] = torch.ones_like(x)
+    v[0] = ones_like(x)
 
     if degree > 0:
         v[1] = x
@@ -1290,7 +1293,7 @@ def hermder(c, order=1, scale=1, axis=0):
         for _ in range(order):
             n = n - 1
             c *= scale
-            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
             der = der.at[j - 1].set((2 * j * (c[j]).T).T)
             c = der
@@ -1397,7 +1400,7 @@ def hermeder(c, order=1, scale=1, axis=0):
         for _ in range(order):
             n = n - 1
             c *= scale
-            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
             j = arange(n, 0, -1)
             der = der.at[j - 1].set((j * (c[j]).T).T)
             c = der
@@ -1518,7 +1521,7 @@ def hermeint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     for i in range(order):
         n = c.shape[0]
         c *= scale
-        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0])
         j = arange(1, n)
@@ -1656,8 +1659,8 @@ def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * torch.ones_like(input)
-            b = coefficients[-1] * torch.ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -1699,8 +1702,8 @@ def hermevander(
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
     x = x.to(dtyp)
-    v = torch.empty(dims, dtype=dtyp)
-    v[0] = torch.ones_like(x)
+    v = empty(dims, dtype=dtyp)
+    v[0] = ones_like(x)
 
     if degree > 0:
         v[1] = x
@@ -1841,7 +1844,7 @@ def hermint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     for i in range(order):
         n = c.shape[0]
         c *= scale
-        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
         tmp = tmp.at[0].set(c[0] * 0)
         tmp = tmp.at[1].set(c[0] / 2)
         j = arange(1, n)
@@ -1985,8 +1988,8 @@ def hermval(
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * torch.ones_like(input)
-            b = coefficients[-1] * torch.ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
             for i in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2028,8 +2031,8 @@ def hermvander(
     dims = (degree + 1,) + x.shape
     dtyp = promote_types(x.dtype, torch.tensor(0.0).dtype)
     x = x.to(dtyp)
-    v = torch.empty(dims, dtype=dtyp)
-    v[0] = torch.ones_like(x)
+    v = empty(dims, dtype=dtyp)
+    v[0] = ones_like(x)
 
     if degree > 0:
         v[1] = x * 2
@@ -2162,7 +2165,7 @@ def lagder(c, order=1, scale=1, axis=0):
         for _ in range(order):
             n = n - 1
             c *= scale
-            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -2287,7 +2290,7 @@ def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
         n = c.shape[0]
         c *= scale
 
-        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
 
         tmp[0] = c[0]
         tmp[1] = -c[0]
@@ -2438,8 +2441,8 @@ def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * torch.ones_like(input)
-            b = coefficients[-1] * torch.ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
             for index in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2483,9 +2486,9 @@ def lagvander(
 
     x = x.to(dtype)
 
-    v = torch.empty([degree + 1, *x.shape], dtype=dtype)
+    v = empty([degree + 1, *x.shape], dtype=dtype)
 
-    v[0] = torch.ones_like(x)
+    v[0] = ones_like(x)
 
     if degree > 0:
         v[1] = 1 - x
@@ -2615,7 +2618,7 @@ def legder(c, order=1, scale=1, axis=0):
         for _ in range(order):
             n = n - 1
             c *= scale
-            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -2769,7 +2772,7 @@ def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
 
         c *= scale
 
-        tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
+        tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
 
         tmp[0] = c[0] * 0
 
@@ -2919,8 +2922,8 @@ def legval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
         case _:
             size = coefficients.shape[0]
 
-            a = coefficients[-2] * torch.ones_like(input)
-            b = coefficients[-1] * torch.ones_like(input)
+            a = coefficients[-2] * ones_like(input)
+            b = coefficients[-1] * ones_like(input)
 
             for index in range(3, coefficients.shape[0] + 1):
                 previous = a
@@ -2967,9 +2970,9 @@ def legvander(
 
     x = x.to(dtype)
 
-    v = torch.empty(dims, dtype=dtype)
+    v = empty(dims, dtype=dtype)
 
-    v[0] = torch.ones_like(x)
+    v[0] = ones_like(x)
 
     if degree > 0:
         v[1] = x
@@ -3008,7 +3011,7 @@ def legvander3d(
 
 
 def legweight(x: Tensor) -> Tensor:
-    return torch.ones_like(x)
+    return ones_like(x)
 
 
 def poly2cheb(
@@ -3661,7 +3664,7 @@ def polyvalfromroots(
     tensor: bool = True,
 ) -> Tensor:
     if other.ndim == 0:
-        other = torch.ravel(other)
+        other = ravel(other)
 
     if tensor:
         other = torch.reshape(other, other.shape + (1,) * input.ndim)
@@ -3693,16 +3696,16 @@ def polyvander(
         raise ValueError
 
     if input.ndim == 0:
-        input = torch.ravel(input)
+        input = ravel(input)
 
-    output = torch.empty([degree + 1, *input.shape], dtype=input.dtype)
+    output = empty([degree + 1, *input.shape], dtype=input.dtype)
 
-    output[0] = torch.ones_like(input)
+    output[0] = ones_like(input)
 
     for index in range(1, degree + 1):
         output[index] = output[index - 1] * input
 
-    output = torch.moveaxis(output, 0, -1)
+    output = moveaxis(output, 0, -1)
 
     return output
 
