@@ -7384,7 +7384,7 @@ def test_polyvander2d():
             polyvander2d(
                 a,
                 b,
-                degree=torch.tensor([1.0, 2.0]),
+                degree=torch.tensor([1, 2]),
             ),
             torch.torch.ravel(coefficients),
         ),
@@ -7398,7 +7398,7 @@ def test_polyvander2d():
     output = polyvander2d(
         torch.tensor([a]),
         torch.tensor([b]),
-        degree=torch.tensor([1.0, 2.0]),
+        degree=torch.tensor([1, 2]),
     )
 
     assert output.shape == (1, 5, 6)
