@@ -2695,10 +2695,15 @@ def leg2poly(
 
     def body(k, c0c1):
         i = n - 1 - k
+
         c0, c1 = c0c1
+
         tmp = c0
+
         c0 = polysub(c[i - 2], c1 * (i - 1) / i)
+
         c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
+
         return c0, c1
 
     x = (c0, c1)
