@@ -977,7 +977,10 @@ def chebinterpolate(func, degree, args=()):
     return c
 
 
-def chebline(input: float, other: float) -> Tensor:
+def chebline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input, other])
 
 
@@ -1557,12 +1560,17 @@ def hermeint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     return moveaxis(c, 0, axis)
 
 
-def hermeline(input: float, other: float) -> Tensor:
+def hermeline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input, other])
 
 
 def hermemul(
-    input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
+    input: Tensor,
+    other: Tensor,
+    mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
     [input, other] = _as_series([input, other])
 
@@ -1891,7 +1899,10 @@ def hermint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     return c
 
 
-def hermline(input: float, other: float) -> Tensor:
+def hermline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input, other / 2])
 
 
@@ -2354,7 +2365,10 @@ def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     return c
 
 
-def lagline(input: float, other: float) -> Tensor:
+def lagline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input + other, -other])
 
 
@@ -2847,7 +2861,10 @@ def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
     return c
 
 
-def legline(input: float, other: float) -> Tensor:
+def legline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input, other])
 
 
@@ -3469,7 +3486,10 @@ def polyint(
     return moveaxis(input, 0, dim)
 
 
-def polyline(input: float, other: float) -> Tensor:
+def polyline(
+    input: float,
+    other: float,
+) -> Tensor:
     return tensor([input, other])
 
 
