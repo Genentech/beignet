@@ -779,14 +779,19 @@ def chebcompanion(
 
     mat = reshape(mat, [-1])
 
-    mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
-    mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
+    x = full([n - 1], 1 / 2)
+    x[0] = math.sqrt(0.5)
+
+    mat[1 :: n + 1] = x
+    mat[n :: n + 1] = x
 
     mat = reshape(mat, shape)
 
-    output = mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
+    y = -(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5
 
-    return output
+    mat[:, -1] = mat[:, -1] + y
+
+    return mat
 
 
 def chebder(
