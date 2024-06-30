@@ -769,14 +769,14 @@ def chebcompanion(
     scale = ones(n)
     scale[1:] = math.sqrt(0.5)
 
-    shp = mat.shape
+    shape = mat.shape
 
     mat = reshape(mat, [-1])
 
     mat = mat.at[1 :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
     mat = mat.at[n :: n + 1].set(full(n - 1, 1 / 2).at[0].set(math.sqrt(0.5)))
 
-    mat = reshape(mat, shp)
+    mat = reshape(mat, shape)
 
     output = mat.at[:, -1].add(-(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5)
 
@@ -2423,7 +2423,8 @@ def lagint(
         return c
 
     c = moveaxis(c, axis, 0)
-    k = tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+    k = tensor(list(k) + [0] * (order - len(k)))
+    k = atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
@@ -2436,11 +2437,11 @@ def lagint(
 
         j = arange(1, n)
 
-        tmp = tmp.at[j].add(c[j])
+        tmp[j] += c[j]
+        tmp[j + 1] += -c[j]
 
-        tmp = tmp.at[j + 1].add(-c[j])
-
-        tmp = tmp.at[0].add(k[i] - lagval(lower_bound, tmp))
+        tmp_value = torch.tensor(lagval(lower_bound, tmp))
+        tmp[0] += k[i] - tmp_value
 
         c = tmp
 
