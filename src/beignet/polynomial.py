@@ -3390,6 +3390,20 @@ def polymulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    mode : Literal["full", "same", "valid"]
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the product of the polynomial and the
+        independent variable.
+    """
     [input] = _as_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
@@ -3407,6 +3421,21 @@ def polypow(
     exponent: float | Tensor,
     maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    exponent : float or Tensor
+
+    maximum_exponent : float or Tensor, default=16.0
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the power.
+    """
     return _pow(
         polymul,
         input,
