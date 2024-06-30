@@ -352,7 +352,10 @@ def _from_roots(
     ys = []
 
     for x in input:
-        y = _add(zeros(input.shape[0] + 1, dtype=x.dtype), f(-x, 1))
+        y = _add(
+            zeros(input.shape[0] + 1, dtype=x.dtype),
+            f(-x, 1),
+        )
 
         ys = [*ys, y]
 
@@ -367,7 +370,7 @@ def _from_roots(
 
         z = x[1]
 
-        previous = tensor([zeros(input.shape[0] + 1, dtype=p.dtype)] * len(p))
+        previous = torch.zeros([len(p), input.shape[0] + 1])
 
         y = previous
 
@@ -3471,7 +3474,7 @@ def polyroots(
     output = flip(output, dims=[0])
     output = flip(output, dims=[1])
 
-    output = torch.linalg.torch.eigvals(output)
+    output = torch.linalg.eigvals(output)
 
     output, _ = torch.sort(output)
 
