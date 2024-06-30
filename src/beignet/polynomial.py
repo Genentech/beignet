@@ -3048,12 +3048,15 @@ def polyadd(
     Parameters
     ----------
     input : Tensor
+        Polynomial coefficients.
 
     other : Tensor
+        Polynomial coefficients.
 
     Returns
     -------
     output : Tensor
+        Polynomial coefficients.
     """
     return _add(input, other)
 
@@ -3061,6 +3064,17 @@ def polyadd(
 def polycompanion(
     input: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor, shape=(degree, degree)
+        Companion matrix.
+    """
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -3090,16 +3104,33 @@ def polycompanion(
 
 def polyder(
     input: Tensor,
-    order: int = 1,
-    scale: float = 1,
-    axis: int = 0,
+    order: LongTensor | None = None,
+    scale: Tensor | None = None,
+    dim: int = 0,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    order : LongTensor, optional
+
+    scale : Tensor, optional
+
+    dim : int, default=0
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the derivative.
+    """
     [input] = _as_series([input])
 
     if order == 0:
         return input
 
-    input = moveaxis(input, axis, 0)
+    input = moveaxis(input, dim, 0)
 
     if order >= input.shape[0]:
         output = torch.zeros_like(input[:1])
@@ -3117,7 +3148,7 @@ def polyder(
 
         output = output[:-order]
 
-    output = moveaxis(output, 0, axis)
+    output = moveaxis(output, 0, dim)
 
     return output
 
@@ -3130,12 +3161,15 @@ def polydiv(
     Parameters
     ----------
     input : Tensor
+        Polynomial coefficients.
 
     other : Tensor
+        Polynomial coefficients.
 
     Returns
     -------
-    output : Tensor
+    output : Tuple[Tensor, Tensor]
+        Polynomial coefficients of the quotient and remainder.
     """
     [input, other] = _as_series([input, other])
 
@@ -3164,6 +3198,17 @@ def polyfit(
 def polyfromroots(
     input: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Roots.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
     return _from_roots(
         polyline,
         polymul,
@@ -3234,8 +3279,29 @@ def polyint(
     k=None,
     lower_bound: float = 0,
     scale: float = 1,
-    axis: int = 0,
+    dim: int = 0,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    order : int, default=1
+
+    k : int, optional
+
+    lower_bound : float, default=0
+
+    scale : float, default=1
+
+    dim : int, default=0
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients of the integral.
+    """
     if k is None:
         k = []
 
@@ -3263,11 +3329,11 @@ def polyint(
 
     k = torch.tensor(list(k) + [0] * (order - len(k)), ndmin=1)
 
-    n = input.shape[axis]
+    n = input.shape[dim]
 
-    input = _pad_along_axis(input, (0, order), axis)
+    input = _pad_along_axis(input, (0, order), dim)
 
-    input = moveaxis(input, axis, 0)
+    input = moveaxis(input, dim, 0)
 
     d = arange(n + order) + 1
 
@@ -3282,7 +3348,7 @@ def polyint(
 
         input = input.at[0].add(k[i] - polyval(lower_bound, input))
 
-    return moveaxis(input, 0, axis)
+    return moveaxis(input, 0, dim)
 
 
 def polyline(input: float, other: float) -> Tensor:
@@ -3298,14 +3364,17 @@ def polymul(
     Parameters
     ----------
     input : Tensor
+        Polynomial coefficients.
 
     other : Tensor
+        Polynomial coefficients.
 
     mode : Literal["full", "same", "valid"]
 
     Returns
     -------
     output : Tensor
+        Polynomial coefficients of the product.
     """
     [input, other] = _as_series([input, other])
 
@@ -3349,6 +3418,17 @@ def polypow(
 def polyroots(
     input: Tensor,
 ) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Roots.
+    """
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -3377,12 +3457,15 @@ def polysub(
     Parameters
     ----------
     input : Tensor
+        Polynomial coefficients.
 
     other : Tensor
+        Polynomial coefficients.
 
     Returns
     -------
     output : Tensor
+        Polynomial coefficients of the difference.
     """
     return _subtract(input, other)
 
