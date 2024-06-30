@@ -1513,7 +1513,14 @@ def hermegrid3d(
     return c
 
 
-def hermeint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+def hermeint(
+    c,
+    order=1,
+    k=None,
+    lower_bound=0,
+    scale=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -1850,7 +1857,14 @@ def hermgrid3d(
     return c
 
 
-def hermint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+def hermint(
+    c,
+    order=1,
+    k=None,
+    lower_bound=0,
+    scale=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -2317,7 +2331,14 @@ def laggrid3d(
     return c
 
 
-def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+def lagint(
+    c,
+    order=1,
+    k=None,
+    lower_bound=0,
+    scale=1,
+    axis=0,
+):
     if k is None:
         k = []
 
@@ -2801,7 +2822,14 @@ def leggrid3d(
     return c
 
 
-def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
+def legint(
+    c,
+    order=1,
+    k=None,
+    lower_bound=0,
+    scale=1,
+    axis=0,
+):
     if k is None:
         k = []
 
