@@ -6044,7 +6044,13 @@ def test_legint():
         torch.vstack([legint(c, k=3) for c in c2d]),
     )
 
-    assert_close(legint((1, 2, 3), 0), (1, 2, 3))
+    assert_close(
+        legint(
+            (1, 2, 3),
+            order=0,
+        ),
+        (1, 2, 3),
+    )
 
 
 def test_legline():
@@ -6327,6 +6333,7 @@ def test_legval2d():
 
 def test_legval3d():
     c1d = tensor([2.0, 2.0, 2.0])
+
     c3d = einsum(
         "i,j,k->ijk",
         c1d,
@@ -6335,7 +6342,9 @@ def test_legval3d():
     )
 
     x = torch.rand(3, 5) * 2 - 1
+
     a, b, x3 = x
+
     y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
 
     pytest.raises(ValueError, legval3d, a, b, x3[:2], c3d)
@@ -6351,12 +6360,18 @@ def test_legval3d():
     )
 
     z = ones([2, 3])
+
     assert legval3d(z, z, z, c3d).shape == (2, 3)
 
 
 def test_legvander():
     x = arange(3)
-    v = legvander(x, 3)
+
+    v = legvander(
+        x,
+        degree=3,
+    )
+
     assert v.shape == (3, 4)
 
     for index in range(4):
@@ -6370,7 +6385,10 @@ def test_legvander():
 
     x = tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
 
-    v = legvander(x, 3)
+    v = legvander(
+        x,
+        degree=3,
+    )
 
     assert v.shape == (3, 2, 4)
 
@@ -6385,7 +6403,7 @@ def test_legvander():
 
     with pytest.raises(ValueError):
         legvander(
-            (1, 2, 3),
+            torch.tensor([1, 2, 3]),
             -1,
         )
 
@@ -6397,7 +6415,11 @@ def test_legvander2d():
 
     assert_close(
         torch.dot(
-            legvander2d(a, b, (1, 2)),
+            legvander2d(
+                a,
+                b,
+                degree=torch.tensor([1, 2]),
+            ),
             ravel(coefficients),
         ),
         legval2d(
@@ -6407,7 +6429,12 @@ def test_legvander2d():
         ),
     )
 
-    output = legvander2d([a], [b], (1, 2))
+    output = legvander2d(
+        [a],
+        [b],
+        degree=torch.tensor([1, 2]),
+    )
+
     assert output.shape == (1, 5, 6)
 
 
@@ -6429,7 +6456,7 @@ def test_legvander3d():
                 a,
                 b,
                 x3,
-                degree=(1, 2, 3),
+                degree=torch.tensor([1, 2, 3]),
             ),
             ravel(coefficients),
         ),
@@ -6440,7 +6467,7 @@ def test_legvander3d():
         [a],
         [b],
         [x3],
-        degree=(1, 2, 3),
+        degree=torch.tensor([1, 2, 3]),
     )
 
     assert output.shape == (1, 5, 24)
