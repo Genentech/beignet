@@ -1013,14 +1013,12 @@ def test_chebfromroots():
 def test_chebgauss():
     output, weight = chebgauss(100)
 
-    print(output)
-
     vandermonde = chebvander(
         output,
         degree=torch.tensor([99]),
     )
 
-    u = torch.dot(vandermonde.T * weight, vandermonde)
+    u = (vandermonde.T * weight) @ vandermonde
 
     v = 1 / torch.sqrt(u.diagonal())
 
@@ -1031,7 +1029,7 @@ def test_chebgauss():
 
     assert_close(
         torch.sum(weight),
-        math.pi,
+        torch.tensor(math.pi),
     )
 
 
@@ -2568,13 +2566,16 @@ def test_hermegauss():
     x, w = hermegauss(100)
 
     v = hermevander(x, 99)
-    vv = torch.dot(v.T * w, v)
+    vv = (v.T * w) @ v
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     assert_close(vv, torch.eye(100))
 
-    target = torch.sqrt(2 * math.pi)
-    assert_close(w.sum(), target)
+    target = math.sqrt(2 * math.pi)
+    assert_close(
+        torch.sum(w, dim=0),
+        tensor(target),
+    )
 
 
 def test_hermegrid2d():
@@ -5674,8 +5675,12 @@ def test_legfromroots():
 def test_leggauss():
     x, w = leggauss(100)
 
-    v = legvander(x, 99)
-    vv = torch.dot(v.T * w, v)
+    v = legvander(
+        x,
+        degree=torch.tensor([99]),
+    )
+
+    vv = (v.T * w) @ v
 
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd

@@ -1524,7 +1524,7 @@ def hermegauss(degree):
     x = torch.linalg.eigvalsh(m)
 
     dy = _normed_hermite_e_n(x, degree)
-    df = _normed_hermite_e_n(x, degree - 1) * sqrt(degree)
+    df = _normed_hermite_e_n(x, degree - 1) * math.sqrt(degree)
     x -= dy / df
 
     fm = _normed_hermite_e_n(x, degree - 1)
