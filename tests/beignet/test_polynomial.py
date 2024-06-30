@@ -7289,7 +7289,7 @@ def test_polyvalfromroots():
 
 def test_polyvander():
     output = polyvander(
-        torch.torch.arange(3),
+        torch.arange(3.0),
         degree=torch.tensor(3),
     )
 
