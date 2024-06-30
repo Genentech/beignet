@@ -5985,7 +5985,7 @@ def test_legint():
                 legint(
                     tensor([0.0]),
                     order=i,
-                    k=([0.0] * (i - 2) + [1.0]),
+                    k=tensor([0.0] * (i - 2) + [1.0]),
                 ),
                 tol=0.000001,
             ),

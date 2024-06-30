@@ -2913,10 +2913,13 @@ def legint(
 
     [c] = _as_series([c])
 
-    lower_bound, scale = map(tensor, (lower_bound, scale))
+    lower_bound = tensor(lower_bound)
+    scale = tensor(scale)
 
-    if not numpy.iterable(k):
-        k = [k]
+    # lower_bound, scale = map(tensor, (lower_bound, scale))
+
+    # if not numpy.iterable(k):
+    #     k = [k]
 
     if len(k) > order:
         raise ValueError
