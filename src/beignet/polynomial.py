@@ -810,14 +810,14 @@ def chebder(
             for i in range(0, n - 2):
                 j = n - i
 
-                derivative = derivative.at[j - 1].set((2 * j) * output[j])
+                derivative[j - 1] = (2 * j) * output[j]
 
                 output = output.at[j - 2].add((j * output[j]) / (j - 2))
 
             if n > 1:
-                derivative = derivative.at[1].set(4 * output[2])
+                derivative[1] = 4 * output[2]
 
-            output = derivative.at[0].set(output[1])
+            derivative[0] = output[1]
 
     return moveaxis(output, 0, axis)
 
@@ -939,7 +939,7 @@ def chebint(c: Tensor, order=1, k=None, lower_bound=0, scale=1, axis=0) -> Tenso
 
         j = arange(2, n)
 
-        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+        tmp[j + 1] = (c[j].T / (2 * (j + 1))).T
 
         tmp = tmp.at[j - 1].add(-(c[j].T / (2 * (j - 1))).T)
 
@@ -1278,7 +1278,6 @@ def hermcompanion(c):
     mat[n :: n + 1] = sqrt(0.5 * arange(1, n))
 
     mat = reshape(mat, shp)
-    # mat = mat.at[:, -1].add(-scale * c[:-1] / (2.0 * c[-1]))
     mat[:, -1] += -scale * c[:-1] / (2.0 * c[-1])
     return mat
 
@@ -1299,12 +1298,19 @@ def hermder(c, order=1, scale=1, axis=0):
     else:
         for _ in range(order):
             n = n - 1
+
             c *= scale
+
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
+
             j = arange(n, 0, -1)
-            der = der.at[j - 1].set((2 * j * (c[j]).T).T)
+
+            der[j - 1] = (2 * j * (c[j]).T).T
+
             c = der
+
     c = moveaxis(c, 0, axis)
+
     return c
 
 
@@ -1406,10 +1412,15 @@ def hermeder(c, order=1, scale=1, axis=0):
     else:
         for _ in range(order):
             n = n - 1
+
             c *= scale
+
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
+
             j = arange(n, 0, -1)
-            der = der.at[j - 1].set((j * (c[j]).T).T)
+
+            der[j - 1] = (j * (c[j]).T).T
+
             c = der
 
     c = moveaxis(c, 0, axis)
@@ -1454,7 +1465,8 @@ def hermegauss(degree):
     if degree <= 0:
         raise ValueError
 
-    c = zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1)
+    c[-1] = 1.0
     m = hermecompanion(c)
     x = torch.linalg.eigvalsh(m)
 
@@ -1472,7 +1484,7 @@ def hermegauss(degree):
     w = (w + a) / 2
     x = (x - b) / 2
 
-    w *= sqrt(2 * math.pi) / sum(w)
+    w *= math.sqrt(2 * math.pi) / sum(w)
 
     return x, w
 
@@ -1523,17 +1535,23 @@ def hermeint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    k = tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+    k = tensor(list(k) + [0] * (order - len(k)))
+    k = atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
         c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-        tmp = tmp.at[0].set(c[0] * 0)
-        tmp = tmp.at[1].set(c[0])
+
+        tmp[0] = c[0] * 0
+        tmp[1] = c[0]
+
         j = arange(1, n)
-        tmp = tmp.at[j + 1].set((c[j].T / (j + 1)).T)
+
+        tmp[j + 1] = (c[j].T / (j + 1)).T
+
         tmp = tmp.at[0].add(k[i] - hermeval(lower_bound, tmp))
+
         c = tmp
 
     return moveaxis(c, 0, axis)
@@ -1778,7 +1796,9 @@ def hermgauss(degree):
     if degree <= 0:
         raise ValueError
 
-    c = zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1)
+    c[-1] = 1.0
+
     x = torch.linalg.eigvalsh(hermcompanion(c))
 
     dy = _normed_hermite_n(x, degree)
@@ -1846,17 +1866,24 @@ def hermint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
-    k = tensor(list(k) + [0] * (order - len(k)), ndmin=1)
+
+    k = tensor(list(k) + [0] * (order - len(k)))
+    k = atleast_1d(k)
 
     for i in range(order):
         n = c.shape[0]
         c *= scale
         tmp = empty((n + 1,) + c.shape[1:], dtype=c.dtype)
-        tmp = tmp.at[0].set(c[0] * 0)
-        tmp = tmp.at[1].set(c[0] / 2)
+
+        tmp[0] = c[0] * 0
+        tmp[1] = c[0] / 2
+
         j = arange(1, n)
-        tmp = tmp.at[j + 1].set((c[j].T / (2 * (j + 1))).T)
+
+        tmp[j + 1] = (c[j].T / (2 * (j + 1))).T
+
         tmp = tmp.at[0].add(k[i] - hermval(lower_bound, tmp))
+
         c = tmp
 
     c = moveaxis(c, 0, axis)
@@ -2150,8 +2177,6 @@ def lagcompanion(input):
 
     mat[:, -1] += (input[:-1] / input[-1]) * n
 
-    # mat = mat.at[:, -1].add((input[:-1] / input[-1]) * n)
-
     return mat
 
 
@@ -2176,21 +2201,32 @@ def lagder(c, order=1, scale=1, axis=0):
 
             def body(k, der_c, n=n):
                 j = n - k
+
                 der, c = der_c
-                der = der.at[j - 1].set(-c[j])
+
+                der[j - 1] = -c[j]
+
                 c = c.at[j - 1].add(c[j])
+
                 return der, c
 
             b = n - 1
+
             x = (der, c)
+
             y = x
+
             for index in range(0, b):
                 y = body(index, y)
+
             der, c = y
-            der = der.at[0].set(-c[1])
+
+            der[0] = -c[1]
+
             c = der
 
     c = moveaxis(c, 0, axis)
+
     return c
 
 
@@ -2229,7 +2265,9 @@ def laggauss(degree):
     if degree <= 0:
         raise ValueError
 
-    c = zeros(degree + 1).at[-1].set(1)
+    c = zeros(degree + 1)
+    c[-1] = 1.0
+
     m = lagcompanion(c)
     x = torch.linalg.eigvalsh(m)
 
@@ -2303,9 +2341,13 @@ def lagint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
         tmp[1] = -c[0]
 
         j = arange(1, n)
+
         tmp = tmp.at[j].add(c[j])
+
         tmp = tmp.at[j + 1].add(-c[j])
+
         tmp = tmp.at[0].add(k[i] - lagval(lower_bound, tmp))
+
         c = tmp
 
     c = moveaxis(c, 0, axis)
@@ -3220,7 +3262,7 @@ def polyder(
 
             output = roll(output, -1, dims=[0]) * scale
 
-            output = output.at[-1].set(0)
+            output[-1] = 0.0
 
         output = output[:-order]
 
@@ -3420,7 +3462,7 @@ def polyint(
 
         input = roll(input, 1, dims=[0])
 
-        input = input.at[0].set(0)
+        input[0] = 0.0
 
         input = input.at[0].add(k[i] - polyval(lower_bound, input))
 
