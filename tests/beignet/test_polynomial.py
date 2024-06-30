@@ -2858,14 +2858,14 @@ def test_hermepow():
 def test_hermeroots():
     torch.testing.assert_close(
         hermeroots(
-            [1.0],
+            torch.tensor([1.0]),
         ),
         torch.tensor([]),
     )
 
     torch.testing.assert_close(
         hermeroots(
-            [1.0, 1.0],
+            torch.tensor([1.0, 1.0]),
         ),
         torch.tensor([-1.0]),
     )
