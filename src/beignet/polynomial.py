@@ -1285,7 +1285,12 @@ def hermcompanion(c):
     return mat
 
 
-def hermder(c, order=1, scale=1, axis=0):
+def hermder(
+    c,
+    order=1,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if order < 0:
         raise ValueError
 
@@ -1295,7 +1300,9 @@ def hermder(c, order=1, scale=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
+
     n = c.shape[0]
+
     if order >= n:
         c = zeros_like(c[:1])
     else:
@@ -1326,6 +1333,7 @@ def hermdiv(
 
 def herme2poly(c):
     [c] = _as_series([c])
+
     n = c.shape[0]
 
     if n == 1:
@@ -1342,10 +1350,15 @@ def herme2poly(c):
 
         def body(k, c0c1):
             i = n - 1 - k
+
             c0, c1 = c0c1
+
             tmp = c0
+
             c0 = polysub(c[i - 2], c1 * (i - 1))
+
             c1 = polyadd(tmp, polymulx(c1, "same"))
+
             return c0, c1
 
         b = n - 2
@@ -1399,7 +1412,12 @@ def hermecompanion(c):
     return mat
 
 
-def hermeder(c, order=1, scale=1, axis=0):
+def hermeder(
+    c,
+    order=1,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if order < 0:
         raise ValueError
 
@@ -1409,14 +1427,16 @@ def hermeder(c, order=1, scale=1, axis=0):
         return c
 
     c = moveaxis(c, axis, 0)
+
     n = c.shape[0]
+
     if order >= n:
         c = zeros_like(c[:1])
     else:
         for _ in range(order):
             n = n - 1
 
-            c *= scale
+            c = c * scale
 
             der = empty((n,) + c.shape[1:], dtype=c.dtype)
 
@@ -2205,7 +2225,12 @@ def lagcompanion(input):
     return mat
 
 
-def lagder(c, order=1, scale=1, axis=0):
+def lagder(
+    c,
+    order=1,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if order < 0:
         raise ValueError
 
@@ -2683,7 +2708,12 @@ def legcompanion(c):
     return output
 
 
-def legder(c, order=1, scale=1, axis=0):
+def legder(
+    c,
+    order=1,
+    scale=1,
+    axis=0,
+) -> Tensor:
     if order < 0:
         raise ValueError
 
