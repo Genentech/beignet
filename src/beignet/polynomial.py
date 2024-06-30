@@ -1062,14 +1062,18 @@ def chebpow(
     return output
 
 
-def chebpts1(input: int) -> Tensor:
+def chebpts1(
+    input: int,
+) -> Tensor:
     if input < 1:
         raise ValueError
 
     return sin(0.5 * math.pi / input * arange(-input + 1, input + 1, 2))
 
 
-def chebpts2(input: int) -> Tensor:
+def chebpts2(
+    input: int,
+) -> Tensor:
     if input < 2:
         raise ValueError
 
@@ -1106,7 +1110,11 @@ def chebsub(
     return _subtract(input, other)
 
 
-def chebval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
+def chebval(
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
+) -> Tensor:
     [coefficients] = _as_series([coefficients])
 
     if tensor:
@@ -3052,7 +3060,11 @@ def legsub(
     return _subtract(input, other)
 
 
-def legval(input: Tensor, coefficients: Tensor, tensor: bool = True) -> Tensor:
+def legval(
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
+) -> Tensor:
     [coefficients] = _as_series([coefficients])
 
     if tensor:
