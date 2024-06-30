@@ -4853,21 +4853,21 @@ def test_lagint():
             ),
         )
 
-    # for i in range(5):
-    #     assert_close(
-    #         lagval(
-    #             tensor([-1]),
-    #             lagint(
-    #                 poly2lag(
-    #                     tensor([0.0] * i + [1.0]),
-    #                 ),
-    #                 order=1,
-    #                 k=[i],
-    #                 lower_bound=-1,
-    #             ),
-    #         ),
-    #         i,
-    #     )
+    for i in range(5):
+        assert_close(
+            lagval(
+                tensor([-1.0]),
+                lagint(
+                    poly2lag(
+                        tensor([0.0] * i + [1.0]),
+                    ),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            torch.tensor([i], dtype=torch.get_default_dtype()),
+        )
 
     for i in range(5):
         assert_close(
