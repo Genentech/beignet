@@ -4124,15 +4124,27 @@ def test_lagadd():
 
 def test_lagcompanion():
     with pytest.raises(ValueError):
-        lagcompanion(torch.tensor([]))
+        lagcompanion(
+            torch.tensor([]),
+        )
+
     with pytest.raises(ValueError):
-        lagcompanion([1])
+        lagcompanion(
+            torch.tensor([1.0]),
+        )
 
-    for i in range(1, 5):
-        coef = torch.tensor([0.0] * i + [1.0])
-        assert lagcompanion(coef).shape == (i, i)
+    for index in range(1, 5):
+        output = lagcompanion(
+            torch.tensor([0.0] * index + [1.0]),
+        )
 
-    assert lagcompanion(torch.tensor([1, 2]))[0, 0] == 1.5
+        assert output.shape == (index, index)
+
+    output = lagcompanion(
+        torch.tensor([1.0, 2.0]),
+    )
+
+    assert output[0, 0] == 1.5
 
 
 def test_lagder():
