@@ -5942,24 +5942,48 @@ def test_leggrid3d():
 
 
 def test_legint():
-    pytest.raises(TypeError, legint, tensor([0]), 0.5)
-    pytest.raises(ValueError, legint, tensor([0]), -1)
-    pytest.raises(
-        ValueError,
-        legint,
-        tensor([0]),
-        1,
-        tensor([0, 0]),
-    )
-    pytest.raises(ValueError, legint, tensor([0]), lower_bound=[0])
-    pytest.raises(ValueError, legint, tensor([0]), scale=[0])
-    pytest.raises(TypeError, legint, tensor([0]), axis=0.5)
+    with pytest.raises(TypeError):
+        legint(
+            tensor([0]),
+            0.5,
+        )
+
+    with pytest.raises(ValueError):
+        legint(
+            tensor([0]),
+            -1,
+        )
+
+    with pytest.raises(ValueError):
+        legint(
+            tensor([0]),
+            1,
+            tensor([0, 0]),
+        )
+
+    with pytest.raises(ValueError):
+        legint(
+            tensor([0]),
+            lower_bound=[0],
+        )
+
+    with pytest.raises(ValueError):
+        legint(
+            tensor([0]),
+            scale=[0],
+        )
+
+    with pytest.raises(TypeError):
+        legint(
+            tensor([0]),
+            axis=0.5,
+        )
 
     for i in range(2, 5):
         assert_close(
             legtrim(
                 legint(
-                    tensor([0]),
+                    tensor([0.0]),
                     order=i,
                     k=([0.0] * (i - 2) + [1.0]),
                 ),
@@ -5973,7 +5997,9 @@ def test_legint():
             legtrim(
                 leg2poly(
                     legint(
-                        poly2leg(tensor([0] * i + [1])),
+                        poly2leg(
+                            tensor([0.0] * i + [1.0]),
+                        ),
                         order=1,
                         k=[i],
                     )
@@ -5981,7 +6007,7 @@ def test_legint():
                 tol=0.000001,
             ),
             legtrim(
-                tensor([i] + [0] * i + [1 / (i + 1)]),
+                tensor([i] + [0.0] * i + [1 / (i + 1)]),
                 tol=0.000001,
             ),
         )
@@ -5991,7 +6017,9 @@ def test_legint():
             legval(
                 tensor([-1]),
                 legint(
-                    poly2leg(tensor([0] * i + [1])),
+                    poly2leg(
+                        tensor([0.0] * i + [1.0]),
+                    ),
                     order=1,
                     k=[i],
                     lower_bound=-1,
@@ -6005,7 +6033,9 @@ def test_legint():
             legtrim(
                 leg2poly(
                     legint(
-                        poly2leg(tensor([0] * i + [1])),
+                        poly2leg(
+                            tensor([0.0] * i + [1.0]),
+                        ),
                         order=1,
                         k=[i],
                         scale=2,
@@ -6014,7 +6044,7 @@ def test_legint():
                 tol=0.000001,
             ),
             legtrim(
-                tensor([i] + [0] * i + [2 / (i + 1)]),
+                tensor([i] + [0.0] * i + [2 / (i + 1)]),
                 tol=0.000001,
             ),
         )
@@ -6022,11 +6052,19 @@ def test_legint():
     for i in range(5):
         for j in range(2, 5):
             target = (tensor([0] * i + [1]))[:]
+
             for _ in range(j):
-                target = legint(target, order=1)
+                target = legint(
+                    target,
+                    order=1,
+                )
+
             assert_close(
                 legtrim(
-                    legint(tensor([0.0] * i + [1.0]), order=j),
+                    legint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                    ),
                     tol=0.000001,
                 ),
                 legtrim(
@@ -6037,13 +6075,22 @@ def test_legint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for k in range(j):
-                target = legint(target, order=1, k=[k])
+                target = legint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
+
             assert_close(
                 legtrim(
-                    legint(pol, order=j, k=list(range(j))),
+                    legint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                        k=list(range(j)),
+                    ),
                     tol=0.000001,
                 ),
                 legtrim(
@@ -6054,8 +6101,8 @@ def test_legint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for k in range(j):
                 target = legint(
                     target,
@@ -6063,10 +6110,11 @@ def test_legint():
                     k=[k],
                     lower_bound=-1,
                 )
+
             assert_close(
                 legtrim(
                     legint(
-                        pol,
+                        tensor([0.0] * i + [1.0]),
                         order=j,
                         k=list(range(j)),
                         lower_bound=-1,
@@ -6081,8 +6129,8 @@ def test_legint():
 
     for i in range(5):
         for j in range(2, 5):
-            pol = tensor([0.0] * i + [1.0])
-            target = pol[:]
+            target = tensor([0.0] * i + [1.0])[:]
+
             for k in range(j):
                 target = legint(
                     target,
@@ -6090,10 +6138,11 @@ def test_legint():
                     k=[k],
                     scale=2,
                 )
+
             assert_close(
                 legtrim(
                     legint(
-                        pol,
+                        tensor([0.0] * i + [1.0]),
                         order=j,
                         k=list(range(j)),
                         scale=2,
@@ -6113,13 +6162,21 @@ def test_legint():
         vstack([legint(c) for c in c2d.T]).T,
     )
 
+    target = [legint(c) for c in c2d]
+
+    target = vstack(target)
+
     assert_close(
         legint(
             c2d,
             axis=1,
         ),
-        vstack([legint(c) for c in c2d]),
+        target,
     )
+
+    target = [legint(c, k=3) for c in c2d]
+
+    target = vstack(target)
 
     assert_close(
         legint(
@@ -6127,15 +6184,15 @@ def test_legint():
             k=3,
             axis=1,
         ),
-        vstack([legint(c, k=3) for c in c2d]),
+        target,
     )
 
     assert_close(
         legint(
-            (1, 2, 3),
+            tensor([1, 2, 3]),
             order=0,
         ),
-        (1, 2, 3),
+        tensor([1, 2, 3]),
     )
 
 
