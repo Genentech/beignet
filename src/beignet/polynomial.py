@@ -1869,7 +1869,7 @@ def hermgauss(degree):
     x = torch.linalg.eigvalsh(hermcompanion(c))
 
     dy = _normed_hermite_n(x, degree)
-    df = _normed_hermite_n(x, degree - 1) * sqrt(2 * degree)
+    df = _normed_hermite_n(x, degree - 1) * math.sqrt(2 * degree)
 
     x = x - (dy / df)
 
@@ -1883,7 +1883,7 @@ def hermgauss(degree):
     w = (w + a) / 2
     x = (x - b) / 2
 
-    w = w * (sqrt(math.pi) / sum(w))
+    w = w * (math.sqrt(math.pi) / sum(w))
 
     return x, w
 

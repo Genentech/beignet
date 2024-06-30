@@ -3478,7 +3478,7 @@ def test_hermgauss():
     x, w = hermgauss(100)
 
     v = hermvander(x, 99)
-    vv = torch.dot(v.T * w, v)
+    vv = (v.T * w) @ v
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
     assert_close(
@@ -3486,8 +3486,10 @@ def test_hermgauss():
         torch.eye(100),
     )
 
-    target = torch.sqrt(math.pi)
-    assert_close(w.sum(), target)
+    assert_close(
+        torch.sum(w, dim=0),
+        torch.tensor(math.sqrt(math.pi)),
+    )
 
 
 def test_hermgrid2d():
