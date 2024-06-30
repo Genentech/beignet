@@ -355,7 +355,7 @@ def test__map_domain():
             tensor([-0 - 1j, 2 + 1j]),
             tensor([-2.0, 2.0]),
         ),
-        tensor([-2.0, 2.0]),
+        tensor([-2 + 0j, 2 + 0j]),
     )
 
     assert_close(
@@ -7753,7 +7753,11 @@ def test_polyvalfromroots():
         )
 
     assert_close(
-        polyvalfromroots(x, r, tensor=False),
+        polyvalfromroots(
+            x,
+            r,
+            tensor=False,
+        ),
         target,
     )
 
@@ -7763,10 +7767,17 @@ def test_polyvalfromroots():
 
     for j in range(r.shape[1]):
         for k in range(x.shape[0]):
-            target[j, k, :] = polyvalfromroots(x[k], r[:, j])
+            target[j, k, :] = polyvalfromroots(
+                x[k],
+                r[:, j],
+            )
 
     assert_close(
-        polyvalfromroots(x, r, tensor=True),
+        polyvalfromroots(
+            x,
+            r,
+            tensor=True,
+        ),
         target,
     )
 
