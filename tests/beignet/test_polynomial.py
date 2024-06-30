@@ -2489,22 +2489,31 @@ def test_hermefit():
 
 
 def test_hermefromroots():
-    res = hermefromroots(torch.tensor([]))
     torch.testing.assert_close(
         hermetrim(
-            res,
+            hermefromroots(
+                torch.tensor([]),
+            ),
             tol=0.000001,
         ),
-        torch.tensor([1]),
+        torch.tensor([1.0]),
     )
+
     for i in range(1, 5):
         roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
+
         pol = hermefromroots(roots)
+
         assert len(pol) == i + 1
-        torch.testing.assert_close(herme2poly(pol)[-1], 1)
+
+        torch.testing.assert_close(
+            herme2poly(pol)[-1],
+            torch.tensor([1.0]),
+        )
+
         torch.testing.assert_close(
             hermeval(roots, pol),
-            0,
+            torch.tensor([0.0]),
         )
 
 
@@ -4458,13 +4467,20 @@ def test_lagfromroots():
         ),
         torch.tensor([1]),
     )
+
     for i in range(1, 5):
         roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
+
         pol = lagfromroots(roots)
+
         res = lagval(roots, pol)
+
         target = 0
+
         assert len(pol) == i + 1
+
         torch.testing.assert_close(lag2poly(pol)[-1], 1)
+
         torch.testing.assert_close(res, target)
 
 
@@ -5573,6 +5589,7 @@ def test_legfromroots():
         ),
         torch.tensor([1.0]),
     )
+
     for index in range(1, 5):
         input = torch.linspace(-math.pi, 0, 2 * index + 1)[1::2]
 
