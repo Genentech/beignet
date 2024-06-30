@@ -3476,7 +3476,7 @@ def polyroots(
 
     output = torch.linalg.eigvals(output)
 
-    output, _ = torch.sort(output)
+    output, _ = torch.sort(output.real)
 
     return output
 
