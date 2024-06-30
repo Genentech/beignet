@@ -2747,18 +2747,18 @@ def legint(c, order=1, k=None, lower_bound=0, scale=1, axis=0):
 
         tmp = torch.empty((n + 1,) + c.shape[1:], dtype=c.dtype)
 
-        tmp = tmp.at[0].set(c[0] * 0)
+        tmp[0] = c[0] * 0
 
-        tmp = tmp.at[1].set(c[0])
+        tmp[1] = c[0]
 
         if n > 1:
-            tmp = tmp.at[2].set(c[1] / 3)
+            tmp[2] = c[1] / 3
 
         j = arange(2, n)
 
         t = (c[j].T / (2 * j + 1)).T
 
-        tmp = tmp.at[j + 1].set(t)
+        tmp[j + 1] = t
 
         tmp = tmp.at[j - 1].add(-t)
 
