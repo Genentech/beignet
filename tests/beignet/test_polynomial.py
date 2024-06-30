@@ -195,9 +195,9 @@ from beignet.polynomial import (
     polyzero,
 )
 from torch import (
-    LongTensor,
     Tensor,
     arange,
+    cos,
     einsum,
     exp,
     linspace,
@@ -993,7 +993,7 @@ def test_chebfromroots():
 
     for index in range(1, 5):
         input = chebfromroots(
-            torch.cos(linspace(-math.pi, 0.0, 2 * index + 1)[1::2]),
+            cos(linspace(-math.pi, 0.0, 2 * index + 1)[1::2]),
         )
 
         input = input * 2 ** (index - 1)
@@ -2545,7 +2545,7 @@ def test_hermefromroots():
     )
 
     for i in range(1, 5):
-        roots = torch.cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        roots = cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
 
         pol = hermefromroots(roots)
 
@@ -3452,7 +3452,7 @@ def test_hermfromroots():
     )
 
     for i in range(1, 5):
-        roots = torch.cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        roots = cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
         pol = hermfromroots(roots)
         res = hermval(roots, pol)
         target = 0
@@ -4513,7 +4513,7 @@ def test_lagfromroots():
     )
 
     for i in range(1, 5):
-        roots = torch.cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
+        roots = cos(linspace(-math.pi, 0, 2 * i + 1)[1::2])
 
         pol = lagfromroots(roots)
 
@@ -5636,7 +5636,7 @@ def test_legfromroots():
         input = linspace(-math.pi, 0, 2 * index + 1)[1::2]
 
         output = legfromroots(
-            torch.cos(
+            cos(
                 input,
             ),
         )
@@ -5646,7 +5646,7 @@ def test_legfromroots():
         assert_close(
             leg2poly(
                 legfromroots(
-                    torch.cos(
+                    cos(
                         input,
                     ),
                 )
@@ -5656,11 +5656,11 @@ def test_legfromroots():
 
         assert_close(
             legval(
-                torch.cos(
+                cos(
                     input,
                 ),
                 legfromroots(
-                    torch.cos(
+                    cos(
                         input,
                     ),
                 ),
@@ -6823,7 +6823,7 @@ def test_polyfromroots():
 
         input = input[1::2]
 
-        input = torch.torch.cos(input)
+        input = cos(input)
 
         output = polyfromroots(input) * 2 ** (index - 1)
 
@@ -7376,7 +7376,7 @@ def test_polyvalfromroots():
 def test_polyvander():
     output = polyvander(
         arange(3.0),
-        degree=LongTensor([3]),
+        degree=torch.tensor([3]),
     )
 
     assert output.shape == (3, 4)
@@ -7392,7 +7392,7 @@ def test_polyvander():
 
     output = polyvander(
         tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
-        degree=LongTensor([3]),
+        degree=torch.tensor([3]),
     )
 
     assert output.shape == (3, 2, 4)
@@ -7409,7 +7409,7 @@ def test_polyvander():
     with pytest.raises(ValueError):
         polyvander(
             arange(3),
-            degree=LongTensor([-1]),
+            degree=torch.tensor([-1]),
         )
 
 

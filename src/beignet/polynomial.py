@@ -8,7 +8,6 @@ import torch
 import torch._numpy._funcs_impl
 import torchaudio.functional
 from torch import (
-    LongTensor,
     Tensor,
     abs,
     arange,
@@ -3368,7 +3367,7 @@ def polycompanion(
 
 def polyder(
     input: Tensor,
-    order: LongTensor | None = None,
+    order: Tensor | None = None,
     scale: Tensor | None = None,
     dim: int = 0,
 ) -> Tensor:
@@ -3378,7 +3377,7 @@ def polyder(
     input : Tensor
         Polynomial coefficients.
 
-    order : LongTensor, optional
+    order : Tensor, optional
 
     scale : Tensor, optional
 
@@ -3794,8 +3793,8 @@ def polyval(
 
     output = coefficients[-1] + zeros_like(input)
 
-    for index in range(2, coefficients.shape[0] + 1):
-        output = coefficients[-index] + output * input
+    for i in range(2, coefficients.shape[0] + 1):
+        output = coefficients[-i] + output * input
 
     return output
 
@@ -3877,14 +3876,14 @@ def polyvalfromroots(
 
 def polyvander(
     input: Tensor,
-    degree: LongTensor,
+    degree: Tensor,
 ) -> Tensor:
     r"""
     Parameters
     ----------
     input : Tensor
 
-    degree : LongTensor
+    degree : Tensor
 
     Returns
     -------
@@ -3900,8 +3899,8 @@ def polyvander(
 
     output[0] = ones_like(input)
 
-    for index in range(1, degree + 1):
-        output[index] = output[index - 1] * input
+    for i in range(1, degree + 1):
+        output[i] = output[i - 1] * input
 
     output = moveaxis(output, 0, -1)
 
@@ -3911,7 +3910,7 @@ def polyvander(
 def polyvander2d(
     x: Tensor,
     y: Tensor,
-    degree: LongTensor,
+    degree: Tensor,
 ) -> Tensor:
     r"""
     Parameters
@@ -3920,7 +3919,7 @@ def polyvander2d(
 
     y : Tensor
 
-    degree : LongTensor
+    degree : Tensor
 
     Returns
     -------
@@ -3948,7 +3947,7 @@ def polyvander3d(
 
     z : Tensor
 
-    degree : LongTensor
+    degree : Tensor
 
     Returns
     -------
