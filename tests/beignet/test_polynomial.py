@@ -1711,7 +1711,7 @@ def test_chebval3d():
 def test_chebvander():
     v = chebvander(
         arange(3),
-        degree=3,
+        degree=tensor([3]),
     )
 
     assert v.shape == (3, 4)
@@ -1727,7 +1727,7 @@ def test_chebvander():
 
     v = chebvander(
         tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
-        degree=3,
+        degree=tensor([3]),
     )
 
     assert v.shape == (3, 2, 4)
