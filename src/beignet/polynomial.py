@@ -4406,16 +4406,14 @@ def polyvander(
     input = tensor(input)
     input = atleast_1d(input)
     dims = (degree + 1,) + input.shape
-    print(dims)
     dtyp = input.dtype
     v = empty(dims, dtype=dtyp)
     v[0] = ones_like(input)
 
-    def body(i, v):
-        v[i] = v[i - 1] * input
-        return v
+    upper = degree + 1
 
-    v = fori_loop(1, degree + 1, body, v)
+    for i in range(1, upper):
+        v[i] = v[i - 1] * input
 
     return moveaxis(v, 0, -1)
 
