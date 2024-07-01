@@ -5981,31 +5981,43 @@ def test_leggauss():
 
 
 def test_leggrid2d():
-    c1d = tensor([2.0, 2.0, 2.0])
-    c2d = einsum("i,j->ij", c1d, c1d)
+    input = rand(3, 5) * 2 - 1
 
-    x = rand(3, 5) * 2 - 1
-    a, b, x3 = x
-    y1, y2, y3 = polyval(x, tensor([1.0, 2.0, 3.0]))
+    a, b, c = input
+
+    x, y, z = polyval(
+        input,
+        tensor([1.0, 2.0, 3.0]),
+    )
 
     assert_close(
         leggrid2d(
             a,
             b,
-            c2d,
+            einsum(
+                "i,j->ij",
+                tensor([2.0, 2.0, 2.0]),
+                tensor([2.0, 2.0, 2.0]),
+            ),
         ),
-        einsum("i,j->ij", y1, y2),
+        einsum(
+            "i,j->ij",
+            x,
+            y,
+        ),
     )
 
-    z = ones([2, 3])
-    assert (
-        leggrid2d(
-            z,
-            z,
-            c2d,
-        ).shape
-        == (2, 3) * 2
+    output = leggrid2d(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            tensor([2.0, 2.0, 2.0]),
+            tensor([2.0, 2.0, 2.0]),
+        ),
     )
+
+    assert output.shape == (2, 3) * 2
 
 
 def test_leggrid3d():
