@@ -305,7 +305,13 @@ def _fit(
 
 
 def _fit(
-    vandermonde_func, input, other, degree, relative_condition=None, full=False, w=None
+    vandermonde_func,
+    input,
+    other,
+    degree,
+    relative_condition=None,
+    full=False,
+    w=None,
 ):  # noqa:C901
     input = torch.tensor(input)
     other = torch.tensor(other)
