@@ -312,13 +312,13 @@ def _fit(
     relative_condition=None,
     full=False,
     w=None,
-):  # noqa:C901
+):
     input = torch.tensor(input)
     other = torch.tensor(other)
     degree = torch.tensor(degree)
 
     if degree.ndim > 1:
-        raise TypeError("deg must be an int or non-empty 1-D array of int")
+        raise TypeError
 
     # if deg.dtype.kind not in "iu":
     #     raise TypeError
@@ -327,15 +327,19 @@ def _fit(
         raise TypeError
 
     if degree.min() < 0:
-        raise ValueError("expected deg >= 0")
+        raise ValueError
+
     if input.ndim != 1:
-        raise TypeError("expected 1D vector for x")
+        raise TypeError
+
     if input.size == 0:
-        raise TypeError("expected non-empty vector for x")
+        raise TypeError
+
     if other.ndim < 1 or other.ndim > 2:
-        raise TypeError("expected 1D or 2D array for y")
+        raise TypeError
+
     if len(input) != len(other):
-        raise TypeError("expected x and y to have same length")
+        raise TypeError
 
     if degree.ndim == 0:
         lmax = int(degree)
@@ -489,42 +493,33 @@ def _from_roots(
     return output[0]
 
 
-def _get_domain(
-    x: Tensor,
-) -> Tensor:
-    if torch.is_complex(x):
+def _get_domain(input: Tensor) -> Tensor:
+    if torch.is_complex(input):
         output = torch.tensor(
             [
-                torch.min(torch.real(x)) + 1.0j * torch.min(torch.imag(x)),
-                torch.max(torch.real(x)) + 1.0j * torch.max(torch.imag(x)),
+                torch.min(input.real) + 1j * torch.min(input.imag),
+                torch.max(input.real) + 1j * torch.max(input.imag),
             ],
         )
         return output
     else:
         output = torch.tensor(
             [
-                torch.min(x),
-                torch.max(x),
+                torch.min(input),
+                torch.max(input),
             ],
         )
 
     return output
 
 
-def _map_domain(
-    x: Tensor,
-    y: Tensor,
-    z: Tensor,
-) -> Tensor:
+def _map_domain(x: Tensor, y: Tensor, z: Tensor) -> Tensor:
     (a, b), (c, d) = y, z
 
     return (b * c - a * d) / (b - a) + (d - c) / (b - a) * x
 
 
-def _map_parameters(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
+def _map_parameters(input: Tensor, other: Tensor) -> Tensor:
     a = input[1] - input[0]
     b = other[1] - other[0]
 
@@ -730,9 +725,7 @@ def _trim_coefficients(
     return output
 
 
-def _trim_sequence(
-    input: Tensor,
-) -> Tensor:
+def _trim_sequence(input: Tensor) -> Tensor:
     if input.shape[0] == 0:
         output = input
     else:
@@ -747,26 +740,17 @@ def _trim_sequence(
     return output
 
 
-def _vandermonde(
-    functions,
-    input: Tensor,
-    degrees: Tensor,
-) -> Tensor:
+def _vandermonde(functions, input: Tensor, degrees: Tensor) -> Tensor:
     n_dims = len(functions)
+
     if n_dims != len(input):
-        raise ValueError(
-            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
-        )
+        raise ValueError
+
     if n_dims != len(degrees):
-        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
+        raise ValueError
 
     if n_dims == 0:
-        raise ValueError("Unable to guess a dtype or shape when no points are given")
-
-    # convert to the same shape and type
-    # points = tuple(tensor(tuple(points)) + 0.0)
-    # points = concatenate(points)
-    print(f"points: {input}")
+        raise ValueError
 
     # produce the vandermonde matrix for each dimension, placing the last
     # axis of each in an independent trailing axis of the output
@@ -799,9 +783,7 @@ def _z_series_to_c_series(
     return c
 
 
-def cheb2poly(
-    input: Tensor,
-) -> Tensor:
+def cheb2poly(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     n = input.shape[0]
@@ -831,10 +813,7 @@ def cheb2poly(
     return output
 
 
-def chebadd(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
+def chebadd(input: Tensor, other: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
