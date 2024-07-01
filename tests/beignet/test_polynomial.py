@@ -569,54 +569,54 @@ def test_chebder():
                 ),
             )
 
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         input = tensor([0.0] * i + [1.0])
-    #
-    #         assert_close(
-    #             chebtrim(
-    #                 chebder(
-    #                     chebint(
-    #                         input,
-    #                         order=j,
-    #                         scale=tensor([2.0]),
-    #                     ),
-    #                     order=j,
-    #                     scale=tensor([0.5]),
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 input,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # input = rand(3, 4)
-    #
-    # target = [chebder(c) for c in input.T]
-    #
-    # target = vstack(target).T
-    #
-    # assert_close(
-    #     chebder(
-    #         input,
-    #         axis=0,
-    #     ),
-    #     target,
-    # )
-    #
-    # target = [chebder(c) for c in input]
-    #
-    # target = vstack(target)
-    #
-    # assert_close(
-    #     chebder(
-    #         input,
-    #         axis=1,
-    #     ),
-    #     target,
-    # )
+    for i in range(5):
+        for j in range(2, 5):
+            input = tensor([0.0] * i + [1.0])
+
+            assert_close(
+                chebtrim(
+                    chebder(
+                        chebint(
+                            input,
+                            order=j,
+                            scale=tensor([2.0]),
+                        ),
+                        order=j,
+                        scale=tensor([0.5]),
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    input,
+                    tol=0.000001,
+                ),
+            )
+
+    input = rand(3, 4)
+
+    target = [chebder(c) for c in input.T]
+
+    target = vstack(target).T
+
+    assert_close(
+        chebder(
+            input,
+            axis=0,
+        ),
+        target,
+    )
+
+    target = [chebder(c) for c in input]
+
+    target = vstack(target)
+
+    assert_close(
+        chebder(
+            input,
+            axis=1,
+        ),
+        target,
+    )
 
 
 def test_chebdiv():
@@ -7827,15 +7827,10 @@ def test_polyvander2d():
 
     coefficients = rand(2, 3)
 
+    output = polyvander2d(a, b, degree=tensor([1, 2]))
+
     assert_close(
-        dot(
-            polyvander2d(
-                a,
-                b,
-                degree=tensor([1, 2]),
-            ),
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         polyval2d(
             a,
             b,
@@ -7844,12 +7839,12 @@ def test_polyvander2d():
     )
 
     output = polyvander2d(
-        tensor([a]),
-        tensor([b]),
+        a,
+        b,
         degree=tensor([1, 2]),
     )
 
-    assert output.shape == (1, 5, 6)
+    assert output.shape == (5, 6)
 
 
 def test_polyvander3d():
@@ -7857,16 +7852,15 @@ def test_polyvander3d():
 
     coefficients = rand(2, 3, 4)
 
+    output = polyvander3d(
+        a,
+        b,
+        c,
+        degree=tensor([1.0, 2.0, 3.0]),
+    )
+
     assert_close(
-        dot(
-            polyvander3d(
-                a,
-                b,
-                c,
-                degree=tensor([1.0, 2.0, 3.0]),
-            ),
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         polyval3d(
             a,
             b,
@@ -7876,13 +7870,13 @@ def test_polyvander3d():
     )
 
     output = polyvander3d(
-        tensor([a]),
-        tensor([b]),
-        tensor([c]),
+        a,
+        b,
+        c,
         degree=tensor([1.0, 2.0, 3.0]),
     )
 
-    assert output.shape == (1, 5, 24)
+    assert output.shape == (5, 24)
 
 
 def test_polyx():

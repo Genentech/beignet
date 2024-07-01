@@ -679,33 +679,30 @@ def _vandermonde(
     degrees: Tensor,
 ) -> Tensor:
     n_dims = len(functions)
-
     if n_dims != len(input):
-        raise ValueError
-
+        raise ValueError(
+            f"Expected {n_dims} dimensions of sample points, got {len(input)}"
+        )
     if n_dims != len(degrees):
-        raise ValueError
+        raise ValueError(f"Expected {n_dims} dimensions of degrees, got {len(degrees)}")
 
     if n_dims == 0:
-        raise ValueError
+        raise ValueError("Unable to guess a dtype or shape when no points are given")
 
-    input = tuple(tensor(tuple(input)) + 0.0)
+    # convert to the same shape and type
+    # points = tuple(tensor(tuple(points)) + 0.0)
+    # points = concatenate(points)
+    print(f"points: {input}")
 
-    output = []
+    # produce the vandermonde matrix for each dimension, placing the last
+    # axis of each in an independent trailing axis of the output
+    vander_arrays = (
+        functions[i](input[i], degrees[i])[(...,) + _nth_slice(i, n_dims)]
+        for i in range(n_dims)
+    )
 
-    for index in range(n_dims):
-        vandermonde = functions[index](input[index], degrees[index])
-
-        indices = _nth_slice(index, n_dims)
-
-        indices = (..., *indices)
-
-        output = [
-            *output,
-            vandermonde[indices],
-        ]
-
-    return functools.reduce(operator.mul, output)
+    # we checked this wasn't empty already, so no `initial` needed
+    return functools.reduce(operator.mul, vander_arrays)
 
 
 def _z_series_mul(
@@ -4394,22 +4391,33 @@ def polyvander(
     -------
     output : Tensor
     """
+
+    def fori_loop(lower, upper, body_fun, init_val):
+        val = init_val
+        for i in range(lower, upper):
+            val = body_fun(i, val)
+        return val
+
     if degree < 0:
-        raise ValueError
+        raise ValueError("deg must be non-negative")
 
-    if input.ndim == 0:
-        input = ravel(input)
+    degree = int(degree)
 
-    output = empty([degree + 1, *input.shape], dtype=input.dtype)
+    input = tensor(input)
+    input = atleast_1d(input)
+    dims = (degree + 1,) + input.shape
+    print(dims)
+    dtyp = input.dtype
+    v = empty(dims, dtype=dtyp)
+    v[0] = ones_like(input)
 
-    output[0] = ones_like(input)
+    def body(i, v):
+        v[i] = v[i - 1] * input
+        return v
 
-    for i in range(1, degree + 1):
-        output[i] = output[i - 1] * input
+    v = fori_loop(1, degree + 1, body, v)
 
-    output = moveaxis(output, 0, -1)
-
-    return output
+    return moveaxis(v, 0, -1)
 
 
 def polyvander2d(
