@@ -1743,7 +1743,7 @@ def test_chebvander():
 
 
 def test_chebvander2d():
-    a, b, x3 = rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
     coefficients = rand(2, 3)
 
@@ -2488,7 +2488,7 @@ def test_hermefromroots():
 
         assert_close(
             herme2poly(pol)[-1],
-            tensor([1.0]),
+            tensor(1.0),
         )
 
         assert_close(
