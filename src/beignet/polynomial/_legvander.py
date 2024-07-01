@@ -2,10 +2,7 @@ import torch
 from torch import Tensor
 
 
-def legvander(
-    x: Tensor,
-    degree: Tensor,
-) -> Tensor:
+def legvander(x: Tensor, degree: Tensor) -> Tensor:
     if degree < 0:
         raise ValueError
 
