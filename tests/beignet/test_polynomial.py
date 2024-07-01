@@ -89,75 +89,36 @@ from beignet.polynomial import (
     hermmul,
     hermmulx,
     hermone,
-    hermpow,
-    hermroots,
     hermsub,
     hermtrim,
     hermval,
-    hermval2d,
-    hermval3d,
     hermvander,
-    hermvander2d,
-    hermvander3d,
-    hermweight,
     hermx,
     hermzero,
-    lag2poly,
     lagadd,
     lagcompanion,
-    lagder,
-    lagdiv,
     lagdomain,
-    lagfit,
-    lagfromroots,
-    laggauss,
-    laggrid2d,
-    laggrid3d,
-    lagint,
     lagline,
     lagmul,
     lagmulx,
     lagone,
-    lagpow,
-    lagroots,
     lagsub,
     lagtrim,
     lagval,
-    lagval2d,
-    lagval3d,
     lagvander,
-    lagvander2d,
-    lagvander3d,
-    lagweight,
     lagx,
     lagzero,
-    leg2poly,
     legadd,
     legcompanion,
-    legder,
-    legdiv,
     legdomain,
-    legfit,
-    legfromroots,
-    leggauss,
-    leggrid2d,
-    leggrid3d,
-    legint,
     legline,
     legmul,
     legmulx,
     legone,
-    legpow,
-    legroots,
     legsub,
     legtrim,
     legval,
-    legval2d,
-    legval3d,
     legvander,
-    legvander2d,
-    legvander3d,
-    legweight,
     legx,
     legzero,
     polyadd,
@@ -175,6 +136,45 @@ from beignet.polynomial import (
     polyzero,
 )
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._hermpow import hermpow
+from beignet.polynomial._hermroots import hermroots
+from beignet.polynomial._hermval2d import hermval2d
+from beignet.polynomial._hermval3d import hermval3d
+from beignet.polynomial._hermvander2d import hermvander2d
+from beignet.polynomial._hermvander3d import hermvander3d
+from beignet.polynomial._hermweight import hermweight
+from beignet.polynomial._lag2poly import lag2poly
+from beignet.polynomial._lagder import lagder
+from beignet.polynomial._lagdiv import lagdiv
+from beignet.polynomial._lagfit import lagfit
+from beignet.polynomial._lagfromroots import lagfromroots
+from beignet.polynomial._laggauss import laggauss
+from beignet.polynomial._laggrid2d import laggrid2d
+from beignet.polynomial._laggrid3d import laggrid3d
+from beignet.polynomial._lagint import lagint
+from beignet.polynomial._lagpow import lagpow
+from beignet.polynomial._lagroots import lagroots
+from beignet.polynomial._lagval2d import lagval2d
+from beignet.polynomial._lagval3d import lagval3d
+from beignet.polynomial._lagvander2d import lagvander2d
+from beignet.polynomial._lagvander3d import lagvander3d
+from beignet.polynomial._lagweight import lagweight
+from beignet.polynomial._leg2poly import leg2poly
+from beignet.polynomial._legder import legder
+from beignet.polynomial._legdiv import legdiv
+from beignet.polynomial._legfit import legfit
+from beignet.polynomial._legfromroots import legfromroots
+from beignet.polynomial._leggauss import leggauss
+from beignet.polynomial._leggrid2d import leggrid2d
+from beignet.polynomial._leggrid3d import leggrid3d
+from beignet.polynomial._legint import legint
+from beignet.polynomial._legpow import legpow
+from beignet.polynomial._legroots import legroots
+from beignet.polynomial._legval2d import legval2d
+from beignet.polynomial._legval3d import legval3d
+from beignet.polynomial._legvander2d import legvander2d
+from beignet.polynomial._legvander3d import legvander3d
+from beignet.polynomial._legweight import legweight
 from beignet.polynomial._poly2cheb import poly2cheb
 from beignet.polynomial._poly2herm import poly2herm
 from beignet.polynomial._poly2herme import poly2herme
