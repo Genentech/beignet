@@ -1,7 +1,14 @@
+# cheb  : chebyshev_series
+# herm  : physicists_hermite_series
+# herme : probabilists_hermite_series
+# lag   : laguerre_series
+# leg   : legendre_series
+# poly  : power_series
+
 import functools
 import math
 import operator
-from typing import Callable, List, Literal, Tuple
+from typing import Callable, Literal, Tuple
 
 import numpy
 import torch
@@ -44,6 +51,9 @@ from torch.linalg import (
 )
 
 from beignet._add_power_series import add_power_series
+from beignet._polynomial_coefficients_to_power_series import (
+    polynomial_coefficients_to_power_series,
+)
 
 torch.set_default_dtype(torch.float64)
 
@@ -73,42 +83,6 @@ polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
 
 
-def coefficients_to_series(
-    input: List[Tensor],
-    trim: bool = False,
-) -> List[Tensor]:
-    outputs = []
-
-    for i in input:
-        output = atleast_1d(i)
-
-        if trim:
-            if output.shape[0] != 0:
-                j = 0
-
-                for j in range(output.shape[0] - 1, -1, -1):
-                    if output[j] != 0:
-                        break
-
-                output = output[: j + 1]
-
-        outputs = [
-            *outputs,
-            output,
-        ]
-
-    dtype = outputs[0].dtype
-
-    for output in outputs[1:]:
-        dtype = promote_types(dtype, output.dtype)
-
-    for index, output in enumerate(outputs):
-        if output.dtype != dtype:
-            outputs[index] = output.to(dtype)
-
-    return outputs
-
-
 def _c_series_to_z_series(
     input: Tensor,
 ) -> Tensor:
@@ -126,7 +100,7 @@ def _div(
     input: Tensor,
     other: Tensor,
 ) -> Tuple[Tensor, Tensor]:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     m = input.shape[0]
     n = other.shape[0]
@@ -177,7 +151,7 @@ def _div(
 
         b = t * p_modified
 
-        [a, b] = coefficients_to_series([a, b])
+        [a, b] = polynomial_coefficients_to_power_series([a, b])
 
         if a.shape[0] > b.shape[0]:
             output = -b
@@ -452,7 +426,7 @@ def _from_roots(
         a = zeros(input.shape[0] + 1, dtype=x.dtype)
         b = f(-x, 1)
 
-        [a, b] = coefficients_to_series([a, b])
+        [a, b] = polynomial_coefficients_to_power_series([a, b])
 
         if a.shape[0] > b.shape[0]:
             y = concatenate(
@@ -682,7 +656,7 @@ def _pow(
     exponent: int | Tensor,
     maximum_exponent: int | Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     _exponent = int(exponent)
 
@@ -700,7 +674,7 @@ def _pow(
         case _:
             output = zeros(input.shape[0] * exponent, dtype=input.dtype)
 
-            [output, input] = coefficients_to_series([output, input])
+            [output, input] = polynomial_coefficients_to_power_series([output, input])
 
             if output.shape[0] > input.shape[0]:
                 input = concatenate(
@@ -740,7 +714,7 @@ def _trim_coefficients(
     if tol < 0:
         raise ValueError
 
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     indices = nonzero(abs(input) > tol)
 
@@ -824,7 +798,7 @@ def _z_series_to_c_series(
 def cheb2poly(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     n = input.shape[0]
 
@@ -871,7 +845,7 @@ def chebadd(
     output : Tensor
         Polynomial coefficients.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -904,7 +878,7 @@ def chebadd(
 def chebcompanion(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] < 2:
         raise ValueError
@@ -947,7 +921,7 @@ def chebder(
     if order < 0:
         raise ValueError
 
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if order == 0:
         return input
@@ -1058,7 +1032,7 @@ def chebint(
     if k is None:
         k = []
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     lower_bound = tensor(lower_bound)
 
@@ -1156,7 +1130,7 @@ def chebmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     a = _c_series_to_z_series(input)
     b = _c_series_to_z_series(other)
@@ -1175,7 +1149,7 @@ def chebmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -1197,7 +1171,7 @@ def chebpow(
     exponent: float | Tensor,
     maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     _exponent = int(exponent)
 
@@ -1250,7 +1224,7 @@ def chebpts2(
 def chebroots(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] <= 1:
         return tensor([], dtype=input.dtype)
@@ -1288,7 +1262,7 @@ def chebsub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -1321,7 +1295,7 @@ def chebval(
     coefficients: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -1426,7 +1400,7 @@ def chebweight(
 def herm2poly(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
     n = c.shape[0]
 
     if n == 1:
@@ -1478,7 +1452,7 @@ def add_physicists_hermite_series(input: Tensor, other: Tensor) -> Tensor:
     output : Tensor
         Polynomial coefficients.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -1511,7 +1485,7 @@ def add_physicists_hermite_series(input: Tensor, other: Tensor) -> Tensor:
 def hermcompanion(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if c.shape[0] < 2:
         raise ValueError
@@ -1557,7 +1531,7 @@ def hermder(
     if order < 0:
         raise ValueError
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if order == 0:
         return c
@@ -1595,7 +1569,7 @@ def divide_physicists_hermite_series(
 
 
 def physicists_hermite_series_to_power_series(c: Tensor) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     n = c.shape[0]
 
@@ -1654,7 +1628,7 @@ def hermeadd(
     output : Tensor
         Polynomial coefficients.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -1687,7 +1661,7 @@ def hermeadd(
 def hermecompanion(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if c.shape[0] < 2:
         raise ValueError
@@ -1727,7 +1701,7 @@ def hermeder(
     if order < 0:
         raise ValueError
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if order == 0:
         return c
@@ -1850,7 +1824,7 @@ def hermeint(
     if k is None:
         k = []
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     lower_bound = tensor(lower_bound)
     scale = tensor(scale)
@@ -1906,7 +1880,7 @@ def hermemul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -1949,7 +1923,7 @@ def hermemulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -1982,7 +1956,7 @@ def hermepow(
 def hermeroots(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if c.shape[0] <= 1:
         return tensor([], dtype=c.dtype)
@@ -2020,7 +1994,7 @@ def hermesub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -2049,7 +2023,7 @@ def hermesub(
 
 
 def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -2236,7 +2210,7 @@ def integrate_physicists_hermite_series(
     if k is None:
         k = []
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     lower_bound, scale = map(tensor, (lower_bound, scale))
 
@@ -2292,7 +2266,7 @@ def hermline(
 def multiply_physicists_hermite_series(
     input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -2335,7 +2309,7 @@ def hermmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -2366,7 +2340,7 @@ def hermpow(
 
 
 def hermroots(input):
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] <= 1:
         return tensor([], dtype=input.dtype)
@@ -2404,7 +2378,7 @@ def hermsub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -2437,7 +2411,7 @@ def hermval(
     coefficients: Tensor,
     tensor: bool = True,
 ):
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -2542,7 +2516,7 @@ def hermweight(x: Tensor) -> Tensor:
 def lag2poly(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     n = c.shape[0]
 
@@ -2602,7 +2576,7 @@ def lagadd(
     output : Tensor
         Polynomial coefficients.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -2633,7 +2607,7 @@ def lagadd(
 
 
 def lagcompanion(input):
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] < 2:
         raise ValueError
@@ -2667,7 +2641,7 @@ def lagder(
     if order < 0:
         raise ValueError
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if order == 0:
         return c
@@ -2802,7 +2776,7 @@ def lagint(
     if k is None:
         k = []
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     lower_bound, scale = map(tensor, (lower_bound, scale))
 
@@ -2859,7 +2833,7 @@ def lagmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -2903,7 +2877,7 @@ def lagmulx(
     input: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -2940,7 +2914,7 @@ def lagpow(
 def lagroots(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] <= 1:
         return tensor([], dtype=input.dtype)
@@ -2978,7 +2952,7 @@ def lagsub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -3007,7 +2981,7 @@ def lagsub(
 
 
 def lagval(input: Tensor, coefficients: Tensor, tensor: bool = True):
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -3117,7 +3091,7 @@ def lagweight(x: Tensor) -> Tensor:
 def leg2poly(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     n = c.shape[0]
 
@@ -3175,7 +3149,7 @@ def legadd(
     output : Tensor
         Polynomial coefficients.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = concatenate(
@@ -3208,7 +3182,7 @@ def legadd(
 def legcompanion(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if c.shape[0] < 2:
         raise ValueError
@@ -3242,7 +3216,7 @@ def legder(
     if order < 0:
         raise ValueError
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if order == 0:
         return c
@@ -3388,7 +3362,7 @@ def legint(
     if k is None:
         k = []
 
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     lower_bound = tensor(lower_bound)
     scale = tensor(scale)
@@ -3459,7 +3433,7 @@ def legmul(
     other: Tensor,
     mode: Literal["full", "same", "valid"] = "full",
 ) -> Tensor:
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     m, n = input.shape[0], other.shape[0]
 
@@ -3499,7 +3473,7 @@ def legmul(
 
 
 def legmulx(input: Tensor, mode: Literal["full", "same"] = "full") -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
     output[1] = input[0]
@@ -3532,7 +3506,7 @@ def legpow(
 def legroots(
     c: Tensor,
 ) -> Tensor:
-    [c] = coefficients_to_series([c])
+    [c] = polynomial_coefficients_to_power_series([c])
 
     if c.shape[0] <= 1:
         return tensor([], dtype=c.dtype)
@@ -3570,7 +3544,7 @@ def legsub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -3603,7 +3577,7 @@ def legval(
     coefficients: Tensor,
     tensor: bool = True,
 ) -> Tensor:
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -3724,10 +3698,10 @@ def legweight(x: Tensor) -> Tensor:
     return ones_like(x)
 
 
-def poly2cheb(
+def power_series_to_chebyshev_series(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros_like(input)
 
@@ -3743,10 +3717,10 @@ def poly2cheb(
     return output
 
 
-def poly2herm(
+def power_series_to_physicists_hermite_series(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros_like(input)
 
@@ -3765,7 +3739,7 @@ def poly2herm(
 def poly2herme(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros_like(input)
 
@@ -3784,7 +3758,7 @@ def poly2herme(
 def poly2lag(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros_like(input)
 
@@ -3803,7 +3777,7 @@ def poly2lag(
 def poly2leg(
     input: Tensor,
 ) -> Tensor:
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros_like(input)
 
@@ -3833,7 +3807,7 @@ def polycompanion(
     output : Tensor, shape=(degree, degree)
         Companion matrix.
     """
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] < 2:
         raise ValueError
@@ -3883,7 +3857,7 @@ def polyder(
     output : Tensor
         Polynomial coefficients of the derivative.
     """
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if order == 0:
         return input
@@ -3929,7 +3903,7 @@ def polydiv(
     output : Tuple[Tensor, Tensor]
         Polynomial coefficients of the quotient and remainder.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     return _div(polymul, input, other)
 
@@ -4089,7 +4063,7 @@ def polyint(
     if k is None:
         k = []
 
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     lower_bound, scale = map(tensor, (lower_bound, scale))
 
@@ -4168,7 +4142,7 @@ def polymul(
     output : Tensor
         Polynomial coefficients of the product.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     output = torchaudio.functional.convolve(input, other)
 
@@ -4196,7 +4170,7 @@ def polymulx(
         Polynomial coefficients of the product of the polynomial and the
         independent variable.
     """
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     output = zeros(input.shape[0] + 1, dtype=input.dtype)
 
@@ -4250,7 +4224,7 @@ def polyroots(
     output : Tensor
         Roots.
     """
-    [input] = coefficients_to_series([input])
+    [input] = polynomial_coefficients_to_power_series([input])
 
     if input.shape[0] < 2:
         return tensor([], dtype=input.dtype)
@@ -4288,7 +4262,7 @@ def polysub(
     output : Tensor
         Polynomial coefficients of the difference.
     """
-    [input, other] = coefficients_to_series([input, other])
+    [input, other] = polynomial_coefficients_to_power_series([input, other])
 
     if input.shape[0] > other.shape[0]:
         output = -other
@@ -4334,7 +4308,7 @@ def polyval(
     -------
     output : Tensor
     """
-    [coefficients] = coefficients_to_series([coefficients])
+    [coefficients] = polynomial_coefficients_to_power_series([coefficients])
 
     if tensor:
         coefficients = reshape(
@@ -4688,8 +4662,8 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "poly2cheb",
-    "poly2herm",
+    "power_series_to_chebyshev_series",
+    "power_series_to_physicists_hermite_series",
     "poly2herme",
     "poly2lag",
     "poly2leg",

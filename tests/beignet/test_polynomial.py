@@ -162,8 +162,6 @@ from beignet.polynomial import (
     legzero,
     multiply_physicists_hermite_series,
     physicists_hermite_series_to_power_series,
-    poly2cheb,
-    poly2herm,
     poly2herme,
     poly2lag,
     poly2leg,
@@ -192,6 +190,8 @@ from beignet.polynomial import (
     polyvander3d,
     polyx,
     polyzero,
+    power_series_to_chebyshev_series,
+    power_series_to_physicists_hermite_series,
 )
 from torch import (
     Tensor,
@@ -3682,7 +3682,7 @@ def test_hermint():
             hermtrim(
                 herm2poly(
                     integrate_physicists_hermite_series(
-                        poly2herm(
+                        power_series_to_physicists_hermite_series(
                             tensor([0.0] * i + [1.0]),
                         ),
                         order=1,
@@ -3702,7 +3702,7 @@ def test_hermint():
             hermval(
                 tensor([-1.0]),
                 integrate_physicists_hermite_series(
-                    poly2herm(
+                    power_series_to_physicists_hermite_series(
                         tensor([0.0] * i + [1.0]),
                     ),
                     order=1,
@@ -3718,7 +3718,7 @@ def test_hermint():
             hermtrim(
                 herm2poly(
                     integrate_physicists_hermite_series(
-                        poly2herm(
+                        power_series_to_physicists_hermite_series(
                             tensor([0.0] * i + [1.0]),
                         ),
                         order=1,
@@ -6789,7 +6789,7 @@ def test_poly2cheb():
 
     for index in range(10):
         assert_close(
-            poly2cheb(
+            power_series_to_chebyshev_series(
                 coefficients[index],
             ),
             tensor([0.0] * index + [1.0]),
@@ -6813,7 +6813,7 @@ def test_poly2herm():
     for index in range(10):
         assert_close(
             hermtrim(
-                poly2herm(
+                power_series_to_physicists_hermite_series(
                     coefficients[index],
                 ),
                 tol=0.000001,
