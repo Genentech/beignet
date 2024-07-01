@@ -4158,7 +4158,11 @@ def polyint(
 
     n = input.shape[dim]
 
-    input = _pad_along_axis(input, (0, order), dim)
+    input = _pad_along_axis(
+        input,
+        tensor([0, order]),
+        dim,
+    )
 
     input = moveaxis(input, dim, 0)
 
@@ -4173,7 +4177,7 @@ def polyint(
 
         input[0] = 0.0
 
-        input = input.at[0].add(k[i] - polyval(lower_bound, input))
+        input[0] += k[i] - polyval(lower_bound, input)
 
     return moveaxis(input, 0, dim)
 

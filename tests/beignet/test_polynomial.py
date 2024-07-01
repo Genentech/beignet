@@ -174,6 +174,7 @@ from beignet.polynomial import (
     polyfromroots,
     polygrid2d,
     polygrid3d,
+    polyint,
     polyline,
     polymul,
     polymulx,
@@ -7373,6 +7374,225 @@ def test_polygrid3d():
     )
 
     assert output.shape == (2, 3) * 3
+
+
+def test_polyint():
+    with pytest.raises(TypeError):
+        polyint(
+            tensor([0.0]),
+            order=0.5,
+        )
+
+    with pytest.raises(ValueError):
+        polyint(
+            tensor([0.0]),
+            order=-1,
+        )
+
+    with pytest.raises(ValueError):
+        polyint(
+            tensor([0.0]),
+            order=1,
+            k=[0, 0],
+        )
+
+    with pytest.raises(ValueError):
+        polyint(
+            tensor([0.0]),
+            lower_bound=[0],
+        )
+
+    with pytest.raises(ValueError):
+        polyint(
+            tensor([0.0]),
+            scale=[0],
+        )
+
+    with pytest.raises(TypeError):
+        polyint(
+            tensor([0.0]),
+            axis=0.5,
+        )
+
+    for i in range(2, 5):
+        assert_close(
+            polytrim(
+                polyint(
+                    tensor([0.0]),
+                    order=i,
+                    k=[0.0] * (i - 2) + [1.0],
+                ),
+            ),
+            tensor([0.0, 1.0]),
+        )
+
+    for i in range(5):
+        assert_close(
+            polytrim(
+                polyint(
+                    tensor([0.0] * i + [1.0]),
+                    order=1,
+                    k=[i],
+                ),
+            ),
+            polytrim(
+                tensor([i] + [0.0] * i + [1.0 / (i + 1.0)]),
+            ),
+        )
+
+    for i in range(5):
+        assert_close(
+            polyval(
+                tensor([-1.0]),
+                polyint(
+                    tensor([0.0] * i + [1.0]),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            tensor([i], dtype=torch.get_default_dtype()),
+        )
+
+    for i in range(5):
+        assert_close(
+            polytrim(
+                polyint(
+                    tensor([0.0] * i + [1.0]),
+                    order=1,
+                    k=[i],
+                    scale=2,
+                ),
+            ),
+            polytrim(
+                tensor([i] + [0.0] * i + [2.0 / (i + 1.0)]),
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = tensor([0.0] * i + [1.0])[:]
+
+            for _ in range(j):
+                target = polyint(
+                    target,
+                    order=1,
+                )
+
+            assert_close(
+                polytrim(
+                    polyint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                    ),
+                ),
+                polytrim(
+                    target,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = tensor([0.0] * i + [1.0])[:]
+
+            for k in range(j):
+                target = polyint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
+
+            assert_close(
+                polytrim(
+                    polyint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                        k=list(range(j)),
+                    ),
+                ),
+                polytrim(
+                    target,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = tensor([0.0] * i + [1.0])[:]
+
+            for k in range(j):
+                target = polyint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+
+            assert_close(
+                polytrim(
+                    polyint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                ),
+                polytrim(
+                    target,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            target = tensor([0.0] * i + [1.0])[:]
+
+            for k in range(j):
+                target = polyint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+
+            assert_close(
+                polytrim(
+                    polyint(
+                        tensor([0.0] * i + [1.0]),
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                ),
+                polytrim(
+                    target,
+                ),
+            )
+
+    # c2d = np.random.random((3, 6))
+    #
+    # assert_close(
+    #     polyint(
+    #         c2d,
+    #         axis=0,
+    #     ),
+    #     vstack([polyint(c) for c in c2d.T]).T,
+    # )
+    #
+    # assert_close(
+    #     polyint(
+    #         c2d,
+    #         axis=1,
+    #     ),
+    #     vstack([polyint(c) for c in c2d]),
+    # )
+    #
+    # assert_close(
+    #     polyint(
+    #         c2d,
+    #         k=3,
+    #         axis=1,
+    #     ),
+    #     vstack([polyint(c, k=3) for c in c2d]),
+    # )
 
 
 def test_polyline():
