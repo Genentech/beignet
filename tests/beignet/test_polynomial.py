@@ -5576,27 +5576,28 @@ def test_legder():
 
     c2d = rand(3, 4)
 
-    target = vstack([legder(c) for c in c2d.T]).T
-    res = legder(c2d, axis=0)
     assert_close(
-        res,
-        target,
+        legder(
+            c2d,
+            axis=0,
+        ),
+        vstack([legder(c) for c in c2d.T]).T,
     )
 
-    target = vstack([legder(c) for c in c2d])
-    res = legder(
-        c2d,
-        axis=1,
-    )
     assert_close(
-        res,
-        target,
+        legder(
+            c2d,
+            axis=1,
+        ),
+        vstack([legder(c) for c in c2d]),
     )
 
-    c = (1, 2, 3, 4)
     assert_close(
-        legder(c, 4),
-        tensor([0]),
+        legder(
+            tensor([1.0, 2.0, 3.0, 4.0]),
+            order=4,
+        ),
+        tensor([0.0]),
     )
 
 
@@ -6101,13 +6102,14 @@ def test_legint():
         )
 
     for i in range(2, 5):
+        output = legint(
+            tensor([0.0]),
+            order=i,
+            k=[0.0] * (i - 2) + [1.0],
+        )
         assert_close(
             legtrim(
-                legint(
-                    tensor([0.0]),
-                    order=i,
-                    k=tensor([0.0] * (i - 2) + [1.0]),
-                ),
+                output,
                 tol=0.000001,
             ),
             tensor([0.0, 1.0]),
@@ -6146,7 +6148,7 @@ def test_legint():
                     lower_bound=-1,
                 ),
             ),
-            i,
+            tensor([i], dtype=torch.get_default_dtype()),
         )
 
     for i in range(5):
@@ -6172,7 +6174,7 @@ def test_legint():
 
     for i in range(5):
         for j in range(2, 5):
-            target = (tensor([0] * i + [1]))[:]
+            target = tensor([0.0] * i + [1.0])[:]
 
             for _ in range(j):
                 target = legint(
