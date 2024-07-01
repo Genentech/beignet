@@ -3684,97 +3684,67 @@ def legweight(x: Tensor) -> Tensor:
     return torch.ones_like(x)
 
 
-def poly2cheb(
-    input: Tensor,
-) -> Tensor:
+def poly2cheb(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
+
+    output = torch.zeros_like(input)
+
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = chebmulx(output, mode="same")
+
+        output = chebadd(output, input[input.shape[0] - 1 - i])
+
+    return output
+
+
+def poly2herm(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
 
     for index in range(0, input.shape[0] - 1 + 1):
-        output = chebadd(
-            chebmulx(
-                output,
-                mode="same",
-            ),
-            input[input.shape[0] - 1 - index],
-        )
+        output = hermmulx(output, mode="same")
+
+        output = hermadd(output, input[input.shape[0] - 1 - index])
 
     return output
 
 
-def poly2herm(
-    input: Tensor,
-) -> Tensor:
+def poly2herme(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
 
-    for index in range(0, input.shape[0] - 1 + 1):
-        output = hermadd(
-            hermmulx(
-                output,
-                mode="same",
-            ),
-            input[input.shape[0] - 1 - index],
-        )
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = hermemulx(output, mode="same")
+
+        output = hermeadd(output, input[input.shape[0] - 1 - i])
 
     return output
 
 
-def poly2herme(
-    input: Tensor,
-) -> Tensor:
+def poly2lag(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
 
-    for index in range(0, input.shape[0] - 1 + 1):
-        output = hermeadd(
-            hermemulx(
-                output,
-                mode="same",
-            ),
-            input[input.shape[0] - 1 - index],
-        )
+    for i in range(0, input.shape[0]):
+        output = lagmulx(output, mode="same")
+
+        output = lagadd(output, torch.flip(input, dims=[0])[i])
 
     return output
 
 
-def poly2lag(
-    input: Tensor,
-) -> Tensor:
+def poly2leg(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     output = torch.zeros_like(input)
 
-    for index in range(0, input.shape[0]):
-        output = lagadd(
-            lagmulx(
-                output,
-                mode="same",
-            ),
-            torch.flip(input, dims=[0])[index],
-        )
+    for i in range(0, input.shape[0] - 1 + 1):
+        output = legmulx(output, mode="same")
 
-    return output
-
-
-def poly2leg(
-    input: Tensor,
-) -> Tensor:
-    [input] = _as_series([input])
-
-    output = torch.zeros_like(input)
-
-    for index in range(0, input.shape[0] - 1 + 1):
-        output = legadd(
-            legmulx(
-                output,
-                mode="same",
-            ),
-            input[input.shape[0] - 1 - index],
-        )
+        output = legadd(output, input[input.shape[0] - 1 - i])
 
     return output
 
@@ -3863,10 +3833,7 @@ def polyder(
     return output
 
 
-def polydiv(
-    input: Tensor,
-    other: Tensor,
-) -> Tuple[Tensor, Tensor]:
+def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:
     r"""
     Parameters
     ----------
@@ -3931,9 +3898,7 @@ def polyfit(
     )
 
 
-def polyfromroots(
-    input: Tensor,
-) -> Tensor:
+def polyfromroots(input: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -3945,18 +3910,10 @@ def polyfromroots(
     output : Tensor
         Polynomial coefficients.
     """
-    return _from_roots(
-        polyline,
-        polymul,
-        input,
-    )
+    return _from_roots(polyline, polymul, input)
 
 
-def polygrid2d(
-    x: Tensor,
-    y: Tensor,
-    coefficients: Tensor,
-) -> Tensor:
+def polygrid2d(x: Tensor, y: Tensor, coefficients: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -3968,23 +3925,15 @@ def polygrid2d(
 
     Returns
     -------
-    out : Tensor
+    output : Tensor
     """
     for input in [x, y]:
-        coefficients = polyval(
-            input,
-            coefficients,
-        )
+        coefficients = polyval(input, coefficients)
 
     return coefficients
 
 
-def polygrid3d(
-    x: Tensor,
-    y: Tensor,
-    z: Tensor,
-    coefficients: Tensor,
-) -> Tensor:
+def polygrid3d(x: Tensor, y: Tensor, z: Tensor, coefficients: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -4092,10 +4041,7 @@ def polyint(
     return torch.moveaxis(input, 0, dim)
 
 
-def polyline(
-    input: float,
-    other: float,
-) -> Tensor:
+def polyline(input: float, other: float) -> Tensor:
     return torch.tensor([input, other])
 
 
@@ -4220,10 +4166,7 @@ def polyroots(input: Tensor) -> Tensor:
     return output
 
 
-def polysub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
+def polysub(input: Tensor, other: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -4482,6 +4425,8 @@ def polyadd(input: Tensor, other: Tensor) -> Tensor:
     output : Tensor
         Polynomial coefficients.
     """
+    [input] = _as_series([input])
+
     if input.shape[0] > other.shape[0]:
         output = torch.concatenate(
             [
