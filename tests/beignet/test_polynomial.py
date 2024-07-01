@@ -160,37 +160,37 @@ from beignet.polynomial import (
     legweight,
     legx,
     legzero,
-    poly2cheb,
-    poly2herm,
-    poly2herme,
-    poly2lag,
-    poly2leg,
     polyadd,
     polycompanion,
-    polydiv,
     polydomain,
-    polyfit,
-    polyfromroots,
-    polygrid2d,
-    polygrid3d,
-    polyint,
     polyline,
     polymul,
     polymulx,
     polyone,
-    polypow,
-    polyroots,
     polysub,
     polytrim,
     polyval,
-    polyvalfromroots,
     polyvander,
     polyx,
     polyzero,
 )
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._poly2cheb import poly2cheb
+from beignet.polynomial._poly2herm import poly2herm
+from beignet.polynomial._poly2herme import poly2herme
+from beignet.polynomial._poly2lag import poly2lag
+from beignet.polynomial._poly2leg import poly2leg
+from beignet.polynomial._polydiv import polydiv
+from beignet.polynomial._polyfit import polyfit
+from beignet.polynomial._polyfromroots import polyfromroots
+from beignet.polynomial._polygrid2d import polygrid2d
+from beignet.polynomial._polygrid3d import polygrid3d
+from beignet.polynomial._polyint import polyint
+from beignet.polynomial._polypow import polypow
+from beignet.polynomial._polyroots import polyroots
 from beignet.polynomial._polyval2d import polyval2d
 from beignet.polynomial._polyval3d import polyval3d
+from beignet.polynomial._polyvalfromroots import polyvalfromroots
 from beignet.polynomial._polyvander2d import polyvander2d
 from beignet.polynomial._polyvander3d import polyvander3d
 from torch import (
