@@ -5346,25 +5346,24 @@ def test_lagvander2d():
 
     coefficients = rand(2, 3)
 
+    output = lagvander2d(
+        a,
+        b,
+        tensor([1, 2]),
+    )
+
     assert_close(
-        dot(
-            lagvander2d(
-                a,
-                b,
-                tensor([1, 2]),
-            ),
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         lagval2d(a, b, coefficients),
     )
 
     output = lagvander2d(
-        [a],
-        [b],
+        a,
+        b,
         tensor([1, 2]),
     )
 
-    assert output.shape == (1, 5, 6)
+    assert output.shape == (5, 6)
 
 
 def test_lagvander3d():
@@ -5372,16 +5371,14 @@ def test_lagvander3d():
 
     coefficients = rand(2, 3, 4)
 
+    output = lagvander3d(
+        a,
+        b,
+        c,
+        degree=tensor([1, 2, 3]),
+    )
     assert_close(
-        dot(
-            lagvander3d(
-                a,
-                b,
-                c,
-                degree=tensor([1, 2, 3]),
-            ),
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         lagval3d(
             a,
             b,
@@ -5391,13 +5388,13 @@ def test_lagvander3d():
     )
 
     output = lagvander3d(
-        [a],
-        [b],
-        [c],
+        a,
+        b,
+        c,
         degree=tensor([1, 2, 3]),
     )
 
-    assert output.shape == (1, 5, 24)
+    assert output.shape == (5, 24)
 
 
 def test_lagweight():
