@@ -8,7 +8,7 @@
 import functools
 import math
 import operator
-from typing import Callable, List, Literal, Tuple
+from typing import Callable, Literal, Tuple
 
 import numpy
 import torch
@@ -16,6 +16,8 @@ import torch._numpy._funcs_impl
 import torch.linalg
 import torchaudio.functional
 from torch import Tensor
+
+from .__as_series import _as_series
 
 torch.set_default_dtype(torch.float64)
 
@@ -43,42 +45,6 @@ polydomain = torch.tensor([-1.0, 1.0])
 polyone = torch.tensor([1.0])
 polyx = torch.tensor([0.0, 1.0])
 polyzero = torch.tensor([0.0])
-
-
-def _as_series(
-    input: List[Tensor],
-    trim: bool = False,
-) -> List[Tensor]:
-    outputs = []
-
-    for i in input:
-        output = torch.atleast_1d(i)
-
-        if trim:
-            if output.shape[0] != 0:
-                j = 0
-
-                for j in range(output.shape[0] - 1, -1, -1):
-                    if output[j] != 0:
-                        break
-
-                output = output[: j + 1]
-
-        outputs = [
-            *outputs,
-            output,
-        ]
-
-    dtype = outputs[0].dtype
-
-    for output in outputs[1:]:
-        dtype = torch.promote_types(dtype, output.dtype)
-
-    for index, output in enumerate(outputs):
-        if output.dtype != dtype:
-            outputs[index] = output.to(dtype)
-
-    return outputs
 
 
 def _c_series_to_z_series(
