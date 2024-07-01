@@ -18,6 +18,12 @@ import torchaudio.functional
 from torch import Tensor
 
 from .__as_series import _as_series
+from ._chebadd import chebadd
+from ._hermadd import hermadd
+from ._hermeadd import hermeadd
+from ._lagadd import lagadd
+from ._legadd import legadd
+from ._polyadd import polyadd
 
 torch.set_default_dtype(torch.float64)
 
@@ -779,51 +785,6 @@ def cheb2poly(input: Tensor) -> Tensor:
     return output
 
 
-def chebadd(input: Tensor, other: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
-
-
 def chebcompanion(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
@@ -1390,51 +1351,6 @@ def herm2poly(
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def hermadd(input: Tensor, other: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
-
-
 def hermcompanion(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
@@ -1559,54 +1475,6 @@ def herme2poly(c: Tensor) -> Tensor:
         c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
-
-
-def hermeadd(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
 
 
 def hermecompanion(input: Tensor) -> Tensor:
@@ -2508,54 +2376,6 @@ def lag2poly(
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagadd(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
-
-
 def lagcompanion(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
@@ -3075,54 +2895,6 @@ def leg2poly(
     output = polymulx(c1, "same")
 
     output = polyadd(c0, output)
-
-    return output
-
-
-def legadd(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
 
     return output
 
@@ -4323,51 +4095,6 @@ def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:
     )
 
 
-def polyadd(input: Tensor, other: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients.
-    """
-    [input] = _as_series([input])
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
-
-
 chebtrim = _trim_coefficients
 
 hermetrim = _trim_coefficients
@@ -4392,7 +4119,6 @@ __all__ = [
     "_vandermonde",
     "_z_series_to_c_series",
     "cheb2poly",
-    "chebadd",
     "chebcompanion",
     "chebder",
     "chebdiv",
@@ -4424,13 +4150,11 @@ __all__ = [
     "chebx",
     "chebzero",
     "herm2poly",
-    "hermadd",
     "hermcompanion",
     "hermder",
     "hermdiv",
     "hermdomain",
     "herme2poly",
-    "hermeadd",
     "hermecompanion",
     "hermeder",
     "hermediv",
@@ -4482,7 +4206,6 @@ __all__ = [
     "hermx",
     "hermzero",
     "lag2poly",
-    "lagadd",
     "lagcompanion",
     "lagder",
     "lagdiv",
@@ -4511,7 +4234,6 @@ __all__ = [
     "lagx",
     "lagzero",
     "leg2poly",
-    "legadd",
     "legcompanion",
     "legder",
     "legdiv",
@@ -4544,7 +4266,6 @@ __all__ = [
     "poly2herme",
     "poly2lag",
     "poly2leg",
-    "polyadd",
     "polycompanion",
     "polydiv",
     "polydomain",
