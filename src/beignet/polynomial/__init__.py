@@ -879,9 +879,7 @@ def chebadd(
     return output
 
 
-def chebcompanion(
-    input: Tensor,
-) -> Tensor:
+def chebcompanion(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -892,28 +890,36 @@ def chebcompanion(
 
     n = input.shape[0] - 1
 
-    mat = torch.zeros([n, n], dtype=input.dtype)
+    output = torch.zeros(
+        [
+            n,
+            n,
+        ],
+        dtype=input.dtype,
+    )
 
-    scale = torch.ones(n)
+    scale = torch.ones([n])
+
     scale[1:] = math.sqrt(0.5)
 
-    shape = mat.shape
+    shape = output.shape
 
-    mat = torch.reshape(mat, [-1])
+    output = torch.reshape(output, [-1])
 
     x = torch.full([n - 1], 1 / 2)
+
     x[0] = math.sqrt(0.5)
 
-    mat[1 :: n + 1] = x
-    mat[n :: n + 1] = x
+    output[1 :: n + 1] = x
+    output[n :: n + 1] = x
 
-    mat = torch.reshape(mat, shape)
+    output = torch.reshape(output, shape)
 
-    y = -(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5
+    output[:, -1] = (
+        output[:, -1] + -(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5
+    )
 
-    mat[:, -1] = mat[:, -1] + y
-
-    return mat
+    return output
 
 
 def chebder(
@@ -1484,20 +1490,18 @@ def hermadd(input: Tensor, other: Tensor) -> Tensor:
     return output
 
 
-def hermcompanion(
-    c: Tensor,
-) -> Tensor:
-    [c] = _as_series([c])
+def hermcompanion(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return torch.tensor([[-0.5 * c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return torch.tensor([[-0.5 * input[0] / input[1]]])
 
-    n = c.shape[0] - 1
+    n = input.shape[0] - 1
 
-    mat = torch.zeros((n, n), dtype=c.dtype)
+    output = torch.zeros((n, n), dtype=input.dtype)
 
     scale = torch.hstack(
         [
@@ -1510,18 +1514,18 @@ def hermcompanion(
 
     scale = torch.flip(scale, dims=[0])
 
-    shp = mat.shape
+    shp = output.shape
 
-    mat = torch.reshape(mat, [-1])
+    output = torch.reshape(output, [-1])
 
-    mat[1 :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
-    mat[n :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
+    output[1 :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
+    output[n :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
 
-    mat = torch.reshape(mat, shp)
+    output = torch.reshape(output, shp)
 
-    mat[:, -1] += -scale * c[:-1] / (2.0 * c[-1])
+    output[:, -1] += -scale * input[:-1] / (2.0 * input[-1])
 
-    return mat
+    return output
 
 
 def hermder(
@@ -1660,19 +1664,18 @@ def hermeadd(
     return output
 
 
-def hermecompanion(
-    c: Tensor,
-) -> Tensor:
-    [c] = _as_series([c])
+def hermecompanion(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return torch.tensor([[-c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return torch.tensor([[-input[0] / input[1]]])
 
-    n = c.shape[0] - 1
-    mat = torch.zeros((n, n), dtype=c.dtype)
+    n = input.shape[0] - 1
+
+    output = torch.zeros([n, n], dtype=input.dtype)
 
     scale = torch.hstack(
         [
@@ -1683,15 +1686,19 @@ def hermecompanion(
 
     scale = torch.cumprod(scale, dim=0)
     scale = torch.flip(scale, dims=[0])
-    shp = mat.shape
-    mat = torch.reshape(mat, [-1])
 
-    mat[1 :: n + 1] = torch.sqrt(torch.arange(1, n))
-    mat[n :: n + 1] = torch.sqrt(torch.arange(1, n))
+    shape = output.shape
 
-    mat = torch.reshape(mat, shp)
-    mat[:, -1] += -scale * c[:-1] / c[-1]
-    return mat
+    output = torch.reshape(output, [-1])
+
+    output[1 :: n + 1] = torch.sqrt(torch.arange(1, n))
+    output[n :: n + 1] = torch.sqrt(torch.arange(1, n))
+
+    output = torch.reshape(output, shape)
+
+    output[:, -1] += -scale * input[:-1] / input[-1]
+
+    return output
 
 
 def hermeder(
@@ -2604,7 +2611,7 @@ def lagadd(
     return output
 
 
-def lagcompanion(input):
+def lagcompanion(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] < 2:
@@ -2615,19 +2622,19 @@ def lagcompanion(input):
 
     n = input.shape[0] - 1
 
-    mat = torch.reshape(torch.zeros((n, n), dtype=input.dtype), [-1])
+    output = torch.reshape(torch.zeros([n, n], dtype=input.dtype), [-1])
 
-    mat[1 :: n + 1] = -torch.arange(1, n)
+    output[1 :: n + 1] = -torch.arange(1, n)
 
-    mat[0 :: n + 1] = 2.0 * torch.arange(n) + 1.0
+    output[0 :: n + 1] = 2.0 * torch.arange(n) + 1.0
 
-    mat[n :: n + 1] = -torch.arange(1, n)
+    output[n :: n + 1] = -torch.arange(1, n)
 
-    mat = torch.reshape(mat, (n, n))
+    output = torch.reshape(output, [n, n])
 
-    mat[:, -1] += (input[:-1] / input[-1]) * n
+    output[:, -1] += (input[:-1] / input[-1]) * n
 
-    return mat
+    return output
 
 
 def lagder(
@@ -3175,30 +3182,32 @@ def legadd(
     return output
 
 
-def legcompanion(
-    c: Tensor,
-) -> Tensor:
-    [c] = _as_series([c])
+def legcompanion(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
 
-    if c.shape[0] < 2:
+    if input.shape[0] < 2:
         raise ValueError
 
-    if c.shape[0] == 2:
-        return torch.tensor([[-c[0] / c[1]]])
+    if input.shape[0] == 2:
+        return torch.tensor([[-input[0] / input[1]]])
 
-    n = c.shape[0] - 1
-    output = torch.zeros((n, n), dtype=c.dtype)
+    n = input.shape[0] - 1
+
+    output = torch.zeros((n, n), dtype=input.dtype)
+
     scale = 1.0 / torch.sqrt(2 * torch.arange(n) + 1)
+
     shape = output.shape
+
     output = torch.reshape(output, [-1])
 
     output[1 :: n + 1] = torch.arange(1, n) * scale[: n - 1] * scale[1:n]
+
     output[n :: n + 1] = torch.arange(1, n) * scale[: n - 1] * scale[1:n]
 
     output = torch.reshape(output, shape)
 
-    values_to_add = -(c[:-1] / c[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
-    output[:, -1] += values_to_add
+    output[:, -1] += -(input[:-1] / input[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
 
     return output
 
@@ -3770,9 +3779,7 @@ def poly2leg(
     return output
 
 
-def polycompanion(
-    input: Tensor,
-) -> Tensor:
+def polycompanion(input: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -3794,17 +3801,11 @@ def polycompanion(
 
     n = input.shape[0] - 1
 
-    output = torch.reshape(
-        torch.zeros([n, n], dtype=input.dtype),
-        [-1],
-    )
+    output = torch.reshape(torch.zeros([n, n], dtype=input.dtype), [-1])
 
     output[n :: n + 1] = 1.0
 
-    output = torch.reshape(
-        output,
-        [n, n],
-    )
+    output = torch.reshape(output, [n, n])
 
     output[:, -1] = output[:, -1] + (-input[:-1] / input[-1])
 
