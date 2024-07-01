@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _fit, lagvander
+from beignet.polynomial import lagvander
+from beignet.polynomial.__fit import _fit
 
 
 def lagfit(

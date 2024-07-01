@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _fit, hermvander
+from beignet.polynomial import hermvander
+from beignet.polynomial.__fit import _fit
 
 
 def hermfit(

@@ -1,4 +1,5 @@
-from beignet.polynomial import _from_roots, hermline, hermmul
+from beignet.polynomial import hermline, hermmul
+from beignet.polynomial.__from_roots import _from_roots
 
 
 def hermfromroots(roots):

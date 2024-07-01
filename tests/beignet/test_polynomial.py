@@ -4,59 +4,26 @@ import math
 import pytest
 import torch
 from beignet.polynomial import (
-    _c_series_to_z_series,
-    _fit,
-    _get_domain,
-    _map_domain,
-    _map_parameters,
-    _pow,
     _trim_coefficients,
-    _trim_sequence,
     _vandermonde,
-    _z_series_to_c_series,
     chebadd,
     chebcompanion,
-    chebder,
-    chebdiv,
     chebdomain,
-    chebfit,
-    chebfromroots,
-    chebgauss,
-    chebgrid2d,
-    chebgrid3d,
-    chebint,
-    chebinterpolate,
     chebline,
     chebmul,
-    chebmulx,
     chebone,
-    chebpow,
     chebpts1,
-    chebpts2,
-    chebroots,
     chebtrim,
     chebval,
-    chebval2d,
-    chebval3d,
     chebvander,
-    chebvander2d,
-    chebvander3d,
-    chebweight,
     chebx,
     chebzero,
-    herm2poly,
     hermadd,
     hermcompanion,
-    hermder,
-    hermdiv,
     hermdomain,
-    herme2poly,
     hermeadd,
     hermecompanion,
-    hermeder,
-    hermediv,
     hermedomain,
-    hermefit,
     hermeline,
     hermemul,
     hermemulx,
@@ -117,7 +84,40 @@ from beignet.polynomial import (
     polyx,
     polyzero,
 )
+from beignet.polynomial.__c_series_to_z_series import _c_series_to_z_series
+from beignet.polynomial.__fit import _fit
+from beignet.polynomial.__get_domain import _get_domain
+from beignet.polynomial.__map_domain import _map_domain
+from beignet.polynomial.__map_parameters import _map_parameters
+from beignet.polynomial.__pow import _pow
+from beignet.polynomial.__trim_sequence import _trim_sequence
+from beignet.polynomial.__z_series_to_c_series import _z_series_to_c_series
+from beignet.polynomial._chebder import chebder
+from beignet.polynomial._chebdiv import chebdiv
+from beignet.polynomial._chebfit import chebfit
+from beignet.polynomial._chebfromroots import chebfromroots
+from beignet.polynomial._chebgauss import chebgauss
+from beignet.polynomial._chebgrid2d import chebgrid2d
+from beignet.polynomial._chebgrid3d import chebgrid3d
+from beignet.polynomial._chebint import chebint
+from beignet.polynomial._chebinterpolate import chebinterpolate
+from beignet.polynomial._chebmulx import chebmulx
+from beignet.polynomial._chebpow import chebpow
+from beignet.polynomial._chebpts2 import chebpts2
+from beignet.polynomial._chebroots import chebroots
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._chebval2d import chebval2d
+from beignet.polynomial._chebval3d import chebval3d
+from beignet.polynomial._chebvander2d import chebvander2d
+from beignet.polynomial._chebvander3d import chebvander3d
+from beignet.polynomial._chebweight import chebweight
+from beignet.polynomial._herm2poly import herm2poly
+from beignet.polynomial._hermder import hermder
+from beignet.polynomial._hermdiv import hermdiv
+from beignet.polynomial._herme2poly import herme2poly
+from beignet.polynomial._hermeder import hermeder
+from beignet.polynomial._hermediv import hermediv
+from beignet.polynomial._hermefit import hermefit
 from beignet.polynomial._hermefromroots import hermefromroots
 from beignet.polynomial._hermegauss import hermegauss
 from beignet.polynomial._hermegrid2d import hermegrid2d

@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _pow, legmul
+from beignet.polynomial import legmul
+from beignet.polynomial.__pow import _pow
 
 
 def legpow(

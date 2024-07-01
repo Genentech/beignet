@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _flattened_vandermonde, lagvander
+from beignet.polynomial import lagvander
+from beignet.polynomial.__flattened_vandermonde import _flattened_vandermonde
 
 
 def lagvander2d(

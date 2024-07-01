@@ -2,7 +2,8 @@ from typing import Tuple
 
 from torch import Tensor
 
-from beignet.polynomial import _div, legmul
+from beignet.polynomial import legmul
+from beignet.polynomial.__div import _div
 
 
 def legdiv(

@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _pow, hermmul
+from beignet.polynomial import hermmul
+from beignet.polynomial.__pow import _pow
 
 
 def hermpow(

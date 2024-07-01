@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _evaluate, legval
+from beignet.polynomial import legval
+from beignet.polynomial.__evaluate import _evaluate
 
 
 def legval3d(

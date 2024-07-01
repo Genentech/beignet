@@ -2,7 +2,8 @@ from typing import Tuple
 
 from torch import Tensor
 
-from beignet.polynomial import _as_series, _div, polymul
+from beignet.polynomial import _as_series, polymul
+from beignet.polynomial.__div import _div
 
 
 def polydiv(input: Tensor, other: Tensor) -> Tuple[Tensor, Tensor]:

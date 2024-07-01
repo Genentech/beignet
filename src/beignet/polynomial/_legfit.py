@@ -1,6 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import _fit, legvander
+from beignet.polynomial import legvander
+from beignet.polynomial.__fit import _fit
 
 
 def legfit(
