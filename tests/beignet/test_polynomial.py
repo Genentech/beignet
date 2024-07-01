@@ -57,34 +57,16 @@ from beignet.polynomial import (
     hermediv,
     hermedomain,
     hermefit,
-    hermefromroots,
-    hermegauss,
-    hermegrid2d,
-    hermegrid3d,
-    hermeint,
     hermeline,
     hermemul,
     hermemulx,
     hermeone,
-    hermepow,
-    hermeroots,
     hermesub,
     hermetrim,
     hermeval,
-    hermeval2d,
-    hermeval3d,
     hermevander,
-    hermevander2d,
-    hermevander3d,
-    hermeweight,
     hermex,
     hermezero,
-    hermfit,
-    hermfromroots,
-    hermgauss,
-    hermgrid2d,
-    hermgrid3d,
-    hermint,
     hermline,
     hermmul,
     hermmulx,
@@ -136,6 +118,24 @@ from beignet.polynomial import (
     polyzero,
 )
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._hermefromroots import hermefromroots
+from beignet.polynomial._hermegauss import hermegauss
+from beignet.polynomial._hermegrid2d import hermegrid2d
+from beignet.polynomial._hermegrid3d import hermegrid3d
+from beignet.polynomial._hermeint import hermeint
+from beignet.polynomial._hermepow import hermepow
+from beignet.polynomial._hermeroots import hermeroots
+from beignet.polynomial._hermeval2d import hermeval2d
+from beignet.polynomial._hermeval3d import hermeval3d
+from beignet.polynomial._hermevander2d import hermevander2d
+from beignet.polynomial._hermevander3d import hermevander3d
+from beignet.polynomial._hermeweight import hermeweight
+from beignet.polynomial._hermfit import hermfit
+from beignet.polynomial._hermfromroots import hermfromroots
+from beignet.polynomial._hermgauss import hermgauss
+from beignet.polynomial._hermgrid2d import hermgrid2d
+from beignet.polynomial._hermgrid3d import hermgrid3d
+from beignet.polynomial._hermint import hermint
 from beignet.polynomial._hermpow import hermpow
 from beignet.polynomial._hermroots import hermroots
 from beignet.polynomial._hermval2d import hermval2d
