@@ -5765,92 +5765,92 @@ def test_legfit():
         ).T,
     )
 
-    # weight = zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # assert_close(
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     legfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 legfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 legfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     legfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 legfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 legfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
+    weight = zeros_like(input)
+
+    weight[1::2] = 1.0
+
+    assert_close(
+        legfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        legfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        legfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        legfit(
+            input,
+            stack([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_close(
+        legfit(
+            input,
+            stack([other, other]).T,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    legfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
     # assert_close(
     #     legfit(
     #         tensor([1, 1j, -1, -1j]),
@@ -5859,7 +5859,7 @@ def test_legfit():
     #     ),
     #     tensor([0, 1]),
     # )
-    #
+
     # assert_close(
     #     legfit(
     #         tensor([1, 1j, -1, -1j]),
@@ -5868,47 +5868,47 @@ def test_legfit():
     #     ),
     #     tensor([0, 1]),
     # )
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # assert_close(
-    #     legval(
-    #         input,
-    #         legfit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     legval(
-    #         input,
-    #         legfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 2, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([4]),
-    #     ),
-    #     legfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 2, 4]),
-    #     ),
-    # )
+
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
+    assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        legval(
+            input,
+            legfit(
+                input,
+                other,
+                degree=tensor([0, 2, 4]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        legfit(
+            input,
+            other,
+            degree=4,
+        ),
+        legfit(
+            input,
+            other,
+            degree=tensor([0, 2, 4]),
+        ),
+    )
 
 
 def test_legfromroots():
