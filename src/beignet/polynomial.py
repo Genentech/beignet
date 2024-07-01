@@ -43,7 +43,7 @@ from torch.linalg import (
     eigvals,
 )
 
-from beignet._add_series import add_power_series
+from beignet._add_power_series import add_power_series
 
 torch.set_default_dtype(torch.float64)
 

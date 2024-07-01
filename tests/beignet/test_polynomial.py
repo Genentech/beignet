@@ -3,7 +3,7 @@ import math
 
 import pytest
 import torch
-from beignet._add_series import add_power_series
+from beignet._add_power_series import add_power_series
 from beignet.polynomial import (
     _c_series_to_z_series,
     _fit,
