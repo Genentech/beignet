@@ -34,7 +34,6 @@ from beignet.polynomial import (
     chebpts1,
     chebpts2,
     chebroots,
-    chebsub,
     chebtrim,
     chebval,
     chebval2d,
@@ -193,6 +192,7 @@ from beignet.polynomial import (
     polyx,
     polyzero,
 )
+from beignet.polynomial._chebsub import chebsub
 from torch import (
     Tensor,
     arange,

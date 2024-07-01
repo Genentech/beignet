@@ -4,7 +4,7 @@ from torch import Tensor
 from .__as_series import _as_series
 
 
-def chebadd(input: Tensor, other: Tensor) -> Tensor:
+def hermesub(input: Tensor, other: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -17,33 +17,31 @@ def chebadd(input: Tensor, other: Tensor) -> Tensor:
     Returns
     -------
     output : Tensor
-        Polynomial coefficients.
+        Polynomial coefficients of the difference.
     """
     [input, other] = _as_series([input, other])
 
     if input.shape[0] > other.shape[0]:
+        output = -other
+
         output = torch.concatenate(
             [
-                other,
+                output,
                 torch.zeros(
                     input.shape[0] - other.shape[0],
                     dtype=other.dtype,
                 ),
             ],
         )
-
         output = input + output
     else:
+        output = -other
+
         output = torch.concatenate(
             [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
+                output[: input.shape[0]] + input,
+                output[input.shape[0] :],
+            ],
         )
-
-        output = other + output
 
     return output

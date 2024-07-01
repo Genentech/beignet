@@ -19,11 +19,17 @@ from torch import Tensor
 
 from .__as_series import _as_series
 from ._chebadd import chebadd
+from ._chebsub import chebsub
 from ._hermadd import hermadd
 from ._hermeadd import hermeadd
+from ._hermesub import hermesub
+from ._hermsub import hermsub
 from ._lagadd import lagadd
+from ._lagsub import lagsub
 from ._legadd import legadd
+from ._legsub import legsub
 from ._polyadd import polyadd
+from ._polysub import polysub
 
 torch.set_default_dtype(torch.float64)
 
@@ -1158,52 +1164,6 @@ def chebroots(input: Tensor) -> Tensor:
     return output
 
 
-def chebsub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
-
-    return output
-
-
 def chebval(
     input: Tensor,
     coefficients: Tensor,
@@ -1796,52 +1756,6 @@ def hermeroots(input: Tensor) -> Tensor:
     return output
 
 
-def hermesub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
-
-    return output
-
-
 def hermeval(input: Tensor, coefficients: Tensor, tensor: bool = True):
     [coefficients] = _as_series([coefficients])
 
@@ -2176,52 +2090,6 @@ def hermroots(input: Tensor) -> Tensor:
     output = torch.linalg.eigvals(output)
 
     output, _ = torch.sort(output.real)
-
-    return output
-
-
-def hermsub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
 
     return output
 
@@ -2698,52 +2566,6 @@ def lagroots(input: Tensor) -> Tensor:
     output = torch.linalg.eigvals(output)
 
     output, _ = torch.sort(output.real)
-
-    return output
-
-
-def lagsub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
 
     return output
 
@@ -3225,52 +3047,6 @@ def legroots(input: Tensor) -> Tensor:
     output = torch.linalg.eigvals(output)
 
     output, _ = torch.sort(output.real)
-
-    return output
-
-
-def legsub(
-    input: Tensor,
-    other: Tensor,
-) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
 
     return output
 
@@ -3883,49 +3659,6 @@ def polyroots(input: Tensor) -> Tensor:
     return output
 
 
-def polysub(input: Tensor, other: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    other : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor
-        Polynomial coefficients of the difference.
-    """
-    [input, other] = _as_series([input, other])
-
-    if input.shape[0] > other.shape[0]:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-        output = input + output
-    else:
-        output = -other
-
-        output = torch.concatenate(
-            [
-                output[: input.shape[0]] + input,
-                output[input.shape[0] :],
-            ],
-        )
-
-    return output
-
-
 def polyval(
     input: Tensor,
     coefficients: Tensor,
@@ -4138,7 +3871,6 @@ __all__ = [
     "chebpts1",
     "chebpts2",
     "chebroots",
-    "chebsub",
     "chebtrim",
     "chebval",
     "chebval2d",
@@ -4171,7 +3903,6 @@ __all__ = [
     "hermeone",
     "hermepow",
     "hermeroots",
-    "hermesub",
     "hermetrim",
     "hermeval",
     "hermeval2d",
@@ -4194,7 +3925,6 @@ __all__ = [
     "hermone",
     "hermpow",
     "hermroots",
-    "hermsub",
     "hermtrim",
     "hermval",
     "hermval2d",
@@ -4222,7 +3952,6 @@ __all__ = [
     "lagone",
     "lagpow",
     "lagroots",
-    "lagsub",
     "lagtrim",
     "lagval",
     "lagval2d",
@@ -4250,7 +3979,6 @@ __all__ = [
     "legone",
     "legpow",
     "legroots",
-    "legsub",
     "legtrim",
     "legval",
     "legval2d",
@@ -4280,7 +4008,6 @@ __all__ = [
     "polyone",
     "polypow",
     "polyroots",
-    "polysub",
     "polytrim",
     "polyval",
     "polyval2d",
