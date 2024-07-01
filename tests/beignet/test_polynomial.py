@@ -5574,22 +5574,34 @@ def test_legder():
                 ),
             )
 
-    c2d = rand(3, 4)
+    coefficients = rand(3, 4)
+
+    target = []
+
+    for input in coefficients.T:
+        target = [
+            *target,
+            legder(
+                input,
+            ),
+        ]
+
+    target = vstack(target)
 
     assert_close(
         legder(
-            c2d,
+            coefficients,
             axis=0,
         ),
-        vstack([legder(c) for c in c2d.T]).T,
+        target.T,
     )
 
     assert_close(
         legder(
-            c2d,
+            coefficients,
             axis=1,
         ),
-        vstack([legder(c) for c in c2d]),
+        vstack([legder(c) for c in coefficients]),
     )
 
     assert_close(
