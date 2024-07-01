@@ -3160,19 +3160,18 @@ def test_hermevander():
 
 
 def test_hermevander2d():
-    a, b, x3 = rand(3, 5) * 2 - 1
+    a, b, c = rand(3, 5) * 2 - 1
 
     coefficients = rand(2, 3)
 
+    output = hermevander2d(
+        a,
+        b,
+        degree=tensor([1, 2]),
+    )
+
     assert_close(
-        dot(
-            hermevander2d(
-                a,
-                b,
-                degree=tensor([1, 2]),
-            ),
-            coefficients.ravel(),
-        ),
+        output @ ravel(coefficients),
         hermeval2d(
             a,
             b,
@@ -3181,12 +3180,12 @@ def test_hermevander2d():
     )
 
     output = hermevander2d(
-        [a],
-        [b],
+        a,
+        b,
         degree=tensor([1, 2]),
     )
 
-    assert output.shape == (1, 5, 6)
+    assert output.shape == (5, 6)
 
 
 def test_hermevander3d():
@@ -3202,10 +3201,7 @@ def test_hermevander3d():
     )
 
     assert_close(
-        dot(
-            output,
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         hermeval3d(
             a,
             b,
@@ -3215,13 +3211,13 @@ def test_hermevander3d():
     )
 
     output = hermevander3d(
-        [a],
-        [b],
-        [c],
+        a,
+        b,
+        c,
         degree=tensor([1, 2, 3]),
     )
 
-    assert output.shape == (1, 5, 24)
+    assert output.shape == (5, 24)
 
 
 def test_hermeweight():
