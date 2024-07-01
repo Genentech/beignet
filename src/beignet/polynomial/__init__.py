@@ -4243,11 +4243,7 @@ def polyval(
     return output
 
 
-def polyval2d(
-    x: Tensor,
-    y: Tensor,
-    coefficients: Tensor,
-) -> Tensor:
+def polyval2d(x: Tensor, y: Tensor, coefficients: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -4261,20 +4257,10 @@ def polyval2d(
     -------
     output : Tensor
     """
-    return _evaluate(
-        polyval,
-        coefficients,
-        x,
-        y,
-    )
+    return _evaluate(polyval, coefficients, x, y)
 
 
-def polyval3d(
-    x: Tensor,
-    y: Tensor,
-    z: Tensor,
-    coefficients: Tensor,
-) -> Tensor:
+def polyval3d(x: Tensor, y: Tensor, z: Tensor, coefficients: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -4290,13 +4276,7 @@ def polyval3d(
     -------
     output : Tensor
     """
-    return _evaluate(
-        polyval,
-        coefficients,
-        x,
-        y,
-        z,
-    )
+    return _evaluate(polyval, coefficients, x, y, z)
 
 
 def polyvalfromroots(
@@ -4318,10 +4298,7 @@ def polyvalfromroots(
     return output
 
 
-def polyvander(
-    input: Tensor,
-    degree: Tensor,
-) -> Tensor:
+def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
