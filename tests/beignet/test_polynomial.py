@@ -212,6 +212,7 @@ from torch import (
     tensor,
     vstack,
     zeros,
+    zeros_like,
 )
 from torch.testing import (
     assert_close,
@@ -2222,192 +2223,192 @@ def test_hermefit():
         other,
     )
 
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 1, 2, 3]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 1, 2, 3, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([2, 3, 4, 1, 0]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # weight = zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=tensor([0, 1, 2, 3]),
+            ),
+        ),
+        other,
+    )
 
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermefit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=tensor([0, 1, 2, 3, 4]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=tensor([2, 3, 4, 1, 0]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            stack([other, other]).T,
+            degree=3,
+        ),
+        stack(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            stack([other, other]).T,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+        stack(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = zeros_like(input)
+
+    weight[1::2] = 1.0
+
+    assert_close(
+        hermefit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            stack([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            stack([other, other]).T,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermefit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
     # assert_close(
     #     hermefit(
     #         tensor([1, 1j, -1, -1j]),
@@ -2416,7 +2417,7 @@ def test_hermefit():
     #     ),
     #     tensor([0, 1]),
     # )
-    #
+
     # assert_close(
     #     hermefit(
     #         tensor([1, 1j, -1, -1j]),
@@ -2425,47 +2426,47 @@ def test_hermefit():
     #     ),
     #     tensor([0, 1]),
     # )
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermeval(
-    #         input,
-    #         hermefit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 2, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([4]),
-    #     ),
-    #     hermefit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 2, 4]),
-    #     ),
-    # )
+
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermeval(
+            input,
+            hermefit(
+                input,
+                other,
+                degree=tensor([0, 2, 4]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermefit(
+            input,
+            other,
+            degree=4,
+        ),
+        hermefit(
+            input,
+            other,
+            degree=tensor([0, 2, 4]),
+        ),
+    )
 
 
 def test_hermefromroots():
@@ -3263,201 +3264,201 @@ def test_hermfit():
         other,
     )
 
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 1, 2, 3]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 1, 2, 3, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([2, 3, 4, 1, 0]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ],
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # weight = zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #             (
-    #                 hermfit(
-    #                     input,
-    #                     other,
-    #                     degree=tensor([0, 1, 2, 3]),
-    #                 )
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=tensor([0, 1, 2, 3]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=tensor([0, 1, 2, 3, 4]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=tensor([2, 3, 4, 1, 0]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            stack([other, other]).T,
+            degree=3,
+        ),
+        stack(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ],
+        ).T,
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            stack([other, other]).T,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+        stack(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    weight = zeros_like(input)
+
+    weight[1::2] = 1.0
+
+    assert_close(
+        hermfit(
+            input,
+            other,
+            degree=3,
+            weight=weight,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            stack([other, other]).T,
+            degree=3,
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            stack([other, other]).T,
+            degree=tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        stack(
+            [
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+                (
+                    hermfit(
+                        input,
+                        other,
+                        degree=tensor([0, 1, 2, 3]),
+                    )
+                ),
+            ]
+        ).T,
+    )
+
     # assert_close(
     #     hermfit(
     #         tensor([1, 1j, -1, -1j]),
     #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([1]),
+    #         degree=1,
     #     ),
-    #     tensor([0, 0.5]),
+    #     tensor([0.0j, 0.5j]),
     # )
-    #
+
     # assert_close(
     #     hermfit(
     #         tensor([1, 1j, -1, -1j]),
@@ -3466,47 +3467,47 @@ def test_hermfit():
     #     ),
     #     tensor([0, 0.5]),
     # )
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermval(
-    #         input,
-    #         hermfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 2, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([4]),
-    #     ),
-    #     hermfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 2, 4]),
-    #     ),
-    # )
+
+    input = linspace(-1, 1, 50)
+
+    other = g(input)
+
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=4,
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermval(
+            input,
+            hermfit(
+                input,
+                other,
+                degree=tensor([0, 2, 4]),
+            ),
+        ),
+        other,
+    )
+
+    assert_close(
+        hermfit(
+            input,
+            other,
+            degree=4,
+        ),
+        hermfit(
+            input,
+            other,
+            degree=tensor([0, 2, 4]),
+        ),
+    )
 
 
 def test_hermfromroots():
