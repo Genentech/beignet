@@ -8,7 +8,7 @@
 import functools
 import math
 import operator
-from typing import Callable, Literal, Tuple
+from typing import Callable, List, Literal, Tuple
 
 import numpy
 import torch
@@ -50,11 +50,6 @@ from torch.linalg import (
     eigvals,
 )
 
-from beignet._add_power_series import add_power_series
-from beignet._polynomial_coefficients_to_power_series import (
-    polynomial_coefficients_to_power_series,
-)
-
 torch.set_default_dtype(torch.float64)
 
 chebdomain = tensor([-1.0, 1.0])
@@ -81,6 +76,42 @@ polydomain = tensor([-1.0, 1.0])
 polyone = tensor([1.0])
 polyx = tensor([0.0, 1.0])
 polyzero = tensor([0.0])
+
+
+def polynomial_coefficients_to_power_series(
+    input: List[Tensor],
+    trim: bool = False,
+) -> List[Tensor]:
+    outputs = []
+
+    for i in input:
+        output = torch.atleast_1d(i)
+
+        if trim:
+            if output.shape[0] != 0:
+                j = 0
+
+                for j in range(output.shape[0] - 1, -1, -1):
+                    if output[j] != 0:
+                        break
+
+                output = output[: j + 1]
+
+        outputs = [
+            *outputs,
+            output,
+        ]
+
+    dtype = outputs[0].dtype
+
+    for output in outputs[1:]:
+        dtype = torch.promote_types(dtype, output.dtype)
+
+    for index, output in enumerate(outputs):
+        if output.dtype != dtype:
+            outputs[index] = output.to(dtype)
+
+    return outputs
 
 
 def _c_series_to_z_series(
@@ -818,11 +849,11 @@ def cheb2poly(
 
         c0 = polysub(input[i1 - 2], c1)
 
-        c1 = add_power_series(tmp, polymulx(c1, "same") * 2)
+        c1 = polyadd(tmp, polymulx(c1, "same") * 2)
 
     output = polymulx(c1, "same")
 
-    output = add_power_series(c0, output)
+    output = polyadd(c0, output)
 
     return output
 
@@ -1422,7 +1453,7 @@ def herm2poly(
             c0, c1 = c0c1
             tmp = c0
             c0 = polysub(c[i - 2], c1 * (2 * (i - 1)))
-            c1 = add_power_series(tmp, polymulx(c1, "same") * 2)
+            c1 = polyadd(tmp, polymulx(c1, "same") * 2)
             return c0, c1
 
         x = (c0, c1)
@@ -1434,10 +1465,10 @@ def herm2poly(
 
         c0, c1 = y
 
-        return add_power_series(c0, polymulx(c1, "same") * 2)
+        return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def add_physicists_hermite_series(input: Tensor, other: Tensor) -> Tensor:
+def hermadd(input: Tensor, other: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -1561,14 +1592,14 @@ def hermder(
     return c
 
 
-def divide_physicists_hermite_series(
+def hermdiv(
     input: Tensor,
     other: Tensor,
 ) -> Tuple[Tensor, Tensor]:
-    return _div(multiply_physicists_hermite_series, input, other)
+    return _div(hermmul, input, other)
 
 
-def physicists_hermite_series_to_power_series(c: Tensor) -> Tensor:
+def herme2poly(c: Tensor) -> Tensor:
     [c] = polynomial_coefficients_to_power_series([c])
 
     n = c.shape[0]
@@ -1594,7 +1625,7 @@ def physicists_hermite_series_to_power_series(c: Tensor) -> Tensor:
 
             c0 = polysub(c[i - 2], c1 * (i - 1))
 
-            c1 = add_power_series(tmp, polymulx(c1, "same"))
+            c1 = polyadd(tmp, polymulx(c1, "same"))
 
             return c0, c1
 
@@ -1607,7 +1638,7 @@ def physicists_hermite_series_to_power_series(c: Tensor) -> Tensor:
 
         c0, c1 = y
 
-        return add_power_series(c0, polymulx(c1, "same"))
+        return polyadd(c0, polymulx(c1, "same"))
 
 
 def hermeadd(
@@ -2125,7 +2156,7 @@ def hermeweight(x: Tensor) -> Tensor:
     return torch.exp(-0.5 * x**2)
 
 
-def fit_physicists_hermite_series(
+def hermfit(
     input: Tensor,
     other: Tensor,
     degree: Tensor | int,
@@ -2145,7 +2176,7 @@ def fit_physicists_hermite_series(
 
 
 def hermfromroots(roots):
-    return _from_roots(hermline, multiply_physicists_hermite_series, roots)
+    return _from_roots(hermline, hermmul, roots)
 
 
 def hermgauss(degree):
@@ -2199,7 +2230,7 @@ def hermgrid3d(
     return c
 
 
-def integrate_physicists_hermite_series(
+def hermint(
     c,
     order=1,
     k=None,
@@ -2263,7 +2294,7 @@ def hermline(
     return tensor([input, other / 2])
 
 
-def multiply_physicists_hermite_series(
+def hermmul(
     input: Tensor, other: Tensor, mode: Literal["full", "same", "valid"] = "full"
 ) -> Tensor:
     [input, other] = polynomial_coefficients_to_power_series([input, other])
@@ -2277,16 +2308,16 @@ def multiply_physicists_hermite_series(
 
     match x.shape[0]:
         case 1:
-            a = add_physicists_hermite_series(zeros(m + n - 1), x[0] * y)
+            a = hermadd(zeros(m + n - 1), x[0] * y)
             b = zeros(m + n - 1)
         case 2:
-            a = add_physicists_hermite_series(zeros(m + n - 1), x[0] * y)
-            b = add_physicists_hermite_series(zeros(m + n - 1), x[1] * y)
+            a = hermadd(zeros(m + n - 1), x[0] * y)
+            b = hermadd(zeros(m + n - 1), x[1] * y)
         case _:
             size = x.shape[0]
 
-            a = add_physicists_hermite_series(zeros(m + n - 1), x[-2] * y)
-            b = add_physicists_hermite_series(zeros(m + n - 1), x[-1] * y)
+            a = hermadd(zeros(m + n - 1), x[-2] * y)
+            b = hermadd(zeros(m + n - 1), x[-1] * y)
 
             for i in range(3, x.shape[0] + 1):
                 previous = a
@@ -2295,9 +2326,9 @@ def multiply_physicists_hermite_series(
 
                 a = hermsub(x[-i] * y, b * (2 * (size - 1.0)))
 
-                b = add_physicists_hermite_series(previous, hermmulx(b, "same") * 2.0)
+                b = hermadd(previous, hermmulx(b, "same") * 2.0)
 
-    output = add_physicists_hermite_series(a, hermmulx(b, "same") * 2)
+    output = hermadd(a, hermmulx(b, "same") * 2)
 
     if mode == "same":
         output = output[: max(m, n)]
@@ -2332,7 +2363,7 @@ def hermpow(
     maximum_exponent: float | Tensor = 16.0,
 ) -> Tensor:
     return _pow(
-        multiply_physicists_hermite_series,
+        hermmul,
         input,
         exponent,
         maximum_exponent,
@@ -2538,9 +2569,7 @@ def lag2poly(
 
             c0 = polysub(c[i - 2], (c1 * (i - 1)) / i)
 
-            c1 = add_power_series(
-                tmp, polysub((2 * i - 1) * c1, polymulx(c1, "same")) / i
-            )
+            c1 = polyadd(tmp, polysub((2 * i - 1) * c1, polymulx(c1, "same")) / i)
 
             return c0, c1
 
@@ -2555,7 +2584,7 @@ def lag2poly(
 
         c0, c1 = y
 
-        return add_power_series(c0, polysub(c1, polymulx(c1, "same")))
+        return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
 def lagadd(
@@ -3113,7 +3142,7 @@ def leg2poly(
 
         c0 = polysub(c[i - 2], c1 * (i - 1) / i)
 
-        c1 = add_power_series(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
+        c1 = polyadd(tmp, polymulx(c1, "same") * (2 * i - 1) / i)
 
         return c0, c1
 
@@ -3126,7 +3155,7 @@ def leg2poly(
 
     output = polymulx(c1, "same")
 
-    output = add_power_series(c0, output)
+    output = polyadd(c0, output)
 
     return output
 
@@ -3698,7 +3727,7 @@ def legweight(x: Tensor) -> Tensor:
     return ones_like(x)
 
 
-def power_series_to_chebyshev_series(
+def poly2cheb(
     input: Tensor,
 ) -> Tensor:
     [input] = polynomial_coefficients_to_power_series([input])
@@ -3717,7 +3746,7 @@ def power_series_to_chebyshev_series(
     return output
 
 
-def power_series_to_physicists_hermite_series(
+def poly2herm(
     input: Tensor,
 ) -> Tensor:
     [input] = polynomial_coefficients_to_power_series([input])
@@ -3725,7 +3754,7 @@ def power_series_to_physicists_hermite_series(
     output = zeros_like(input)
 
     for index in range(0, input.shape[0] - 1 + 1):
-        output = add_physicists_hermite_series(
+        output = hermadd(
             hermmulx(
                 output,
                 mode="same",
@@ -4491,6 +4520,49 @@ def polyvander3d(
     )
 
 
+def polyadd(input: Tensor, other: Tensor) -> Tensor:
+    r"""
+    Parameters
+    ----------
+    input : Tensor
+        Polynomial coefficients.
+
+    other : Tensor
+        Polynomial coefficients.
+
+    Returns
+    -------
+    output : Tensor
+        Polynomial coefficients.
+    """
+    if input.shape[0] > other.shape[0]:
+        output = torch.concatenate(
+            [
+                other,
+                torch.zeros(
+                    input.shape[0] - other.shape[0],
+                    dtype=other.dtype,
+                ),
+            ],
+        )
+
+        output = input + output
+    else:
+        output = torch.concatenate(
+            [
+                input,
+                torch.zeros(
+                    other.shape[0] - input.shape[0],
+                    dtype=input.dtype,
+                ),
+            ]
+        )
+
+        output = other + output
+
+    return output
+
+
 chebtrim = _trim_coefficients
 
 hermetrim = _trim_coefficients
@@ -4547,12 +4619,12 @@ __all__ = [
     "chebx",
     "chebzero",
     "herm2poly",
-    "add_physicists_hermite_series",
+    "hermadd",
     "hermcompanion",
     "hermder",
-    "divide_physicists_hermite_series",
+    "hermdiv",
     "hermdomain",
-    "physicists_hermite_series_to_power_series",
+    "herme2poly",
     "hermeadd",
     "hermecompanion",
     "hermeder",
@@ -4581,14 +4653,14 @@ __all__ = [
     "hermeweight",
     "hermex",
     "hermezero",
-    "fit_physicists_hermite_series",
+    "hermfit",
     "hermfromroots",
     "hermgauss",
     "hermgrid2d",
     "hermgrid3d",
-    "integrate_physicists_hermite_series",
+    "hermint",
     "hermline",
-    "multiply_physicists_hermite_series",
+    "hermmul",
     "hermmulx",
     "hermone",
     "hermpow",
@@ -4662,11 +4734,12 @@ __all__ = [
     "legweight",
     "legx",
     "legzero",
-    "power_series_to_chebyshev_series",
-    "power_series_to_physicists_hermite_series",
+    "poly2cheb",
+    "poly2herm",
     "poly2herme",
     "poly2lag",
     "poly2leg",
+    "polyadd",
     "polycompanion",
     "polydiv",
     "polydomain",
@@ -4674,6 +4747,7 @@ __all__ = [
     "polyfromroots",
     "polygrid2d",
     "polygrid3d",
+    "polyint",
     "polyline",
     "polymul",
     "polymulx",
