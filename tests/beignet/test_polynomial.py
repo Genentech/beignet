@@ -3,6 +3,7 @@ import math
 
 import pytest
 import torch
+from beignet._add_series import add_power_series
 from beignet.polynomial import (
     _c_series_to_z_series,
     _fit,
@@ -14,6 +15,7 @@ from beignet.polynomial import (
     _trim_sequence,
     _vandermonde,
     _z_series_to_c_series,
+    add_physicists_hermite_series,
     chebadd,
     chebcompanion,
     chebder,
@@ -45,13 +47,12 @@ from beignet.polynomial import (
     chebweight,
     chebx,
     chebzero,
+    divide_physicists_hermite_series,
+    fit_physicists_hermite_series,
     herm2poly,
-    hermadd,
     hermcompanion,
     hermder,
-    hermdiv,
     hermdomain,
-    herme2poly,
     hermeadd,
     hermecompanion,
     hermeder,
@@ -80,14 +81,11 @@ from beignet.polynomial import (
     hermeweight,
     hermex,
     hermezero,
-    hermfit,
     hermfromroots,
     hermgauss,
     hermgrid2d,
     hermgrid3d,
-    hermint,
     hermline,
-    hermmul,
     hermmulx,
     hermone,
     hermpow,
@@ -103,6 +101,7 @@ from beignet.polynomial import (
     hermweight,
     hermx,
     hermzero,
+    integrate_physicists_hermite_series,
     lag2poly,
     lagadd,
     lagcompanion,
@@ -161,12 +160,13 @@ from beignet.polynomial import (
     legweight,
     legx,
     legzero,
+    multiply_physicists_hermite_series,
+    physicists_hermite_series_to_power_series,
     poly2cheb,
     poly2herm,
     poly2herme,
     poly2lag,
     poly2leg,
-    polyadd,
     polycompanion,
     polydiv,
     polydomain,
@@ -1861,7 +1861,7 @@ def test_hermadd():
 
             assert_close(
                 hermtrim(
-                    hermadd(
+                    add_physicists_hermite_series(
                         tensor([0.0] * j + [1.0]),
                         tensor([0.0] * k + [1.0]),
                     ),
@@ -1926,7 +1926,7 @@ def test_hermder():
             assert_close(
                 hermtrim(
                     hermder(
-                        hermint(
+                        integrate_physicists_hermite_series(
                             tensor([0.0] * i + [1.0]),
                             order=j,
                         ),
@@ -1944,7 +1944,7 @@ def test_hermder():
         for j in range(2, 5):
             target = tensor([0.0] * i + [1.0])
             res = hermder(
-                hermint(
+                integrate_physicists_hermite_series(
                     target,
                     order=j,
                     scale=2,
@@ -1985,8 +1985,8 @@ def test_hermdiv():
             input = tensor([0.0] * j + [1.0])
             other = tensor([0.0] * k + [1.0])
 
-            quotient, remainder = hermdiv(
-                hermadd(
+            quotient, remainder = divide_physicists_hermite_series(
+                add_physicists_hermite_series(
                     input,
                     other,
                 ),
@@ -1995,8 +1995,8 @@ def test_hermdiv():
 
             assert_close(
                 hermtrim(
-                    hermadd(
-                        hermmul(
+                    add_physicists_hermite_series(
+                        multiply_physicists_hermite_series(
                             quotient,
                             input,
                         ),
@@ -2005,7 +2005,7 @@ def test_hermdiv():
                     tol=0.000001,
                 ),
                 hermtrim(
-                    hermadd(
+                    add_physicists_hermite_series(
                         input,
                         other,
                     ),
@@ -2037,7 +2037,7 @@ def test_herme2poly():
 
     for index in range(10):
         assert_close(
-            herme2poly(
+            physicists_hermite_series_to_power_series(
                 tensor([0.0] * index + [1.0]),
             ),
             coefficients[index],
@@ -2489,7 +2489,7 @@ def test_hermefromroots():
         assert len(pol) == i + 1
 
         assert_close(
-            herme2poly(pol)[-1],
+            physicists_hermite_series_to_power_series(pol)[-1],
             tensor(1.0),
         )
 
@@ -2589,7 +2589,7 @@ def test_hermeint():
     for i in range(5):
         assert_close(
             hermetrim(
-                herme2poly(
+                physicists_hermite_series_to_power_series(
                     hermeint(
                         poly2herme(
                             tensor([0.0] * i + [1.0]),
@@ -2625,7 +2625,7 @@ def test_hermeint():
     for i in range(5):
         assert_close(
             hermetrim(
-                herme2poly(
+                physicists_hermite_series_to_power_series(
                     hermeint(
                         poly2herme(
                             tensor([0.0] * i + [1.0]),
@@ -3256,7 +3256,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=3,
@@ -3268,7 +3268,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=tensor([0, 1, 2, 3]),
@@ -3280,7 +3280,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=4,
@@ -3292,7 +3292,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=tensor([0, 1, 2, 3, 4]),
@@ -3304,7 +3304,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=tensor([2, 3, 4, 1, 0]),
@@ -3314,7 +3314,7 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             stack([other, other]).T,
             degree=3,
@@ -3322,14 +3322,14 @@ def test_hermfit():
         stack(
             [
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
@@ -3340,7 +3340,7 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             stack([other, other]).T,
             degree=tensor([0, 1, 2, 3]),
@@ -3348,14 +3348,14 @@ def test_hermfit():
         stack(
             [
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
@@ -3370,13 +3370,13 @@ def test_hermfit():
     weight[1::2] = 1.0
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=3,
             weight=weight,
         ),
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=tensor([0, 1, 2, 3]),
@@ -3384,13 +3384,13 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=tensor([0, 1, 2, 3]),
             weight=weight,
         ),
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=tensor([0, 1, 2, 3]),
@@ -3398,7 +3398,7 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             stack([other, other]).T,
             degree=3,
@@ -3407,14 +3407,14 @@ def test_hermfit():
         stack(
             [
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
@@ -3425,7 +3425,7 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             stack([other, other]).T,
             degree=tensor([0, 1, 2, 3]),
@@ -3434,14 +3434,14 @@ def test_hermfit():
         stack(
             [
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
                     )
                 ),
                 (
-                    hermfit(
+                    fit_physicists_hermite_series(
                         input,
                         other,
                         degree=tensor([0, 1, 2, 3]),
@@ -3476,7 +3476,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=4,
@@ -3488,7 +3488,7 @@ def test_hermfit():
     assert_close(
         hermval(
             input,
-            hermfit(
+            fit_physicists_hermite_series(
                 input,
                 other,
                 degree=tensor([0, 2, 4]),
@@ -3498,12 +3498,12 @@ def test_hermfit():
     )
 
     assert_close(
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=4,
         ),
-        hermfit(
+        fit_physicists_hermite_series(
             input,
             other,
             degree=tensor([0, 2, 4]),
@@ -3628,38 +3628,38 @@ def test_hermgrid3d():
 
 def test_hermint():
     with pytest.raises(TypeError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0.0]),
             order=0.5,
         )
 
     with pytest.raises(ValueError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0]),
             order=-1,
         )
 
     with pytest.raises(ValueError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0]),
             order=1,
             k=tensor([0, 0]),
         )
 
     with pytest.raises(ValueError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0]),
             lower_bound=[0],
         )
 
     with pytest.raises(ValueError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0]),
             scale=[0],
         )
 
     with pytest.raises(TypeError):
-        hermint(
+        integrate_physicists_hermite_series(
             tensor([0]),
             axis=0.5,
         )
@@ -3667,7 +3667,7 @@ def test_hermint():
     for i in range(2, 5):
         assert_close(
             hermtrim(
-                hermint(
+                integrate_physicists_hermite_series(
                     tensor([0.0]),
                     order=i,
                     k=([0.0] * (i - 2) + [1.0]),
@@ -3681,7 +3681,7 @@ def test_hermint():
         assert_close(
             hermtrim(
                 herm2poly(
-                    hermint(
+                    integrate_physicists_hermite_series(
                         poly2herm(
                             tensor([0.0] * i + [1.0]),
                         ),
@@ -3701,7 +3701,7 @@ def test_hermint():
         assert_close(
             hermval(
                 tensor([-1.0]),
-                hermint(
+                integrate_physicists_hermite_series(
                     poly2herm(
                         tensor([0.0] * i + [1.0]),
                     ),
@@ -3717,7 +3717,7 @@ def test_hermint():
         assert_close(
             hermtrim(
                 herm2poly(
-                    hermint(
+                    integrate_physicists_hermite_series(
                         poly2herm(
                             tensor([0.0] * i + [1.0]),
                         ),
@@ -3739,14 +3739,14 @@ def test_hermint():
             target = tensor([0.0] * i + [1.0])[:]
 
             for _ in range(j):
-                target = hermint(
+                target = integrate_physicists_hermite_series(
                     target,
                     order=1,
                 )
 
             assert_close(
                 hermtrim(
-                    hermint(
+                    integrate_physicists_hermite_series(
                         tensor([0.0] * i + [1.0]),
                         order=j,
                     ),
@@ -3765,11 +3765,11 @@ def test_hermint():
             target = pol[:]
 
             for k in range(j):
-                target = hermint(target, order=1, k=[k])
+                target = integrate_physicists_hermite_series(target, order=1, k=[k])
 
             assert_close(
                 hermtrim(
-                    hermint(
+                    integrate_physicists_hermite_series(
                         pol,
                         order=j,
                         k=list(range(j)),
@@ -3787,7 +3787,7 @@ def test_hermint():
             pol = tensor([0.0] * i + [1.0])
             target = pol[:]
             for k in range(j):
-                target = hermint(
+                target = integrate_physicists_hermite_series(
                     target,
                     order=1,
                     k=[k],
@@ -3796,7 +3796,7 @@ def test_hermint():
 
             assert_close(
                 hermtrim(
-                    hermint(
+                    integrate_physicists_hermite_series(
                         pol,
                         order=j,
                         k=list(range(j)),
@@ -3840,30 +3840,30 @@ def test_hermint():
 
     c2d = rand(3, 4)
 
-    target = vstack([hermint(c) for c in c2d.T]).T
+    target = vstack([integrate_physicists_hermite_series(c) for c in c2d.T]).T
 
     assert_close(
-        hermint(
+        integrate_physicists_hermite_series(
             c2d,
             axis=0,
         ),
         target,
     )
 
-    target = vstack([hermint(c) for c in c2d])
+    target = vstack([integrate_physicists_hermite_series(c) for c in c2d])
 
     assert_close(
-        hermint(
+        integrate_physicists_hermite_series(
             c2d,
             axis=1,
         ),
         target,
     )
 
-    target = vstack([hermint(c, k=3) for c in c2d])
+    target = vstack([integrate_physicists_hermite_series(c, k=3) for c in c2d])
 
     assert_close(
-        hermint(
+        integrate_physicists_hermite_series(
             c2d,
             k=3,
             axis=1,
@@ -3897,7 +3897,7 @@ def test_hermmul():
             assert_close(
                 hermval(
                     input,
-                    hermmul(
+                    multiply_physicists_hermite_series(
                         tensor([0.0] * i + [1.0]),
                         tensor([0.0] * j + [1.0]),
                     ),
@@ -3953,7 +3953,7 @@ def test_hermpow():
                 ),
                 hermtrim(
                     functools.reduce(
-                        hermmul,
+                        multiply_physicists_hermite_series,
                         [arange(0.0, i + 1)] * j,
                         tensor([1.0]),
                     ),
@@ -6898,7 +6898,7 @@ def test_polyadd():
 
             assert_close(
                 polytrim(
-                    polyadd(
+                    add_power_series(
                         tensor([0.0] * i + [1.0]),
                         tensor([0.0] * j + [1.0]),
                     ),
@@ -6969,7 +6969,7 @@ def test_polydiv():
             other = tensor([0.0] * k + [1.0, 2.0])
 
             quotient, remainder = polydiv(
-                polyadd(
+                add_power_series(
                     input,
                     other,
                 ),
@@ -6978,7 +6978,7 @@ def test_polydiv():
 
             assert_close(
                 polytrim(
-                    polyadd(
+                    add_power_series(
                         polymul(
                             quotient,
                             input,
@@ -6988,7 +6988,7 @@ def test_polydiv():
                     tol=0.000001,
                 ),
                 polytrim(
-                    polyadd(
+                    add_power_series(
                         input,
                         other,
                     ),
