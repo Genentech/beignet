@@ -1225,9 +1225,7 @@ def chebpts2(
     return torch.cos(torch.linspace(-math.pi, 0, input))
 
 
-def chebroots(
-    input: Tensor,
-) -> Tensor:
+def chebroots(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] <= 1:
@@ -1957,18 +1955,16 @@ def hermepow(
     )
 
 
-def hermeroots(
-    c: Tensor,
-) -> Tensor:
-    [c] = _as_series([c])
+def hermeroots(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
 
-    if c.shape[0] <= 1:
-        return torch.tensor([], dtype=c.dtype)
+    if input.shape[0] <= 1:
+        return torch.tensor([], dtype=input.dtype)
 
-    if c.shape[0] == 2:
-        return torch.tensor([-c[0] / c[1]])
+    if input.shape[0] == 2:
+        return torch.tensor([-input[0] / input[1]])
 
-    output = hermecompanion(c)
+    output = hermecompanion(input)
 
     output = torch.flip(output, dims=[0])
     output = torch.flip(output, dims=[1])
@@ -2343,7 +2339,7 @@ def hermpow(
     )
 
 
-def hermroots(input):
+def hermroots(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] <= 1:
@@ -2913,9 +2909,7 @@ def lagpow(
     )
 
 
-def lagroots(
-    input: Tensor,
-) -> Tensor:
+def lagroots(input: Tensor) -> Tensor:
     [input] = _as_series([input])
 
     if input.shape[0] <= 1:
@@ -3488,18 +3482,16 @@ def legpow(
     )
 
 
-def legroots(
-    c: Tensor,
-) -> Tensor:
-    [c] = _as_series([c])
+def legroots(input: Tensor) -> Tensor:
+    [input] = _as_series([input])
 
-    if c.shape[0] <= 1:
-        return torch.tensor([], dtype=c.dtype)
+    if input.shape[0] <= 1:
+        return torch.tensor([], dtype=input.dtype)
 
-    if c.shape[0] == 2:
-        return torch.tensor([-c[0] / c[1]])
+    if input.shape[0] == 2:
+        return torch.tensor([-input[0] / input[1]])
 
-    output = legcompanion(c)
+    output = legcompanion(input)
 
     output = torch.flip(output, dims=[0])
     output = torch.flip(output, dims=[1])
@@ -4195,9 +4187,7 @@ def polypow(
     )
 
 
-def polyroots(
-    input: Tensor,
-) -> Tensor:
+def polyroots(input: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
