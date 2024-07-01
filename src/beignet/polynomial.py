@@ -4391,15 +4391,8 @@ def polyvander(
     -------
     output : Tensor
     """
-
-    def fori_loop(lower, upper, body_fun, init_val):
-        val = init_val
-        for i in range(lower, upper):
-            val = body_fun(i, val)
-        return val
-
     if degree < 0:
-        raise ValueError("deg must be non-negative")
+        raise ValueError
 
     degree = int(degree)
 
@@ -4407,15 +4400,19 @@ def polyvander(
     input = atleast_1d(input)
     dims = (degree + 1,) + input.shape
     dtyp = input.dtype
-    v = empty(dims, dtype=dtyp)
-    v[0] = ones_like(input)
+
+    output = empty(dims, dtype=dtyp)
+
+    output[0] = ones_like(input)
 
     upper = degree + 1
 
     for i in range(1, upper):
-        v[i] = v[i - 1] * input
+        output[i] = output[i - 1] * input
 
-    return moveaxis(v, 0, -1)
+    output = moveaxis(output, 0, -1)
+
+    return output
 
 
 def polyvander2d(
