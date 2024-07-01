@@ -19,16 +19,22 @@ from torch import Tensor
 
 from .__as_series import _as_series
 from ._chebadd import chebadd
+from ._chebcompanion import chebcompanion
 from ._chebsub import chebsub
 from ._hermadd import hermadd
+from ._hermcompanion import hermcompanion
 from ._hermeadd import hermeadd
+from ._hermecompanion import hermecompanion
 from ._hermesub import hermesub
 from ._hermsub import hermsub
 from ._lagadd import lagadd
+from ._lagcompanion import lagcompanion
 from ._lagsub import lagsub
 from ._legadd import legadd
+from ._legcompanion import legcompanion
 from ._legsub import legsub
 from ._polyadd import polyadd
+from ._polycompanion import polycompanion
 from ._polysub import polysub
 
 torch.set_default_dtype(torch.float64)
@@ -791,49 +797,6 @@ def cheb2poly(input: Tensor) -> Tensor:
     return output
 
 
-def chebcompanion(input: Tensor) -> Tensor:
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[-input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.zeros(
-        [
-            n,
-            n,
-        ],
-        dtype=input.dtype,
-    )
-
-    scale = torch.ones([n])
-
-    scale[1:] = math.sqrt(0.5)
-
-    shape = output.shape
-
-    output = torch.reshape(output, [-1])
-
-    x = torch.full([n - 1], 1 / 2)
-
-    x[0] = math.sqrt(0.5)
-
-    output[1 :: n + 1] = x
-    output[n :: n + 1] = x
-
-    output = torch.reshape(output, shape)
-
-    output[:, -1] = (
-        output[:, -1] + -(input[:-1] / input[-1]) * (scale / scale[-1]) * 0.5
-    )
-
-    return output
-
-
 def chebder(
     input: Tensor,
     order=1,
@@ -1311,44 +1274,6 @@ def herm2poly(
         return polyadd(c0, polymulx(c1, "same") * 2)
 
 
-def hermcompanion(input: Tensor) -> Tensor:
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[-0.5 * input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.zeros((n, n), dtype=input.dtype)
-
-    scale = torch.hstack(
-        [
-            torch.tensor([1.0]),
-            1.0 / torch.sqrt(2.0 * torch.arange(n - 1, 0, -1)),
-        ],
-    )
-
-    scale = torch.cumprod(scale, dim=0)
-
-    scale = torch.flip(scale, dims=[0])
-
-    shp = output.shape
-
-    output = torch.reshape(output, [-1])
-
-    output[1 :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
-    output[n :: n + 1] = torch.sqrt(0.5 * torch.arange(1, n))
-
-    output = torch.reshape(output, shp)
-
-    output[:, -1] += -scale * input[:-1] / (2.0 * input[-1])
-
-    return output
-
-
 def hermder(
     c,
     order=1,
@@ -1435,43 +1360,6 @@ def herme2poly(c: Tensor) -> Tensor:
         c0, c1 = y
 
         return polyadd(c0, polymulx(c1, "same"))
-
-
-def hermecompanion(input: Tensor) -> Tensor:
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[-input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.zeros([n, n], dtype=input.dtype)
-
-    scale = torch.hstack(
-        [
-            torch.tensor([1.0]),
-            1.0 / torch.sqrt(torch.arange(n - 1, 0, -1)),
-        ],
-    )
-
-    scale = torch.cumprod(scale, dim=0)
-    scale = torch.flip(scale, dims=[0])
-
-    shape = output.shape
-
-    output = torch.reshape(output, [-1])
-
-    output[1 :: n + 1] = torch.sqrt(torch.arange(1, n))
-    output[n :: n + 1] = torch.sqrt(torch.arange(1, n))
-
-    output = torch.reshape(output, shape)
-
-    output[:, -1] += -scale * input[:-1] / input[-1]
-
-    return output
 
 
 def hermeder(
@@ -2244,32 +2132,6 @@ def lag2poly(
         return polyadd(c0, polysub(c1, polymulx(c1, "same")))
 
 
-def lagcompanion(input: Tensor) -> Tensor:
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[1 + input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.reshape(torch.zeros([n, n], dtype=input.dtype), [-1])
-
-    output[1 :: n + 1] = -torch.arange(1, n)
-
-    output[0 :: n + 1] = 2.0 * torch.arange(n) + 1.0
-
-    output[n :: n + 1] = -torch.arange(1, n)
-
-    output = torch.reshape(output, [n, n])
-
-    output[:, -1] += (input[:-1] / input[-1]) * n
-
-    return output
-
-
 def lagder(
     c,
     order=1,
@@ -2717,36 +2579,6 @@ def leg2poly(
     output = polymulx(c1, "same")
 
     output = polyadd(c0, output)
-
-    return output
-
-
-def legcompanion(input: Tensor) -> Tensor:
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[-input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.zeros((n, n), dtype=input.dtype)
-
-    scale = 1.0 / torch.sqrt(2 * torch.arange(n) + 1)
-
-    shape = output.shape
-
-    output = torch.reshape(output, [-1])
-
-    output[1 :: n + 1] = torch.arange(1, n) * scale[: n - 1] * scale[1:n]
-
-    output[n :: n + 1] = torch.arange(1, n) * scale[: n - 1] * scale[1:n]
-
-    output = torch.reshape(output, shape)
-
-    output[:, -1] += -(input[:-1] / input[-1]) * (scale / scale[-1]) * (n / (2 * n - 1))
 
     return output
 
@@ -3238,39 +3070,6 @@ def poly2leg(input: Tensor) -> Tensor:
         output = legmulx(output, mode="same")
 
         output = legadd(output, input[input.shape[0] - 1 - i])
-
-    return output
-
-
-def polycompanion(input: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-        Polynomial coefficients.
-
-    Returns
-    -------
-    output : Tensor, shape=(degree, degree)
-        Companion matrix.
-    """
-    [input] = _as_series([input])
-
-    if input.shape[0] < 2:
-        raise ValueError
-
-    if input.shape[0] == 2:
-        return torch.tensor([[-input[0] / input[1]]])
-
-    n = input.shape[0] - 1
-
-    output = torch.reshape(torch.zeros([n, n], dtype=input.dtype), [-1])
-
-    output[n :: n + 1] = 1.0
-
-    output = torch.reshape(output, [n, n])
-
-    output[:, -1] = output[:, -1] + (-input[:-1] / input[-1])
 
     return output
 
@@ -3852,7 +3651,6 @@ __all__ = [
     "_vandermonde",
     "_z_series_to_c_series",
     "cheb2poly",
-    "chebcompanion",
     "chebder",
     "chebdiv",
     "chebdomain",
@@ -3882,12 +3680,10 @@ __all__ = [
     "chebx",
     "chebzero",
     "herm2poly",
-    "hermcompanion",
     "hermder",
     "hermdiv",
     "hermdomain",
     "herme2poly",
-    "hermecompanion",
     "hermeder",
     "hermediv",
     "hermedomain",
@@ -3936,7 +3732,6 @@ __all__ = [
     "hermx",
     "hermzero",
     "lag2poly",
-    "lagcompanion",
     "lagder",
     "lagdiv",
     "lagdomain",
@@ -3963,7 +3758,6 @@ __all__ = [
     "lagx",
     "lagzero",
     "leg2poly",
-    "legcompanion",
     "legder",
     "legdiv",
     "legdomain",
@@ -3994,7 +3788,6 @@ __all__ = [
     "poly2herme",
     "poly2lag",
     "poly2leg",
-    "polycompanion",
     "polydiv",
     "polydomain",
     "polyfit",
