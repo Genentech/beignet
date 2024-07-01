@@ -187,12 +187,12 @@ from beignet.polynomial import (
     polyval3d,
     polyvalfromroots,
     polyvander,
-    polyvander2d,
-    polyvander3d,
     polyx,
     polyzero,
 )
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._polyvander2d import polyvander2d
+from beignet.polynomial._polyvander3d import polyvander3d
 from torch import (
     Tensor,
     arange,

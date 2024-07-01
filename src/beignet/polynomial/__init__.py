@@ -36,6 +36,7 @@ from ._legsub import legsub
 from ._polyadd import polyadd
 from ._polycompanion import polycompanion
 from ._polysub import polysub
+from ._polyvander import polyvander
 
 torch.set_default_dtype(torch.float64)
 
@@ -3547,86 +3548,6 @@ def polyvalfromroots(
     return output
 
 
-def polyvander(input: Tensor, degree: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    input : Tensor
-
-    degree : Tensor
-
-    Returns
-    -------
-    output : Tensor
-    """
-    if degree < 0:
-        raise ValueError
-
-    degree = int(degree)
-
-    input = torch.tensor(input)
-    input = torch.atleast_1d(input)
-    dims = (degree + 1,) + input.shape
-    dtyp = input.dtype
-
-    output = torch.empty(dims, dtype=dtyp)
-
-    output[0] = torch.ones_like(input)
-
-    upper = degree + 1
-
-    for i in range(1, upper):
-        output[i] = output[i - 1] * input
-
-    output = torch.moveaxis(output, 0, -1)
-
-    return output
-
-
-def polyvander2d(x: Tensor, y: Tensor, degree: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    x : Tensor
-
-    y : Tensor
-
-    degree : Tensor
-
-    Returns
-    -------
-    output : Tensor
-    """
-    return _flattened_vandermonde(
-        (polyvander, polyvander),
-        (x, y),
-        degree,
-    )
-
-
-def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:
-    r"""
-    Parameters
-    ----------
-    x : Tensor
-
-    y : Tensor
-
-    z : Tensor
-
-    degree : Tensor
-
-    Returns
-    -------
-    output : Tensor
-    """
-    return _flattened_vandermonde(
-        (polyvander, polyvander, polyvander),
-        (x, y, z),
-        degree,
-    )
-
-
 chebtrim = _trim_coefficients
 
 hermetrim = _trim_coefficients
@@ -3806,9 +3727,6 @@ __all__ = [
     "polyval2d",
     "polyval3d",
     "polyvalfromroots",
-    "polyvander",
-    "polyvander2d",
-    "polyvander3d",
     "polyx",
     "polyzero",
 ]
