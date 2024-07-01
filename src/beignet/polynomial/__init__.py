@@ -4334,11 +4334,7 @@ def polyvander(input: Tensor, degree: Tensor) -> Tensor:
     return output
 
 
-def polyvander2d(
-    x: Tensor,
-    y: Tensor,
-    degree: Tensor,
-) -> Tensor:
+def polyvander2d(x: Tensor, y: Tensor, degree: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
@@ -4359,12 +4355,7 @@ def polyvander2d(
     )
 
 
-def polyvander3d(
-    x: Tensor,
-    y: Tensor,
-    z: Tensor,
-    degree: Tensor,
-) -> Tensor:
+def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:
     r"""
     Parameters
     ----------
