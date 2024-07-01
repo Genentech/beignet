@@ -4220,25 +4220,59 @@ def test_hermvander():
 
 
 def test_hermvander2d():
-    a, b, x3 = rand(3, 5) * 2 - 1
-    c = rand(2, 3)
-    assert_close(
-        dot(hermvander2d(a, b, (1, 2)), c.ravel()),
-        hermval2d(a, b, c),
+    a, b, c = rand(3, 5) * 2 - 1
+
+    coefficients = rand(2, 3)
+
+    output = hermvander2d(
+        a,
+        b,
+        degree=tensor([1, 2]),
     )
 
-    assert hermvander2d([a], [b], (1, 2)).shape == (1, 5, 6)
+    assert_close(
+        output @ ravel(coefficients),
+        hermval2d(
+            a,
+            b,
+            coefficients,
+        ),
+    )
+
+    output = hermvander2d(
+        a,
+        b,
+        degree=tensor([1, 2]),
+    )
+
+    assert output.shape == (5, 6)
 
 
 def test_hermvander3d():
     a, b, x3 = rand(3, 5) * 2 - 1
-    c = rand(2, 3, 4)
-    assert_close(
-        dot(hermvander3d(a, b, x3, (1, 2, 3)), c.ravel()),
-        hermval3d(a, b, x3, c),
+
+    coefficients = rand(2, 3, 4)
+
+    output = hermvander3d(
+        a,
+        b,
+        x3,
+        degree=tensor([1, 2, 3]),
     )
 
-    assert hermvander3d([a], [b], [x3], (1, 2, 3)).shape == (1, 5, 24)
+    assert_close(
+        output @ ravel(coefficients),
+        hermval3d(a, b, x3, coefficients),
+    )
+
+    output = hermvander3d(
+        a,
+        b,
+        x3,
+        degree=tensor([1, 2, 3]),
+    )
+
+    assert output.shape == (5, 24)
 
 
 def test_hermweight():
