@@ -3,7 +3,7 @@ from typing import Callable
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series
+from .__as_series import _as_series
 
 
 def _pow(
