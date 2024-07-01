@@ -196,7 +196,6 @@ from torch import (
     Tensor,
     arange,
     cos,
-    dot,
     einsum,
     empty,
     exp,
@@ -1746,31 +1745,30 @@ def test_chebvander():
 def test_chebvander2d():
     a, b, x3 = rand(3, 5) * 2 - 1
 
-    c = rand(2, 3)
+    coefficients = rand(2, 3)
+
+    output = chebvander2d(
+        a,
+        b,
+        degree=tensor([1, 2]),
+    )
 
     assert_close(
-        dot(
-            chebvander2d(
-                a,
-                b,
-                degree=tensor([1, 2]),
-            ),
-            ravel(c),
-        ),
+        output @ ravel(coefficients),
         chebval2d(
             a,
             b,
-            c,
+            coefficients,
         ),
     )
 
     van = chebvander2d(
-        [a],
-        [b],
+        a,
+        b,
         degree=tensor([1, 2]),
     )
 
-    assert van.shape == (1, 5, 6)
+    assert van.shape == (5, 6)
 
 
 def test_chebvander3d():
@@ -1778,16 +1776,15 @@ def test_chebvander3d():
 
     coefficients = rand(2, 3, 4)
 
+    output = chebvander3d(
+        a,
+        b,
+        c,
+        degree=tensor([1, 2, 3]),
+    )
+
     assert_close(
-        dot(
-            chebvander3d(
-                a,
-                b,
-                c,
-                degree=tensor([1, 2, 3]),
-            ),
-            ravel(coefficients),
-        ),
+        output @ ravel(coefficients),
         chebval3d(
             a,
             b,
@@ -1797,13 +1794,13 @@ def test_chebvander3d():
     )
 
     output = chebvander3d(
-        [a],
-        [b],
-        [c],
+        a,
+        b,
+        c,
         degree=tensor([1, 2, 3]),
     )
 
-    assert output.shape == (1, 5, 24)
+    assert output.shape == (5, 24)
 
 
 def test_chebweight():
