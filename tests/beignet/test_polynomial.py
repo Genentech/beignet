@@ -568,21 +568,17 @@ def test_chebder():
 
     for i in range(5):
         for j in range(2, 5):
-            output = chebder(
-                chebint(
-                    tensor([0.0] * i + [1.0]),
-                    order=j,
-                    scale=2.0,
-                ),
-                order=j,
-                scale=0.5,
-            )
-
-            print(output)
-
             assert_close(
                 chebtrim(
-                    output,
+                    chebder(
+                        chebint(
+                            tensor([0.0] * i + [1.0]),
+                            order=j,
+                            scale=2.0,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
                     tol=0.000001,
                 ),
                 chebtrim(
@@ -591,31 +587,31 @@ def test_chebder():
                 ),
             )
 
-    # input = rand(3, 4)
-    #
-    # target = [chebder(c) for c in input.T]
-    #
-    # target = vstack(target).T
-    #
-    # assert_close(
-    #     chebder(
-    #         input,
-    #         axis=0,
-    #     ),
-    #     target,
-    # )
-    #
-    # target = [chebder(c) for c in input]
-    #
-    # target = vstack(target)
-    #
-    # assert_close(
-    #     chebder(
-    #         input,
-    #         axis=1,
-    #     ),
-    #     target,
-    # )
+    input = rand(3, 4)
+
+    target = [chebder(c) for c in input.T]
+
+    target = vstack(target).T
+
+    assert_close(
+        chebder(
+            input,
+            axis=0,
+        ),
+        target,
+    )
+
+    target = [chebder(c) for c in input]
+
+    target = vstack(target)
+
+    assert_close(
+        chebder(
+            input,
+            axis=1,
+        ),
+        target,
+    )
 
 
 def test_chebdiv():
@@ -2512,33 +2508,43 @@ def test_hermegauss():
 
 
 def test_hermegrid2d():
-    c1d = tensor([4.0, 2.0, 3.0])
-    c2d = einsum("i,j->ij", c1d, c1d)
+    input = rand(3, 5) * 2 - 1
 
-    x = rand(3, 5) * 2 - 1
-    y = polyval(x, tensor([1.0, 2.0, 3.0]))
+    a, b, c = input
 
-    a, b, x3 = x
-    y1, y2, y3 = y
-
-    target = einsum("i,j->ij", y1, y2)
-    res = hermegrid2d(
-        a,
-        b,
-        c2d,
+    x, y, z = polyval(
+        input,
+        tensor([1.0, 2.0, 3.0]),
     )
+
     assert_close(
-        res,
-        target,
+        hermegrid2d(
+            a,
+            b,
+            einsum(
+                "i,j->ij",
+                tensor([4.0, 2.0, 3.0]),
+                tensor([4.0, 2.0, 3.0]),
+            ),
+        ),
+        einsum(
+            "i,j->ij",
+            x,
+            y,
+        ),
     )
 
-    z = ones([2, 3])
-    res = hermegrid2d(
-        z,
-        z,
-        c2d,
+    output = hermegrid2d(
+        ones([2, 3]),
+        ones([2, 3]),
+        einsum(
+            "i,j->ij",
+            tensor([4.0, 2.0, 3.0]),
+            tensor([4.0, 2.0, 3.0]),
+        ),
     )
-    assert res.shape == (2, 3) * 2
+
+    assert output.shape == (2, 3) * 2
 
 
 def test_hermegrid3d():
