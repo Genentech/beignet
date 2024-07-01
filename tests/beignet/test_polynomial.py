@@ -183,14 +183,14 @@ from beignet.polynomial import (
     polysub,
     polytrim,
     polyval,
-    polyval2d,
-    polyval3d,
     polyvalfromroots,
     polyvander,
     polyx,
     polyzero,
 )
 from beignet.polynomial._chebsub import chebsub
+from beignet.polynomial._polyval2d import polyval2d
+from beignet.polynomial._polyval3d import polyval3d
 from beignet.polynomial._polyvander2d import polyvander2d
 from beignet.polynomial._polyvander3d import polyvander3d
 from torch import (
