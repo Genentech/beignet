@@ -140,7 +140,6 @@ from beignet.polynomial import (
     legdomain,
     legfit,
     legfromroots,
-    leggauss,
     leggrid2d,
     leggrid3d,
     legint,
@@ -158,7 +157,6 @@ from beignet.polynomial import (
     legvander,
     legvander2d,
     legvander3d,
-    legweight,
     legx,
     legzero,
     poly2cheb,
@@ -5807,75 +5805,6 @@ def test_legfit():
     )
 
 
-def test_legfromroots():
-    torch.testing.assert_close(
-        legtrim(
-            legfromroots(
-                torch.tensor([]),
-            ),
-            tol=0.000001,
-        ),
-        torch.tensor([1.0]),
-    )
-
-    for index in range(1, 5):
-        input = torch.linspace(-math.pi, 0, 2 * index + 1)[1::2]
-
-        output = legfromroots(
-            torch.cos(
-                input,
-            ),
-        )
-
-        assert output.shape[-1] == index + 1
-
-        torch.testing.assert_close(
-            leg2poly(
-                legfromroots(
-                    torch.cos(
-                        input,
-                    ),
-                )
-            )[-1],
-            torch.tensor([1.0]),
-        )
-
-        torch.testing.assert_close(
-            legval(
-                torch.cos(
-                    input,
-                ),
-                legfromroots(
-                    torch.cos(
-                        input,
-                    ),
-                ),
-            ),
-            torch.tensor([0.0]),
-        )
-
-
-def test_leggauss():
-    x, w = leggauss(100)
-
-    v = legvander(
-        x,
-        degree=torch.tensor([99]),
-    )
-
-    vv = (v.T * w) @ v
-
-    vd = 1 / torch.sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-
-    torch.testing.assert_close(
-        vv,
-        torch.eye(100),
-    )
-
-    torch.testing.assert_close(w.sum(), 2.0)
-
-
 def test_leggrid2d():
     input = torch.rand(3, 5) * 2 - 1
 
@@ -6645,15 +6574,6 @@ def test_legvander3d():
     )
 
     assert output.shape == (5, 24)
-
-
-def test_legweight():
-    torch.testing.assert_close(
-        legweight(
-            torch.linspace(-1, 1, 11),
-        ),
-        torch.tensor([1.0]),
-    )
 
 
 def test_legx():
