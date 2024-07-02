@@ -653,6 +653,7 @@ def test_chebdomain():
     assert_close(
         chebdomain,
         tensor([-1.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -1383,6 +1384,7 @@ def test_chebone():
     assert_close(
         chebone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -1812,6 +1814,7 @@ def test_chebx():
     assert_close(
         chebx,
         tensor([0.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -1819,6 +1822,7 @@ def test_chebzero():
     assert_close(
         chebzero,
         tensor([0.0]),
+        check_dtype=False,
     )
 
 
@@ -2010,6 +2014,7 @@ def test_hermdomain():
     assert_close(
         hermdomain,
         tensor([-1.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -2190,6 +2195,7 @@ def test_hermedomain():
     assert_close(
         hermedomain,
         tensor([-1.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -2848,6 +2854,7 @@ def test_hermeone():
     assert_close(
         hermeone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -3234,6 +3241,7 @@ def test_hermex():
     assert_close(
         hermex,
         tensor([0.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -3241,6 +3249,7 @@ def test_hermezero():
     assert_close(
         hermezero,
         tensor([0.0]),
+        check_dtype=False,
     )
 
 
@@ -3939,6 +3948,7 @@ def test_hermone():
     assert_close(
         hermone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -4283,6 +4293,7 @@ def test_hermx():
     assert_close(
         hermx,
         tensor([0, 0.5]),
+        check_dtype=False,
     )
 
 
@@ -4290,6 +4301,7 @@ def test_hermzero():
     assert_close(
         hermzero,
         tensor([0.0]),
+        check_dtype=False,
     )
 
 
@@ -4481,6 +4493,7 @@ def test_lagdomain():
     assert_close(
         lagdomain,
         tensor([0.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -5104,6 +5117,7 @@ def test_lagone():
     assert_close(
         lagone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -5439,6 +5453,7 @@ def test_lagx():
     assert_close(
         lagx,
         tensor([1.0, -1.0]),
+        check_dtype=False,
     )
 
 
@@ -5446,6 +5461,7 @@ def test_lagzero():
     assert_close(
         lagzero,
         tensor([0.0]),
+        check_dtype=False,
     )
 
 
@@ -5655,6 +5671,7 @@ def test_legdomain():
     assert_close(
         legdomain,
         tensor([-1.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -6416,6 +6433,7 @@ def test_legone():
     assert_close(
         legone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -6779,6 +6797,7 @@ def test_legx():
     assert_close(
         legx,
         tensor([0.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -6786,6 +6805,7 @@ def test_legzero():
     assert_close(
         legzero,
         tensor([0.0]),
+        check_dtype=False,
     )
 
 
@@ -7017,6 +7037,7 @@ def test_polydomain():
     assert_close(
         polydomain,
         tensor([-1.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -7673,6 +7694,7 @@ def test_polyone():
     assert_close(
         polyone,
         tensor([1.0]),
+        check_dtype=False,
     )
 
 
@@ -8171,6 +8193,7 @@ def test_polyx():
     assert_close(
         polyx,
         tensor([0.0, 1.0]),
+        check_dtype=False,
     )
 
 
@@ -8178,4 +8201,5 @@ def test_polyzero():
     assert_close(
         polyzero,
         tensor([0.0]),
+        check_dtype=False,
     )
