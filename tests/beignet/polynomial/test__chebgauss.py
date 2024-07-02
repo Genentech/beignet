@@ -1,13 +1,13 @@
 import math
 
+import beignet.polynomial
 import torch
-from beignet.polynomial import chebgauss, chebvander
 
 
 def test_chebgauss():
-    output, weight = chebgauss(100)
+    output, weight = beignet.polynomial.chebgauss(100)
 
-    vandermonde = chebvander(
+    vandermonde = beignet.polynomial.chebvander(
         output,
         degree=torch.tensor([99]),
     )

@@ -1,13 +1,13 @@
 import math
 
+import beignet.polynomial
 import torch
-from beignet.polynomial import hermgauss, hermvander
 
 
 def test_hermgauss():
-    x, w = hermgauss(100)
+    x, w = beignet.polynomial.hermgauss(100)
 
-    v = hermvander(x, 99)
+    v = beignet.polynomial.hermvander(x, 99)
     vv = (v.T * w) @ v
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd
