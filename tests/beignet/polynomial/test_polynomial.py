@@ -15,6 +15,7 @@ from beignet.polynomial import (
     _trim_sequence,
     _vandermonde,
     _z_series_to_c_series,
+    cheb2poly,
     chebadd,
     chebcompanion,
     chebdiv,
@@ -602,27 +603,27 @@ def test_chebfit():
         other,
     )
 
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         stack([other, other]).T,
-    #         degree=4,
-    #     ),
-    #     stack(
-    #         [
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.stack([other, other]).T,
+            degree=4,
+        ),
+        torch.stack(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+            ]
+        ).T,
+    )
 
     torch.testing.assert_close(
         chebfit(
@@ -646,142 +647,142 @@ def test_chebfit():
         ).T,
     )
 
-    # weight = zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         tensor([other, other]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #             chebfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #         ],
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([0, 1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # assert_close(
-    #     chebval(
-    #         input,
-    #         chebfit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     chebval(
-    #         input,
-    #         chebfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 2, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([4]),
-    #     ),
-    #     chebfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 2, 4]),
-    #     ),
-    # )
+    weight = torch.zeros_like(input)
+
+    weight[1::2] = 1.0
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([3]),
+            weight=weight,
+        ),
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=torch.tensor([3]),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            torch.tensor([other, other]).T,
+            degree=torch.tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+                chebfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+            ],
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([1]),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([0, 1]),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=torch.tensor([4]),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebval(
+            input,
+            chebfit(
+                input,
+                other,
+                degree=torch.tensor([0, 2, 4]),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([4]),
+        ),
+        chebfit(
+            input,
+            other,
+            degree=torch.tensor([0, 2, 4]),
+        ),
+    )
 
 
 def test_chebfromroots():
@@ -938,202 +939,202 @@ def test_chebint():
             torch.tensor([0.0, 1.0]),
         )
 
-    # for i in range(5):
-    #     assert_close(
-    #         chebtrim(
-    #             cheb2poly(
-    #                 chebint(
-    #                     poly2cheb(
-    #                         tensor([0.0] * i + [1.0]),
-    #                     ),
-    #                     order=1,
-    #                     k=[i],
-    #                 ),
-    #             ),
-    #             tol=0.000001,
-    #         ),
-    #         chebtrim(
-    #             tensor([i] + [0] * i + [1 / (i + 1)]),
-    #             tol=0.000001,
-    #         ),
-    #     )
-    #
-    # for i in range(5):
-    #     assert_close(
-    #         chebval(
-    #             tensor([-1]),
-    #             chebint(
-    #                 poly2cheb(
-    #                     tensor([0.0] * i + [1.0]),
-    #                 ),
-    #                 order=1,
-    #                 k=[i],
-    #                 lower_bound=-1,
-    #             ),
-    #         ),
-    #         i,
-    #     )
-    #
-    # for i in range(5):
-    #     assert_close(
-    #         chebtrim(
-    #             cheb2poly(
-    #                 chebint(
-    #                     poly2cheb(
-    #                         tensor([0.0] * i + [1.0]),
-    #                     ),
-    #                     order=1,
-    #                     k=[i],
-    #                     scale=2,
-    #                 )
-    #             ),
-    #             tol=0.000001,
-    #         ),
-    #         chebtrim(
-    #             tensor([i] + [0] * i + [2 / (i + 1)]),
-    #             tol=0.000001,
-    #         ),
-    #     )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         input = tensor([0.0] * i + [1.0])
-    #         target = input[:]
-    #
-    #         for _ in range(j):
-    #             target = chebint(
-    #                 target,
-    #                 order=1,
-    #             )
-    #
-    #         assert_close(
-    #             chebtrim(
-    #                 chebint(
-    #                     input,
-    #                     order=j,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         input = tensor([0.0] * i + [1.0])
-    #
-    #         target = input[:]
-    #
-    #         for k in range(j):
-    #             target = chebint(
-    #                 target,
-    #                 order=1,
-    #                 k=[k],
-    #             )
-    #
-    #         assert_close(
-    #             chebtrim(
-    #                 chebint(
-    #                     input,
-    #                     order=j,
-    #                     k=list(range(j)),
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         input = tensor([0.0] * i + [1.0])
-    #
-    #         target = input[:]
-    #
-    #         for k in range(j):
-    #             target = chebint(
-    #                 target,
-    #                 order=1,
-    #                 k=[k],
-    #                 lower_bound=-1,
-    #             )
-    #
-    #         assert_close(
-    #             chebtrim(
-    #                 chebint(
-    #                     input,
-    #                     order=j,
-    #                     k=list(range(j)),
-    #                     lower_bound=-1,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         input = tensor([0.0] * i + [1.0])
-    #
-    #         target = input[:]
-    #
-    #         for k in range(j):
-    #             target = chebint(
-    #                 target,
-    #                 order=1,
-    #                 k=[k],
-    #                 scale=2,
-    #             )
-    #
-    #         assert_close(
-    #             chebtrim(
-    #                 chebint(
-    #                     input,
-    #                     order=j,
-    #                     k=list(range(j)),
-    #                     scale=2,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # c2d = rand(3, 4)
-    #
-    # assert_close(
-    #     chebint(
-    #         c2d,
-    #         axis=0,
-    #     ),
-    #     vstack([chebint(c) for c in c2d.T]).T,
-    # )
-    #
-    # assert_close(
-    #     chebint(
-    #         c2d,
-    #         axis=1,
-    #     ),
-    #     vstack([chebint(c) for c in c2d]),
-    # )
-    #
-    # assert_close(
-    #     chebint(
-    #         c2d,
-    #         k=3,
-    #         axis=1,
-    #     ),
-    #     vstack([chebint(c, k=3) for c in c2d]),
-    # )
+    for i in range(5):
+        torch.testing.assert_close(
+            chebtrim(
+                cheb2poly(
+                    chebint(
+                        poly2cheb(
+                            torch.tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                    ),
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([i] + [0] * i + [1 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebval(
+                torch.tensor([-1]),
+                chebint(
+                    poly2cheb(
+                        torch.tensor([0.0] * i + [1.0]),
+                    ),
+                    order=1,
+                    k=[i],
+                    lower_bound=-1,
+                ),
+            ),
+            i,
+        )
+
+    for i in range(5):
+        torch.testing.assert_close(
+            chebtrim(
+                cheb2poly(
+                    chebint(
+                        poly2cheb(
+                            torch.tensor([0.0] * i + [1.0]),
+                        ),
+                        order=1,
+                        k=[i],
+                        scale=2,
+                    )
+                ),
+                tol=0.000001,
+            ),
+            chebtrim(
+                torch.tensor([i] + [0] * i + [2 / (i + 1)]),
+                tol=0.000001,
+            ),
+        )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0.0] * i + [1.0])
+            target = input[:]
+
+            for _ in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0.0] * i + [1.0])
+
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0.0] * i + [1.0])
+
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                    lower_bound=-1,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                        lower_bound=-1,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    for i in range(5):
+        for j in range(2, 5):
+            input = torch.tensor([0.0] * i + [1.0])
+
+            target = input[:]
+
+            for k in range(j):
+                target = chebint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+
+            torch.testing.assert_close(
+                chebtrim(
+                    chebint(
+                        input,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                chebtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            axis=0,
+        ),
+        torch.vstack([chebint(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([chebint(c) for c in c2d]),
+    )
+
+    torch.testing.assert_close(
+        chebint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        torch.vstack([chebint(c, k=3) for c in c2d]),
+    )
 
 
 def test_chebinterpolate():
@@ -2259,23 +2260,23 @@ def test_hermefit():
         ).T,
     )
 
-    # assert_close(
-    #     hermefit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
+    torch.testing.assert_close(
+        hermefit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([1]),
+        ),
+        torch.tensor([0, 1]),
+    )
 
-    # assert_close(
-    #     hermefit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([0, 1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
+    torch.testing.assert_close(
+        hermefit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([0, 1]),
+        ),
+        torch.tensor([0, 1]),
+    )
 
     input = torch.linspace(-1, 1, 50)
 
@@ -3268,23 +3269,23 @@ def test_hermfit():
         ).T,
     )
 
-    # assert_close(
-    #     hermfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=1,
-    #     ),
-    #     tensor([0.0j, 0.5j]),
-    # )
+    torch.testing.assert_close(
+        hermfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=1,
+        ),
+        torch.tensor([0.0j, 0.5j]),
+    )
 
-    # assert_close(
-    #     hermfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([0, 1]),
-    #     ),
-    #     tensor([0, 0.5]),
-    # )
+    torch.testing.assert_close(
+        hermfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([0, 1]),
+        ),
+        torch.tensor([0, 0.5]),
+    )
 
     input = torch.linspace(-1, 1, 50)
 
@@ -3574,33 +3575,33 @@ def test_hermint():
                 ),
             )
 
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         pol = tensor([0.0] * i + [1.0])
-    #         target = pol[:]
-    #         for k in range(j):
-    #             target = hermint(
-    #                 target,
-    #                 order=1,
-    #                 k=[k],
-    #                 scale=2,
-    #             )
-    #
-    #         assert_close(
-    #             hermtrim(
-    #                 hermint(
-    #                     pol,
-    #                     order=j,
-    #                     k=list(range(j)),
-    #                     scale=2,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             hermtrim(
-    #                 target,
-    #                 tol=0.000001,
-    #             ),
-    #         )
+    for i in range(5):
+        for j in range(2, 5):
+            pol = torch.tensor([0.0] * i + [1.0])
+            target = pol[:]
+            for k in range(j):
+                target = hermint(
+                    target,
+                    order=1,
+                    k=[k],
+                    scale=2,
+                )
+
+            torch.testing.assert_close(
+                hermtrim(
+                    hermint(
+                        pol,
+                        order=j,
+                        k=list(range(j)),
+                        scale=2,
+                    ),
+                    tol=0.000001,
+                ),
+                hermtrim(
+                    target,
+                    tol=0.000001,
+                ),
+            )
 
     c2d = torch.rand(3, 4)
 
@@ -4173,41 +4174,41 @@ def test_lagder():
                 ),
             )
 
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         assert_close(
-    #             lagtrim(
-    #                 lagder(
-    #                     lagint(
-    #                         tensor([0.0] * i + [1.0]),
-    #                         order=j,
-    #                         scale=2,
-    #                     ),
-    #                     order=j,
-    #                     scale=0.5,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             lagtrim(
-    #                 tensor([0.0] * i + [1.0]),
-    #                 tol=0.000001,
-    #             ),
-    #         )
-    #
-    # c2d = rand(3, 4)
-    #
-    # assert_close(
-    #     lagder(c2d, axis=0),
-    #     vstack([lagder(c) for c in c2d.T]).T,
-    # )
-    #
-    # assert_close(
-    #     lagder(
-    #         c2d,
-    #         axis=1,
-    #     ),
-    #     vstack([lagder(c) for c in c2d]),
-    # )
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                lagtrim(
+                    lagder(
+                        lagint(
+                            torch.tensor([0.0] * i + [1.0]),
+                            order=j,
+                            scale=2,
+                        ),
+                        order=j,
+                        scale=0.5,
+                    ),
+                    tol=0.000001,
+                ),
+                lagtrim(
+                    torch.tensor([0.0] * i + [1.0]),
+                    tol=0.000001,
+                ),
+            )
+
+    c2d = torch.rand(3, 4)
+
+    torch.testing.assert_close(
+        lagder(c2d, axis=0),
+        torch.vstack([lagder(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        lagder(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([lagder(c) for c in c2d]),
+    )
 
 
 def test_lagdiv():
@@ -4428,23 +4429,23 @@ def test_lagfit():
         ).T,
     )
 
-    # assert_close(
-    #     lagfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([1]),
-    #     ),
-    #     tensor([1, -1]),
-    # )
+    torch.testing.assert_close(
+        lagfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([1]),
+        ),
+        torch.tensor([1, -1]),
+    )
 
-    # assert_close(
-    #     lagfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([0, 1]),
-    #     ),
-    #     tensor([1, -1]),
-    # )
+    torch.testing.assert_close(
+        lagfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([0, 1]),
+        ),
+        torch.tensor([1, -1]),
+    )
 
 
 def test_laggrid2d():
@@ -5474,23 +5475,23 @@ def test_legfit():
         ).T,
     )
 
-    # assert_close(
-    #     legfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
+    torch.testing.assert_close(
+        legfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([1]),
+        ),
+        torch.tensor([0, 1]),
+    )
 
-    # assert_close(
-    #     legfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         degree=tensor([0, 1]),
-    #     ),
-    #     tensor([0, 1]),
-    # )
+    torch.testing.assert_close(
+        legfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            degree=torch.tensor([0, 1]),
+        ),
+        torch.tensor([0, 1]),
+    )
 
     input = torch.linspace(-1, 1, 50)
 
@@ -6656,142 +6657,142 @@ def test_polyfit():
         ).T,
     )
 
-    # weight = zeros_like(input)
-    #
-    # weight[1::2] = 1.0
-    #
-    # assert_close(
-    #     polyfit(
-    #         input,
-    #         other.at[0::2].set(0),
-    #         degree=3,
-    #         weight=weight,
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
+    weight = torch.zeros_like(input)
 
-    # assert_close(
-    #     polyfit(
-    #         input,
-    #         other.at[0::2].set(0),
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 1, 2, 3]),
-    #     ),
-    # )
-    #
-    # assert_close(
-    #     polyfit(
-    #         input,
-    #         tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
-    #         degree=3,
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     polyfit(
-    #         input,
-    #         tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
-    #         degree=tensor([0, 1, 2, 3]),
-    #         weight=weight,
-    #     ),
-    #     tensor(
-    #         [
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #             polyfit(
-    #                 input,
-    #                 other,
-    #                 degree=tensor([0, 1, 2, 3]),
-    #             ),
-    #         ]
-    #     ).T,
-    # )
-    #
-    # assert_close(
-    #     polyfit(
-    #         tensor([1, 1j, -1, -1j]),
-    #         tensor([1, 1j, -1, -1j]),
-    #         1,
-    #     ),
-    #     tensor([0, 1]),
-    # )
-    #
-    # assert_close(
-    #     polyfit(
-    #         tensor([1, 1j, -1, -0 - 1j]),
-    #         tensor([1, 1j, -1, -0 - 1j]),
-    #         (0, 1),
-    #     ),
-    #     tensor([0, 1]),
-    # )
-    #
-    # input = linspace(-1, 1, 50)
-    #
-    # other = g(input)
-    #
-    # assert_close(
-    #     polyval(
-    #         input,
-    #         polyfit(
-    #             input,
-    #             other,
-    #             degree=tensor([4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     polyval(
-    #         input,
-    #         polyfit(
-    #             input,
-    #             other,
-    #             degree=tensor([0, 2, 4]),
-    #         ),
-    #     ),
-    #     other,
-    # )
-    #
-    # assert_close(
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=tensor([4]),
-    #     ),
-    #     polyfit(
-    #         input,
-    #         other,
-    #         degree=tensor([0, 2, 4]),
-    #     ),
-    # )
+    weight[1::2] = 1.0
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other.at[0::2].set(0),
+            degree=3,
+            weight=weight,
+        ),
+        polyfit(
+            input,
+            other,
+            degree=torch.tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other.at[0::2].set(0),
+            degree=torch.tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        polyfit(
+            input,
+            other,
+            degree=torch.tensor([0, 1, 2, 3]),
+        ),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+            degree=3,
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
+            degree=torch.tensor([0, 1, 2, 3]),
+            weight=weight,
+        ),
+        torch.tensor(
+            [
+                polyfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+                polyfit(
+                    input,
+                    other,
+                    degree=torch.tensor([0, 1, 2, 3]),
+                ),
+            ]
+        ).T,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            torch.tensor([1, 1j, -1, -1j]),
+            torch.tensor([1, 1j, -1, -1j]),
+            1,
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            torch.tensor([1, 1j, -1, -0 - 1j]),
+            torch.tensor([1, 1j, -1, -0 - 1j]),
+            (0, 1),
+        ),
+        torch.tensor([0, 1]),
+    )
+
+    input = torch.linspace(-1, 1, 50)
+
+    other = g(input)
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=torch.tensor([4]),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyval(
+            input,
+            polyfit(
+                input,
+                other,
+                degree=torch.tensor([0, 2, 4]),
+            ),
+        ),
+        other,
+    )
+
+    torch.testing.assert_close(
+        polyfit(
+            input,
+            other,
+            degree=torch.tensor([4]),
+        ),
+        polyfit(
+            input,
+            other,
+            degree=torch.tensor([0, 2, 4]),
+        ),
+    )
 
 
 def test_polyfromroots():
@@ -7116,32 +7117,32 @@ def test_polyint():
                 ),
             )
 
-    # c2d = np.random.random((3, 6))
-    #
-    # assert_close(
-    #     polyint(
-    #         c2d,
-    #         axis=0,
-    #     ),
-    #     vstack([polyint(c) for c in c2d.T]).T,
-    # )
-    #
-    # assert_close(
-    #     polyint(
-    #         c2d,
-    #         axis=1,
-    #     ),
-    #     vstack([polyint(c) for c in c2d]),
-    # )
-    #
-    # assert_close(
-    #     polyint(
-    #         c2d,
-    #         k=3,
-    #         axis=1,
-    #     ),
-    #     vstack([polyint(c, k=3) for c in c2d]),
-    # )
+    c2d = torch.rand(3, 6)
+
+    torch.testing.assert_close(
+        polyint(
+            c2d,
+            axis=0,
+        ),
+        torch.vstack([polyint(c) for c in c2d.T]).T,
+    )
+
+    torch.testing.assert_close(
+        polyint(
+            c2d,
+            axis=1,
+        ),
+        torch.vstack([polyint(c) for c in c2d]),
+    )
+
+    torch.testing.assert_close(
+        polyint(
+            c2d,
+            k=3,
+            axis=1,
+        ),
+        torch.vstack([polyint(c, k=3) for c in c2d]),
+    )
 
 
 def test_polyline():
