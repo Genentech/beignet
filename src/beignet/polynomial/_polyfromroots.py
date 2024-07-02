@@ -1,7 +1,8 @@
 from torch import Tensor
 
-from beignet.polynomial import polyline, polymul
-from beignet.polynomial.__from_roots import _from_roots
+from .__from_roots import _from_roots
+from ._polyline import polyline
+from ._polymul import polymul
 
 
 def polyfromroots(input: Tensor) -> Tensor:

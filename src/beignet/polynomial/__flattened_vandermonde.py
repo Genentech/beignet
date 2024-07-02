@@ -1,6 +1,6 @@
 import torch
 
-from beignet.polynomial import _vandermonde
+from .__vandermonde import _vandermonde
 
 
 def _flattened_vandermonde(

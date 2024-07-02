@@ -3,7 +3,7 @@ from typing import Literal
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series
+from .__as_series import _as_series
 
 
 def legmulx(input: Tensor, mode: Literal["full", "same"] = "full") -> Tensor:

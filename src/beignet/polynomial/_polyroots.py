@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, polycompanion
+from .__as_series import _as_series
+from ._polycompanion import polycompanion
 
 
 def polyroots(input: Tensor) -> Tensor:

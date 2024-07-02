@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import chebval
-from beignet.polynomial.__evaluate import _evaluate
+from .__evaluate import _evaluate
+from ._chebval import chebval
 
 
 def chebval2d(

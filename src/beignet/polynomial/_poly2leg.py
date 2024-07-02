@@ -1,7 +1,9 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, legadd, legmulx
+from .__as_series import _as_series
+from ._legadd import legadd
+from ._legmulx import legmulx
 
 
 def poly2leg(input: Tensor) -> Tensor:

@@ -1,8 +1,9 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, chebadd
-from beignet.polynomial._chebmulx import chebmulx
+from .__as_series import _as_series
+from ._chebadd import chebadd
+from ._chebmulx import chebmulx
 
 
 def poly2cheb(input: Tensor) -> Tensor:

@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from beignet.polynomial import lagval
+from ._lagval import lagval
 
 
 def laggrid2d(

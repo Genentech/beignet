@@ -1,7 +1,8 @@
 from torch import Tensor
 
-from beignet.polynomial import hermeline, hermemul
-from beignet.polynomial.__from_roots import _from_roots
+from .__from_roots import _from_roots
+from ._hermeline import hermeline
+from ._hermemul import hermemul
 
 
 def hermefromroots(

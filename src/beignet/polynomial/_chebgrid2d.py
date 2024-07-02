@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from beignet.polynomial import chebval
+from ._chebval import chebval
 
 
 def chebgrid2d(

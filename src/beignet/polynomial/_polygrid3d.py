@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from beignet.polynomial import polyval
+from ._polyval import polyval
 
 
 def polygrid3d(x: Tensor, y: Tensor, z: Tensor, coefficients: Tensor) -> Tensor:

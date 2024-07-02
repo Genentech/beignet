@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import hermvander
-from beignet.polynomial.__flattened_vandermonde import _flattened_vandermonde
+from .__flattened_vandermonde import _flattened_vandermonde
+from ._hermvander import hermvander
 
 
 def hermvander2d(

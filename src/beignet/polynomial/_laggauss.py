@@ -1,7 +1,8 @@
 import torch
 
-from beignet.polynomial import lagcompanion, lagval
-from beignet.polynomial._lagder import lagder
+from ._lagcompanion import lagcompanion
+from ._lagder import lagder
+from ._lagval import lagval
 
 
 def laggauss(degree):

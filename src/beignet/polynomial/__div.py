@@ -3,7 +3,8 @@ from typing import Callable, Tuple
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, _nonzero
+from .__as_series import _as_series
+from .__nonzero import _nonzero
 
 
 def _div(

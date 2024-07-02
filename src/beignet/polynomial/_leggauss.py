@@ -1,7 +1,8 @@
 import torch
 
-from beignet.polynomial import legcompanion, legval
-from beignet.polynomial._legder import legder
+from ._legcompanion import legcompanion
+from ._legder import legder
+from ._legval import legval
 
 
 def leggauss(degree):

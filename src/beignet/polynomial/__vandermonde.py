@@ -3,7 +3,7 @@ import operator
 
 from torch import Tensor
 
-from beignet.polynomial.__nth_slice import _nth_slice
+from .__nth_slice import _nth_slice
 
 
 def _vandermonde(functions, input: Tensor, degrees: Tensor) -> Tensor:

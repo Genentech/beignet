@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from beignet.polynomial import legval
+from ._legval import legval
 
 
 def leggrid2d(

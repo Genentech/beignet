@@ -2,9 +2,10 @@ import torch
 import torchaudio.functional
 from torch import Tensor
 
-from beignet.polynomial import _as_series, chebadd
-from beignet.polynomial.__c_series_to_z_series import _c_series_to_z_series
-from beignet.polynomial.__z_series_to_c_series import _z_series_to_c_series
+from .__as_series import _as_series
+from .__c_series_to_z_series import _c_series_to_z_series
+from .__z_series_to_c_series import _z_series_to_c_series
+from ._chebadd import chebadd
 
 
 def chebpow(

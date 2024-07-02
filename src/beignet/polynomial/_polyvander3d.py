@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import polyvander
-from beignet.polynomial.__flattened_vandermonde import _flattened_vandermonde
+from .__flattened_vandermonde import _flattened_vandermonde
+from ._polyvander import polyvander
 
 
 def polyvander3d(x: Tensor, y: Tensor, z: Tensor, degree: Tensor) -> Tensor:

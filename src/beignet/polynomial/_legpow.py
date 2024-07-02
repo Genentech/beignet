@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import legmul
-from beignet.polynomial.__pow import _pow
+from .__pow import _pow
+from ._legmul import legmul
 
 
 def legpow(

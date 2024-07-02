@@ -1,6 +1,6 @@
 from torch import Tensor
 
-from beignet.polynomial import hermval
+from ._hermval import hermval
 
 
 def hermgrid3d(

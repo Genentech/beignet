@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import polyval
-from beignet.polynomial.__evaluate import _evaluate
+from .__evaluate import _evaluate
+from ._polyval import polyval
 
 
 def polyval3d(x: Tensor, y: Tensor, z: Tensor, coefficients: Tensor) -> Tensor:

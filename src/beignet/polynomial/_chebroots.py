@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, chebcompanion
+from .__as_series import _as_series
+from ._chebcompanion import chebcompanion
 
 
 def chebroots(input: Tensor) -> Tensor:

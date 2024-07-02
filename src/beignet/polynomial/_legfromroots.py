@@ -1,5 +1,6 @@
-from beignet.polynomial import legline, legmul
-from beignet.polynomial.__from_roots import _from_roots
+from .__from_roots import _from_roots
+from ._legline import legline
+from ._legmul import legmul
 
 
 def legfromroots(roots):

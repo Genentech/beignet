@@ -1,7 +1,8 @@
 import numpy
 import torch
 
-from beignet.polynomial import _as_series, legval
+from .__as_series import _as_series
+from ._legval import legval
 
 
 def legint(input, order=1, k=None, lower_bound=0, scale=1, axis=0):

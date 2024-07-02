@@ -1,7 +1,10 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, polyadd, polymulx, polysub
+from .__as_series import _as_series
+from ._polyadd import polyadd
+from ._polymulx import polymulx
+from ._polysub import polysub
 
 
 def lag2poly(

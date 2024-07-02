@@ -2,8 +2,9 @@ import numpy
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, polyval
-from beignet.polynomial.__pad_along_axis import _pad_along_axis
+from .__as_series import _as_series
+from .__pad_along_axis import _pad_along_axis
+from ._polyval import polyval
 
 
 def polyint(

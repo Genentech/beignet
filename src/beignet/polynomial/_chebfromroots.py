@@ -1,7 +1,8 @@
 from torch import Tensor
 
-from beignet.polynomial import chebline, chebmul
-from beignet.polynomial.__from_roots import _from_roots
+from .__from_roots import _from_roots
+from ._chebline import chebline
+from ._chebmul import chebmul
 
 
 def chebfromroots(

@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, lagcompanion
+from .__as_series import _as_series
+from ._lagcompanion import lagcompanion
 
 
 def lagroots(input: Tensor) -> Tensor:

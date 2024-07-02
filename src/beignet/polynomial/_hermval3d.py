@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import hermval
-from beignet.polynomial.__evaluate import _evaluate
+from .__evaluate import _evaluate
+from ._hermval import hermval
 
 
 def hermval3d(

@@ -2,7 +2,8 @@ import numpy
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, chebval
+from .__as_series import _as_series
+from ._chebval import chebval
 
 
 def chebint(

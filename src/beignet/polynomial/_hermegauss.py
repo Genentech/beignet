@@ -2,8 +2,8 @@ import math
 
 import torch
 
-from beignet.polynomial import hermecompanion
-from beignet.polynomial.__normed_hermite_e_n import _normed_hermite_e_n
+from .__normed_hermite_e_n import _normed_hermite_e_n
+from ._hermecompanion import hermecompanion
 
 
 def hermegauss(degree):

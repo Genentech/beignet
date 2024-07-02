@@ -1,7 +1,7 @@
 from torch import Tensor
 
-from beignet.polynomial import polymul
-from beignet.polynomial.__pow import _pow
+from .__pow import _pow
+from ._polymul import polymul
 
 
 def polypow(

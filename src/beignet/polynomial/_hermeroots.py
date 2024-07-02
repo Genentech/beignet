@@ -1,7 +1,8 @@
 import torch
 from torch import Tensor
 
-from beignet.polynomial import _as_series, hermecompanion
+from .__as_series import _as_series
+from ._hermecompanion import hermecompanion
 
 
 def hermeroots(input: Tensor) -> Tensor:

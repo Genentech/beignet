@@ -1,4 +1,5 @@
-from beignet.polynomial import chebpts1, chebvander
+from ._chebpts1 import chebpts1
+from ._chebvander import chebvander
 
 
 def chebinterpolate(
