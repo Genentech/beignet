@@ -7,12 +7,12 @@ import torch
 def test_chebgauss():
     output, weight = beignet.polynomial.chebgauss(100)
 
-    vandermonde = beignet.polynomial.chebvander(
+    output = beignet.polynomial.chebvander(
         output,
         degree=torch.tensor([99]),
     )
 
-    u = (vandermonde.T * weight) @ vandermonde
+    u = (output.T * weight) @ output
 
     v = 1 / torch.sqrt(u.diagonal())
 
@@ -22,6 +22,6 @@ def test_chebgauss():
     )
 
     torch.testing.assert_close(
-        weight.sum(),
+        torch.sum(weight),
         torch.tensor(math.pi),
     )
