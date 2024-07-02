@@ -31,24 +31,23 @@ def test_chebder():
             ),
         )
 
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         assert_close(
-    #             chebtrim(
-    #                 chebder(
-    #                     chebint(
-    #                         tensor([0.0] * i + [1.0]),
-    #                         order=j
-    #                     ),
-    #                     order=j,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 tensor([0.0] * i + [1.0]),
-    #                 tol=0.000001,
-    #             ),
-    #         )
+    for i in range(5):
+        for j in range(2, 5):
+            torch.testing.assert_close(
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebder(
+                        beignet.polynomial.chebint(
+                            torch.tensor([0.0] * i + [1.0]), order=j
+                        ),
+                        order=j,
+                    ),
+                    tol=0.000001,
+                ),
+                beignet.polynomial.chebtrim(
+                    torch.tensor([0.0] * i + [1.0]),
+                    tol=0.000001,
+                ),
+            )
 
     for i in range(5):
         for j in range(2, 5):

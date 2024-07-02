@@ -101,13 +101,13 @@ def test_legder():
             ),
         ]
 
-    # torch.testing.assert_close(
-    #     beignet.polynomial.legder(
-    #         coefficients,
-    #         axis=1,
-    #     ),
-    #     torch.vstack(target),
-    # )
+    torch.testing.assert_close(
+        beignet.polynomial.legder(
+            coefficients,
+            axis=1,
+        ),
+        torch.vstack(target),
+    )
 
     torch.testing.assert_close(
         beignet.polynomial.legder(
