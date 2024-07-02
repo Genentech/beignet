@@ -21,7 +21,6 @@ from beignet.polynomial import (
     chebdomain,
     chebfit,
     chebfromroots,
-    chebgauss,
     chebgrid2d,
     chebgrid3d,
     chebint,
@@ -59,7 +58,6 @@ from beignet.polynomial import (
     hermedomain,
     hermefit,
     hermefromroots,
-    hermegauss,
     hermegrid2d,
     hermegrid3d,
     hermeint,
@@ -82,7 +80,6 @@ from beignet.polynomial import (
     hermezero,
     hermfit,
     hermfromroots,
-    hermgauss,
     hermgrid2d,
     hermgrid3d,
     hermint,
@@ -815,29 +812,6 @@ def test_chebfromroots():
                 tol=0.000001,
             ),
         )
-
-
-def test_chebgauss():
-    output, weight = chebgauss(100)
-
-    vandermonde = chebvander(
-        output,
-        degree=torch.tensor([99]),
-    )
-
-    u = (vandermonde.T * weight) @ vandermonde
-
-    v = 1 / torch.sqrt(u.diagonal())
-
-    torch.testing.assert_close(
-        v[:, None] * u * v,
-        torch.eye(100),
-    )
-
-    torch.testing.assert_close(
-        weight.sum(),
-        torch.tensor(math.pi),
-    )
 
 
 def test_chebgrid2d():
@@ -2345,22 +2319,6 @@ def test_hermefit():
     )
 
 
-def test_hermegauss():
-    x, w = hermegauss(100)
-
-    v = hermevander(x, 99)
-    vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-    torch.testing.assert_close(vv, torch.eye(100))
-
-    target = math.sqrt(2 * math.pi)
-    torch.testing.assert_close(
-        w.sum(),
-        torch.tensor(target),
-    )
-
-
 def test_hermegrid2d():
     input = torch.rand(3, 5) * 2 - 1
 
@@ -3367,24 +3325,6 @@ def test_hermfit():
             other,
             degree=torch.tensor([0, 2, 4]),
         ),
-    )
-
-
-def test_hermgauss():
-    x, w = hermgauss(100)
-
-    v = hermvander(x, 99)
-    vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-    torch.testing.assert_close(
-        vv,
-        torch.eye(100),
-    )
-
-    torch.testing.assert_close(
-        w.sum(),
-        torch.tensor(math.sqrt(math.pi)),
     )
 
 
