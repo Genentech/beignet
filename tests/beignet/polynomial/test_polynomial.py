@@ -17,7 +17,6 @@ from beignet.polynomial import (
     _z_series_to_c_series,
     chebadd,
     chebcompanion,
-    chebder,
     chebdiv,
     chebdomain,
     chebfit,
@@ -112,7 +111,6 @@ from beignet.polynomial import (
     lagdomain,
     lagfit,
     lagfromroots,
-    laggauss,
     laggrid2d,
     laggrid3d,
     lagint,
@@ -491,93 +489,6 @@ def test_chebcompanion():
     )
 
     assert output[0, 0] == -0.5
-
-
-def test_chebder():
-    with pytest.raises(TypeError):
-        chebder(
-            torch.tensor([0.0]),
-            torch.tensor([0.5]),
-        )
-
-    with pytest.raises(ValueError):
-        chebder(
-            torch.tensor([0.0]),
-            order=torch.tensor([-1.0]),
-        )
-
-    for i in range(5):
-        torch.testing.assert_close(
-            chebtrim(
-                chebder(
-                    torch.tensor([0.0] * i + [1.0]),
-                    order=torch.tensor([0.0]),
-                ),
-                tol=0.000001,
-            ),
-            chebtrim(
-                torch.tensor([0.0] * i + [1.0]),
-                tol=0.000001,
-            ),
-        )
-
-    # for i in range(5):
-    #     for j in range(2, 5):
-    #         assert_close(
-    #             chebtrim(
-    #                 chebder(
-    #                     chebint(
-    #                         tensor([0.0] * i + [1.0]),
-    #                         order=j
-    #                     ),
-    #                     order=j,
-    #                 ),
-    #                 tol=0.000001,
-    #             ),
-    #             chebtrim(
-    #                 tensor([0.0] * i + [1.0]),
-    #                 tol=0.000001,
-    #             ),
-    #         )
-
-    for i in range(5):
-        for j in range(2, 5):
-            torch.testing.assert_close(
-                chebtrim(
-                    chebder(
-                        chebint(
-                            torch.tensor([0.0] * i + [1.0]),
-                            order=j,
-                            scale=2.0,
-                        ),
-                        order=j,
-                        scale=0.5,
-                    ),
-                    tol=0.000001,
-                ),
-                chebtrim(
-                    torch.tensor([0.0] * i + [1.0]),
-                    tol=0.000001,
-                ),
-            )
-
-    input = torch.rand(3, 4)
-
-    torch.testing.assert_close(
-        chebder(
-            input,
-            axis=0,
-        ),
-        torch.vstack([chebder(c) for c in input.T]).T,
-    )
-
-    torch.testing.assert_close(
-        chebder(
-            input,
-            axis=1,
-        ),
-        torch.vstack([chebder(c) for c in input]),
-    )
 
 
 def test_chebdiv():
@@ -2434,35 +2345,6 @@ def test_hermefit():
     )
 
 
-def test_hermefromroots():
-    torch.testing.assert_close(
-        hermetrim(
-            hermefromroots(
-                torch.tensor([]),
-            ),
-            tol=0.000001,
-        ),
-        torch.tensor([1.0]),
-    )
-
-    for i in range(1, 5):
-        roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
-
-        pol = hermefromroots(roots)
-
-        assert len(pol) == i + 1
-
-        torch.testing.assert_close(
-            herme2poly(pol)[-1],
-            torch.tensor(1.0),
-        )
-
-        torch.testing.assert_close(
-            hermeval(roots, pol),
-            torch.tensor([0.0]),
-        )
-
-
 def test_hermegauss():
     x, w = hermegauss(100)
 
@@ -3486,41 +3368,6 @@ def test_hermfit():
             degree=torch.tensor([0, 2, 4]),
         ),
     )
-
-
-def test_hermfromroots():
-    torch.testing.assert_close(
-        hermtrim(
-            hermfromroots(
-                torch.tensor([]),
-            ),
-            tol=0.000001,
-        ),
-        torch.tensor([1.0]),
-    )
-
-    for i in range(1, 5):
-        roots = torch.cos(torch.linspace(-math.pi, 0, 2 * i + 1)[1::2])
-        target = 0
-
-        torch.testing.assert_close(
-            herm2poly(
-                hermfromroots(
-                    roots,
-                ),
-            )[-1],
-            torch.tensor([1.0]),
-        )
-
-        torch.testing.assert_close(
-            hermval(
-                roots,
-                hermfromroots(
-                    roots,
-                ),
-            ),
-            target,
-        )
 
 
 def test_hermgauss():
@@ -4658,64 +4505,6 @@ def test_lagfit():
     #     ),
     #     tensor([1, -1]),
     # )
-
-
-def test_lagfromroots():
-    torch.testing.assert_close(
-        lagtrim(
-            lagfromroots(
-                torch.tensor([]),
-            ),
-            tol=0.000001,
-        ),
-        torch.tensor([1.0]),
-    )
-
-    for i in range(1, 5):
-        roots = torch.linspace(-math.pi, 0, 2 * i + 1)
-
-        roots = roots[1::2]
-
-        roots = torch.cos(roots)
-
-        output = lag2poly(
-            lagfromroots(
-                roots,
-            ),
-        )
-
-        torch.testing.assert_close(
-            output,
-            torch.tensor([1.0]),
-        )
-
-        output = lagval(
-            roots,
-            lagfromroots(
-                roots,
-            ),
-        )
-
-        torch.testing.assert_close(
-            output,
-            torch.tensor([0.0]),
-        )
-
-
-def test_laggauss():
-    x, w = laggauss(100)
-
-    v = lagvander(x, 99)
-    vv = (v.T * w) @ v
-    vd = 1 / torch.sqrt(vv.diagonal())
-    vv = vd[:, None] * vv * vd
-    torch.testing.assert_close(
-        vv,
-        torch.eye(100),
-    )
-
-    target = 1.0
-    torch.testing.assert_close(w.sum(), target)
 
 
 def test_laggrid2d():

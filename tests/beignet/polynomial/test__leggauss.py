@@ -1,11 +1,11 @@
+import beignet.polynomial
 import torch
-from beignet.polynomial import leggauss, legvander
 
 
 def test_leggauss():
-    x, w = leggauss(100)
+    x, w = beignet.polynomial.leggauss(100)
 
-    v = legvander(
+    v = beignet.polynomial.legvander(
         x,
         degree=torch.tensor([99]),
     )

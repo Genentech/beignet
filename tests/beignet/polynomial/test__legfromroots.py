@@ -1,13 +1,13 @@
 import math
 
+import beignet.polynomial
 import torch
-from beignet.polynomial import leg2poly, legfromroots, legtrim, legval
 
 
 def test_legfromroots():
     torch.testing.assert_close(
-        legtrim(
-            legfromroots(
+        beignet.polynomial.legtrim(
+            beignet.polynomial.legfromroots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -18,7 +18,7 @@ def test_legfromroots():
     for index in range(1, 5):
         input = torch.linspace(-math.pi, 0, 2 * index + 1)[1::2]
 
-        output = legfromroots(
+        output = beignet.polynomial.legfromroots(
             torch.cos(
                 input,
             ),
@@ -27,8 +27,8 @@ def test_legfromroots():
         assert output.shape[-1] == index + 1
 
         torch.testing.assert_close(
-            leg2poly(
-                legfromroots(
+            beignet.polynomial.leg2poly(
+                beignet.polynomial.legfromroots(
                     torch.cos(
                         input,
                     ),
@@ -38,11 +38,11 @@ def test_legfromroots():
         )
 
         torch.testing.assert_close(
-            legval(
+            beignet.polynomial.legval(
                 torch.cos(
                     input,
                 ),
-                legfromroots(
+                beignet.polynomial.legfromroots(
                     torch.cos(
                         input,
                     ),
