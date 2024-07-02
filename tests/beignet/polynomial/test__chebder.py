@@ -1,31 +1,31 @@
+import beignet.polynomial
 import pytest
 import torch
-from beignet.polynomial import chebder, chebint, chebtrim
 
 
 def test_chebder():
     with pytest.raises(TypeError):
-        chebder(
+        beignet.polynomial.chebder(
             torch.tensor([0.0]),
             torch.tensor([0.5]),
         )
 
     with pytest.raises(ValueError):
-        chebder(
+        beignet.polynomial.chebder(
             torch.tensor([0.0]),
             order=torch.tensor([-1.0]),
         )
 
     for i in range(5):
         torch.testing.assert_close(
-            chebtrim(
-                chebder(
+            beignet.polynomial.chebtrim(
+                beignet.polynomial.chebder(
                     torch.tensor([0.0] * i + [1.0]),
                     order=torch.tensor([0.0]),
                 ),
                 tol=0.000001,
             ),
-            chebtrim(
+            beignet.polynomial.chebtrim(
                 torch.tensor([0.0] * i + [1.0]),
                 tol=0.000001,
             ),
@@ -53,9 +53,9 @@ def test_chebder():
     for i in range(5):
         for j in range(2, 5):
             torch.testing.assert_close(
-                chebtrim(
-                    chebder(
-                        chebint(
+                beignet.polynomial.chebtrim(
+                    beignet.polynomial.chebder(
+                        beignet.polynomial.chebint(
                             torch.tensor([0.0] * i + [1.0]),
                             order=j,
                             scale=2.0,
@@ -65,7 +65,7 @@ def test_chebder():
                     ),
                     tol=0.000001,
                 ),
-                chebtrim(
+                beignet.polynomial.chebtrim(
                     torch.tensor([0.0] * i + [1.0]),
                     tol=0.000001,
                 ),
@@ -74,17 +74,17 @@ def test_chebder():
     input = torch.rand(3, 4)
 
     torch.testing.assert_close(
-        chebder(
+        beignet.polynomial.chebder(
             input,
             axis=0,
         ),
-        torch.vstack([chebder(c) for c in input.T]).T,
+        torch.vstack([beignet.polynomial.chebder(c) for c in input.T]).T,
     )
 
     torch.testing.assert_close(
-        chebder(
+        beignet.polynomial.chebder(
             input,
             axis=1,
         ),
-        torch.vstack([chebder(c) for c in input]),
+        torch.vstack([beignet.polynomial.chebder(c) for c in input]),
     )

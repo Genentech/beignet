@@ -1,13 +1,13 @@
 import math
 
+import beignet.polynomial
 import torch
-from beignet.polynomial import herm2poly, hermfromroots, hermtrim, hermval
 
 
 def test_hermfromroots():
     torch.testing.assert_close(
-        hermtrim(
-            hermfromroots(
+        beignet.polynomial.hermtrim(
+            beignet.polynomial.hermfromroots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -20,8 +20,8 @@ def test_hermfromroots():
         target = 0
 
         torch.testing.assert_close(
-            herm2poly(
-                hermfromroots(
+            beignet.polynomial.herm2poly(
+                beignet.polynomial.hermfromroots(
                     roots,
                 ),
             )[-1],
@@ -29,9 +29,9 @@ def test_hermfromroots():
         )
 
         torch.testing.assert_close(
-            hermval(
+            beignet.polynomial.hermval(
                 roots,
-                hermfromroots(
+                beignet.polynomial.hermfromroots(
                     roots,
                 ),
             ),

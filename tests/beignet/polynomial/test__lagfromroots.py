@@ -1,13 +1,13 @@
 import math
 
+import beignet.polynomial
 import torch
-from beignet.polynomial import lag2poly, lagfromroots, lagtrim, lagval
 
 
 def test_lagfromroots():
     torch.testing.assert_close(
-        lagtrim(
-            lagfromroots(
+        beignet.polynomial.lagtrim(
+            beignet.polynomial.lagfromroots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -22,8 +22,8 @@ def test_lagfromroots():
 
         roots = torch.cos(roots)
 
-        output = lag2poly(
-            lagfromroots(
+        output = beignet.polynomial.lag2poly(
+            beignet.polynomial.lagfromroots(
                 roots,
             ),
         )
@@ -33,9 +33,9 @@ def test_lagfromroots():
             torch.tensor([1.0]),
         )
 
-        output = lagval(
+        output = beignet.polynomial.lagval(
             roots,
-            lagfromroots(
+            beignet.polynomial.lagfromroots(
                 roots,
             ),
         )
