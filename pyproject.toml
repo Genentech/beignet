@@ -50,3 +50,6 @@ lint.select = [
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+
+[tool.pytest.ini_options]
+addopts = "--jaxtyping-packages=foo,bar.baz,beartype.beartype"
