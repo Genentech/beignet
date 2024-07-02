@@ -199,7 +199,7 @@ def test_polyint():
     torch.testing.assert_close(
         beignet.polynomial.polyint(
             c2d,
-            axis=0,
+            dim=0,
         ),
         torch.vstack([beignet.polynomial.polyint(c) for c in c2d.T]).T,
     )
@@ -207,7 +207,7 @@ def test_polyint():
     torch.testing.assert_close(
         beignet.polynomial.polyint(
             c2d,
-            axis=1,
+            dim=1,
         ),
         torch.vstack([beignet.polynomial.polyint(c) for c in c2d]),
     )
@@ -216,7 +216,7 @@ def test_polyint():
         beignet.polynomial.polyint(
             c2d,
             k=3,
-            axis=1,
+            dim=1,
         ),
         torch.vstack([beignet.polynomial.polyint(c, k=3) for c in c2d]),
     )
