@@ -211,6 +211,12 @@ from ._polyzero import polyzero
 
 torch.set_default_dtype(torch.float64)
 
+# add_*
+# differentiate_*
+# integrate_*
+# multiply_*
+# subtract_*
+
 __all__ = [
     "_as_series",
     "_c_series_to_z_series",
