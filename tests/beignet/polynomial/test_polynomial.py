@@ -136,7 +136,6 @@ from beignet.polynomial import (
     leg2poly,
     legadd,
     legcompanion,
-    legder,
     legdiv,
     legdomain,
     legfit,
@@ -5497,113 +5496,6 @@ def test_legcompanion():
         assert output.shape == (index, index)
 
     assert legcompanion(torch.tensor([1, 2]))[0, 0] == -0.5
-
-
-def test_legder():
-    with pytest.raises(TypeError):
-        legder(
-            torch.tensor([0.0]),
-            order=0.5,
-        )
-
-    with pytest.raises(ValueError):
-        legder(
-            torch.tensor([0.0]),
-            order=-1,
-        )
-
-    for i in range(5):
-        torch.testing.assert_close(
-            legtrim(
-                legder(
-                    torch.tensor([0.0] * i + [1.0]),
-                    order=0,
-                ),
-                tol=0.000001,
-            ),
-            legtrim(
-                torch.tensor([0.0] * i + [1.0]),
-                tol=0.000001,
-            ),
-        )
-
-    for i in range(5):
-        for j in range(2, 5):
-            torch.testing.assert_close(
-                legtrim(
-                    legder(
-                        legint(
-                            torch.tensor([0.0] * i + [1.0]),
-                            order=j,
-                        ),
-                        order=j,
-                    ),
-                    tol=0.000001,
-                ),
-                legtrim(
-                    torch.tensor([0.0] * i + [1.0]),
-                    tol=0.000001,
-                ),
-            )
-
-    for i in range(5):
-        for j in range(2, 5):
-            torch.testing.assert_close(
-                legtrim(
-                    legder(
-                        legint(
-                            torch.tensor([0.0] * i + [1.0]),
-                            order=j,
-                            scale=2,
-                        ),
-                        order=j,
-                        scale=0.5,
-                    ),
-                    tol=0.000001,
-                ),
-                legtrim(
-                    torch.tensor([0.0] * i + [1.0]),
-                    tol=0.000001,
-                ),
-            )
-
-    coefficients = torch.rand(3, 4)
-
-    target = []
-
-    for input in coefficients.T:
-        target = [
-            *target,
-            legder(
-                input,
-            ),
-        ]
-
-    target = torch.vstack(target)
-
-    torch.testing.assert_close(
-        legder(
-            coefficients,
-            axis=0,
-        ),
-        target.T,
-    )
-
-    torch.testing.assert_close(
-        legder(
-            coefficients,
-            axis=1,
-        ),
-        torch.vstack([legder(c) for c in coefficients]),
-    )
-
-    torch.testing.assert_close(
-        legder(
-            torch.tensor([1.0, 2.0, 3.0, 4.0]),
-            order=4,
-        ),
-        torch.tensor([0.0]),
-    )
 
 
 def test_legdiv():

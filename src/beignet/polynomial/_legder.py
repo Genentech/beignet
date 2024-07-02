@@ -5,7 +5,7 @@ from .__as_series import _as_series
 
 
 def legder(
-    c,
+    input,
     order=1,
     scale=1,
     axis=0,
@@ -13,22 +13,22 @@ def legder(
     if order < 0:
         raise ValueError
 
-    [c] = _as_series([c])
+    [input] = _as_series([input])
 
     if order == 0:
-        return c
+        return input
 
-    c = torch.moveaxis(c, axis, 0)
+    input = torch.moveaxis(input, axis, 0)
 
-    n = c.shape[0]
+    n = input.shape[0]
 
     if order >= n:
-        c = torch.zeros_like(c[:1])
+        input = torch.zeros_like(input[:1])
     else:
         for _ in range(order):
             n = n - 1
-            c *= scale
-            der = torch.empty((n,) + c.shape[1:], dtype=c.dtype)
+            input *= scale
+            der = torch.empty((n,) + input.shape[1:], dtype=input.dtype)
 
             def body(k, der_c, n=n):
                 j = n - k
@@ -43,22 +43,22 @@ def legder(
 
             b = n - 2
 
-            x = (der, c)
+            x = (der, input)
 
             y = x
 
             for index in range(0, b):
                 y = body(index, y)
 
-            der, c = y
+            der, input = y
 
             if n > 1:
-                der[1] = 3 * c[2]
+                der[1] = 3 * input[2]
 
-            der[0] = c[1]
+            der[0] = input[1]
 
-            c = der
+            input = der
 
-    c = torch.moveaxis(c, 0, axis)
+    input = torch.moveaxis(input, 0, axis)
 
-    return c
+    return input
