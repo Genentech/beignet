@@ -65,13 +65,13 @@ def root(
 
     class Root(Function):
         @staticmethod
-        def forward(ctx, initial_guess) -> Tensor:
+        def forward(ctx, x0) -> Tensor:
             if has_aux:
-                solution, aux = solve(func, initial_guess)
+                solution, aux = solve(func, x0)
 
                 ctx.aux = aux
             else:
-                solution = solve(func, initial_guess)
+                solution = solve(func, x0)
 
             ctx.save_for_backward(solution)
 
