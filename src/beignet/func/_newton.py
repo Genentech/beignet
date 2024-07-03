@@ -41,8 +41,14 @@ def newton(
     def tangent_solve(g, y):
         return torch.reshape(
             torch.linalg.solve(
-                torch.reshape(jacobian(g, y), [-1, *torch.numel(y)]),
-                torch.reshape(y, [-1, 1]),
+                torch.reshape(
+                    jacobian(g, y),
+                    [-1, *torch.numel(y)],
+                ),
+                torch.reshape(
+                    y,
+                    [-1, 1],
+                ),
             ),
             y.shape,
         )
