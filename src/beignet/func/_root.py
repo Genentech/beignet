@@ -89,3 +89,39 @@ def root(
             return tangent_solve(f, grad_output)
 
     return Root.apply(x0)
+
+
+def f(func, _, a: float = 0.0, b: float = 100.0):
+    midpoint = 0.5 * (a + b)
+
+    condition = (a < midpoint) & (midpoint < b)
+
+    while condition:
+        midpoint = 0.5 * (a + b)
+
+        update = func(midpoint) > 0.0
+
+        a = torch.where(update, a, midpoint)
+        b = torch.where(update, midpoint, b)
+
+        midpoint = 0.5 * (a + b)
+
+        condition = (a < midpoint) & (midpoint < b)
+
+    return b
+
+
+def g(f: Callable, y: Tensor) -> Tensor:
+    return y / f(torch.tensor([1.0]))
+
+
+def custom_root(x: Tensor) -> Tensor:
+    def func(y: Tensor) -> Tensor:
+        return y**2.0 - x**3.0
+
+    return root(func, 0.0, f, g)
+
+
+input = torch.tensor([5.0])
+
+torch.testing.assert_close(custom_root(input), torch.tensor([5.0**1.5]))
