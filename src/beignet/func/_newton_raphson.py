@@ -1,2 +1,2 @@
-def nelder_mead():
+def newton_raphson():
     raise NotImplementedError
