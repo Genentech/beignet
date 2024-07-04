@@ -1,2 +1,3 @@
 def brent():
+    r""" """
     pass

@@ -1,3 +1,3 @@
-def newton_raphson():
+def broyden():
     r""" """
     raise NotImplementedError
