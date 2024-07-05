@@ -1,41 +1,73 @@
+import beignet
 import torch
-from beignet import farthest_first_traversal
+import torch.nested
+from torch import Tensor
 
 
-def str_hamming_dist(s1, s2):
-    return sum(c1 != c2 for c1, c2 in zip(s1, s2, strict=False))
+def test_farthest_first_traversal():
+    def distance_func(input, other):
+        return sum(c1 != c2 for c1, c2 in zip(input, other, strict=False))
 
+    def map_sequence(sequence: str) -> Tensor:
+        dictionary = {
+            "A": 0,
+            "C": 1,
+            "G": 2,
+            "T": 3,
+        }
 
-def ell_2_dist(v1, v2):
-    return torch.norm(v1 - v2, p=2)
+        output = []
 
+        for character in sequence:
+            output = [*output, dictionary[character]]
 
-def test_farthest_first_traversal_str():
-    library = [
+        return torch.tensor([*output])
+
+    sequences = [
         "AAAA",
         "GGGG",
         "CCCC",
         "TTTT",
     ]
-    ranking_scores = torch.tensor([3, 2, 1, 4])
-    n = 2
-    selected = farthest_first_traversal(
-        library, str_hamming_dist, ranking_scores, n, descending=True
+
+    input = [map_sequence(sequence) for sequence in sequences]
+
+    input = torch.nested.nested_tensor(input)
+
+    input = torch.nested.to_padded_tensor(input, 0)
+
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            input,
+            distance_func=distance_func,
+            scores=torch.tensor([3, 2, 1, 4]),
+            n=2,
+            descending=True,
+        ),
+        torch.tensor([3, 0]),
     )
 
-    assert torch.all(selected == torch.tensor([3, 0]))
-
-    selected = farthest_first_traversal(
-        library, str_hamming_dist, ranking_scores, n, descending=False
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            input,
+            distance_func=distance_func,
+            scores=torch.tensor([3, 2, 1, 4]),
+            n=2,
+            descending=False,
+        ),
+        torch.tensor([2, 1]),
     )
-    assert torch.all(selected == torch.tensor([2, 1]))
 
-    ranking_scores = None
-    selected = farthest_first_traversal(library, str_hamming_dist, ranking_scores, n)
-    assert torch.all(selected == torch.tensor([0, 1]))
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            input,
+            distance_func=distance_func,
+            n=2,
+        ),
+        torch.tensor([0, 1]),
+    )
 
-    # harder example with wider spread of distances
-    library = [
+    sequences = [
         "AAAA",
         "GGGG",
         "CCCC",
@@ -46,41 +78,86 @@ def test_farthest_first_traversal_str():
         "TGCA",
     ]
 
-    ranking_scores = torch.tensor(list(range(8)))
-    n = 3
-    selected = farthest_first_traversal(
-        library, str_hamming_dist, ranking_scores, n, descending=True
-    )
-    assert torch.all(selected == torch.tensor([7, 6, 3]))
+    input = [map_sequence(sequence) for sequence in sequences]
 
-    selected = farthest_first_traversal(
-        library, str_hamming_dist, ranking_scores, n, descending=False
-    )
-    assert torch.all(selected == torch.tensor([0, 1, 2]))
+    input = torch.nested.nested_tensor(input)
 
+    input = torch.nested.to_padded_tensor(input, 0)
 
-def test_farthest_first_traversal_tensor():
-    library = torch.tensor(
-        [
-            [0.0, 0.0],
-            [0.0, 4.0],
-            [4.0, 0.0],
-            [2.0, 2.0],
-        ]
-    )
-    ranking_scores = torch.tensor([3, 2, 1, 4])
-    n = 2
-    selected = farthest_first_traversal(
-        library, ell_2_dist, ranking_scores, n, descending=True
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            input,
+            distance_func=distance_func,
+            scores=torch.tensor([*range(8)]),
+            n=3,
+            descending=True,
+        ),
+        torch.tensor([7, 6, 3]),
     )
 
-    assert torch.all(selected == torch.tensor([3, 0]))
-
-    selected = farthest_first_traversal(
-        library, ell_2_dist, ranking_scores, n, descending=False
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            input,
+            distance_func=distance_func,
+            scores=(torch.tensor(list(range(8)))),
+            n=3,
+            descending=False,
+        ),
+        torch.tensor([0, 1, 2]),
     )
-    assert torch.all(selected == torch.tensor([2, 1]))
 
-    ranking_scores = None
-    selected = farthest_first_traversal(library, ell_2_dist, ranking_scores, n)
-    assert torch.all(selected == torch.tensor([0, 1]))
+    def distance_fn(input: Tensor, other: Tensor) -> Tensor:
+        return torch.norm(input - other, p=2)
+
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            torch.tensor(
+                [
+                    [0.0, 0.0],
+                    [0.0, 4.0],
+                    [4.0, 0.0],
+                    [2.0, 2.0],
+                ]
+            ),
+            distance_func=distance_fn,
+            scores=torch.tensor([3, 2, 1, 4]),
+            n=2,
+            descending=True,
+        ),
+        torch.tensor([3, 0]),
+    )
+
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            torch.tensor(
+                [
+                    [0.0, 0.0],
+                    [0.0, 4.0],
+                    [4.0, 0.0],
+                    [2.0, 2.0],
+                ]
+            ),
+            distance_func=distance_fn,
+            scores=(torch.tensor([3, 2, 1, 4])),
+            n=2,
+            descending=False,
+        ),
+        torch.tensor([2, 1]),
+    )
+
+    torch.testing.assert_close(
+        beignet.farthest_first_traversal(
+            torch.tensor(
+                [
+                    [0.0, 0.0],
+                    [0.0, 4.0],
+                    [4.0, 0.0],
+                    [2.0, 2.0],
+                ]
+            ),
+            distance_func=distance_fn,
+            scores=None,
+            n=2,
+        ),
+        torch.tensor([0, 1]),
+    )
