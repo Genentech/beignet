@@ -1,0 +1,2 @@
+def broyden():
+    raise NotImplementedError

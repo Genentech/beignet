@@ -1,0 +1,2 @@
+def brent():
+    raise NotImplementedError
