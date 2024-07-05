@@ -1,3 +1,2 @@
 def brent():
-    r""" """
-    pass
+    raise NotImplementedError
