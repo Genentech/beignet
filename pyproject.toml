@@ -22,11 +22,14 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [
-    "beignet[docs,test]",
+    "beignet[docs,mdtraj,test]",
 ]
 docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
+]
+mdtraj = [
+    "mdtraj",
 ]
 test = [
     "hypothesis",
