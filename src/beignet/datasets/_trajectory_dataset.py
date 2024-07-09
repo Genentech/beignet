@@ -1,21 +1,24 @@
+import functools
 from os import PathLike
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
+from mdtraj import Trajectory
 from torch.utils.data import Dataset
-
-from beignet.transforms import Transform
 
 
 class TrajectoryDataset(Dataset):
     def __init__(
         self,
+        func: Callable,
+        extension: str,
         root: str | PathLike,
-        transform: Callable | Transform | None = None,
+        transform: Callable[[Trajectory, ...], Any] | None = None,
         stride: int | None = None,
-        *args,
         **kwargs,
     ):
+        self.func = functools.partial(func, **kwargs)
+
         if isinstance(root, str):
             root = Path(root)
 
@@ -25,10 +28,17 @@ class TrajectoryDataset(Dataset):
 
         self.stride = stride
 
-        super().__init__(*args, **kwargs)
+        self.paths = [*self.root.glob(f"*.{extension}")]
 
-    def __getitem__(self, index: int):
-        raise NotImplementedError
+        super().__init__()
 
-    def __len__(self):
-        raise NotImplementedError
+    def __getitem__(self, index: int) -> Trajectory:
+        item = self.func(self.paths[index], stride=self.stride)
+
+        if self.transform:
+            item = self.transform(item)
+
+        return item
+
+    def __len__(self) -> int:
+        return len(self.paths)
