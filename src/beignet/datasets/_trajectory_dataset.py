@@ -13,7 +13,7 @@ class TrajectoryDataset(Dataset):
         func: Callable,
         extension: str,
         root: str | PathLike,
-        transform: Callable[[Trajectory, ...], Any] | None = None,
+        transform: Callable[[Trajectory], Any] | None = None,
         stride: int | None = None,
         **kwargs,
     ):

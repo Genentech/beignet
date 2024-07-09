@@ -11,7 +11,7 @@ class HDF5TrajectoryDataset(TrajectoryDataset):
     def __init__(
         self,
         root: str | PathLike,
-        transform: Callable[[Trajectory, ...], Any] | None = None,
+        transform: Callable[[Trajectory], Any] | None = None,
         stride: int | None = None,
         **kwargs,
     ):
