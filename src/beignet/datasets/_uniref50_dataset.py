@@ -3,17 +3,17 @@ from typing import Callable
 
 from beignet.transforms import Transform
 
-from .__uni_ref_dataset import _UniRefDataset
+from ._uniprot_dataset import UniProtDataset
 
 
-class UniRef50Dataset(_UniRefDataset):
+class UniRef50Dataset(UniProtDataset):
     def __init__(
         self,
         root: str | PathLike | None = None,
         *,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         """
         Parameters
         ----------

@@ -1,11 +1,12 @@
+from os import PathLike
 from pathlib import Path
 
 from torch.utils.data import Dataset
 
 
 class SequenceDataset(Dataset):
-    def __init__(self, root: str | Path, *args, **kwargs):
+    def __init__(self, root: str | PathLike, *args, **kwargs):
         if isinstance(root, str):
-            root = Path(root).resolve()
+            root = Path(root)
 
-        self.root = root
+        self.root = root.resolve()

@@ -2,17 +2,17 @@ from pathlib import Path
 from typing import Callable
 
 from ..transforms import Transform
-from .__uni_ref_dataset import _UniRefDataset
+from ._uniprot_dataset import UniProtDataset
 
 
-class UniRef100Dataset(_UniRefDataset):
+class UniRef100Dataset(UniProtDataset):
     def __init__(
         self,
         root: str | Path,
         *,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
-    ) -> None:
+    ):
         r"""
         Parameters
         ----------

@@ -10,7 +10,8 @@ requires = [
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
     "pooch",
-    "torch",
+    "torch==2.2.2",
+    "torchaudio",
     "tqdm",
 ]
 dynamic = ["version"]
@@ -29,7 +30,9 @@ docs = [
 ]
 test = [
     "hypothesis",
+    "numpy==1.26.4",
     "pytest",
+    "pytest-mock",
     "scipy",
 ]
 
