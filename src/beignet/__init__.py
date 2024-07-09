@@ -129,6 +129,7 @@ from ._evaluate_probabilists_hermite_polynomial_cartersian_2d import (
 from ._evaluate_probabilists_hermite_polynomial_cartersian_3d import (
     evaluate_probabilists_hermite_polynomial_cartersian_3d,
 )
+from ._farthest_first_traversal import farthest_first_traversal
 from ._fit_chebyshev_polynomial import fit_chebyshev_polynomial
 from ._fit_laguerre_polynomial import fit_laguerre_polynomial
 from ._fit_legendre_polynomial import fit_legendre_polynomial
@@ -431,6 +432,7 @@ __all__ = [
     "evaluate_probabilists_hermite_polynomial",
     "evaluate_probabilists_hermite_polynomial_2d",
     "evaluate_probabilists_hermite_polynomial_3d",
+    "farthest_first_traversal",
     "fit_chebyshev_polynomial",
     "fit_laguerre_polynomial",
     "fit_legendre_polynomial",
