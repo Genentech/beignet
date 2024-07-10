@@ -1,0 +1,10 @@
+::: beignet.apply_rotation_matrix
+::: beignet.compose_rotation_matrix
+::: beignet.invert_rotation_matrix
+::: beignet.random_rotation_matrix
+::: beignet.rotation_matrix_identity
+::: beignet.rotation_matrix_magnitude
+::: beignet.rotation_matrix_mean
+::: beignet.rotation_matrix_to_euler_angle
+::: beignet.rotation_matrix_to_quaternion
+::: beignet.rotation_matrix_to_rotation_vector

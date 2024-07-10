@@ -1,0 +1,10 @@
+::: beignet.apply_euler_angle
+::: beignet.compose_euler_angle
+::: beignet.euler_angle_identity
+::: beignet.euler_angle_magnitude
+::: beignet.euler_angle_mean
+::: beignet.euler_angle_to_quaternion
+::: beignet.euler_angle_to_rotation_matrix
+::: beignet.euler_angle_to_rotation_vector
+::: beignet.invert_euler_angle
+::: beignet.random_euler_angle
