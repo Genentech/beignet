@@ -8,13 +8,35 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 nav:
-  - beignet: "index.md"
-  - beignet.datasets: "beignet.datasets.md"
-  - beignet.features: "beignet.features.md"
-  - beignet.func: "beignet.func.md"
-  - beignet.io: "beignet.io.md"
-  - beignet.special: "beignet.special.md"
-  - beignet.transforms: "beignet.transforms.md"
+  - "beignet":
+    - "Geometry":
+        - "Transformations":
+            - "Euler Angle": "beignet/geometry/transformations/euler-angle.md"
+            - "Quaternion": "beignet/geometry/transformations/quaternion.md"
+            - "Rotation Matrix": "beignet/geometry/transformations/rotation-matrix.md"
+            - "Rotation Vector": "beignet/geometry/transformations/rotation-vector.md"
+            - "Transform": "beignet/geometry/transformations/transform.md"
+            - "Translation": "beignet/geometry/transformations/translation.md"
+    - "Integral Transforms": "beignet/integral-transforms.md"
+    - "Interatomic Potentials": "beignet/interatomic-potentials.md"
+    - "Numerical Methods":
+        - "Numerical Integration": "beignet/numerical-methods/numerical-integration.md"
+    - "Special Functions":
+        - "Dawson and Fresnel Integrals": "beignet/special-functions/dawson-and-fresnel-integrals.md"
+        - "Error and Related Functions": "beignet/special-functions/error-and-related-functions.md"
+        - "Orthogonal Polynomials":
+            - "Polynomial": "beignet/special-functions/orthogonal-polynomials/polynomial.md"
+            - "Chebyshev Polynomial": "beignet/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
+            - "Physicists’ Hermite Polynomial": "beignet/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
+            - "Probabilists’ Hermite Polynomial": "beignet/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
+            - "Laguerre Polynomial": "beignet/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
+            - "Legendre Polynomial": "beignet/special-functions/orthogonal-polynomials/legendre-polynomial.md"
+    - "Thermodynamics": "beignet/thermodynamics.md"
+  - "beignet.datasets": "beignet.datasets.md"
+  - "beignet.features": "beignet.features.md"
+  - "beignet.func": "beignet.func.md"
+  - "beignet.io": "beignet.io.md"
+  - "beignet.transforms": "beignet.transforms.md"
 plugins:
   - mkdocstrings:
       default_handler: "python"

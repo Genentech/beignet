@@ -1,0 +1,11 @@
+::: beignet.apply_quaternion
+::: beignet.compose_quaternion
+::: beignet.invert_quaternion
+::: beignet.quaternion_identity
+::: beignet.quaternion_magnitude
+::: beignet.quaternion_mean
+::: beignet.quaternion_slerp
+::: beignet.quaternion_to_euler_angle
+::: beignet.quaternion_to_rotation_matrix
+::: beignet.quaternion_to_rotation_vector
+::: beignet.random_quaternion
