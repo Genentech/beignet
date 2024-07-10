@@ -8,43 +8,46 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 nav:
-  - "beignet":
-    - "Geometry":
-        - "Transformations":
-            - "Euler Angle": "operators/geometry/transformations/euler-angle.md"
-            - "Quaternion": "operators/geometry/transformations/quaternion.md"
-            - "Rotation Matrix": "operators/geometry/transformations/rotation-matrix.md"
-            - "Rotation Vector": "operators/geometry/transformations/rotation-vector.md"
-            - "Transform": "operators/geometry/transformations/transform.md"
-            - "Translation": "operators/geometry/transformations/translation.md"
-    - "Integral Transforms": "operators/integral-transforms.md"
-    - "Interatomic Potentials": "operators/interatomic-potentials.md"
-    - "Numerical Methods":
-        - "Numerical Integration": "operators/numerical-methods/numerical-integration.md"
-    - "Special Functions":
-        - "Dawson and Fresnel Integrals": "operators/special-functions/dawson-and-fresnel-integrals.md"
-        - "Error and Related Functions": "operators/special-functions/error-and-related-functions.md"
-        - "Orthogonal Polynomials":
-            - "Polynomial": "operators/special-functions/orthogonal-polynomials/polynomial.md"
-            - "Chebyshev Polynomial": "operators/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
-            - "Physicists’ Hermite Polynomial": "operators/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
-            - "Probabilists’ Hermite Polynomial": "operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
-            - "Laguerre Polynomial": "operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
-            - "Legendre Polynomial": "operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
-    - "Thermodynamics": "operators/thermodynamics.md"
-  - "beignet.datasets":
+  - "Installation": "installation.md"
+  - "Tutorials": "tutorials.md"
+  - "Reference":
+    - "beignet":
       - "Geometry":
-          - "Transformations": "datasets/geometry/transformations.md"
-      - "Protein Sequences": "datasets/protein-sequences.md"
-      - "Sequences": "datasets/sequences.md"
-  - "beignet.features":
-      - "Geometry":
-          - "Transformations": "features/geometry/transformations.md"
-  - "beignet.func":
-      - "Molecular Dynamics": "func/molecular-dynamics.md"
-  - "beignet.io": "operators.io.md"
-  - "beignet.transforms":
-      - "General-purpose": "transforms/general-purpose.md"
+          - "Transformations":
+              - "Euler Angle": "reference/operators/geometry/transformations/euler-angle.md"
+              - "Quaternion": "reference/operators/geometry/transformations/quaternion.md"
+              - "Rotation Matrix": "reference/operators/geometry/transformations/rotation-matrix.md"
+              - "Rotation Vector": "reference/operators/geometry/transformations/rotation-vector.md"
+              - "Transform": "reference/operators/geometry/transformations/transform.md"
+              - "Translation": "reference/operators/geometry/transformations/translation.md"
+      - "Integral Transforms": "reference/operators/integral-transforms.md"
+      - "Interatomic Potentials": "reference/operators/interatomic-potentials.md"
+      - "Numerical Methods":
+          - "Numerical Integration": "reference/operators/numerical-methods/numerical-integration.md"
+      - "Special Functions":
+          - "Dawson and Fresnel Integrals": "reference/operators/special-functions/dawson-and-fresnel-integrals.md"
+          - "Error and Related Functions": "reference/operators/special-functions/error-and-related-functions.md"
+          - "Orthogonal Polynomials":
+              - "Polynomial": "reference/operators/special-functions/orthogonal-polynomials/polynomial.md"
+              - "Chebyshev Polynomial": "reference/operators/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
+              - "Physicists’ Hermite Polynomial": "reference/operators/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
+              - "Probabilists’ Hermite Polynomial": "reference/operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
+              - "Laguerre Polynomial": "reference/operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
+              - "Legendre Polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
+      - "Thermodynamics": "reference/reference/operators/thermodynamics.md"
+    - "beignet.datasets":
+        - "Geometry":
+            - "Transformations": "reference/datasets/geometry/transformations.md"
+        - "Protein Sequences": "reference/datasets/protein-sequences.md"
+        - "Sequences": "reference/datasets/sequences.md"
+    - "beignet.features":
+        - "Geometry":
+            - "Transformations": "reference/features/geometry/transformations.md"
+    - "beignet.func":
+        - "Molecular Dynamics": "reference/func/molecular-dynamics.md"
+    - "beignet.io": "reference/operators.io.md"
+    - "beignet.transforms":
+        - "General-purpose": "reference/transforms/general-purpose.md"
 plugins:
   - mkdocstrings:
       default_handler: "python"
@@ -58,4 +61,6 @@ plugins:
             show_source: true
 site_name: "Beignet"
 theme:
+  features:
+    - "navigation.sections"
   name: "material"
