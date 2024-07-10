@@ -2,8 +2,8 @@ import math
 
 import torch
 from torch import Tensor
+from torchaudio.functional import convolve
 
-from . import convolve
 from ._add_chebyshev_polynomial import add_chebyshev_polynomial
 
 
