@@ -49,6 +49,7 @@ nav:
         - "Protein–protein interaction": "reference/datasets/protein-protein-interaction.md"
         - "Quantum mechanics": "reference/datasets/quantum-mechanics.md"
         - "Reaction": "reference/datasets/reaction.md"
+        - "Toxicity": "reference/datasets/toxicity.md"
         - "Geometry":
             - "Transformations": "reference/datasets/geometry/transformations.md"
         - "Protein sequences": "reference/datasets/protein-sequence.md"

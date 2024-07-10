@@ -14,7 +14,6 @@
 ::: beignet.datasets.CarbonMangelsCytochromeP4502C9SubstrateDataset
 ::: beignet.datasets.CarbonMangelsCytochromeP4502D6SubstrateDataset
 ::: beignet.datasets.CarbonMangelsCytochromeP4503A4SubstrateDataset
-::: beignet.datasets.ChEMBLDataset
 ::: beignet.datasets.ClinToxDataset
 ::: beignet.datasets.DataFrameDataset
 ::: beignet.datasets.DAVISDataset
@@ -32,17 +31,13 @@
 ::: beignet.datasets.LombardoVolumeOfDistributionAtSteadyStateDataset
 ::: beignet.datasets.MaBioavailabilityDataset
 ::: beignet.datasets.MartinsBloodBrainBarrierDataset
-::: beignet.datasets.MOSESDataset
 ::: beignet.datasets.NCATSPAMPAPermeabilityDataset
 ::: beignet.datasets.ObachHalfLifeDataset
 ::: beignet.datasets.ParquetDataset
 ::: beignet.datasets.PDB70Dataset
 ::: beignet.datasets.PDBTrajectoryDataset
 ::: beignet.datasets.PDBbindDataset
-::: beignet.datasets.QM7Dataset
-::: beignet.datasets.QM7bDataset
-::: beignet.datasets.QM8Dataset
-::: beignet.datasets.QM9Dataset
+
 ::: beignet.datasets.RandomEulerAngleDataset
 ::: beignet.datasets.RandomQuaternionDataset
 ::: beignet.datasets.RandomRotationDataset
@@ -71,4 +66,3 @@
 ::: beignet.datasets.VeithCytochromeP4503A4InhibitionDataset
 ::: beignet.datasets.WangEffectivePermeabilityDataset
 ::: beignet.datasets.ZhuAcuteToxicityLD50Dataset
-::: beignet.datasets.ZINCDataset
