@@ -11,32 +11,40 @@ nav:
   - "beignet":
     - "Geometry":
         - "Transformations":
-            - "Euler Angle": "beignet/geometry/transformations/euler-angle.md"
-            - "Quaternion": "beignet/geometry/transformations/quaternion.md"
-            - "Rotation Matrix": "beignet/geometry/transformations/rotation-matrix.md"
-            - "Rotation Vector": "beignet/geometry/transformations/rotation-vector.md"
-            - "Transform": "beignet/geometry/transformations/transform.md"
-            - "Translation": "beignet/geometry/transformations/translation.md"
-    - "Integral Transforms": "beignet/integral-transforms.md"
-    - "Interatomic Potentials": "beignet/interatomic-potentials.md"
+            - "Euler Angle": "operators/geometry/transformations/euler-angle.md"
+            - "Quaternion": "operators/geometry/transformations/quaternion.md"
+            - "Rotation Matrix": "operators/geometry/transformations/rotation-matrix.md"
+            - "Rotation Vector": "operators/geometry/transformations/rotation-vector.md"
+            - "Transform": "operators/geometry/transformations/transform.md"
+            - "Translation": "operators/geometry/transformations/translation.md"
+    - "Integral Transforms": "operators/integral-transforms.md"
+    - "Interatomic Potentials": "operators/interatomic-potentials.md"
     - "Numerical Methods":
-        - "Numerical Integration": "beignet/numerical-methods/numerical-integration.md"
+        - "Numerical Integration": "operators/numerical-methods/numerical-integration.md"
     - "Special Functions":
-        - "Dawson and Fresnel Integrals": "beignet/special-functions/dawson-and-fresnel-integrals.md"
-        - "Error and Related Functions": "beignet/special-functions/error-and-related-functions.md"
+        - "Dawson and Fresnel Integrals": "operators/special-functions/dawson-and-fresnel-integrals.md"
+        - "Error and Related Functions": "operators/special-functions/error-and-related-functions.md"
         - "Orthogonal Polynomials":
-            - "Polynomial": "beignet/special-functions/orthogonal-polynomials/polynomial.md"
-            - "Chebyshev Polynomial": "beignet/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
-            - "Physicists’ Hermite Polynomial": "beignet/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
-            - "Probabilists’ Hermite Polynomial": "beignet/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
-            - "Laguerre Polynomial": "beignet/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
-            - "Legendre Polynomial": "beignet/special-functions/orthogonal-polynomials/legendre-polynomial.md"
-    - "Thermodynamics": "beignet/thermodynamics.md"
-  - "beignet.datasets": "beignet.datasets.md"
-  - "beignet.features": "beignet.features.md"
-  - "beignet.func": "beignet.func.md"
-  - "beignet.io": "beignet.io.md"
-  - "beignet.transforms": "beignet.transforms.md"
+            - "Polynomial": "operators/special-functions/orthogonal-polynomials/polynomial.md"
+            - "Chebyshev Polynomial": "operators/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
+            - "Physicists’ Hermite Polynomial": "operators/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
+            - "Probabilists’ Hermite Polynomial": "operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
+            - "Laguerre Polynomial": "operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
+            - "Legendre Polynomial": "operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
+    - "Thermodynamics": "operators/thermodynamics.md"
+  - "beignet.datasets":
+      - "Geometry":
+          - "Transformations": "datasets/geometry/transformations.md"
+      - "Protein Sequences": "datasets/protein-sequences.md"
+      - "Sequences": "datasets/sequences.md"
+  - "beignet.features":
+      - "Geometry":
+          - "Transformations": "features/geometry/transformations.md"
+  - "beignet.func":
+      - "Molecular Dynamics": "func/molecular-dynamics.md"
+  - "beignet.io": "operators.io.md"
+  - "beignet.transforms":
+      - "General-purpose": "transforms/general-purpose.md"
 plugins:
   - mkdocstrings:
       default_handler: "python"
