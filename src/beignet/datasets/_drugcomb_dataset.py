@@ -12,8 +12,8 @@ class DrugCombDataset(Dataset):
         root: str | Path,
         *,
         download: bool = False,
-        transform_fn: Callable | Transform | None = None,
-        target_transform_fn: Callable | Transform | None = None,
+        transform: Callable | Transform | None = None,
+        target_transform: Callable | Transform | None = None,
     ):
         r"""
 
@@ -26,10 +26,10 @@ class DrugCombDataset(Dataset):
             If `True`, downloads the dataset to the root directory. If dataset
             already exists, it is not redownloaded. Default, `False`.
 
-        transform_fn : Callable | Transform | None
+        transform : Callable | Transform | None
             Transforms the input.
 
-        target_transform_fn : Callable | Transform | None
+        target_transform : Callable | Transform | None
             Transforms the target.
         """
         raise NotImplementedError

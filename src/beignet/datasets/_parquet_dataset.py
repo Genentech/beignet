@@ -16,8 +16,8 @@ class ParquetDataset(DataFrameDataset):
         *,
         columns: Optional[Sequence[str]],
         target_columns: Optional[Sequence[str]],
-        transform_fn: Union[Callable, Transform, None] = None,
-        target_transform_fn: Union[Callable, Transform, None] = None,
+        transform: Union[Callable, Transform, None] = None,
+        target_transform: Union[Callable, Transform, None] = None,
         **kwargs,
     ) -> None:
         """
@@ -31,16 +31,16 @@ class ParquetDataset(DataFrameDataset):
         :param target_columns: y features of the dataset. items in the dataset
             are of the form ((columns), (target_columns)).
 
-        :param transform_fn: A ``Callable`` or ``Transform`` that maps data to
+        :param transform: A ``Callable`` or ``Transform`` that maps data to
             transformed data (default: ``None``).
 
-        :param target_transform_fn: ``Callable`` or ``Transform`` that maps a
+        :param target_transform: ``Callable`` or ``Transform`` that maps a
             target to a transformed target (default: ``None``).
         """
         super().__init__(
             root,
-            transform_fn=transform_fn,
-            target_transform_fn=target_transform_fn,
+            transform=transform,
+            target_transform=target_transform,
         )
 
         self._path = path

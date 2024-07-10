@@ -17,14 +17,14 @@ class ATOM3DDataset(LMDBDataset):
         *,
         checksum: Optional[str] = None,
         download: bool = False,
-        transform_fn: Union[Callable, Transform, None] = None,
+        transform: Union[Callable, Transform, None] = None,
     ):
         self._root = root
 
         if isinstance(self._root, str):
             self._root = Path(self._root).resolve()
 
-        self._transform_fn = transform_fn
+        self._transform_fn = transform
 
         if download:
             beignet.io.download_and_extract_archive(
@@ -35,5 +35,5 @@ class ATOM3DDataset(LMDBDataset):
 
         super().__init__(
             self._root / f"ATOM3D{name}" / path,
-            transform_fn=transform_fn,
+            transform=transform,
         )

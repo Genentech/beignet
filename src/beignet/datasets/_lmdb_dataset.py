@@ -30,13 +30,13 @@ class LMDBDataset(Dataset):
         meminit: bool = True,
         readahead: bool = True,
         readonly: bool = True,
-        transform_fn: Union[Callable, Transform, None] = None,
+        transform: Union[Callable, Transform, None] = None,
     ):
         super().__init__()
 
         self._root = root
 
-        self._transform_fn = transform_fn
+        self._transform_fn = transform
 
         if isinstance(self._root, str):
             self._root = Path(self._root).resolve()

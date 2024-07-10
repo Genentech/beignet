@@ -30,7 +30,7 @@ class SKEMPIDataset(ParquetDataset):
         download: bool = False,
         sequence_transform_fn: Union[Callable, Transform, None] = None,
         structure_transform_fn: Union[Callable, Transform, None] = None,
-        target_transform_fn: Union[Callable, Transform, None] = None,
+        target_transform: Union[Callable, Transform, None] = None,
     ) -> None:
         """
         :param root: Root directory where the dataset subdirectory exists or,
@@ -47,7 +47,7 @@ class SKEMPIDataset(ParquetDataset):
         :param structure_transform_fn: A ``Callable`` or ``Transform`` that
             maps structures to transformed structures (default: ``None``).
 
-        :param target_transform_fn: ``Callable`` or ``Transform`` that maps a
+        :param target_transform: ``Callable`` or ``Transform`` that maps a
             target to a transformed target (default: ``None``).
         """
         if isinstance(root, str):
@@ -79,7 +79,7 @@ class SKEMPIDataset(ParquetDataset):
 
         self._structure_transform_fn = structure_transform_fn
 
-        self._target_transform_fn = target_transform_fn
+        self._target_transform_fn = target_transform
 
         self._data = self._data.dropna(
             subset=[

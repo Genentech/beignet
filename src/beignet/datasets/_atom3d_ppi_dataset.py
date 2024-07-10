@@ -14,8 +14,8 @@ class ATOM3DPPIDataset(ATOM3DDataset):
         root: Union[str, Path],
         *,
         download: bool = False,
-        transform_fn: Union[Callable, Transform, None] = None,
-        target_transform_fn: Union[Callable, Transform, None] = None,
+        transform: Union[Callable, Transform, None] = None,
+        target_transform: Union[Callable, Transform, None] = None,
         joint_transform_fn: Union[Callable, Transform, None] = None,
     ):
         super().__init__(
@@ -27,9 +27,9 @@ class ATOM3DPPIDataset(ATOM3DDataset):
             download=download,
         )
 
-        self._transform_fn = transform_fn
+        self._transform_fn = transform
 
-        self._target_transform_fn = target_transform_fn
+        self._target_transform_fn = target_transform
 
         self._joint_transform_fn = joint_transform_fn
 

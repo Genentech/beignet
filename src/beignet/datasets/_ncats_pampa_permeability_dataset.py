@@ -3,10 +3,10 @@ from typing import Callable
 
 from beignet.transforms import Transform
 
-from .__tdc_dataset import _TDCDataset
+from ._tdc_dataset import TDCDataset
 
 
-class NCATSPAMPAPermeabilityDataset(_TDCDataset):
+class NCATSPAMPAPermeabilityDataset(TDCDataset):
     def __init__(
         self,
         root: str | Path,

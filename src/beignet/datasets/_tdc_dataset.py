@@ -10,7 +10,7 @@ from beignet.transforms import Transform
 T = TypeVar("T")
 
 
-class _TDCDataset(Dataset):
+class TDCDataset(Dataset):
     _x: List[T]
     _y: List[T]
 

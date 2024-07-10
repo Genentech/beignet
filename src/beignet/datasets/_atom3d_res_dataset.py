@@ -14,8 +14,8 @@ class ATOM3DRESDataset(ATOM3DDataset):
         root: Union[str, Path],
         *,
         download: bool = False,
-        transform_fn: Union[Callable, Transform, None] = None,
-        target_transform_fn: Union[Callable, Transform, None] = None,
+        transform: Union[Callable, Transform, None] = None,
+        target_transform: Union[Callable, Transform, None] = None,
     ):
         """
         ATOM3D Residue Identity (RES) consists of atomic environments
@@ -37,11 +37,11 @@ class ATOM3DRESDataset(ATOM3DDataset):
             If True, download the dataset from the specified source,
             by default `False`.
 
-        transform_fn : Union[Callable, Transform, None], optional
+        transform : Union[Callable, Transform, None], optional
             The transformation function to be applied to the features,
             by default `None`.
 
-        target_transform_fn : Union[Callable, Transform, None], optional
+        target_transform : Union[Callable, Transform, None], optional
             The transformation function to be applied to the targets,
             by default `None`.
         """
@@ -54,9 +54,9 @@ class ATOM3DRESDataset(ATOM3DDataset):
             download=download,
         )
 
-        self._transform_fn = transform_fn
+        self._transform_fn = transform
 
-        self._target_transform_fn = target_transform_fn
+        self._target_transform_fn = target_transform
 
     def __getitem__(self, index: int) -> Tuple[DataFrame, DataFrame]:
         """

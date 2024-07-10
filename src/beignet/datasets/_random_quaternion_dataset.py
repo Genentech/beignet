@@ -5,7 +5,7 @@ import torch
 import beignet
 from beignet.transforms import Transform
 
-from .__random_rotation_dataset import RandomRotationDataset
+from ._random_rotation_dataset import RandomRotationDataset
 
 
 class RandomQuaternionDataset(RandomRotationDataset):
