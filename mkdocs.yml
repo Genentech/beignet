@@ -14,37 +14,38 @@ nav:
     - "beignet":
       - "Geometry":
           - "Transformations":
-              - "Euler Angle": "reference/operators/geometry/transformations/euler-angle.md"
+              - "Euler angle": "reference/operators/geometry/transformations/euler-angle.md"
               - "Quaternion": "reference/operators/geometry/transformations/quaternion.md"
-              - "Rotation Matrix": "reference/operators/geometry/transformations/rotation-matrix.md"
-              - "Rotation Vector": "reference/operators/geometry/transformations/rotation-vector.md"
+              - "Rotation matrix": "reference/operators/geometry/transformations/rotation-matrix.md"
+              - "Rotation vector": "reference/operators/geometry/transformations/rotation-vector.md"
               - "Transform": "reference/operators/geometry/transformations/transform.md"
               - "Translation": "reference/operators/geometry/transformations/translation.md"
-      - "Integral Transforms": "reference/operators/integral-transforms.md"
-      - "Interatomic Potentials": "reference/operators/interatomic-potentials.md"
-      - "Numerical Methods":
-          - "Numerical Integration": "reference/operators/numerical-methods/numerical-integration.md"
-      - "Special Functions":
-          - "Dawson and Fresnel Integrals": "reference/operators/special-functions/dawson-and-fresnel-integrals.md"
-          - "Error and Related Functions": "reference/operators/special-functions/error-and-related-functions.md"
-          - "Orthogonal Polynomials":
+      - "Integral transforms": "reference/operators/integral-transforms.md"
+      - "Interatomic potentials": "reference/operators/interatomic-potentials.md"
+      - "Numerical methods":
+          - "Numerical integration": "reference/operators/numerical-methods/numerical-integration.md"
+      - "Special functions":
+          - "Dawson and Fresnel integrals": "reference/operators/special-functions/dawson-and-fresnel-integrals.md"
+          - "Error and related functions": "reference/operators/special-functions/error-and-related-functions.md"
+          - "Orthogonal polynomials":
               - "Polynomial": "reference/operators/special-functions/orthogonal-polynomials/polynomial.md"
-              - "Chebyshev Polynomial": "reference/operators/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
-              - "Physicists’ Hermite Polynomial": "reference/operators/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
-              - "Probabilists’ Hermite Polynomial": "reference/operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
-              - "Laguerre Polynomial": "reference/operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
-              - "Legendre Polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
+              - "Chebyshev polynomial": "reference/operators/special-functions/orthogonal-polynomials/chebyshev-polynomial.md"
+              - "Physicists’ Hermite polynomial": "reference/operators/special-functions/orthogonal-polynomials/physicists-hermite-polynomial.md"
+              - "Probabilists’ Hermite polynomial": "reference/operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
+              - "Laguerre polynomial": "reference/operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
+              - "Legendre polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
       - "Thermodynamics": "reference/reference/operators/thermodynamics.md"
     - "beignet.datasets":
         - "Geometry":
             - "Transformations": "reference/datasets/geometry/transformations.md"
-        - "Protein Sequences": "reference/datasets/protein-sequences.md"
+        - "Protein sequences": "reference/datasets/protein-sequences.md"
         - "Sequences": "reference/datasets/sequences.md"
     - "beignet.features":
+        - "General-purpose": "reference/features/general-purpose.md"
         - "Geometry":
             - "Transformations": "reference/features/geometry/transformations.md"
     - "beignet.func":
-        - "Molecular Dynamics": "reference/func/molecular-dynamics.md"
+        - "Molecular dynamics": "reference/func/molecular-dynamics.md"
     - "beignet.io": "reference/operators.io.md"
     - "beignet.transforms":
         - "General-purpose": "reference/transforms/general-purpose.md"
