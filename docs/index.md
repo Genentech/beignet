@@ -271,6 +271,10 @@
 ::: beignet.subtract_probabilists_hermite_polynomial
 ::: beignet.trim_probabilists_hermite_polynomial_coefficients
 
+## Signal Processing
+
+::: beignet.convolve
+
 ## Thermodynamics
 
 ### Interatomic Potentials
