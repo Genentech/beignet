@@ -1,9 +1,9 @@
 import math
 
 import torch
-import torchaudio.functional
 from torch import Tensor
 
+from . import convolve
 from ._add_chebyshev_polynomial import add_chebyshev_polynomial
 
 
@@ -45,7 +45,7 @@ def chebyshev_polynomial_power(
             output = output1
 
             for _ in range(2, _exponent + 1):
-                output = torchaudio.functional.convolve(output, zs, mode="same")
+                output = convolve(output, zs, mode="same")
 
             n = (math.prod(output.shape) + 1) // 2
             c = output[n - 1 :]

@@ -1,8 +1,9 @@
 from typing import Literal
 
 import torch
-import torchaudio.functional
 from torch import Tensor
+
+from beignet import convolve
 
 
 def multiply_polynomial(
@@ -34,7 +35,7 @@ def multiply_polynomial(
     input = input.to(dtype)
     other = other.to(dtype)
 
-    output = torchaudio.functional.convolve(input, other)
+    output = convolve(input, other)
 
     if mode == "same":
         output = output[: max(input.shape[0], other.shape[0])]

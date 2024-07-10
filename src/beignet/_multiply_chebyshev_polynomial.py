@@ -2,8 +2,9 @@ import math
 from typing import Literal
 
 import torch
-import torchaudio.functional
 from torch import Tensor
+
+from beignet import convolve
 
 
 def multiply_chebyshev_polynomial(
@@ -47,7 +48,7 @@ def multiply_chebyshev_polynomial(
     output2 = torch.flip(output2, dims=[0]) + output2
     b = output2
 
-    output = torchaudio.functional.convolve(a, b, mode=mode)
+    output = convolve(a, b, mode=mode)
 
     n = (math.prod(output.shape) + 1) // 2
     c = output[n - 1 :]
