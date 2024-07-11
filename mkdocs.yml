@@ -43,7 +43,11 @@ nav:
         - "Epitope": "reference/datasets/epitope.md"
         - "Gene-disease association": "reference/datasets/gene-disease-association.md"
         - "Molecule": "reference/datasets/molecule.md"
-        - "Pharmacokinetic property": "reference/datasets/pharmacokinetic-property.md"
+        - "Pharmacokinetic property":
+            - "Absorption": "reference/datasets/pharmacokinetic-property/absorption.md"
+            - "Distribution": "reference/datasets/pharmacokinetic-property/distribution.md"
+            - "Excretion": "reference/datasets/pharmacokinetic-property/excretion.md"
+            - "Metabolism": "reference/datasets/pharmacokinetic-property/metabolism.md"
         - "Protein sequence": "reference/datasets/protein-sequence.md"
         - "Protein structure": "reference/datasets/protein-structure.md"
         - "Protein–protein interaction": "reference/datasets/protein-protein-interaction.md"

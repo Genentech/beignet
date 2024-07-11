@@ -14,7 +14,6 @@
 ::: beignet.datasets.CarbonMangelsCytochromeP4502C9SubstrateDataset
 ::: beignet.datasets.CarbonMangelsCytochromeP4502D6SubstrateDataset
 ::: beignet.datasets.CarbonMangelsCytochromeP4503A4SubstrateDataset
-::: beignet.datasets.ClinToxDataset
 ::: beignet.datasets.DataFrameDataset
 ::: beignet.datasets.DAVISDataset
 ::: beignet.datasets.DisGeNETDataset
@@ -50,8 +49,7 @@
 ::: beignet.datasets.SKEMPIDataset
 ::: beignet.datasets.SwissProtDataset
 ::: beignet.datasets.TDCDataset
-::: beignet.datasets.Tox21Dataset
-::: beignet.datasets.ToxCastDataset
+
 ::: beignet.datasets.TrajectoryDataset
 ::: beignet.datasets.TrEMBLDataset
 ::: beignet.datasets.UniProtDataset
