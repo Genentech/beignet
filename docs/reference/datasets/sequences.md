@@ -1,4 +1,3 @@
-::: beignet.datasets.ATOM3DDataset
 ::: beignet.datasets.ATOM3DMSPDataset
 ::: beignet.datasets.ATOM3DPPIDataset
 ::: beignet.datasets.ATOM3DPSRDataset

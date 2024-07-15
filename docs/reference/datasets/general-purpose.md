@@ -1,3 +1,4 @@
+::: beignet.datasets.ATOM3DDataset
 ::: beignet.datasets.DataFrameDataset
 ::: beignet.datasets.FASTADataset
 ::: beignet.datasets.LMDBDataset
