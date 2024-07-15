@@ -12,5 +12,4 @@
 ::: beignet.datasets.PDB70Dataset
 ::: beignet.datasets.PDBbindDataset
 ::: beignet.datasets.REALDatabaseDataset
-::: beignet.datasets.SAbDabDataset
 ::: beignet.datasets.SKEMPIDataset
