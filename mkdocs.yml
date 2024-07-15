@@ -67,7 +67,7 @@ nav:
             - "Transformations": "reference/features/geometry/transformations.md"
     - "beignet.func":
         - "Molecular dynamics": "reference/func/molecular-dynamics.md"
-    - "beignet.io": "reference/operators.io.md"
+    - "beignet.io": "reference/beignet.io.md"
     - "beignet.transforms":
         - "General-purpose": "reference/transforms/general-purpose.md"
 plugins:

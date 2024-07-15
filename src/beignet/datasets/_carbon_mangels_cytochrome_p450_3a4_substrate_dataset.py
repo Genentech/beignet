@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Callable
 
-from torch.utils.data import Dataset
-
 from beignet.transforms import Transform
 
+from ._tdc_dataset import TDCDataset
 
-class CarbonMangelsCytochromeP4503A4SubstrateDataset(Dataset):
+
+class CarbonMangelsCytochromeP4503A4SubstrateDataset(TDCDataset):
     def __init__(
         self,
         root: str | Path,
@@ -32,10 +32,14 @@ class CarbonMangelsCytochromeP4503A4SubstrateDataset(Dataset):
         target_transform : Callable | Transform | None
             Transforms the target.
         """
-        raise NotImplementedError
-
-    def __getitem__(self, index: int):
-        raise NotImplementedError
-
-    def __len__(self) -> int:
-        raise NotImplementedError
+        super().__init__(
+            root=root,
+            download=download,
+            identifier=0,
+            suffix="",
+            checksum="",
+            x_keys=[""],
+            y_keys=[""],
+            transform=transform,
+            target_transform=target_transform,
+        )

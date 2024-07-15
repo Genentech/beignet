@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Callable
 
-from torch.utils.data import Dataset
-
 from beignet.transforms import Transform
 
+from ._tdc_dataset import TDCDataset
 
-class KIBADataset(Dataset):
+
+class KIBADataset(TDCDataset):
     def __init__(
         self,
         root: str | Path,
