@@ -1,7 +1,3 @@
-::: beignet.datasets.AqSolDBSolubilityDataset
-::: beignet.datasets.AstraZenecaClearanceDataset
-::: beignet.datasets.AstraZenecaLipophilicityDataset
-::: beignet.datasets.AstraZenecaPlasmaProteinBindingRateDataset
 ::: beignet.datasets.ATOM3DDataset
 ::: beignet.datasets.ATOM3DMSPDataset
 ::: beignet.datasets.ATOM3DPPIDataset
@@ -10,10 +6,7 @@
 ::: beignet.datasets.ATOM3DRSRDataset
 ::: beignet.datasets.ATOM3DSMPDataset
 ::: beignet.datasets.BindingDBDataset
-::: beignet.datasets.BroccatelliPGlycoproteinInhibitionDataset
-::: beignet.datasets.CarbonMangelsCytochromeP4502C9SubstrateDataset
-::: beignet.datasets.CarbonMangelsCytochromeP4502D6SubstrateDataset
-::: beignet.datasets.CarbonMangelsCytochromeP4503A4SubstrateDataset
+
 ::: beignet.datasets.DataFrameDataset
 ::: beignet.datasets.DAVISDataset
 ::: beignet.datasets.DisGeNETDataset
@@ -23,15 +16,8 @@
 ::: beignet.datasets.GDSC1Dataset
 ::: beignet.datasets.GDSC2Dataset
 ::: beignet.datasets.HDF5TrajectoryDataset
-::: beignet.datasets.HouHumanIntestinalAbsorptionDataset
 ::: beignet.datasets.HuRIDataset
 ::: beignet.datasets.KIBADataset
-::: beignet.datasets.LMDBDataset
-::: beignet.datasets.LombardoVolumeOfDistributionAtSteadyStateDataset
-::: beignet.datasets.MaBioavailabilityDataset
-::: beignet.datasets.MartinsBloodBrainBarrierDataset
-::: beignet.datasets.NCATSPAMPAPermeabilityDataset
-::: beignet.datasets.ObachHalfLifeDataset
 ::: beignet.datasets.ParquetDataset
 ::: beignet.datasets.PDB70Dataset
 ::: beignet.datasets.PDBTrajectoryDataset
@@ -49,5 +35,4 @@
 ::: beignet.datasets.UniRef50Dataset
 ::: beignet.datasets.UniRef90Dataset
 ::: beignet.datasets.USPTOReactionProductDataset
-::: beignet.datasets.WangEffectivePermeabilityDataset
 ::: beignet.datasets.ZhuAcuteToxicityLD50Dataset
