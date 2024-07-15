@@ -6,7 +6,6 @@
 ::: beignet.datasets.ATOM3DRSRDataset
 ::: beignet.datasets.ATOM3DSMPDataset
 ::: beignet.datasets.BindingDBDataset
-
 ::: beignet.datasets.DataFrameDataset
 ::: beignet.datasets.DAVISDataset
 ::: beignet.datasets.DisGeNETDataset
@@ -34,5 +33,3 @@
 ::: beignet.datasets.UniRef100Dataset
 ::: beignet.datasets.UniRef50Dataset
 ::: beignet.datasets.UniRef90Dataset
-::: beignet.datasets.USPTOReactionProductDataset
-::: beignet.datasets.ZhuAcuteToxicityLD50Dataset
