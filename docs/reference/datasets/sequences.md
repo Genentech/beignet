@@ -14,12 +14,10 @@
 ::: beignet.datasets.FreeSolvDataset
 ::: beignet.datasets.GDSC1Dataset
 ::: beignet.datasets.GDSC2Dataset
-::: beignet.datasets.HDF5TrajectoryDataset
 ::: beignet.datasets.HuRIDataset
 ::: beignet.datasets.KIBADataset
 ::: beignet.datasets.ParquetDataset
 ::: beignet.datasets.PDB70Dataset
-::: beignet.datasets.PDBTrajectoryDataset
 ::: beignet.datasets.PDBbindDataset
 ::: beignet.datasets.REALDatabaseDataset
 ::: beignet.datasets.SAbDabDataset
@@ -27,7 +25,6 @@
 ::: beignet.datasets.SizedSequenceDataset
 ::: beignet.datasets.SKEMPIDataset
 ::: beignet.datasets.SwissProtDataset
-::: beignet.datasets.TrajectoryDataset
 ::: beignet.datasets.TrEMBLDataset
 ::: beignet.datasets.UniProtDataset
 ::: beignet.datasets.UniRef100Dataset
