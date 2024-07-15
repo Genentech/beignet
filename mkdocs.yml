@@ -34,7 +34,7 @@ nav:
               - "Probabilists’ Hermite polynomial": "reference/operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
               - "Laguerre polynomial": "reference/operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
               - "Legendre polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
-      - "Thermodynamics": "reference/reference/operators/thermodynamics.md"
+      - "Thermodynamics": "reference/operators/thermodynamics.md"
     - "beignet.datasets":
         - "Generation":
           - "Geometry":
