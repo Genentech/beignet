@@ -36,6 +36,7 @@ nav:
               - "Legendre polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
       - "Thermodynamics": "reference/operators/thermodynamics.md"
     - "beignet.datasets":
+        - "General-purpose": "reference/datasets/general-purpose.md"
         - "Generation":
           - "Geometry":
             - "Transformations": "reference/datasets/generation/geometry/transformations.md"
