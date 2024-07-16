@@ -32,10 +32,14 @@ class KIBADataset(TDCDataset):
         target_transform : Callable | Transform | None
             Transforms the target.
         """
-        raise NotImplementedError
-
-    def __getitem__(self, index: int):
-        raise NotImplementedError
-
-    def __len__(self) -> int:
-        raise NotImplementedError
+        super().__init__(
+            root=root,
+            download=download,
+            identifier=0,
+            suffix="",
+            checksum="",
+            x_keys=[""],
+            y_keys=[""],
+            transform=transform,
+            target_transform=target_transform,
+        )
