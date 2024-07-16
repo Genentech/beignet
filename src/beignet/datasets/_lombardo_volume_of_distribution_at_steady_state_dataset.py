@@ -35,11 +35,11 @@ class LombardoVolumeOfDistributionAtSteadyStateDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4267387,
+            suffix="tsv",
+            checksum="md5:3f62305e33a2ca386e5bc574cdfef831",
+            x_keys=["X"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

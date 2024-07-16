@@ -35,11 +35,11 @@ class ObachHalfLifeDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4266799,
+            suffix="tsv",
+            checksum="md5:be0f84a78f7f01205758e34e74e639f2",
+            x_keys=["X"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

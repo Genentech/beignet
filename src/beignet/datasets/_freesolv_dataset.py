@@ -35,11 +35,11 @@ class FreeSolvDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259594,
+            suffix="tsv",
+            checksum="md5:fbbad23184e31f8487c0a59790fa8d16",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

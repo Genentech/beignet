@@ -35,11 +35,11 @@ class CarbonMangelsCytochromeP4502C9SubstrateDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259584,
+            suffix="tsv",
+            checksum="md5:9e413fa5c63150cd345d65688994c63e",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

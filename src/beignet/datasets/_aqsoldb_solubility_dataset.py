@@ -35,11 +35,11 @@ class AqSolDBSolubilityDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="curated-solubility-dataset.tab",
-            checksum="5370aa67615adb2f11806ed1aaed37c2bf91e634d36ebaf40509c16d5cede8a0",
-            x_keys=["SMILES"],
-            y_keys=["Solubility"],
+            identifier=4259610,
+            suffix="tsv",
+            checksum="md5:f37a03ee4e76af21f54cfaacb679bcb2",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

@@ -35,11 +35,11 @@ class WangEffectivePermeabilityDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259569,
+            suffix="tsv",
+            checksum="md5:5917ffda146f4ccfc24791951c16bae1",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

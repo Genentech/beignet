@@ -35,11 +35,11 @@ class AstraZenecaLipophilicityDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259595,
+            suffix="tsv",
+            checksum="md5:86b11a01b981e0096ee9c063c2959bd8",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

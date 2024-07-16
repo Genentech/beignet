@@ -35,11 +35,11 @@ class BroccatelliPGlycoproteinInhibitionDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259597,
+            suffix="tsv",
+            checksum="md5:7aa092eeaa58652b412bdb31845bfacc",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

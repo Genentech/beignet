@@ -35,11 +35,11 @@ class ClinToxDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259572,
+            suffix="tsv",
+            checksum="md5:4b0aa740b54f6096775c6fd88c625aea",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

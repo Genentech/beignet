@@ -35,11 +35,11 @@ class MaBioavailabilityDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259567,
+            suffix="tsv",
+            checksum="md5:c216ec2106e1294ed1faec3adba6945f",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

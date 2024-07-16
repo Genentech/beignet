@@ -35,9 +35,9 @@ class ToxCastDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
+            identifier=4259613,
             suffix="",
-            checksum="",
+            checksum="md5:1e0fd766fca9deac11ce1df7f50c954f",
             x_keys=[""],
             y_keys=[""],
             transform=transform,

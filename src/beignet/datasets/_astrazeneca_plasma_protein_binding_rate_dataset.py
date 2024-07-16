@@ -35,11 +35,11 @@ class AstraZenecaPlasmaProteinBindingRateDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=6413140,
+            suffix="tsv",
+            checksum="md5:239d456856f13b1e643f0138a593d2a3",
+            x_keys=["Drug", "Species"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

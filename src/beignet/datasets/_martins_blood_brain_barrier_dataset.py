@@ -35,11 +35,11 @@ class MartinsBloodBrainBarrierDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4259566,
+            suffix="tsv",
+            checksum="md5:2b3ffd8e73da358617a8eb8ee51a00c3",
+            x_keys=["Drug"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )
