@@ -36,7 +36,7 @@ class AstraZenecaPlasmaProteinBindingRateDataset(TDCDataset):
             download=download,
             identifier=6413140,
             suffix="tsv",
-            checksum="md5:239d456856f13b1e643f0138a593d2a3",
+            checksum="md5:f3b700ea6b1f624fdbcf6a1c67937b00",
             x_keys=["Drug", "Species"],
             y_keys=["Y"],
             transform=transform,

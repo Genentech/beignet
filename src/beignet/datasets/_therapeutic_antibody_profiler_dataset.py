@@ -36,7 +36,7 @@ class TherapeuticAntibodyProfilerDataset(TDCDataset):
             download=download,
             identifier=4167113,
             suffix="tsv",
-            checksum="md5:567e3550e984bc73e0391b3b8ee5b231",
+            checksum="md5:0a1b07fe1bdc9f67636f72878097841e",
             x_keys=["X"],
             y_keys=[
                 "CDR_Length",

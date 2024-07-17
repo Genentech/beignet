@@ -36,7 +36,7 @@ class AstraZenecaLipophilicityDataset(TDCDataset):
             download=download,
             identifier=4259595,
             suffix="tsv",
-            checksum="md5:86b11a01b981e0096ee9c063c2959bd8",
+            checksum="md5:77e72d4ec76530271bf4e296b62368ff",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

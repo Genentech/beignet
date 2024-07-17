@@ -36,7 +36,7 @@ class MaBioavailabilityDataset(TDCDataset):
             download=download,
             identifier=4259567,
             suffix="tsv",
-            checksum="md5:c216ec2106e1294ed1faec3adba6945f",
+            checksum="md5:e1f3ee03667caf09ee007f4a14bca530",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

@@ -36,7 +36,7 @@ class MartinsBloodBrainBarrierDataset(TDCDataset):
             download=download,
             identifier=4259566,
             suffix="tsv",
-            checksum="md5:2b3ffd8e73da358617a8eb8ee51a00c3",
+            checksum="md5:4c7ddf7260f9573476ba2d4ca877957f",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

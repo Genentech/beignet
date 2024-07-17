@@ -36,7 +36,7 @@ class ZhuAcuteToxicityLD50Dataset(TDCDataset):
             download=download,
             identifier=4267146,
             suffix="tsv",
-            checksum="md5:db3b63d161e9af66f06558edc29edabb",
+            checksum="md5:d655bc7921566e84713aeb91b3298526",
             x_keys=["X"],
             y_keys=["Y"],
             transform=transform,

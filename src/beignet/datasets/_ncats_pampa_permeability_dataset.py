@@ -36,7 +36,7 @@ class NCATSPAMPAPermeabilityDataset(TDCDataset):
             download=download,
             identifier=6695857,
             suffix="tsv",
-            checksum="md5:535f90234e93a5d83c258f221c1532be",
+            checksum="md5:ec813b5c6f829f92490faf03302d0960",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

@@ -36,7 +36,7 @@ class WangEffectivePermeabilityDataset(TDCDataset):
             download=download,
             identifier=4259569,
             suffix="tsv",
-            checksum="md5:5917ffda146f4ccfc24791951c16bae1",
+            checksum="md5:11681ff33d65be3a751a3fb0e45fa1a6",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

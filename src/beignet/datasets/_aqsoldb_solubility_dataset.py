@@ -36,7 +36,7 @@ class AqSolDBSolubilityDataset(TDCDataset):
             download=download,
             identifier=4259610,
             suffix="tsv",
-            checksum="md5:f37a03ee4e76af21f54cfaacb679bcb2",
+            checksum="md5:f7a675706bfe7e75c278f16dd2477b03",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

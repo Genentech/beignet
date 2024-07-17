@@ -36,7 +36,7 @@ class ObachHalfLifeDataset(TDCDataset):
             download=download,
             identifier=4266799,
             suffix="tsv",
-            checksum="md5:be0f84a78f7f01205758e34e74e639f2",
+            checksum="md5:7872345be7e2f62215e91f12ac865ce1",
             x_keys=["X"],
             y_keys=["Y"],
             transform=transform,

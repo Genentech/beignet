@@ -36,7 +36,7 @@ class ToxCastDataset(TDCDataset):
             download=download,
             identifier=4259613,
             suffix="",
-            checksum="md5:1e0fd766fca9deac11ce1df7f50c954f",
+            checksum="md5:a0791c8232b86fdb657f714ffa05e92a",
             x_keys=[""],
             y_keys=[""],
             transform=transform,

@@ -36,7 +36,7 @@ class HouHumanIntestinalAbsorptionDataset(TDCDataset):
             download=download,
             identifier=4259591,
             suffix="tsv",
-            checksum="md5:ac7ff041863c80d25f22a8453c297ad3",
+            checksum="md5:ff67500a5c7b1321114a9d1b4078d92e",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

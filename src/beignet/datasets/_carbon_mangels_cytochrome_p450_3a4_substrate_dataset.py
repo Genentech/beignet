@@ -36,7 +36,7 @@ class CarbonMangelsCytochromeP4503A4SubstrateDataset(TDCDataset):
             download=download,
             identifier=4259581,
             suffix="tsv",
-            checksum="md5:af151fc7db6c47587afc7adc24861bb5",
+            checksum="md5:25cfb80ef8f04e035d5944228194ca95",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

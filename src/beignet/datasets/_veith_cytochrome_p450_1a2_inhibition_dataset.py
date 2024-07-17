@@ -36,7 +36,7 @@ class VeithCytochromeP4501A2InhibitionDataset(TDCDataset):
             download=download,
             identifier=4259573,
             suffix="tsv",
-            checksum="md5:e5eeb84ca332cd059c73b816f7964193",
+            checksum="md5:ab58d48970ff880fd5a03f3f6eaadb76",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,

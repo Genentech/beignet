@@ -36,7 +36,7 @@ class BroccatelliPGlycoproteinInhibitionDataset(TDCDataset):
             download=download,
             identifier=4259597,
             suffix="tsv",
-            checksum="md5:7aa092eeaa58652b412bdb31845bfacc",
+            checksum="md5:6915ccf0b5d6b9c8fe4d98cb5759a88a",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,
