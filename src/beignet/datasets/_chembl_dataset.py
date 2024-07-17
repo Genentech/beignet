@@ -1,19 +1,18 @@
 from pathlib import Path
 from typing import Callable
 
-from torch.utils.data import Dataset
-
 from beignet.transforms import Transform
 
+from ._tdc_dataset import TDCDataset
 
-class ChEMBLDataset(Dataset):
+
+class ChEMBLDataset(TDCDataset):
     def __init__(
         self,
         root: str | Path,
         *,
         download: bool = False,
         transform: Callable | Transform | None = None,
-        target_transform: Callable | Transform | None = None,
     ):
         r"""
 
@@ -28,14 +27,14 @@ class ChEMBLDataset(Dataset):
 
         transform : Callable | Transform | None
             Transforms the input.
-
-        target_transform : Callable | Transform | None
-            Transforms the target.
         """
-        raise NotImplementedError
-
-    def __getitem__(self, index: int):
-        raise NotImplementedError
-
-    def __len__(self) -> int:
-        raise NotImplementedError
+        super().__init__(
+            root=root,
+            download=download,
+            identifier=4170965,
+            suffix="tsv",
+            checksum="md5:22bcf0e56c962aa07a836139cecf1068",
+            x_keys=["smiles"],
+            y_keys=[],
+            transform=transform,
+        )
