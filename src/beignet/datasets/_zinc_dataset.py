@@ -13,10 +13,8 @@ class ZINCDataset(TDCDataset):
         *,
         download: bool = False,
         transform: Callable | Transform | None = None,
-        target_transform: Callable | Transform | None = None,
     ):
         r"""
-
         Parameters
         ----------
         root : str | Path
@@ -28,9 +26,6 @@ class ZINCDataset(TDCDataset):
 
         transform : Callable | Transform | None
             Transforms the input.
-
-        target_transform : Callable | Transform | None
-            Transforms the target.
         """
         super().__init__(
             root=root,
@@ -38,8 +33,7 @@ class ZINCDataset(TDCDataset):
             identifier=4170963,
             suffix="tsv",
             checksum="md5:95f02bd5288ac549f97d1fe7a8c3431c",
-            x_keys=[""],
-            y_keys=[""],
+            x_keys=["smiles"],
+            y_keys=[],
             transform=transform,
-            target_transform=target_transform,
         )

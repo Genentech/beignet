@@ -16,7 +16,6 @@ class CarbonMangelsCytochromeP4502C9SubstrateDataset(TDCDataset):
         target_transform: Callable | Transform | None = None,
     ):
         r"""
-
         Parameters
         ----------
         root : str | Path

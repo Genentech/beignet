@@ -15,7 +15,6 @@ class ChEMBLDataset(TDCDataset):
         transform: Callable | Transform | None = None,
     ):
         r"""
-
         Parameters
         ----------
         root : str | Path

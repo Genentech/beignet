@@ -16,7 +16,6 @@ class AstraZenecaLipophilicityDataset(TDCDataset):
         target_transform: Callable | Transform | None = None,
     ):
         r"""
-
         Parameters
         ----------
         root : str | Path

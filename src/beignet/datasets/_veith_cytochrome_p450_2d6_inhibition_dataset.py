@@ -16,7 +16,6 @@ class VeithCytochromeP4502D6InhibitionDataset(TDCDataset):
         target_transform: Callable | Transform | None = None,
     ):
         r"""
-
         Parameters
         ----------
         root : str | Path
