@@ -22,7 +22,7 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [
-    "beignet[docs,mdtraj,test]",
+    "beignet[datasets,docs,mdtraj,test]",
 ]
 datasets = [
     "lmdb",
