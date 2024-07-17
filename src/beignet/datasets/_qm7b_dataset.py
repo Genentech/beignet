@@ -35,9 +35,9 @@ class QM7bDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
+            identifier=6358512,
+            suffix="pkl",
+            checksum="md5:9b3e6c8d359ab560d47692a523fb2311",
             x_keys=[""],
             y_keys=[""],
             transform=transform,

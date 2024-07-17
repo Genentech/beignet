@@ -35,11 +35,11 @@ class ZhuAcuteToxicityLD50Dataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4267146,
+            suffix="tsv",
+            checksum="md5:db3b63d161e9af66f06558edc29edabb",
+            x_keys=["X"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

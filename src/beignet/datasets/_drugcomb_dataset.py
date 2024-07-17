@@ -35,9 +35,9 @@ class DrugCombDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
+            identifier=4215720,
+            suffix="pkl",
+            checksum="md5:cfe52eeb5948f63e9c3bc562fc1958c3",
             x_keys=[""],
             y_keys=[""],
             transform=transform,

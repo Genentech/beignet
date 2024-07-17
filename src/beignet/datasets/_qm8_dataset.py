@@ -35,9 +35,9 @@ class QM8Dataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
+            identifier=6358513,
+            suffix="pkl",
+            checksum="md5:8c8798d0f0d1dd8461f29ffaf0fff9fb",
             x_keys=[""],
             y_keys=[""],
             transform=transform,
