@@ -34,11 +34,11 @@ class USPTODataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=4171642,
+            suffix="csv",
+            checksum="md5:818b06cd7dff707d5ae2c82109ff8668",
+            x_keys=["reactant"],
+            y_keys=["product"],
             transform=transform,
             target_transform=target_transform,
         )
