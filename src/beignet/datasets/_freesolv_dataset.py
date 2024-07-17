@@ -36,7 +36,7 @@ class FreeSolvDataset(TDCDataset):
             download=download,
             identifier=4259594,
             suffix="tsv",
-            checksum="md5:fbbad23184e31f8487c0a59790fa8d16",
+            checksum="md5:2f2a6325ea440b41e22cb14c7775d591",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,
