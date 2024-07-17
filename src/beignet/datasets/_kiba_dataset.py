@@ -36,7 +36,7 @@ class KIBADataset(TDCDataset):
             download=download,
             identifier=5255037,
             suffix="tsv",
-            checksum="md5:2af3d738f320700bfc98b781fe354b64",
+            checksum="md5:c6fb4d13f07ed8b9b980e71be4893720",
             x_keys=["X1", "X2"],
             y_keys=["Y"],
             transform=transform,

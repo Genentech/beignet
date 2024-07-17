@@ -32,7 +32,7 @@ class ZINCDataset(TDCDataset):
             download=download,
             identifier=4170963,
             suffix="tsv",
-            checksum="md5:95f02bd5288ac549f97d1fe7a8c3431c",
+            checksum="md5:9e4754d72db297d496def3498a926979",
             x_keys=["smiles"],
             y_keys=[],
             transform=transform,

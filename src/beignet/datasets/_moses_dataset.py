@@ -32,7 +32,7 @@ class MOSESDataset(TDCDataset):
             download=download,
             identifier=4170962,
             suffix="moses.tab",
-            checksum="md5:57f6f552c1c3301ac20db0cd21e3f020",
+            checksum="md5:b684443540f42cbdebb63ad090a1b4b3",
             x_keys=["smiles"],
             transform=transform,
         )
