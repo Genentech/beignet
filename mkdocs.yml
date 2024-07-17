@@ -44,6 +44,7 @@ nav:
           - "Protein":
             - "Protein sequence": "reference/datasets/generation/protein/protein-sequence.md"
             - "Protein structure": "reference/datasets/generation/protein/protein-structure.md"
+          - "Reaction": "reference/datasets/generation/reaction.md"
           - "Retrosynthesis": "reference/datasets/generation/retrosynthesis.md"
         - "Prediction":
           - "Antibody affinity": "reference/datasets/prediction/antibody-affinity.md"

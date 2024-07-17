@@ -79,6 +79,7 @@ from ._uniprot_dataset import UniProtDataset
 from ._uniref50_dataset import UniRef50Dataset
 from ._uniref90_dataset import UniRef90Dataset
 from ._uniref100_dataset import UniRef100Dataset
+from ._uspto_dataset import USPTODataset
 from ._uspto_reaction_product_dataset import USPTOReactionProductDataset
 from ._veith_cytochrome_p450_1a2_inhibition_dataset import (
     VeithCytochromeP4501A2InhibitionDataset,
@@ -163,6 +164,7 @@ __all__ = [
     "ToxCastDataset",
     "TrEMBLDataset",
     "TrajectoryDataset",
+    "USPTODataset",
     "USPTOReactionProductDataset",
     "UniProtDataset",
     "UniRef100Dataset",
