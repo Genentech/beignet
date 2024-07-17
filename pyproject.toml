@@ -25,6 +25,7 @@ all = [
     "beignet[datasets,docs,mdtraj,test]",
 ]
 datasets = [
+    "biopython",
     "lmdb",
     "pandas",
     "pooch",
