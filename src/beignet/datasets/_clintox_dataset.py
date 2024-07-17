@@ -36,7 +36,7 @@ class ClinToxDataset(TDCDataset):
             download=download,
             identifier=4259572,
             suffix="tsv",
-            checksum="md5:4b0aa740b54f6096775c6fd88c625aea",
+            checksum="md5:e8e7c5ba675129db0161913ba4871834",
             x_keys=["Drug"],
             y_keys=["Y"],
             transform=transform,
