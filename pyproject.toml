@@ -24,6 +24,11 @@ requires-python = ">=3.10"
 all = [
     "beignet[docs,mdtraj,test]",
 ]
+datasets = [
+    "lmdb",
+    "pandas",
+    "pooch",
+]
 docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
