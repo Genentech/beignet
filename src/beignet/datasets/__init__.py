@@ -41,6 +41,8 @@ from ._hou_human_intestinal_absorption_dataset import (
     HouHumanIntestinalAbsorptionDataset,
 )
 from ._huri_dataset import HuRIDataset
+from ._jespersen_iedb_dataset import JespersenIEDBDataset
+from ._jespersen_pdb_dataset import JespersenPDBDataset
 from ._kiba_dataset import KIBADataset
 from ._lmdb_dataset import LMDBDataset
 from ._lombardo_volume_of_distribution_at_steady_state_dataset import (
@@ -132,6 +134,8 @@ __all__ = [
     "HDF5TrajectoryDataset",
     "HouHumanIntestinalAbsorptionDataset",
     "HuRIDataset",
+    "JespersenIEDBDataset",
+    "JespersenPDBDataset",
     "KIBADataset",
     "LMDBDataset",
     "LombardoVolumeOfDistributionAtSteadyStateDataset",
