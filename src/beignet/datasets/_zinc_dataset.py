@@ -35,9 +35,9 @@ class ZINCDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
+            identifier=4170963,
+            suffix="tsv",
+            checksum="md5:95f02bd5288ac549f97d1fe7a8c3431c",
             x_keys=[""],
             y_keys=[""],
             transform=transform,
