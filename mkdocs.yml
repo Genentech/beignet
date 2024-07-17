@@ -37,32 +37,29 @@ nav:
       - "Thermodynamics": "reference/operators/thermodynamics.md"
     - "beignet.datasets":
         - "General-purpose": "reference/datasets/general-purpose.md"
-        - "Generation":
-          - "Geometry":
-            - "Transformations": "reference/datasets/generation/geometry/transformations.md"
-          - "Molecule": "reference/datasets/generation/molecule.md"
-          - "Protein":
-            - "Protein sequence": "reference/datasets/generation/protein/protein-sequence.md"
-            - "Protein structure": "reference/datasets/generation/protein/protein-structure.md"
-          - "Reaction": "reference/datasets/generation/reaction.md"
-          - "Retrosynthesis": "reference/datasets/generation/retrosynthesis.md"
-        - "Prediction":
-          - "Antibody affinity": "reference/datasets/prediction/antibody-affinity.md"
-          - "Catalyst": "reference/datasets/prediction/catalyst.md"
-          - "Drug interaction": "reference/datasets/prediction/drug-interaction.md"
-          - "Drug intolerance": "reference/datasets/prediction/drug-intolerance.md"
-          - "Epitope": "reference/datasets/prediction/epitope.md"
-          - "Gene-disease association": "reference/datasets/prediction/gene-disease-association.md"
-          - "Pharmacokinetic property":
-              - "Absorption": "reference/datasets/prediction/pharmacokinetic-property/absorption.md"
-              - "Distribution": "reference/datasets/prediction/pharmacokinetic-property/distribution.md"
-              - "Excretion": "reference/datasets/prediction/pharmacokinetic-property/excretion.md"
-              - "Metabolism": "reference/datasets/prediction/pharmacokinetic-property/metabolism.md"
-          - "Protein–protein interaction": "reference/datasets/prediction/protein-protein-interaction.md"
-          - "Quantum mechanics": "reference/datasets/prediction/quantum-mechanics.md"
-          - "Reaction": "reference/datasets/prediction/reaction.md"
-          - "Toxicity": "reference/datasets/prediction/toxicity.md"
-          - "Sequences": "reference/datasets/sequences.md"
+        - "Antibody affinity": "reference/datasets/antibody-affinity.md"
+        - "Catalyst": "reference/datasets/catalyst.md"
+        - "Drug interaction": "reference/datasets/drug-interaction.md"
+        - "Drug intolerance": "reference/datasets/drug-intolerance.md"
+        - "Epitope": "reference/datasets/epitope.md"
+        - "Geometry":
+          - "Transformations": "reference/datasets/geometry/transformations.md"
+        - "Gene-disease association": "reference/datasets/gene-disease-association.md"
+        - "Molecule": "reference/datasets/molecule.md"
+        - "Pharmacokinetic property":
+            - "Absorption": "reference/datasets/pharmacokinetic-property/absorption.md"
+            - "Distribution": "reference/datasets/pharmacokinetic-property/distribution.md"
+            - "Excretion": "reference/datasets/pharmacokinetic-property/excretion.md"
+            - "Metabolism": "reference/datasets/pharmacokinetic-property/metabolism.md"
+        - "Protein":
+          - "Protein sequence": "reference/datasets/protein/protein-sequence.md"
+          - "Protein structure": "reference/datasets/protein/protein-structure.md"
+        - "Protein–protein interaction": "reference/datasets/protein-protein-interaction.md"
+        - "Quantum mechanics": "reference/datasets/quantum-mechanics.md"
+        - "Reaction": "reference/datasets/reaction.md"
+        - "Retrosynthesis": "reference/datasets/retrosynthesis.md"
+        - "Toxicity": "reference/datasets/toxicity.md"
+        - "Sequences": "reference/datasets/sequences.md"
     - "beignet.features":
         - "General-purpose": "reference/features/general-purpose.md"
         - "Geometry":
