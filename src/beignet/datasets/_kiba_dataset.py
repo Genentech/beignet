@@ -35,11 +35,11 @@ class KIBADataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=0,
-            suffix="",
-            checksum="",
-            x_keys=[""],
-            y_keys=[""],
+            identifier=5255037,
+            suffix="tsv",
+            checksum="md5:2af3d738f320700bfc98b781fe354b64",
+            x_keys=["X1", "X2"],
+            y_keys=["Y"],
             transform=transform,
             target_transform=target_transform,
         )

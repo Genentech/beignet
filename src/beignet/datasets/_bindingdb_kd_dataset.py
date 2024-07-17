@@ -6,7 +6,7 @@ from beignet.transforms import Transform
 from ._tdc_dataset import TDCDataset
 
 
-class DAVISDataset(TDCDataset):
+class BindingDBKdDataset(TDCDataset):
     def __init__(
         self,
         root: str | Path,
@@ -35,9 +35,9 @@ class DAVISDataset(TDCDataset):
         super().__init__(
             root=root,
             download=download,
-            identifier=5219748,
-            suffix="md5:6c7949b81aea69e9d816db88602d771e",
-            checksum="",
+            identifier=4291555,
+            suffix="csv",
+            checksum="md5:728c9d39485cf9667c1567cc710fb6b6",
             x_keys=["X1", "X2"],
             y_keys=["Y"],
             transform=transform,
