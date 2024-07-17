@@ -73,6 +73,7 @@ from ._sized_sequence_dataset import SizedSequenceDataset
 from ._skempi_dataset import SKEMPIDataset
 from ._swissprot_dataset import SwissProtDataset
 from ._tdc_dataset import TDCDataset
+from ._therapeutic_antibody_profiler_dataset import TherapeuticAntibodyProfilerDataset
 from ._tox21_dataset import Tox21Dataset
 from ._toxcast_dataset import ToxCastDataset
 from ._trajectory_dataset import TrajectoryDataset
@@ -164,6 +165,7 @@ __all__ = [
     "SizedSequenceDataset",
     "SwissProtDataset",
     "TDCDataset",
+    "TherapeuticAntibodyProfilerDataset",
     "Tox21Dataset",
     "ToxCastDataset",
     "TrEMBLDataset",
