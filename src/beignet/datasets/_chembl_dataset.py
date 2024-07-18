@@ -31,7 +31,7 @@ class ChEMBLDataset(TDCDataset):
             root=root,
             download=download,
             identifier=4170965,
-            suffix="tsv",
+            suffix="csv",
             checksum="md5:b0cedfe468c6331487f7084236944bac",
             x_keys=["smiles"],
             y_keys=[],
