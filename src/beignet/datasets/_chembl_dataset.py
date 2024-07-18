@@ -32,7 +32,7 @@ class ChEMBLDataset(TDCDataset):
             download=download,
             identifier=4170965,
             suffix="tsv",
-            checksum="md5:22bcf0e56c962aa07a836139cecf1068",
+            checksum="md5:b0cedfe468c6331487f7084236944bac",
             x_keys=["smiles"],
             y_keys=[],
             transform=transform,

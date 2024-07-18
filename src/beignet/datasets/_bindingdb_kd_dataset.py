@@ -36,7 +36,7 @@ class BindingDBKdDataset(TDCDataset):
             download=download,
             identifier=4291555,
             suffix="csv",
-            checksum="md5:728c9d39485cf9667c1567cc710fb6b6",
+            checksum="md5:c463f536eeec3f99cdab9365d86e7154",
             x_keys=["X1", "X2"],
             y_keys=["Y"],
             transform=transform,

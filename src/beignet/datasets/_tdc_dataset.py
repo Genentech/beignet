@@ -38,6 +38,7 @@ class TDCDataset(Dataset):
                 fname=f"{self.__class__.__name__}.{suffix}",
                 known_hash=checksum,
                 path=root / self.__class__.__name__,
+                progressbar=True,
             )
 
         path = root / self.__class__.__name__ / f"{self.__class__.__name__}.{suffix}"
