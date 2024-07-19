@@ -8,7 +8,9 @@ from transformers.tokenization_utils_base import AddedToken
 
 logger = transformers.utils.logging.get_logger(__name__)
 
-TOKENIZERS_DIRECTORY = importlib.resources.files("beignet") / "data" / "tokenizers"
+TOKENIZERS_DIRECTORY = (
+    importlib.resources.files("beignet") / "data" / "tokenizers" / "protein_tokenizer"
+)
 
 VOCAB_PATH = TOKENIZERS_DIRECTORY / "vocab.txt"
 
