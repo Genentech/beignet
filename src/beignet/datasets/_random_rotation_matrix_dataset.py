@@ -3,7 +3,7 @@ from typing import Callable, Generator
 import torch
 
 import beignet
-from beignet.datasets.__random_rotation_dataset import RandomRotationDataset
+from beignet.datasets._random_rotation_dataset import RandomRotationDataset
 from beignet.transforms import Transform
 
 
