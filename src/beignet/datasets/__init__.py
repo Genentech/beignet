@@ -54,7 +54,6 @@ from ._moses_dataset import MOSESDataset
 from ._ncats_pampa_permeability_dataset import NCATSPAMPAPermeabilityDataset
 from ._obach_half_life_dataset import ObachHalfLifeDataset
 from ._parquet_dataset import ParquetDataset
-from ._pdb_70_dataset import PDB70Dataset
 from ._pdb_trajectory_dataset import PDBTrajectoryDataset
 from ._pdbbind_dataset import PDBbindDataset
 from ._qm7_dataset import QM7Dataset
@@ -145,7 +144,6 @@ __all__ = [
     "MartinsBloodBrainBarrierDataset",
     "NCATSPAMPAPermeabilityDataset",
     "ObachHalfLifeDataset",
-    "PDB70Dataset",
     "PDBTrajectoryDataset",
     "PDBbindDataset",
     "ParquetDataset",
