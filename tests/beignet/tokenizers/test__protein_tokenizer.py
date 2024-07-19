@@ -8,7 +8,12 @@ class TestProteinmMLMTokenizer:
     def test_3Di_tokenizer(self):
         inputs = ["GdPfQaPfIlSvRvLvEcQvClGpId"]
 
-        path = importlib.resources.files("lobster") / "assets" / "3di_tokenizer"
+        path = (
+            importlib.resources.files("beignet")
+            / "data"
+            / "tokenizers"
+            / "3di_tokenizer"
+        )
 
         tokenizer = ProteinTokenizerTransform.from_pretrained(path)
         tokenized_inputs = tokenizer(inputs)
@@ -21,7 +26,12 @@ class TestProteinmMLMTokenizer:
     def test_cdna_tokenizer(self):
         inputs = 4 * ["ATCGTACGATCGTACGATCGUN"]
 
-        path = importlib.resources.files("lobster") / "assets" / "cdna_tokenizer"
+        path = (
+            importlib.resources.files("beignet")
+            / "data"
+            / "tokenizers"
+            / "cdna_tokenizer"
+        )
 
         tokenizer = ProteinTokenizerTransform.from_pretrained(path)
         tokenized_inputs = tokenizer(inputs)
