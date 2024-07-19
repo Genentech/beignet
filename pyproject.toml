@@ -22,7 +22,7 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [
-    "beignet[datasets,docs,mdtraj,test]",
+    "beignet[datasets,docs,mdtraj,test,tokenizers]",
 ]
 datasets = [
     "biopython",
@@ -43,6 +43,9 @@ test = [
     "pytest",
     "pytest-mock",
     "scipy",
+]
+tokenizers = [
+    "transformers",
 ]
 
 [tool.ruff]
