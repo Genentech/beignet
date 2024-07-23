@@ -63,8 +63,6 @@ def _zero_diagonal_mask(input: Tensor) -> Tensor:
     if len(input.shape) == 3:
         mask = torch.reshape(mask, [n, n, 1])
 
-    print(input * mask)
-
     return input * mask
 
 
@@ -207,11 +205,11 @@ def _mesh_interaction(
 
 
 def _kwargs_to_neighbor_list_parameters(
-        format: _NeighborListFormat,
-        indexes: Tensor,
-        species: Tensor,
-        kwargs: Dict[str, Tensor],
-        combinators: Dict[str, Callable],
+    format: _NeighborListFormat,
+    indexes: Tensor,
+    species: Tensor,
+    kwargs: Dict[str, Tensor],
+    combinators: Dict[str, Callable],
 ) -> Dict[str, Tensor]:
     parameters = {}
 
@@ -267,6 +265,7 @@ def _kwargs_to_pair_parameters(
                                     _parameter[:, None, ...],
                                     _parameter[None, :, ...],
                                 )
+                            print(kwargs.items())
 
                             parameters[name] = optree.tree_map(
                                 _particle_fn,
@@ -663,11 +662,32 @@ def _to_bond_kind_parameters(
 
 
 def _to_neighbor_list_kind_parameters(
-        format: _NeighborListFormat,
-        indexes: Tensor,
-        kinds: Tensor,
-        parameters: _ParameterTree | Tensor | float,
+    format: _NeighborListFormat,
+    indexes: Tensor,
+    kinds: Tensor,
+    parameters: _ParameterTree | Tensor | float,
 ) -> PyTree | _ParameterTree | Tensor | float:
+    r"""Safely computes the sum of elements in a tensor along a specified
+    dimension, promoting the data type to avoid precision loss.
+
+    Parameters
+    ----------
+    format : _NeighborListFormat
+        An enumeration representing the format of a neighbor list. Could be
+        0 (Dense), 1 (Ordered sparse), 2 (Sparse)
+    indexes : Tensor
+        A tensor containing the indexes of neighbors.
+    kinds : Tensor
+        Atomic labelling that contain atomic species, properties, or other
+        metadata.
+    parameters : _ParameterTree | Tensor | float
+        parameters to be used for neighborlist interaction functions
+
+    Returns
+    -------
+    PyTree | _ParameterTree | Tensor | float
+        The formatted parameters.
+    """
     fn = functools.partial(
         lambda p, a, b: p[a, b],
         parameters,
@@ -675,7 +695,6 @@ def _to_neighbor_list_kind_parameters(
 
     match parameters:
         case parameters if isinstance(parameters, Tensor):
-            print(f"shape: {parameters.shape}")
             match len(parameters.shape):
                 case 0:
                     return parameters

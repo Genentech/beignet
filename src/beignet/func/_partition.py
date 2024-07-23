@@ -485,6 +485,8 @@ def safe_index(array: Tensor, indices: Tensor) -> Tensor:
     Tensor
         The resulting tensor after indexing.
     """
+    print(array.shape)
+    print(indices)
     max_index = array.shape[0] - 1
 
     clamped_indices = indices.clamp(0, max_index)
