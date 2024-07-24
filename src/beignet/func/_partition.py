@@ -470,7 +470,7 @@ def metric(distance_fn: Callable) -> Callable:
     return lambda Ra, Rb, **kwargs: distance(distance_fn(Ra, Rb, **kwargs))
 
 
-def safe_index(array: Tensor, indices: Tensor) -> Tensor:
+def safe_index(array: Tensor, indices: Tensor, indices_b: Optional[Tensor] = None) -> Tensor:
     r"""Safely index into a tensor, clamping out-of-bounds indices to the nearest valid index.
 
     Parameters
@@ -479,21 +479,32 @@ def safe_index(array: Tensor, indices: Tensor) -> Tensor:
         The tensor to index.
     indices : Tensor
         The indices to use for indexing.
+    indices_b : Tensor
+        Another Tensor of indices to for advanced indexing.
 
     Returns
     -------
     Tensor
         The resulting tensor after indexing.
     """
-    print(array.shape)
-    print(indices)
     max_index = array.shape[0] - 1
 
     clamped_indices = indices.clamp(0, max_index)
 
-    result = array[clamped_indices]
+    if indices_b is not None:
+        max_index_b = array.shape[1] - 1
 
-    return result
+        clamped_indices = indices.unsqueeze(1).clamp(0, max_index)
+
+        clamped_indices_b = indices_b.clamp(0, max_index_b)
+
+        print(f"ca: {clamped_indices.shape}")
+        print(f"cb: {clamped_indices_b.shape}")
+        print(array[clamped_indices, clamped_indices_b].shape)
+
+        return array[clamped_indices, clamped_indices_b]
+
+    return array[clamped_indices]
 
 
 def safe_mask(

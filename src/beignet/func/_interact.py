@@ -15,7 +15,7 @@ from torch import Tensor
 from beignet.func.__dataclass import _dataclass
 from beignet.func._partition import _NeighborListFormat, map_product, \
     _NeighborList, _map_bond, _map_neighbor, is_neighbor_list_sparse, \
-    _segment_sum
+    _segment_sum, safe_index
 
 
 class _ParameterTreeKind(Enum):
@@ -265,7 +265,6 @@ def _kwargs_to_pair_parameters(
                                     _parameter[:, None, ...],
                                     _parameter[None, :, ...],
                                 )
-                            print(kwargs.items())
 
                             parameters[name] = optree.tree_map(
                                 _particle_fn,
@@ -408,8 +407,8 @@ def _neighbor_list_interaction(
 
         if is_neighbor_list_sparse(neighbor_list.format):
             distances = _map_bond(distance_fn)(
-                positions[neighbor_list.indexes[0]],
-                positions[neighbor_list.indexes[1]],
+                safe_index(positions, neighbor_list.indexes[0]),
+                safe_index(positions, neighbor_list.indexes[1]),
             )
 
             mask = torch.less(neighbor_list.indexes[0], positions.shape[0])
@@ -419,7 +418,7 @@ def _neighbor_list_interaction(
         else:
             distances = _map_neighbor(distance_fn)(
                 positions,
-                positions[neighbor_list.indexes],
+                safe_index(positions, neighbor_list.indexes),
             )
 
             mask = torch.less(neighbor_list.indexes, positions.shape[0])
@@ -484,9 +483,11 @@ def _pair_interaction(
 ) -> Callable[..., Tensor]:
     parameters, combinators = {}, {}
 
-    for name, parameter in kwargs.items():
+    for name, parameter in list(kwargs.items()):
         if isinstance(parameter, Callable):
             combinators[name] = parameter
+            del kwargs[name]
+
         elif isinstance(parameter, tuple) and isinstance(parameter[0],
                                                          Callable):
             assert len(parameter) == 2
@@ -551,16 +552,16 @@ def _pair_interaction(
                     s_kwargs = _kwargs_to_pair_parameters(_kwargs, combinators,
                                                           (m, n))
 
-                    u = fn(distance, **s_kwargs)
+                    y = fn(distance, **s_kwargs)
 
                     if m == n:
-                        u = _zero_diagonal_mask(u)
+                        y = _zero_diagonal_mask(y)
 
-                        u = _safe_sum(u)
+                        y = _safe_sum(y)
 
-                        u = u + u * 0.5
+                        u = u + y * 0.5
                     else:
-                        y = _safe_sum(u)
+                        y = _safe_sum(y)
 
                         u = u + y
 
@@ -577,7 +578,7 @@ def _pair_interaction(
 
             u = torch.tensor(0.0, dtype=torch.float32)
 
-            n = _position.shape[0]
+            num_particles = _position.shape[0]
 
             distance_fn = functools.partial(displacement_fn, **_dynamic_kwargs)
 
@@ -592,13 +593,13 @@ def _pair_interaction(
                     a = torch.reshape(
                         _kinds == m,
                         [
-                            n,
+                            num_particles,
                         ],
                     )
                     b = torch.reshape(
                         _kinds == n,
                         [
-                            n,
+                            num_particles,
                         ],
                     )
 
@@ -712,7 +713,7 @@ def _to_neighbor_list_kind_parameters(
                             fn,
                             in_dims=(None, 0),
                         ),
-                    )(kinds, kinds[indexes])
+                    )(kinds, safe_index(kinds, indexes))
                 case _:
                     raise ValueError
         case parameters if isinstance(parameters, _ParameterTree):
@@ -771,15 +772,18 @@ def _to_neighbor_list_matrix_parameters(
                         return _map_bond(
                             combinator,
                         )(
-                            parameters[indexes[0]],
-                            parameters[indexes[1]],
+                            safe_index(parameters, indexes[0]),
+                            safe_index(parameters, indexes[1]),
                         )
 
                     return combinator(
                         parameters[:, None],
-                        parameters[indexes],
+                        safe_index(parameters, indexes),
                     )
                 case 2:
+                    def query(id_a, id_b):
+                        return safe_index(parameters, id_a, id_b)
+
                     if is_neighbor_list_sparse(format):
                         return _map_bond(
                             lambda a, b: parameters[a, b],
@@ -837,8 +841,8 @@ def _to_neighbor_list_matrix_parameters(
                             lambda parameter: _map_bond(
                                 combinator,
                             )(
-                                parameter[indexes[0]],
-                                parameter[indexes[1]],
+                                safe_index(parameter, indexes[0]),
+                                safe_index(parameter, indexes[1]),
                             ),
                             parameters.tree,
                         )
@@ -848,7 +852,7 @@ def _to_neighbor_list_matrix_parameters(
                             combinator,
                         )(
                             parameter,
-                            parameter[indexes],
+                            safe_index(parameter, indexes),
                         ),
                         parameters.tree,
                     )
@@ -878,10 +882,10 @@ def interact(
         ],
         *,
         bonds: Optional[Tensor] = None,
-        kinds: Optional[Tensor] = None,
+        kinds: Optional[Union[int, Tensor]] = None,
         dim: Optional[Union[int, Tuple[int, ...]]] = None,
         keepdim: bool = False,
-        ignore_unused_parameters: bool = True,
+        ignore_unused_parameters: bool = False,
         **kwargs,
 ) -> Callable[..., Tensor]:
     r"""
@@ -1022,6 +1026,7 @@ def interact(
                 kinds=kinds,
                 dim=dim,
                 ignore_unused_parameters=ignore_unused_parameters,
+                **kwargs,
             )
         case "pair":
             return _pair_interaction(
