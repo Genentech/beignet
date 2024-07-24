@@ -39,7 +39,6 @@
 ::: beignet.datasets.MartinsBloodBrainBarrierDataset
 ::: beignet.datasets.NCATSPAMPAPermeabilityDataset
 ::: beignet.datasets.ObachHalfLifeDataset
-::: beignet.datasets.PDB70Dataset
 ::: beignet.datasets.PDBTrajectoryDataset
 ::: beignet.datasets.PDBbindDataset
 ::: beignet.datasets.ParquetDataset
