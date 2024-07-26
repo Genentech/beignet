@@ -293,11 +293,11 @@ class _NeighborList:
 
     @property
     def cell_size_too_small(self) -> bool:
-        return (self.error.code & PEC.CELL_SIZE_TOO_SMALL).item() != 0
+        return (self.partition_error.code & PEC.CELL_SIZE_TOO_SMALL).item() != 0
 
     @property
     def malformed_box(self) -> bool:
-        return (self.error.code & PEC.MALFORMED_BOX).item() != 0
+        return (self.partition_error.code & PEC.MALFORMED_BOX).item() != 0
 
 
 @_dataclass
@@ -487,24 +487,17 @@ def safe_index(array: Tensor, indices: Tensor, indices_b: Optional[Tensor] = Non
     Tensor
         The resulting tensor after indexing.
     """
-    max_index = array.shape[0] - 1
-
-    clamped_indices = indices.clamp(0, max_index)
-
     if indices_b is not None:
-        max_index_b = array.shape[1] - 1
+        indices = torch.clamp(indices, 0, array.size(0) - 1)
 
-        clamped_indices = indices.unsqueeze(1).clamp(0, max_index)
+        indices_b = torch.clamp(indices_b, 0, array.size(1) - 1)
 
-        clamped_indices_b = indices_b.clamp(0, max_index_b)
+        return array[indices.to(torch.long), indices_b.to(torch.long)]
 
-        print(f"ca: {clamped_indices.shape}")
-        print(f"cb: {clamped_indices_b.shape}")
-        print(array[clamped_indices, clamped_indices_b].shape)
+    else:
+        indices = torch.clamp(indices, 0, array.size(0) - 1)
 
-        return array[clamped_indices, clamped_indices_b]
-
-    return array[clamped_indices]
+        return array[indices]
 
 
 def safe_mask(

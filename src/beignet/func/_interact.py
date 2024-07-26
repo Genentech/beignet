@@ -389,7 +389,7 @@ def _neighbor_list_interaction(
         else:
             parameters[name] = parameter
 
-    merged_dictionaries = functools.partial(
+    merge_dictionaries = functools.partial(
         _merge_dictionaries,
         ignore_unused_parameters=ignore_unused_parameters,
     )
@@ -416,26 +416,22 @@ def _neighbor_list_interaction(
             if neighbor_list.format is _NeighborListFormat.ORDERED_SPARSE:
                 normalization = 1.0
         else:
-            distances = _map_neighbor(distance_fn)(
-                positions,
-                safe_index(positions, neighbor_list.indexes),
-            )
+            d = _map_neighbor(distance_fn)
+            r_neigh = safe_index(positions, neighbor_list.indexes)
+            distances = d(positions, r_neigh)
 
             mask = torch.less(neighbor_list.indexes, positions.shape[0])
 
-        out = fn(
-            distances,
-            **_kwargs_to_neighbor_list_parameters(
-                neighbor_list.format,
-                neighbor_list.indexes,
-                _kinds,
-                merged_dictionaries(
-                    parameters,
-                    dynamic_kwargs,
-                ),
-                combinators,
-            ),
+        merged_kwargs = merge_dictionaries(parameters, dynamic_kwargs)
+        merged_kwargs = _kwargs_to_neighbor_list_parameters(
+            neighbor_list.format,
+            neighbor_list.indexes,
+            kinds,
+            merged_kwargs,
+            combinators
         )
+
+        out = fn(distances, **merged_kwargs)
 
         if out.ndim > mask.ndim:
             mask = torch.reshape(
@@ -701,15 +697,13 @@ def _to_neighbor_list_kind_parameters(
                     return parameters
                 case 2:
                     if is_neighbor_list_sparse(format):
-                        return _map_bond(
-                            fn,
-                        )(
-                            kinds[indexes[0]],
-                            kinds[indexes[1]],
+                        return manual_vmap(fn, (0, 0), 0)(
+                            safe_index(kinds, indexes[0]),
+                            safe_index(kinds, indexes[1]),
                         )
 
-                    return torch.vmap(
-                        torch.vmap(
+                    return manual_vmap(
+                        manual_vmap(
                             fn,
                             in_dims=(None, 0),
                         ),
@@ -727,15 +721,15 @@ def _to_neighbor_list_kind_parameters(
                                     parameter,
                                 ),
                             )(
-                                kinds[indexes[0]],
-                                kinds[indexes[1]],
+                                safe_index(kinds, indexes[0]),
+                                safe_index(kinds, indexes[1]),
                             ),
                             parameters.tree,
                         )
 
                     return optree.tree_map(
-                        lambda parameter: torch.vmap(
-                            torch.vmap(
+                        lambda parameter: manual_vmap(
+                            manual_vmap(
                                 functools.partial(
                                     fn,
                                     parameter,
@@ -744,7 +738,7 @@ def _to_neighbor_list_kind_parameters(
                             )
                         )(
                             kinds,
-                            kinds[indexes],
+                            safe_index(kinds, indexes),
                         ),
                         parameters.tree,
                     )
@@ -754,6 +748,54 @@ def _to_neighbor_list_kind_parameters(
             raise ValueError
 
     return parameters
+
+
+def manual_vmap(func: Callable,
+                in_dims: Union[int, Tuple[Union[int, None], ...]] = 0,
+                out_dims: Union[int, Tuple[int, ...]] = 0,
+                randomness: str = 'error',
+                *,
+                chunk_size: Union[None, int] = None) -> Callable:
+    def batched_func(*args, **kwargs):
+        # Determine the batch size from the first input that has a batch dimension
+        if isinstance(in_dims, int):
+            batch_size = args[0].shape[in_dims]
+        else:
+            batch_size = next(
+                arg.shape[dim] for arg, dim in zip(args, in_dims) if
+                dim is not None)
+
+        # Initialize a list to store the results
+        results = []
+
+        # Iterate over the batch dimension
+        for i in range(batch_size):
+            # Extract the i-th element from each input
+            sliced_args = []
+            for arg, dim in zip(args,
+                                in_dims if isinstance(in_dims, tuple) else [
+                                                                               in_dims] * len(
+                                        args)):
+                if dim is None:
+                    sliced_args.append(arg)
+                else:
+                    sliced_args.append(arg.select(dim, i))
+
+            # Call the function with the sliced arguments
+            result = func(*sliced_args, **kwargs)
+
+            # Append the result to the results list
+            results.append(result)
+
+        # Stack the results along the specified output dimension
+        if isinstance(out_dims, int):
+            return torch.stack(results, dim=out_dims)
+        else:
+            return tuple(
+                torch.stack([res[i] for res in results], dim=out_dims[i]) for i
+                in range(len(results[0])))
+
+    return batched_func
 
 
 def _to_neighbor_list_matrix_parameters(
@@ -769,9 +811,7 @@ def _to_neighbor_list_matrix_parameters(
                     return parameters
                 case 1:
                     if is_neighbor_list_sparse(format):
-                        return _map_bond(
-                            combinator,
-                        )(
+                        return manual_vmap(combinator, (0, 0), 0)(
                             safe_index(parameters, indexes[0]),
                             safe_index(parameters, indexes[1]),
                         )
@@ -781,20 +821,16 @@ def _to_neighbor_list_matrix_parameters(
                         safe_index(parameters, indexes),
                     )
                 case 2:
-                    def query(id_a, id_b):
-                        return safe_index(parameters, id_a, id_b)
-
                     if is_neighbor_list_sparse(format):
-                        return _map_bond(
-                            lambda a, b: parameters[a, b],
-                        )(
+                        displacement = lambda a, b: safe_index(parameters, a, b)
+                        return manual_vmap(displacement, (0, 0), 0)(
                             indexes[0],
                             indexes[1],
                         )
 
-                    return torch.func.vmap(
-                        torch.func.vmap(
-                            lambda a, b: parameters[a, b],
+                    return manual_vmap(
+                        manual_vmap(
+                            lambda a, b: safe_index(parameters, a, b),
                             (None, 0),
                         ),
                     )(
@@ -808,11 +844,11 @@ def _to_neighbor_list_matrix_parameters(
                 case _ParameterTreeKind.BOND:
                     if is_neighbor_list_sparse(format):
                         return optree.tree_map(
-                            lambda parameter: _map_bond(
+                            lambda parameter: manual_vmap(
                                 functools.partial(
-                                    lambda p, a, b: p[a, b],
+                                    lambda p, a, b: safe_index(p, a, b),
                                     parameter,
-                                ),
+                                ), (0, 0), 0
                             )(
                                 indexes[0],
                                 indexes[1],
@@ -821,12 +857,10 @@ def _to_neighbor_list_matrix_parameters(
                         )
 
                     return optree.tree_map(
-                        lambda parameter: torch.func.vmap(
-                            torch.func.vmap(
+                        lambda parameter: manual_vmap(
+                            manual_vmap(
                                 functools.partial(
-                                    lambda p, a, b: p[a, b],
-                                    parameter,
-                                ),
+                                    safe_index, parameter),
                                 (None, 0),
                             ),
                         )(
@@ -838,8 +872,8 @@ def _to_neighbor_list_matrix_parameters(
                 case _ParameterTreeKind.PARTICLE:
                     if is_neighbor_list_sparse(format):
                         return optree.tree_map(
-                            lambda parameter: _map_bond(
-                                combinator,
+                            lambda parameter: manual_vmap(
+                                combinator, (0, 0), 0
                             )(
                                 safe_index(parameter, indexes[0]),
                                 safe_index(parameter, indexes[1]),
