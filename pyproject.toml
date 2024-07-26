@@ -9,6 +9,7 @@ requires = [
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
+    "optree==0.11.0",
     "pooch",
     "torch==2.2.2",
     "torchaudio",
