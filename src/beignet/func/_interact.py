@@ -487,7 +487,7 @@ def _neighbor_list_interaction(
                 positions.shape[0],
             ),
             normalization,
-        )
+        ).to(dtype=positions.dtype)
 
     return mapped_fn
 

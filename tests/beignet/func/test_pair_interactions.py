@@ -16,8 +16,8 @@ from beignet.func._partition import (
 
 PARTICLE_COUNT = 16
 NEIGHBOR_LIST_PARTICLE_COUNT = 16
-POSITION_DTYPE = [torch.float32]  # Example values
-SPATIAL_DIMENSION = [3]
+POSITION_DTYPE = [torch.float32, torch.float64]  # Example values
+SPATIAL_DIMENSION = [2, 3]
 NEIGHBOR_LIST_FORMAT = [
     _NeighborListFormat.DENSE,
     _NeighborListFormat.ORDERED_SPARSE,
