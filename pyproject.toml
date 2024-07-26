@@ -8,14 +8,47 @@ requires = [
 
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
+dependencies = [
+    "optree==0.11.0",
+    "pooch",
+    "torch==2.2.2",
+    "tqdm",
+]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 name = "beignet"
 readme = "README.md"
 requires-python = ">=3.10"
 
-[tool.ruff.format]
-docstring-code-format = true
+[project.optional-dependencies]
+all = [
+    "beignet[docs,test]",
+]
+docs = [
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+test = [
+    "hypothesis",
+    "numpy==1.26.4",
+    "pytest",
+    "pytest-mock",
+    "scipy",
+]
+
+[tool.ruff]
+lint.select = [
+    "B",  # FLAKE8-BUGBEAR
+    "E",  # PYCODESTYLE ERRORS
+    "F",  # PYFLAKES
+    "I",  # ISORT
+    "W",  # PYCODESTYLE WARNINGS
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401", # MODULE IMPORTED BUT UNUSED
+]
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
