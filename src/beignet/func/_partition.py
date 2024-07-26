@@ -470,7 +470,9 @@ def metric(distance_fn: Callable) -> Callable:
     return lambda Ra, Rb, **kwargs: distance(distance_fn(Ra, Rb, **kwargs))
 
 
-def safe_index(array: Tensor, indices: Tensor, indices_b: Optional[Tensor] = None) -> Tensor:
+def safe_index(
+    array: Tensor, indices: Tensor, indices_b: Optional[Tensor] = None
+) -> Tensor:
     r"""Safely index into a tensor, clamping out-of-bounds indices to the nearest valid index.
 
     Parameters

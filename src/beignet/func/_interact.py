@@ -13,9 +13,16 @@ from optree import PyTree
 from torch import Tensor
 
 from beignet.func.__dataclass import _dataclass
-from beignet.func._partition import _NeighborListFormat, map_product, \
-    _NeighborList, _map_bond, _map_neighbor, is_neighbor_list_sparse, \
-    _segment_sum, safe_index
+from beignet.func._partition import (
+    _NeighborListFormat,
+    map_product,
+    _NeighborList,
+    _map_bond,
+    _map_neighbor,
+    is_neighbor_list_sparse,
+    _segment_sum,
+    safe_index,
+)
 
 
 class _ParameterTreeKind(Enum):
@@ -67,9 +74,9 @@ def _zero_diagonal_mask(input: Tensor) -> Tensor:
 
 
 def _safe_sum(
-        x: Tensor,
-        dim: Optional[Union[Iterable[int], int]] = None,
-        keepdim: bool = False,
+    x: Tensor,
+    dim: Optional[Union[Iterable[int], int]] = None,
+    keepdim: bool = False,
 ):
     r"""Safely computes the sum of elements in a tensor along a specified
     dimension, promoting the data type to avoid precision loss.
@@ -103,12 +110,12 @@ def _safe_sum(
 
 
 def _bond_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
-        static_bonds: Optional[Tensor] = None,
-        static_kinds: Optional[Tensor] = None,
-        ignore_unused_parameters: bool = False,
-        **static_kwargs,
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    static_bonds: Optional[Tensor] = None,
+    static_kinds: Optional[Tensor] = None,
+    ignore_unused_parameters: bool = False,
+    **static_kwargs,
 ) -> Callable[..., Tensor]:
     raise NotImplementedError
 
@@ -177,29 +184,29 @@ def _bond_interaction(
 
 
 def _dihedral_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
 ):
     raise NotImplementedError
 
 
 def _long_range_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
 ):
     raise NotImplementedError
 
 
 def _angle_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
 ):
     raise NotImplementedError
 
 
 def _mesh_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
 ):
     raise NotImplementedError
 
@@ -214,8 +221,7 @@ def _kwargs_to_neighbor_list_parameters(
     parameters = {}
 
     for name, parameter in kwargs.items():
-        if species is None or (
-                isinstance(parameter, Tensor) and parameter.ndim == 1):
+        if species is None or (isinstance(parameter, Tensor) and parameter.ndim == 1):
             combinator = combinators.get(name, lambda x, y: 0.5 * (x + y))
 
             parameters[name] = _to_neighbor_list_matrix_parameters(
@@ -239,9 +245,9 @@ def _kwargs_to_neighbor_list_parameters(
 
 
 def _kwargs_to_pair_parameters(
-        kwargs: Dict[str, Union[_ParameterTree, Tensor, float, PyTree]],
-        combinators: Dict[str, Callable],
-        kinds: Tensor | None = None,
+    kwargs: Dict[str, Union[_ParameterTree, Tensor, float, PyTree]],
+    combinators: Dict[str, Callable],
+    kinds: Tensor | None = None,
 ) -> Dict[str, Tensor]:
     parameters = {}
 
@@ -349,11 +355,10 @@ parameter is an instance of `Tensor`, `ndim` must be in `0`, `1`, or `2`.
 
 
 def _merge_dictionaries(
-        this: Dict,
-        that: Dict,
-        ignore_unused_parameters: bool = False,
+    this: Dict,
+    that: Dict,
+    ignore_unused_parameters: bool = False,
 ):
-
     if not ignore_unused_parameters:
         return {**this, **that}
 
@@ -369,20 +374,19 @@ def _merge_dictionaries(
 
 
 def _neighbor_list_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
-        kinds: Tensor | None = None,
-        dim: Optional[Tuple[int, ...]] = None,
-        ignore_unused_parameters: bool = False,
-        **kwargs,
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    kinds: Tensor | None = None,
+    dim: Optional[Tuple[int, ...]] = None,
+    ignore_unused_parameters: bool = False,
+    **kwargs,
 ) -> Callable[..., Tensor]:
     parameters, combinators = {}, {}
 
     for name, parameter in kwargs.items():
         if isinstance(parameter, Callable):
             combinators[name] = parameter
-        elif isinstance(parameter, tuple) and isinstance(parameter[0],
-                                                         Callable):
+        elif isinstance(parameter, tuple) and isinstance(parameter[0], Callable):
             assert len(parameter) == 2
 
             combinators[name], parameters[name] = parameter[0], parameter[1]
@@ -395,9 +399,9 @@ def _neighbor_list_interaction(
     )
 
     def mapped_fn(
-            positions: Tensor,
-            neighbor_list: _NeighborList,
-            **dynamic_kwargs,
+        positions: Tensor,
+        neighbor_list: _NeighborList,
+        **dynamic_kwargs,
     ) -> Tensor:
         distance_fn = functools.partial(displacement_fn, **dynamic_kwargs)
 
@@ -428,7 +432,7 @@ def _neighbor_list_interaction(
             neighbor_list.indexes,
             kinds,
             merged_kwargs,
-            combinators
+            combinators,
         )
 
         out = fn(distances, **merged_kwargs)
@@ -469,13 +473,13 @@ def _neighbor_list_interaction(
 
 
 def _pair_interaction(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
-        kinds: Optional[Union[int, Tensor]] = None,
-        dim: Optional[Tuple[int, ...]] = None,
-        keepdim: bool = False,
-        ignore_unused_parameters: bool = False,
-        **kwargs,
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    kinds: Optional[Union[int, Tensor]] = None,
+    dim: Optional[Tuple[int, ...]] = None,
+    keepdim: bool = False,
+    ignore_unused_parameters: bool = False,
+    **kwargs,
 ) -> Callable[..., Tensor]:
     parameters, combinators = {}, {}
 
@@ -484,8 +488,7 @@ def _pair_interaction(
             combinators[name] = parameter
             del kwargs[name]
 
-        elif isinstance(parameter, tuple) and isinstance(parameter[0],
-                                                         Callable):
+        elif isinstance(parameter, tuple) and isinstance(parameter[0], Callable):
             assert len(parameter) == 2
 
             combinators[name], parameters[name] = parameter[0], parameter[1]
@@ -498,6 +501,7 @@ def _pair_interaction(
     )
 
     if kinds is None:
+
         def mapped_fn(_position: Tensor, **_dynamic_kwargs) -> Tensor:
             distance_fn = functools.partial(displacement_fn, **_dynamic_kwargs)
 
@@ -545,8 +549,7 @@ def _pair_interaction(
 
                     _kwargs = merge_dicts(parameters, _dynamic_kwargs)
 
-                    s_kwargs = _kwargs_to_pair_parameters(_kwargs, combinators,
-                                                          (m, n))
+                    s_kwargs = _kwargs_to_pair_parameters(_kwargs, combinators, (m, n))
 
                     y = fn(distance, **s_kwargs)
 
@@ -625,8 +628,8 @@ def _pair_interaction(
 
 
 def _to_bond_kind_parameters(
-        parameter: Tensor | _ParameterTree,
-        kinds: Tensor,
+    parameter: Tensor | _ParameterTree,
+    kinds: Tensor,
 ) -> Tensor | _ParameterTree:
     assert isinstance(kinds, Tensor)
 
@@ -643,6 +646,7 @@ def _to_bond_kind_parameters(
                     raise ValueError
         case _ParameterTree():
             if parameter.kind is _ParameterTreeKind.BOND:
+
                 def _fn(_parameter: Dict) -> Tensor:
                     return _parameter[kinds]
 
@@ -750,20 +754,22 @@ def _to_neighbor_list_kind_parameters(
     return parameters
 
 
-def manual_vmap(func: Callable,
-                in_dims: Union[int, Tuple[Union[int, None], ...]] = 0,
-                out_dims: Union[int, Tuple[int, ...]] = 0,
-                randomness: str = 'error',
-                *,
-                chunk_size: Union[None, int] = None) -> Callable:
+def manual_vmap(
+    func: Callable,
+    in_dims: Union[int, Tuple[Union[int, None], ...]] = 0,
+    out_dims: Union[int, Tuple[int, ...]] = 0,
+    randomness: str = "error",
+    *,
+    chunk_size: Union[None, int] = None,
+) -> Callable:
     def batched_func(*args, **kwargs):
         # Determine the batch size from the first input that has a batch dimension
         if isinstance(in_dims, int):
             batch_size = args[0].shape[in_dims]
         else:
             batch_size = next(
-                arg.shape[dim] for arg, dim in zip(args, in_dims) if
-                dim is not None)
+                arg.shape[dim] for arg, dim in zip(args, in_dims) if dim is not None
+            )
 
         # Initialize a list to store the results
         results = []
@@ -772,10 +778,9 @@ def manual_vmap(func: Callable,
         for i in range(batch_size):
             # Extract the i-th element from each input
             sliced_args = []
-            for arg, dim in zip(args,
-                                in_dims if isinstance(in_dims, tuple) else [
-                                                                               in_dims] * len(
-                                        args)):
+            for arg, dim in zip(
+                args, in_dims if isinstance(in_dims, tuple) else [in_dims] * len(args)
+            ):
                 if dim is None:
                     sliced_args.append(arg)
                 else:
@@ -792,17 +797,18 @@ def manual_vmap(func: Callable,
             return torch.stack(results, dim=out_dims)
         else:
             return tuple(
-                torch.stack([res[i] for res in results], dim=out_dims[i]) for i
-                in range(len(results[0])))
+                torch.stack([res[i] for res in results], dim=out_dims[i])
+                for i in range(len(results[0]))
+            )
 
     return batched_func
 
 
 def _to_neighbor_list_matrix_parameters(
-        format: _NeighborListFormat,
-        indexes: Tensor,
-        parameters: _ParameterTree | Tensor | float,
-        combinator: Callable[[Tensor, Tensor], Tensor],
+    format: _NeighborListFormat,
+    indexes: Tensor,
+    parameters: _ParameterTree | Tensor | float,
+    combinator: Callable[[Tensor, Tensor], Tensor],
 ) -> PyTree | _ParameterTree | Tensor | float:
     match parameters:
         case parameters if isinstance(parameters, Tensor):
@@ -848,7 +854,9 @@ def _to_neighbor_list_matrix_parameters(
                                 functools.partial(
                                     lambda p, a, b: safe_index(p, a, b),
                                     parameter,
-                                ), (0, 0), 0
+                                ),
+                                (0, 0),
+                                0,
                             )(
                                 indexes[0],
                                 indexes[1],
@@ -859,8 +867,7 @@ def _to_neighbor_list_matrix_parameters(
                     return optree.tree_map(
                         lambda parameter: manual_vmap(
                             manual_vmap(
-                                functools.partial(
-                                    safe_index, parameter),
+                                functools.partial(safe_index, parameter),
                                 (None, 0),
                             ),
                         )(
@@ -872,9 +879,7 @@ def _to_neighbor_list_matrix_parameters(
                 case _ParameterTreeKind.PARTICLE:
                     if is_neighbor_list_sparse(format):
                         return optree.tree_map(
-                            lambda parameter: manual_vmap(
-                                combinator, (0, 0), 0
-                            )(
+                            lambda parameter: manual_vmap(combinator, (0, 0), 0)(
                                 safe_index(parameter, indexes[0]),
                                 safe_index(parameter, indexes[1]),
                             ),
@@ -903,24 +908,24 @@ def _to_neighbor_list_matrix_parameters(
 
 
 def interact(
-        fn: Callable[..., Tensor],
-        displacement_fn: Callable[[Tensor, Tensor], Tensor],
-        interaction: Literal[
-            "angle",
-            "bond",
-            "dihedral",
-            "long-range",
-            "mesh",
-            "neighbor_list",
-            "pair",
-        ],
-        *,
-        bonds: Optional[Tensor] = None,
-        kinds: Optional[Union[int, Tensor]] = None,
-        dim: Optional[Union[int, Tuple[int, ...]]] = None,
-        keepdim: bool = False,
-        ignore_unused_parameters: bool = False,
-        **kwargs,
+    fn: Callable[..., Tensor],
+    displacement_fn: Callable[[Tensor, Tensor], Tensor],
+    interaction: Literal[
+        "angle",
+        "bond",
+        "dihedral",
+        "long-range",
+        "mesh",
+        "neighbor_list",
+        "pair",
+    ],
+    *,
+    bonds: Optional[Tensor] = None,
+    kinds: Optional[Union[int, Tensor]] = None,
+    dim: Optional[Union[int, Tuple[int, ...]]] = None,
+    keepdim: bool = False,
+    ignore_unused_parameters: bool = False,
+    **kwargs,
 ) -> Callable[..., Tensor]:
     r"""
     Define interactions between elements of a system.
