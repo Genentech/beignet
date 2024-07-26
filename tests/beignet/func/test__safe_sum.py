@@ -4,11 +4,11 @@ from beignet.func._interact import _safe_sum
 
 
 def test_safe_sum_complex():
-    x = torch.tensor([1+2j, 3+4j, 5+6j], dtype=torch.complex64)
+    x = torch.tensor([1 + 2j, 3 + 4j, 5 + 6j], dtype=torch.complex64)
 
     result = _safe_sum(x)
 
-    expected = torch.tensor(9+12j, dtype=torch.complex64)
+    expected = torch.tensor(9 + 12j, dtype=torch.complex64)
 
     assert torch.allclose(result, expected)
 

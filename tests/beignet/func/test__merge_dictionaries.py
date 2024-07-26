@@ -43,8 +43,11 @@ def test_merge_dictionaries_ignore_unused_parameters(dictionary_1, dictionary_2)
         }
     )
 
-    assert _merge_dictionaries(
-        dictionary_1,
-        dictionary_2,
-        True,
-    ) == expected
+    assert (
+        _merge_dictionaries(
+            dictionary_1,
+            dictionary_2,
+            True,
+        )
+        == expected
+    )

@@ -552,11 +552,6 @@ def _segment_sum(
         A tensor where each entry contains the sum of the corresponding segment
         from the `input` tensor.
     """
-    if indexes.ndim == 1:
-        indexes = torch.repeat_interleave(indexes, math.prod([*input.shape[1:]])).view(
-            *[indexes.shape[0], *input.shape[1:]]
-        )
-
     if input.size(0) != indexes.size(0):
         raise ValueError(
             "The length of the indexes tensor must match the size of the first dimension of the input tensor."
@@ -565,13 +560,14 @@ def _segment_sum(
     if n is None:
         n = indexes.max().item() + 1
 
-    valid_mask = indexes < n
-    valid_indexes = indexes[valid_mask]
-    valid_input = input[valid_mask]
-
     output = torch.zeros(n, *input.shape[1:], device=input.device)
 
-    return output.scatter_add(0, valid_indexes, valid_input.to(torch.float32)).to(
+    indexes = torch.clamp(indexes, 0, output.size(0) - 1)
+
+    if indexes.dim() != input.dim():
+        indexes = indexes.unsqueeze(1).expand(-1, input.size(1))
+
+    return output.scatter_add(0, indexes.to(torch.int64), input.to(torch.float32)).to(
         **kwargs
     )
 

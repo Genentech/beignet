@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 
 from beignet.func import space
-from beignet.func._interact import interact, _ParameterTreeKind, _ParameterTree
+from beignet.func._interact import interact, _ParameterTreeKind, _ParameterTree, _force
 from beignet.func._partition import (
     distance,
     metric,
@@ -819,99 +819,122 @@ def test_pair_neighbor_list_kinds_global_pytree(dtype, fmt):
 
 #     assert torch.allclose(neighbor_scalar(R, nbrs), neighbor_tree(R, nbrs))
 
-# TODO (isaacsoh) TypeError: _to_neighbor_list_kind_parameters.<locals>.<lambda>() takes 3 positional arguments but 4 were given
-# @pytest.mark.parametrize("dtype, fmt", dtype_fmt_params)
-# def test_pair_neighbor_list_kinds_per_kinds_pytree(dtype, fmt):
-#     torch.manual_seed(0)
-#     dim = 2
-#
-#     def scalar_fn(dr: Tensor, sigma: Tensor, shift: Tensor) -> Tensor:
-#         return torch.where(dr < sigma, dr ** 2 + shift, torch.tensor(0.0, dtype=torch.float32))
-#
-#     def higher_order_fn(dr: Tensor, p):
-#         return torch.where(dr < p[..., 0], dr ** 2 + p[..., 1], torch.tensor(0.0, dtype=torch.float32))
-#
-#     @dataclasses.dataclass
-#     class Parameter:
-#         sigma: Tensor
-#         shift: Tensor
-#
-#     def tree_fn(dr: Tensor, p) -> Tensor:
-#         return torch.where(dr < p.sigma, dr ** 2 + p.shift, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = NEIGHBOR_LIST_PARTICLE_COUNT
-#     box_size = 4.0 * N ** (1.0 / dim)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#     d = metric(displacement)
-#
-#     sigma = torch.tensor([[1.0, 1.2], [1.2, 1.5]], dtype=torch.float32)
-#     shift = torch.tensor([[2.0, 1.5], [1.5, 3.0]], dtype=torch.float32)
-#     kinds = torch.where(torch.arange(N) < N // 2, 0, 1)
-#     M = _ParameterTreeKind
-#
-#     neighbor_scalar = interact(scalar_fn, d, kinds=kinds, sigma=sigma, shift=shift, interaction="neighbor_list")
-#     p = _ParameterTree(torch.cat([sigma[..., None], shift[..., None]], dim=-1), M.KINDS)
-#     neighbor_higher = interact(higher_order_fn, d, kinds=kinds, p=p, interaction="neighbor_list")
-#
-#     p_tree = _ParameterTree(Parameter(sigma=sigma, shift=shift), M.KINDS)
-#     neighbor_tree = interact(tree_fn, d, kinds=kinds, p=p_tree, interaction="neighbor_list")
-#
-#     R = box_size * torch.rand((N, dim), dtype=dtype)
-#     neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), torch.max(sigma), 0.0, neighbor_list_format=fmt)
-#     nbrs = neighbor_fn.setup_fn(R)
-#     assert torch.allclose(neighbor_scalar(R, nbrs), neighbor_higher(R, nbrs))
-# #     assert torch.allclose(neighbor_scalar(R, nbrs), neighbor_tree(R, nbrs))
+
+@pytest.mark.parametrize("dtype, fmt", dtype_fmt_params)
+def test_pair_neighbor_list_kinds_per_kinds_pytree(dtype, fmt):
+    torch.manual_seed(0)
+    dim = 2
+
+    def scalar_fn(dr: Tensor, sigma: Tensor, shift: Tensor) -> Tensor:
+        return torch.where(
+            dr < sigma, dr**2 + shift, torch.tensor(0.0, dtype=torch.float32)
+        )
+
+    def higher_order_fn(dr: Tensor, p):
+        return torch.where(
+            dr < p[..., 0], dr**2 + p[..., 1], torch.tensor(0.0, dtype=torch.float32)
+        )
+
+    @dataclasses.dataclass
+    class Parameter:
+        sigma: Tensor
+        shift: Tensor
+
+    def tree_fn(dr: Tensor, p) -> Tensor:
+        return torch.where(
+            dr < p.sigma, dr**2 + p.shift, torch.tensor(0.0, dtype=torch.float32)
+        )
+
+    N = NEIGHBOR_LIST_PARTICLE_COUNT
+    box_size = 4.0 * N ** (1.0 / dim)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+    d = metric(displacement)
+
+    sigma = torch.tensor([[1.0, 1.2], [1.2, 1.5]], dtype=torch.float32)
+    shift = torch.tensor([[2.0, 1.5], [1.5, 3.0]], dtype=torch.float32)
+    kinds = torch.where(torch.arange(N) < N // 2, 0, 1)
+    M = _ParameterTreeKind
+
+    neighbor_scalar = interact(
+        scalar_fn, d, kinds=kinds, sigma=sigma, shift=shift, interaction="neighbor_list"
+    )
+    p = _ParameterTree(torch.cat([sigma[..., None], shift[..., None]], dim=-1), M.KINDS)
+    neighbor_higher = interact(
+        higher_order_fn, d, kinds=kinds, p=p, interaction="neighbor_list"
+    )
+
+    p_tree = _ParameterTree(Parameter(sigma=sigma, shift=shift), M.KINDS)
+    neighbor_tree = interact(
+        tree_fn, d, kinds=kinds, p=p_tree, interaction="neighbor_list"
+    )
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    neighbor_fn = neighbor_list(
+        displacement,
+        torch.tensor(box_size),
+        torch.max(sigma),
+        0.0,
+        neighbor_list_format=fmt,
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(neighbor_scalar(R, nbrs), neighbor_higher(R, nbrs))
+    # assert torch.allclose(neighbor_scalar(R, nbrs), neighbor_tree(R, nbrs))
 
 
-# TODO (isaacsoh) broken due to interact bug (passes in 2D fails in 3D)
-# @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
-# def test_pair_neighbor_list_scalar_diverging_potential(dtype, dim, fmt):
-#     torch.manual_seed(0)
-#
-#     def potential(dr: Tensor, sigma):
-#         return torch.where(dr < sigma, dr ** -6, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = NEIGHBOR_LIST_PARTICLE_COUNT
-#     box_size = 4.0 * N ** (1.0 / dim)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#     d = metric(displacement)
-#
-#     neighbor_square = interact(potential, d, sigma=1.0, interaction="neighbor_list")
-#     mapped_square = interact(potential, d, sigma=1.0, interaction="pair")
-#
-#     R = box_size * torch.rand((N, dim), dtype=dtype)
-#     sigma = torch.rand(()) * 2.0 + 0.5  # minval=0.5, maxval=2.5
-#     neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt)
-#     nbrs = neighbor_fn.setup_fn(R)
-#     assert torch.allclose(mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma))
+@pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
+def test_pair_neighbor_list_scalar_diverging_potential(dtype, dim, fmt):
+    torch.manual_seed(0)
+
+    def potential(dr: Tensor, sigma):
+        return torch.where(dr < sigma, dr**-6, torch.tensor(0.0, dtype=torch.float32))
+
+    N = NEIGHBOR_LIST_PARTICLE_COUNT
+    box_size = 4.0 * N ** (1.0 / dim)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+    d = metric(displacement)
+
+    neighbor_square = interact(potential, d, sigma=1.0, interaction="neighbor_list")
+    mapped_square = interact(potential, d, sigma=1.0, interaction="pair")
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    sigma = torch.rand(()) * 2.0 + 0.5  # minval=0.5, maxval=2.5
+    neighbor_fn = neighbor_list(
+        displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(
+        mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma)
+    )
 
 
-# TODO (isaacsoh) skipped - should I use leonard jones here
-# @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
-# def test_pair_neighbor_list_force_scalar_diverging_potential(dtype, dim, fmt):
-#     torch.manual_seed(0)
-#
-#     def potential(dr, sigma):
-#         return torch.where(dr < sigma, dr ** -6, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = NEIGHBOR_LIST_PARTICLE_COUNT
-#     box_size = 4.0 * N ** (1.0 / dim)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#     d = metric(displacement)
-#
-#     neighbor_square = interact(potential, d, sigma=1.0, interaction="neighbor_list")
-#     neighbor_square = quantity_force(neighbor_square)
-#     mapped_square = quantity_force(interact(potential, d, sigma=1.0, interaction="pair"))
-#
-#     for _ in range(STOCHASTIC_SAMPLES):
-#         R = box_size * torch.rand((N, dim), dtype=dtype)
-#         sigma = torch.rand(()) * 4.0 + 0.5  # minval=0.5, maxval=4.5
-#         neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt)
-#         nbrs = neighbor_fn.setup_fn(R)
-#         assert torch.allclose(mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma))
+@pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
+def test_pair_neighbor_list_force_scalar_diverging_potential(dtype, dim, fmt):
+    torch.manual_seed(0)
+
+    def potential(dr: Tensor, sigma: Tensor) -> Tensor:
+        return torch.where(dr < sigma, dr**-6, torch.tensor(0.0, dtype=torch.float32))
+
+    N = NEIGHBOR_LIST_PARTICLE_COUNT
+    box_size = 4.0 * N ** (1.0 / dim)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+    d = metric(displacement)
+
+    neighbor_square = interact(potential, d, sigma=1.0, interaction="neighbor_list")
+    neighbor_square = _force(neighbor_square)
+    mapped_square = _force(interact(potential, d, sigma=1.0, interaction="pair"))
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    sigma = torch.rand(()) * 4.0 + 0.5  # minval=0.5, maxval=4.5
+    neighbor_fn = neighbor_list(
+        displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(
+        mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma)
+    )
 
 
 @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
@@ -1020,85 +1043,120 @@ def test_pair_neighbor_list_scalar_params_kinds(dtype, dim, fmt):
     )
 
 
-# TODO (isaacsoh) broken due to interact bug
-# @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
-# def test_pair_neighbor_list_scalar_params_kinds_dynamic(dtype, dim, fmt):
-#     torch.manual_seed(0)
-#
-#     def truncated_square(dr: Tensor, sigma: Tensor, **kwargs):
-#         return torch.where(dr < sigma, dr ** 2, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = NEIGHBOR_LIST_PARTICLE_COUNT
-#     box_size = 2.0 * N ** (1.0 / dim)
-#     kinds = torch.zeros((N,), dtype=torch.int32)
-#     kinds = torch.where(torch.arange(N) > N / 3, 1, kinds)
-#     kinds = torch.where(torch.arange(N) > 2 * N / 3, 2, kinds)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#     d = metric(displacement)
-#
-#     neighbor_square = interact(truncated_square, d, sigma=1.0, interaction="neighbor_list")
-#     mapped_square = interact(truncated_square, d, kinds=kinds, sigma=1.0, interaction="pair")
-#
-#     R = box_size * torch.rand((N, dim), dtype=dtype)
-#     sigma = torch.rand((3, 3), dtype=dtype) * 1.0 + 0.5  # minval=0.5, maxval=1.5
-#     sigma = 0.5 * (sigma + sigma.T)
-#     neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), torch.max(sigma), 0.0, neighbor_list_format=fmt)
-#     nbrs = neighbor_fn.setup_fn(R)
-#     assert torch.allclose(mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma, kinds=kinds))
-#
-#
-# TODO (isaacsoh) segment sum error IndexError: Dimension specified as 0 but tensor has no dimensions
-# @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
-# def test_pair_neighbor_list_vector(dtype, dim, fmt):
-#     if str(fmt) == "_NeighborListFormat.ORDERED_SPARSE":
-#         pytest.skip('Vector valued pair_neighbor_list not supported.')
-#     torch.manual_seed(0)
-#
-#     def truncated_square(dR, sigma):
-#         dr = torch.reshape(distance(dR), dR.shape[:-1] + (1,))
-#         return torch.where(dr < sigma, dR ** 2, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = PARTICLE_COUNT
-#     box_size = 2.0 * N ** (1.0 / dim)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#
-#     neighbor_square = interact(truncated_square, displacement, sigma=1.0, dim=(1,), interaction="neighbor_list")
-#     mapped_square = interact(truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair")
-#
-#     R = box_size * torch.rand((N, dim), dtype=dtype)
-#     sigma = torch.rand(()) * 1.0 + 0.5  # minval=0.5, maxval=1.5
-#     neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt)
-#     nbrs = neighbor_fn.setup_fn(R)
-#     assert torch.allclose(mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma))
+@pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
+def test_pair_neighbor_list_scalar_params_kinds_dynamic(dtype, dim, fmt):
+    torch.manual_seed(0)
 
-# TODO (isaacsoh) segment sum error IndexError: Dimension specified as 0 but tensor has no dimensions
-# @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
-# def test_pair_neighbor_list_vector_nonadditive(dtype, dim, fmt):
-#     if str(fmt) == "_NeighborListFormat.ORDERED_SPARSE":
-#         pytest.skip('Vector valued pair_neighbor_list not supported.')
-#
-#     torch.manual_seed(0)
-#
-#     def truncated_square(dR, sigma):
-#         dr = distance(dR)
-#         return torch.where(dr < sigma, dr ** 2, torch.tensor(0.0, dtype=torch.float32))
-#
-#     N = PARTICLE_COUNT
-#     box_size = 2.0 * N ** (1.0 / dim)
-#
-#     displacement, _ = space(box=box_size, parallelepiped=False)
-#
-#     neighbor_square = interact(truncated_square, displacement, sigma=lambda x, y: x * y, dim=(1,), interaction="neighbor_list")
-#     mapped_square = interact(truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair")
-#
-#     R = box_size * torch.rand((N, dim), dtype=dtype)
-#     sigma = torch.rand((N,), dtype=dtype) * 1.0 + 0.5  # minval=0.5, maxval=1.5
-#     sigma_pair = sigma[:, None] * sigma[None, :]
-#     neighbor_fn = neighbor_list(displacement, torch.tensor(box_size), torch.max(sigma) ** 2, 0.0, neighbor_list_format=fmt)
-#     nbrs = neighbor_fn.setup_fn(R)
-#     assert torch.allclose(mapped_square(R, sigma=sigma_pair), neighbor_square(R, nbrs, sigma=sigma))
+    def truncated_square(dr: Tensor, sigma: Tensor, **kwargs):
+        return torch.where(dr < sigma, dr**2, torch.tensor(0.0, dtype=torch.float32))
+
+    N = NEIGHBOR_LIST_PARTICLE_COUNT
+    box_size = 2.0 * N ** (1.0 / dim)
+    kinds = torch.zeros((N,), dtype=torch.int32)
+    kinds = torch.where(torch.arange(N) > N / 3, 1, kinds)
+    kinds = torch.where(torch.arange(N) > 2 * N / 3, 2, kinds)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+    d = metric(displacement)
+
+    neighbor_square = interact(
+        truncated_square, d, sigma=1.0, interaction="neighbor_list"
+    )
+    mapped_square = interact(
+        truncated_square, d, kinds=kinds, sigma=1.0, interaction="pair"
+    )
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    sigma = torch.rand((3, 3), dtype=dtype) * 1.0 + 0.5  # minval=0.5, maxval=1.5
+    sigma = 0.5 * (sigma + sigma.T)
+    neighbor_fn = neighbor_list(
+        displacement,
+        torch.tensor(box_size),
+        torch.max(sigma),
+        0.0,
+        neighbor_list_format=fmt,
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(
+        mapped_square(R, sigma=sigma),
+        neighbor_square(R, nbrs, sigma=sigma, kinds=kinds),
+    )
+
+
+@pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
+def test_pair_neighbor_list_vector(dtype, dim, fmt):
+    if str(fmt) == "_NeighborListFormat.ORDERED_SPARSE":
+        pytest.skip("Vector valued pair_neighbor_list not supported.")
+    torch.manual_seed(0)
+
+    def truncated_square(dR, sigma):
+        dr = torch.reshape(distance(dR), dR.shape[:-1] + (1,))
+        return torch.where(dr < sigma, dR**2, torch.tensor(0.0, dtype=torch.float32))
+
+    N = PARTICLE_COUNT
+    box_size = 2.0 * N ** (1.0 / dim)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+
+    neighbor_square = interact(
+        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="neighbor_list"
+    )
+    mapped_square = interact(
+        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair"
+    )
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    sigma = torch.rand(()) * 1.0 + 0.5  # minval=0.5, maxval=1.5
+    neighbor_fn = neighbor_list(
+        displacement, torch.tensor(box_size), sigma, 0.0, neighbor_list_format=fmt
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(
+        mapped_square(R, sigma=sigma), neighbor_square(R, nbrs, sigma=sigma)
+    )
+
+
+@pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
+def test_pair_neighbor_list_vector_nonadditive(dtype, dim, fmt):
+    if str(fmt) == "_NeighborListFormat.ORDERED_SPARSE":
+        pytest.skip("Vector valued pair_neighbor_list not supported.")
+
+    torch.manual_seed(0)
+
+    def truncated_square(dR, sigma):
+        dr = distance(dR)
+        return torch.where(dr < sigma, dr**2, torch.tensor(0.0, dtype=torch.float32))
+
+    N = PARTICLE_COUNT
+    box_size = 2.0 * N ** (1.0 / dim)
+
+    displacement, _ = space(box=box_size, parallelepiped=False)
+
+    neighbor_square = interact(
+        truncated_square,
+        displacement,
+        sigma=lambda x, y: x * y,
+        dim=(1,),
+        interaction="neighbor_list",
+    )
+    mapped_square = interact(
+        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair"
+    )
+
+    R = box_size * torch.rand((N, dim), dtype=dtype)
+    sigma = torch.rand((N,), dtype=dtype) * 1.0 + 0.5  # minval=0.5, maxval=1.5
+    sigma_pair = sigma[:, None] * sigma[None, :]
+    neighbor_fn = neighbor_list(
+        displacement,
+        torch.tensor(box_size),
+        torch.max(sigma) ** 2,
+        0.0,
+        neighbor_list_format=fmt,
+    )
+    nbrs = neighbor_fn.setup_fn(R)
+    assert torch.allclose(
+        mapped_square(R, sigma=sigma_pair), neighbor_square(R, nbrs, sigma=sigma)
+    )
 
 
 @pytest.mark.parametrize("dtype, dim, fmt", neighbor_list_params)
@@ -1138,11 +1196,3 @@ def test_pair_neighbor_list_scalar_nonadditive(dtype, dim, fmt):
     assert torch.allclose(
         mapped_square(R, sigma=sigma_pair), neighbor_square(R, nbrs, sigma=sigma)
     )
-
-
-#
-#
-#
-#
-#
-#

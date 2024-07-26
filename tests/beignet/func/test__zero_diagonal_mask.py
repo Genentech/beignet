@@ -9,9 +9,7 @@ def test_zero_diagonal_mask_2d():
 
     masked_matrix = _zero_diagonal_mask(matrix)
 
-    assert torch.equal(
-        torch.diagonal(masked_matrix, 0), torch.zeros(5)
-    )
+    assert torch.equal(torch.diagonal(masked_matrix, 0), torch.zeros(5))
 
 
 def test_zero_diagonal_mask_3d():
@@ -20,9 +18,7 @@ def test_zero_diagonal_mask_3d():
     masked_matrix = _zero_diagonal_mask(matrix)
 
     for i in range(matrix.shape[0]):
-        assert torch.equal(
-            masked_matrix[i][i], torch.zeros(5)
-        )
+        assert torch.equal(masked_matrix[i][i], torch.zeros(5))
 
 
 def test_zero_diagonal_mask_rectangular_matrix():

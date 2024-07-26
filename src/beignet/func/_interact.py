@@ -104,9 +104,28 @@ def _safe_sum(
         case _:
             promoted_dtype = torch.int64
 
+    if dim == ():
+        out = x.to(dtype=promoted_dtype)
+        return x.to(dtype=promoted_dtype)
+
     summation = torch.sum(x, dim=dim, dtype=promoted_dtype, keepdim=keepdim)
 
     return summation.to(dtype=x.dtype)
+
+
+def _force(energy_fn: Callable) -> Callable:
+    """Computes the force as the negative gradient of an energy."""
+
+    def compute_force(R, *args, **kwargs):
+        R = R.requires_grad_(True)
+        energy = energy_fn(R, *args, **kwargs)
+        force = -torch.autograd.grad(
+            energy, R, grad_outputs=torch.ones_like(energy), create_graph=True
+        )[0]
+
+        return force
+
+    return compute_force
 
 
 def _bond_interaction(
@@ -214,14 +233,14 @@ def _mesh_interaction(
 def _kwargs_to_neighbor_list_parameters(
     format: _NeighborListFormat,
     indexes: Tensor,
-    species: Tensor,
+    kinds: Tensor,
     kwargs: Dict[str, Tensor],
     combinators: Dict[str, Callable],
 ) -> Dict[str, Tensor]:
     parameters = {}
 
     for name, parameter in kwargs.items():
-        if species is None or (isinstance(parameter, Tensor) and parameter.ndim == 1):
+        if kinds is None or (isinstance(parameter, Tensor) and parameter.dim() == 1):
             combinator = combinators.get(name, lambda x, y: 0.5 * (x + y))
 
             parameters[name] = _to_neighbor_list_matrix_parameters(
@@ -237,7 +256,7 @@ def _kwargs_to_neighbor_list_parameters(
             parameters[name] = _to_neighbor_list_kind_parameters(
                 format,
                 indexes,
-                species,
+                kinds,
                 parameter,
             )
 
@@ -430,7 +449,7 @@ def _neighbor_list_interaction(
         merged_kwargs = _kwargs_to_neighbor_list_parameters(
             neighbor_list.format,
             neighbor_list.indexes,
-            kinds,
+            _kinds,
             merged_kwargs,
             combinators,
         )
@@ -443,7 +462,7 @@ def _neighbor_list_interaction(
                 [*mask.shape, *([1] * (out.ndim - mask.ndim))],
             )
 
-        out = torch.multiply(out, mask)
+        out = torch.where(mask, out, torch.tensor(0.0))
 
         if dim is None:
             return torch.divide(_safe_sum(out), normalization)
@@ -455,14 +474,15 @@ def _neighbor_list_interaction(
             return torch.divide(_safe_sum(out, dim=dim), normalization)
 
         if 0 in dim:
-            return _safe_sum(out, dim=[0, *[a - 1 for a in dim if a > 1]])
+            return _safe_sum(out, dim=tuple(a - 1 for a in dim if a > 1))
 
         if neighbor_list.format is _NeighborListFormat.ORDERED_SPARSE:
             raise ValueError
 
+        out = _safe_sum(out, dim=tuple(a - 1 for a in dim if a > 1))
         return torch.divide(
             _segment_sum(
-                _safe_sum(out, dim=[a - 1 for a in dim if a > 1]),
+                out,
                 neighbor_list.indexes[0],
                 positions.shape[0],
             ),
@@ -717,13 +737,14 @@ def _to_neighbor_list_kind_parameters(
         case parameters if isinstance(parameters, _ParameterTree):
             match parameters.kind:
                 case _ParameterTreeKind.KINDS:
+                    # TODO (isaacsoh) remove lookup
+                    def lookup(p, species_a, species_b):
+                        return p[species_a, species_b]
+
                     if is_neighbor_list_sparse(format):
                         return optree.tree_map(
-                            lambda parameter: _map_bond(
-                                functools.partial(
-                                    fn,
-                                    parameter,
-                                ),
+                            lambda parameter: manual_vmap(
+                                lambda a, b: lookup(parameter, a, b), (0, 0), 0
                             )(
                                 safe_index(kinds, indexes[0]),
                                 safe_index(kinds, indexes[1]),
@@ -734,10 +755,7 @@ def _to_neighbor_list_kind_parameters(
                     return optree.tree_map(
                         lambda parameter: manual_vmap(
                             manual_vmap(
-                                functools.partial(
-                                    fn,
-                                    parameter,
-                                ),
+                                lambda a, b: lookup(parameter, a, b),
                                 (None, 0),
                             )
                         )(
