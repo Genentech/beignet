@@ -291,6 +291,8 @@ from ._probabilists_hermite_polynomial_weight import (
 )
 from ._probabilists_hermite_polynomial_x import probabilists_hermite_polynomial_x
 from ._probabilists_hermite_polynomial_zero import probabilists_hermite_polynomial_zero
+from ._iota import iota
+from ._pairwise_displacement import pairwise_displacement
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -355,6 +357,8 @@ from ._trim_polynomial_coefficients import trim_polynomial_coefficients
 from ._trim_probabilists_hermite_polynomial_coefficients import (
     trim_probabilists_hermite_polynomial_coefficients,
 )
+from ._segment_sum import segment_sum
+from ._square_distance import square_distance
 from .special import error_erf, error_erfc
 
 __all__ = [

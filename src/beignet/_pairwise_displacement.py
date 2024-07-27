@@ -1,29 +1,31 @@
 from torch import Tensor
 
 
-def pairwise_displacement(Ra: Tensor, Rb: Tensor) -> Tensor:
+def pairwise_displacement(input: Tensor, other: Tensor) -> Tensor:
     r"""Compute a matrix of pairwise displacements given two sets of positions.
 
     Parameters
     ----------
-    Ra : Tensor
+    input : Tensor
         Vector of positions
-    Rb : Tensor
+
+    other : Tensor
         Vector of positions
 
     Returns:
-    Tensor(shape=[spatial_dim]
-      Matrix of displacements
+    -------
+    output : Tensor, shape [spatial_dimensions]
+        Matrix of displacements
     """
-    if len(Ra.shape) != 1:
-        msg = (
+    if len(input.shape) != 1:
+        message = (
             "Can only compute displacements between vectors. To compute "
             "displacements between sets of vectors use vmap or TODO."
         )
-        raise ValueError(msg)
+        raise ValueError(message)
 
-    if Ra.shape != Rb.shape:
-        msg = "Can only compute displacement between vectors of equal dimension."
-        raise ValueError(msg)
+    if input.shape != other.shape:
+        message = "Can only compute displacement between vectors of equal dimension."
+        raise ValueError(message)
 
-    return Ra - Rb
+    return input - other
