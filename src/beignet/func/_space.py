@@ -6,8 +6,48 @@ from torch import Tensor
 import beignet
 from beignet._pairwise_displacement import pairwise_displacement
 from beignet._periodic_displacement import periodic_displacement
+from beignet.func._partition import metric
 
 T = TypeVar("T")
+
+
+def canonicalize_displacement_or_metric(displacement_fn: Callable) -> Callable:
+    r"""Checks whether or not a displacement or metric was provided.
+
+    Parameters
+    ----------
+    displacement_fn : Callable
+        A function that computes either the displacement or the metric.
+
+    Returns
+    -------
+    callable
+        The original displacement function if it returns a scalar, otherwise
+        a metric function.
+
+    Raises
+    ------
+    ValueError
+        If the spatial dimension is larger than 4.
+    """
+    for dim in range(1, 4):
+        try:
+            input = torch.randn(dim, dtype=torch.float32)
+
+            dR_or_dr = displacement_fn(input, input, t=0)
+
+            if dR_or_dr.dim() == 0:
+                return displacement_fn
+            else:
+                return metric(displacement_fn)
+        except TypeError:
+            continue
+        except ValueError:
+            continue
+    raise ValueError(
+        "Canonicalize displacement not implemented for spatial dimension larger"
+        " than 4."
+    )
 
 
 def space(

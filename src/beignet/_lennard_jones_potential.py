@@ -1,3 +1,4 @@
+import torch
 from torch import Tensor
 
 
@@ -30,4 +31,4 @@ def lennard_jones_potential(
     b = a**6.0
     c = b**2.0
 
-    return 4.0 * epsilon * (c - b)
+    return torch.nan_to_num(4.0 * epsilon * (c - b))
