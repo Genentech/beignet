@@ -1099,10 +1099,14 @@ def test_pair_neighbor_list_vector(dtype, dim, fmt):
     displacement, _ = space(box=box_size, parallelepiped=False)
 
     neighbor_square = interact(
-        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="neighbor_list"
+        truncated_square,
+        displacement,
+        sigma=1.0,
+        dimension=(1,),
+        interaction="neighbor_list",
     )
     mapped_square = interact(
-        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair"
+        truncated_square, displacement, sigma=1.0, dimension=(1,), interaction="pair"
     )
 
     R = box_size * torch.rand((N, dim), dtype=dtype)
@@ -1136,11 +1140,11 @@ def test_pair_neighbor_list_vector_nonadditive(dtype, dim, fmt):
         truncated_square,
         displacement,
         sigma=lambda x, y: x * y,
-        dim=(1,),
+        dimension=(1,),
         interaction="neighbor_list",
     )
     mapped_square = interact(
-        truncated_square, displacement, sigma=1.0, dim=(1,), interaction="pair"
+        truncated_square, displacement, sigma=1.0, dimension=(1,), interaction="pair"
     )
 
     R = box_size * torch.rand((N, dim), dtype=dtype)

@@ -36,7 +36,7 @@ def test_safe_sum_integer():
 def test_safe_sum_with_dim():
     x = torch.tensor([[1, 2], [3, 4]], dtype=torch.float32)
 
-    result = _safe_sum(x, dim=0)
+    result = _safe_sum(x, dimension=0)
 
     expected = torch.tensor([4, 6], dtype=torch.float32)
 
@@ -46,7 +46,7 @@ def test_safe_sum_with_dim():
 def test_safe_sum_with_keepdim():
     x = torch.tensor([[1, 2], [3, 4]], dtype=torch.float32)
 
-    result = _safe_sum(x, dim=0, keepdim=True)
+    result = _safe_sum(x, dimension=0, keep_dimension=True)
 
     expected = torch.tensor([[4, 6]], dtype=torch.float32)
 

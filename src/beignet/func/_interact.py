@@ -44,12 +44,12 @@ def _zero_diagonal_mask(input: Tensor) -> Tensor:
     Parameters:
     -----------
     input : Tensor
-        Square matrix
+        Square matrix.
 
     Returns:
     --------
     Tensor
-        The input matrix with a masked diagonal of zeros
+        The input matrix with a masked diagonal of zeros.
     """
     if input.shape[0] != input.shape[1]:
         raise ValueError(
@@ -74,21 +74,23 @@ def _zero_diagonal_mask(input: Tensor) -> Tensor:
 
 
 def _safe_sum(
-    x: Tensor,
-    dim: Optional[Union[Iterable[int], int]] = None,
-    keepdim: bool = False,
+    input: Tensor,
+    dimension: Optional[Union[Iterable[int], int]] = None,
+    keep_dimension: bool = False,
 ):
     r"""Safely computes the sum of elements in a tensor along a specified
     dimension, promoting the data type to avoid precision loss.
 
     Parameters
     ----------
-    x : Tensor
+    input : Tensor
         The input tensor to be summed.
-    dim : Optional[Union[Iterable[int], int]], optional
+
+    dimension : Optional[Union[Iterable[int], int]], optional
         The dimension or dimensions along which to sum. If `None`, sums all elements.
         Default is `None`.
-    keepdim : bool, optional
+
+    keep_dimension : bool, optional
         Whether to retain the reduced dimensions in the output tensor. Default is `False`.
 
     Returns
@@ -96,25 +98,26 @@ def _safe_sum(
     Tensor
         The summed tensor with the same dtype as the input tensor.
     """
-    match x:
-        case _ if x.is_complex():
+    match input:
+        case _ if input.is_complex():
             promoted_dtype = torch.complex128
-        case _ if x.is_floating_point():
+        case _ if input.is_floating_point():
             promoted_dtype = torch.float64
         case _:
             promoted_dtype = torch.int64
 
-    if dim == ():
-        out = x.to(dtype=promoted_dtype)
-        return x.to(dtype=promoted_dtype)
+    if dimension == ():
+        return input.to(dtype=promoted_dtype)
 
-    summation = torch.sum(x, dim=dim, dtype=promoted_dtype, keepdim=keepdim)
+    summation = torch.sum(
+        input, dim=dimension, dtype=promoted_dtype, keepdim=keep_dimension
+    )
 
-    return summation.to(dtype=x.dtype)
+    return summation.to(dtype=input.dtype)
 
 
 def _force(energy_fn: Callable) -> Callable:
-    """Computes the force as the negative gradient of an energy."""
+    r"""Computes the force as the negative gradient of an energy."""
 
     def compute_force(R, *args, **kwargs):
         R = R.requires_grad_(True)
@@ -232,11 +235,41 @@ def _mesh_interaction(
 
 def _kwargs_to_neighbor_list_parameters(
     format: _NeighborListFormat,
-    indexes: Tensor,
+    indices: Tensor,
     kinds: Tensor,
     kwargs: Dict[str, Tensor],
     combinators: Dict[str, Callable],
 ) -> Dict[str, Tensor]:
+    r"""Converts keyword arguments to neighbor list parameters.
+
+    Parameters
+    ----------
+    format : _NeighborListFormat
+        The format of the neighbor list.
+
+    indices : Tensor
+        A tensor containing the indices of the neighbor candidates for each particle.
+        The shape of the tensor is expected to be (n, m) where `n` is the number
+        of particles and `m` is the number of neighbor candidates per particle.
+
+    kinds : Tensor
+        A tensor containing the kinds of particles. If None, the parameters will be
+        treated as single-dimensional tensors.
+
+    kwargs : dict
+        A dictionary of keyword arguments where the keys are parameter names and the
+        values are tensors representing the parameters.
+
+    combinators : dict
+        A dictionary of combinator functions where the keys are parameter names and the
+        values are functions that combine two tensors.
+
+    Returns
+    -------
+    output : dict
+        A dictionary of neighbor list parameters where the keys are parameter names and
+        the values are tensors representing the parameters.
+    """
     parameters = {}
 
     for name, parameter in kwargs.items():
@@ -245,7 +278,7 @@ def _kwargs_to_neighbor_list_parameters(
 
             parameters[name] = _to_neighbor_list_matrix_parameters(
                 format,
-                indexes,
+                indices,
                 parameter,
                 combinator,
             )
@@ -255,7 +288,7 @@ def _kwargs_to_neighbor_list_parameters(
 
             parameters[name] = _to_neighbor_list_kind_parameters(
                 format,
-                indexes,
+                indices,
                 kinds,
                 parameter,
             )
@@ -268,6 +301,28 @@ def _kwargs_to_pair_parameters(
     combinators: Dict[str, Callable],
     kinds: Tensor | None = None,
 ) -> Dict[str, Tensor]:
+    r"""Converts keyword arguments to pair interaction parameters.
+
+    Parameters
+    ----------
+    kwargs : dict
+        A dictionary of keyword arguments where the keys are parameter names and the
+        values are instances of `_ParameterTree`, `Tensor`, `float`, or `PyTree`.
+
+    combinators : dict
+        A dictionary of combinator functions where the keys are parameter names and the
+        values are functions that combine two tensors.
+
+    kinds : Tensor, optional
+        A tensor containing the kinds of particles. If None, the parameters will be
+        treated as single-dimensional tensors.
+
+    Returns
+    -------
+    output : dict
+        A dictionary of pair interaction parameters where the keys are parameter names
+        and the values are tensors representing the parameters.
+    """
     parameters = {}
 
     for name, parameter in kwargs.items():
@@ -378,6 +433,26 @@ def _merge_dictionaries(
     that: Dict,
     ignore_unused_parameters: bool = False,
 ):
+    r"""Merges two dictionaries, optionally ignoring unused parameters.
+
+    Parameters
+    ----------
+    this : dict
+        The first dictionary to be merged.
+
+    that : dict
+        The second dictionary to be merged.
+
+    ignore_unused_parameters : bool, optional
+        If True, only keys present in the first dictionary will be updated with values
+        from the second dictionary. If False, all keys from both dictionaries will be
+        included in the merged dictionary.
+
+    Returns
+    -------
+    output : dict
+        A dictionary containing the merged key-value pairs from both input dictionaries.
+    """
     if not ignore_unused_parameters:
         return {**this, **that}
 
@@ -396,10 +471,41 @@ def _neighbor_list_interaction(
     fn: Callable[..., Tensor],
     displacement_fn: Callable[[Tensor, Tensor], Tensor],
     kinds: Tensor | None = None,
-    dim: Optional[Tuple[int, ...]] = None,
+    dimension: Optional[Tuple[int, ...]] = None,
     ignore_unused_parameters: bool = False,
     **kwargs,
 ) -> Callable[..., Tensor]:
+    """Creates a function to compute interactions based on a neighbor list.
+
+    Parameters
+    ----------
+    fn : Callable[..., Tensor]
+        The function to compute the interaction given the distances and other parameters.
+
+    displacement_fn : Callable[[Tensor, Tensor], Tensor]
+        A function to compute the displacement between two sets of positions.
+
+    kinds : Tensor, optional
+        A tensor containing the kinds of particles. If None, the parameters will be
+        treated as single-dimensional tensors.
+
+    dimension : tuple of int, optional
+        The dimensions over which to sum the interactions. If None, the interactions
+        will be summed over all dimensions.
+
+    ignore_unused_parameters : bool, optional
+        If True, only keys present in the first dictionary will be updated with values
+        from the second dictionary. If False, all keys from both dictionaries will be
+        included in the merged dictionary.
+
+    **kwargs : dict
+        Additional keyword arguments to be passed to the interaction function.
+
+    Returns
+    -------
+    mapped_fn : Callable[..., Tensor]
+        A function that computes the interactions based on the neighbor list.
+    """
     parameters, combinators = {}, {}
 
     for name, parameter in kwargs.items():
@@ -418,10 +524,31 @@ def _neighbor_list_interaction(
     )
 
     def mapped_fn(
-        positions: Tensor,
+        position: Tensor,
         neighbor_list: _NeighborList,
         **dynamic_kwargs,
     ) -> Tensor:
+        r"""Computes interactions based on a neighbor list and dynamic keyword arguments.
+
+        Parameters
+        ----------
+        position : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        neighbor_list : _NeighborList
+            An object containing the neighbor list, including indices, item size,
+            maximum size, and other relevant information.
+
+        **dynamic_kwargs : dict
+            Additional dynamic keyword arguments to be passed to the distance and interaction functions.
+
+        Returns
+        -------
+        output : Tensor
+            A tensor representing the computed interactions based on the neighbor list.
+        """
         distance_fn = functools.partial(displacement_fn, **dynamic_kwargs)
 
         _kinds = dynamic_kwargs.get("kinds", kinds)
@@ -430,20 +557,20 @@ def _neighbor_list_interaction(
 
         if is_neighbor_list_sparse(neighbor_list.format):
             distances = _map_bond(distance_fn)(
-                safe_index(positions, neighbor_list.indexes[0]),
-                safe_index(positions, neighbor_list.indexes[1]),
+                safe_index(position, neighbor_list.indexes[0]),
+                safe_index(position, neighbor_list.indexes[1]),
             )
 
-            mask = torch.less(neighbor_list.indexes[0], positions.shape[0])
+            mask = torch.less(neighbor_list.indexes[0], position.shape[0])
 
             if neighbor_list.format is _NeighborListFormat.ORDERED_SPARSE:
                 normalization = 1.0
         else:
             d = _map_neighbor(distance_fn)
-            r_neigh = safe_index(positions, neighbor_list.indexes)
-            distances = d(positions, r_neigh)
+            r_neigh = safe_index(position, neighbor_list.indexes)
+            distances = d(position, r_neigh)
 
-            mask = torch.less(neighbor_list.indexes, positions.shape[0])
+            mask = torch.less(neighbor_list.indexes, position.shape[0])
 
         merged_kwargs = merge_dictionaries(parameters, dynamic_kwargs)
         merged_kwargs = _kwargs_to_neighbor_list_parameters(
@@ -464,30 +591,30 @@ def _neighbor_list_interaction(
 
         out = torch.where(mask, out, torch.tensor(0.0))
 
-        if dim is None:
+        if dimension is None:
             return torch.divide(_safe_sum(out), normalization)
 
-        if 0 in dim and 1 not in dim:
+        if 0 in dimension and 1 not in dimension:
             raise ValueError
 
         if not is_neighbor_list_sparse(neighbor_list.format):
-            return torch.divide(_safe_sum(out, dim=dim), normalization)
+            return torch.divide(_safe_sum(out, dimension=dimension), normalization)
 
-        if 0 in dim:
-            return _safe_sum(out, dim=tuple(a - 1 for a in dim if a > 1))
+        if 0 in dimension:
+            return _safe_sum(out, dimension=tuple(a - 1 for a in dimension if a > 1))
 
         if neighbor_list.format is _NeighborListFormat.ORDERED_SPARSE:
             raise ValueError
 
-        out = _safe_sum(out, dim=tuple(a - 1 for a in dim if a > 1))
+        out = _safe_sum(out, dimension=tuple(a - 1 for a in dimension if a > 1))
         return torch.divide(
             _segment_sum(
                 out,
                 neighbor_list.indexes[0],
-                positions.shape[0],
+                position.shape[0],
             ),
             normalization,
-        ).to(dtype=positions.dtype)
+        ).to(dtype=position.dtype)
 
     return mapped_fn
 
@@ -496,11 +623,45 @@ def _pair_interaction(
     fn: Callable[..., Tensor],
     displacement_fn: Callable[[Tensor, Tensor], Tensor],
     kinds: Optional[Union[int, Tensor]] = None,
-    dim: Optional[Tuple[int, ...]] = None,
+    dimension: Optional[Tuple[int, ...]] = None,
     keepdim: bool = False,
     ignore_unused_parameters: bool = False,
     **kwargs,
 ) -> Callable[..., Tensor]:
+    r"""Creates a function to compute pairwise interactions between particles.
+
+    Parameters
+    ----------
+    fn : Callable[..., Tensor]
+        The function to compute the interaction given the distances and other parameters.
+
+    displacement_fn : Callable[[Tensor, Tensor], Tensor]
+        A function to compute the displacement between two sets of positions.
+
+    kinds : int or Tensor, optional
+        An integer or tensor representing the kinds of particles. If None, the parameters
+        will be treated as single-dimensional tensors.
+
+    dimension : tuple of int, optional
+        The dimensions over which to sum the interactions. If None, the interactions
+        will be summed over all dimensions.
+
+    keepdim : bool, optional
+        If True, retains reduced dimensions with length 1.
+
+    ignore_unused_parameters : bool, optional
+        If True, only keys present in the first dictionary will be updated with values
+        from the second dictionary. If False, all keys from both dictionaries will be
+        included in the merged dictionary.
+
+    **kwargs : dict
+        Additional keyword arguments to be passed to the interaction function.
+
+    Returns
+    -------
+    mapped_fn : Callable[..., Tensor]
+        A function that computes the pairwise interactions based on the provided parameters.
+    """
     parameters, combinators = {}, {}
 
     for name, parameter in list(kwargs.items()):
@@ -523,6 +684,23 @@ def _pair_interaction(
     if kinds is None:
 
         def mapped_fn(_position: Tensor, **_dynamic_kwargs) -> Tensor:
+            r"""Computes pairwise interactions for particles without kinds.
+
+            Parameters
+            ----------
+            _position : Tensor
+                A tensor representing the positions of the particles in the system.
+                The shape of the tensor is expected to be (n, d) where `n` is the number
+                of particles and `d` is the dimensionality of the system.
+
+            **_dynamic_kwargs : dict
+                Additional dynamic keyword arguments to be passed to the distance and interaction functions.
+
+            Returns
+            -------
+            output : Tensor
+                A tensor representing the computed pairwise interactions.
+            """
             distance_fn = functools.partial(displacement_fn, **_dynamic_kwargs)
 
             distances = map_product(distance_fn)(_position, _position)
@@ -534,13 +712,15 @@ def _pair_interaction(
                 combinators,
             )
 
-            u = fn(distances, **to_parameters)
+            interaction = fn(distances, **to_parameters)
 
-            u = _zero_diagonal_mask(u)
+            interaction = _zero_diagonal_mask(interaction)
 
-            u = _safe_sum(u, dim=dim, keepdim=keepdim)
+            interaction = _safe_sum(
+                interaction, dimension=dimension, keep_dimension=keepdim
+            )
 
-            return u * 0.5
+            return interaction * 0.5
 
         return mapped_fn
 
@@ -550,11 +730,28 @@ def _pair_interaction(
 
         kinds_count = int(torch.max(kinds))
 
-        if dim is not None or keepdim:
+        if dimension is not None or keepdim:
             raise ValueError
 
         def mapped_fn(_position: Tensor, **_dynamic_kwargs):
-            u = torch.tensor(0.0, dtype=torch.float32)
+            r"""Computes pairwise interactions for particles with kinds.
+
+            Parameters
+            ----------
+            _position : Tensor
+                A tensor representing the positions of the particles in the system.
+                The shape of the tensor is expected to be (n, d) where `n` is the number
+                of particles and `d` is the dimensionality of the system.
+
+            **_dynamic_kwargs : dict
+                Additional dynamic keyword arguments to be passed to the distance and interaction functions.
+
+            Returns
+            -------
+            output : Tensor
+                A tensor representing the computed pairwise interactions.
+            """
+            interaction = torch.tensor(0.0, dtype=torch.float32)
 
             distance_fn = functools.partial(displacement_fn, **_dynamic_kwargs)
 
@@ -578,13 +775,13 @@ def _pair_interaction(
 
                         y = _safe_sum(y)
 
-                        u = u + y * 0.5
+                        interaction = interaction + y * 0.5
                     else:
                         y = _safe_sum(y)
 
-                        u = u + y
+                        interaction = interaction + y
 
-            return u
+            return interaction
 
         return mapped_fn
 
@@ -592,10 +789,30 @@ def _pair_interaction(
         kinds_count = kinds
 
         def mapped_fn(_position: Tensor, _kinds: Tensor, **_dynamic_kwargs):
+            r"""Computes pairwise interactions for particles with a specified number of kinds.
+
+            Parameters
+            ----------
+            _position : Tensor
+                A tensor representing the positions of the particles in the system.
+                The shape of the tensor is expected to be (n, d) where `n` is the number
+                of particles and `d` is the dimensionality of the system.
+
+            _kinds : Tensor
+                A tensor representing the kinds of particles.
+
+            **_dynamic_kwargs : dict
+                Additional dynamic keyword arguments to be passed to the distance and interaction functions.
+
+            Returns
+            -------
+            output : Tensor
+                A tensor representing the computed pairwise interactions.
+            """
             if not isinstance(_kinds, Tensor) or _kinds.is_floating_point():
                 raise ValueError
 
-            u = torch.tensor(0.0, dtype=torch.float32)
+            interaction = torch.tensor(0.0, dtype=torch.float32)
 
             num_particles = _position.shape[0]
 
@@ -636,11 +853,11 @@ def _pair_interaction(
 
                     y = fn(distance, **to_parameters) * mask
 
-                    y = _safe_sum(y, dim=dim, keepdim=keepdim)
+                    y = _safe_sum(y, dimension=dimension, keep_dimension=keepdim)
 
-                    u = u + y
+                    interaction = interaction + y
 
-            return u / 2.0
+            return interaction / 2.0
 
         return mapped_fn
 
@@ -651,6 +868,22 @@ def _to_bond_kind_parameters(
     parameter: Tensor | _ParameterTree,
     kinds: Tensor,
 ) -> Tensor | _ParameterTree:
+    r"""Converts parameters to bond kind parameters based on particle kinds.
+
+    Parameters
+    ----------
+    parameter : Tensor or _ParameterTree
+        The parameter to be converted. It can be a tensor or an instance of `_ParameterTree`.
+
+    kinds : Tensor
+        A tensor containing the kinds of particles. The shape of the tensor is expected
+        to be (n,) where `n` is the number of particles.
+
+    Returns
+    -------
+    output : Tensor or _ParameterTree
+        The converted bond kind parameters. The output type matches the input type.
+    """
     assert isinstance(kinds, Tensor)
 
     assert len(kinds.shape) == 1
@@ -684,7 +917,7 @@ def _to_bond_kind_parameters(
 
 def _to_neighbor_list_kind_parameters(
     format: _NeighborListFormat,
-    indexes: Tensor,
+    indices: Tensor,
     kinds: Tensor,
     parameters: _ParameterTree | Tensor | float,
 ) -> PyTree | _ParameterTree | Tensor | float:
@@ -695,14 +928,17 @@ def _to_neighbor_list_kind_parameters(
     ----------
     format : _NeighborListFormat
         An enumeration representing the format of a neighbor list. Could be
-        0 (Dense), 1 (Ordered sparse), 2 (Sparse)
-    indexes : Tensor
+        0 (Dense), 1 (Ordered sparse), 2 (Sparse).
+
+    indices : Tensor
         A tensor containing the indexes of neighbors.
+
     kinds : Tensor
         Atomic labelling that contain atomic species, properties, or other
         metadata.
+
     parameters : _ParameterTree | Tensor | float
-        parameters to be used for neighborlist interaction functions
+        parameters to be used for neighborlist interaction functions.
 
     Returns
     -------
@@ -722,16 +958,16 @@ def _to_neighbor_list_kind_parameters(
                 case 2:
                     if is_neighbor_list_sparse(format):
                         return manual_vmap(fn, (0, 0), 0)(
-                            safe_index(kinds, indexes[0]),
-                            safe_index(kinds, indexes[1]),
+                            safe_index(kinds, indices[0]),
+                            safe_index(kinds, indices[1]),
                         )
 
                     return manual_vmap(
                         manual_vmap(
                             fn,
-                            in_dims=(None, 0),
+                            in_dimension=(None, 0),
                         ),
-                    )(kinds, safe_index(kinds, indexes))
+                    )(kinds, safe_index(kinds, indices))
                 case _:
                     raise ValueError
         case parameters if isinstance(parameters, _ParameterTree):
@@ -746,8 +982,8 @@ def _to_neighbor_list_kind_parameters(
                             lambda parameter: manual_vmap(
                                 lambda a, b: lookup(parameter, a, b), (0, 0), 0
                             )(
-                                safe_index(kinds, indexes[0]),
-                                safe_index(kinds, indexes[1]),
+                                safe_index(kinds, indices[0]),
+                                safe_index(kinds, indices[1]),
                             ),
                             parameters.tree,
                         )
@@ -760,7 +996,7 @@ def _to_neighbor_list_kind_parameters(
                             )
                         )(
                             kinds,
-                            safe_index(kinds, indexes),
+                            safe_index(kinds, indices),
                         ),
                         parameters.tree,
                     )
@@ -774,48 +1010,86 @@ def _to_neighbor_list_kind_parameters(
 
 def manual_vmap(
     func: Callable,
-    in_dims: Union[int, Tuple[Union[int, None], ...]] = 0,
-    out_dims: Union[int, Tuple[int, ...]] = 0,
+    in_dimension: Union[int, Tuple[Union[int, None], ...]] = 0,
+    out_dimension: Union[int, Tuple[int, ...]] = 0,
     randomness: str = "error",
     *,
     chunk_size: Union[None, int] = None,
 ) -> Callable:
+    r"""Manually vectorizes a function over a specified batch dimension.
+
+    This function replaces `torch.vmap` and allows for manual batching of inputs
+    to a function. It iterates over the batch dimension, applies the function to
+    each slice, and stacks the results along the specified output dimension.
+
+    Parameters
+    ----------
+    func : Callable
+        The function to be vectorized.
+
+    in_dimension : int or tuple of int or None, optional
+        The dimensions of the inputs to be batched. If an integer, it specifies
+        the batch dimension for all inputs. If a tuple, it specifies the batch
+        dimension for each input individually. If None, the input is not batched.
+
+    out_dimension : int or tuple of int, optional
+        The dimensions along which to stack the outputs. If an integer, it specifies
+        the output dimension for all outputs. If a tuple, it specifies the output
+        dimension for each output individually.
+
+    randomness : str, optional
+        Specifies how to handle randomness. Currently, only "error" is supported,
+        which raises an error if randomness is encountered.
+
+    chunk_size : int or None, optional
+        The size of chunks to process at a time. If None, the entire batch is processed
+        at once.
+
+    Returns
+    -------
+    batched_func : Callable
+        A function that applies `func` to batched inputs and stacks the results.
+
+    Notes
+    -----
+    This function is a manual replacement for `torch.vmap` and is useful when
+    `torch.vmap` is not available or when custom batching behavior is required.
+    """
+
     def batched_func(*args, **kwargs):
-        # Determine the batch size from the first input that has a batch dimension
-        if isinstance(in_dims, int):
-            batch_size = args[0].shape[in_dims]
+        if isinstance(in_dimension, int):
+            batch_size = args[0].shape[in_dimension]
         else:
             batch_size = next(
-                arg.shape[dim] for arg, dim in zip(args, in_dims) if dim is not None
+                arg.shape[dim]
+                for arg, dim in zip(args, in_dimension)
+                if dim is not None
             )
 
-        # Initialize a list to store the results
         results = []
 
-        # Iterate over the batch dimension
         for i in range(batch_size):
-            # Extract the i-th element from each input
             sliced_args = []
             for arg, dim in zip(
-                args, in_dims if isinstance(in_dims, tuple) else [in_dims] * len(args)
+                args,
+                in_dimension
+                if isinstance(in_dimension, tuple)
+                else [in_dimension] * len(args),
             ):
                 if dim is None:
                     sliced_args.append(arg)
                 else:
                     sliced_args.append(arg.select(dim, i))
 
-            # Call the function with the sliced arguments
             result = func(*sliced_args, **kwargs)
 
-            # Append the result to the results list
             results.append(result)
 
-        # Stack the results along the specified output dimension
-        if isinstance(out_dims, int):
-            return torch.stack(results, dim=out_dims)
+        if isinstance(out_dimension, int):
+            return torch.stack(results, dim=out_dimension)
         else:
             return tuple(
-                torch.stack([res[i] for res in results], dim=out_dims[i])
+                torch.stack([res[i] for res in results], dim=out_dimension[i])
                 for i in range(len(results[0]))
             )
 
@@ -824,10 +1098,34 @@ def manual_vmap(
 
 def _to_neighbor_list_matrix_parameters(
     format: _NeighborListFormat,
-    indexes: Tensor,
+    indices: Tensor,
     parameters: _ParameterTree | Tensor | float,
     combinator: Callable[[Tensor, Tensor], Tensor],
 ) -> PyTree | _ParameterTree | Tensor | float:
+    r"""Converts parameters to neighbor list matrix parameters based on the format and indices.
+
+    Parameters
+    ----------
+    format : _NeighborListFormat
+        The format of the neighbor list.
+
+    indices : Tensor
+        A tensor containing the indices of the neighbor candidates for each particle.
+        The shape of the tensor is expected to be (n, m) where `n` is the number
+        of particles and `m` is the number of neighbor candidates per particle.
+
+    parameters : _ParameterTree, Tensor, or float
+        The parameters to be converted. It can be an instance of `_ParameterTree`, a tensor,
+        or a float.
+
+    combinator : Callable[[Tensor, Tensor], Tensor]
+        A function that combines two tensors.
+
+    Returns
+    -------
+    output : PyTree, _ParameterTree, Tensor, or float
+        The converted neighbor list matrix parameters. The output type matches the input type.
+    """
     match parameters:
         case parameters if isinstance(parameters, Tensor):
             match parameters.ndim:
@@ -836,20 +1134,20 @@ def _to_neighbor_list_matrix_parameters(
                 case 1:
                     if is_neighbor_list_sparse(format):
                         return manual_vmap(combinator, (0, 0), 0)(
-                            safe_index(parameters, indexes[0]),
-                            safe_index(parameters, indexes[1]),
+                            safe_index(parameters, indices[0]),
+                            safe_index(parameters, indices[1]),
                         )
 
                     return combinator(
                         parameters[:, None],
-                        safe_index(parameters, indexes),
+                        safe_index(parameters, indices),
                     )
                 case 2:
                     if is_neighbor_list_sparse(format):
                         displacement = lambda a, b: safe_index(parameters, a, b)
                         return manual_vmap(displacement, (0, 0), 0)(
-                            indexes[0],
-                            indexes[1],
+                            indices[0],
+                            indices[1],
                         )
 
                     return manual_vmap(
@@ -858,8 +1156,8 @@ def _to_neighbor_list_matrix_parameters(
                             (None, 0),
                         ),
                     )(
-                        torch.arange(indexes.shape[0], dtype=torch.int32),
-                        indexes,
+                        torch.arange(indices.shape[0], dtype=torch.int32),
+                        indices,
                     )
                 case _:
                     raise ValueError
@@ -876,8 +1174,8 @@ def _to_neighbor_list_matrix_parameters(
                                 (0, 0),
                                 0,
                             )(
-                                indexes[0],
-                                indexes[1],
+                                indices[0],
+                                indices[1],
                             ),
                             parameters.tree,
                         )
@@ -889,8 +1187,8 @@ def _to_neighbor_list_matrix_parameters(
                                 (None, 0),
                             ),
                         )(
-                            torch.arange(indexes.shape[0], dtype=torch.int32),
-                            indexes,
+                            torch.arange(indices.shape[0], dtype=torch.int32),
+                            indices,
                         ),
                         parameters.tree,
                     )
@@ -898,8 +1196,8 @@ def _to_neighbor_list_matrix_parameters(
                     if is_neighbor_list_sparse(format):
                         return optree.tree_map(
                             lambda parameter: manual_vmap(combinator, (0, 0), 0)(
-                                safe_index(parameter, indexes[0]),
-                                safe_index(parameter, indexes[1]),
+                                safe_index(parameter, indices[0]),
+                                safe_index(parameter, indices[1]),
                             ),
                             parameters.tree,
                         )
@@ -909,7 +1207,7 @@ def _to_neighbor_list_matrix_parameters(
                             combinator,
                         )(
                             parameter,
-                            safe_index(parameter, indexes),
+                            safe_index(parameter, indices),
                         ),
                         parameters.tree,
                     )
@@ -940,7 +1238,7 @@ def interact(
     *,
     bonds: Optional[Tensor] = None,
     kinds: Optional[Union[int, Tensor]] = None,
-    dim: Optional[Union[int, Tuple[int, ...]]] = None,
+    dimension: Optional[Union[int, Tuple[int, ...]]] = None,
     keepdim: bool = False,
     ignore_unused_parameters: bool = False,
     **kwargs,
@@ -956,7 +1254,7 @@ def interact(
 
     Parameters
     ----------
-    fn : Callable[..., Array]
+    fn : Callable[..., Tensor]
         Function that takes distances or displacements of shape `(n, m)` or `(n, m, spatial_dimension)` and `kwargs` and returns values of shape `(n, m, spatial_dimension)`. The function must be a differentiable function as the force is computed using automatic differentiation (see `prescient.func.force`).
 
     displacement_fn : Callable[[Tensor, Tensor], Tensor]
@@ -984,7 +1282,7 @@ def interact(
     kinds : Optional[Tensor], default=None
         Kinds for the different elements. Should either be `None` (in which case it is assumed that all the elements have the same kind) or labels of shape `(n)`. If `intraction` is `"pair"` or `"triplet"`, kinds can be dynamically specified by passing the `kinds` keyword argument to the mapped function.
 
-    dim : Optional[Union[int, Tuple[int, ...]]], default=None
+    dimension : Optional[Union[int, Tuple[int, ...]]], default=None
         Dimension or dimensions to reduce. If `None`, all dimensions are reduced.
 
     keepdim : bool, default=False
@@ -1081,7 +1379,7 @@ def interact(
                 fn,
                 displacement_fn,
                 kinds=kinds,
-                dim=dim,
+                dimension=dimension,
                 ignore_unused_parameters=ignore_unused_parameters,
                 **kwargs,
             )
@@ -1090,7 +1388,7 @@ def interact(
                 fn,
                 displacement_fn,
                 kinds=kinds,
-                dim=dim,
+                dimension=dimension,
                 keepdim=keepdim,
                 ignore_unused_parameters=ignore_unused_parameters,
                 **kwargs,
