@@ -22,16 +22,16 @@ def _dataclass(cls: Type[T]):
         else:
             metadata_fields = [*metadata_fields, name]
 
-    def _iterate_cls(_x) -> List[Tuple]:
+    def _iterate_cls(_x) -> list[list]:
         data_iterable = []
 
         for k in data_fields:
-            data_iterable.append(getattr(_x, k))
+            data_iterable = [*data_iterable, getattr(_x, k)]
 
         metadata_iterable = []
 
         for k in metadata_fields:
-            metadata_iterable.append(getattr(_x, k))
+            metadata_iterable = [*metadata_iterable, getattr(_x, k)]
 
         return [data_iterable, metadata_iterable]
 
@@ -46,7 +46,7 @@ def _dataclass(cls: Type[T]):
         dataclass_cls,
         _iterate_cls,
         _iterable_to_cls,
-        "prescient.func",
+        "beignet.func",
     )
 
     return dataclass_cls

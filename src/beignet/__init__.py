@@ -30,6 +30,8 @@ from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
+from ._iota import iota
+from ._pairwise_displacement import pairwise_displacement
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -68,6 +70,8 @@ from ._rotation_vector_to_rotation_matrix import (
     rotation_vector_to_rotation_matrix,
 )
 from ._translation_identity import translation_identity
+from ._segment_sum import segment_sum
+from ._square_distance import square_distance
 from .special import error_erf, error_erfc
 
 __all__ = [

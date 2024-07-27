@@ -8,27 +8,34 @@ from typing import Dict, Callable, Any, Optional, Generator
 import torch
 from torch import Tensor
 
+from beignet import square_distance, iota, segment_sum
 from beignet.func.__dataclass import _dataclass
-from beignet.func._static_field import static_field
 
 
 class PartitionErrorCode(IntEnum):
-    """An enum specifying different error codes.
+    r"""An enum specifying partition error codes.
 
     Attributes:
-      NONE: Means that no error was encountered during simulation.
-      NEIGHBOR_LIST_OVERFLOW: Indicates that the neighbor list was not large
-        enough to contain all of the particles. This should indicate that it is
-        necessary to allocate a new neighbor list.
-      CELL_LIST_OVERFLOW: Indicates that the cell list was not large enough to
-        contain all of the particles. This should indicate that it is necessary
-        to allocate a new cell list.
-      CELL_SIZE_TOO_SMALL: Indicates that the size of cells in a cell list was
-        not large enough to properly capture particle interactions. This
-        indicates that it is necessary to allcoate a new cell list with larger
-        cells.
-      MALFORMED_BOX: Indicates that a box matrix was not properly upper
-        triangular.
+    -----------
+    NONE:
+        No partition error was encountered during simulation.
+
+    NEIGHBOR_LIST_OVERFLOW:
+        Neighbor list was not large enough to contain all of the particles.
+        This should indicate that it is necessary to allocate a new neighbor
+        list.
+
+    CELL_LIST_OVERFLOW:
+        Cell list was not large enough to contain all of the particles. This
+        should indicate that it is necessary to allocate a new cell list.
+
+    CELL_SIZE_TOO_SMALL:
+        Size of cells in a cell list was not large enough to properly capture
+        particle interactions. This indicates that it is necessary to allocate
+        a new cell list with larger cells.
+
+    MALFORMED_BOX:
+        Box matrix was not properly upper triangular.
     """
 
     NONE = 0
@@ -36,9 +43,6 @@ class PartitionErrorCode(IntEnum):
     CELL_LIST_OVERFLOW = 1 << 1
     CELL_SIZE_TOO_SMALL = 1 << 2
     MALFORMED_BOX = 1 << 3
-
-
-PEC = PartitionErrorCode
 
 
 @_dataclass
@@ -71,6 +75,7 @@ class _PartitionError:
         -----------
         bit : bytes
             The bit to be combined with the existing error code.
+
         predicate : Tensor
             A tensor that determines where the bit should be applied.
 
@@ -121,7 +126,7 @@ class _PartitionError:
 class _PartitionErrorKind(IntEnum):
     r"""An enumeration representing different kinds of partition errors in a particle simulation.
 
-    Attributes
+    Attributes:
     ----------
     NONE : int
         No error.
@@ -146,40 +151,47 @@ class _PartitionErrorKind(IntEnum):
 class _CellList:
     r"""Stores the spatial partition of a system into a cell list.
 
-    See :meth:`cell_list` for details on the construction / specification.
-    Cell list buffers all have a common shape, S, where
-    * `S = [cell_count_x, cell_count_y, cell_capacity]`
-    * `S = [cell_count_x, cell_count_y, cell_count_z, cell_capacity]`
-    in two- and three-dimensions respectively. It is assumed that each cell has
-    the same capacity.
-
     Attributes:
-    positions_buffer: An ndarray of floating point positions with shape
-      `S + [spatial_dimension]`.
-    indexes: An ndarray of int32 particle ids of shape `S`. Note that empty
-      slots are specified by `id = N` where `N` is the number of particles in
-      the system.
-    parameters: A dictionary of ndarrays of shape `S + [...]`. This contains
-      side data placed into the cell list.
-    exceeded_maximum_size: A boolean specifying whether or not the cell list
-      exceeded the maximum allocated capacity.
-    size: An integer specifying the maximum capacity of each cell in
-      the cell list.
-    item size: A tensor specifying the size of each cell in the cell list.
-    update_fn: A function that updates the cell list at a fixed capacity.
+    ----------
+    positions_buffer:
+        An ndarray of floating point positions with shape
+        `S + [spatial_dimension]`.
+
+    indices:
+        An ndarray of int32 particle ids of shape `S`. Note that empty slots
+        are specified by `id = N` where `N` is the number of particles in
+        the system.
+
+    parameters:
+        A dictionary of ndarrays of shape `S + [...]`. This contains
+        side data placed into the cell list.
+
+    exceeded_maximum_size:
+        A boolean specifying whether or not the cell list exceeded the maximum
+        allocated capacity.
+
+    size:
+        An integer specifying the maximum capacity of each cell in
+        the cell list.
+
+    item size:
+        A tensor specifying the size of each cell in the cell list.
+
+    update_fn:
+        A function that updates the cell list at a fixed capacity.
     """
 
     exceeded_maximum_size: Tensor
-    indexes: Tensor
-    item_size: float = static_field()
+    indices: Tensor
+    item_size: float = dataclasses.field(metadata={"static": True})
     parameters: Dict[str, Tensor]
     positions_buffer: Tensor
-    size: int = static_field()
-    update_fn: Callable[..., "_CellList"] = static_field()
+    size: int = dataclasses.field(metadata={"static": True})
+    update_fn: Callable[..., "_CellList"] = dataclasses.field(metadata={"static": True})
 
-    def update(self, positions: Tensor, **kwargs) -> "_CellList":
+    def update(self, position: Tensor, **kwargs) -> "_CellList":
         return self.update_fn(
-            positions,
+            position,
             [
                 self.size,
                 self.exceeded_maximum_size,
@@ -193,10 +205,11 @@ class _CellList:
 class _CellListFunctionList:
     r"""A dataclass that encapsulates functions for setting up and updating a cell list.
 
-    Attributes
+    Attributes:
     ----------
     setup_fn : Callable[..., _CellList]
         A function that sets up and returns a `_CellList` object.
+
     update_fn : Callable[[Tensor, Union[_CellList, int]], _CellList]
         A function that updates a `_CellList` object given a tensor and either an existing `_CellList` or an integer.
 
@@ -206,9 +219,11 @@ class _CellListFunctionList:
         Returns an iterator over the setup and update functions.
     """
 
-    setup_fn: Callable[..., _CellList] = static_field()
+    setup_fn: Callable[..., _CellList] = dataclasses.field(metadata={"static": True})
 
-    update_fn: Callable[[Tensor, _CellList | int], _CellList] = static_field()
+    update_fn: Callable[[Tensor, _CellList | int], _CellList] = dataclasses.field(
+        metadata={"static": True}
+    )
 
     def __iter__(self):
         return iter([self.setup_fn, self.update_fn])
@@ -217,12 +232,14 @@ class _CellListFunctionList:
 class _NeighborListFormat(Enum):
     r"""An enumeration representing the format of a neighbor list.
 
-    Attributes
+    Attributes:
     ----------
     DENSE : int
         Represents a dense neighbor list format.
+
     ORDERED_SPARSE : int
         Represents an ordered sparse neighbor list format.
+
     SPARSE : int
         Represents a sparse neighbor list format.
     """
@@ -236,49 +253,62 @@ class _NeighborListFormat(Enum):
 class _NeighborList:
     r"""A dataclass representing a neighbor list used in particle simulations.
 
-    Attributes
+    Attributes:
     ----------
     buffer_fn : Callable[[Tensor, _CellList], _CellList]
         A function to buffer the cell list.
-    indexes : Tensor
-        A tensor containing the indexes of neighbors.
+
+    indices : Tensor
+        A tensor containing the indices of neighbors.
+
     item_size : float or None
         The size of each item in the neighbor list.
+
     maximum_size : int
         The maximum size of the neighbor list.
+
     format : _NeighborListFormat
         The format of the neighbor list.
+
     partition_error : _PartitionError
         An object representing partition errors.
+
     reference_positions : Tensor
         A tensor containing the reference positions of particles.
+
     units_buffer_size : int or None
         The buffer size in units.
+
     update_fn : Callable[[Tensor, "_NeighborList", Any], "_NeighborList"]
         A function to update the neighbor list.
 
-    Methods
+    Methods:
     -------
     update(positions: Tensor, **kwargs) -> "_NeighborList"
         Updates the neighbor list with new positions.
+
     did_buffer_overflow() -> bool
         Checks if the buffer overflowed.
+
     cell_size_too_small() -> bool
         Checks if the cell size is too small.
+
     malformed_box() -> bool
         Checks if the box is malformed.
     """
 
-    buffer_fn: Callable[[Tensor, _CellList], _CellList] = static_field()
-    indexes: Tensor
-    item_size: float | None = static_field()
-    maximum_size: int = static_field()
-    format: _NeighborListFormat = static_field()
+    buffer_fn: Callable[[Tensor, _CellList], _CellList] = dataclasses.field(
+        metadata={"static": True}
+    )
+    indices: Tensor
+    item_size: float | None = dataclasses.field(metadata={"static": True})
+    maximum_size: int = dataclasses.field(metadata={"static": True})
+    format: _NeighborListFormat = dataclasses.field(metadata={"static": True})
     partition_error: _PartitionError
     reference_positions: Tensor
-    units_buffer_size: int | None = static_field()
+    units_buffer_size: int | None = dataclasses.field(metadata={"static": True})
     update_fn: Callable[[Tensor, "_NeighborList", Any], "_NeighborList"] = (
-        static_field()
+        dataclasses.field(metadata={"static": True})
     )
 
     def update(self, positions: Tensor, **kwargs) -> "_NeighborList":
@@ -288,16 +318,19 @@ class _NeighborList:
     def did_buffer_overflow(self) -> bool:
         return (
             self.partition_error.code
-            & (PEC.NEIGHBOR_LIST_OVERFLOW | PEC.CELL_LIST_OVERFLOW)
+            & (
+                PartitionErrorCode.NEIGHBOR_LIST_OVERFLOW
+                | PartitionErrorCode.CELL_LIST_OVERFLOW
+            )
         ).item() != 0
 
     @property
     def cell_size_too_small(self) -> bool:
-        return (self.error.code & PEC.CELL_SIZE_TOO_SMALL).item() != 0
+        return (self.error.code & PartitionErrorCode.CELL_SIZE_TOO_SMALL).item() != 0
 
     @property
     def malformed_box(self) -> bool:
-        return (self.error.code & PEC.MALFORMED_BOX).item() != 0
+        return (self.error.code & PartitionErrorCode.MALFORMED_BOX).item() != 0
 
 
 @_dataclass
@@ -305,73 +338,30 @@ class _NeighborListFunctionList:
     r"""
     A dataclass that encapsulates functions for setting up and updating a neighbor list.
 
-    Attributes
+    Attributes:
     ----------
     setup_fn : Callable[..., _NeighborList]
         A function that sets up and returns a `_NeighborList` object.
+
     update_fn : Callable[[Tensor, _NeighborList], _NeighborList]
         A function that updates a `_NeighborList` object given a tensor and an existing `_NeighborList`.
 
-    Methods
+    Methods:
     -------
     __iter__()
         Returns an iterator over the setup and update functions.
     """
 
-    setup_fn: Callable[..., _NeighborList] = static_field()
+    setup_fn: Callable[..., _NeighborList] = dataclasses.field(
+        metadata={"static": True}
+    )
 
-    update_fn: Callable[[Tensor, _NeighborList], _NeighborList] = static_field()
+    update_fn: Callable[[Tensor, _NeighborList], _NeighborList] = dataclasses.field(
+        metadata={"static": True}
+    )
 
     def __iter__(self):
         return iter((self.setup_fn, self.update_fn))
-
-
-def distance(dR: Tensor) -> Tensor:
-    """Computes distances.
-
-    Args:
-      dR: Matrix of displacements; `Tensor(shape=[..., spatial_dim])`.
-    Returns:
-      Matrix of distances; `Tensor(shape=[...])`.
-    """
-    dr = square_distance(dR)
-
-    return safe_mask(dr > 0, torch.sqrt, dr)
-
-
-def _iota(shape: tuple[int, ...], dim: int = 0, **kwargs) -> Tensor:
-    r"""Generate a tensor with a specified shape where elements along the given dimension
-    are sequential integers starting from 0.
-
-    Parameters
-    ----------
-    shape : tuple[int, ...]
-        The shape of the resulting tensor.
-    dim : int, optional
-        The dimension along which to vary the values (default is 0).
-
-    Returns
-    -------
-    Tensor
-        A tensor of the specified shape with sequential integers along the specified dimension.
-
-    Raises
-    ------
-    IndexError
-        If `dim` is out of the range of `shape`.
-    """
-    dimensions = []
-
-    for index, _ in enumerate(shape):
-        if index != dim:
-            dimension = 1
-
-        else:
-            dimension = shape[index]
-
-        dimensions = [*dimensions, dimension]
-
-    return torch.arange(shape[dim], **kwargs).view(*dimensions).expand(*shape)
 
 
 def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
@@ -379,7 +369,8 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
 
     The function calculates constants that help in determining the hash value
     for a given cell in an N-dimensional grid, based on the number of cells
-    per side in each dimension.
+    per side in each dimension. These constants are used to efficiently map
+    multi-dimensional cell indices to a single-dimensional hash value.
 
     Parameters
     ----------
@@ -402,6 +393,17 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
     ------
     ValueError
         If the size of `cells_per_side` is not zero or `spatial_dimensions`.
+    Examples
+    --------
+    >>> import torch
+    >>> spatial_dimensions = 3
+    >>> cells_per_side = torch.tensor([4, 4, 4])
+    >>> _hash_constants(spatial_dimensions, cells_per_side)
+    tensor([[ 1,  4, 16]], dtype=torch.int32)
+
+    >>> cells_per_side = torch.tensor([4])
+    >>> _hash_constants(spatial_dimensions, cells_per_side)
+    tensor([[ 1,  4, 16]], dtype=torch.int32)
     """
     if cells_per_side.numel() == 1:
         constants = [[cells_per_side**dim for dim in range(spatial_dimensions)]]
@@ -438,9 +440,9 @@ def _map_bond(metric_or_displacement: Callable) -> Callable:
 def _map_neighbor(metric_or_displacement: Callable) -> Callable:
     r"""Vectorizes a metric or displacement function over neighborhoods."""
 
-    def wrapped_fn(Ra, Rb, **kwargs):
+    def wrapped_fn(input, other, **kwargs):
         return torch.vmap(torch.vmap(metric_or_displacement, (0, None)))(
-            Rb, Ra, **kwargs
+            other, input, **kwargs
         )
 
     return wrapped_fn
@@ -448,12 +450,10 @@ def _map_neighbor(metric_or_displacement: Callable) -> Callable:
 
 def map_product(metric_or_displacement: Callable) -> Callable:
     r"""Vectorizes a metric or displacement function over all pairs."""
-    outer_vmap = torch.vmap(torch.vmap(metric_or_displacement, (0, None)), (None, 0))
-
-    return outer_vmap
+    return torch.vmap(torch.vmap(metric_or_displacement, (0, None)), (None, 0))
 
 
-def metric(distance_fn: Callable) -> Callable:
+def metric(displacement_fn: Callable) -> Callable:
     r"""Takes a displacement function and creates a metric..
 
     Parameters:
@@ -467,7 +467,9 @@ def metric(distance_fn: Callable) -> Callable:
         A wrapper function that applies `distance_fn` to each pair of start and end positions
         in the batch.
     """
-    return lambda Ra, Rb, **kwargs: distance(distance_fn(Ra, Rb, **kwargs))
+    return lambda input, other, **kwargs: square_distance(
+        displacement_fn(input, other, **kwargs)
+    )
 
 
 def safe_index(array: Tensor, indices: Tensor) -> Tensor:
@@ -477,6 +479,7 @@ def safe_index(array: Tensor, indices: Tensor) -> Tensor:
     ----------
     array : Tensor
         The tensor to index.
+
     indices : Tensor
         The indices to use for indexing.
 
@@ -494,81 +497,7 @@ def safe_index(array: Tensor, indices: Tensor) -> Tensor:
     return result
 
 
-def safe_mask(
-    mask: Tensor, fn: Callable, operand: Tensor, placeholder: Any = 0
-) -> Tensor:
-    r"""Applies a function to elements of a tensor where a mask is True, and replaces elements where the mask is False with a placeholder.
-
-    Parameters
-    ----------
-    mask : Tensor
-        A boolean tensor indicating which elements to apply the function to.
-    fn : Callable[[Tensor], Tensor]
-        The function to apply to the masked elements.
-    operand : Tensor
-        The tensor to apply the function to.
-    placeholder : Any, optional
-        The value to use for elements where the mask is False (default is 0).
-
-    Returns
-    -------
-    Tensor
-        A tensor with the function applied to the masked elements and the placeholder value elsewhere.
-    """
-    masked = torch.where(mask, operand, torch.tensor(0, dtype=operand.dtype))
-
-    return torch.where(mask, fn(masked), torch.tensor(placeholder, dtype=operand.dtype))
-
-
-def _segment_sum(
-    input: Tensor,
-    indexes: Tensor,
-    n: Optional[int] = None,
-    **kwargs,
-) -> Tensor:
-    r"""Computes the sum of segments of a tensor along the first dimension.
-
-    Parameters
-    ----------
-    input : Tensor
-        A tensor containing the input values to be summed.
-    indexes : Tensor
-        A 1D tensor containing the segment indexes for summation.
-        Should have the same length as the first dimension of the `input` tensor.
-    n : Optional[int], optional
-        The number of segments, by default `n` is set to `max(indexes) + 1`.
-
-    Returns
-    -------
-    Tensor
-        A tensor where each entry contains the sum of the corresponding segment
-        from the `input` tensor.
-    """
-    if indexes.ndim == 1:
-        indexes = torch.repeat_interleave(indexes, math.prod([*input.shape[1:]])).view(
-            *[indexes.shape[0], *input.shape[1:]]
-        )
-
-    if input.size(0) != indexes.size(0):
-        raise ValueError(
-            "The length of the indexes tensor must match the size of the first dimension of the input tensor."
-        )
-
-    if n is None:
-        n = indexes.max().item() + 1
-
-    valid_mask = indexes < n
-    valid_indexes = indexes[valid_mask]
-    valid_input = input[valid_mask]
-
-    output = torch.zeros(n, *input.shape[1:], device=input.device)
-
-    return output.scatter_add(0, valid_indexes, valid_input.to(torch.float32)).to(
-        **kwargs
-    )
-
-
-def _shift(a: Tensor, b: Tensor) -> Tensor:
+def _shift(input: Tensor, shift: Tensor) -> Tensor:
     r"""Shifts a tensor `a` along dimensions specified in `b`.
 
     The shift can be applied in up to three dimensions (x, y, z).
@@ -577,9 +506,10 @@ def _shift(a: Tensor, b: Tensor) -> Tensor:
 
     Parameters
     ----------
-    a : Tensor
+    input : Tensor
       The input tensor to be shifted.
-    b : Tensor
+
+    shift : Tensor
       A tensor of two or three elements specifying the shift amount for each dimension.
 
     Returns
@@ -587,18 +517,7 @@ def _shift(a: Tensor, b: Tensor) -> Tensor:
     Tensor
       The shifted tensor.
     """
-    return torch.roll(a, shifts=tuple(b), dims=tuple(range(len(b))))
-
-
-def square_distance(input: Tensor) -> Tensor:
-    """Computes square distances.
-
-    Args:
-    input: Matrix of displacements; `Tensor(shape=[..., spatial_dim])`.
-    Returns:
-    Matrix of squared distances; `Tensor(shape=[...])`.
-    """
-    return torch.sum(input**2, dim=-1)
+    return torch.roll(input, shifts=tuple(shift), dims=tuple(range(len(shift))))
 
 
 def _to_square_metric_fn(
@@ -648,15 +567,17 @@ def _to_square_metric_fn(
 
 def _unflatten_cell_buffer(
     buffer: Tensor, cells_per_side: [int, float, Tensor], dim: int
-):
+) -> Tensor:
     r"""Reshape a flat buffer into a multidimensional cell buffer.
 
     Parameters
     ----------
     buffer : Tensor
         The input flat buffer tensor to be reshaped.
+
     cells_per_side : Tensor or int or float
         The number of cells per side in each dimension.
+
     dim : int
         The number of spatial dimensions.
 
@@ -706,8 +627,10 @@ def _cell_dimensions(
     -----------
     spatial_dimension : int
         The spatial dimension of the box (e.g., 2 for 2D, 3 for 3D).
+
     box_size : Tensor or scalar
         The size of the box. Can be a scalar or a Tensor with dimensions 0, 1, or 2.
+
     minimum_cell_size : float
         The minimum size of the cells.
 
@@ -715,10 +638,13 @@ def _cell_dimensions(
     --------
     box_size : Tensor
         The (possibly modified) size of the box.
+
     cell_size : Tensor
         The size of the cells.
+
     cells_per_side : Tensor
         The number of cells per side.
+
     cell_count : int
         The total number of cells in the box.
 
@@ -735,9 +661,10 @@ def _cell_dimensions(
         if box_size < minimum_cell_size:
             raise ValueError("Box size must be at least as large as minimum cell size.")
 
-    if isinstance(box_size, Tensor):
-        if box_size.dtype in {torch.int32, torch.int64}:
-            box_size = box_size.float()
+    if (isinstance(box_size, Tensor)) and (
+        box_size.dtype in {torch.int32, torch.int64}
+    ):
+        box_size = box_size.float()
 
     if isinstance(box_size, Tensor):
         cells_per_side = torch.floor(box_size / minimum_cell_size)
@@ -788,6 +715,7 @@ def _cell_size(box: Tensor, minimum_unit_size: Tensor) -> Tensor:
     -----------
     box : Tensor
         The size of the box. This must be a Tensor.
+
     minimum_unit_size : Tensor
         The minimum size of the units (cells). This must be a Tensor of the same shape as `box` or a scalar Tensor.
 
@@ -817,10 +745,13 @@ def _estimate_cell_capacity(
     ----------
     positions : Tensor
         A tensor containing the positions of particles.
+
     size : Tensor
         A tensor representing the size of the cell.
+
     unit_size : float
         The size of a single unit within the cell.
+
     buffer_size_multiplier : float
         A multiplier to account for buffer space in the cell capacity.
 
@@ -841,10 +772,6 @@ def _is_neighbor_list_format_valid(neighbor_list_format: _NeighborListFormat):
     -----------
     neighbor_list_format : _NeighborListFormat
         The neighbor list format to be validated.
-
-    Returns:
-    --------
-    None
 
     Raises:
     -------
@@ -876,12 +803,12 @@ def is_neighbor_list_sparse(
     }
 
 
-def _is_space_valid(space: Tensor) -> Tensor:
+def _is_box_valid(box: Tensor) -> Tensor:
     r"""Check if the given space tensor is valid.
 
     Parameters:
     -----------
-    space : Tensor
+    box : Tensor
         The space tensor to be validated. This tensor can have 0, 1, or 2 dimensions.
 
     Returns:
@@ -894,24 +821,28 @@ def _is_space_valid(space: Tensor) -> Tensor:
     ValueError
         If the space tensor has more than 2 dimensions.
     """
-    if space.ndim == 0 or space.ndim == 1:
+    if box.ndim == 0 or box.ndim == 1:
         return torch.tensor([True])
 
-    if space.ndim == 2:
-        return torch.tensor([torch.all(torch.triu(space) == space)])
+    if box.ndim == 2:
+        return torch.tensor([torch.all(torch.triu(box) == box)])
 
     return torch.tensor([False])
 
 
-def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tensor:
+def _neighbor_list_mask(
+    neighbor: _NeighborList, mask_self_interactions: bool = False
+) -> Tensor:
     r"""Compute a mask for neighbor list.
 
     Parameters
     ----------
     neighbor : _NeighborList
       The input tensor to be masked.
-    mask_self : bool
 
+    mask_self_interactions : bool
+        An optional boolean. Determines whether points can consider themselves
+        to be their own neighbors.
 
     Returns
     -------
@@ -919,19 +850,20 @@ def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tens
       The masked tensor.
     """
     if is_neighbor_list_sparse(neighbor.format):
-        mask = neighbor.indexes[0] < len(neighbor.reference_positions)
-        torch.set_printoptions(profile="full")
-        if mask_self:
-            mask = mask & (neighbor.indexes[0] != neighbor.indexes[1])
+        mask = neighbor.indices[0] < neighbor.reference_positions.shape[0]
+        if mask_self_interactions:
+            mask = mask & (neighbor.indices[0] != neighbor.indices[1])
 
         return mask
 
-    mask = neighbor.indexes < len(neighbor.indexes)
+    mask = neighbor.indices < neighbor.indices.shape[0]
 
-    if mask_self:
-        N = len(neighbor.reference_positions)
+    if mask_self_interactions:
+        number_of_particles = neighbor.reference_positions.shape[0]
 
-        self_mask = neighbor.indexes != torch.arange(N).view(N, 1)
+        self_mask = neighbor.indices != torch.arange(number_of_particles).view(
+            number_of_particles, 1
+        )
 
         mask = mask & self_mask
 
@@ -1047,11 +979,11 @@ def _particles_per_cell(
 
     hash_multipliers = _hash_constants(dim, per_side)
 
-    particle_index = torch.tensor(positions / unit_size, dtype=torch.int32)
+    particle_index = (positions / unit_size).to(dtype=torch.int32)
 
     particle_hash = torch.sum(particle_index * hash_multipliers, dim=1)
 
-    filling = _segment_sum(torch.ones_like(particle_hash), particle_hash, n)
+    filling = segment_sum(torch.ones_like(particle_hash), particle_hash, n)
 
     return filling
 
@@ -1069,8 +1001,10 @@ def cell_list(
     ----------
     size : Tensor
         The size of the simulation box. If a 1-dimensional tensor is passed, it's reshaped to (1, -1).
+
     minimum_unit_size : float
         The minimum size of the simulation cells.
+
     buffer_size_multiplier : float, default=1.25
         A multiplier to determine the buffer size for each cell.
 
@@ -1086,7 +1020,7 @@ def cell_list(
         size = torch.reshape(size, [1, -1])
 
     def fn(
-        positions: Tensor,
+        position: Tensor,
         excess: tuple[bool, int, Callable[..., _CellList]] | None = None,
         excess_buffer_size: int = 0,
         **kwargs,
@@ -1095,7 +1029,7 @@ def cell_list(
 
         Parameters
         ----------
-        positions : Tensor
+        position : Tensor
             Positions of the particles.
         excess : tuple[bool, int, Callable[..., _CellList]] | None, default=None
             Information about excess buffer size.
@@ -1109,7 +1043,7 @@ def cell_list(
         _CellList
             The constructed or updated cell list.
         """
-        spatial_dimension = positions.shape[1]
+        spatial_dimension = position.shape[1]
 
         if spatial_dimension not in {2, 3}:
             raise ValueError
@@ -1122,7 +1056,7 @@ def cell_list(
 
         if excess is None:
             buffer_size = _estimate_cell_capacity(
-                positions, size, unit_size, buffer_size_multiplier
+                position, size, unit_size, buffer_size_multiplier
             )
 
             buffer_size = buffer_size + excess_buffer_size
@@ -1136,13 +1070,12 @@ def cell_list(
 
         positions_buffer = torch.zeros(
             [unit_count * buffer_size, spatial_dimension],
-            device=positions.device,
-            dtype=positions.dtype,
+            device=position.device,
+            dtype=position.dtype,
         )
 
-        indexes = positions.shape[0] * torch.ones(
+        indices = position.shape[0] * torch.ones(
             [unit_count * buffer_size, 1],
-            device=positions.device,
             dtype=torch.int32,
         )
 
@@ -1157,8 +1090,12 @@ def cell_list(
                     )
                 )
 
-            if parameter.shape[0] != positions.shape[0]:
-                raise ValueError
+            if parameter.shape[0] != position.shape[0]:
+                raise ValueError(
+                    f"The length of the parameter must match the length of the"
+                    f"position. Recieved parameter: {parameter.shape[0]} and"
+                    f"position: {position.shape[0]}."
+                )
 
             if parameter.ndim > 1:
                 kwarg_shape = parameter.shape[1:]
@@ -1168,14 +1105,11 @@ def cell_list(
             parameters[name] = 100000 * torch.ones(
                 (unit_count * buffer_size,) + kwarg_shape,
                 dtype=parameter.dtype,
-                device=parameter.device,
             )
 
         hashes = torch.sum(
-            (positions / unit_size).to(dtype=torch.int32)
-            * _hash_constants(spatial_dimension, units_per_side).to(
-                device=positions.device
-            ),
+            (position / unit_size).to(dtype=torch.int32)
+            * _hash_constants(spatial_dimension, units_per_side),
             dim=1,
         )
 
@@ -1187,28 +1121,25 @@ def cell_list(
             sorted_parameters[name] = parameter[sort_map]
 
         sorted_unit_indexes = hashes[sort_map] * buffer_size + torch.remainder(
-            _iota(
-                ((positions.shape[0]),),
-                device=positions.device,
+            iota(
+                ((position.shape[0]),),
                 dtype=torch.int32,
             ),
             buffer_size,
         )
 
-        positions_buffer[sorted_unit_indexes] = positions[sort_map]
+        positions_buffer[sorted_unit_indexes] = position[sort_map]
 
-        indexes[sorted_unit_indexes] = torch.reshape(
-            _iota(((positions.shape[0]),), dtype=torch.int32).to(
-                device=positions.device
-            )[sort_map],
-            [(positions.shape[0]), 1],
+        indices[sorted_unit_indexes] = torch.reshape(
+            iota(((position.shape[0]),), dtype=torch.int32)[sort_map],
+            [(position.shape[0]), 1],
         )
 
         positions_buffer = _unflatten_cell_buffer(
             positions_buffer, units_per_side, spatial_dimension
         )
 
-        indexes = _unflatten_cell_buffer(indexes, units_per_side, spatial_dimension)
+        indices = _unflatten_cell_buffer(indices, units_per_side, spatial_dimension)
 
         for name, parameter in sorted_parameters.items():
             if parameter.ndim == 1:
@@ -1221,15 +1152,13 @@ def cell_list(
             )
 
         exceeded_maximum_size = exceeded_maximum_size | (
-            torch.max(_segment_sum(torch.ones_like(hashes), hashes, unit_count))
+            torch.max(segment_sum(torch.ones_like(hashes), hashes, unit_count))
             > buffer_size
         )
 
-        print(f"cell_capacity: {buffer_size}")
-
         return _CellList(
             exceeded_maximum_size=exceeded_maximum_size,
-            indexes=indexes,
+            indices=indices,
             parameters=parameters,
             positions_buffer=positions_buffer,
             size=buffer_size,
@@ -1271,8 +1200,10 @@ def cell_list(
         ----------
         positions : Tensor
             New positions of the particles.
+
         buffer : int or _CellList
             Either an integer specifying the buffer size or an existing `_CellList` object.
+
         **kwargs : dict
             Additional parameters to store alongside the particle positions.
 
@@ -1294,8 +1225,8 @@ def cell_list(
 
 
 def neighbor_list(
-    displacement_fn: Callable[[Tensor, Tensor], Tensor],
-    space: Tensor,
+    distance_fn: Callable[[Tensor, Tensor], Tensor],
+    box: Tensor,
     neighborhood_radius: float,
     maximum_distance: float = 0.0,
     buffer_size_multiplier: float = 1.25,
@@ -1310,24 +1241,33 @@ def neighbor_list(
 
     Parameters
     ----------
-    displacement_fn : Callable[[Tensor, Tensor], Tensor]
-        A function that computes the displacement between two tensors.
-    space : Tensor
+    distance_fn : Callable[[Tensor, Tensor], Tensor]
+        A function that computes the distance between two tensors.
+
+    box : Tensor
         The space in which the particles are located.
+
     neighborhood_radius : float
         The radius within which neighbors are considered.
+
     maximum_distance : float, optional
         The maximum distance for considering neighbors (default is 0.0).
+
     buffer_size_multiplier : float, optional
         A multiplier for the buffer size (default is 1.25).
+
     disable_unit_list : bool, optional
         Whether to disable the unit list (default is False).
+
     mask_self : bool, optional
         Whether to mask self interactions (default is True).
+
     mask_fn : Optional[Callable[[Tensor], Tensor]], optional
         A function to mask certain interactions (default is None).
+
     normalized : bool, optional
         Whether the space is normalized (default is False).
+
     neighbor_list_format : _NeighborListFormat, optional
         The format of the neighbor list (default is _NeighborListFormat.DENSE).
     **_
@@ -1340,7 +1280,7 @@ def neighbor_list(
     """
     _is_neighbor_list_format_valid(neighbor_list_format)
 
-    space = space.detach()
+    box = box.detach()
 
     cutoff = neighborhood_radius + maximum_distance
 
@@ -1348,7 +1288,7 @@ def neighbor_list(
 
     squared_maximum_distance = (maximum_distance / torch.tensor(2.0)) ** 2
 
-    metric_sq = _to_square_metric_fn(displacement_fn)
+    metric_sq = _to_square_metric_fn(distance_fn)
 
     def _neighbor_candidate_fn(shape: tuple[int, ...]) -> Tensor:
         return torch.broadcast_to(
@@ -1356,27 +1296,50 @@ def neighbor_list(
         )
 
     def _cell_list_neighbor_candidate_fn(unit_indexes_buffer, shape) -> Tensor:
+        r"""Generates a list of neighbor candidates for each cell in a grid.
+
+        Parameters
+        ----------
+        unit_indexes_buffer : Tensor
+            A tensor containing the unit indexes of particles in the grid.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        shape : tuple
+            A tuple representing the shape of the grid. It should be of the form
+            (n, spatial_dimension) where `n` is the number of particles and
+            `spatial_dimension` is the dimensionality of the space.
+
+        Returns
+        -------
+        output: Tensor, shape(n, m)
+            A tensor containing the neighbor candidates for each cell. The shape of the
+            tensor is (n, m) where `n` is the number of particles and `m` is the number
+            of neighbor candidates per cell.
+        """
         n, spatial_dimension = shape
 
-        indexes = unit_indexes_buffer
+        indices = unit_indexes_buffer
 
-        unit_indexes = [indexes]
+        unit_indexes = [indices]
 
         for dindex in _neighboring_cell_lists(spatial_dimension):
             if torch.all(dindex == 0):
                 continue
 
-            unit_indexes += [_shift(indexes, dindex)]
+            unit_indexes += [_shift(indices, dindex)]
 
         unit_indexes = torch.concatenate(unit_indexes, dim=-2)
 
         unit_indexes = unit_indexes[..., None, :, :]
 
         unit_indexes = torch.broadcast_to(
-            unit_indexes, indexes.shape[:-1] + unit_indexes.shape[-2:]
+            unit_indexes, indices.shape[:-1] + unit_indexes.shape[-2:]
         )
 
-        def copy_values_from_cell(value, cell_value, cell_id):
+        def copy_values_from_cell(
+            value: Tensor, cell_value: Tensor, cell_id: Tensor
+        ) -> Tensor:
             scatter_indices = torch.reshape(cell_id, (-1,))
 
             cell_value = torch.reshape(cell_value, (-1,) + cell_value.shape[-2:])
@@ -1390,12 +1353,27 @@ def neighbor_list(
         )
 
         neighbor_indexes = copy_values_from_cell(
-            neighbor_indexes, unit_indexes, indexes
+            neighbor_indexes, unit_indexes, indices
         )
 
         return neighbor_indexes[:-1, :, 0]
 
-    def mask_self_fn(idx: Tensor) -> Tensor:
+    def mask_self_interactions_fn(idx: Tensor) -> Tensor:
+        r"""Masks self-interactions in the neighbor list.
+
+        Parameters
+        ----------
+        idx : Tensor
+            A tensor containing the indices of the neighbor candidates for each particle.
+            The shape of the tensor is expected to be (n, m) where `n` is the number
+            of particles and `m` is the number of neighbor candidates per particle.
+
+        Returns
+        -------
+        output : Tensor, shape (n, m)
+            A tensor with self-interactions masked. If `mask_self_interactions` is True, particles will
+            not consider themselves as their own neighbors.
+        """
         return torch.where(
             idx
             == torch.reshape(
@@ -1407,29 +1385,56 @@ def neighbor_list(
         )
 
     def prune_dense_neighbor_list(
-        positions: Tensor, indexes: Tensor, **kwargs
+        positions: Tensor, indices: Tensor, **kwargs
     ) -> Tensor:
+        r"""Prunes a dense neighbor list based on a distance cutoff.
+
+        Parameters
+        ----------
+        positions : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        indices : Tensor
+            A tensor containing the indices of the neighbor candidates for each particle.
+            The shape of the tensor is expected to be (n, m) where `n` is the number
+            of particles and `m` is the number of neighbor candidates per particle.
+
+        **kwargs : dict
+            Additional keyword arguments to be passed to the distance metric function.
+
+        Returns
+        -------
+        output : Tensor, shape (n, m)
+            A tensor containing the pruned neighbor list for each particle. The shape of the
+            tensor is (n, m) where `n` is the number of particles and `m` is the number
+            of pruned neighbor candidates per particle.
+
+        maximum_occupancy : Tensor
+            A tensor containing the maximum number of neighbors for any particle after pruning.
+        """
         displacement_fn = functools.partial(metric_sq, **kwargs)
 
         displacement_fn = _map_neighbor(displacement_fn)
 
-        neighbor_positions = safe_index(positions, indexes)
+        neighbor_positions = safe_index(positions, indices)
 
         displacements = displacement_fn(positions, neighbor_positions)
 
-        mask = (displacements < squared_cutoff) & (indexes < positions.shape[0])
+        mask = (displacements < squared_cutoff) & (indices < positions.shape[0])
 
         output_indexes = positions.shape[0] * torch.ones(
-            indexes.shape, dtype=torch.int32
+            indices.shape, dtype=torch.int32
         )
 
         cumsum = torch.cumsum(mask, dim=1)
 
-        index = torch.where(mask, cumsum - 1, indexes.shape[1] - 1)
+        index = torch.where(mask, cumsum - 1, indices.shape[1] - 1)
 
-        p_index = torch.arange(indexes.shape[0])[:, None]
+        p_index = torch.arange(indices.shape[0])[:, None]
 
-        output_indexes[p_index, index] = indexes
+        output_indexes[p_index, index] = indices
 
         maximum_occupancy = torch.max(cumsum[:, -1])
 
@@ -1438,9 +1443,37 @@ def neighbor_list(
     def prune_sparse_neighbor_list(
         position: Tensor, idx: Tensor, **kwargs
     ) -> tuple[Tensor, Any]:
-        displacement_fn = functools.partial(metric_sq, **kwargs)
+        r"""Prunes a sparse neighbor list based on a distance cutoff.
 
-        displacement_fn = _map_bond(displacement_fn)
+        Parameters
+        ----------
+        position : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        idx : Tensor
+            A tensor containing the indices of the neighbor candidates for each particle.
+            The shape of the tensor is expected to be (n, m) where `n` is the number
+            of particles and `m` is the number of neighbor candidates per particle.
+
+        **kwargs : dict
+            Additional keyword arguments to be passed to the distance metric function.
+
+        Returns
+        -------
+        output : Tensor, shape (2, k)
+            A tensor containing the pruned neighbor list for each particle. The shape of the
+            tensor is (2, k) where `k` is the number of pruned neighbor pairs. The first row
+            contains the receiver indices and the second row contains the sender indices.
+
+        max_occupancy : Tensor
+            A tensor containing the maximum number of neighbors for any particle after pruning.
+        """
+
+        distance_fn = functools.partial(metric_sq, **kwargs)
+
+        distance_fn = torch.vmap(distance_fn, (0, 0), 0)
 
         sender_idx = torch.broadcast_to(
             torch.arange(position.shape[0])[:, None], idx.shape
@@ -1448,7 +1481,7 @@ def neighbor_list(
 
         sender_idx = torch.reshape(sender_idx, (-1,))
         receiver_idx = torch.reshape(idx, (-1,))
-        distances = displacement_fn(
+        distances = distance_fn(
             safe_index(position, sender_idx), safe_index(position, receiver_idx)
         )
 
@@ -1460,7 +1493,7 @@ def neighbor_list(
         out_idx = position.shape[0] * torch.ones(receiver_idx.shape, dtype=torch.int32)
 
         cumsum = torch.cumsum(torch.flatten(mask), dim=0)
-        index = torch.where(mask, cumsum - 1, len(receiver_idx) - 1)
+        index = torch.where(mask, cumsum - 1, receiver_idx.shape[0] - 1)
 
         index = index.to(torch.int64)
         sender_idx = sender_idx.to(torch.int32)
@@ -1473,12 +1506,57 @@ def neighbor_list(
         return torch.stack((receiver_idx, sender_idx)), max_occupancy
 
     def _neighbors_fn(
-        positions: Tensor, neighbors=None, extra_capacity: int = 0, **kwargs
+        positions: Tensor, neighbors=None, excess: int = 0, **kwargs
     ) -> _NeighborList:
+        r"""Generates or updates a neighbor list for a set of particles.
+
+        Parameters
+        ----------
+        positions : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        neighbors : _NeighborList, optional
+            An existing neighbor list to be updated. If None, a new neighbor list
+            will be generated.
+
+        excess : int, optional
+            An integer specifying the excess buffer size for the neighbor list.
+
+        **kwargs : dict
+            Additional keyword arguments to be passed to the distance metric function.
+
+        Returns
+        -------
+        output : _NeighborList
+            An object containing the neighbor list, including indices, item size,
+            maximum size, and other relevant information.
+        """
+
         def _fn(position_and_error, maximum_size=None):
+            r"""Internal function to generate or update a neighbor list for a set of particles.
+
+            Parameters
+            ----------
+            position_and_error : tuple
+                A tuple containing the reference positions of the particles and a partition error object.
+                The reference positions tensor should have the shape (n, d) where `n` is the number
+                of particles and `d` is the dimensionality of the system.
+
+            maximum_size : int, optional
+                An integer specifying the maximum size of the neighbor list. If None, the maximum size
+                will be determined based on the occupancy and buffer size multiplier.
+
+            Returns
+            -------
+            output : _NeighborList
+                An object containing the neighbor list, including indices, item size, maximum size,
+                and other relevant information.
+            """
             reference_positions, err = position_and_error
 
-            n = reference_positions.shape[0]
+            number_of_particles = reference_positions.shape[0]
 
             buffer_fn = None
             unit_list = None
@@ -1486,29 +1564,29 @@ def neighbor_list(
 
             if not disable_unit_list:
                 if neighbors is None:
-                    _space = kwargs.get("space", space)
+                    _box = kwargs.get("space", box)
 
                     item_size = cutoff
                     if normalized:
-                        if not torch.all(positions < 1):
+                        if not torch.all(positions < 1.0):
                             raise ValueError(
-                                "Positions are not normalized. Ensure torch.all(positions < 1)."
+                                "Positions are not normalized. Ensure torch.all(positions < 1.0)."
                             )
 
                         err = err.update(
                             _PartitionErrorKind.MALFORMED_BOX,
-                            _is_space_valid(_space),
+                            _is_box_valid(_box),
                         )
 
-                        item_size = _normalize_cell_size(_space, cutoff)
+                        item_size = _normalize_cell_size(_box, cutoff)
 
-                        _space = 1.0
+                        _box = 1.0
 
-                    if torch.all(item_size < _space / 3.0):
-                        buffer_fn = cell_list(_space, item_size, buffer_size_multiplier)
+                    if torch.all(item_size < _box / 3.0):
+                        buffer_fn = cell_list(_box, item_size, buffer_size_multiplier)
 
                         unit_list = buffer_fn.setup_fn(
-                            reference_positions, excess_buffer_size=extra_capacity
+                            reference_positions, excess_buffer_size=excess
                         )
 
                 else:
@@ -1524,7 +1602,7 @@ def neighbor_list(
             if unit_list is None:
                 units_buffer_size = None
 
-                indexes = _neighbor_candidate_fn(reference_positions.shape)
+                indices = _neighbor_candidate_fn(reference_positions.shape)
 
             else:
                 err = err.update(
@@ -1532,52 +1610,60 @@ def neighbor_list(
                     unit_list.exceeded_maximum_size,
                 )
 
-                indexes = _cell_list_neighbor_candidate_fn(
-                    unit_list.indexes, reference_positions.shape
+                indices = _cell_list_neighbor_candidate_fn(
+                    unit_list.indices, reference_positions.shape
                 )
 
                 units_buffer_size = unit_list.size
 
             if mask_self:
-                indexes = mask_self_fn(indexes)
+                indices = mask_self_interactions_fn(indices)
 
             if mask_fn is not None:
-                indexes = mask_fn(indexes)
+                indices = mask_fn(indices)
 
             if is_neighbor_list_sparse(neighbor_list_format):
-                indexes, occupancy = prune_sparse_neighbor_list(
-                    reference_positions, indexes, **kwargs
+                indices, occupancy = prune_sparse_neighbor_list(
+                    reference_positions, indices, **kwargs
                 )
 
             else:
-                indexes, occupancy = prune_dense_neighbor_list(
-                    reference_positions, indexes, **kwargs
+                indices, occupancy = prune_dense_neighbor_list(
+                    reference_positions, indices, **kwargs
                 )
 
             if maximum_size is None:
                 if not is_neighbor_list_sparse(neighbor_list_format):
-                    _extra_capacity = extra_capacity
+                    _extra_capacity = excess
                 else:
-                    _extra_capacity = n * extra_capacity
+                    _extra_capacity = number_of_particles * excess
 
                 maximum_size = int(occupancy * buffer_size_multiplier + _extra_capacity)
 
-                if maximum_size > indexes.shape[-1]:
-                    maximum_size = indexes.shape[-1]
+                if maximum_size > indices.shape[-1]:
+                    maximum_size = indices.shape[-1]
 
                 if not is_neighbor_list_sparse(neighbor_list_format):
-                    capacity_limit = n - 1 if mask_self else n
+                    capacity_limit = (
+                        number_of_particles - 1 if mask_self else number_of_particles
+                    )
 
                 elif neighbor_list_format == _NeighborListFormat.SPARSE:
-                    capacity_limit = n * (n - 1) if mask_self else n**2
+                    capacity_limit = (
+                        number_of_particles * (number_of_particles - 1)
+                        if mask_self
+                        else number_of_particles**2
+                    )
 
                 else:
-                    capacity_limit = n * (n - 1) // 2
+                    capacity_limit = (
+                        number_of_particles * (number_of_particles - 1) // 2
+                    )
 
                 if maximum_size > capacity_limit:
                     maximum_size = capacity_limit
 
-            indexes = indexes[:, :maximum_size]
+            indices = indices[:, :maximum_size]
 
             if neighbors is None:
                 update_fn = _neighbors_fn
@@ -1592,7 +1678,7 @@ def neighbor_list(
 
             return _NeighborList(
                 buffer_fn=buffer_fn,
-                indexes=indexes,
+                indices=indices,
                 item_size=item_size,
                 maximum_size=maximum_size,
                 format=neighbor_list_format,
@@ -1628,7 +1714,7 @@ def neighbor_list(
 
             updated_unit_size = _cell_size(
                 torch.tensor(1.0),
-                _normalize_cell_size(space, cutoff),
+                _normalize_cell_size(box, cutoff),
             )
 
             error = updated_neighbors.partition_error.update(
@@ -1638,7 +1724,7 @@ def neighbor_list(
 
             error = error.update(
                 _PartitionErrorKind.MALFORMED_BOX,
-                _is_space_valid(space),
+                _is_box_valid(box),
             )
 
             updated_neighbors = dataclasses.replace(
@@ -1661,9 +1747,51 @@ def neighbor_list(
             return neighbor_fn((positions, updated_neighbors.partition_error))
 
     def setup_fn(positions: Tensor, extra_capacity: int = 0, **kwargs):
-        return _neighbors_fn(positions, extra_capacity=extra_capacity, **kwargs)
+        r"""Sets up a new neighbor list for a set of particles.
+
+        Parameters
+        ----------
+        positions : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        extra_capacity : int, optional
+            An integer specifying the extra buffer size for the neighbor list.
+
+        **kwargs : dict
+            Additional keyword arguments to be passed to the distance metric function.
+
+        Returns
+        -------
+        output : _NeighborList
+            An object containing the newly created neighbor list, including indices, item size,
+            maximum size, and other relevant information.
+        """
+        return _neighbors_fn(positions, excess=extra_capacity, **kwargs)
 
     def update_fn(positions: Tensor, neighbors, **kwargs):
+        r"""Updates an existing neighbor list for a set of particles.
+
+        Parameters
+        ----------
+        positions : Tensor
+            A tensor representing the positions of the particles in the system.
+            The shape of the tensor is expected to be (n, d) where `n` is the number
+            of particles and `d` is the dimensionality of the system.
+
+        neighbors : _NeighborList
+            An existing neighbor list to be updated.
+
+        **kwargs : dict
+            Additional keyword arguments to be passed to the distance metric function.
+
+        Returns
+        -------
+        output : _NeighborList
+            An object containing the updated neighbor list, including indices, item size,
+            maximum size, and other relevant information.
+        """
         return _neighbors_fn(positions, neighbors, **kwargs)
 
     return _NeighborListFunctionList(setup_fn=setup_fn, update_fn=update_fn)
@@ -1671,7 +1799,7 @@ def neighbor_list(
 
 def partition(
     displacement_fn: Callable[[Tensor, Tensor], Tensor],
-    space: Tensor,
+    box: Tensor,
     neighborhood_radius: float,
     *,
     maximum_distance: float = 0.0,
@@ -1689,7 +1817,7 @@ def partition(
     ----------
     displacement_fn : Callable[[Tensor, Tensor], Tensor]
         A function that computes the displacement between two tensors.
-    space : Tensor
+    box : Tensor
         The space in which the particles are located.
     neighborhood_radius : float
         The radius within which neighbors are considered.
@@ -1715,7 +1843,7 @@ def partition(
     """
     return neighbor_list(
         displacement_fn,
-        space,
+        box,
         neighborhood_radius,
         maximum_distance,
         buffer_size_multiplier,
