@@ -10,6 +10,8 @@ from beignet.func._partition import metric
 
 T = TypeVar("T")
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def canonicalize_displacement_or_metric(displacement_fn: Callable) -> Callable:
     r"""Checks whether or not a displacement or metric was provided.
@@ -146,7 +148,7 @@ def space(
         )
     """
     if isinstance(box, (int, float)):
-        box = torch.tensor([box])
+        box = torch.tensor([box], device=device)
 
     if box is None:
 

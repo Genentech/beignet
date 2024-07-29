@@ -20,7 +20,7 @@ def periodic_displacement(box: float | Tensor, dR: Tensor) -> Tensor:
         Matrix of wrapped displacements with shape (..., spatial_dim).
     """
     distances = (
-        torch.remainder(dR + box * torch.tensor(0.5, dtype=torch.float32), box)
-        - torch.tensor(0.5, dtype=torch.float32) * box
+        torch.remainder(dR + box * 0.5, box)
+        - 0.5 * box
     )
     return distances

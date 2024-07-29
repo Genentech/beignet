@@ -11,6 +11,9 @@ from beignet.func.__dataclass import _dataclass
 from beignet.func._interact import _force, _safe_sum
 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
 SUZUKI_YOSHIDA_WEIGHTS = {
     1: [
         +1.0000000000000000,
@@ -482,10 +485,10 @@ def nose_hoover_chain(
 
         delta = step_size / steps
 
-        weights = torch.tensor(SUZUKI_YOSHIDA_WEIGHTS[system_steps])
+        weights = torch.tensor(SUZUKI_YOSHIDA_WEIGHTS[system_steps], device=device)
 
         def body_fn(cs, i):
-            d = torch.tensor(delta * weights[i % system_steps], dtype=torch.float32)
+            d = torch.tensor(delta * weights[i % system_steps], device=device, dtype=torch.float32)
             return substep_fn(d, *cs), 0
 
         (system_momentums, state, _), _ = _scan(
@@ -574,7 +577,7 @@ def _npt_nose_hoover(
     barostat_kwargs: dict | None = None,
     thermostat_kwargs: dict | None = None,
 ) -> (Callable[..., T], Callable[[T], T]):
-    step_size_2 = torch.tensor(step_size / 2, dtype=torch.float32)
+    step_size_2 = step_size / 2
 
     force_fn = _force(fn)
 
@@ -599,7 +602,7 @@ def _npt_nose_hoover(
         **kwargs,
     ):
         if not masses:
-            masses = torch.tensor(1.0, dtype=torch.float32)
+            masses = 1.0
 
         particles, spatial_dimension = positions.shape
 
@@ -673,14 +676,12 @@ def _npt_nose_hoover(
     ) -> _NPTNoseHooverChainState:
         particles, spatial_dimension = state.positions.shape
 
-        current_box_masses = torch.tensor(
+        current_box_masses = (
             spatial_dimension
             * (particles + 1)
             * _temperature
-            * state.barostat.oscillations**2,
-            dtype=state.positions.dtype,
+            * state.barostat.oscillations**2
         )
-
         return state.set(
             current_box_masses=current_box_masses,
         )
@@ -717,7 +718,7 @@ def _npt_nose_hoover(
                         ),
                     ),
                 ),
-                torch.func.grad(u)(torch.tensor(0.0)),
+                torch.func.grad(u)(0.0),
             ),
             torch.multiply(
                 torch.multiply(
@@ -995,7 +996,7 @@ def _nvt_nose_hoover_chain(
         **kwargs,
     ) -> _NVTNoseHooverChainState:
         if masses is None:
-            masses = torch.tensor(1.0, dtype=positions.dtype)
+            masses = 1.0
 
         if "temperature" not in kwargs:
             _temperature = temperature
@@ -1142,7 +1143,7 @@ def _scan(fn: Callable, carry: Any, indexes: Tensor):
 
         ys.append(y)
 
-    return carry, torch.tensor(ys)
+    return carry, torch.tensor(ys, device=device)
 
 
 @_DispatchByState
@@ -1189,7 +1190,7 @@ def _stochastic_step(
     c1 = torch.exp(torch.multiply(torch.negative(friction), step_size))
 
     c2 = torch.sqrt(
-        torch.multiply(temperature, torch.subtract(torch.tensor(1.0), torch.square(c1)))
+        torch.multiply(temperature, torch.subtract(1.0, torch.square(c1)))
     )
 
     momentum_dist = _Normal(c1 * state.momentums, c2**2 * state.masses)
@@ -1227,7 +1228,7 @@ def _velocity_verlet(
 
 
 def _volume_metric(dimension: int, box: Tensor) -> Tensor:
-    if torch.tensor(box).shape == torch.Size([]) or not box.ndim:
+    if box.shape == torch.Size([]) or not box.ndim:
         return box**dimension
 
     match box.ndim:
@@ -1297,10 +1298,10 @@ def ensemble(
 
     """
     if friction is None:
-        friction = torch.tensor(1.0)
+        friction = 1.0
 
     if not isinstance(friction, Tensor):
-        friction = torch.tensor(friction)
+        friction = torch.tensor(friction, device=device)
 
     if barostat_kwargs is None:
         barostat_kwargs = {}
@@ -1333,7 +1334,7 @@ def ensemble(
                 **kwargs,
             ):
                 if masses is None:
-                    masses = torch.tensor(1.0, dtype=positions.dtype)
+                    masses = torch.tensor(1.0, device=device, dtype=positions.dtype)
 
                 state = _NVEState(
                     forces=force_fn(positions, **kwargs),
@@ -1368,7 +1369,7 @@ def ensemble(
                 raise ValueError
 
             if not isinstance(temperature, Tensor):
-                temperature = torch.tensor(temperature)
+                temperature = torch.tensor(temperature, device=device)
 
             match thermostat:
                 case "Langevin":
@@ -1382,6 +1383,7 @@ def ensemble(
                         if masses is None:
                             masses = torch.tensor(
                                 1.0,
+                                device=device,
                                 dtype=positions.dtype,
                             )
 

@@ -6,6 +6,8 @@ from torch import Tensor
 
 from beignet.func._interact import _safe_sum
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 CUSTOM_SIMULATION_TYPE = []
 
@@ -183,7 +185,7 @@ def volume(dimension: int, box: Union[float, Tensor]) -> Tensor:
         If the box is not a scalar, vector, or matrix.
     """
     if isinstance(box, (int, float)) or not box.ndim:
-        return torch.tensor(box**dimension)
+        return torch.tensor(box**dimension, device=device)
     elif box.ndim == 1:
         return torch.prod(box)
     elif box.ndim == 2:
@@ -231,7 +233,7 @@ def pressure(
             return energy_fn(position, perturbation=(1 + eps), **kwargs)
 
     def grad_U(eps):
-        eps_tensor = torch.tensor([eps], requires_grad=True)
+        eps_tensor = torch.tensor([eps], requires_grad=True, device=device)
         energy = U(eps_tensor)
         grad_eps = torch.autograd.grad(energy, eps_tensor, create_graph=True)[0]
         return grad_eps

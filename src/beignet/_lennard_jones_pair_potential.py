@@ -13,10 +13,10 @@ from beignet.func._utils import maybe_downcast
 def lennard_jones_pair_potential(
     displacement_fn: Callable,
     kinds: Optional[Tensor] = None,
-    sigma: Tensor = torch.tensor(1.0),
-    epsilon: Tensor = torch.tensor(1.0),
-    r_onset: Tensor = torch.tensor(2.0),
-    r_cutoff: Tensor = torch.tensor(2.5),
+    sigma: Tensor = 1.0,
+    epsilon: Tensor = 1.0,
+    r_onset: Tensor = 2.0,
+    r_cutoff: Tensor = 2.5,
     per_particle: bool = False,
 ) -> Callable[[Tensor], Tensor]:
     r"""Convenience wrapper to compute Lennard-Jones energy over a system.

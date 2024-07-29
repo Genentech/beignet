@@ -462,7 +462,7 @@ def _neighbor_list_interaction(
                 [*mask.shape, *([1] * (out.ndim - mask.ndim))],
             )
 
-        out = torch.where(mask, out, torch.tensor(0.0))
+        out = torch.where(mask, out, 0.0)
 
         if dim is None:
             return torch.divide(_safe_sum(out), normalization)
@@ -554,7 +554,7 @@ def _pair_interaction(
             raise ValueError
 
         def mapped_fn(_position: Tensor, **_dynamic_kwargs):
-            u = torch.tensor(0.0, dtype=torch.float32)
+            u = 0.0
 
             distance_fn = functools.partial(displacement_fn, **_dynamic_kwargs)
 
@@ -595,7 +595,7 @@ def _pair_interaction(
             if not isinstance(_kinds, Tensor) or _kinds.is_floating_point():
                 raise ValueError
 
-            u = torch.tensor(0.0, dtype=torch.float32)
+            u = 0.0
 
             num_particles = _position.shape[0]
 

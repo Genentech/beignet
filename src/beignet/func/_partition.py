@@ -11,6 +11,8 @@ from torch import Tensor
 from beignet.func.__dataclass import _dataclass
 from beignet.func._static_field import static_field
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class PartitionErrorCode(IntEnum):
     """An enum specifying different error codes.
@@ -81,7 +83,7 @@ class _PartitionError:
         """
         zero = torch.zeros([], dtype=torch.uint8)
 
-        bit = torch.tensor(bit, dtype=torch.uint8)
+        bit = bit
 
         return _PartitionError(code=self.code | torch.where(predicate, bit, zero))
 
@@ -405,10 +407,10 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
     """
     if cells_per_side.numel() == 1:
         constants = [[cells_per_side**dim for dim in range(spatial_dimensions)]]
-        return torch.tensor(constants, dtype=torch.int32)
+        return torch.tensor(constants, device=device, dtype=torch.int32)
 
     elif cells_per_side.numel() == spatial_dimensions:
-        one = torch.tensor([[1]], dtype=torch.int32)
+        one = torch.tensor([[1]], device=device, dtype=torch.int32)
         cells_per_side = torch.cat((one, cells_per_side[:, :-1]), dim=1)
         return torch.cumprod(cells_per_side, dim=1).squeeze()
 
@@ -523,9 +525,9 @@ def safe_mask(
     Tensor
         A tensor with the function applied to the masked elements and the placeholder value elsewhere.
     """
-    masked = torch.where(mask, operand, torch.tensor(0, dtype=operand.dtype))
+    masked = torch.where(mask, operand, 0)
 
-    return torch.where(mask, fn(masked), torch.tensor(placeholder, dtype=operand.dtype))
+    return torch.where(mask, fn(masked), placeholder)
 
 
 def _segment_sum(
@@ -899,12 +901,12 @@ def _is_space_valid(space: Tensor) -> Tensor:
         If the space tensor has more than 2 dimensions.
     """
     if space.ndim == 0 or space.ndim == 1:
-        return torch.tensor([True])
+        return torch.tensor([True], device=device)
 
     if space.ndim == 2:
-        return torch.tensor([torch.all(torch.triu(space) == space)])
+        return torch.tensor([torch.all(torch.triu(space) == space)], device=device)
 
-    return torch.tensor([False])
+    return torch.tensor([False], device=device)
 
 
 def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tensor:
@@ -924,6 +926,7 @@ def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tens
     """
     if is_neighbor_list_sparse(neighbor.format):
         mask = neighbor.indexes[0] < len(neighbor.reference_positions)
+        torch.set_printoptions(profile="full")
         if mask_self:
             mask = mask & (neighbor.indexes[0] != neighbor.indexes[1])
 
@@ -991,7 +994,7 @@ def _normalize_cell_size(box: Tensor, cutoff: float) -> Tensor:
             nx = xx / torch.sqrt(1 + xy**2)
             ny = yy
 
-            nmin = torch.floor(torch.min(torch.tensor([nx, ny])) / cutoff)
+            nmin = torch.floor(torch.min(torch.tensor([nx, ny], device=device)) / cutoff)
 
             return 1 / torch.where(nmin == 0, 1, nmin)
 
@@ -1007,7 +1010,7 @@ def _normalize_cell_size(box: Tensor, cutoff: float) -> Tensor:
             ny = yy / torch.sqrt(1 + yz**2)
             nz = zz
 
-            nmin = torch.floor(torch.min(torch.tensor([nx, ny, nz])) / cutoff)
+            nmin = torch.floor(torch.min(torch.tensor([nx, ny, nz], device=device)) / cutoff)
             return 1 / torch.where(nmin == 0, 1, nmin)
         else:
             raise ValueError
@@ -1050,7 +1053,7 @@ def _particles_per_cell(
 
     hash_multipliers = _hash_constants(dim, per_side)
 
-    particle_index = torch.tensor(positions / unit_size, dtype=torch.int32)
+    particle_index = torch.tensor(positions / unit_size, dtype=torch.int32, device=device)
 
     particle_hash = torch.sum(particle_index * hash_multipliers, dim=1)
 
@@ -1083,7 +1086,7 @@ def cell_list(
         An object containing `setup_fn` and `update_fn` functions to create and update the cell list.
     """
     if not isinstance(size, Tensor):
-        size = torch.tensor(size, dtype=torch.float32)
+        size = torch.tensor(size, device=device, dtype=torch.float32)
 
     if size.ndim == 1:
         size = torch.reshape(size, [1, -1])
@@ -1347,7 +1350,7 @@ def neighbor_list(
 
     squared_cutoff = cutoff**2
 
-    squared_maximum_distance = (maximum_distance / torch.tensor(2.0)) ** 2
+    squared_maximum_distance = (maximum_distance / 2.0) ** 2
 
     metric_sq = _to_square_metric_fn(displacement_fn)
 
@@ -1623,12 +1626,12 @@ def neighbor_list(
                 raise ValueError
 
             current_unit_size = _cell_size(
-                torch.tensor(1.0),
+                1.0,
                 updated_neighbors.item_size,
             )
 
             updated_unit_size = _cell_size(
-                torch.tensor(1.0),
+                1.0,
                 _normalize_cell_size(space, cutoff),
             )
 
