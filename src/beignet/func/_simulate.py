@@ -71,6 +71,9 @@ class _Normal:
     def sample(self):
         mu, sigma = self.mean, torch.sqrt(self.var)
 
+        mu = mu.to(device=device)
+        sigma = sigma.to(device=device)
+
         return mu + sigma * torch.normal(0.0, 1.0, mu.shape, dtype=mu.dtype)
 
     def log_prob(self, x):
