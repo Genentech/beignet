@@ -186,6 +186,9 @@ def space(
             return displacement
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return input + other
 
         return displacement_fn, shift_fn
@@ -408,10 +411,16 @@ def space(
     if remapped:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return torch.remainder(input + other, box)
     else:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return input + other
 
     return displacement_fn, shift_fn

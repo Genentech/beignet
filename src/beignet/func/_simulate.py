@@ -1387,6 +1387,7 @@ def ensemble(
                         masses: Tensor | None = None,
                         **kwargs,
                     ) -> _NVTLangevinThermostatState:
+                        positions = positions.to(device=device)
                         if masses is None:
                             masses = torch.tensor(
                                 1.0,
