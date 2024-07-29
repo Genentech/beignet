@@ -4,6 +4,9 @@ from typing import Callable
 import torch
 from torch import Tensor
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
 
 def multiplicative_isotropic_cutoff(
     fn: Callable[..., Tensor], r_onset: Tensor, r_cutoff: Tensor
@@ -39,10 +42,13 @@ def multiplicative_isotropic_cutoff(
     r_o = r_onset**2
 
     def smooth_fn(dr):
+        dr = dr.to(device=device)
+        cutoff = r_cutoff.to(device=device)
+
         r = dr**2
 
         inner = torch.where(
-            dr < r_cutoff,
+            dr < cutoff,
             (r_c - r) ** 2 * (r_c + 2 * r - 3 * r_o) / (r_c - r_o) ** 3,
             torch.zeros_like(dr),
         )
