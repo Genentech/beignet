@@ -1155,6 +1155,10 @@ def _setup_momentum(state: T, temperature: float) -> T:
     masses, _ = optree.tree_flatten(masses)
 
     def _fn(_position: Tensor, _mass: Tensor) -> Tensor:
+        _position = _position.to(device=device)
+        _mass = _mass.to(device=device)
+
+
         sample = torch.normal(
             0.0,
             1.0,
