@@ -302,7 +302,7 @@ def _momentum_step(state: T, step_size: Tensor) -> T:
     def _fn(_momentums: Tensor, _forces: Tensor) -> Tensor:
         _momentums = _momentums.to(device=device)
         _forces = _forces.to(device=device)
-        step = step_size.to(device=device)
+        step = torch.tensor(step_size).to(device=device)
 
         return _momentums + step * _forces
 
