@@ -185,6 +185,8 @@ from ._legendre_polynomial_weight import legendre_polynomial_weight
 from ._legendre_polynomial_x import legendre_polynomial_x
 from ._legendre_polynomial_zero import legendre_polynomial_zero
 from ._lennard_jones_potential import lennard_jones_potential
+from ._lennard_jones_pair_potential import lennard_jones_pair_potential
+from ._lennard_jones_neighbor_list_potential import lennard_jones_neighbor_list_potential
 from ._linear_chebyshev_polynomial import linear_chebyshev_polynomial
 from ._linear_laguerre_polynomial import linear_laguerre_polynomial
 from ._linear_legendre_polynomial import linear_legendre_polynomial
