@@ -1,3 +1,5 @@
+import functools
+
 import pytest
 import torch
 
@@ -130,3 +132,39 @@ def test_nve_neighbor_list(dim, dtype):
 
     assert state.positions.dtype == dtype
     assert torch.all
+
+
+@pytest.mark.parametrize("dtype, dim", params)
+def test_nvt_langevin(dim, dtype):
+    torch.manual_seed(0)
+
+    R = torch.normal(mean=0.0, std=1.0, size=(LANGEVIN_PARTICLE_COUNT, dim), dtype=dtype)
+    R0 = torch.normal(mean=0.0, std=1.0, size=(LANGEVIN_PARTICLE_COUNT, dim), dtype=dtype)
+    _, shift = space(box=None)
+
+    E = functools.partial(lambda R, R0, **kwargs: torch.sum((R - R0) ** 2), R0=R0)
+
+    T = torch.empty((), dtype=dtype).uniform_(0.3, 1.4)
+    mass = torch.empty((LANGEVIN_PARTICLE_COUNT,), dtype=dtype).uniform_(0.1, 10.0)
+
+    setup_fn, step_fn = ensemble(
+        E,
+        shift,
+        torch.tensor(1e-2, dtype=torch.float32),
+        temperature=T,
+        thermostat="Langevin",
+        friction=torch.tensor(0.3),
+        kind="NVT",
+    )
+
+    state = setup_fn(R, masss=mass, temperature=torch.tensor(1.0))
+
+    T_list = []
+    for step in range(LANGEVIN_DYNAMICS_STEPS):
+        state = step_fn(state)
+        if step > 4000 and step % 100 == 0:
+            T_list.append(kT_fn(state.momentums, state.masses))
+
+    T_emp = torch.mean(torch.tensor(T_list))
+    assert torch.abs(T_emp - T) < 0.1
+    assert state.positions.dtype == dtype

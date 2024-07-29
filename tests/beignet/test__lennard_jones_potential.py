@@ -15,8 +15,6 @@ def test__lennard_jones_potential():
         1.0,
     )
 
-    print(x)
-
     torch.testing.assert_close(
         beignet.lennard_jones_potential(
             torch.tensor(

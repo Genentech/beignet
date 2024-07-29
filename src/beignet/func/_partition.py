@@ -924,7 +924,6 @@ def neighbor_list_mask(neighbor: _NeighborList, mask_self: bool = False) -> Tens
     """
     if is_neighbor_list_sparse(neighbor.format):
         mask = neighbor.indexes[0] < len(neighbor.reference_positions)
-        torch.set_printoptions(profile="full")
         if mask_self:
             mask = mask & (neighbor.indexes[0] != neighbor.indexes[1])
 
@@ -1228,8 +1227,6 @@ def cell_list(
             torch.max(_segment_sum(torch.ones_like(hashes), hashes, unit_count))
             > buffer_size
         )
-
-        print(f"cell_capacity: {buffer_size}")
 
         return _CellList(
             exceeded_maximum_size=exceeded_maximum_size,
