@@ -298,8 +298,11 @@ def _kinetic_energy_metric(
 
 
 @_DispatchByState
-def _momentum_step(state: T, step_size: float) -> T:
+def _momentum_step(state: T, step_size: Tensor) -> T:
     def _fn(_momentums: Tensor, _forces: Tensor) -> Tensor:
+        _momentums = _momentums.to(device=device)
+        _forces = _forces.to(device=device)
+
         return _momentums + step_size * _forces
 
     momentums = optree.tree_map(_fn, state.momentums, state.forces)
