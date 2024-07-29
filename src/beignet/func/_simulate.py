@@ -1158,7 +1158,6 @@ def _setup_momentum(state: T, temperature: float) -> T:
         _position = _position.to(device=device)
         _mass = _mass.to(device=device)
 
-
         sample = torch.normal(
             0.0,
             1.0,
