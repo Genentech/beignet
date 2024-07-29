@@ -74,7 +74,7 @@ class _Normal:
         mu = mu.to(device=device)
         sigma = sigma.to(device=device)
 
-        return mu + sigma * torch.normal(0.0, 1.0, mu.shape, dtype=mu.dtype)
+        return mu + sigma * torch.normal(0.0, 1.0, mu.shape, dtype=mu.dtype, device=device)
 
     def log_prob(self, x):
         return (
