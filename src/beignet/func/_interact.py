@@ -121,7 +121,7 @@ def _force(energy_fn: Callable) -> Callable:
         R = R.requires_grad_(True)
         energy = energy_fn(R, *args, **kwargs)
         force = -torch.autograd.grad(
-            energy, R, grad_outputs=torch.ones_like(energy).to(device=device), create_graph=True
+            energy, R, grad_outputs=torch.ones_like(energy).to(device=device), create_graph=False
         )[0]
 
         return force
