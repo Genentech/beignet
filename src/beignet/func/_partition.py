@@ -1180,8 +1180,11 @@ def cell_list(
                 device=parameter.device,
             )
 
+        positions = positions.to(device=device)
+        unit_size = unit_size.to(device=device)
+
         hashes = torch.sum(
-            (positions / unit_size).to(dtype=torch.int32)
+            (positions / unit_size).to(dtype=torch.int32, device=device)
             * _hash_constants(spatial_dimension, units_per_side).to(
                 device=positions.device
             ),
