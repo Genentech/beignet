@@ -1387,16 +1387,17 @@ def neighbor_list(
         )
 
         def copy_values_from_cell(value, cell_value, cell_id):
-            scatter_indices = torch.reshape(cell_id, (-1,))
+            value = value.to(device=device)
+            scatter_indices = torch.reshape(cell_id, (-1,)).to(device=device)
 
-            cell_value = torch.reshape(cell_value, (-1,) + cell_value.shape[-2:])
+            cell_value = torch.reshape(cell_value, (-1,) + cell_value.shape[-2:]).to(device=device)
 
             value[scatter_indices] = cell_value
 
             return value
 
         neighbor_indexes = torch.zeros(
-            (n + 1,) + unit_indexes.shape[-2:], dtype=torch.int32
+            (n + 1,) + unit_indexes.shape[-2:], dtype=torch.int32, device=device
         )
 
         neighbor_indexes = copy_values_from_cell(
@@ -1409,16 +1410,19 @@ def neighbor_list(
         return torch.where(
             idx
             == torch.reshape(
-                torch.arange(idx.shape[0], dtype=torch.int32),
+                torch.arange(idx.shape[0], dtype=torch.int32, device=device),
                 (idx.shape[0], 1),
             ),
             idx.shape[0],
             idx,
-        )
+        ).to(device=device)
 
     def prune_dense_neighbor_list(
         positions: Tensor, indexes: Tensor, **kwargs
     ) -> Tensor:
+        positions = positions.to(device=device)
+        indexes = indexes.to(device=device)
+
         displacement_fn = functools.partial(metric_sq, **kwargs)
 
         displacement_fn = _map_neighbor(displacement_fn)
