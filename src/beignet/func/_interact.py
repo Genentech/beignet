@@ -24,6 +24,7 @@ from beignet.func._partition import (
     safe_index,
 )
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class _ParameterTreeKind(Enum):
     BOND = 0
@@ -120,7 +121,7 @@ def _force(energy_fn: Callable) -> Callable:
         R = R.requires_grad_(True)
         energy = energy_fn(R, *args, **kwargs)
         force = -torch.autograd.grad(
-            energy, R, grad_outputs=torch.ones_like(energy), create_graph=True
+            energy, R, grad_outputs=torch.ones_like(energy).to(device=device), create_graph=True
         )[0]
 
         return force

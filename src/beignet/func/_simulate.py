@@ -330,7 +330,7 @@ def nose_hoover_chain(
 
         momentums = torch.zeros(size, dtype=kinetic_energies.dtype)
 
-        masses = torch.ones(size, dtype=torch.float32)
+        masses = torch.ones(size, dtype=torch.float32, device=device)
 
         masses = temperature * oscillation**2.0 * masses
 
@@ -519,7 +519,7 @@ def nose_hoover_chain(
             positions,
         ) = dataclasses.astuple(state)
 
-        masses = torch.ones(size, dtype=torch.float32)
+        masses = torch.ones(size, dtype=torch.float32, device=device)
 
         masses = temperature * oscillations**2 * masses
 
@@ -608,6 +608,8 @@ def _npt_nose_hoover(
         masses: Tensor | None = None,
         **kwargs,
     ):
+        positions = positions.to(device=device)
+
         if not masses:
             masses = 1.0
 

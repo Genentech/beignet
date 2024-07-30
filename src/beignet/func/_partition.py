@@ -1060,7 +1060,7 @@ def _particles_per_cell(
 
     particle_hash = torch.sum(particle_index * hash_multipliers, dim=1)
 
-    filling = _segment_sum(torch.ones_like(particle_hash), particle_hash, n)
+    filling = _segment_sum(torch.ones_like(particle_hash).to(device=device), particle_hash, n)
 
     return filling
 
@@ -1233,7 +1233,7 @@ def cell_list(
             )
 
         exceeded_maximum_size = exceeded_maximum_size | (
-            torch.max(_segment_sum(torch.ones_like(hashes), hashes, unit_count))
+            torch.max(_segment_sum(torch.ones_like(hashes).to(device=device), hashes, unit_count))
             > buffer_size
         )
 
@@ -1434,7 +1434,7 @@ def neighbor_list(
         mask = (displacements < squared_cutoff) & (indexes < positions.shape[0])
 
         output_indexes = positions.shape[0] * torch.ones(
-            indexes.shape, dtype=torch.int32
+            indexes.shape, dtype=torch.int32, device=device
         )
 
         cumsum = torch.cumsum(mask, dim=1)
@@ -1471,10 +1471,10 @@ def neighbor_list(
         if neighbor_list_format is _NeighborListFormat.ORDERED_SPARSE:
             mask = mask & (receiver_idx < sender_idx)
 
-        out_idx = position.shape[0] * torch.ones(receiver_idx.shape, dtype=torch.int32)
+        out_idx = position.shape[0] * torch.ones(receiver_idx.shape, dtype=torch.int32, device=device)
 
-        cumsum = torch.cumsum(torch.flatten(mask), dim=0)
-        index = torch.where(mask, cumsum - 1, len(receiver_idx) - 1)
+        cumsum = torch.cumsum(torch.flatten(mask), dim=0).to(device=device)
+        index = torch.where(mask, cumsum - 1, len(receiver_idx) - 1).to(device=device)
 
         index = index.to(torch.int64)
         sender_idx = sender_idx.to(torch.int32)
