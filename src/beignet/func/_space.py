@@ -4,8 +4,52 @@ import torch
 from torch import Tensor
 
 import beignet
+from beignet._pairwise_displacement import pairwise_displacement
+from beignet._periodic_displacement import periodic_displacement
+from beignet.func._partition import metric
 
 T = TypeVar("T")
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def canonicalize_displacement_or_metric(displacement_fn: Callable) -> Callable:
+    r"""Checks whether or not a displacement or metric was provided.
+
+    Parameters
+    ----------
+    displacement_fn : Callable
+        A function that computes either the displacement or the metric.
+
+    Returns
+    -------
+    callable
+        The original displacement function if it returns a scalar, otherwise
+        a metric function.
+
+    Raises
+    ------
+    ValueError
+        If the spatial dimension is larger than 4.
+    """
+    for dim in range(1, 4):
+        try:
+            input = torch.randn(dim, dtype=torch.float32)
+
+            dR_or_dr = displacement_fn(input, input, t=0)
+
+            if dR_or_dr.dim() == 0:
+                return displacement_fn
+            else:
+                return metric(displacement_fn)
+        except TypeError:
+            continue
+        except ValueError:
+            continue
+    raise ValueError(
+        "Canonicalize displacement not implemented for spatial dimension larger"
+        " than 4."
+    )
 
 
 def space(
@@ -104,7 +148,7 @@ def space(
         )
     """
     if isinstance(box, (int, float)):
-        box = torch.tensor([box])
+        box = torch.tensor([box], device=device)
 
     if box is None:
 
@@ -115,14 +159,11 @@ def space(
             perturbation: Tensor | None = None,
             **_,
         ) -> Tensor:
-            if len(input.shape) != 1:
-                raise ValueError
-
-            if input.shape != other.shape:
-                raise ValueError
+            """Displacement fn for free space"""
+            displacement = pairwise_displacement(input, other)
 
             if perturbation is not None:
-                transform = input - other
+                transform = displacement
 
                 match transform.ndim:
                     case 0:
@@ -142,9 +183,12 @@ def space(
                     case _:
                         raise ValueError
 
-            return input - other
+            return displacement
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return input + other
 
         return displacement_fn, shift_fn
@@ -338,16 +382,8 @@ def space(
         perturbation: Tensor | None = None,
         **_,
     ) -> Tensor:
-        if len(input.shape) != 1:
-            raise ValueError
-
-        if input.shape != other.shape:
-            raise ValueError
-
-        displacement = torch.remainder(
-            input - other + box * 0.5,
-            box,
-        )
+        """Displacement fn for hypercube"""
+        displacement = periodic_displacement(box, pairwise_displacement(input, other))
 
         if perturbation is not None:
             transform = displacement - box * 0.5
@@ -370,15 +406,21 @@ def space(
                 case _:
                     raise ValueError
 
-        return displacement - box * 0.5
+        return displacement
 
     if remapped:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return torch.remainder(input + other, box)
     else:
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
+            input = input.to(device=device)
+            other = other.to(device=device)
+
             return input + other
 
     return displacement_fn, shift_fn
