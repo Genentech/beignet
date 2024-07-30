@@ -330,6 +330,7 @@ from ._rotation_vector_to_quaternion import (
 from ._rotation_vector_to_rotation_matrix import (
     rotation_vector_to_rotation_matrix,
 )
+from ._soft_sphere_potential import soft_sphere_potential
 from ._subtract_chebyshev_polynomial import subtract_chebyshev_polynomial
 from ._subtract_laguerre_polynomial import subtract_laguerre_polynomial
 from ._subtract_legendre_polynomial import subtract_legendre_polynomial
