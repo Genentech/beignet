@@ -1051,7 +1051,10 @@ def _particles_per_cell(
 
     size, unit_size, per_side, n = _cell_dimensions(dim, size, minimum_size)
 
-    hash_multipliers = _hash_constants(dim, per_side)
+    hash_multipliers = _hash_constants(dim, per_side).to(device=device)
+
+    positions = positions.to(device=device)
+    unit_size = unit_size.to(device=device)
 
     particle_index = torch.tensor(positions / unit_size, dtype=torch.int32, device=device)
 
