@@ -58,7 +58,7 @@ def root_scalar(
     **_,
 ):
     class Root(torch.autograd.Function):
-        #        generate_vmap_rule = True # FIXME this doesn't work
+        #        generate_vmap_rule = True  # FIXME this doesn't work
 
         @staticmethod
         def forward(*args):
@@ -74,9 +74,26 @@ def root_scalar(
         @staticmethod
         def backward(ctx, *grad_outputs):
             root, *args = ctx.saved_tensors
-            A, B = torch.func.grad(f, argnums=(0, 1))(
-                root, *args
-            )  # FIXME handle multiple arguments
-            return -grad_outputs[0] * B / A
+            n_args = len(args)
+
+            args = tuple(torch.atleast_1d(x) for x in args)
+            root = torch.atleast_1d(root)
+
+            # f(x^*(theta), theta) = 0
+
+            # NOTE jacobian is diagonal b/c f must be a scalar function
+            A, *B = torch.func.vmap(
+                torch.func.grad(f, argnums=tuple(range(n_args + 1))),
+                in_dims=(0,) * (n_args + 1),
+            )(root, *args)
+
+            return tuple(-g * b / A for g, b in zip(grad_outputs, B, strict=True))
+
+        # The signature of the vmap staticmethod is:
+        # vmap(info, in_dims: Tuple[Optional[int]], *args)
+        # where *args is the same as the arguments to `forward`.
+        @staticmethod
+        def vmap(info, in_dims, x, dim):
+            pass
 
     return Root.apply(*args)
