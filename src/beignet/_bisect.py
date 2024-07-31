@@ -89,11 +89,14 @@ def root_scalar(
 
             return tuple(-g * b / A for g, b in zip(grad_outputs, B, strict=True))
 
-        # The signature of the vmap staticmethod is:
-        # vmap(info, in_dims: Tuple[Optional[int]], *args)
-        # where *args is the same as the arguments to `forward`.
         @staticmethod
-        def vmap(info, in_dims, x, dim):
-            pass
+        def vmap(info, in_dims, *args):
+            _a, _b, *args = torch.broadcast_tensors(a, b, *args)
+            f_ = torch.func.vmap(f, in_dims=(0, *in_dims))
+            out = root_scalar(
+                f_, *args, a=_a, b=_b, rtol=rtol, atol=atol, maxiter=maxiter
+            )
+
+            return out, 0
 
     return Root.apply(*args)
