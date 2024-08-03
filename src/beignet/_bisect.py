@@ -30,6 +30,7 @@ def implicit_differentiation_wrapper(solver: Callable[..., Tensor]):
                 xstar, *args = ctx.saved_tensors
                 n_args = len(args)
 
+                # optimality condition:
                 # f(x^*(theta), theta) = 0
 
                 A, *B = torch.func.jacrev(f, argnums=tuple(range(n_args + 1)))(
@@ -65,8 +66,7 @@ def implicit_differentiation_wrapper(solver: Callable[..., Tensor]):
     return inner
 
 
-@implicit_differentiation_wrapper
-def bisect(
+def _bisect(
     f: Callable,
     *,
     lower: float,
@@ -77,7 +77,7 @@ def bisect(
     dtype=None,
     device=None,
     **_,
-) -> Tensor:
+) -> tuple[Tensor, RootSolutionInfo]:
     a = torch.tensor(lower, dtype=dtype, device=device)
     b = torch.tensor(upper, dtype=dtype, device=device)
 
@@ -111,4 +111,30 @@ def bisect(
         fc = f(c)
         iterations += ~converged
 
-    return c
+    return c, RootSolutionInfo(converged=converged, iterations=iterations)
+
+
+@implicit_differentiation_wrapper
+def bisect(
+    f: Callable,
+    *,
+    lower: float,
+    upper: float,
+    rtol: float | None = None,
+    atol: float | None = None,
+    maxiter: int = 100,
+    dtype=None,
+    device=None,
+    **_,
+) -> Tensor:
+    root, _ = _bisect(
+        f,
+        lower=lower,
+        upper=upper,
+        rtol=rtol,
+        atol=atol,
+        maxiter=maxiter,
+        dtype=dtype,
+        device=device,
+    )
+    return root
