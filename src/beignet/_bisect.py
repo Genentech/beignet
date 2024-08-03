@@ -1,19 +1,86 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import torch
 from torch import Tensor
 
 
+@dataclass
+class RootSolutionInfo:
+    converged: Tensor
+    iterations: Tensor
+
+
+def implicit_differentiation_wrapper(solver: Callable[..., Tensor]):
+    def inner(f, *args, **kwargs):
+        class SolverWrapper(torch.autograd.Function):
+            @staticmethod
+            def forward(*args):
+                def g(x):
+                    return f(x, *args)
+
+                return solver(g, **kwargs)
+
+            @staticmethod
+            def setup_context(ctx, inputs, output):
+                ctx.save_for_backward(output, *inputs)
+
+            @staticmethod
+            def backward(ctx, *grad_outputs):
+                xstar, *args = ctx.saved_tensors
+                n_args = len(args)
+
+                # f(x^*(theta), theta) = 0
+
+                A, *B = torch.func.jacrev(f, argnums=tuple(range(n_args + 1)))(
+                    xstar, *args
+                )
+
+                if A.ndim == 0:
+                    return tuple(
+                        -g * b / A for g, b in zip(grad_outputs, B, strict=True)
+                    )
+                elif A.ndim == 2:
+                    return tuple(
+                        torch.linalg.solve(A, -g * b)
+                        for g, b in zip(grad_outputs, B, strict=True)
+                    )
+                else:
+                    raise RuntimeError(f"{A.ndim=} != 0 or 2")
+
+            @staticmethod
+            def vmap(info, in_dims, *args):
+                def g(x: Tensor) -> Tensor:
+                    x, *args_ = torch.broadcast_tensors(x, *args)
+                    return torch.func.vmap(
+                        lambda x, *args: f(x, *args),
+                        in_dims=(0, *in_dims),
+                    )(x, *args_)
+
+                out = solver(g, **kwargs)
+                return out, 0
+
+        return SolverWrapper.apply(*args)
+
+    return inner
+
+
+@implicit_differentiation_wrapper
 def bisect(
     f: Callable,
-    a: Tensor,
-    b: Tensor,
     *,
+    lower: float,
+    upper: float,
     rtol: float | None = None,
     atol: float | None = None,
     maxiter: int = 100,
+    dtype=None,
+    device=None,
     **_,
-):
+) -> Tensor:
+    a = torch.tensor(lower, dtype=dtype, device=device)
+    b = torch.tensor(upper, dtype=dtype, device=device)
+
     fa = f(a)
     fb = f(b)
     c = (a + b) / 2
@@ -44,59 +111,4 @@ def bisect(
         fc = f(c)
         iterations += ~converged
 
-    return c, (converged, iterations)
-
-
-def root_scalar(
-    f: Callable,
-    *args,
-    a: Tensor,
-    b: Tensor,
-    rtol: float | None = None,
-    atol: float | None = None,
-    maxiter: int = 100,
-    **_,
-):
-    class Root(torch.autograd.Function):
-        #        generate_vmap_rule = True  # FIXME this doesn't work
-
-        @staticmethod
-        def forward(*args):
-            root, _ = bisect(
-                lambda x: f(x, *args), a, b, rtol=rtol, atol=atol, maxiter=maxiter
-            )
-            return root
-
-        @staticmethod
-        def setup_context(ctx, inputs, output):
-            ctx.save_for_backward(output, *inputs)
-
-        @staticmethod
-        def backward(ctx, *grad_outputs):
-            root, *args = ctx.saved_tensors
-            n_args = len(args)
-
-            args = tuple(torch.atleast_1d(x) for x in args)
-            root = torch.atleast_1d(root)
-
-            # f(x^*(theta), theta) = 0
-
-            # NOTE jacobian is diagonal b/c f must be a scalar function
-            A, *B = torch.func.vmap(
-                torch.func.grad(f, argnums=tuple(range(n_args + 1))),
-                in_dims=(0,) * (n_args + 1),
-            )(root, *args)
-
-            return tuple(-g * b / A for g, b in zip(grad_outputs, B, strict=True))
-
-        @staticmethod
-        def vmap(info, in_dims, *args):
-            _a, _b, *args = torch.broadcast_tensors(a, b, *args)
-            f_ = torch.func.vmap(f, in_dims=(0, *in_dims))
-            out = root_scalar(
-                f_, *args, a=_a, b=_b, rtol=rtol, atol=atol, maxiter=maxiter
-            )
-
-            return out, 0
-
-    return Root.apply(*args)
+    return c
