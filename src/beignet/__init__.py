@@ -372,6 +372,7 @@ __all__ = [
     "apply_rotation_matrix",
     "apply_rotation_vector",
     "apply_transform",
+    "bisect",
     "evaluate_chebyshev_polynomial_cartesian_2d",
     "evaluate_chebyshev_polynomial_cartesian_3d",
     "chebyshev_interpolation",
