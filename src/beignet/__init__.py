@@ -20,6 +20,7 @@ from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
 from ._bisect import bisect
+from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
 from ._chebyshev_interpolation import chebyshev_interpolation
