@@ -79,7 +79,7 @@ def _find_root_chandrupatla_iter(
     fb: Tensor,
     fc: Tensor,
     tlim: Tensor,
-):
+) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
     # check validity of inverse quadratic interpolation
     xi = (a - b) / (c - b)
     phi = (fa - fb) / (fc - fb)
