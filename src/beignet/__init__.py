@@ -19,6 +19,8 @@ from ._apply_quaternion import (
 from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
+from ._bisect import bisect
+from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
 from ._chebyshev_interpolation import chebyshev_interpolation
@@ -214,6 +216,7 @@ from ._multiply_probabilists_hermite_polynomial import (
 from ._multiply_probabilists_hermite_polynomial_by_x import (
     multiply_probabilists_hermite_polynomial_by_x,
 )
+from ._newton import newton
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
 )
@@ -309,6 +312,7 @@ from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
 from ._random_rotation_vector import random_rotation_vector
+from ._root_scalar import root_scalar
 from ._rotation_matrix_identity import rotation_matrix_identity
 from ._rotation_matrix_magnitude import rotation_matrix_magnitude
 from ._rotation_matrix_mean import rotation_matrix_mean
@@ -370,6 +374,8 @@ __all__ = [
     "apply_rotation_matrix",
     "apply_rotation_vector",
     "apply_transform",
+    "bisect",
+    "chandrupatla",
     "evaluate_chebyshev_polynomial_cartesian_2d",
     "evaluate_chebyshev_polynomial_cartesian_3d",
     "chebyshev_interpolation",
@@ -503,6 +509,7 @@ __all__ = [
     "multiply_physicists_hermite_polynomial",
     "multiply_polynomial",
     "multiply_probabilists_hermite_polynomial",
+    "newton",
     "physicists_hermite_polynomial_companion",
     "physicists_hermite_polynomial_domain",
     "physicists_hermite_polynomial_from_roots",
@@ -560,6 +567,7 @@ __all__ = [
     "random_quaternion",
     "random_rotation_matrix",
     "random_rotation_vector",
+    "root_scalar",
     "rotation_matrix_identity",
     "rotation_matrix_magnitude",
     "rotation_matrix_mean",
