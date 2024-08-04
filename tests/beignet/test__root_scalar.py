@@ -1,16 +1,6 @@
 import beignet
+import pytest
 import torch
-
-# def test_root():
-#    c = torch.linspace(2, 100, 1001, dtype=torch.float64)
-#
-#    output, _ = beignet.root(
-#        lambda x: x**2 - c,
-#        torch.sqrt(c) - 1.1,
-#        torch.sqrt(c) + 1.0,
-#    )
-#
-#    torch.testing.assert_close(output, torch.sqrt(c))
 
 
 def f(x, c):
@@ -22,7 +12,8 @@ def xstar(c):
     return c.pow(0.5)
 
 
-def test_bisect():
+@pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
+def test_root_scalar(method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
 
     lower = 0.0
@@ -30,15 +21,14 @@ def test_bisect():
 
     options = {"lower": lower, "upper": upper, "dtype": torch.float64}
 
-    root = beignet.root_scalar(
-        f, c, method="bisect", implicit_diff=True, options=options
-    )
+    root = beignet.root_scalar(f, c, method=method, implicit_diff=True, options=options)
     expected = xstar(c)
 
     torch.testing.assert_close(root, expected)
 
 
-def test_bisect_grad():
+@pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
+def test_root_scalar_grad(method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
 
     lower = 0.0
@@ -47,7 +37,7 @@ def test_bisect_grad():
 
     grad = torch.func.vmap(
         torch.func.grad(
-            lambda c: beignet.root_scalar(f, c, method="bisect", options=options)
+            lambda c: beignet.root_scalar(f, c, method=method, options=options)
         )
     )(c)
 
