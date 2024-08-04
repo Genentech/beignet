@@ -216,6 +216,7 @@ from ._multiply_probabilists_hermite_polynomial import (
 from ._multiply_probabilists_hermite_polynomial_by_x import (
     multiply_probabilists_hermite_polynomial_by_x,
 )
+from ._newton import newton
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
 )
@@ -508,6 +509,7 @@ __all__ = [
     "multiply_physicists_hermite_polynomial",
     "multiply_polynomial",
     "multiply_probabilists_hermite_polynomial",
+    "newton",
     "physicists_hermite_polynomial_companion",
     "physicists_hermite_polynomial_domain",
     "physicists_hermite_polynomial_from_roots",
