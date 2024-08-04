@@ -42,7 +42,7 @@ def implicit_diff_root_scalar(solver: Callable[..., Tensor]):
                         -g * b / A for g, b in zip(grad_outputs, B, strict=True)
                     )
                 elif A.ndim == 2:
-                    # NOTE even in this case we should always have A diagonal because f is scalar
+                    # NOTE even in this case A is diagonal because f is scalar
                     return tuple(
                         torch.linalg.solve(A, -g * b)
                         for g, b in zip(grad_outputs, B, strict=True)
