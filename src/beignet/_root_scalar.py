@@ -1,7 +1,16 @@
+from dataclasses import dataclass
 from typing import Callable, Literal
+
+from torch import Tensor
 
 import beignet
 import beignet.func
+
+
+@dataclass
+class RootSolutionInfo:
+    converged: Tensor
+    iterations: Tensor
 
 
 def root_scalar(

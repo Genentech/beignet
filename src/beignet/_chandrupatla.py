@@ -1,33 +1,41 @@
-from typing import Callable, Optional
+from dataclasses import dataclass
+from typing import Callable
 
 import torch
 from torch import Tensor
 
 
+@dataclass
+class RootSolutionInfo:
+    converged: Tensor
+    iterations: Tensor
+
+
 def chandrupatla(
     f: Callable,
-    x0: Tensor,
-    x1: Tensor,
-    *,
-    rtol: Optional[float] = None,
-    atol: Optional[float] = None,
+    *args,
+    lower: float,
+    upper: float,
+    rtol: float | None = None,
+    atol: float | None = None,
     maxiter: int = 100,
+    return_solution_info: bool = False,
+    dtype=None,
+    device=None,
     **_,
-):
-    b = x0
-    a = x1
-    c = x1
-    fa = f(a)
-    fb = f(b)
+) -> Tensor | tuple[Tensor, RootSolutionInfo]:
+    # maintain three points a,b,c for inverse quadratic interpolation
+    # we will keep (a,b) as the bracketing interval
+    a = torch.tensor(lower, dtype=dtype, device=device)
+    b = torch.tensor(upper, dtype=dtype, device=device)
+    c = a
+
+    fa = f(a, *args)
+    fb = f(b, *args)
     fc = fa
 
-    assert (torch.sign(fa) * torch.sign(fb) <= 0).all()
-
-    t = 0.5 * torch.ones_like(fa)
-    xm = torch.zeros_like(a)
-
-    iterations = torch.zeros_like(fa, dtype=int)
-    converged = torch.zeros_like(fa, dtype=bool)
+    # root estimate
+    xm = torch.where(torch.abs(fa) < torch.abs(fb), a, b)
 
     eps = torch.finfo(fa.dtype).eps
     if rtol is None:
@@ -35,65 +43,75 @@ def chandrupatla(
     if atol is None:
         atol = 2 * eps
 
+    converged = torch.zeros_like(fa, dtype=torch.bool)
+    iterations = torch.zeros_like(fa, dtype=torch.int)
+
+    if (torch.sign(fa) * torch.sign(fb) > 0).any():
+        raise ValueError("a and b must bracket a root")
+
     for _ in range(maxiter):
-        xt = a + t * (b - a)
-        ft = f(xt)
-        (
-            a,
-            b,
-            c,
-            fa,
-            fb,
-            fc,
-            t,
-            xt,
-            ft,
-            xm,
-            converged,
-            iterations,
-        ) = _find_root_chandrupatla_iter(
-            a, b, c, fa, fb, fc, t, xt, ft, xm, converged, iterations, atol, rtol
+        xm = torch.where(
+            converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
         )
+        tol = atol + torch.abs(xm) * rtol
+        bracket_size = torch.abs(b - a)
+        tlim = tol / bracket_size
+        #        converged = converged | 0.5 * bracket_size < tol
+        converged = converged | (tlim > 0.5)
 
         if converged.all():
             break
 
-    return xm, (converged, iterations)
+        a, b, c, fa, fb, fc = _find_root_chandrupatla_iter(
+            f, *args, a=a, b=b, c=c, fa=fa, fb=fb, fc=fc, tlim=tlim
+        )
+
+        iterations += ~converged
+
+    if return_solution_info:
+        return xm, RootSolutionInfo(converged=converged, iterations=iterations)
+    else:
+        return xm
 
 
 def _find_root_chandrupatla_iter(
-    a, b, c, fa, fb, fc, t, xt, ft, xm, converged, iterations, atol, rtol
+    f: Callable,
+    *args,
+    a: Tensor,
+    b: Tensor,
+    c: Tensor,
+    fa: Tensor,
+    fb: Tensor,
+    fc: Tensor,
+    tlim: Tensor,
 ):
-    cond = torch.sign(ft) == torch.sign(fa)
-    c = torch.where(cond, a, b)
-    fc = torch.where(cond, fa, fb)
-    b = torch.where(cond, b, a)
-    fb = torch.where(cond, fb, fa)
-
-    a = xt
-    fa = ft
-
-    xm = torch.where(converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b))
-
-    tol = 2 * rtol * torch.abs(xm) + atol
-    tlim = tol / torch.abs(b - c)
-    converged = converged | (tlim > 0.5)
-
+    # check validity of inverse quadratic interpolation
     xi = (a - b) / (c - b)
     phi = (fa - fb) / (fc - fb)
-
     do_iqi = (phi.pow(2) < xi) & ((1 - phi).pow(2) < (1 - xi))
 
+    # use iqi where applicable, otherwise bisect interval
     t = torch.where(
         do_iqi,
         fa / (fb - fa) * fc / (fb - fc)
         + (c - a) / (b - a) * fa / (fc - fa) * fb / (fc - fb),
         0.5,
     )
+    t = torch.clip(t, min=tlim, max=1 - tlim)
 
-    # limit to the range (tlim, 1-tlim)
-    t = torch.minimum(1 - tlim, torch.maximum(tlim, t))
+    xt = a + t * (b - a)
+    ft = f(xt, *args)
 
-    iterations += ~converged
+    # check which side of root t is on
+    cond = torch.sign(ft) == torch.sign(fa)
 
-    return a, b, c, fa, fb, fc, t, xt, ft, xm, converged, iterations
+    # update a,b,c maintaining (a,b) a bracket of root
+    # NOTE we do not maintain the order of a and b
+    c = torch.where(cond, a, b)
+    fc = torch.where(cond, fa, fb)
+    b = torch.where(cond, b, a)
+    fb = torch.where(cond, fb, fa)
+    a = xt
+    fa = ft
+
+    return a, b, c, fa, fb, fc
