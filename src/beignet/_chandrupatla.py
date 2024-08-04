@@ -1,14 +1,9 @@
-from dataclasses import dataclass
 from typing import Callable
 
 import torch
 from torch import Tensor
 
-
-@dataclass
-class RootSolutionInfo:
-    converged: Tensor
-    iterations: Tensor
+from beignet._root_scalar import RootSolutionInfo
 
 
 def chandrupatla(
