@@ -557,6 +557,7 @@ __all__ = [
     "probabilists_hermite_polynomial_weight",
     "probabilists_hermite_polynomial_x",
     "probabilists_hermite_polynomial_zero",
+    "newton",
     "quaternion_identity",
     "quaternion_magnitude",
     "quaternion_mean",
