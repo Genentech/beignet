@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses
 from typing import Callable, Literal
 
 from torch import Tensor
@@ -7,7 +7,7 @@ import beignet
 import beignet.func
 
 
-@dataclass
+@dataclasses.dataclass
 class RootSolutionInfo:
     converged: Tensor
     iterations: Tensor
