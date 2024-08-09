@@ -14,7 +14,7 @@ class RootSolutionInfo:
 
 
 def root_scalar(
-    f: Callable,
+    func: Callable,
     *args,
     method: Literal["bisect"] | Literal["chandrupatla"] = "chandrupatla",
     implicit_diff: bool = True,
@@ -30,4 +30,4 @@ def root_scalar(
     if implicit_diff:
         solver = beignet.func.implicit_diff_root_scalar(solver)
 
-    return solver(f, *args, **options)
+    return solver(func, *args, **options)

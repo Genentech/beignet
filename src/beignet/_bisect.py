@@ -7,7 +7,7 @@ from beignet._root_scalar import RootSolutionInfo
 
 
 def bisect(
-    f: Callable,
+    func: Callable,
     *args,
     lower: float,
     upper: float,
@@ -22,10 +22,10 @@ def bisect(
     a = torch.tensor(lower, dtype=dtype, device=device)
     b = torch.tensor(upper, dtype=dtype, device=device)
 
-    fa = f(a, *args)
-    fb = f(b, *args)
+    fa = func(a, *args)
+    fb = func(b, *args)
     c = (a + b) / 2
-    fc = f(c, *args)
+    fc = func(c, *args)
 
     eps = torch.finfo(fa.dtype).eps
 
@@ -50,7 +50,7 @@ def bisect(
         a = torch.where(cond, c, a)
         b = torch.where(cond, b, c)
         c = (a + b) / 2
-        fc = f(c, *args)
+        fc = func(c, *args)
         iterations += ~converged
 
     if return_solution_info:
