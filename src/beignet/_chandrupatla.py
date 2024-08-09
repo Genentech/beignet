@@ -7,7 +7,7 @@ from beignet._root_scalar import RootSolutionInfo
 
 
 def chandrupatla(
-    f: Callable,
+    func: Callable,
     *args,
     lower: float,
     upper: float,
@@ -25,8 +25,8 @@ def chandrupatla(
     b = torch.tensor(upper, dtype=dtype, device=device)
     c = a
 
-    fa = f(a, *args)
-    fb = f(b, *args)
+    fa = func(a, *args)
+    fb = func(b, *args)
     fc = fa
 
     # root estimate
@@ -59,7 +59,7 @@ def chandrupatla(
             break
 
         a, b, c, fa, fb, fc = _find_root_chandrupatla_iter(
-            f, *args, a=a, b=b, c=c, fa=fa, fb=fb, fc=fc, tlim=tlim
+            func, *args, a=a, b=b, c=c, fa=fa, fb=fb, fc=fc, tlim=tlim
         )
 
         iterations += ~converged
@@ -71,7 +71,7 @@ def chandrupatla(
 
 
 def _find_root_chandrupatla_iter(
-    f: Callable,
+    func: Callable,
     *args,
     a: Tensor,
     b: Tensor,
@@ -96,7 +96,7 @@ def _find_root_chandrupatla_iter(
     t = torch.clip(t, min=tlim, max=1 - tlim)
 
     xt = a + t * (b - a)
-    ft = f(xt, *args)
+    ft = func(xt, *args)
 
     # check which side of root t is on
     cond = torch.sign(ft) == torch.sign(fa)
