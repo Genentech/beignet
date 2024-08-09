@@ -33,6 +33,7 @@ def chandrupatla(
     xm = torch.where(torch.abs(fa) < torch.abs(fb), a, b)
 
     eps = torch.finfo(fa.dtype).eps
+
     if rtol is None:
         rtol = eps
     if atol is None:

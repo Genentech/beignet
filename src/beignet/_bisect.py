@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Callable
 
 import torch
 from torch import Tensor
@@ -29,6 +28,7 @@ def bisect(
     fc = f(c, *args)
 
     eps = torch.finfo(fa.dtype).eps
+
     if rtol is None:
         rtol = eps
     if atol is None:
