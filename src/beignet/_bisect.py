@@ -24,6 +24,7 @@ def bisect(
 
     fa = func(a, *args)
     fb = func(b, *args)
+
     c = (a + b) / 2
     fc = func(c, *args)
 
@@ -31,6 +32,7 @@ def bisect(
 
     if rtol is None:
         rtol = eps
+
     if atol is None:
         atol = 2 * eps
 

@@ -36,6 +36,7 @@ def chandrupatla(
 
     if rtol is None:
         rtol = eps
+
     if atol is None:
         atol = 2 * eps
 
