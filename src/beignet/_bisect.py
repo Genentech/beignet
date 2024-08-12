@@ -53,7 +53,7 @@ def bisect(
         b = torch.where(cond, b, c)
         c = (a + b) / 2
         fc = func(c, *args)
-        iterations += ~converged
+        iterations = iterations + ~converged
 
     if return_solution_info:
         return c, RootSolutionInfo(converged=converged, iterations=iterations)
