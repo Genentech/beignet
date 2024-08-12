@@ -3,7 +3,7 @@ from typing import Callable
 import torch
 from torch import Tensor
 
-from beignet._root_scalar import RootSolutionInfo
+from ._root_scalar import RootSolutionInfo
 
 
 def bisect(
