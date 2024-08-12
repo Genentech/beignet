@@ -63,7 +63,7 @@ def chandrupatla(
             func, *args, a=a, b=b, c=c, fa=fa, fb=fb, fc=fc, tlim=tlim
         )
 
-        iterations += ~converged
+        iterations = iterations + ~converged
 
     if return_solution_info:
         return xm, RootSolutionInfo(converged=converged, iterations=iterations)
