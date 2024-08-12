@@ -1,2 +1,7 @@
-from ._implicit_diff_root_scalar import implicit_diff_root_scalar
+from ._custom_scalar_root import custom_scalar_root
 from ._space import space
+
+__all__ = [
+    "custom_scalar_root",
+    "space",
+]

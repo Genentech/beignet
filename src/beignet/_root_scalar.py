@@ -28,6 +28,6 @@ def root_scalar(
         raise ValueError(f"method {method} not recognized")
 
     if implicit_diff:
-        solver = beignet.func.implicit_diff_root_scalar(solver)
+        solver = beignet.func.custom_scalar_root(solver)
 
     return solver(func, *args, **options)

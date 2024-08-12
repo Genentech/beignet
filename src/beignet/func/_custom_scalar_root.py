@@ -5,7 +5,7 @@ from torch import Tensor
 from torch.autograd import Function
 
 
-def implicit_diff_root_scalar(func: Callable[..., Tensor]):
+def custom_scalar_root(func: Callable[..., Tensor]):
     """Wrap a scalar root solver in an autograd function.
 
     Parameters
