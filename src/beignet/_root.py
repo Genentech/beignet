@@ -21,8 +21,8 @@ def root(
         case "Chandrupatla":
             return beignet.chandrupatla(
                 func,
-                x0,
-                x1,
+                lower=x0,
+                upper=x1,
                 rtol=rtol,
                 atol=atol,
                 maxiter=maxiter,
