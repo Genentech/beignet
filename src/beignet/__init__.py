@@ -193,6 +193,9 @@ from ._linear_polynomial import linear_polynomial
 from ._linear_probabilists_hermite_polynomial import (
     linear_probabilists_hermite_polynomial,
 )
+from ._map_bond import map_bond
+from ._map_neighbor import map_neighbor
+from ._map_product import map_product
 from ._multiply_chebyshev_polynomial import multiply_chebyshev_polynomial
 from ._multiply_chebyshev_polynomial_by_x import multiply_chebyshev_polynomial_by_x
 from ._multiply_laguerre_polynomial import multiply_laguerre_polynomial

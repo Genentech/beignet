@@ -8,7 +8,7 @@ from typing import Dict, Callable, Any, Optional, Generator
 import torch
 from torch import Tensor
 
-from beignet import square_distance, iota, segment_sum
+from beignet import square_distance, iota, segment_sum, map_neighbor
 from beignet.func.__dataclass import _dataclass
 
 
@@ -261,8 +261,8 @@ class _NeighborList:
     indices : Tensor
         A tensor containing the indices of neighbors.
 
-    item_size : float or None
-        The size of each item in the neighbor list.
+    cell_size : float or None
+        The size of each cell in the neighbor list.
 
     maximum_size : int
         The maximum size of the neighbor list.
@@ -279,7 +279,7 @@ class _NeighborList:
     units_buffer_size : int or None
         The buffer size in units.
 
-    update_fn : Callable[[Tensor, "_NeighborList", Any], "_NeighborList"]
+    update_fn : Callable[[Tensor, "_NeighborList", int], "_NeighborList"]
         A function to update the neighbor list.
 
     Methods:
@@ -301,13 +301,13 @@ class _NeighborList:
         metadata={"static": True}
     )
     indices: Tensor
-    item_size: float | None = dataclasses.field(metadata={"static": True})
+    cell_size: float | None = dataclasses.field(metadata={"static": True})
     maximum_size: int = dataclasses.field(metadata={"static": True})
     format: _NeighborListFormat = dataclasses.field(metadata={"static": True})
     partition_error: _PartitionError
     reference_positions: Tensor
     units_buffer_size: int | None = dataclasses.field(metadata={"static": True})
-    update_fn: Callable[[Tensor, "_NeighborList", Any], "_NeighborList"] = (
+    update_fn: Callable[[Tensor, "_NeighborList", int], "_NeighborList"] = (
         dataclasses.field(metadata={"static": True})
     )
 
@@ -418,39 +418,6 @@ def _hash_constants(spatial_dimensions: int, cells_per_side: Tensor) -> Tensor:
         raise ValueError(
             "Cells per side must either: have 0 dimensions, or be the same size as spatial dimensions."
         )
-
-
-def _map_bond(metric_or_displacement: Callable) -> Callable:
-    r"""Map a distance function over batched start and end positions.
-
-    Parameters:
-    -----------
-    distance_fn : callable
-        A function that computes the distance between two positions.
-
-    Returns:
-    --------
-    wrapper : callable
-        A wrapper function that applies `distance_fn` to each pair of start and end positions
-        in the batch.
-    """
-    return torch.vmap(metric_or_displacement, (0, 0), 0)
-
-
-def _map_neighbor(metric_or_displacement: Callable) -> Callable:
-    r"""Vectorizes a metric or displacement function over neighborhoods."""
-
-    def wrapped_fn(input, other, **kwargs):
-        return torch.vmap(torch.vmap(metric_or_displacement, (0, None)))(
-            other, input, **kwargs
-        )
-
-    return wrapped_fn
-
-
-def map_product(metric_or_displacement: Callable) -> Callable:
-    r"""Vectorizes a metric or displacement function over all pairs."""
-    return torch.vmap(torch.vmap(metric_or_displacement, (0, None)), (None, 0))
 
 
 def metric(displacement_fn: Callable) -> Callable:
@@ -765,23 +732,6 @@ def _estimate_cell_capacity(
     return int(cell_capacity * buffer_size_multiplier)
 
 
-def _is_neighbor_list_format_valid(neighbor_list_format: _NeighborListFormat):
-    r"""Check if the given neighbor list format is valid.
-
-    Parameters:
-    -----------
-    neighbor_list_format : _NeighborListFormat
-        The neighbor list format to be validated.
-
-    Raises:
-    -------
-    ValueError
-        If the neighbor list format is not one of the recognized formats.
-    """
-    if neighbor_list_format not in list(_NeighborListFormat):
-        raise ValueError
-
-
 def is_neighbor_list_sparse(
     neighbor_list_format: _NeighborListFormat,
 ) -> bool:
@@ -1012,6 +962,10 @@ def cell_list(
     -------
     _CellListFunctionList
         An object containing `setup_fn` and `update_fn` functions to create and update the cell list.
+
+    Notes
+    -----
+    The constant `100000` is used as a placeholder value to initialize tensors that store additional parameters for each particle. This value is chosen to be large enough to ensure that it is easily distinguishable from any valid data that might be stored in the tensor.
     """
     if not isinstance(size, Tensor):
         size = torch.tensor(size, dtype=torch.float32)
@@ -1278,7 +1232,8 @@ def neighbor_list(
     _NeighborListFunctionList
         A function list for setting up and updating the neighbor list.
     """
-    _is_neighbor_list_format_valid(neighbor_list_format)
+    if neighbor_list_format not in list(_NeighborListFormat):
+        raise ValueError
 
     box = box.detach()
 
@@ -1416,7 +1371,7 @@ def neighbor_list(
         """
         displacement_fn = functools.partial(metric_sq, **kwargs)
 
-        displacement_fn = _map_neighbor(displacement_fn)
+        displacement_fn = map_neighbor(displacement_fn)
 
         neighbor_positions = safe_index(positions, indices)
 
@@ -1560,13 +1515,13 @@ def neighbor_list(
 
             buffer_fn = None
             unit_list = None
-            item_size = None
+            cell_size = None
 
             if not disable_unit_list:
                 if neighbors is None:
                     _box = kwargs.get("space", box)
 
-                    item_size = cutoff
+                    cell_size = cutoff
                     if normalized:
                         if not torch.all(positions < 1.0):
                             raise ValueError(
@@ -1578,19 +1533,19 @@ def neighbor_list(
                             _is_box_valid(_box),
                         )
 
-                        item_size = _normalize_cell_size(_box, cutoff)
+                        cell_size = _normalize_cell_size(_box, cutoff)
 
                         _box = 1.0
 
-                    if torch.all(item_size < _box / 3.0):
-                        buffer_fn = cell_list(_box, item_size, buffer_size_multiplier)
+                    if torch.all(cell_size < _box / 3.0):
+                        buffer_fn = cell_list(_box, cell_size, buffer_size_multiplier)
 
                         unit_list = buffer_fn.setup_fn(
                             reference_positions, excess_buffer_size=excess
                         )
 
                 else:
-                    item_size = neighbors.item_size
+                    cell_size = neighbors.cell_size
 
                     buffer_fn = neighbors.buffer_fn
 
@@ -1679,7 +1634,7 @@ def neighbor_list(
             return _NeighborList(
                 buffer_fn=buffer_fn,
                 indices=indices,
-                item_size=item_size,
+                cell_size=cell_size,
                 maximum_size=maximum_size,
                 format=neighbor_list_format,
                 partition_error=partition_error,
@@ -1709,7 +1664,7 @@ def neighbor_list(
 
             current_unit_size = _cell_size(
                 torch.tensor(1.0),
-                updated_neighbors.item_size,
+                updated_neighbors.cell_size,
             )
 
             updated_unit_size = _cell_size(

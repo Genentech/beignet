@@ -12,12 +12,12 @@ from hypothesis import given
 from torch import Tensor, vmap
 from torch.testing import assert_allclose
 
+from beignet import map_bond, map_product
 from beignet.func import space
 from beignet.func._partition import (
     _cell_dimensions,
     _cell_size,
     _hash_constants,
-    iota,
     _normalize_cell_size,
     _particles_per_cell,
     segment_sum,
@@ -28,10 +28,8 @@ from beignet.func._partition import (
     metric,
     neighbor_list,
     safe_index,
-    map_product,
     _NeighborListFormat,
     _neighbor_list_mask,
-    _map_bond,
 )
 
 
@@ -194,76 +192,6 @@ def test_hash_constants_zero_dimensions():
     cells_per_side = torch.tensor([])
     with pytest.raises(ValueError):
         _hash_constants(spatial_dimensions, cells_per_side)
-
-
-@st.composite
-def _iota_strategy(draw):
-    max_dimensions = 5
-    dim = draw(st.integers(min_value=0, max_value=max_dimensions - 1))
-
-    shape = tuple(
-        draw(
-            st.lists(
-                st.integers(min_value=1, max_value=10),
-                min_size=1,
-                max_size=max_dimensions,
-            )
-        )
-    )
-
-    kwargs = {
-        "dtype": draw(
-            st.sampled_from([torch.int32, torch.int64, torch.float32, torch.float64])
-        ),
-        "device": draw(
-            st.sampled_from(["cpu", "cuda"])
-            if torch.cuda.is_available()
-            else st.just("cpu")
-        ),
-    }
-
-    return shape, dim, kwargs
-
-
-@pytest.mark.parametrize(
-    "shape, dim, expected_exception",
-    [
-        ((3, 4), 5, IndexError),  # `dim` out of range
-        ((3,), 0, None),  # Valid input
-    ],
-)
-def test_iota_exceptions(shape, dim, expected_exception):
-    if expected_exception is not None:
-        with pytest.raises(expected_exception):
-            iota(shape, dim)
-    else:
-        iota(shape, dim)
-
-
-@given(_iota_strategy())
-def test__iota(data):
-    shape, dim, kwargs = data
-
-    # Check for dim out of range
-    if dim >= len(shape):
-        with pytest.raises(IndexError):
-            iota(shape, dim, **kwargs)
-        return
-
-    result = iota(shape, dim, **kwargs)
-
-    # Validate result shape
-    assert result.shape == shape
-
-    # Validate the content of the tensor along the specified dimension
-    for idx in range(shape[dim]):
-        if len(shape) > 1:
-            assert torch.equal(
-                result.select(dim, idx),
-                torch.tensor(idx, **kwargs).expand(*result.select(dim, idx).shape),
-            )
-        else:
-            assert result[idx].item() == idx
 
 
 @st.composite
@@ -842,7 +770,7 @@ def test_neighbor_list_build_sparse(dtype, dim):
     nbrs = neighbor_fn.setup_fn(R)
     mask = _neighbor_list_mask(nbrs)
 
-    d = _map_bond(metric_fn)
+    d = map_bond(metric_fn)
     dR = d(safe_index(R, nbrs.indices[0]), safe_index(R, nbrs.indices[1]))
 
     d_exact = map_product(metric_fn)

@@ -1,5 +1,5 @@
 import dataclasses
-from typing import List, Tuple, Type, TypeVar
+from typing import List, Tuple, Type, TypeVar, Iterable
 
 import optree
 
@@ -22,7 +22,7 @@ def _dataclass(cls: Type[T]):
         else:
             metadata_fields = [*metadata_fields, name]
 
-    def _iterate_cls(_x) -> list[list]:
+    def _iterate_cls(_x) -> list[list[T]]:
         data_iterable = []
 
         for k in data_fields:
@@ -35,7 +35,7 @@ def _dataclass(cls: Type[T]):
 
         return [data_iterable, metadata_iterable]
 
-    def _iterable_to_cls(meta, data):
+    def _iterable_to_cls(meta, data) -> T:
         meta_args = tuple(zip(metadata_fields, meta))
         data_args = tuple(zip(data_fields, data))
         kwargs = dict(meta_args + data_args)
@@ -46,7 +46,7 @@ def _dataclass(cls: Type[T]):
         dataclass_cls,
         _iterate_cls,
         _iterable_to_cls,
-        "beignet.func",
+        namespace="beignet.func",
     )
 
     return dataclass_cls
