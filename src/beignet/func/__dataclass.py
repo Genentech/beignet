@@ -1,7 +1,7 @@
 import dataclasses
 from typing import List, Tuple, Type, TypeVar, Iterable
 
-import optree
+from torch.utils._pytree import register_pytree_node
 
 T = TypeVar("T")
 
@@ -42,11 +42,10 @@ def _dataclass(cls: Type[T]):
 
         return dataclass_cls(**kwargs)
 
-    optree.register_pytree_node(
+    register_pytree_node(
         dataclass_cls,
         _iterate_cls,
         _iterable_to_cls,
-        namespace="beignet.func",
     )
 
     return dataclass_cls
