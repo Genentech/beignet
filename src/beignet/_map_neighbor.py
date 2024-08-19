@@ -21,6 +21,7 @@ def map_neighbor(metric_or_displacement: Callable) -> Callable:
         `input` and `other`, where `input` is the reference data and `other` is
         the neighborhood data.
     """
+
     def wrapped_fn(input, other, **kwargs):
         return torch.vmap(torch.vmap(metric_or_displacement, (0, None)))(
             other, input, **kwargs
