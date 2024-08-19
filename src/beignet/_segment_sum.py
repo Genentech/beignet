@@ -48,8 +48,8 @@ def segment_sum(
     valid_indexes = indexes[valid_mask]
     valid_input = input[valid_mask]
 
-    output = torch.zeros(n, *input.shape[1:], device=input.device, dtype=valid_input.dtype)
-
-    return output.scatter_add(0, valid_indexes, valid_input).to(
-        **kwargs
+    output = torch.zeros(
+        n, *input.shape[1:], device=input.device, dtype=valid_input.dtype
     )
+
+    return output.scatter_add(0, valid_indexes, valid_input).to(**kwargs)
