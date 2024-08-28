@@ -9,8 +9,8 @@ from ._root_scalar import RootSolutionInfo
 def bisect(
     func: Callable,
     *args,
-    lower: float,
-    upper: float,
+    lower: float | Tensor,
+    upper: float | Tensor,
     rtol: float | None = None,
     atol: float | None = None,
     maxiter: int = 100,
@@ -19,8 +19,9 @@ def bisect(
     device=None,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
-    a = torch.tensor(lower, dtype=dtype, device=device)
-    b = torch.tensor(upper, dtype=dtype, device=device)
+    a = torch.as_tensor(lower, dtype=dtype, device=device)
+    b = torch.as_tensor(upper, dtype=dtype, device=device)
+    a, b, *args = torch.broadcast_tensors(a, b, *args)
 
     fa = func(a, *args)
     fb = func(b, *args)
