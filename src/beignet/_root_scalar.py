@@ -19,7 +19,7 @@ def root_scalar(
     method: Literal["bisect", "chandrupatla"] = "chandrupatla",
     implicit_diff: bool = True,
     options: dict | None = None,
-):
+) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     """
     Find the root of a scalar (elementwise) function.
 
@@ -35,6 +35,9 @@ def root_scalar(
 
     method: Literal["bisect", "chandrupatla"] = "chandrupatla"
         Solver method to use.
+        * bisect: `beignet.bisect`
+        * chandrupatla: `beignet.chandrupatla`
+        See docstring of underlying solvers for description of options dict.
 
     implicit_diff: bool = True
         If true, the solver is wrapped in `beignet.func.custom_scalar_root` which
@@ -42,6 +45,11 @@ def root_scalar(
 
     options: dict | None = None
         A dictionary of options that are passed through to the solver as keyword args.
+
+
+    Returns
+    -------
+    Tensor | tuple[Tensor, RootSolutionInfo]
     """
     if options is None:
         options = {}

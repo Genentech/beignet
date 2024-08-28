@@ -19,6 +19,58 @@ def chandrupatla(
     device=None,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
+    """Find the root of a scalar (elementwise) function using chandrupatla method.
+
+    This method is slow but guarenteed to converge.
+
+    Parameters
+    ----------
+    func: Callable
+        Function to find a root of. Called as `f(x, *args)`.
+        The function must operate element wise, i.e. `f(x[i]) == f(x)[i]`.
+        Handling *args via broadcasting is acceptable.
+
+    *args
+        Extra arguments to be passed to `func`.
+
+    lower: float | Tensor
+        Lower bracket for root
+
+    upper: float | Tensor
+        Upper bracket for root
+
+    rtol: float | None = None
+        Relative tolerance
+
+    atol: float | None = None
+        Absolute tolerance
+
+    maxiter: int = 100
+        Maximum number of iterations
+
+    return_solution_info: bool = False
+        Whether to return a `RootSolutionInfo` object
+
+    dtype = None
+        if upper/lower are passed as floats instead of tensors
+        use this dtype when constructing the tensor.
+
+    device = None
+        if upper/lower are passed as floats instead of tensors
+        use this device when constructing the tensor.
+
+    Returns
+    -------
+    Tensor | tuple[Tensor, RootSolutionInfo]
+
+
+    References
+    ----------
+
+    [1] Tirupathi R. Chandrupatla. A new hybrid quadratic/bisection algorithm for
+    finding the zero of a nonlinear function without using derivatives.
+    Advances in Engineering Software, 28.3:145-149, 1997.
+    """
     # maintain three points a,b,c for inverse quadratic interpolation
     # we will keep (a,b) as the bracketing interval
     a = torch.as_tensor(lower, dtype=dtype, device=device)
