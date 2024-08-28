@@ -58,8 +58,20 @@ def custom_scalar_root(func: Callable[..., Tensor]):
 
             @staticmethod
             def vmap(info, in_dims, *args):
-                # vmap is trivial because in scalar case we just broadcast
-                out = func(f, *args, **kwargs)
+                # push vmap into function being evaluated
+                # inner function needs to also be vmaped over x
+                in_dims = (0, *in_dims)
+                out = func(
+                    torch.vmap(
+                        f,
+                        in_dims=in_dims,
+                        out_dims=0,
+                        randomness=info.randomness,
+                        chunk_size=info.batch_size,
+                    ),
+                    *args,
+                    **kwargs,
+                )
 
                 return out, 0
 
