@@ -31,30 +31,29 @@ def custom_scalar_root(func: Callable[..., Tensor]):
                 xstar, *args = ctx.saved_tensors
                 nargs = len(args)
 
-                # optimality condition:
-                # f(x^*(theta), theta) = 0
+                xstar, *args = torch.atleast_1d(xstar, *args)
+                xstar, *args = torch.broadcast_tensors(xstar, *args)
+                shape = xstar.shape
+
+                xstar = xstar.view(-1)
+                args = (arg.view(-1) for arg in args)
 
                 argnums = tuple(range(nargs + 1))
 
-                a, *b = torch.func.jacrev(f, argnums=argnums)(xstar, *args)
+                # optimality condition:
+                # f(x^*(theta), theta) = 0
 
-                match a.ndim:
-                    case 0:
-                        output = ()
+                # because f is applied elementwise just compute diagonal of jacobian
+                a, *b = torch.vmap(
+                    torch.func.grad(f, argnums=argnums), in_dims=(0,) * (nargs + 1)
+                )(xstar, *args)
 
-                        for g, b2 in zip(grad_outputs, b, strict=True):
-                            output = (*output, -g * b2 / a)
+                output = tuple(
+                    (-g * b2 / a).view(*shape)
+                    for g, b2 in zip(grad_outputs, b, strict=True)
+                )
 
-                        return output
-                    case 2:  # NOTE: `a` is diagonal because `f` is scalar
-                        output = ()
-
-                        for g, b2 in zip(grad_outputs, b, strict=True):
-                            output = (*output, torch.linalg.solve(a, -g * b2))
-
-                        return output
-                    case _:
-                        raise ValueError
+                return output
 
             @staticmethod
             def vmap(info, in_dims, *args):
