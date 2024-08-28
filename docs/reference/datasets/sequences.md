@@ -8,7 +8,6 @@
 ::: beignet.datasets.FreeSolvDataset
 ::: beignet.datasets.GDSC1Dataset
 ::: beignet.datasets.GDSC2Dataset
-::: beignet.datasets.PDB70Dataset
 ::: beignet.datasets.PDBbindDataset
 ::: beignet.datasets.REALDatabaseDataset
 ::: beignet.datasets.SKEMPIDataset
