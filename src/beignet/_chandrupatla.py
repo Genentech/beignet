@@ -21,8 +21,9 @@ def chandrupatla(
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     # maintain three points a,b,c for inverse quadratic interpolation
     # we will keep (a,b) as the bracketing interval
-    a = torch.tensor(lower, dtype=dtype, device=device)
-    b = torch.tensor(upper, dtype=dtype, device=device)
+    a = torch.as_tensor(lower, dtype=dtype, device=device)
+    b = torch.as_tensor(upper, dtype=dtype, device=device)
+    a, b, *args = torch.broadcast_tensors(a, b, *args)
     c = a
 
     fa = func(a, *args)
