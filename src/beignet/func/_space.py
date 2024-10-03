@@ -4,6 +4,8 @@ import torch
 from torch import Tensor
 
 import beignet
+from beignet._pairwise_displacement import pairwise_displacement
+from beignet._periodic_displacement import periodic_displacement
 
 T = TypeVar("T")
 
@@ -115,14 +117,11 @@ def space(
             perturbation: Tensor | None = None,
             **_,
         ) -> Tensor:
-            if len(input.shape) != 1:
-                raise ValueError
-
-            if input.shape != other.shape:
-                raise ValueError
+            """Displacement fn for free space"""
+            displacement = pairwise_displacement(input, other)
 
             if perturbation is not None:
-                transform = input - other
+                transform = displacement
 
                 match transform.ndim:
                     case 0:
@@ -142,7 +141,7 @@ def space(
                     case _:
                         raise ValueError
 
-            return input - other
+            return displacement
 
         def shift_fn(input: Tensor, other: Tensor, **_) -> Tensor:
             return input + other
@@ -338,16 +337,8 @@ def space(
         perturbation: Tensor | None = None,
         **_,
     ) -> Tensor:
-        if len(input.shape) != 1:
-            raise ValueError
-
-        if input.shape != other.shape:
-            raise ValueError
-
-        displacement = torch.remainder(
-            input - other + box * 0.5,
-            box,
-        )
+        """Displacement fn for hypercube"""
+        displacement = periodic_displacement(box, pairwise_displacement(input, other))
 
         if perturbation is not None:
             transform = displacement - box * 0.5
@@ -370,7 +361,7 @@ def space(
                 case _:
                     raise ValueError
 
-        return displacement - box * 0.5
+        return displacement
 
     if remapped:
 
