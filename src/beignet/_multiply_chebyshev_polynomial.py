@@ -3,7 +3,7 @@ from typing import Literal
 
 import torch
 from torch import Tensor
-from torchaudio.functional import convolve
+from ._convolve import convolve
 
 
 def multiply_chebyshev_polynomial(
