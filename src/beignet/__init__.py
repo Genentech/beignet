@@ -358,6 +358,16 @@ from ._trim_probabilists_hermite_polynomial_coefficients import (
     trim_probabilists_hermite_polynomial_coefficients,
 )
 from .special import error_erf, error_erfc
+from ._validate_graph_matrix import validate_graph_matrix
+from ._tensor_to_masked_graph_matrix import tensor_to_masked_graph_matrix
+from ._tensor_to_graph_matrix import tensor_to_graph_matrix
+from ._masked_tensor_to_graph_matrix import masked_tensor_to_graph_matrix
+from ._graph_matrix_to_tensor import graph_matrix_to_tensor
+from ._graph_matrix_to_masked_tensor import graph_matrix_to_masked_tensor
+from ._predecessor_matrix_to_distance_matrix import predecessor_matrix_to_distance_matrix
+from ._reconstruct_path import reconstruct_path
+
+
 
 __all__ = [
     "add_chebyshev_polynomial",
@@ -453,6 +463,8 @@ __all__ = [
     "gauss_legendre_quadrature",
     "gauss_physicists_hermite_polynomial_quadrature",
     "gauss_probabilists_hermite_polynomial_quadrature",
+    "graph_matrix_to_masked_tensor",
+    "graph_matrix_to_tensor",
     "integrate_chebyshev_polynomial",
     "integrate_laguerre_polynomial",
     "integrate_legendre_polynomial",
@@ -497,6 +509,7 @@ __all__ = [
     "linear_physicists_hermite_polynomial",
     "linear_polynomial",
     "linear_probabilists_hermite_polynomial",
+    "masked_tensor_to_graph_matrix",
     "multiply_chebyshev_polynomial",
     "multiply_chebyshev_polynomial_by_x",
     "multiply_laguerre_polynomial",
@@ -538,6 +551,7 @@ __all__ = [
     "polynomial_vandermonde_3d",
     "polynomial_x",
     "polynomial_zero",
+    "predecessor_matrix_to_distance_matrix",
     "probabilists_hermite_polynomial_companion",
     "probabilists_hermite_polynomial_domain",
     "probabilists_hermite_polynomial_from_roots",
@@ -562,6 +576,7 @@ __all__ = [
     "random_quaternion",
     "random_rotation_matrix",
     "random_rotation_vector",
+    "reconstruct_path",
     "rotation_matrix_identity",
     "rotation_matrix_magnitude",
     "rotation_matrix_mean",
@@ -580,6 +595,8 @@ __all__ = [
     "subtract_physicists_hermite_polynomial",
     "subtract_polynomial",
     "subtract_probabilists_hermite_polynomial",
+    "tensor_to_graph_matrix",
+    "tensor_to_masked_graph_matrix",
     "translation_identity",
     "trim_chebyshev_polynomial_coefficients",
     "trim_laguerre_polynomial_coefficients",
@@ -587,4 +604,5 @@ __all__ = [
     "trim_physicists_hermite_polynomial_coefficients",
     "trim_polynomial_coefficients",
     "trim_probabilists_hermite_polynomial_coefficients",
+    "validate_graph_matrix",
 ]
