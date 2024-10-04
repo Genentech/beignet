@@ -4,19 +4,6 @@ import scipy.sparse
 from scipy.sparse import csr_matrix
 
 def _populate_graph(data, indices, indptr, graph, null_value):
-    """
-    Populate the dense graph matrix from CSR sparse matrix attributes.
-
-    Parameters:
-    - data: 1D numpy array of the non-zero values in the CSR matrix.
-    - indices: 1D numpy array of column indices corresponding to data.
-    - indptr: 1D numpy array of index pointers for the CSR matrix.
-    - graph: 2D numpy array (N x N) initialized with infinities.
-    - null_value: The value to assign to null entries in the graph.
-
-    The function fills the graph with the minimum edge weights from the CSR matrix,
-    and assigns null_value to positions where there are no edges.
-    """
     N = graph.shape[0]
     null_flag = numpy.ones((N, N), dtype=bool, order='C')
 
@@ -35,9 +22,10 @@ def _populate_graph(data, indices, indptr, graph, null_value):
     # Assign null_value to positions with no edges
     graph[null_flag] = null_value
 
-def graph_matrix_to_tensor(input: csr_matrix, null_value: float = 0) -> numpy.ndarray:
-    # Allow only csr, lil and csc matrices: other formats when converted to csr
-    # combine duplicated edges: we don't want this to happen in the background.
+def graph_matrix_to_tensor(
+        input: csr_matrix,
+        null_value: float = 0,
+) -> numpy.ndarray:
     if not scipy.sparse.issparse(input):
         raise ValueError
 
