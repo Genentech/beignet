@@ -21,9 +21,8 @@ def validate_graph_matrix(
         nan_null=True,
         dtype=torch.float64,
 ):
-    """Routine for validation and conversion of csgraph inputs"""
     if not (csr_output or dense_output):
-        raise ValueError("Internal: dense or csr output must be true")
+        raise ValueError
 
     accept_fv = [null_value_in]
 
@@ -54,7 +53,13 @@ def validate_graph_matrix(
             graph = masked_tensor_to_graph_matrix(graph)
     else:
         if dense_output:
-            graph = tensor_to_masked_graph_matrix(graph, copy=copy_if_dense, null_value=null_value_in, nan_null=nan_null, infinity_null=infinity_null)
+            graph = tensor_to_masked_graph_matrix(
+                graph,
+                copy=copy_if_dense,
+                null_value=null_value_in,
+                nan_null=nan_null,
+                infinity_null=infinity_null,
+            )
 
             mask = graph.mask
 
@@ -62,12 +67,17 @@ def validate_graph_matrix(
 
             graph[mask] = null_value_out
         else:
-            graph = tensor_to_graph_matrix(graph, null_value=null_value_in, infinity_is_null_edge=infinity_null, nan_is_null_edge=nan_null)
+            graph = tensor_to_graph_matrix(
+                graph,
+                null_value=null_value_in,
+                infinity_is_null_edge=infinity_null,
+                nan_is_null_edge=nan_null,
+            )
 
     if graph.ndim != 2:
-        raise ValueError("compressed-sparse graph must be 2-D")
+        raise ValueError
 
     if graph.shape[0] != graph.shape[1]:
-        raise ValueError("compressed-sparse graph must be shape (N, N)")
+        raise ValueError
 
     return graph
