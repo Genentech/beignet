@@ -8,17 +8,6 @@ from torch.utils.data import Dataset
 
 from beignet.transforms import Transform
 
-try:
-    import lmdb
-except ImportError as error:
-    raise ImportError(
-        """
-        LMDB datasets require the `lmdb` dependency:
-
-            $ pip install "beignet[lmdb]"
-        """
-    ) from error
-
 
 class LMDBDataset(Dataset):
     def __init__(
@@ -33,6 +22,17 @@ class LMDBDataset(Dataset):
         transform: Union[Callable, Transform, None] = None,
     ):
         super().__init__()
+
+        try:
+            import lmdb
+        except ImportError as error:
+            raise ImportError(
+                """
+                LMDB datasets require the `lmdb` dependency:
+
+                    $ pip install "beignet[lmdb]"
+                """
+            ) from error
 
         self._root = root
 
