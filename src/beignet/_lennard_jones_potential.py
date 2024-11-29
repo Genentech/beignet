@@ -1,4 +1,8 @@
+import torch
 from torch import Tensor
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def lennard_jones_potential(
@@ -25,9 +29,10 @@ def lennard_jones_potential(
     output : Tensor, shape=(n, m)
         Energies.
     """
-    a = sigma / input
+
+    a = sigma.to(device=device) / input.to(device=device)
 
     b = a**6.0
     c = b**2.0
 
-    return 4.0 * epsilon * (c - b)
+    return torch.nan_to_num(4.0 * epsilon * (c - b))
