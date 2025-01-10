@@ -194,6 +194,7 @@ from ._linear_polynomial import linear_polynomial
 from ._linear_probabilists_hermite_polynomial import (
     linear_probabilists_hermite_polynomial,
 )
+from ._maximum_mean_discrepancy import maximum_mean_discrepancy
 from ._multiply_chebyshev_polynomial import multiply_chebyshev_polynomial
 from ._multiply_chebyshev_polynomial_by_x import multiply_chebyshev_polynomial_by_x
 from ._multiply_laguerre_polynomial import multiply_laguerre_polynomial
