@@ -87,3 +87,30 @@ def test_mmd_validation(request, arrays):
 
     mmd = maximum_mean_discrepancy(data.X_large, data.Y_small)
     assert numpy.isfinite(float(mmd))
+
+
+@pytest.mark.parametrize("arrays", ["numpy_arrays", "torch_arrays"])
+def test_mmd_broadcasting(request, arrays):
+    """Test MMD with batched inputs."""
+    data = request.getfixturevalue(arrays)
+
+    # Create batched data (2, B, N, D)
+    if torch.is_tensor(data.X):
+        X_batch = data.X[None, None, :, :].repeat(2, 3, 1, 1)
+        Y_batch = data.Y[None, None, :, :].repeat(2, 3, 1, 1)
+    else:
+        X_batch = numpy.ones((2, 3) + data.X.shape) * data.X
+        Y_batch = numpy.ones((2, 3) + data.Y.shape) * data.Y
+
+    mmd = maximum_mean_discrepancy(X_batch, Y_batch)
+    assert mmd.shape == (2, 3), f"Expected shape (2, 3), got {mmd.shape}"
+
+    # Check each batch independently matches unbatched computation
+    for i in range(2):
+        for j in range(3):
+            single_mmd = maximum_mean_discrepancy(X_batch[i, j], Y_batch[i, j])
+
+            if torch.is_tensor(data.X):
+                assert torch.allclose(mmd[i, j], single_mmd)
+            else:
+                assert numpy.allclose(mmd[i, j], single_mmd)
