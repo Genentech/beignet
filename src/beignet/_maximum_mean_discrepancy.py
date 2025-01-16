@@ -11,19 +11,13 @@ def maximum_mean_discrepancy(
     kernel_width: Optional[float] = None,
 ) -> npt.ArrayLike:
     """
-    Compute Maximum Mean Discrepancy (MMD) between batched sample sets
-    using a Gaussian kernel.
+    Compute Maximum Mean Discrepancy (MMD) between batched sample sets.
 
     This function efficiently computes MMD between two sets of samples,
     supporting both NumPy arrays and PyTorch tensors with arbitrary
     batch dimensions. Uses a Gaussian kernel k(x,y) = exp(-||x-y||²/2γ²)
     where γ (kernel_width) is calibrated via median heuristic if
     not specified.
-
-    The implementation leverages vectorized operations and efficient
-    broadcasting. For input tensors of shape (*B, N, D) where B
-    represents batch dimensions, N is sample count, and D
-    is feature dimension, output has shape (*B).
 
     Args:
     X: First distribution samples. Shape: (*B, N₁, D)
