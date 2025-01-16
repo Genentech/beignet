@@ -9,20 +9,39 @@ def maximum_mean_discrepancy(
     Y: npt.ArrayLike,
     distance_fn: Optional[Callable[[Any, Any], Any]] = None,
     kernel_width: Optional[float] = None,
-) -> float:
+) -> npt.ArrayLike:
     """
-    Compute Maximum Mean Discrepancy between samples X and Y
-    using a squared exponential kernel k(x,y) = exp(-0.5 * d(x,y)^2 / gamma^2).
-    Uses Array API standard operations for library compatibility.
+    Compute Maximum Mean Discrepancy (MMD) between batched sample sets
+    using a Gaussian kernel.
+
+    This function efficiently computes MMD between two sets of samples,
+    supporting both NumPy arrays and PyTorch tensors with arbitrary
+    batch dimensions. Uses a Gaussian kernel k(x,y) = exp(-||x-y||²/2γ²)
+    where γ (kernel_width) is calibrated via median heuristic if
+    not specified.
+
+    The implementation leverages vectorized operations and efficient
+    broadcasting. For input tensors of shape (*B, N, D) where B
+    represents batch dimensions, N is sample count, and D
+    is feature dimension, output has shape (*B).
 
     Args:
-        X: (m, d) array of samples from first distribution
-        Y: (n, d) array of samples from second distribution
-        distance_fn: Optional callable for custom distance metric
-        kernel_width: Optional float for kernel bandwidth
+    X: First distribution samples. Shape: (*B, N₁, D)
+    Y: Second distribution samples. Shape: (*B, N₂, D)
+    distance_fn: Optional custom distance metric. Uses Euclidean if None.
+        Must support broadcasting over batch dims.
+    kernel_width: Optional bandwidth γ for Gaussian kernel. Uses median heuristic
+        per batch if None.
 
     Returns:
-        float: Empirical MMD estimate
+    MMD distance with shape (*B) matching input batch dimensions.
+
+    Raises:
+    ValueError: If either input has fewer than 2 samples along N dimension.
+
+    Note:
+    Memory scales as O(BN²) for B = product(batch_dims) and N = max(N₁,N₂).
+    Operations are vectorized over all dimensions for efficiency.
     """
 
     if torch.is_tensor(X):
