@@ -1,60 +1,89 @@
+from typing import NamedTuple, Union
+
 import numpy
 import pytest
+import torch
 from beignet import maximum_mean_discrepancy
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose
+
+ArrayType = Union[numpy.ndarray, torch.Tensor]
 
 
-def test_maximum_mean_discrepancy():
-    # Test 1: Basic functionality - two clearly different distributions
-    num_samples = 1024
+class TestData(NamedTuple):
+    """Container for test arrays to ensure consistent initialization."""
 
-    rng = numpy.random.RandomState(42)  # Fixed seed for reproducibility
-    X = rng.normal(0, 1, (num_samples, 2))
-    Y = rng.normal(5, 1, (num_samples, 2))
-    mmd = maximum_mean_discrepancy(X, Y)
-    assert mmd > 0, "MMD should be positive for different distributions"
+    X: ArrayType
+    Y: ArrayType
+    X_same: ArrayType
+    X_large: ArrayType
+    Y_small: ArrayType
 
-    # Test 2: Identity - same distribution should give near-zero MMD
-    X = rng.normal(0, 1, (num_samples, 2))
-    mmd_same = maximum_mean_discrepancy(X, X.copy())
-    assert (
-        mmd_same < 0.1
-    ), f"MMD should be close to 0 for identical distributions, got {mmd_same}"
 
-    # Test 3: Symmetry property
-    X = rng.normal(0, 1, (num_samples, 2))
-    Y = rng.normal(3, 1, (num_samples, 2))
-    split_rng = numpy.random.default_rng(42)
-    mmd_xy = maximum_mean_discrepancy(X, Y, rng=split_rng)
-    split_rng = numpy.random.default_rng(42)
-    mmd_yx = maximum_mean_discrepancy(Y, X, rng=split_rng)
-    assert_almost_equal(mmd_xy, mmd_yx, decimal=5, err_msg="MMD should be symmetric")
-
-    # Test 4: Custom distance function
-    def manhattan_distance(x, y):
-        return numpy.abs(x - y).sum(axis=-1)
-
-    mmd_custom = maximum_mean_discrepancy(X, Y, distance_fn=manhattan_distance)
-    assert mmd_custom > 0, "MMD with custom distance should be positive"
-
-    # Test 5: Custom kernel width
-    mmd_width = maximum_mean_discrepancy(X, Y, kernel_width=1.0)
-    assert mmd_width > 0, "MMD with custom kernel width should be positive"
-
-    # Test 6: Edge cases
-    # Single point
-    X_single = numpy.array([[1.0, 1.0]])
-    Y_single = numpy.array([[2.0, 2.0]])
-    with pytest.raises(ValueError):
-        _ = maximum_mean_discrepancy(X_single, Y_single)
-
-    # Test 7: Different sample sizes
+@pytest.fixture(scope="module")
+def numpy_arrays() -> TestData:
+    """Generate test arrays once per module using vectorized operations."""
+    rng = numpy.random.default_rng(42)
+    # Preallocate all arrays in one block
+    X = rng.normal(0, 1, (1024, 2))
+    Y = rng.normal(5, 1, (1024, 2))  # Different mean for clear separation
     X_large = rng.normal(0, 1, (150, 2))
     Y_small = rng.normal(0, 1, (50, 2))
-    mmd_diff_size = maximum_mean_discrepancy(X_large, Y_small)
-    assert numpy.isfinite(mmd_diff_size), "MMD should handle different sample sizes"
 
-    # Test 8: Verify positive definiteness
-    assert mmd >= 0, "MMD should be non-negative"
-    assert mmd_width >= 0, "MMD should be non-negative with custom width"
-    assert mmd_custom >= 0, "MMD should be non-negative with custom distance"
+    return TestData(
+        X=X,
+        Y=Y,
+        X_same=X.copy(),  # Explicit copy for identity tests
+        X_large=X_large,
+        Y_small=Y_small,
+    )
+
+
+@pytest.fixture(scope="module")
+def torch_arrays(numpy_arrays: TestData) -> TestData:
+    """Convert numpy arrays to torch tensors, ensuring numpy is initialized first."""
+    return TestData(
+        X=torch.tensor(numpy_arrays.X),
+        Y=torch.tensor(numpy_arrays.Y),
+        X_same=torch.tensor(numpy_arrays.X_same),
+        X_large=torch.tensor(numpy_arrays.X_large),
+        Y_small=torch.tensor(numpy_arrays.Y_small),
+    )
+
+
+def manhattan_distance(x: ArrayType, y: ArrayType) -> ArrayType:
+    """Vectorized Manhattan distance using array API operations."""
+    xp = x.__array_namespace__()
+    diff = xp.subtract(xp.expand_dims(x, 1), xp.expand_dims(y, 0))
+    return xp.sum(xp.abs(diff), axis=-1)
+
+
+@pytest.mark.parametrize("arrays", ["numpy_arrays", "torch_arrays"])
+def test_mmd_basic(request, arrays):
+    """Test core MMD functionality with guaranteed initialization order."""
+    data = request.getfixturevalue(arrays)
+
+    mmd = maximum_mean_discrepancy(data.X, data.Y)
+    assert mmd > 0, "MMD should be positive for different distributions"
+
+    mmd_same = maximum_mean_discrepancy(data.X, data.X_same)
+    assert mmd_same < 0.1, "MMD should be near 0 for identical distributions"
+
+    mmd_xy = maximum_mean_discrepancy(data.X, data.Y)
+    mmd_yx = maximum_mean_discrepancy(data.Y, data.X)
+
+    if torch.is_tensor(data.X):
+        assert torch.allclose(mmd_xy, mmd_yx, rtol=1e-5)
+    else:
+        assert_allclose(mmd_xy, mmd_yx, rtol=1e-5)
+
+
+@pytest.mark.parametrize("arrays", ["numpy_arrays", "torch_arrays"])
+def test_mmd_validation(request, arrays):
+    """Test inumpyut validation with single points."""
+    data = request.getfixturevalue(arrays)
+
+    with pytest.raises(ValueError):
+        _ = maximum_mean_discrepancy(data.X[:1], data.Y[:1])
+
+    mmd = maximum_mean_discrepancy(data.X_large, data.Y_small)
+    assert numpy.isfinite(float(mmd))

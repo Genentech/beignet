@@ -1,89 +1,81 @@
-import numpy
+from typing import Any, Callable, Optional
+
+import numpy.typing as npt
+import torch
 
 
 def maximum_mean_discrepancy(
-    X,
-    Y,
-    distance_fn=None,
-    kernel_width: float | None = None,
-    eps: float = 1e-16,
-    rng: numpy.random.Generator | None = None,
+    X: npt.ArrayLike,
+    Y: npt.ArrayLike,
+    distance_fn: Optional[Callable[[Any, Any], Any]] = None,
+    kernel_width: Optional[float] = None,
 ) -> float:
-    r"""
+    """
     Compute Maximum Mean Discrepancy between samples X and Y
-    using a squared exponential kernel $k(x, y) = \exp(-0.5 * d(x, y)^2 / \gamma^2)$,
-    where $d$ is a distance function and $\gamma$ is the kernel width.
-    By default we use Euclidean distance and the median heuristic for $\gamma$.
+    using a squared exponential kernel k(x,y) = exp(-0.5 * d(x,y)^2 / gamma^2).
+    Uses Array API standard operations for library compatibility.
 
     Args:
-        X: (m, d) NumPy array of samples from first distribution
-        Y: (n, d) NumPy array of samples from second distribution
-        gamma: kernel width ($\sigma$ in an RBF kernel)
+        X: (m, d) array of samples from first distribution
+        Y: (n, d) array of samples from second distribution
+        distance_fn: Optional callable for custom distance metric
+        kernel_width: Optional float for kernel bandwidth
 
     Returns:
-        Empirical MMD estimate
+        float: Empirical MMD estimate
     """
 
-    # randomly split samples in half
-    n = X.shape[0]
-    m = Y.shape[0]
+    if torch.is_tensor(X):
+        xp = torch
+    else:
+        xp = X.__array_namespace__()  # Get array namespace for API operations
 
-    if n < 2 or m < 2:
-        raise ValueError(
-            "This function expects at least 2 samples from each distribution"
-        )
+    if X.shape[0] < 2 or Y.shape[0] < 2:
+        raise ValueError("Each distribution must have at least 2 samples")
 
-    if rng is None:
-        rng = numpy.random.default_rng()
-
-    # use same rng state to ensure symmetry
-    state = rng.bit_generator.state
-    x_perm_idx = rng.permutation(n)
-    rng.bit_generator.state = state
-    y_perm_idx = rng.permutation(m)
-
-    X1 = X[x_perm_idx[: n // 2]]
-    X2 = X[x_perm_idx[n // 2 :]]
-
-    Y1 = Y[y_perm_idx[: m // 2]]
-    Y2 = Y[y_perm_idx[m // 2 :]]
-
-    if distance_fn is None:
+    if distance_fn is None and hasattr(xp, "expand_dims"):
 
         def distance_fn(x, y):
-            return numpy.linalg.norm(x[:, None] - y[None, :], axis=-1)
+            # Broadcasting using array API operations
+            diff = xp.expand_dims(x, 1) - xp.expand_dims(y, 0)
+            return xp.sqrt((diff**2).sum(-1))
+    elif distance_fn is None and hasattr(xp, "unsqueeze"):
 
-    # Compute distance matrices
-    d_X1_X2 = distance_fn(X1, X2)
-    d_X1_Y1 = distance_fn(X1, Y1)
-    d_Y1_Y2 = distance_fn(Y1, Y2)
-    d_X2_Y2 = distance_fn(X2, Y2)
-
-    if kernel_width is None:
-        # Use median heuristic for kernel width
-        kernel_width = numpy.median(
-            numpy.concatenate(
-                [
-                    d_X1_X2.flatten(),
-                    d_X1_Y1.flatten(),
-                    d_Y1_Y2.flatten(),
-                    d_X2_Y2.flatten(),
-                ]
-            )
-        )
+        def distance_fn(x, y):
+            diff = xp.unsqueeze(x, 1) - xp.unsqueeze(y, 0)
+            return xp.sqrt((diff**2).sum(-1))
+    else:
+        raise ValueError("Array namespace does not conform to expected API")
 
     # Compute kernel matrices
-    K_X1_X2 = numpy.exp(-0.5 * d_X1_X2**2 / kernel_width**2)
-    K_X1_Y1 = numpy.exp(-0.5 * d_X1_Y1**2 / kernel_width**2)
-    K_Y1_Y2 = numpy.exp(-0.5 * d_Y1_Y2**2 / kernel_width**2)
-    K_X2_Y2 = numpy.exp(-0.5 * d_X2_Y2**2 / kernel_width**2)
+    D_XX = distance_fn(X, X)
+    D_YY = distance_fn(Y, Y)
+    D_XY = distance_fn(X, Y)
 
-    # Calculate MMD^2
+    if kernel_width is None:
+        # Concatenate and compute median using array API
+        all_distances = xp.concat(
+            [xp.reshape(D_XX, (-1,)), xp.reshape(D_YY, (-1,)), xp.reshape(D_XY, (-1,))],
+            axis=0,
+        )
+        sq_kernel_width = xp.median(all_distances) ** 2
+
+    # Apply RBF kernel using array API operations
+    K_XX = xp.exp(-0.5 * D_XX**2 / sq_kernel_width)
+    K_YY = xp.exp(-0.5 * D_YY**2 / sq_kernel_width)
+    K_XY = xp.exp(-0.5 * D_XY**2 / sq_kernel_width)
+
+    m = X.shape[-2]
+    n = Y.shape[-2]
+
+    # Compute MMD^2 with diagonal correction using array API operations
     mmd_squared = (
-        numpy.mean(K_X1_X2)
-        + numpy.mean(K_Y1_Y2)
-        - numpy.mean(K_X1_Y1)
-        - numpy.mean(K_X2_Y2)
+        (xp.sum(K_XX) - xp.trace(K_XX)) / (m * (m - 1))
+        + (xp.sum(K_YY) - xp.trace(K_YY)) / (n * (n - 1))
+        - 2 * xp.mean(K_XY)
     )
 
-    return numpy.sqrt(max(mmd_squared, eps))  # Return MMD (not squared)
+    if xp is torch:
+        return mmd_squared.clamp_min(0.0).sqrt()
+
+    return xp.sqrt(xp.maximum(mmd_squared, 0.0))
