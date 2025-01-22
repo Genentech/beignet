@@ -3,7 +3,10 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Callable
 
-from mdtraj import Trajectory
+try:
+    from mdtraj import Trajectory
+except ImportError:
+    pass
 from torch.utils.data import Dataset
 
 
@@ -13,7 +16,7 @@ class TrajectoryDataset(Dataset):
         func: Callable,
         extension: str,
         root: str | PathLike,
-        transform: Callable[[Trajectory], Any] | None = None,
+        transform: Callable[["Trajectory"], Any] | None = None,
         stride: int | None = None,
         **kwargs,
     ):
@@ -32,7 +35,7 @@ class TrajectoryDataset(Dataset):
 
         super().__init__()
 
-    def __getitem__(self, index: int) -> Trajectory:
+    def __getitem__(self, index: int) -> "Trajectory":
         item = self.func(self.paths[index], stride=self.stride)
 
         if self.transform:

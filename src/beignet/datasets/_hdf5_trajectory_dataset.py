@@ -1,9 +1,11 @@
 from os import PathLike
 from typing import Any, Callable
 
-import mdtraj
-from mdtraj import Trajectory
-
+try:
+    from mdtraj import Trajectory
+except ImportError:
+    pass
+import beignet
 from ._trajectory_dataset import TrajectoryDataset
 
 
@@ -15,11 +17,14 @@ class HDF5TrajectoryDataset(TrajectoryDataset):
         stride: int | None = None,
         **kwargs,
     ):
-        super().__init__(
-            func=mdtraj.load_hdf5,
-            extension="hdf5",
-            root=root,
-            transform=transform,
-            stride=stride,
-            **kwargs,
-        )
+        if beignet.optional_dependency(["mdtraj"], ["mdtraj"]):
+            import mdtraj
+
+            super().__init__(
+                func=mdtraj.load_hdf5,
+                extension="hdf5",
+                root=root,
+                transform=transform,
+                stride=stride,
+                **kwargs,
+            )
