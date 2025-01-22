@@ -26,7 +26,6 @@ class TDCDataset(Dataset):
         y_keys: List[str] | None = None,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
-        sep="\t",
     ):
         super().__init__()
 
