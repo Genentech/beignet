@@ -215,7 +215,7 @@ from ._multiply_probabilists_hermite_polynomial import (
 from ._multiply_probabilists_hermite_polynomial_by_x import (
     multiply_probabilists_hermite_polynomial_by_x,
 )
-from ._optional_dependency import optional_dependency
+from ._optional_dependencies import optional_dependencies
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
 )
@@ -510,7 +510,7 @@ __all__ = [
     "multiply_polynomial_by_x",
     "multiply_probabilists_hermite_polynomial",
     "multiply_probabilists_hermite_polynomial_by_x",
-    "optional_dependency",
+    "optional_dependencies",
     "physicists_hermite_polynomial_companion",
     "physicists_hermite_polynomial_domain",
     "physicists_hermite_polynomial_from_roots",

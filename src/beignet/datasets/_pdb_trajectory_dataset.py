@@ -19,7 +19,7 @@ class PDBTrajectoryDataset(TrajectoryDataset):
         stride: int | None = None,
         **kwargs,
     ):
-        if beignet.optional_dependency(["mdtraj"], ["mdtraj"]):
+        if beignet.optional_dependencies(["mdtraj"], ["mdtraj"]):
             import mdtraj
 
             super().__init__(
