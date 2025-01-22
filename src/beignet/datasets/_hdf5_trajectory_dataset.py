@@ -6,6 +6,7 @@ try:
 except ImportError:
     pass
 import beignet
+
 from ._trajectory_dataset import TrajectoryDataset
 
 
