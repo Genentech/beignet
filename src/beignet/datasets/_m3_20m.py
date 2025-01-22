@@ -28,6 +28,8 @@ class M320MDataset(ParquetDataset):
             path="",  # TODO: Add path
             columns=["smiles", "Description"],
             target_columns=None,
+            transform=transform,
+            target_transform=target_transform,
         )
 
         self._x = self._data[self._columns].apply(tuple, axis=1)
