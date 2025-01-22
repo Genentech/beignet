@@ -26,6 +26,7 @@ class TDCDataset(Dataset):
         y_keys: List[str] | None = None,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
+        sep="\t",
     ):
         super().__init__()
 
@@ -45,7 +46,7 @@ class TDCDataset(Dataset):
 
         match path.suffix:
             case ".csv":
-                self._data = pandas.read_csv(path)
+                self._data = pandas.read_csv(path, sep=None)
             case ".pkl":
                 self._data = pandas.read_pickle(path)
             case ".tab" | ".tsv":

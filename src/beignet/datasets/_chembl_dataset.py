@@ -34,6 +34,6 @@ class ChEMBLDataset(TDCDataset):
             suffix="csv",
             checksum="md5:b0cedfe468c6331487f7084236944bac",
             x_keys=["smiles"],
-            y_keys=[],
+            y_keys=None,
             transform=transform,
         )

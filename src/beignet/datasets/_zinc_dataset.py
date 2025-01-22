@@ -34,6 +34,6 @@ class ZINCDataset(TDCDataset):
             suffix="tsv",
             checksum="md5:9e4754d72db297d496def3498a926979",
             x_keys=["smiles"],
-            y_keys=[],
+            y_keys=None,
             transform=transform,
         )
