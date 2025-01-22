@@ -45,7 +45,7 @@ class TDCDataset(Dataset):
 
         match path.suffix:
             case ".csv":
-                self._data = pandas.read_csv(path)
+                self._data = pandas.read_csv(path, sep=None)
             case ".pkl":
                 self._data = pandas.read_pickle(path)
             case ".tab" | ".tsv":
