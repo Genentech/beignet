@@ -32,6 +32,6 @@ def optional_dependencies(names: List[str], groups: List[str]):
 
     message = f"{message}\n\n"
 
-    message = f"{message}Try:\n\n    $ pip install \"beignet[{groups}]\""
+    message = f'{message}Try:\n\n    $ pip install "beignet[{groups}]"'
 
     raise ImportError(message)
