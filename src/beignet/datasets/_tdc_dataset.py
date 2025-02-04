@@ -63,10 +63,10 @@ class TDCDataset(Dataset):
         subset = x_keys + (y_keys if y_keys is not None else [])
         self._data = self._data.dropna(subset=subset)
 
-        self._x = self._data[self._x_keys].apply(tuple, axis=1)
+        self._x = list(self._data[self._x_keys].apply(tuple, axis=1))
 
         if self._y_keys is not None:
-            self._y = self._data[self._y_keys].apply(tuple, axis=1)
+            self._y = list(self._data[self._y_keys].apply(tuple, axis=1))
 
     def __getitem__(self, index: int) -> Tuple[T, T]:
         x = self._x[index]
