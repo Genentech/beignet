@@ -59,6 +59,10 @@ class TDCDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
+        # Remove missing values based on x and y keys
+        subset = x_keys + (y_keys if y_keys is not None else [])
+        self._data = self._data.dropna(subset=subset)
+
         self._x = self._data[self._x_keys].apply(tuple, axis=1)
 
         if self._y_keys is not None:
