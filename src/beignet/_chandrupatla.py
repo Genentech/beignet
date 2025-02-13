@@ -15,8 +15,6 @@ def chandrupatla(
     atol: float | None = None,
     maxiter: int = 100,
     return_solution_info: bool = False,
-    dtype=None,
-    device=None,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     """Find the root of a scalar (elementwise) function using chandrupatla method.
@@ -51,14 +49,6 @@ def chandrupatla(
     return_solution_info: bool = False
         Whether to return a `RootSolutionInfo` object
 
-    dtype = None
-        if upper/lower are passed as floats instead of tensors
-        use this dtype when constructing the tensor.
-
-    device = None
-        if upper/lower are passed as floats instead of tensors
-        use this device when constructing the tensor.
-
     Returns
     -------
     Tensor | tuple[Tensor, RootSolutionInfo]
@@ -73,8 +63,8 @@ def chandrupatla(
     """
     # maintain three points a,b,c for inverse quadratic interpolation
     # we will keep (a,b) as the bracketing interval
-    a = torch.as_tensor(lower, dtype=dtype, device=device)
-    b = torch.as_tensor(upper, dtype=dtype, device=device)
+    a = torch.as_tensor(lower)
+    b = torch.as_tensor(upper)
     a, b, *args = torch.broadcast_tensors(a, b, *args)
     c = a
 
