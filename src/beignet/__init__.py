@@ -19,6 +19,8 @@ from ._apply_quaternion import (
 from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
+from ._bisect import bisect
+from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
 from ._chebyshev_interpolation import chebyshev_interpolation
@@ -311,6 +313,7 @@ from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
 from ._random_rotation_vector import random_rotation_vector
+from ._root_scalar import root_scalar
 from ._rotation_matrix_identity import rotation_matrix_identity
 from ._rotation_matrix_magnitude import rotation_matrix_magnitude
 from ._rotation_matrix_mean import rotation_matrix_mean
@@ -564,6 +567,7 @@ __all__ = [
     "random_quaternion",
     "random_rotation_matrix",
     "random_rotation_vector",
+    "root_scalar",
     "rotation_matrix_identity",
     "rotation_matrix_magnitude",
     "rotation_matrix_mean",
@@ -589,4 +593,5 @@ __all__ = [
     "trim_physicists_hermite_polynomial_coefficients",
     "trim_polynomial_coefficients",
     "trim_probabilists_hermite_polynomial_coefficients",
+    "root",
 ]
