@@ -75,11 +75,11 @@ def chandrupatla(
     eps = torch.finfo(dtype).eps
     a, b, *args = (x.to(dtype=dtype).contiguous() for x in (a, b, *args))
 
-    c = a
+    c = a.clone()
 
     fa = func(a, *args)
     fb = func(b, *args)
-    fc = fa
+    fc = fa.clone()
 
     # root estimate
     xm = torch.where(torch.abs(fa) < torch.abs(fb), a, b)
@@ -131,15 +131,25 @@ def chandrupatla(
         fc = torch.where(cond, fa, fb)
         b = torch.where(cond, b, a)
         fb = torch.where(cond, fb, fa)
-        a = xt
-        fa = ft
+        a = xt.clone()
+        fa = ft.clone()
 
         xm = torch.where(
             converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
         )
 
         iterations = iterations + ~converged
-        return a, b, c, fa, fb, fc, xm, converged, iterations
+        return (
+            a,
+            b,
+            c,
+            fa,
+            fb,
+            fc,
+            xm,
+            converged,
+            iterations,
+        )
 
     a, b, c, fa, fb, fc, xm, converged, iterations = while_loop(
         condition, loop_body, (a, b, c, fa, fb, fc, xm, converged, iterations)

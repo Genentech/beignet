@@ -1,3 +1,5 @@
+from functools import partial
+
 import beignet
 import pytest
 import torch
@@ -12,8 +14,9 @@ def xstar(c):
     return c.pow(0.5)
 
 
+@pytest.mark.parametrize("compile", [True, False])
 @pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
-def test_root_scalar(method):
+def test_root_scalar(compile, method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
 
     lower = 0.0
@@ -28,9 +31,14 @@ def test_root_scalar(method):
         "maxiter": maxiter,
     }
 
-    root, info = beignet.root_scalar(
-        f, c, method=method, implicit_diff=True, options=options
+    solver = partial(
+        beignet.root_scalar, method=method, implicit_diff=True, options=options
     )
+    if compile:
+        solver = torch.compile(solver, fullgraph=False)
+
+    root, info = solver(f, c)
+
     expected = xstar(c)
 
     assert info.converged.all()
