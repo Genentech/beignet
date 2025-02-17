@@ -19,11 +19,19 @@ def test_root_scalar(method):
     lower = 0.0
     upper = 5.0
 
-    options = {"lower": lower, "upper": upper, "dtype": torch.float64}
+    options = {
+        "a": lower,
+        "b": upper,
+        "dtype": torch.float64,
+        "return_solution_info": True,
+    }
 
-    root = beignet.root_scalar(f, c, method=method, implicit_diff=True, options=options)
+    root, info = beignet.root_scalar(
+        f, c, method=method, implicit_diff=True, options=options
+    )
     expected = xstar(c)
 
+    assert info.converged.all()
     torch.testing.assert_close(root, expected)
 
 
@@ -33,7 +41,7 @@ def test_root_scalar_grad(method):
 
     lower = 0.0
     upper = 5.0
-    options = {"lower": lower, "upper": upper, "dtype": torch.float64}
+    options = {"a": lower, "b": upper, "dtype": torch.float64}
 
     grad = torch.func.vmap(
         torch.func.grad(
@@ -52,7 +60,7 @@ def test_root_scalar_jacrev(method):
 
     lower = 0.0
     upper = 5.0
-    options = {"lower": lower, "upper": upper, "dtype": torch.float64}
+    options = {"a": lower, "b": upper, "dtype": torch.float64}
 
     jac = torch.func.jacrev(
         lambda c: beignet.root_scalar(f, c, method=method, options=options)

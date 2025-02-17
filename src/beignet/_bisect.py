@@ -2,6 +2,7 @@ from typing import Callable
 
 import torch
 from torch import Tensor
+from torch._higher_order_ops import while_loop
 
 from ._root_scalar import RootSolutionInfo
 
@@ -9,8 +10,8 @@ from ._root_scalar import RootSolutionInfo
 def bisect(
     func: Callable,
     *args,
-    lower: float | Tensor,
-    upper: float | Tensor,
+    a: float | Tensor,
+    b: float | Tensor,
     rtol: float | None = None,
     atol: float | None = None,
     maxiter: int = 100,
@@ -31,10 +32,10 @@ def bisect(
     *args
         Extra arguments to be passed to `func`.
 
-    lower: float | Tensor
+    a: float | Tensor
         Lower bracket for root
 
-    upper: float | Tensor
+    b: float | Tensor
         Upper bracket for root
 
     rtol: float | None = None
@@ -53,17 +54,22 @@ def bisect(
     -------
     Tensor | tuple[Tensor, RootSolutionInfo]
     """
-    a = torch.as_tensor(lower)
-    b = torch.as_tensor(upper)
+    a = torch.as_tensor(a)
+    b = torch.as_tensor(b)
     a, b, *args = torch.broadcast_tensors(a, b, *args)
+
+    dtype = a.dtype
+    for x in (b, *args):
+        dtype = torch.promote_types(x.dtype, dtype)
+
+    eps = torch.finfo(dtype).eps
+    a, b, *args = (x.to(dtype=dtype).contiguous() for x in (a, b, *args))
 
     fa = func(a, *args)
     fb = func(b, *args)
 
     c = (a + b) / 2
     fc = func(c, *args)
-
-    eps = torch.finfo(fa.dtype).eps
 
     if rtol is None:
         rtol = eps
@@ -77,18 +83,22 @@ def bisect(
     if (torch.sign(fa) * torch.sign(fb) > 0).any():
         raise ValueError("a and b must bracket a root")
 
-    for _ in range(maxiter):
-        converged = converged | ((b - a) / 2 < (rtol * torch.abs(c) + atol))
+    def condition(a, b, c, fa, fb, fc, converged, iterations):
+        return ~converged.all() & (iterations <= maxiter).all()
 
-        if converged.all():
-            break
-
+    def loop_body(a, b, c, fa, fb, fc, converged, iterations):
         cond = torch.sign(fc) == torch.sign(fa)
         a = torch.where(cond, c, a)
         b = torch.where(cond, b, c)
         c = (a + b) / 2
         fc = func(c, *args)
+        converged = converged | ((b - a).abs() / 2 < (rtol * torch.abs(c) + atol))
         iterations = iterations + ~converged
+        return a, b, c, fa, fb, fc, converged, iterations
+
+    a, b, c, fa, fb, fc, converged, iterations = while_loop(
+        condition, loop_body, (a, b, c, fa, fb, fc, converged, iterations)
+    )
 
     if return_solution_info:
         return c, RootSolutionInfo(converged=converged, iterations=iterations)

@@ -9,8 +9,8 @@ from ._root_scalar import RootSolutionInfo
 def chandrupatla(
     func: Callable,
     *args,
-    lower: float | Tensor,
-    upper: float | Tensor,
+    a: float | Tensor,
+    b: float | Tensor,
     rtol: float | None = None,
     atol: float | None = None,
     maxiter: int = 100,
@@ -31,10 +31,10 @@ def chandrupatla(
     *args
         Extra arguments to be passed to `func`.
 
-    lower: float | Tensor
+    a: float | Tensor
         Lower bracket for root
 
-    upper: float | Tensor
+    b: float | Tensor
         Upper bracket for root
 
     rtol: float | None = None
@@ -63,9 +63,17 @@ def chandrupatla(
     """
     # maintain three points a,b,c for inverse quadratic interpolation
     # we will keep (a,b) as the bracketing interval
-    a = torch.as_tensor(lower)
-    b = torch.as_tensor(upper)
+    a = torch.as_tensor(a)
+    b = torch.as_tensor(b)
     a, b, *args = torch.broadcast_tensors(a, b, *args)
+
+    dtype = a.dtype
+    for x in (b, *args):
+        dtype = torch.promote_types(x.dtype, dtype)
+
+    eps = torch.finfo(dtype).eps
+    a, b, *args = (x.to(dtype=dtype).contiguous() for x in (a, b, *args))
+
     c = a
 
     fa = func(a, *args)
@@ -74,8 +82,6 @@ def chandrupatla(
 
     # root estimate
     xm = torch.where(torch.abs(fa) < torch.abs(fb), a, b)
-
-    eps = torch.finfo(fa.dtype).eps
 
     if rtol is None:
         rtol = eps
