@@ -94,7 +94,7 @@ def bisect(
         fc = func(c, *args)
         converged = converged | ((b - a).abs() / 2 < (rtol * torch.abs(c) + atol))
         iterations = iterations + ~converged
-        return a, b, c, fa, fb, fc, converged, iterations
+        return a, b, c, fa.clone(), fb.clone(), fc, converged, iterations
 
     a, b, c, fa, fb, fc, converged, iterations = while_loop(
         condition, loop_body, (a, b, c, fa, fb, fc, converged, iterations)
