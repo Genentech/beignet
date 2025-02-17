@@ -18,12 +18,14 @@ def test_root_scalar(method):
 
     lower = 0.0
     upper = 5.0
+    maxiter = 100
 
     options = {
         "a": lower,
         "b": upper,
         "dtype": torch.float64,
         "return_solution_info": True,
+        "maxiter": maxiter,
     }
 
     root, info = beignet.root_scalar(
@@ -32,6 +34,7 @@ def test_root_scalar(method):
     expected = xstar(c)
 
     assert info.converged.all()
+    assert (info.iterations < maxiter).all()
     torch.testing.assert_close(root, expected)
 
 

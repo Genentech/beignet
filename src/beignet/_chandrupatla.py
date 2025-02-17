@@ -2,6 +2,7 @@ from typing import Callable
 
 import torch
 from torch import Tensor
+from torch._higher_order_ops import while_loop
 
 from ._root_scalar import RootSolutionInfo
 
@@ -95,69 +96,56 @@ def chandrupatla(
     if (torch.sign(fa) * torch.sign(fb) > 0).any():
         raise ValueError("a and b must bracket a root")
 
-    for _ in range(maxiter):
-        xm = torch.where(
-            converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
-        )
+    def condition(a, b, c, fa, fb, fc, xm, converged, iterations):
+        return ~converged.all() & (iterations <= maxiter).all()
+
+    def loop_body(a, b, c, fa, fb, fc, xm, converged, iterations):
         tol = atol + torch.abs(xm) * rtol
         bracket_size = torch.abs(b - a)
         tlim = tol / bracket_size
-        #        converged = converged | 0.5 * bracket_size < tol
         converged = converged | (tlim > 0.5)
 
-        if converged.all():
-            break
+        # check validity of inverse quadratic interpolation
+        xi = (a - b) / (c - b)
+        phi = (fa - fb) / (fc - fb)
+        do_iqi = (phi.pow(2) < xi) & ((1 - phi).pow(2) < (1 - xi))
 
-        a, b, c, fa, fb, fc = _find_root_chandrupatla_iter(
-            func, *args, a=a, b=b, c=c, fa=fa, fb=fb, fc=fc, tlim=tlim
+        # use iqi where applicable, otherwise bisect interval
+        t = torch.where(
+            do_iqi,
+            fa / (fb - fa) * fc / (fb - fc)
+            + (c - a) / (b - a) * fa / (fc - fa) * fb / (fc - fb),
+            0.5,
+        )
+        t = torch.clip(t, min=tlim, max=1 - tlim)
+
+        xt = a + t * (b - a)
+        ft = func(xt, *args)
+
+        # check which side of root t is on
+        cond = torch.sign(ft) == torch.sign(fa)
+
+        # update a,b,c maintaining (a,b) a bracket of root
+        # NOTE we do not maintain the order of a and b
+        c = torch.where(cond, a, b)
+        fc = torch.where(cond, fa, fb)
+        b = torch.where(cond, b, a)
+        fb = torch.where(cond, fb, fa)
+        a = xt
+        fa = ft
+
+        xm = torch.where(
+            converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
         )
 
         iterations = iterations + ~converged
+        return a, b, c, fa, fb, fc, xm, converged, iterations
+
+    a, b, c, fa, fb, fc, xm, converged, iterations = while_loop(
+        condition, loop_body, (a, b, c, fa, fb, fc, xm, converged, iterations)
+    )
 
     if return_solution_info:
         return xm, RootSolutionInfo(converged=converged, iterations=iterations)
     else:
         return xm
-
-
-def _find_root_chandrupatla_iter(
-    func: Callable,
-    *args,
-    a: Tensor,
-    b: Tensor,
-    c: Tensor,
-    fa: Tensor,
-    fb: Tensor,
-    fc: Tensor,
-    tlim: Tensor,
-) -> tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
-    # check validity of inverse quadratic interpolation
-    xi = (a - b) / (c - b)
-    phi = (fa - fb) / (fc - fb)
-    do_iqi = (phi.pow(2) < xi) & ((1 - phi).pow(2) < (1 - xi))
-
-    # use iqi where applicable, otherwise bisect interval
-    t = torch.where(
-        do_iqi,
-        fa / (fb - fa) * fc / (fb - fc)
-        + (c - a) / (b - a) * fa / (fc - fa) * fb / (fc - fb),
-        0.5,
-    )
-    t = torch.clip(t, min=tlim, max=1 - tlim)
-
-    xt = a + t * (b - a)
-    ft = func(xt, *args)
-
-    # check which side of root t is on
-    cond = torch.sign(ft) == torch.sign(fa)
-
-    # update a,b,c maintaining (a,b) a bracket of root
-    # NOTE we do not maintain the order of a and b
-    c = torch.where(cond, a, b)
-    fc = torch.where(cond, fa, fb)
-    b = torch.where(cond, b, a)
-    fb = torch.where(cond, fb, fa)
-    a = xt
-    fa = ft
-
-    return a, b, c, fa, fb, fc
