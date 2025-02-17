@@ -16,6 +16,7 @@ def bisect(
     atol: float | None = None,
     maxiter: int = 100,
     return_solution_info: bool = False,
+    check_bracket: bool = True,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     """Find the root of a scalar (elementwise) function using bisection.
@@ -50,6 +51,9 @@ def bisect(
     return_solution_info: bool = False
         Whether to return a `RootSolutionInfo` object
 
+    check_bracket: bool = True
+        Check if input bracket is valid
+
     Returns
     -------
     Tensor | tuple[Tensor, RootSolutionInfo]
@@ -80,7 +84,7 @@ def bisect(
     converged = torch.zeros_like(fa, dtype=torch.bool)
     iterations = torch.zeros_like(fa, dtype=torch.int)
 
-    if (torch.sign(fa) * torch.sign(fb) > 0).any():
+    if check_bracket and (torch.sign(fa) * torch.sign(fb) > 0).any():
         raise ValueError("a and b must bracket a root")
 
     def condition(a, b, c, fa, fb, fc, converged, iterations):

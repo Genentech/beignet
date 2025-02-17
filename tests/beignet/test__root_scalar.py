@@ -47,6 +47,37 @@ def test_root_scalar(compile, method):
 
 
 @pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
+def test_root_scalar_compile_fullgraph(method):
+    c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
+
+    lower = 0.0
+    upper = 5.0
+    maxiter = 100
+
+    options = {
+        "a": lower,
+        "b": upper,
+        "dtype": torch.float64,
+        "return_solution_info": True,
+        "maxiter": maxiter,
+        "check_bracket": False,
+    }
+
+    solver = partial(
+        beignet.root_scalar, method=method, implicit_diff=False, options=options
+    )
+    solver = torch.compile(solver, fullgraph=True)
+
+    root, info = solver(f, c)
+
+    expected = xstar(c)
+
+    assert info.converged.all()
+    assert (info.iterations < maxiter).all()
+    torch.testing.assert_close(root, expected)
+
+
+@pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
 def test_root_scalar_grad(method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
 
