@@ -114,3 +114,29 @@ def test_mmd_broadcasting(request, arrays):
                 assert torch.allclose(mmd[i, j], single_mmd)
             else:
                 assert numpy.allclose(mmd[i, j], single_mmd)
+
+
+def test_mmd_hamming():
+    """Test MMD with Hamming distance on string arrays."""
+    # Create simple arrays of equal-length strings
+    rng = numpy.random.default_rng(42)
+    n_samples = 4  # Power of 2 for efficiency
+
+    # Generate random DNA sequences for efficient Hamming comparison
+    X = numpy.array(
+        ["".join(rng.choice(["A", "T", "G", "C"], 32)) for _ in range(n_samples)]
+    )[..., None]
+    Y = numpy.array(
+        ["".join(rng.choice(["A", "R", "G", "C"], 32)) for _ in range(n_samples)]
+    )[..., None]
+
+    def str_dist(x, y):
+        return sum(1.0 for a, b in zip(x, y, strict=False) if a != b)
+
+    hamming_distance = numpy.vectorize(str_dist)
+    print(X.shape)
+    D = hamming_distance(X[:, None], Y[..., None, :])
+    print(D.shape)
+    mmd = maximum_mean_discrepancy(X, Y, distance_fn=hamming_distance)
+    print(mmd)
+    assert mmd > 0, "MMD should be positive for different string distributions"
