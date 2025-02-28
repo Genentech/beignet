@@ -1,3 +1,7 @@
+<p align="center">
+<img src="docs/assets/beignet_logo.jpeg" width=300px>
+</p>
+
 _Beignet is a work-in-progress. Contributions and feedback are encouraged!_
 
 # Beignet
