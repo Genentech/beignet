@@ -18,9 +18,9 @@ def xstar(c):
 @pytest.mark.parametrize(
     "compile",
     [
-        pytest.param(True, id="compile=True"),
+        pytest.param(False, id="compile=True"),
         pytest.param(
-            False,
+            True,
             id="compile=False",
             marks=pytest.mark.skipif(
                 platform.system() == "Windows",
