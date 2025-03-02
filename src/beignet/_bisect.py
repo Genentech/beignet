@@ -17,6 +17,7 @@ def bisect(
     maxiter: int = 100,
     return_solution_info: bool = False,
     check_bracket: bool = True,
+    unroll: int = 1,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     """Find the root of a scalar (elementwise) function using bisection.
@@ -53,6 +54,10 @@ def bisect(
 
     check_bracket: bool = True
         Check if input bracket is valid
+
+    unroll: int = 1
+        Number of iterations between convergence checks.
+        Inside `torch.compile` these are unrolled which reduces kernel launch overhead.
 
     Returns
     -------
@@ -91,14 +96,15 @@ def bisect(
         return ~converged.all() & (iterations <= maxiter).all()
 
     def loop_body(a, b, c, fa, fb, fc, converged, iterations):
-        cond = torch.sign(fc) == torch.sign(fa)
-        a = torch.where(cond, c, a)
-        b = torch.where(cond, b, c)
-        c = (a + b) / 2
-        fc = func(c, *args)
-        converged = converged | ((b - a).abs() / 2 < (rtol * torch.abs(c) + atol))
-        iterations = iterations + ~converged
-        return a, b, c, fa.clone(), fb.clone(), fc, converged, iterations
+        for _ in range(unroll):
+            cond = torch.sign(fc) == torch.sign(fa)
+            a = torch.where(cond, c, a)
+            b = torch.where(cond, b, c)
+            c = (a + b) / 2
+            fc = func(c, *args)
+            converged = converged | ((b - a).abs() / 2 < (rtol * torch.abs(c) + atol))
+            iterations = iterations + ~converged
+            return a, b, c, fa.clone(), fb.clone(), fc, converged, iterations
 
     a, b, c, fa, fb, fc, converged, iterations = while_loop(
         condition, loop_body, (a, b, c, fa, fb, fc, converged, iterations)

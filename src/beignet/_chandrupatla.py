@@ -17,6 +17,7 @@ def chandrupatla(
     maxiter: int = 100,
     return_solution_info: bool = False,
     check_bracket: bool = True,
+    unroll: int = 1,
     **_,
 ) -> Tensor | tuple[Tensor, RootSolutionInfo]:
     """Find the root of a scalar (elementwise) function using chandrupatla method.
@@ -53,6 +54,10 @@ def chandrupatla(
 
     check_bracket: bool = True
         Check if input bracket is valid
+
+    unroll: int = 1
+        Number of iterations between convergence checks.
+        Inside `torch.compile` these are unrolled which reduces kernel launch overhead.
 
     Returns
     -------
@@ -104,45 +109,46 @@ def chandrupatla(
         return ~converged.all() & (iterations <= maxiter).all()
 
     def loop_body(a, b, c, fa, fb, fc, xm, converged, iterations):
-        tol = atol + torch.abs(xm) * rtol
-        bracket_size = torch.abs(b - a)
-        tlim = tol / bracket_size
-        converged = converged | (tlim > 0.5)
+        for _ in range(unroll):
+            tol = atol + torch.abs(xm) * rtol
+            bracket_size = torch.abs(b - a)
+            tlim = tol / bracket_size
+            converged = converged | (tlim > 0.5)
 
-        # check validity of inverse quadratic interpolation
-        xi = (a - b) / (c - b)
-        phi = (fa - fb) / (fc - fb)
-        do_iqi = (phi.pow(2) < xi) & ((1 - phi).pow(2) < (1 - xi))
+            # check validity of inverse quadratic interpolation
+            xi = (a - b) / (c - b)
+            phi = (fa - fb) / (fc - fb)
+            do_iqi = (phi.pow(2) < xi) & ((1 - phi).pow(2) < (1 - xi))
 
-        # use iqi where applicable, otherwise bisect interval
-        t = torch.where(
-            do_iqi,
-            fa / (fb - fa) * fc / (fb - fc)
-            + (c - a) / (b - a) * fa / (fc - fa) * fb / (fc - fb),
-            0.5,
-        )
-        t = torch.clip(t, min=tlim, max=1 - tlim)
+            # use iqi where applicable, otherwise bisect interval
+            t = torch.where(
+                do_iqi,
+                fa / (fb - fa) * fc / (fb - fc)
+                + (c - a) / (b - a) * fa / (fc - fa) * fb / (fc - fb),
+                0.5,
+            )
+            t = torch.clip(t, min=tlim, max=1 - tlim)
 
-        xt = a + t * (b - a)
-        ft = func(xt, *args)
+            xt = a + t * (b - a)
+            ft = func(xt, *args)
 
-        # check which side of root t is on
-        cond = torch.sign(ft) == torch.sign(fa)
+            # check which side of root t is on
+            cond = torch.sign(ft) == torch.sign(fa)
 
-        # update a,b,c maintaining (a,b) a bracket of root
-        # NOTE we do not maintain the order of a and b
-        c = torch.where(cond, a, b)
-        fc = torch.where(cond, fa, fb)
-        b = torch.where(cond, b, a)
-        fb = torch.where(cond, fb, fa)
-        a = xt.clone()
-        fa = ft.clone()
+            # update a,b,c maintaining (a,b) a bracket of root
+            # NOTE we do not maintain the order of a and b
+            c = torch.where(cond, a, b)
+            fc = torch.where(cond, fa, fb)
+            b = torch.where(cond, b, a)
+            fb = torch.where(cond, fb, fa)
+            a = xt.clone()
+            fa = ft.clone()
 
-        xm = torch.where(
-            converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
-        )
+            xm = torch.where(
+                converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
+            )
 
-        iterations = iterations + ~converged
+            iterations = iterations + ~converged
         return (
             a,
             b,
