@@ -4,8 +4,6 @@ import torch
 from torch import Tensor
 from torch._higher_order_ops import while_loop
 
-from ._root_scalar import RootSolutionInfo
-
 
 def chandrupatla(
     func: Callable,
@@ -19,10 +17,11 @@ def chandrupatla(
     check_bracket: bool = True,
     unroll: int = 1,
     **_,
-) -> Tensor | tuple[Tensor, RootSolutionInfo]:
+) -> Tensor | tuple[Tensor, dict]:
     """Find the root of a scalar (elementwise) function using chandrupatla method.
 
-    This method is slow but guarenteed to converge.
+    This method uses inverse quadratic interpolation to accelerate convergence.
+    Like bisection it is guaranteed to converge.
 
     Parameters
     ----------
@@ -50,7 +49,7 @@ def chandrupatla(
         Maximum number of iterations
 
     return_solution_info: bool = False
-        Whether to return a `RootSolutionInfo` object
+        Return a solution metadata dictionary.
 
     check_bracket: bool = True
         Check if input bracket is valid
@@ -61,7 +60,7 @@ def chandrupatla(
 
     Returns
     -------
-    Tensor | tuple[Tensor, RootSolutionInfo]
+    Tensor | tuple[Tensor, dict]
 
 
     References
@@ -166,6 +165,6 @@ def chandrupatla(
     )
 
     if return_solution_info:
-        return xm, RootSolutionInfo(converged=converged, iterations=iterations)
+        return xm, {"converged": converged, "iterations": iterations}
     else:
         return xm

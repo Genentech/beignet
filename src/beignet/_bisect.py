@@ -4,8 +4,6 @@ import torch
 from torch import Tensor
 from torch._higher_order_ops import while_loop
 
-from ._root_scalar import RootSolutionInfo
-
 
 def bisect(
     func: Callable,
@@ -19,7 +17,7 @@ def bisect(
     check_bracket: bool = True,
     unroll: int = 1,
     **_,
-) -> Tensor | tuple[Tensor, RootSolutionInfo]:
+) -> Tensor | tuple[Tensor, dict]:
     """Find the root of a scalar (elementwise) function using bisection.
 
     This method is slow but guarenteed to converge.
@@ -50,7 +48,7 @@ def bisect(
         Maximum number of iterations
 
     return_solution_info: bool = False
-        Whether to return a `RootSolutionInfo` object
+        Return a solution metadata dictionary.
 
     check_bracket: bool = True
         Check if input bracket is valid
@@ -61,7 +59,7 @@ def bisect(
 
     Returns
     -------
-    Tensor | tuple[Tensor, RootSolutionInfo]
+    Tensor | tuple[Tensor, dict]
     """
     a = torch.as_tensor(a)
     b = torch.as_tensor(b)
@@ -111,6 +109,6 @@ def bisect(
     )
 
     if return_solution_info:
-        return c, RootSolutionInfo(converged=converged, iterations=iterations)
+        return c, {"converged": converged, "iterations": iterations}
     else:
         return c

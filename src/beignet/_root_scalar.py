@@ -1,4 +1,3 @@
-import dataclasses
 from typing import Callable, Literal
 
 from torch import Tensor
@@ -7,19 +6,13 @@ import beignet
 import beignet.func
 
 
-@dataclasses.dataclass
-class RootSolutionInfo:
-    converged: Tensor
-    iterations: Tensor
-
-
 def root_scalar(
     func: Callable,
     *args,
     method: Literal["bisect", "chandrupatla"] = "chandrupatla",
     implicit_diff: bool = True,
     options: dict | None = None,
-) -> Tensor | tuple[Tensor, RootSolutionInfo]:
+) -> Tensor | tuple[Tensor, dict]:
     """
     Find the root of a scalar (elementwise) function.
 
@@ -49,7 +42,9 @@ def root_scalar(
 
     Returns
     -------
-    Tensor | tuple[Tensor, RootSolutionInfo]
+    Tensor | tuple[Tensor, dict]
+        Tensor approximately satisfying `f(x^*, *args) = 0`.
+        A dictionary of solution metadata may also be returned depending on `options`.
     """
     if options is None:
         options = {}

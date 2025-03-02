@@ -55,8 +55,8 @@ def test_root_scalar(compile, method):
 
     expected = xstar(c)
 
-    assert info.converged.all()
-    assert (info.iterations < maxiter).all()
+    assert info["converged"].all()
+    assert (info["iterations"] < maxiter).all()
     torch.testing.assert_close(root, expected)
 
 
@@ -90,8 +90,8 @@ def test_root_scalar_compile_fullgraph(method):
 
     expected = xstar(c)
 
-    assert info.converged.all()
-    assert (info.iterations < maxiter).all()
+    assert info["converged"].all()
+    assert (info["iterations"] < maxiter).all()
     torch.testing.assert_close(root, expected)
 
 
