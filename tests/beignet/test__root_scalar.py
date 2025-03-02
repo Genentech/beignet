@@ -1,3 +1,4 @@
+import platform
 from functools import partial
 
 import beignet
@@ -14,7 +15,20 @@ def xstar(c):
     return c.pow(0.5)
 
 
-@pytest.mark.parametrize("compile", [True, False])
+@pytest.mark.parametrize(
+    "compile",
+    [
+        pytest.param(True, id="compile=True"),
+        pytest.param(
+            False,
+            id="compile=False",
+            marks=pytest.mark.skipif(
+                platform.system() == "Windows",
+                reason="torch.compile is broken on windows in github ci",
+            ),
+        ),
+    ],
+)
 @pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
 def test_root_scalar(compile, method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
@@ -46,6 +60,10 @@ def test_root_scalar(compile, method):
     torch.testing.assert_close(root, expected)
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows",
+    reason="torch.compile is broken on windows in github ci",
+)
 @pytest.mark.parametrize("method", ["bisect", "chandrupatla"])
 def test_root_scalar_compile_fullgraph(method):
     c = torch.linspace(1.0, 10.0, 101, dtype=torch.float64)
