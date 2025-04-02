@@ -162,7 +162,7 @@ def faddeeva_w(input: Tensor, *, out: Tensor | None = None) -> Tensor:
         2 * torch.exp(-x.pow(2) + y.pow(2)) * torch.sin(-2 * x * y),
     )
     output = torch.where(imag_negative, expz2 - output, output)
-    output = torch.where(real_negative, output.conj(), output, out=out)
+    output = torch.where(real_negative, output.conj(), output)
 
     if out is not None:
         out.copy_(output)
