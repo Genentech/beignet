@@ -127,13 +127,37 @@ def test_mmd_hamming():
         ["".join(rng.choice(["A", "T", "G", "C"], 32)) for _ in range(n_samples)]
     )[..., None]
     Y = numpy.array(
-        ["".join(rng.choice(["A", "R", "G", "C"], 32)) for _ in range(n_samples)]
+        ["".join(rng.choice(["A", "R", "G", "C"], 32)) for _ in range(n_samples * 2)]
     )[..., None]
 
-    def str_dist(x, y):
-        return sum(1.0 for a, b in zip(x, y, strict=False) if a != b)
+    def hamming_distance(x: numpy.ndarray, y: numpy.ndarray) -> numpy.ndarray:
+        """
+        Compute pairwise Hamming distances between arrays of strings.
 
-    hamming_distance = numpy.vectorize(str_dist)
+        Args:
+            x: First array of strings, shape (n, 1)
+            y: Second array of strings, shape (m, 1)
+
+        Returns:
+            Distance matrix of shape (n, m)
+        """
+        # Reshape inputs to flatten them if needed
+        x_flat = x.reshape(-1)
+        y_flat = y.reshape(-1)
+
+        n, m = len(x_flat), len(y_flat)
+        distances = numpy.zeros((n, m), dtype=numpy.float64)
+
+        # Compute pairwise distances
+        for i in range(n):
+            for j in range(m):
+                # For string arrays, count character differences
+                distances[i, j] = sum(
+                    1.0 for a, b in zip(x_flat[i], y_flat[j], strict=False) if a != b
+                )
+
+        return distances
+
     print(X.shape)
     D = hamming_distance(X[:, None], Y[..., None, :])
     print(D.shape)
