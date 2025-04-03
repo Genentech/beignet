@@ -44,11 +44,14 @@ def maximum_mean_discrepancy(
     else:
         xp = X.__array_namespace__()  # Get array namespace for API operations
         xp_is_torch = False
-
+    
     if X.shape[-2] < 2 or Y.shape[-2] < 2:
         raise ValueError("Each distribution must have at least 2 samples")
 
-    if distance_fn is None and hasattr(xp, "expand_dims"):
+    if distance_fn is not None:
+        pass
+    
+    elif distance_fn is None and hasattr(xp, "expand_dims"):
 
         def distance_fn(x, y):
             # Broadcasting using array API operations
