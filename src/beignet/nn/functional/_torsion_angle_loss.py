@@ -16,7 +16,7 @@ def torsion_angle_loss(input, target: Tuple[Tensor, Tensor]) -> Tensor:
     -------
 
     """
-    a = input / torch.unsqueeze(torch.norm(input, dim=-1), dim=-1)
+    a = input / torch.norm(input, dim=-1, keepdim=True)
 
     b, c = target
 
