@@ -26,14 +26,14 @@ class TestTDCDataset:
             y_keys=["y"],
         )
 
-        assert mock_retrieve.called_once_with(
+        mock_retrieve.assert_called_once_with(
             "https://dataverse.harvard.edu/api/access/datafile/123",
             fname="TDCDataset.csv",
             known_hash="md5:checksum",
             path=Path("./foo/bar") / "TDCDataset",
             progressbar=True,
         )
-        assert mock_read_csv.called_once_with(
+        mock_read_csv.assert_called_once_with(
             Path("./foo/bar") / "TDCDataset" / "TDCDataset.csv", sep=None
         )
         assert dataset._x_keys == ["x"]
