@@ -1,17 +1,24 @@
-import functools
 import math
-import sys
-from typing import Optional, Sequence, Union
+from typing import List, Optional, Sequence
 
-import _operator
 import torch
 from torch import Tensor
-from torch.nn import Linear, Module, Parameter, Softmax, Softplus
+from torch.nn import Linear, Module
 
-from ._point_projection import PointProjection
+from ._monomer_point_projection import PointProjection
 
 
-class MonomerInvariantPointAttention(Module):
+def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
+    zero_index = -1 * len(inds)
+    first_inds = list(range(len(tensor.shape[:zero_index])))
+    return tensor.permute(first_inds + [zero_index + i for i in inds])
+
+
+def flatten_final_dims(t: torch.Tensor, no_dims: int):
+    return t.reshape(t.shape[:-no_dims] + (-1,))
+
+
+class InvariantPointAttention(Module):
     def __init__(
         self,
         c_s: int,
@@ -39,7 +46,7 @@ class MonomerInvariantPointAttention(Module):
             no_v_points:
                 Number of value points to generate
         """
-        super(MonomerInvariantPointAttention, self).__init__()
+        super().__init__()
 
         self.c_s = c_s
         self.c_z = c_z
@@ -55,54 +62,23 @@ class MonomerInvariantPointAttention(Module):
         # supplement. There, they lack bias and use Glorot initialization.
         # Here as in the official source, they have bias and use the default
         # Lecun initialization.
-        hc = self.c_hidden * self.no_heads
+        self.hc = self.c_hidden * self.no_heads
 
-        self.linear_q = Linear(self.c_s, hc, bias=(not is_multimer))
+        self.linear_q = Linear(self.c_s, self.hc, bias=(not is_multimer))
 
         self.linear_q_points = PointProjection(
-            self.c_s, self.no_qk_points, self.no_heads, self.is_multimer
+            self.c_s,
+            self.no_qk_points,
+            self.no_heads,
+            self.is_multimer,
         )
-
-        if is_multimer:
-            self.linear_k = Linear(self.c_s, hc, bias=False)
-            self.linear_v = Linear(self.c_s, hc, bias=False)
-            self.linear_k_points = PointProjection(
-                self.c_s, self.no_qk_points, self.no_heads, self.is_multimer
-            )
-
-            self.linear_v_points = PointProjection(
-                self.c_s, self.no_v_points, self.no_heads, self.is_multimer
-            )
-        else:
-            self.linear_kv = Linear(self.c_s, 2 * hc)
-            self.linear_kv_points = PointProjection(
-                self.c_s,
-                self.no_qk_points + self.no_v_points,
-                self.no_heads,
-                self.is_multimer,
-            )
-
-        self.linear_b = Linear(self.c_z, self.no_heads)
-
-        self.head_weights = Parameter(torch.zeros((no_heads)))
-
-        ipa_point_weights_init_(self.head_weights)
-
-        concat_out_dim = self.no_heads * (
-            self.c_z + self.c_hidden + self.no_v_points * 4
-        )
-        self.linear_out = Linear(concat_out_dim, self.c_s, init="final")
-
-        self.softmax = Softmax(dim=-1)
-        self.softplus = Softplus()
 
     def forward(
         self,
         s: Tensor,
         z: Tensor,
-        r: Union[Rigid, Rigid3Array],
+        r,
         mask: Tensor,
-        inplace_safe: bool = False,
         _z_reference_list: Optional[Sequence[Tensor]] = None,
     ) -> Tensor:
         """
@@ -177,20 +153,17 @@ class MonomerInvariantPointAttention(Module):
 
         # [*, H, N_res, N_res]
         a = torch.matmul(
-            permute_final_dims(q, (1, 0, 2)),  # [*, H, N_res, C_hidden]
-            permute_final_dims(k, (1, 2, 0)),  # [*, H, C_hidden, N_res]
+            permute_final_dims(q, [1, 0, 2]),  # [*, H, N_res, C_hidden]
+            permute_final_dims(k, [1, 2, 0]),  # [*, H, C_hidden, N_res]
         )
 
         a *= math.sqrt(1.0 / (3 * self.c_hidden))
-        a += math.sqrt(1.0 / 3) * permute_final_dims(b, (2, 0, 1))
+        a += math.sqrt(1.0 / 3) * permute_final_dims(b, [2, 0, 1])
 
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
 
-        if inplace_safe:
-            pt_att *= pt_att
-        else:
-            pt_att = pt_att**2
+        pt_att = pt_att**2
 
         pt_att = sum(torch.unbind(pt_att, dim=-1))
 
@@ -201,10 +174,7 @@ class MonomerInvariantPointAttention(Module):
             1.0 / (3 * (self.no_qk_points * 9.0 / 2))
         )
 
-        if inplace_safe:
-            pt_att *= head_weights
-        else:
-            pt_att = pt_att * head_weights
+        pt_att = pt_att * head_weights
 
         # [*, N_res, N_res, H]
         pt_att = torch.sum(pt_att, dim=-1) * (-0.5)
@@ -214,22 +184,11 @@ class MonomerInvariantPointAttention(Module):
         square_mask = self.inf * (square_mask - 1)
 
         # [*, H, N_res, N_res]
-        pt_att = permute_final_dims(pt_att, (2, 0, 1))
+        pt_att = permute_final_dims(pt_att, [2, 0, 1])
 
-        if inplace_safe:
-            a += pt_att
-            del pt_att
-            a += square_mask.unsqueeze(-3)
-            # in-place softmax
-            attn_core_inplace_cuda.forward_(
-                a,
-                functools.reduce(_operator.mul, a.shape[:-1]),
-                a.shape[-1],
-            )
-        else:
-            a = a + pt_att
-            a = a + square_mask.unsqueeze(-3)
-            a = self.softmax(a)
+        a = a + pt_att
+        a = a + square_mask.unsqueeze(-3)
+        a = self.softmax(a)
 
         # [*, N_res, H, C_hidden]
         o = torch.matmul(a, v.transpose(-2, -3).to(dtype=a.dtype)).transpose(-2, -3)
@@ -238,19 +197,14 @@ class MonomerInvariantPointAttention(Module):
         o = flatten_final_dims(o, 2)
 
         # [*, H, 3, N_res, P_v]
-        if inplace_safe:
-            v_pts = permute_final_dims(v_pts, (1, 3, 0, 2))
-            o_pt = [torch.matmul(a, v.to(a.dtype)) for v in torch.unbind(v_pts, dim=-3)]
-            o_pt = torch.stack(o_pt, dim=-3)
-        else:
-            o_pt = (
-                a[..., None, :, :, None]
-                * permute_final_dims(v_pts, (1, 3, 0, 2))[..., None, :, :]
-            )
-            o_pt = torch.sum(o_pt, dim=-2)
+        o_pt = (
+            a[..., None, :, :, None]
+            * permute_final_dims(v_pts, [1, 3, 0, 2])[..., None, :, :]
+        )
+        o_pt = torch.sum(o_pt, dim=-2)
 
         # [*, N_res, H, P_v, 3]
-        o_pt = permute_final_dims(o_pt, (2, 0, 3, 1))
+        o_pt = permute_final_dims(o_pt, [2, 0, 3, 1])
         o_pt = r[..., None, None].invert_apply(o_pt)
 
         # [*, N_res, H * P_v]

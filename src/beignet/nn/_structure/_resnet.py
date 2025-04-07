@@ -10,17 +10,22 @@ from ._resnet_block import ResNetBlock
 class ResNet(Module):
     def __init__(self, c_in, c_hidden, no_blocks, no_angles, epsilon):
         """
-        Args:
-            c_in:
-                Input channel dimension
-            c_hidden:
-                Hidden channel dimension
-            no_blocks:
-                Number of resnet blocks
-            no_angles:
-                Number of torsion angles to generate
-            epsilon:
-                Small constant for normalization
+        Parameters
+        ----------
+        c_in : int
+            Input channel dimension
+
+        c_hidden : int
+            Hidden channel dimension
+
+        no_blocks : int
+            Number of resnet blocks
+
+        no_angles : int
+            Number of torsion angles to generate
+
+        epsilon : float
+            Small constant for normalization
         """
         super().__init__()
 
@@ -34,8 +39,10 @@ class ResNet(Module):
         self.linear_initial = Linear(self.c_in, self.c_hidden)
 
         self.layers = ModuleList()
+
         for _ in range(self.no_blocks):
             layer = ResNetBlock(c_hidden=self.c_hidden)
+
             self.layers.append(layer)
 
         self.linear_out = Linear(self.c_hidden, self.no_angles * 2)
@@ -64,8 +71,8 @@ class ResNet(Module):
         s = self.linear_in(s)
         s = s + s_initial
 
-        for l in self.layers:
-            s = l(s)
+        for layer in self.layers:
+            s = layer(s)
 
         s = self.relu(s)
 
