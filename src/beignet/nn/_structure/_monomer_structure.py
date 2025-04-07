@@ -37,7 +37,6 @@ class MonomerStructure(Structure):
         trans_scale_factor,
         epsilon,
         inf,
-        is_multimer=False,
     ):
         """
         Parameters
