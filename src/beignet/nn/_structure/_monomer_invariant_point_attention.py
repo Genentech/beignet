@@ -83,22 +83,24 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         _z_reference_list: Optional[Sequence[Tensor]] = None,
     ) -> Tensor:
         """
-        Args:
-            s:
-                [*, N_res, C_s] single representation
-            z:
-                [*, N_res, N_res, C_z] pair representation
-            r:
-                [*, N_res] transformation object
-            mask:
-                [*, N_res] mask
-        Returns:
-            [*, N_res, C_s] single representation update
-
         Parameters
         ----------
-        _offload_inference
-        inplace_safe
+        s: Tensor
+            [*, N_res, C_s] single representation
+
+        z: Tensor
+            [*, N_res, N_res, C_z] pair representation
+
+        r: Rigid | Rigid3Array
+            [*, N_res] transformation object
+
+        mask: Tensor
+            [*, N_res] mask
+
+        Returns
+        -------
+        Tensor
+            [*, N_res, C_s] single representation update
         """
         z = [z]
 
