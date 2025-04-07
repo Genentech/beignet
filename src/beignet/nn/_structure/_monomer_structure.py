@@ -111,7 +111,6 @@ class MonomerStructure(Structure):
         evoformer_output_dict,
         aatype,
         mask=None,
-        inplace_safe=False,
     ):
         """
         Args:
@@ -164,7 +163,6 @@ class MonomerStructure(Structure):
                 z,
                 rigids,
                 mask,
-                inplace_safe=inplace_safe,
                 _z_reference_list=z_references,
             )
 

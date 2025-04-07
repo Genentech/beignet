@@ -79,7 +79,6 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         z: Tensor,
         r,
         mask: Tensor,
-        inplace_safe: bool = False,
         _z_reference_list: Optional[Sequence[Tensor]] = None,
     ) -> Tensor:
         """
@@ -143,10 +142,7 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         # [*, N_res, N_res, H, P_q, 3]
         pt_att = q_pts.unsqueeze(-4) - k_pts.unsqueeze(-5)
 
-        if inplace_safe:
-            pt_att *= pt_att
-        else:
-            pt_att = pt_att**2
+        pt_att = pt_att**2
 
         pt_att = sum(torch.unbind(pt_att, dim=-1))
 
