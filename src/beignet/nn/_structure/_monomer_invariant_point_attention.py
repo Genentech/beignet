@@ -9,8 +9,10 @@ from .__invariant_point_attention import InvariantPointAttention
 from ._monomer_point_projection import MonomerPointProjection
 
 
-def ipa_point_weights_init_(*args):
-    pass
+def ipa_point_weights_init_(weights):
+    with torch.no_grad():
+        softplus_inverse_1 = 0.541324854612918
+        weights.fill_(softplus_inverse_1)
 
 
 def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
