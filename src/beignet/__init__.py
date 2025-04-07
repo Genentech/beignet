@@ -593,5 +593,4 @@ __all__ = [
     "trim_physicists_hermite_polynomial_coefficients",
     "trim_polynomial_coefficients",
     "trim_probabilists_hermite_polynomial_coefficients",
-    "root",
 ]
