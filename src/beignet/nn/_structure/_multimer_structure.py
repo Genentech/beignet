@@ -98,7 +98,6 @@ class MultimerStructure(Structure):
         evoformer_output_dict,
         aatype,
         mask=None,
-        inplace_safe=False,
     ):
         s = evoformer_output_dict["single"]
 
@@ -127,7 +126,6 @@ class MultimerStructure(Structure):
                 z,
                 rigids,
                 mask,
-                inplace_safe=inplace_safe,
                 _z_reference_list=z_references,
             )
 

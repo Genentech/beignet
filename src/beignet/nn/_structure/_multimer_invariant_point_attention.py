@@ -32,19 +32,25 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
         eps: float = 1e-8,
     ):
         """
-        Args:
-            c_s:
-                Single representation channel dimension
-            c_z:
-                Pair representation channel dimension
-            c_hidden:
-                Hidden channel dimension
-            no_heads:
-                Number of attention heads
-            no_qk_points:
-                Number of query/key points to generate
-            no_v_points:
-                Number of value points to generate
+        Parameters
+        ----------
+        c_s: int
+            Single representation channel dimension
+
+        c_z: int
+            Pair representation channel dimension
+
+        c_hidden: int
+            Hidden channel dimension
+
+        no_heads: int
+            Number of attention heads
+
+        no_qk_points: int
+            Number of query/key points to generate
+
+        no_v_points: int
+            Number of value points to generate
         """
         super().__init__(
             c_s,
@@ -57,6 +63,7 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
             eps,
         )
 
+        self.linear_q = Linear(self.c_s, self.hc, bias=False)
         self.linear_k = Linear(self.c_s, self.hc, bias=False)
         self.linear_v = Linear(self.c_s, self.hc, bias=False)
 
@@ -102,9 +109,6 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
         """
         z = [z]
 
-        #######################################
-        # Generate scalar and point activations
-        #######################################
         # [*, N_res, H * C_hidden]
         q = self.linear_q(s)
 
@@ -113,9 +117,6 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
 
         # [*, N_res, H, P_qk]
         q_pts = self.linear_q_points(s, r)
-
-        # The following two blocks are equivalent
-        # They're separated only to preserve compatibility with old AF weights
 
         # [*, N_res, H * C_hidden]
         k = self.linear_k(s)
@@ -131,9 +132,6 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
         # [*, N_res, H, P_v, 3]
         v_pts = self.linear_v_points(s, r)
 
-        ##########################
-        # Compute attention scores
-        ##########################
         # [*, N_res, N_res, H]
         b = self.linear_b(z[0])
 

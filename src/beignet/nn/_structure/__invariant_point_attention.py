@@ -33,22 +33,33 @@ class InvariantPointAttention(Module):
         no_v_points: int,
         inf: float = 1e5,
         eps: float = 1e-8,
-        is_multimer: bool = False,
     ):
         """
-        Args:
-            c_s:
-                Single representation channel dimension
-            c_z:
-                Pair representation channel dimension
-            c_hidden:
-                Hidden channel dimension
-            no_heads:
-                Number of attention heads
-            no_qk_points:
-                Number of query/key points to generate
-            no_v_points:
-                Number of value points to generate
+        Parameters
+        ----------
+        c_s: int
+            Single representation channel dimension
+
+        c_z: int
+            Pair representation channel dimension
+
+        c_hidden: int
+            Hidden channel dimension
+
+        no_heads: int
+            Number of attention heads
+
+        no_qk_points: int
+            Number of query/key points to generate
+
+        no_v_points: int
+            Number of value points to generate
+
+        inf: float
+            Large number used for attention masking
+
+        eps: float
+            Small number used in angle resnet normalization
         """
         super().__init__()
 
@@ -60,15 +71,12 @@ class InvariantPointAttention(Module):
         self.no_v_points = no_v_points
         self.inf = inf
         self.eps = eps
-        self.is_multimer = is_multimer
 
         # These linear layers differ from their specifications in the
         # supplement. There, they lack bias and use Glorot initialization.
         # Here as in the official source, they have bias and use the default
         # Lecun initialization.
         self.hc = self.c_hidden * self.no_heads
-
-        self.linear_q = Linear(self.c_s, self.hc, bias=(not is_multimer))
 
         self.linear_q_points = PointProjection(
             self.c_s,

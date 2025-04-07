@@ -31,6 +31,27 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         inf: float = 1e5,
         eps: float = 1e-8,
     ):
+        """
+        Parameters
+        ----------
+        c_s: int
+            Single representation channel dimension
+
+        c_z: int
+            Pair representation channel dimension
+
+        c_hidden: int
+            Hidden channel dimension
+
+        no_heads: int
+            Number of attention heads
+
+        no_qk_points: int
+            Number of query/key points to generate
+
+        no_v_points: int
+            Number of value points to generate
+        """
         super().__init__(
             c_s,
             c_z,
@@ -41,6 +62,8 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
             inf,
             eps,
         )
+
+        self.linear_q = Linear(self.c_s, self.hc, bias=True)
 
         self.linear_kv = Linear(self.c_s, 2 * self.hc)
 
@@ -79,9 +102,6 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         """
         z = [z]
 
-        #######################################
-        # Generate scalar and point activations
-        #######################################
         # [*, N_res, H * C_hidden]
         q = self.linear_q(s)
 
@@ -106,9 +126,6 @@ class MonomerInvariantPointAttention(InvariantPointAttention):
         points_ = [self.no_qk_points, self.no_v_points]
         k_pts, v_pts = torch.split(kv_pts, points_, dim=-2)
 
-        ##########################
-        # Compute attention scores
-        ##########################
         # [*, N_res, N_res, H]
         b = self.linear_b(z[0])
 
