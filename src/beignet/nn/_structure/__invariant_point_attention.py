@@ -1,7 +1,7 @@
 from typing import List
 
 import torch
-from torch.nn import Linear, Module
+from torch.nn import Linear, Module, Parameter, Softmax, Softplus
 
 from ._monomer_point_projection import PointProjection
 
@@ -14,6 +14,12 @@ def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
 
 def flatten_final_dims(t: torch.Tensor, no_dims: int):
     return t.reshape(t.shape[:-no_dims] + (-1,))
+
+
+def ipa_point_weights_init_(weights):
+    with torch.no_grad():
+        softplus_inverse_1 = 0.541324854612918
+        weights.fill_(softplus_inverse_1)
 
 
 class InvariantPointAttention(Module):
@@ -70,3 +76,18 @@ class InvariantPointAttention(Module):
             self.no_heads,
             self.is_multimer,
         )
+
+        self.linear_b = Linear(self.c_z, self.no_heads)
+
+        self.head_weights = Parameter(torch.zeros(no_heads))
+
+        ipa_point_weights_init_(self.head_weights)
+
+        concat_out_dim = self.no_heads * (
+            self.c_z + self.c_hidden + self.no_v_points * 4
+        )
+
+        self.linear_out = Linear(concat_out_dim, self.c_s, init="final")
+
+        self.softmax = Softmax(dim=-1)
+        self.softplus = Softplus()

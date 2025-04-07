@@ -3,16 +3,10 @@ from typing import List, Sequence
 
 import torch
 from torch import Tensor
-from torch.nn import Linear, Parameter, Softmax, Softplus
+from torch.nn import Linear
 
 from .__invariant_point_attention import InvariantPointAttention
 from ._multimer_point_projection import MultimerPointProjection
-
-
-def ipa_point_weights_init_(weights):
-    with torch.no_grad():
-        softplus_inverse_1 = 0.541324854612918
-        weights.fill_(softplus_inverse_1)
 
 
 def permute_final_dims(tensor: torch.Tensor, inds: List[int]):
@@ -77,27 +71,6 @@ class MultimerInvariantPointAttention(InvariantPointAttention):
             self.no_v_points,
             self.no_heads,
         )
-
-        # foo
-
-        self.linear_b = Linear(self.c_z, self.no_heads)
-
-        self.head_weights = Parameter(torch.zeros((no_heads)))
-
-        ipa_point_weights_init_(self.head_weights)
-
-        concat_out_dim = self.no_heads * (
-            self.c_z + self.c_hidden + self.no_v_points * 4
-        )
-
-        self.linear_out = Linear(
-            concat_out_dim,
-            self.c_s,
-            init="final",
-        )
-
-        self.softmax = Softmax(dim=-1)
-        self.softplus = Softplus()
 
     def forward(
         self,
