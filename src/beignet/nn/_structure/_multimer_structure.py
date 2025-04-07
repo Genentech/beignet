@@ -41,38 +41,53 @@ class MultimerStructure(Structure):
         inf,
     ):
         """
-        Args:
-            c_s:
-                Single representation channel dimension
-            c_z:
-                Pair representation channel dimension
-            c_ipa:
-                IPA hidden channel dimension
-            c_resnet:
-                Angle resnet (Alg. 23 lines 11-14) hidden channel dimension
-            no_heads_ipa:
-                Number of IPA heads
-            no_qk_points:
-                Number of query/key points to generate during IPA
-            no_v_points:
-                Number of value points to generate during IPA
-            dropout_rate:
-                Dropout rate used throughout the layer
-            no_blocks:
-                Number of structure module blocks
-            no_transition_layers:
-                Number of layers in the single representation transition
-                (Alg. 23 lines 8-9)
-            no_resnet_blocks:
-                Number of blocks in the angle resnet
-            no_angles:
-                Number of angles to generate in the angle resnet
-            trans_scale_factor:
-                Scale of single representation transition hidden dimension
-            epsilon:
-                Small number used in angle resnet normalization
-            inf:
-                Large number used for attention masking
+        Parameters
+        ----------
+        c_s: int
+            Single representation channel dimension
+
+        c_z: int
+            Pair representation channel dimension
+
+        c_ipa: int
+            IPA hidden channel dimension
+
+        c_resnet: int
+            Angle resnet (Alg. 23 lines 11-14) hidden channel dimension
+
+        no_heads_ipa: int
+            Number of IPA heads
+
+        no_qk_points: int
+            Number of query/key points to generate during IPA
+
+        no_v_points: int
+            Number of value points to generate during IPA
+
+        dropout_rate: float
+            Dropout rate used throughout the layer
+
+        no_blocks: int
+            Number of structure module blocks
+
+        no_transition_layers: int
+            Number of layers in the single representation transition
+            (Alg. 23 lines 8-9)
+
+        no_resnet_blocks: int
+            Number of blocks in the angle resnet
+
+        no_angles: int
+            Number of angles to generate in the angle resnet
+
+        trans_scale_factor:
+            Scale of single representation transition hidden dimension
+
+        epsilon:
+            Small number used in angle resnet normalization
+
+        inf:
+            Large number used for attention masking
         """
         super().__init__(
             c_s,
