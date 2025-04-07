@@ -28,13 +28,13 @@ class MultimerPointProjection(PointProjection):
     ) -> Union[Tensor, Tuple[Tensor, Tensor]]:
         y = self.linear(activations)
 
-        out_shape = y.shape[:-1] + (self.no_heads, self.num_points, 3)
+        output_shape = y.shape[:-1] + (self.no_heads, self.num_points, 3)
 
         y = y.view(y.shape[:-1] + (self.no_heads, -1))
 
         y = torch.split(y, y.shape[-1] // 3, dim=-1)
 
-        y = torch.stack(y, dim=-1).view(out_shape)
+        y = torch.stack(y, dim=-1).view(output_shape)
 
         x = rigids[..., None, None].apply(y)
 

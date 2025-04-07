@@ -40,7 +40,6 @@ class Structure(Module):
         trans_scale_factor,
         epsilon,
         inf,
-        is_multimer=False,
         **kwargs,
     ):
         """
@@ -109,7 +108,6 @@ class Structure(Module):
         self.trans_scale_factor = trans_scale_factor
         self.epsilon = epsilon
         self.inf = inf
-        self.is_multimer = is_multimer
 
         self.layer_norm_s = LayerNorm(self.c_s)
         self.layer_norm_z = LayerNorm(self.c_z)
@@ -125,7 +123,6 @@ class Structure(Module):
             self.no_v_points,
             inf=self.inf,
             eps=self.epsilon,
-            is_multimer=self.is_multimer,
         )
 
         self.ipa_dropout = Dropout(self.dropout_rate)
