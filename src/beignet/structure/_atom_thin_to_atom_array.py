@@ -24,12 +24,14 @@ def atom_thin_to_atom_array(
     L, W = atom_thin_mask.nonzero(as_tuple=True)
 
     residue_type_flat = residue_type[L]
-    chain_id_flat = numpy.frombuffer(chain_id[L].cpu().numpy().tobytes(), dtype="<U2")
+    chain_id_flat = numpy.frombuffer(
+        chain_id[L].cpu().numpy().tobytes(), dtype="|S8"
+    ).astype(numpy.dtypes.StringDType())
 
     author_seq_id_flat = author_seq_id[L]
     author_ins_code_flat = numpy.frombuffer(
-        author_ins_code[L].cpu().numpy().tobytes(), dtype="<U2"
-    )
+        author_ins_code[L].cpu().numpy().tobytes(), dtype="|S8"
+    ).astype(numpy.dtypes.StringDType())
 
     atom_pos_flat = xyz_atom_thin[L, W]
 
