@@ -1,6 +1,7 @@
 import io
 
 import fastpdb
+import numpy
 import optree
 import torch
 from biotite.sequence import ProteinSequence
@@ -47,6 +48,20 @@ class ResidueArray:
     author_ins_code: Tensor | None = None
     occupancies: Tensor | None = None
     b_factors: Tensor | None = None
+
+    @property
+    def chain_id_list(self) -> list[str]:
+        return (
+            numpy.frombuffer(
+                torch.unique_consecutive(self.chain_id[self.padding_mask])
+                .cpu()
+                .numpy()
+                .tobytes(),
+                dtype="|S8",
+            )
+            .astype(numpy.dtypes.StringDType())
+            .tolist()
+        )
 
     @classmethod
     def from_sequence(

@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 # The mapping from intger index for amino acids to their 1-letter codes.
 # This is the standard residue order when coding AA type as a number.
 # Reproduce it by taking 3-letter AA codes and sorting them alphabetically.

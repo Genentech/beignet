@@ -3,9 +3,10 @@ import io
 
 import optree
 import torch
-from beignet.structure import ResidueArray
 from biotite.database import rcsb
 from biotite.structure.io import pdbx
+
+from beignet.structure import ResidueArray
 
 
 def test_residue_array_from_cif():
@@ -15,6 +16,11 @@ def test_residue_array_from_cif():
 
     assert torch.equal(p0.xyz_atom_thin, p1.xyz_atom_thin)
     assert torch.equal(p0.xyz_atom_thin, p2.xyz_atom_thin)
+
+
+def test_residue_array_chain_id_list():
+    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+    assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
 
 def test_residue_array_from_cif_with_seqres():
@@ -63,9 +69,9 @@ def test_residue_array_atom_array_roundtrip():
     p_roundtrip = ResidueArray.from_atom_array(array_roundtrip)
 
     for f in dataclasses.fields(p):
-        assert torch.equal(
-            getattr(p, f.name), getattr(p_roundtrip, f.name)
-        ), f"{f.name=}"
+        assert torch.equal(getattr(p, f.name), getattr(p_roundtrip, f.name)), (
+            f"{f.name=}"
+        )
 
 
 def test_residue_array_optree():
@@ -96,9 +102,9 @@ def test_residue_array_pdb_roundtrip():
     p_roundtrip = ResidueArray.from_pdb(io.StringIO(pdb_string))
 
     for f in dataclasses.fields(p):
-        assert torch.equal(
-            getattr(p, f.name), getattr(p_roundtrip, f.name)
-        ), f"{f.name=}"
+        assert torch.equal(getattr(p, f.name), getattr(p_roundtrip, f.name)), (
+            f"{f.name=}"
+        )
 
 
 def test_residue_array_pdb_roundtrip_with_ins_code():
@@ -107,9 +113,9 @@ def test_residue_array_pdb_roundtrip_with_ins_code():
     p_roundtrip = ResidueArray.from_pdb(io.StringIO(pdb_string))
 
     for f in dataclasses.fields(p):
-        assert torch.equal(
-            getattr(p, f.name), getattr(p_roundtrip, f.name)
-        ), f"{f.name=}"
+        assert torch.equal(getattr(p, f.name), getattr(p_roundtrip, f.name)), (
+            f"{f.name=}"
+        )
 
 
 def test_residue_array_from_sequence():
