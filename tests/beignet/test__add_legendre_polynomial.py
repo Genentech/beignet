@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_add_legendre_polynomial():

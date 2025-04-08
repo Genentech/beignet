@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import pytest
+
 from beignet.datasets import UniProtDataset
 
 

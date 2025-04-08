@@ -1,6 +1,7 @@
-import beignet
 import torch
 import torch.testing
+
+import beignet
 
 
 def test__lennard_jones_potential():

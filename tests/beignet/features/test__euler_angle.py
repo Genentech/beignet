@@ -1,7 +1,8 @@
 import pytest
 import torch
-from beignet.features import EulerAngle
 from torch import Size
+
+from beignet.features import EulerAngle
 
 
 class TestEulerAngle:

@@ -1,6 +1,7 @@
 import mdtraj
-from beignet.datasets import TrajectoryDataset
 from mdtraj import Trajectory
+
+from beignet.datasets import TrajectoryDataset
 
 
 class TestTrajectoryDataset:

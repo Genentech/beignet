@@ -1,8 +1,9 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from beignet.datasets._tdc_dataset import TDCDataset
 from pandas import DataFrame
+
+from beignet.datasets._tdc_dataset import TDCDataset
 
 
 class TestTDCDataset:

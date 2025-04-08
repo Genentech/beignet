@@ -1,7 +1,8 @@
 import pytest
 import torch
-from beignet.features import Quaternion
 from torch import Size
+
+from beignet.features import Quaternion
 
 
 class TestQuaternion:

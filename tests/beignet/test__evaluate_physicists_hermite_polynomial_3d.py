@@ -1,6 +1,7 @@
-import beignet
 import pytest
 import torch
+
+import beignet
 
 
 def test_evaluate_physicists_hermite_polynomial_3d():

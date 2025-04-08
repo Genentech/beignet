@@ -1,7 +1,8 @@
 import pytest
 import torch
-from beignet.features import RotationMatrix
 from torch import Size
+
+from beignet.features import RotationMatrix
 
 
 class TestRotationMatrix:

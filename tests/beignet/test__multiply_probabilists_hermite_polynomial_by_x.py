@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_multiply_probabilists_hermite_polynomial_by_x():

@@ -1,7 +1,8 @@
-import beignet
 import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
+
+import beignet
 
 
 @hypothesis.strategies.composite

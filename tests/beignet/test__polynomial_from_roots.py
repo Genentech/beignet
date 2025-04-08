@@ -1,9 +1,3 @@
-import math
-
-import beignet
-import torch
-
-
 # def test_polynomial_from_roots():
 #     coefficients = [
 #         torch.tensor([1.0]),

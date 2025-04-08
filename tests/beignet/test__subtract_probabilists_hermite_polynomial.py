@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_subtract_probabilists_hermite_polynomial():

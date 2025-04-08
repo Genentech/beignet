@@ -1,7 +1,3 @@
-import beignet
-import torch
-
-
 # def test_divide_polynomial():
 #     quotient, remainder = beignet.divide_polynomial(
 #         torch.tensor([2.0]),

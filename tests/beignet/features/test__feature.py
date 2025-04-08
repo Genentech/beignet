@@ -2,6 +2,7 @@ import copy
 
 import pytest
 import torch
+
 from beignet.features import Feature
 
 

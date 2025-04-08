@@ -1,7 +1,8 @@
 import math
 
-import beignet
 import torch
+
+import beignet
 
 
 def test_evaluate_laguerre_polynomial():
