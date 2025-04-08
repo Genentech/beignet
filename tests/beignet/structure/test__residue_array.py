@@ -121,3 +121,54 @@ def test_residue_array_pdb_roundtrip_with_ins_code():
 def test_residue_array_from_sequence():
     p = ResidueArray.from_chain_sequences({"A": "AAAA", "B": "LLLLL"})
     assert p.residue_type.shape == (9,)
+
+
+def test_residue_array_cat():
+    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+
+    assert p0.shape == (891,)
+
+    p = torch.cat([p0, p0], dim=0)
+
+    assert p.shape == (2 * 891,)
+
+
+def test_residue_array_stack():
+    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+
+    assert p0.shape == (891,)
+
+    p = torch.stack([p0, p0], dim=0)
+
+    assert p.shape == (
+        2,
+        891,
+    )
+
+
+def test_residue_array_unbind():
+    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+
+    assert p0.shape == (891,)
+
+    p = torch.stack([p0, p0], dim=0)
+
+    a, b = torch.unbind(p, dim=0)
+
+    for f in dataclasses.fields(p0):
+        assert torch.equal(getattr(p0, f.name), getattr(a, f.name)), f"{f.name=}"
+        assert torch.equal(getattr(p0, f.name), getattr(b, f.name)), f"{f.name=}"
+
+
+def test_residue_array_slice():
+    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+    a = p0[:100]
+    b = p0[100:]
+
+    assert a.shape == (100,)
+    assert b.shape == (891 - 100,)
+
+    p1 = torch.cat([a, b], dim=0)
+
+    for f in dataclasses.fields(p0):
+        assert torch.equal(getattr(p0, f.name), getattr(p1, f.name)), f"{f.name=}"
