@@ -1,4 +1,6 @@
+import functools
 import io
+import operator
 
 import fastpdb
 import numpy
@@ -10,9 +12,24 @@ from biotite.structure.io import pdbx as pdbx
 from optree.dataclasses import dataclass
 from torch import Tensor
 
+from beignet import pad_to_target_length
+
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._residue_constants import n_atom_thin, restype_order_with_x
+
+HANDLED_FUNCTIONS = {}
+
+
+def implements(torch_function):
+    """Register a torch function override for ScalarTensor"""
+
+    def decorator(func):
+        functools.update_wrapper(func, torch_function)
+        HANDLED_FUNCTIONS[torch_function] = func
+        return func
+
+    return decorator
 
 
 def short_string_to_int(input: str):
@@ -50,7 +67,24 @@ class ResidueArray:
     b_factors: Tensor | None = None
 
     @property
+    def shape(self) -> tuple[int]:
+        return self.residue_type.shape
+
+    @property
+    def L(self) -> int:
+        return self.residue_type.shape[-1]
+
+    @property
+    def ndim(self) -> int:
+        return len(self.shape)
+
+    @property
     def chain_id_list(self) -> list[str]:
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.chain_id_list only supported for ndim == 1 {self.ndim=}"
+            )
+
         return (
             numpy.frombuffer(
                 torch.unique_consecutive(self.chain_id[self.padding_mask])
@@ -146,6 +180,11 @@ class ResidueArray:
         return cls(**features)
 
     def to_atom_array(self) -> AtomArray:
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+            )
+
         return atom_thin_to_atom_array(
             residue_type=self.residue_type,
             chain_id=self.chain_id,
@@ -295,13 +334,66 @@ class ResidueArray:
         else:
             return p
 
+    @classmethod
+    def __torch_function__(cls, func, types, args=(), kwargs=None):
+        if kwargs is None:
+            kwargs = {}
+        if func not in HANDLED_FUNCTIONS or not all(
+            issubclass(t, (torch.Tensor, ResidueArray)) for t in types
+        ):
+            return NotImplemented
+        return HANDLED_FUNCTIONS[func](*args, **kwargs)
+
+    def __getitem__(self, key):
+        return optree.tree_map(
+            lambda x: operator.getitem(x, key), self, namespace="beignet"
+        )
+
     def to_pdb(self, f):
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+            )
+
         array = self.to_atom_array()
         file = fastpdb.PDBFile()
         file.set_structure(array)
         file.write(f)
 
     def to_pdb_string(self) -> str | list[str]:
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+            )
+
         buffer = io.StringIO()
         self.to_pdb(buffer)
         return buffer.getvalue()
+
+    def pad_to_target_length(self, target_length: int, dim: int = 0):
+        return optree.tree_map(
+            lambda x: pad_to_target_length(x, target_length=target_length, dim=dim),
+            self,
+            namespace="beignet",
+        )
+
+
+@implements(torch.cat)
+def cat(input, dim=0):
+    return optree.tree_map(
+        lambda *x: torch.cat([*x], dim=dim), *input, namespace="beignet"
+    )
+
+
+@implements(torch.stack)
+def stack(input, dim=0):
+    return optree.tree_map(
+        lambda *x: torch.stack([*x], dim=dim), *input, namespace="beignet"
+    )
+
+
+@implements(torch.unbind)
+def unbind(input, dim=0):
+    return optree.tree_transpose_map(
+        lambda x: torch.unbind(x, dim=dim), input, namespace="beignet"
+    )
