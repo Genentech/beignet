@@ -1,6 +1,7 @@
 import dataclasses
 import io
 
+import biotite.structure
 import optree
 import torch
 from biotite.database import rcsb
@@ -172,3 +173,26 @@ def test_residue_array_slice():
 
     for f in dataclasses.fields(p0):
         assert torch.equal(getattr(p0, f.name), getattr(p1, f.name)), f"{f.name=}"
+
+
+def test_residue_array_to_backbone_dihedrals():
+    file = pdbx.BinaryCIFFile.read(rcsb.fetch("4cni", "bcif"))
+    atom_array = pdbx.get_structure(
+        file,
+        model=1,
+        extra_fields=["b_factor", "occupancy"],
+        use_author_fields=True,
+    )
+    atom_array = atom_array[~atom_array.hetero]
+
+    phi_ref, psi_ref, omega_ref = biotite.structure.dihedral_backbone(atom_array)
+
+    p = ResidueArray.from_atom_array(atom_array)
+
+    dihedrals, _ = p.backbone_dihedrals
+
+    phi, psi, omega = torch.unbind(dihedrals, dim=-1)
+
+    torch.testing.assert_close(phi, torch.from_numpy(phi_ref), equal_nan=True)
+    torch.testing.assert_close(psi, torch.from_numpy(psi_ref), equal_nan=True)
+    torch.testing.assert_close(omega, torch.from_numpy(omega_ref), equal_nan=True)
