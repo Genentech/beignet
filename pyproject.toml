@@ -9,6 +9,9 @@ requires = [
 [project]
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
+    "biotite",
+    "numpy>=2",
+    "optree",
     "pooch",
     "torch",
     "tqdm",
@@ -38,7 +41,6 @@ mdtraj = [
 ]
 test = [
     "hypothesis",
-    "numpy==1.26.4",
     "pytest",
     "pytest-mock",
     "scipy",
@@ -61,3 +63,8 @@ lint.select = [
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+
+[dependency-groups]
+dev = [
+    "ipython",
+]
