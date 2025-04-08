@@ -24,6 +24,7 @@ def _mutate_mse_to_met(array: AtomArray) -> AtomArray:
     array.hetero[is_mse_selenium] = False
     return array
 
+
 def atom_array_to_atom_thin(
     array: AtomArray,
     mutate_mse_to_met: bool = True,
@@ -39,7 +40,7 @@ def atom_array_to_atom_thin(
         array = _mutate_mse_to_met(array)
 
     chains = torch.frombuffer(
-        bytearray(biotite.structure.get_chains(array).astype("<U2").tobytes()),
+        bytearray(biotite.structure.get_chains(array).astype("|S8").tobytes()),
         dtype=torch.int64,
     )
 
@@ -72,7 +73,8 @@ def atom_array_to_atom_thin(
 
     author_seq_id = torch.tensor(array.res_id[residue_starts], device=device)
     author_ins_code = torch.frombuffer(
-        bytearray(array.ins_code.astype("<U2").tobytes()), dtype=torch.int64
+        bytearray(array.ins_code[residue_starts].astype("|S8").tobytes()),
+        dtype=torch.int64,
     )
 
     residue_type = torch.tensor(
