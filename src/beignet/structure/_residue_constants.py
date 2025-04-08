@@ -27,6 +27,8 @@ restype_order = {restype: i for i, restype in enumerate(restypes)}
 restype_num = len(restypes)
 
 restypes_with_x = restypes + ["X"]
+restype_with_x_num = len(restypes_with_x)
+restype_order_with_x = {restype: i for i, restype in enumerate(restypes_with_x)}
 
 
 restype_1to3 = {

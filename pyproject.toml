@@ -10,6 +10,7 @@ requires = [
 authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
 dependencies = [
     "biotite",
+    "fastpdb",
     "numpy>=2",
     "optree",
     "pooch",
