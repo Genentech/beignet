@@ -1,2 +1,1 @@
-from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._residue_array import ResidueArray

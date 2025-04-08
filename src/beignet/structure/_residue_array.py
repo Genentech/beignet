@@ -16,6 +16,7 @@ from beignet import pad_to_target_length
 
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
+from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
 from ._residue_constants import n_atom_thin, restype_order_with_x
 
 HANDLED_FUNCTIONS = {}
@@ -95,6 +96,20 @@ class ResidueArray:
             )
             .astype(numpy.dtypes.StringDType())
             .tolist()
+        )
+
+    @property
+    def backbone_coordinates(self) -> tuple[Tensor, Tensor]:
+        return self.xyz_atom_thin[..., :3, :], self.atom_thin_mask[..., :3]
+
+    @property
+    def backbone_dihedrals(self) -> tuple[Tensor, Tensor]:
+        coords, mask = self.backbone_coordinates
+        return backbone_coordinates_to_dihedrals(
+            backbone_coordinates=coords,
+            mask=mask,
+            residue_index=self.residue_index,
+            chain_id=self.chain_id,
         )
 
     @classmethod
