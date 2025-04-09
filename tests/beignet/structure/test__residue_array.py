@@ -193,6 +193,12 @@ def test_residue_array_to_backbone_dihedrals():
 
     phi, psi, omega = torch.unbind(dihedrals, dim=-1)
 
-    torch.testing.assert_close(phi, torch.from_numpy(phi_ref), equal_nan=True)
-    torch.testing.assert_close(psi, torch.from_numpy(psi_ref), equal_nan=True)
-    torch.testing.assert_close(omega, torch.from_numpy(omega_ref), equal_nan=True)
+    torch.testing.assert_close(
+        phi, torch.from_numpy(phi_ref).to(phi.dtype), equal_nan=True
+    )
+    torch.testing.assert_close(
+        psi, torch.from_numpy(psi_ref).to(psi.dtype), equal_nan=True
+    )
+    torch.testing.assert_close(
+        omega, torch.from_numpy(omega_ref).to(omega.dtype), equal_nan=True
+    )
