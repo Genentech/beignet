@@ -2,36 +2,36 @@ import pytest
 import torch
 
 import beignet
+from beignet import default_dtype_manager
 
 
 @pytest.mark.parametrize("dtype", [torch.float64])
 def test_multiply_laguerre_polynomial(dtype):
-    for i in range(5):
-        input = torch.linspace(-3, 3, 100, dtype=dtype)
+    with default_dtype_manager(dtype):
+        for i in range(5):
+            input = torch.linspace(-3, 3, 100)
 
-        a = beignet.evaluate_laguerre_polynomial(
-            input,
-            torch.tensor([0.0] * i + [1.0], dtype=dtype),
-        )
-
-        for j in range(5):
-            b = beignet.evaluate_laguerre_polynomial(
-                input,
-                torch.tensor([0.0] * j + [1.0], dtype=dtype),
+            a = beignet.evaluate_laguerre_polynomial(
+                input, torch.tensor([0.0] * i + [1.0])
             )
 
-            torch.testing.assert_close(
-                beignet.evaluate_laguerre_polynomial(
-                    input,
-                    beignet.trim_laguerre_polynomial_coefficients(
-                        beignet.multiply_laguerre_polynomial(
-                            torch.tensor([0.0] * i + [1.0], dtype=dtype),
-                            torch.tensor([0.0] * j + [1.0], dtype=dtype),
+            for j in range(5):
+                b = beignet.evaluate_laguerre_polynomial(
+                    input, torch.tensor([0.0] * j + [1.0])
+                )
+
+                torch.testing.assert_close(
+                    beignet.evaluate_laguerre_polynomial(
+                        input,
+                        beignet.trim_laguerre_polynomial_coefficients(
+                            beignet.multiply_laguerre_polynomial(
+                                torch.tensor([0.0] * i + [1.0]),
+                                torch.tensor([0.0] * j + [1.0]),
+                            ),
                         ),
                     ),
-                ),
-                a * b,
-            )
+                    a * b,
+                )
 
 
 def test_lagline():

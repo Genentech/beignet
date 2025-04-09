@@ -1,11 +1,13 @@
 import math
 
+import pytest
 import torch
 
 import beignet
 
 
-def test_evaluate_chebyshev_polynomial():
+@pytest.mark.parametrize("dtype", [torch.float64])
+def test_evaluate_chebyshev_polynomial(dtype):
     chebcoefficients = [
         torch.tensor([1]),
         torch.tensor([0, 1]),
