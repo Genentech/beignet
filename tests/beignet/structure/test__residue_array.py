@@ -19,6 +19,11 @@ def test_residue_array_from_cif():
     assert torch.equal(p0.xyz_atom_thin, p2.xyz_atom_thin)
 
 
+def test_residue_array_constructor_dtype_param():
+    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"), dtype=torch.float64)
+    assert p.xyz_atom_thin.dtype == torch.float64
+
+
 def test_residue_array_chain_id_list():
     p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
@@ -193,12 +198,6 @@ def test_residue_array_to_backbone_dihedrals():
 
     phi, psi, omega = torch.unbind(dihedrals, dim=-1)
 
-    torch.testing.assert_close(
-        phi, torch.from_numpy(phi_ref).to(phi.dtype), equal_nan=True
-    )
-    torch.testing.assert_close(
-        psi, torch.from_numpy(psi_ref).to(psi.dtype), equal_nan=True
-    )
-    torch.testing.assert_close(
-        omega, torch.from_numpy(omega_ref).to(omega.dtype), equal_nan=True
-    )
+    torch.testing.assert_close(phi, torch.from_numpy(phi_ref), equal_nan=True)
+    torch.testing.assert_close(psi, torch.from_numpy(psi_ref), equal_nan=True)
+    torch.testing.assert_close(omega, torch.from_numpy(omega_ref), equal_nan=True)
