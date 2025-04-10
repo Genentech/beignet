@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 from pandas import DataFrame
 
@@ -58,7 +58,7 @@ class ATOM3DRESDataset(ATOM3DDataset):
 
         self._target_transform_fn = target_transform
 
-    def __getitem__(self, index: int) -> Tuple[DataFrame, DataFrame]:
+    def __getitem__(self, index: int) -> tuple[DataFrame, DataFrame]:
         """
         Parameters
         ----------

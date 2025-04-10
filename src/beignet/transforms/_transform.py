@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Callable, Dict, List, Tuple, Type, Union
+from typing import Any, Callable, Union
 
 import torch.utils._pytree
 from torch import Tensor
@@ -14,7 +14,7 @@ class Transform(Module):
     #
     # We support both Types and callables that are able to do further checks
     # on the type of the input.
-    _transformed_types: Tuple[Union[Type, Callable[[Any], bool]], ...] = (
+    _transformed_types: tuple[Union[type, Callable[[Any], bool]], ...] = (
         Tensor,
         str,
     )
@@ -22,7 +22,7 @@ class Transform(Module):
     def __init__(self):
         super().__init__()
 
-    def _check_inputs(self, inputs: List[Any]):
+    def _check_inputs(self, inputs: list[Any]):
         """
         Parameters
         ----------
@@ -31,7 +31,7 @@ class Transform(Module):
         """
         raise NotImplementedError
 
-    def _get_params(self, inputs: List[Any]) -> Dict[str, Any]:
+    def _get_params(self, inputs: list[Any]) -> dict[str, Any]:
         """
         Parameters
         ----------
@@ -45,7 +45,7 @@ class Transform(Module):
         """
         return dict()
 
-    def _transform(self, input: Any, parameters: Dict[str, Any]) -> Any:
+    def _transform(self, input: Any, parameters: dict[str, Any]) -> Any:
         """
         Parameters
         ----------
@@ -110,7 +110,7 @@ class Transform(Module):
 
         return torch.utils._pytree.tree_unflatten(ys, spec)
 
-    def _transformables(self, inputs: List[Any]) -> List[bool]:
+    def _transformables(self, inputs: list[Any]) -> list[bool]:
         """
         Parameters
         ----------

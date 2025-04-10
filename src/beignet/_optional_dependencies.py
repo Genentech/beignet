@@ -1,8 +1,7 @@
 import importlib
-from typing import List
 
 
-def optional_dependencies(names: List[str], groups: List[str]):
+def optional_dependencies(names: list[str], groups: list[str]):
     modules = []
 
     for name in names:

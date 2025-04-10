@@ -1,6 +1,6 @@
 from os import PathLike
 from pathlib import Path
-from typing import Callable, Tuple, TypeVar
+from typing import Callable, TypeVar
 
 import numpy
 import tqdm
@@ -43,7 +43,7 @@ class FASTADataset(SizedSequenceDataset):
 
         super().__init__(self.root, sizes)
 
-    def __getitem__(self, index: int) -> Tuple[str, str]:
+    def __getitem__(self, index: int) -> tuple[str, str]:
         x = self.get(index)
 
         if self.transform:

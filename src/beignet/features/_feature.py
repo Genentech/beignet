@@ -4,12 +4,9 @@ from types import ModuleType
 from typing import (
     Any,
     Callable,
-    Dict,
     Mapping,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -47,7 +44,7 @@ class Feature(Tensor):
         return tensor.requires_grad_(requires_grad)
 
     @classmethod
-    def wrap_like(cls: Type[F], other: F, tensor: Tensor) -> F:
+    def wrap_like(cls: type[F], other: F, tensor: Tensor) -> F:
         raise NotImplementedError
 
     # NOTE:
@@ -64,7 +61,7 @@ class Feature(Tensor):
     def __torch_function__(
         cls,
         func: Callable[..., Tensor],
-        types: Tuple[Type[Tensor], ...],
+        types: tuple[type[Tensor], ...],
         args: Sequence[Any] = (),
         kwargs: Optional[Mapping[str, Any]] = None,
     ) -> Tensor:
@@ -165,7 +162,7 @@ class Feature(Tensor):
         with DisableTorchFunctionSubclass():
             return super().shape
 
-    def __deepcopy__(self: F, memo: Dict[int, Any]) -> F:
+    def __deepcopy__(self: F, memo: dict[int, Any]) -> F:
         # NOTE:
         #   Detach, because ``deepcopy(Tensor)``, unlike ``Tensor.clone``,
         #   isn’t be added to the computational graph.
@@ -186,11 +183,11 @@ class Feature(Tensor):
 
 
 _InputType = Union[
-    Dict[str, Tensor],
+    dict[str, Tensor],
     Feature,
     Sequence[Tensor],
     Tensor,
     str,
 ]
 
-_InputTypeJIT = Union[Dict[str, Tensor], Sequence[Tensor], Tensor]
+_InputTypeJIT = Union[dict[str, Tensor], Sequence[Tensor], Tensor]

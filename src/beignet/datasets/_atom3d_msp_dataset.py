@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 import torch
 from pandas import DataFrame
@@ -35,7 +35,7 @@ class ATOM3DMSPDataset(ATOM3DDataset):
     def __getitem__(
         self,
         index: int,
-    ) -> Tuple[Tuple[DataFrame, DataFrame], Tensor]:
+    ) -> tuple[tuple[DataFrame, DataFrame], Tensor]:
         item = super().__getitem__(index)
 
         structure = DataFrame(**item["original_atoms"])

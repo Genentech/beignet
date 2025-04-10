@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, Tuple, TypeVar
+from typing import Callable, TypeVar
 
 import pandas
 import pooch
@@ -11,8 +11,8 @@ T = TypeVar("T")
 
 
 class TDCDataset(Dataset):
-    _x: List[T]
-    _y: List[T]
+    _x: list[T]
+    _y: list[T]
 
     def __init__(
         self,
@@ -22,8 +22,8 @@ class TDCDataset(Dataset):
         identifier: int,
         suffix: str,
         checksum: str,
-        x_keys: List[str],
-        y_keys: List[str] | None = None,
+        x_keys: list[str],
+        y_keys: list[str] | None = None,
         transform: Callable | Transform | None = None,
         target_transform: Callable | Transform | None = None,
     ):
@@ -68,7 +68,7 @@ class TDCDataset(Dataset):
         if self._y_keys is not None:
             self._y = list(self._data[self._y_keys].apply(tuple, axis=1))
 
-    def __getitem__(self, index: int) -> Tuple[T, T]:
+    def __getitem__(self, index: int) -> tuple[T, T]:
         x = self._x[index]
 
         if len(x) == 1:

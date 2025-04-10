@@ -2,7 +2,7 @@ import json
 from gzip import GzipFile
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Union
 
 from torch.utils.data import Dataset
 
@@ -53,7 +53,7 @@ class LMDBDataset(Dataset):
         with self._data.begin(write=False) as transaction:
             self._size = int(transaction.get(b"num_examples"))
 
-    def __getitem__(self, index: int) -> Dict[str, Any]:
+    def __getitem__(self, index: int) -> dict[str, Any]:
         if not 0 <= index < self._size:
             raise IndexError(index)
 
