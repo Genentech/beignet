@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import torch
 from torch import Tensor
 
@@ -9,7 +7,7 @@ from ._multiply_legendre_polynomial import multiply_legendre_polynomial
 def divide_legendre_polynomial(
     input: Tensor,
     other: Tensor,
-) -> Tuple[Tensor, Tensor]:
+) -> tuple[Tensor, Tensor]:
     r"""
     Returns the quotient and remainder of two polynomials.
 

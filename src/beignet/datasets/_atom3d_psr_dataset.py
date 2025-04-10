@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Dict, Tuple, Union
+from typing import Callable, Union
 
 import torch
 from pandas import DataFrame
@@ -35,7 +35,7 @@ class ATOM3DPSRDataset(ATOM3DDataset):
     def __getitem__(
         self,
         index: int,
-    ) -> Tuple[DataFrame, Dict[str, Tensor]]:
+    ) -> tuple[DataFrame, dict[str, Tensor]]:
         item = super().__getitem__(index)
 
         features = DataFrame(**item["atoms"])

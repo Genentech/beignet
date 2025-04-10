@@ -1,11 +1,10 @@
 import math
-from typing import Tuple
 
 import torch
 from torch import Tensor
 
 
-def chebyshev_gauss_quadrature(degree: int) -> Tuple[Tensor, Tensor]:
+def chebyshev_gauss_quadrature(degree: int) -> tuple[Tensor, Tensor]:
     if not degree > 0:
         raise ValueError
 

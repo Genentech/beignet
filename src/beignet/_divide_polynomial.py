@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import torch
 from torch import Tensor
 
@@ -9,7 +7,7 @@ from ._multiply_polynomial import multiply_polynomial
 def divide_polynomial(
     input: Tensor,
     other: Tensor,
-) -> Tuple[Tensor, Tensor]:
+) -> tuple[Tensor, Tensor]:
     r"""
     Returns the quotient and remainder of two polynomials.
 

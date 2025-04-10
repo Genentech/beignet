@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import torch
 from torch import Tensor
 
@@ -11,7 +9,7 @@ from ._multiply_physicists_hermite_polynomial import (
 def divide_physicists_hermite_polynomial(
     input: Tensor,
     other: Tensor,
-) -> Tuple[Tensor, Tensor]:
+) -> tuple[Tensor, Tensor]:
     r"""
     Returns the quotient and remainder of two polynomials.
 
