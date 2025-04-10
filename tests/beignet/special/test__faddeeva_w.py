@@ -1,10 +1,11 @@
 import math
 
-import beignet.special
 import hypothesis
 import hypothesis.strategies
 import scipy
 import torch
+
+import beignet.special
 
 
 @hypothesis.strategies.composite

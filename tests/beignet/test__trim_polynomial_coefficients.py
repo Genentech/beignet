@@ -1,6 +1,7 @@
-import beignet
 import pytest
 import torch
+
+import beignet
 
 
 def test_trim_polynomial_coefficients():

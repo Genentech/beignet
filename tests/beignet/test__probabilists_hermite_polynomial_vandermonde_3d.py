@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_probabilists_hermite_polynomial_vandermonde_3d():

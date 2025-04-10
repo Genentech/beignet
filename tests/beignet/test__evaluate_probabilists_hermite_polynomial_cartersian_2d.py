@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_evaluate_probabilists_hermite_polynomial_cartersian_2d():

@@ -1,8 +1,9 @@
 import math
 
-import beignet
 import pytest
 import torch
+
+import beignet
 
 
 def test_evaluate_polynomial_from_roots():

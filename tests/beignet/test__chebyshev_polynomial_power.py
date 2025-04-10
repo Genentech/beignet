@@ -1,9 +1,3 @@
-import functools
-
-import beignet
-import torch
-
-
 # def test_chebyshev_polynomial_power():
 #     for j in range(5):
 #         for k in range(5):

@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_evaluate_polynomial_cartesian_2d():

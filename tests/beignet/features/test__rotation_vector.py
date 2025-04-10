@@ -1,7 +1,8 @@
 import pytest
 import torch
-from beignet.features import RotationVector
 from torch import Size
+
+from beignet.features import RotationVector
 
 
 class TestRotationVector:

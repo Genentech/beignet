@@ -1,6 +1,7 @@
-import beignet
 import hypothesis.strategies
 import torch.testing
+
+import beignet
 
 
 @hypothesis.strategies.composite

@@ -1,6 +1,7 @@
-import beignet
 import pytest
 import torch
+
+import beignet
 
 
 def test_evaluate_probabilists_hermite_polynomial_2d():

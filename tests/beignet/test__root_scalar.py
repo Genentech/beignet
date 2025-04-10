@@ -1,9 +1,10 @@
 import platform
 from functools import partial
 
-import beignet
 import pytest
 import torch
+
+import beignet
 
 
 def f(x, c):

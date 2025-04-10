@@ -1,6 +1,7 @@
-import beignet
 import torch
 from torch import Tensor
+
+import beignet
 
 
 def test_fit_polynomial():

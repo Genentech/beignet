@@ -1,9 +1,3 @@
-import functools
-
-import beignet
-import torch
-
-
 # def test_polynomial_power():
 #     for i in range(5):
 #         for j in range(5):

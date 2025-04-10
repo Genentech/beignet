@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_physicists_hermite_polynomial_from_roots():

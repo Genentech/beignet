@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_fit_chebyshev_polynomial():

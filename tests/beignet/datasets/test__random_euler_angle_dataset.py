@@ -1,5 +1,6 @@
-import beignet
 import hypothesis.strategies
+
+import beignet
 from beignet.datasets import RandomEulerAngleDataset
 
 

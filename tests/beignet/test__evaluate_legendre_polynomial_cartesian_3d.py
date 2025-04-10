@@ -1,5 +1,6 @@
-import beignet
 import torch
+
+import beignet
 
 
 def test_evaluate_legendre_polynomial_cartesian_3d():
