@@ -43,6 +43,7 @@ from ._compose_quaternion import compose_quaternion
 from ._compose_rotation_matrix import compose_rotation_matrix
 from ._compose_rotation_vector import compose_rotation_vector
 from ._convolve import convolve
+from ._default_dtype_manager import default_dtype_manager
 from ._differentiate_chebyshev_polynomial import differentiate_chebyshev_polynomial
 from ._differentiate_laguerre_polynomial import differentiate_laguerre_polynomial
 from ._differentiate_legendre_polynomial import differentiate_legendre_polynomial
@@ -397,6 +398,7 @@ __all__ = [
     "compose_rotation_matrix",
     "compose_rotation_vector",
     "convolve",
+    "default_dtype_manager",
     "differentiate_chebyshev_polynomial",
     "differentiate_laguerre_polynomial",
     "differentiate_legendre_polynomial",

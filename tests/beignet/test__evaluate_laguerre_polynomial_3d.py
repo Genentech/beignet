@@ -2,23 +2,53 @@ import pytest
 import torch
 
 import beignet
+from beignet import default_dtype_manager
 
 
-def test_evaluate_laguerre_polynomial_3d():
-    input = torch.rand(3, 5) * 2 - 1
+@pytest.mark.parametrize("dtype", [torch.float64])
+def test_evaluate_laguerre_polynomial_3d(dtype):
+    with default_dtype_manager(dtype):
+        input = torch.rand(3, 5) * 2 - 1
 
-    a, b, c = input
+        a, b, c = input
 
-    x, y, z = beignet.evaluate_polynomial(
-        input,
-        torch.tensor([1.0, 2.0, 3.0]),
-    )
+        x, y, z = beignet.evaluate_polynomial(
+            input,
+            torch.tensor([1.0, 2.0, 3.0]),
+        )
 
-    with pytest.raises(ValueError):
-        beignet.evaluate_laguerre_polynomial_3d(
-            a,
-            b,
-            c[:2],
+        with pytest.raises(ValueError):
+            beignet.evaluate_laguerre_polynomial_3d(
+                a,
+                b,
+                c[:2],
+                torch.einsum(
+                    "i,j,k->ijk",
+                    torch.tensor([9.0, -14.0, 6.0]),
+                    torch.tensor([9.0, -14.0, 6.0]),
+                    torch.tensor([9.0, -14.0, 6.0]),
+                ),
+            )
+
+        torch.testing.assert_close(
+            beignet.evaluate_laguerre_polynomial_3d(
+                a,
+                b,
+                c,
+                torch.einsum(
+                    "i,j,k->ijk",
+                    torch.tensor([9.0, -14.0, 6.0]),
+                    torch.tensor([9.0, -14.0, 6.0]),
+                    torch.tensor([9.0, -14.0, 6.0]),
+                ),
+            ),
+            x * y * z,
+        )
+
+        output = beignet.evaluate_laguerre_polynomial_3d(
+            torch.ones([2, 3]),
+            torch.ones([2, 3]),
+            torch.ones([2, 3]),
             torch.einsum(
                 "i,j,k->ijk",
                 torch.tensor([9.0, -14.0, 6.0]),
@@ -27,31 +57,4 @@ def test_evaluate_laguerre_polynomial_3d():
             ),
         )
 
-    torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial_3d(
-            a,
-            b,
-            c,
-            torch.einsum(
-                "i,j,k->ijk",
-                torch.tensor([9.0, -14.0, 6.0]),
-                torch.tensor([9.0, -14.0, 6.0]),
-                torch.tensor([9.0, -14.0, 6.0]),
-            ),
-        ),
-        x * y * z,
-    )
-
-    output = beignet.evaluate_laguerre_polynomial_3d(
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.ones([2, 3]),
-        torch.einsum(
-            "i,j,k->ijk",
-            torch.tensor([9.0, -14.0, 6.0]),
-            torch.tensor([9.0, -14.0, 6.0]),
-            torch.tensor([9.0, -14.0, 6.0]),
-        ),
-    )
-
-    assert output.shape == (2, 3)
+        assert output.shape == (2, 3)

@@ -6,7 +6,8 @@ import torch
 import beignet
 
 
-def test_evaluate_polynomial_from_roots():
+@pytest.mark.parametrize("dtype", [torch.float32])
+def test_evaluate_polynomial_from_roots(dtype):
     with pytest.raises(ValueError):
         beignet.evaluate_polynomial_from_roots(
             torch.tensor([1.0]),
@@ -114,9 +115,9 @@ def test_evaluate_polynomial_from_roots():
         ),
     )
 
-    x = torch.arange(-3, 2)
+    x = torch.arange(-3, 2).to(dtype)
 
-    r = torch.randint(-5, 5, (3, 5)).to(torch.float64)
+    r = torch.randint(-5, 5, (3, 5)).to(dtype)
 
     target = torch.empty(r.shape[1:])
 
