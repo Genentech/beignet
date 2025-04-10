@@ -1,23 +1,23 @@
+import pytest
 import torch
 
 import beignet
 
-torch.set_default_dtype(torch.float64)
 
-
-def test_multiply_laguerre_polynomial():
+@pytest.mark.parametrize("dtype", [torch.float64])
+def test_multiply_laguerre_polynomial(dtype):
     for i in range(5):
-        input = torch.linspace(-3, 3, 100)
+        input = torch.linspace(-3, 3, 100, dtype=dtype)
 
         a = beignet.evaluate_laguerre_polynomial(
             input,
-            torch.tensor([0.0] * i + [1.0]),
+            torch.tensor([0.0] * i + [1.0], dtype=dtype),
         )
 
         for j in range(5):
             b = beignet.evaluate_laguerre_polynomial(
                 input,
-                torch.tensor([0.0] * j + [1.0]),
+                torch.tensor([0.0] * j + [1.0], dtype=dtype),
             )
 
             torch.testing.assert_close(
@@ -25,8 +25,8 @@ def test_multiply_laguerre_polynomial():
                     input,
                     beignet.trim_laguerre_polynomial_coefficients(
                         beignet.multiply_laguerre_polynomial(
-                            torch.tensor([0.0] * i + [1.0]),
-                            torch.tensor([0.0] * j + [1.0]),
+                            torch.tensor([0.0] * i + [1.0], dtype=dtype),
+                            torch.tensor([0.0] * j + [1.0], dtype=dtype),
                         ),
                     ),
                 ),

@@ -53,6 +53,7 @@ from ._differentiate_polynomial import differentiate_polynomial
 from ._differentiate_probabilists_hermite_polynomial import (
     differentiate_probabilists_hermite_polynomial,
 )
+from ._dihedral import dihedral
 from ._divide_chebyshev_polynomial import divide_chebyshev_polynomial
 from ._divide_laguerre_polynomial import divide_laguerre_polynomial
 from ._divide_legendre_polynomial import divide_legendre_polynomial
@@ -218,6 +219,7 @@ from ._multiply_probabilists_hermite_polynomial_by_x import (
     multiply_probabilists_hermite_polynomial_by_x,
 )
 from ._optional_dependencies import optional_dependencies
+from ._pad import pad_to_target_length
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
 )
@@ -403,6 +405,7 @@ __all__ = [
     "differentiate_physicists_hermite_polynomial",
     "differentiate_polynomial",
     "differentiate_probabilists_hermite_polynomial",
+    "dihedral",
     "divide_chebyshev_polynomial",
     "divide_laguerre_polynomial",
     "divide_legendre_polynomial",
@@ -514,6 +517,7 @@ __all__ = [
     "multiply_probabilists_hermite_polynomial",
     "multiply_probabilists_hermite_polynomial_by_x",
     "optional_dependencies",
+    "pad_to_target_length",
     "physicists_hermite_polynomial_companion",
     "physicists_hermite_polynomial_domain",
     "physicists_hermite_polynomial_from_roots",
