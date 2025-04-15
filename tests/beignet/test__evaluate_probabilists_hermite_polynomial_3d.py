@@ -4,7 +4,7 @@ import torch
 import beignet
 
 
-def test_evaluate_probabilists_hermite_polynomial_3d():
+def test_evaluate_probabilists_hermite_polynomial_3d(float64):
     input = torch.rand(3, 5) * 2 - 1
 
     a, b, c = input

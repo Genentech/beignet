@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_evaluate_laguerre_polynomial():
+def test_evaluate_laguerre_polynomial(float64):
     coefficients = [
         torch.tensor([1]) / 1,
         torch.tensor([1, -1]) / 1,

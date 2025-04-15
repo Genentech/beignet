@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_evaluate_chebyshev_polynomial():
+def test_evaluate_chebyshev_polynomial(float64):
     chebcoefficients = [
         torch.tensor([1]),
         torch.tensor([0, 1]),

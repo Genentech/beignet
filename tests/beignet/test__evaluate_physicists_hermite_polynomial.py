@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_evaluate_physicists_hermite_polynomial():
+def test_evaluate_physicists_hermite_polynomial(float64):
     coefficients = [
         torch.tensor([1]),
         torch.tensor([0, 2]),

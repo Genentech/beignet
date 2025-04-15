@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_multiply_laguerre_polynomial():
+def test_multiply_laguerre_polynomial(float64):
     for i in range(5):
         input = torch.linspace(-3, 3, 100)
 

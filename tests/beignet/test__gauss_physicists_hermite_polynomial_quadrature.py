@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_gauss_physicists_hermite_polynomial_quadrature():
+def test_gauss_physicists_hermite_polynomial_quadrature(float64):
     x, w = beignet.gauss_physicists_hermite_polynomial_quadrature(100)
 
     v = beignet.physicists_hermite_polynomial_vandermonde(x, 99)

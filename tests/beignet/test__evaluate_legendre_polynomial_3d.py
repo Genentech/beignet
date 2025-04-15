@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_legendre_polynomial_3d():
+def test_evaluate_legendre_polynomial_3d(float64):
     a, b, c = torch.rand(3, 5) * 2 - 1
 
     coefficients = torch.rand(2, 3, 4)

@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_multiply_physicists_hermite_polynomial_by_x():
+def test_multiply_physicists_hermite_polynomial_by_x(float64):
     torch.testing.assert_close(
         beignet.trim_physicists_hermite_polynomial_coefficients(
             beignet.multiply_physicists_hermite_polynomial_by_x(
