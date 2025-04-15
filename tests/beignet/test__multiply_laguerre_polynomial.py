@@ -2,8 +2,6 @@ import torch
 
 import beignet
 
-torch.set_default_dtype(torch.float64)
-
 
 def test_multiply_laguerre_polynomial():
     for i in range(5):
