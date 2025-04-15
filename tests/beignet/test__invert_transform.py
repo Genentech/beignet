@@ -1,4 +1,5 @@
 import hypothesis.strategies
+import torch
 import torch.testing
 
 import beignet
@@ -30,7 +31,10 @@ def _strategy(function):
 
 
 @hypothesis.given(_strategy())
-def test_invert_transform(data):
+@hypothesis.settings(
+    suppress_health_check=[hypothesis.HealthCheck.function_scoped_fixture]
+)
+def test_invert_transform(float64, data):
     (input, transform), expected = data
 
     torch.testing.assert_close(
