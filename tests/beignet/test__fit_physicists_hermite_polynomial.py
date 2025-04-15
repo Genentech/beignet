@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_fit_physicists_hermite_polynomial():
+def test_fit_physicists_hermite_polynomial(float64):
     def f(x):
         return x * (x - 1) * (x - 2)
 
