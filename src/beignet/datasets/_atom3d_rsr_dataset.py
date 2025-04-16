@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Dict, Tuple, Union
+from typing import Callable, Union
 
 import torch
 from pandas import DataFrame
@@ -142,7 +142,7 @@ class ATOM3DRSRDataset(ATOM3DDataset):
 
         self._target_transform_fn = target_transform
 
-    def __getitem__(self, index: int) -> Tuple[DataFrame, Dict[str, Tensor]]:
+    def __getitem__(self, index: int) -> tuple[DataFrame, dict[str, Tensor]]:
         """
         Parameters
         ----------

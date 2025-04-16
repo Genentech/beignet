@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 from pandas import DataFrame
 
@@ -33,7 +33,7 @@ class ATOM3DPPIDataset(ATOM3DDataset):
 
         self._joint_transform_fn = joint_transform_fn
 
-    def __getitem__(self, index: int) -> Tuple[DataFrame, DataFrame]:
+    def __getitem__(self, index: int) -> tuple[DataFrame, DataFrame]:
         item = super().__getitem__(index)
 
         features = DataFrame(**item["atoms_pairs"])

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Type
+from typing import Any, Callable
 
 from ._transform import Transform
 
@@ -6,7 +6,7 @@ from ._transform import Transform
 class Lambda(Transform):
     _transformed_types = (object,)
 
-    def __init__(self, fn: Callable[[Any], Any], *types: Type):
+    def __init__(self, fn: Callable[[Any], Any], *types: type):
         """
         Parameters
         ----------
@@ -25,7 +25,7 @@ class Lambda(Transform):
 
         self._types = types or self._transformed_types
 
-    def _transform(self, input: Any, parameters: Dict[str, Any]) -> Any:
+    def _transform(self, input: Any, parameters: dict[str, Any]) -> Any:
         """
         Parameters
         ----------

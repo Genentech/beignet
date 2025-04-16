@@ -51,6 +51,7 @@ lint.select = [
     "F",  # PYFLAKES
     "I",  # ISORT
     "W",  # PYCODESTYLE WARNINGS
+    "UP006", # non-pep585-annotation
 ]
 
 [tool.ruff.lint.per-file-ignores]
