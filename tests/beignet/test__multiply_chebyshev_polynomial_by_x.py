@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_multiply_chebyshev_polynomial_by_x():
+def test_multiply_chebyshev_polynomial_by_x(float64):
     torch.testing.assert_close(
         beignet.trim_chebyshev_polynomial_coefficients(
             beignet.multiply_chebyshev_polynomial_by_x(

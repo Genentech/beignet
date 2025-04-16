@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_multiply_laguerre_polynomial_by_x():
+def test_multiply_laguerre_polynomial_by_x(float64):
     torch.testing.assert_close(
         beignet.trim_laguerre_polynomial_coefficients(
             beignet.multiply_laguerre_polynomial_by_x(

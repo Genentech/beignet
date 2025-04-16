@@ -2,10 +2,8 @@ import torch
 
 import beignet
 
-torch.set_default_dtype(torch.float64)
 
-
-def test_multiply_laguerre_polynomial():
+def test_multiply_laguerre_polynomial(float64):
     for i in range(5):
         input = torch.linspace(-3, 3, 100)
 

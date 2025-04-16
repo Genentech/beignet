@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_evaluate_legendre_polynomial():
+def test_evaluate_legendre_polynomial(float64):
     coefficients = [
         torch.tensor([1]),
         torch.tensor([0, 1]),

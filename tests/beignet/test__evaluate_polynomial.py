@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_evaluate_polynomial():
+def test_evaluate_polynomial(float64):
     output = beignet.evaluate_polynomial(
         torch.tensor([]),
         torch.tensor([1.0]),

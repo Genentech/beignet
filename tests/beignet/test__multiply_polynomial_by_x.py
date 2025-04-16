@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_multiply_polynomial_by_x():
+def test_multiply_polynomial_by_x(float64):
     torch.testing.assert_close(
         beignet.multiply_polynomial_by_x(
             torch.tensor([0.0]),

@@ -4,7 +4,7 @@ from torch import Tensor
 import beignet
 
 
-def test_fit_polynomial():
+def test_fit_polynomial(float64):
     def f(x: Tensor) -> Tensor:
         return x * (x - 1) * (x - 2)
 

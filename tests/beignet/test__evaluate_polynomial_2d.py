@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_polynomial_2d():
+def test_evaluate_polynomial_2d(float64):
     input = torch.rand(3, 5) * 2 - 1
 
     a, b, c = input

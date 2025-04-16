@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_polynomial_cartesian_2d():
+def test_evaluate_polynomial_cartesian_2d(float64):
     x = torch.rand(3, 5) * 2 - 1
 
     a, b, x3 = x

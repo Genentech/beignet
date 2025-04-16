@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_physicists_hermite_polynomial_cartesian_3d():
+def test_evaluate_physicists_hermite_polynomial_cartesian_3d(float64):
     c1d = torch.tensor([2.5, 1.0, 0.75])
     c3d = torch.einsum(
         "i,j,k->ijk",

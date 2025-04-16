@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_laguerre_polynomial_cartesian_3d():
+def test_evaluate_laguerre_polynomial_cartesian_3d(float64):
     c1d = torch.tensor([9.0, -14.0, 6.0])
     c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
 

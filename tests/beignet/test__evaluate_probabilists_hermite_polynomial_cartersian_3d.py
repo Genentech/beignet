@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-def test_evaluate_probabilists_hermite_polynomial_cartersian_3d():
+def test_evaluate_probabilists_hermite_polynomial_cartersian_3d(float64):
     c1d = torch.tensor([4.0, 2.0, 3.0])
     c3d = torch.einsum("i,j,k->ijk", c1d, c1d, c1d)
 

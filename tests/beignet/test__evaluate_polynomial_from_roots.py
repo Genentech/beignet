@@ -6,7 +6,7 @@ import torch
 import beignet
 
 
-def test_evaluate_polynomial_from_roots():
+def test_evaluate_polynomial_from_roots(float64):
     with pytest.raises(ValueError):
         beignet.evaluate_polynomial_from_roots(
             torch.tensor([1.0]),

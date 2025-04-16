@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-def test_chebyshev_gauss_quadrature():
+def test_chebyshev_gauss_quadrature(float64):
     output, weight = beignet.chebyshev_gauss_quadrature(100)
 
     output = beignet.chebyshev_polynomial_vandermonde(
