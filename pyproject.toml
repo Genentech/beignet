@@ -7,7 +7,7 @@ requires = [
 ]
 
 [project]
-authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
+authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }, { email = "kleinhej@gene.com", name = "Joseph Kleinhenz" }]
 dependencies = [
     "biotite",
     "fastpdb",
