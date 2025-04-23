@@ -19,9 +19,14 @@ def dihedral(input: Tensor) -> Tensor:
         Shape (*,)
     """
 
-    assert input.ndim >= 3
-    assert input.shape[-2] == 4
-    assert input.shape[-1] == 3
+    if not input.ndim >= 2:
+        raise ValueError(f"{input.ndim=} < 2")
+
+    if not input.shape[-2] == 4:
+        raise ValueError(f"dihedral requires input.shape[-2] == 4 but {input.shape=}")
+
+    if not input.shape[-1] == 3:
+        raise ValueError(f"dihedral requires input.shape[-1] == 3 but {input.shape=}")
 
     # difference vectors: [a = p2 - p1, b = p3 - p2, c = p4 - p3]
     delta = input[..., 1:, :] - input[..., :-1, :]
