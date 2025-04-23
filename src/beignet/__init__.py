@@ -517,7 +517,7 @@ __all__ = [
     "physicists_hermite_polynomial_domain",
     "physicists_hermite_polynomial_from_roots",
     "physicists_hermite_polynomial_one",
-    "physicists_hermite_polynomial_powegitr",
+    "physicists_hermite_polynomial_power",
     "physicists_hermite_polynomial_roots",
     "physicists_hermite_polynomial_to_polynomial",
     "physicists_hermite_polynomial_vandermonde",
