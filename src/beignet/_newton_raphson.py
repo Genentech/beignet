@@ -1,4 +1,3 @@
-# _newton_raphson.py
 import warnings
 from typing import Any, Callable, Optional, Tuple, Union
 
@@ -152,7 +151,6 @@ def newton_raphson(
     if i == max_iter - 1 and torch.any(active):
         num_not_converged: int = torch.sum(active).item()
 
-        # Define the message template using placeholders
         warning_template = (
             "{num}/{total} elements did not converge within {iters} iterations "
             "(using max_update_step={max_update}). "
@@ -161,12 +159,10 @@ def newton_raphson(
             "checking target values, or examining the corresponding parameters."
         )
 
-        # Format the message with the variables
         warning_message = warning_template.format(
             num=num_not_converged, total=B, iters=max_iter, max_update=max_update_step
         )
 
-        # Call warnings.warn with the formatted message
         warnings.warn(
             warning_message,
             UserWarning,
