@@ -21,15 +21,15 @@ def quaternion_to_rotation_matrix(input: Tensor) -> Tensor:
 
     return torch.stack(
         [
-            a.pow(2) - b.pow(2) - c.pow(2) + d.pow(2),
+            torch.square(a) - torch.square(b) - torch.square(c) + torch.square(d),
             2 * (a * b) - 2 * (c * d),
             2 * (a * c) + 2 * (b * d),
             2 * (a * b) + 2 * (c * d),
-            -a.pow(2) + b.pow(2) - c.pow(2) + d.pow(2),
+            -torch.square(a) + torch.square(b) - torch.square(c) + torch.square(d),
             2 * (b * c) - 2 * (a * d),
             2 * (a * c) - 2 * (b * d),
             2 * (b * c) + 2 * (a * d),
-            -a.pow(2) - b.pow(2) + c.pow(2) + d.pow(2),
+            -torch.square(a) - torch.square(b) + torch.square(c) + torch.square(d),
         ],
         dim=-1,
     ).view(input.shape[:-1] + (3, 3))
