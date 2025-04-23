@@ -1,5 +1,3 @@
-# test_entropy_solver.py
-
 import math
 import time
 import warnings
@@ -9,9 +7,7 @@ import torch
 from beignet import newton_raphson
 from torch import Tensor
 from torch.distributions import Categorical
-from torch.testing import assert_close  # Use PyTorch's testing utility
-
-# --- Test Setup (Common fixture-like setup) ---
+from torch.testing import assert_close
 
 B: int = 2000
 K: int = 20
@@ -190,12 +186,3 @@ def test_higher_entropies():
     run_entropy_test(
         "Test Case: Higher Entropies", target_entropy, params, verify_atol=5e-4
     )  # Slightly looser verify tolerance
-
-
-# --- Execute Tests (if run as script) ---
-if __name__ == "__main__":
-    # Note: If using pytest, you'd typically run `pytest test_entropy_solver.py`
-    # This block allows running `python test_entropy_solver.py` directly.
-    test_lower_entropies()
-    test_mid_range_entropies()
-    test_higher_entropies()
