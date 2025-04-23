@@ -53,10 +53,12 @@ lint.select = [
     "W",  # PYCODESTYLE WARNINGS
 ]
 
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
     "F401", # MODULE IMPORTED BUT UNUSED
 ]
+
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
