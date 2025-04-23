@@ -47,14 +47,18 @@ test = [
     "scipy",
 ]
 
-[tool.ruff]
-lint.select = [
+[tool.ruff.lint]
+select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
     "F",  # PYFLAKES
     "I",  # ISORT
     "W",  # PYCODESTYLE WARNINGS
     "UP006", # non-pep585-annotation
+]
+
+ignore = [
+    "E501",  # line too long, handled by format
 ]
 
 [tool.ruff.lint.per-file-ignores]

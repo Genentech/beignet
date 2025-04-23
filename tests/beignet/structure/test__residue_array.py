@@ -196,3 +196,12 @@ def test_residue_array_to_backbone_dihedrals():
     torch.testing.assert_close(phi, torch.from_numpy(phi_ref), equal_nan=True)
     torch.testing.assert_close(psi, torch.from_numpy(psi_ref), equal_nan=True)
     torch.testing.assert_close(omega, torch.from_numpy(omega_ref), equal_nan=True)
+
+
+def test_residue_array_to_chain_sequences():
+    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+    L = p.shape[0]
+    seq = p.sequence
+
+    assert len(seq.keys()) == 6
+    assert sum(len(v) for v in seq.values()) == L

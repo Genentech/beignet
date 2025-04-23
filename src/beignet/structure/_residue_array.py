@@ -17,7 +17,7 @@ from beignet import pad_to_target_length
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
-from ._residue_constants import n_atom_thin, restype_order_with_x
+from ._residue_constants import n_atom_thin, restype_order_with_x, restypes_with_x
 
 HANDLED_FUNCTIONS = {}
 
@@ -68,7 +68,7 @@ class ResidueArray:
     b_factors: Tensor | None = None
 
     @property
-    def shape(self) -> tuple[int]:
+    def shape(self) -> tuple[int, ...]:
         return self.residue_type.shape
 
     @property
@@ -97,6 +97,26 @@ class ResidueArray:
             .astype(numpy.dtypes.StringDType())
             .tolist()
         )
+
+    @property
+    def sequence(self) -> dict[str, str]:
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.chain_sequences only supported for ndim == 1 {self.ndim=}"
+            )
+
+        return {
+            c: str.join(
+                "",
+                [
+                    restypes_with_x[i]
+                    for i in self.residue_type[
+                        self.chain_id == short_string_to_int(c)
+                    ].tolist()
+                ],
+            )
+            for c in self.chain_id_list
+        }
 
     @property
     def backbone_coordinates(self) -> tuple[Tensor, Tensor]:
@@ -375,7 +395,7 @@ class ResidueArray:
         file.set_structure(array)
         file.write(f)
 
-    def to_pdb_string(self) -> str | list[str]:
+    def to_pdb_string(self) -> str:
         if self.ndim != 1:
             raise RuntimeError(
                 f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
