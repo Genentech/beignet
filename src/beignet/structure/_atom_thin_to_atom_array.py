@@ -4,11 +4,9 @@ import torch
 from biotite.structure import Atom, AtomArray
 from torch import Tensor
 
-from ._residue_constants import (
-    restype_1to3,
-    restype_name_to_atom_thin_names,
-    restypes_with_x,
-)
+from beignet.constants import AMINO_ACID_1_TO_3, ATOM_THIN_ATOMS, STANDARD_RESIDUES
+
+restypes_with_x = STANDARD_RESIDUES + ["X"]
 
 
 def atom_thin_to_atom_array(
@@ -76,8 +74,8 @@ def atom_thin_to_atom_array(
         strict=True,
     ):
         res_name_1 = restypes_with_x[residue_type_i]
-        res_name_3 = restype_1to3.get(res_name_1, "UNK")
-        atom_name = restype_name_to_atom_thin_names[res_name_3][atom_idx_i]
+        res_name_3 = AMINO_ACID_1_TO_3.get(res_name_1, "UNK")
+        atom_name = ATOM_THIN_ATOMS[res_name_3][atom_idx_i]
         element = atom_name[0]  # Protein supports only C, N, O, S, this works.
 
         atoms.append(

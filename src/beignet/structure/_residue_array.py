@@ -13,11 +13,15 @@ from optree.dataclasses import dataclass
 from torch import Tensor
 
 from beignet import pad_to_target_length
+from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
-from ._residue_constants import n_atom_thin, restype_order_with_x, restypes_with_x
+
+restypes_with_x = STANDARD_RESIDUES + ["X"]
+restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
+n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
 HANDLED_FUNCTIONS = {}
 

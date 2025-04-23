@@ -5,13 +5,15 @@ import numpy
 import torch
 from biotite.structure import AtomArray
 
-from ._residue_constants import (
-    n_atom_thin,
-    restype_3to1,
-    restype_name_to_atom_thin_names,
-    restype_num,
-    restype_order,
+from beignet.constants import (
+    AMINO_ACID_3_TO_1,
+    ATOM_THIN_ATOMS,
+    STANDARD_RESIDUES,
 )
+
+restype_order = {r: i for i, r in enumerate(STANDARD_RESIDUES)}
+restype_num = len(STANDARD_RESIDUES)
+n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
 
 def _mutate_mse_to_met(array: AtomArray) -> AtomArray:
@@ -80,7 +82,7 @@ def atom_array_to_atom_thin(
     residue_type = torch.tensor(
         [
             restype_order.get(
-                restype_3to1.get(str(name), "X"),
+                AMINO_ACID_3_TO_1.get(str(name), "X"),
                 restype_num,
             )
             for name in array.res_name[residue_starts]
@@ -96,9 +98,7 @@ def atom_array_to_atom_thin(
     )
 
     # NOTE no OXT
-    known_atom_types = set(
-        itertools.chain.from_iterable(restype_name_to_atom_thin_names.values())
-    )
+    known_atom_types = set(itertools.chain.from_iterable(ATOM_THIN_ATOMS.values()))
 
     # check which atoms we actually know about
     known_atom_mask = numpy.any(
@@ -112,7 +112,7 @@ def atom_array_to_atom_thin(
 
     atom_thin_idx = torch.tensor(
         [
-            restype_name_to_atom_thin_names[res_name].index(str(atom_name))
+            ATOM_THIN_ATOMS[res_name].index(str(atom_name))
             for res_name, atom_name in zip(array.res_name, array.atom_name, strict=True)
         ],
         device=device,
