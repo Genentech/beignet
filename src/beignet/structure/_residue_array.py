@@ -412,6 +412,16 @@ class ResidueArray:
             namespace="beignet",
         )
 
+    def to(self, dtype=None, device=None):
+        return optree.tree_map(
+            lambda x: x.to(
+                dtype=dtype if torch.is_floating_point(x) else None,
+                device=device,
+            ),
+            self,
+            namespace="beignet",
+        )
+
 
 @implements(torch.cat)
 def cat(input, dim=0):

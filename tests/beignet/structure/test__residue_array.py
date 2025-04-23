@@ -205,3 +205,13 @@ def test_residue_array_to_chain_sequences():
 
     assert len(seq.keys()) == 6
     assert sum(len(v) for v in seq.values()) == L
+
+
+def test_residue_array_type_conversion():
+    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+    p = p.to(torch.float64)
+
+    assert p.residue_type.dtype == torch.int64
+    assert p.xyz_atom_thin.dtype == torch.float64
+    assert p.occupancies.dtype == torch.float64
+    assert p.b_factors.dtype == torch.float64
