@@ -1,7 +1,7 @@
 import math
 import time
 import warnings
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import torch
 from beignet import newton_raphson
@@ -43,7 +43,7 @@ print(f"Max possible entropy (logK): {LOG_K:.4f}")
 
 def entropy_func_for_solver(
     tau_batch: Tensor, logits_batch: Tensor
-) -> Tuple[Tensor, Tensor]:
+) -> tuple[Tensor, Tensor]:
     """
     Calculates softmax entropy H(tau | logits) using torch.distributions.Categorical.
 
@@ -93,7 +93,7 @@ def entropy_prime_func_for_solver(
 def run_entropy_test(
     test_name: str,
     target_entropy_batch: Tensor,
-    solver_params: Dict[str, Any],
+    solver_params: dict[str, Any],
     verify_rtol: float = 1e-3,  # Relative tolerance for assert_close
     verify_atol: float = 1e-4,  # Absolute tolerance for assert_close
 ):
@@ -146,7 +146,7 @@ def run_entropy_test(
 
 def test_lower_entropies():
     """Test with target entropies in the lower range."""
-    params: Dict[str, Any] = {
+    params: dict[str, Any] = {
         "x_init": 1e-2,
         "max_iter": 200,
         "tol": 1e-4,  # Looser tol as per original test
@@ -160,7 +160,7 @@ def test_lower_entropies():
 
 def test_mid_range_entropies():
     """Test with target entropies in the mid range."""
-    params: Dict[str, Any] = {
+    params: dict[str, Any] = {
         "x_init": 0.1,
         "max_iter": 200,
         "tol": 1e-5,
@@ -174,7 +174,7 @@ def test_mid_range_entropies():
 
 def test_higher_entropies():
     """Test with target entropies in the higher range."""
-    params: Dict[str, Any] = {
+    params: dict[str, Any] = {
         "x_init": 1.0,
         "max_iter": 200,
         "tol": 1e-4,  # Looser tol as per original test

@@ -1,11 +1,11 @@
 import warnings
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 from torch import Tensor
 
 # Define function signature types
-FuncType = Callable[[Tensor, Tensor], Tuple[Tensor, Any]]
+FuncType = Callable[[Tensor, Tensor], tuple[Tensor, Any]]
 FPrimeType = Callable[[Tensor, Tensor, Any], Tensor]
 
 
