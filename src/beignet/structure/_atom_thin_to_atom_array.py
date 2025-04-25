@@ -1,7 +1,6 @@
-import biotite.structure
 import numpy
 import torch
-from biotite.structure import Atom, AtomArray
+from biotite.structure import AtomArray
 from torch import Tensor
 
 from beignet.constants import AMINO_ACID_1_TO_3, ATOM_THIN_ATOMS, STANDARD_RESIDUES
@@ -20,8 +19,13 @@ def atom_thin_to_atom_array(
     occupancies: Tensor | None = None,
 ) -> AtomArray:
     L, W = atom_thin_mask.nonzero(as_tuple=True)
+    n_atoms = L.shape[0]
 
     residue_type_flat = residue_type[L]
+    res_name_flat = numpy.array(
+        [AMINO_ACID_1_TO_3[r] for r in STANDARD_RESIDUES] + ["UNK"]
+    )[residue_type_flat.cpu().numpy()]
+
     chain_id_flat = numpy.frombuffer(
         chain_id[L].cpu().numpy().tobytes(), dtype="|S8"
     ).astype(numpy.dtypes.StringDType())
@@ -32,6 +36,11 @@ def atom_thin_to_atom_array(
     ).astype(numpy.dtypes.StringDType())
 
     atom_pos_flat = xyz_atom_thin[L, W]
+
+    atom_name = numpy.array(
+        [ATOM_THIN_ATOMS[AMINO_ACID_1_TO_3[r]] for r in STANDARD_RESIDUES]
+        + [ATOM_THIN_ATOMS["UNK"]]
+    )[residue_type[L], W]
 
     if b_factors is not None:
         b_factors_flat = b_factors[L, W]
@@ -51,47 +60,22 @@ def atom_thin_to_atom_array(
             device=xyz_atom_thin.device,
         )
 
-    # FIXME this loop is slow
-    atoms = []
-    for (
-        residue_type_i,
-        chain_id_i,
-        author_seq_id_i,
-        author_ins_code_i,
-        atom_pos_i,
-        atom_idx_i,
-        b_factor_i,
-        occupancy_i,
-    ) in zip(
-        residue_type_flat.cpu().numpy(),
-        chain_id_flat,
-        author_seq_id_flat.cpu().numpy(),
-        author_ins_code_flat,
-        atom_pos_flat.cpu().numpy(),
-        W.cpu().numpy(),
-        b_factors_flat.cpu().numpy(),
-        occupancies_flat.cpu().numpy(),
-        strict=True,
-    ):
-        res_name_1 = restypes_with_x[residue_type_i]
-        res_name_3 = AMINO_ACID_1_TO_3.get(res_name_1, "UNK")
-        atom_name = ATOM_THIN_ATOMS[res_name_3][atom_idx_i]
-        element = atom_name[0]  # Protein supports only C, N, O, S, this works.
+    atom_array = AtomArray(n_atoms)
+    atom_array.coord[:] = atom_pos_flat
+    atom_array.chain_id[:] = chain_id_flat
+    atom_array.res_id[:] = author_seq_id_flat
+    atom_array.ins_code[:] = author_ins_code_flat
+    atom_array.res_name[:] = res_name_flat
+    atom_array.hetero[:] = False
+    atom_array.atom_name[:] = atom_name
 
-        atoms.append(
-            Atom(
-                atom_pos_i,
-                chain_id=chain_id_i,
-                res_id=author_seq_id_i.item(),
-                ins_code=author_ins_code_i,
-                res_name=res_name_3,
-                hetero=False,
-                atom_name=atom_name,
-                element=element,
-                b_factor=b_factor_i.item(),
-                occupancy=occupancy_i.item(),
-            )
-        )
+    # Protein supports only C, N, O, S, this works
+    atom_array.element[:] = atom_array.atom_name.astype("<U1")
 
-    array = biotite.structure.array(atoms)
-    return array
+    if b_factors is not None:
+        atom_array.set_annotation("b_factor", b_factors_flat.cpu().numpy())
+
+    if occupancies is not None:
+        atom_array.set_annotation("occupancy", occupancies_flat.cpu().numpy())
+
+    return atom_array
