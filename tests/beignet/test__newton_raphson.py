@@ -3,7 +3,7 @@
 import math
 import time
 import warnings
-from typing import Any, Dict  # Corrected typing import for Dict
+from typing import Any
 
 import torch
 
@@ -73,7 +73,7 @@ def run_entropy_test(
     test_name: str,
     target_entropy_batch: Tensor,
     # --- Newton Params ---
-    nr_params: Dict[str, Any],
+    nr_params: dict[str, Any],
     # --- LBFGS Params ---
     run_lbfgs: bool = True,  # Flag to enable LBFGS comparison
     lbfgs_outer_steps: int = 100,
@@ -245,7 +245,7 @@ def run_entropy_test(
 def test_lower_entropies():
     """Test with target entropies in the lower range."""
     # NR specific params for this test
-    nr_params: Dict[str, Any] = {
+    nr_params: dict[str, Any] = {
         "x_init": 1e-2,
         "max_iter": 200,
         "abs_tol": 1e-4,
@@ -262,7 +262,7 @@ def test_lower_entropies():
 def test_mid_range_entropies():
     """Test with target entropies in the mid range."""
     # NR specific params for this test
-    nr_params: Dict[str, Any] = {
+    nr_params: dict[str, Any] = {
         "x_init": 0.25,  # Updated init_tau from original file for this test
         "max_iter": 200,
         "abs_tol": 1e-5,
@@ -279,7 +279,7 @@ def test_mid_range_entropies():
 def test_higher_entropies():
     """Test with target entropies in the higher range."""
     # NR specific params for this test
-    nr_params: Dict[str, Any] = {
+    nr_params: dict[str, Any] = {
         "x_init": 1.0,
         "max_iter": 200,
         "abs_tol": 1e-4,
