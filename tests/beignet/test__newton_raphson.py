@@ -7,13 +7,13 @@ from typing import Any
 
 import torch
 
-# Assuming the project structure is src/beignet/
-# Adjust imports based on your actual structure if needed
-from beignet import newton_raphson  # Import NR solver
 from torch import Tensor
 from torch.distributions import Categorical  # Keep if used elsewhere, not needed now
 from torch.optim import LBFGS  # Import the optimizer
 from torch.testing import assert_close
+
+# ruff: noqa: I001
+from beignet import newton_raphson  # Import NR solver
 
 B: int = 2000
 K: int = 20
