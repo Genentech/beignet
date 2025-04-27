@@ -24,7 +24,7 @@ def newton_raphson(
 ) -> Tensor:
     """
     Performs batched Newton-Raphson root finding: finds x such that
-    func(x, params) = y_target. # <-- Wrapped line 26
+    func(x, params) = y_target.
 
     Uses update step clamping for stability.
 
@@ -96,6 +96,7 @@ def newton_raphson(
         # Ensure active_indices isn't empty before proceeding
         if active_indices.numel() == 0:
             break
+
         x_active = x[active]
         params_active = params[active]
         y_target_active = y_target_batch[active]
