@@ -16,28 +16,20 @@ def quaternion_to_rotation_matrix(input: Tensor) -> Tensor:
     output : Tensor, shape=(..., 3, 3)
         Rotation matrices.
     """
-    output = torch.empty(
-        [input.shape[0], 3, 3],
-        dtype=input.dtype,
-        layout=input.layout,
-        device=input.device,
-    )
 
-    for j in range(input.shape[0]):
-        a = input[j, 0]
-        b = input[j, 1]
-        c = input[j, 2]
-        d = input[j, 3]
+    a, b, c, d = torch.unbind(input, dim=-1)
 
-        output[j, 0, 0] = +(a**2.0) - b**2.0 - c**2.0 + d**2.0
-        output[j, 1, 1] = -(a**2.0) + b**2.0 - c**2.0 + d**2.0
-        output[j, 2, 2] = -(a**2.0) - b**2.0 + c**2.0 + d**2.0
-
-        output[j, 0, 1] = 2.0 * (a * b) - 2.0 * (c * d)
-        output[j, 0, 2] = 2.0 * (a * c) + 2.0 * (b * d)
-        output[j, 1, 0] = 2.0 * (a * b) + 2.0 * (c * d)
-        output[j, 1, 2] = 2.0 * (b * c) - 2.0 * (a * d)
-        output[j, 2, 0] = 2.0 * (a * c) - 2.0 * (b * d)
-        output[j, 2, 1] = 2.0 * (b * c) + 2.0 * (a * d)
-
-    return output
+    return torch.stack(
+        [
+            torch.square(a) - torch.square(b) - torch.square(c) + torch.square(d),
+            2 * (a * b) - 2 * (c * d),
+            2 * (a * c) + 2 * (b * d),
+            2 * (a * b) + 2 * (c * d),
+            -torch.square(a) + torch.square(b) - torch.square(c) + torch.square(d),
+            2 * (b * c) - 2 * (a * d),
+            2 * (a * c) - 2 * (b * d),
+            2 * (b * c) + 2 * (a * d),
+            -torch.square(a) - torch.square(b) + torch.square(c) + torch.square(d),
+        ],
+        dim=-1,
+    ).view(input.shape[:-1] + (3, 3))
