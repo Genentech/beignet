@@ -149,7 +149,7 @@ def newton_raphson(
 
     # --- Final Warning for Non-Convergence ---
     if torch.any(active):
-        num_not_converged: int = torch.sum(active).item()
+        num_not_converged = torch.sum(active).item()
 
         warning_template = (
             "{num}/{total} elements did not converge within {iters} iterations "
