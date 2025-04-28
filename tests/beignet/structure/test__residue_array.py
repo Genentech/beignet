@@ -184,6 +184,7 @@ def test_residue_array_to_backbone_dihedrals():
         use_author_fields=True,
     )
     atom_array = atom_array[~atom_array.hetero]
+    atom_array = atom_array[atom_array.chain_id == "A"]
 
     phi_ref, psi_ref, omega_ref = biotite.structure.dihedral_backbone(atom_array)
 

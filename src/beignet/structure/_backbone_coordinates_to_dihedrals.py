@@ -89,5 +89,6 @@ def backbone_coordinates_to_dihedrals(
 
     dihedrals = torch.stack([phi, psi, omega], dim=-1)
     dihedrals_mask = torch.stack([phi_mask, psi_mask, omega_mask], dim=-1)
+    dihedrals = torch.masked_fill(dihedrals, ~dihedrals_mask, torch.nan)
 
     return dihedrals, dihedrals_mask
