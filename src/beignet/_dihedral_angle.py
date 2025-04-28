@@ -36,13 +36,8 @@ def dihedral_angle(input: Tensor) -> Tensor:
     axb = torch.cross(a, b, dim=-1)
     bxc = torch.cross(b, c, dim=-1)
 
-    # orthogonal basis in plane perpendicular to b
-    # NOTE v1 and v2 are not unit but have the same magnitude
-    v1 = axb
-    v2 = torch.cross(torch.nn.functional.normalize(b, dim=-1), axb, dim=-1)
-
-    x = torch.sum(bxc * v1, dim=-1)
-    y = torch.sum(bxc * v2, dim=-1)
+    x = torch.sum(bxc * axb, dim=-1)
+    y = torch.linalg.vector_norm(b, dim=-1) * torch.sum(bxc * a, dim=-1)
     phi = torch.atan2(y, x)
 
     return phi
