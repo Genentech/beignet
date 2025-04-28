@@ -54,7 +54,7 @@ from ._differentiate_polynomial import differentiate_polynomial
 from ._differentiate_probabilists_hermite_polynomial import (
     differentiate_probabilists_hermite_polynomial,
 )
-from ._dihedral import dihedral
+from ._dihedral_angle import dihedral_angle
 from ._divide_chebyshev_polynomial import divide_chebyshev_polynomial
 from ._divide_laguerre_polynomial import divide_laguerre_polynomial
 from ._divide_legendre_polynomial import divide_legendre_polynomial
@@ -407,7 +407,7 @@ __all__ = [
     "differentiate_physicists_hermite_polynomial",
     "differentiate_polynomial",
     "differentiate_probabilists_hermite_polynomial",
-    "dihedral",
+    "dihedral_angle",
     "divide_chebyshev_polynomial",
     "divide_laguerre_polynomial",
     "divide_legendre_polynomial",

@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-from beignet import dihedral
+from beignet import dihedral_angle
 
 
 def backbone_coordinates_to_dihedrals(
@@ -34,7 +34,7 @@ def backbone_coordinates_to_dihedrals(
     CA_mask = mask[..., :, 1]
     C_mask = mask[..., :, 2]
 
-    phi = dihedral(
+    phi = dihedral_angle(
         torch.stack(
             [C[..., :-1, :], N[..., 1:, :], CA[..., 1:, :], C[..., 1:, :]], dim=-2
         )
@@ -53,7 +53,7 @@ def backbone_coordinates_to_dihedrals(
         & torch.cat([false_tensor, chain_break_mask], dim=-1)
     )
 
-    psi = dihedral(
+    psi = dihedral_angle(
         torch.stack(
             [N[..., :-1, :], CA[..., :-1, :], C[..., :-1, :], N[..., 1:, :]], dim=-2
         )
@@ -70,7 +70,7 @@ def backbone_coordinates_to_dihedrals(
         & torch.cat([chain_break_mask, false_tensor], dim=-1)
     )
 
-    omega = dihedral(
+    omega = dihedral_angle(
         torch.stack(
             [CA[..., :-1, :], C[..., :-1, :], N[..., 1:, :], CA[..., 1:, :]], dim=-2
         )

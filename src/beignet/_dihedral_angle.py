@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 
 
-def dihedral(input: Tensor) -> Tensor:
+def dihedral_angle(input: Tensor) -> Tensor:
     """Compute dihedral angle from a set of four points.
 
     Given an input tensor with shape (*, 4, 3) representing points (p1, p2, p3, p4)
