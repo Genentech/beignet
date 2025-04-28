@@ -5,18 +5,16 @@ from torch import Tensor
 def dihedral_angle(input: Tensor) -> Tensor:
     """Compute dihedral angle from a set of four points.
 
-    Given an input tensor with shape (*, 4, 3) representing points (p1, p2, p3, p4)
-    compute the dihedral angle between the planes defined by (p1, p2, p3), (p2, p3, p4).
-
     Parameters
     ----------
     input: Tensor
-        Shape (*, 4, 3)
+        Tensor with shape (*, 4, 3) representing (batches of) four points (p1, p2, p3, p4)
 
     Returns
     -------
-    torsion: Tensor
-        Shape (*,)
+    dihedral: Tensor
+        Tensor with shape (*,) representing dihedral angle between
+        the planes defined by (p1, p2, p3), (p2, p3, p4).
     """
 
     if not input.ndim >= 2:
