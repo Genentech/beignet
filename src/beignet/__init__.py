@@ -218,6 +218,7 @@ from ._multiply_probabilists_hermite_polynomial import (
 from ._multiply_probabilists_hermite_polynomial_by_x import (
     multiply_probabilists_hermite_polynomial_by_x,
 )
+from ._newton_raphson import newton_raphson
 from ._optional_dependencies import optional_dependencies
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
@@ -515,6 +516,7 @@ __all__ = [
     "multiply_polynomial_by_x",
     "multiply_probabilists_hermite_polynomial",
     "multiply_probabilists_hermite_polynomial_by_x",
+    "newton_raphson",
     "optional_dependencies",
     "physicists_hermite_polynomial_companion",
     "physicists_hermite_polynomial_domain",
