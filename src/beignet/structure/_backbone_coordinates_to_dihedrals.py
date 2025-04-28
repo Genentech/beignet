@@ -23,21 +23,8 @@ def backbone_coordinates_to_dihedrals(
             backbone_coordinates[..., :, 0, 0], dtype=torch.int64
         )  # [..., L]
 
-    chain_boundary_mask = torch.cat(
-        [
-            torch.zeros_like(chain_id[..., :1], dtype=torch.bool),
-            torch.diff(chain_id, n=1, dim=-1) == 0,
-        ],
-        dim=-1,
-    )
-
-    chain_break_mask = torch.cat(
-        [
-            torch.zeros_like(residue_index[..., :1], dtype=torch.bool),
-            torch.diff(residue_index, n=1, dim=-1) == 1,
-        ],
-        dim=-1,
-    )
+    chain_boundary_mask = torch.diff(chain_id, n=1, dim=-1) == 0
+    chain_break_mask = torch.diff(residue_index, n=1, dim=-1) == 1
 
     N = backbone_coordinates[..., :, 0, :]
     CA = backbone_coordinates[..., :, 1, :]
@@ -62,8 +49,8 @@ def backbone_coordinates_to_dihedrals(
     phi = torch.cat([nan_tensor, phi], dim=-1)
     phi_mask = (
         torch.cat([false_tensor, phi_mask], dim=-1)
-        & chain_boundary_mask
-        & chain_break_mask
+        & torch.cat([false_tensor, chain_boundary_mask], dim=-1)
+        & torch.cat([false_tensor, chain_break_mask], dim=-1)
     )
 
     psi = dihedral(
@@ -79,8 +66,8 @@ def backbone_coordinates_to_dihedrals(
     psi = torch.cat([psi, nan_tensor], dim=-1)
     psi_mask = (
         torch.cat([psi_mask, false_tensor], dim=-1)
-        & chain_boundary_mask
-        & chain_break_mask
+        & torch.cat([chain_boundary_mask, false_tensor], dim=-1)
+        & torch.cat([chain_break_mask, false_tensor], dim=-1)
     )
 
     omega = dihedral(
@@ -96,8 +83,8 @@ def backbone_coordinates_to_dihedrals(
     omega = torch.cat([omega, nan_tensor], dim=-1)
     omega_mask = (
         torch.cat([omega_mask, false_tensor], dim=-1)
-        & chain_boundary_mask
-        & chain_break_mask
+        & torch.cat([chain_boundary_mask, false_tensor], dim=-1)
+        & torch.cat([chain_break_mask, false_tensor], dim=-1)
     )
 
     dihedrals = torch.stack([phi, psi, omega], dim=-1)
