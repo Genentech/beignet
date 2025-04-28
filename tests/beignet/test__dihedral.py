@@ -1,7 +1,7 @@
 import biotite.structure
 import torch
 
-from beignet import dihedral
+from beignet import dihedral_angle
 
 
 def test_dihedral():
@@ -11,7 +11,7 @@ def test_dihedral():
 
     phi_ref = biotite.structure.dihedral(a.numpy(), b.numpy(), c.numpy(), d.numpy())
 
-    phi = dihedral(x)
+    phi = dihedral_angle(x)
 
     print(f"{(phi - phi_ref).abs().max()=}")
 
@@ -25,7 +25,7 @@ def test_dihedral_no_batch():
 
     phi_ref = biotite.structure.dihedral(a.numpy(), b.numpy(), c.numpy(), d.numpy())
 
-    phi = dihedral(x)
+    phi = dihedral_angle(x)
 
     print(f"{(phi - phi_ref).abs().max()=}")
 
