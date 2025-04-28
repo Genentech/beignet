@@ -1,3 +1,4 @@
+import dataclasses
 import functools
 import io
 import operator
@@ -18,12 +19,41 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
+from ._short_string import int_to_short_string, short_string_to_int
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
 n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
 HANDLED_FUNCTIONS = {}
+
+
+def _gapped_domain_to_numbering(
+    gapped: str,
+    full: str,
+    pre_gap: int = 0,
+    post_gap: int = 0,
+) -> list[tuple[int, str]]:
+    domain = gapped.replace("-", "")
+    start = full.find(domain)
+    if start == -1:
+        raise RuntimeError("gapped not found in full")
+
+    pre = [i - pre_gap for i in range(-start, 0)]
+    mid = [i for i, r in enumerate(gapped) if r != "-"]
+    post = [
+        i + post_gap
+        for i in range(len(gapped), len(gapped) + (len(full) - len(domain) - start))
+    ]
+
+    out = pre + mid + post
+
+    if not len(out) == len(full):
+        raise AssertionError(f"{len(out)=} != {len(full)}")
+
+    # convert to one indexed
+    # NOTE no insertion codes
+    return [(i + 1, "") for i in out]
 
 
 def implements(torch_function):
@@ -35,25 +65,6 @@ def implements(torch_function):
         return func
 
     return decorator
-
-
-def short_string_to_int(input: str):
-    """Convert an ascii string with length <= 8 to a uint64 integer."""
-    assert input.isascii()
-    assert len(input) <= 8
-    return int.from_bytes(
-        input.ljust(8, "\0").encode("ascii"), byteorder="little", signed=False
-    )
-
-
-def int_to_short_string(input: int):
-    assert 0 <= input < 2**64
-    """Convert a uint64 integer to an ascii string."""
-    return (
-        input.to_bytes(length=8, byteorder="little", signed=False)
-        .decode("ascii")
-        .rstrip("\0")
-    )
 
 
 @dataclass(namespace="beignet")
@@ -384,6 +395,8 @@ class ResidueArray:
         return HANDLED_FUNCTIONS[func](*args, **kwargs)
 
     def __getitem__(self, key):
+        if callable(key):
+            return self[key(self)]
         return optree.tree_map(
             lambda x: operator.getitem(x, key), self, namespace="beignet"
         )
@@ -425,6 +438,68 @@ class ResidueArray:
             self,
             namespace="beignet",
         )
+
+    def renumber(self, numbering: dict[str, list[tuple[int, str]]]):
+        """Renumber ResidueArray.
+
+        Parameters
+        ----------
+        numbering: dict[str, list[tuple[int, str]]]
+            Dictionary mapping from chain ids to lists of
+            (index, insertion_code) tuples.
+
+        Returns
+        -------
+        ResidueArray
+            New object with `author_seq_id` and `author_ins_code` fields updated
+        """
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.renumber only supported for ndim == 1 {self.ndim=}"
+            )
+
+        author_seq_id = self.author_seq_id
+        author_ins_code = self.author_ins_code
+
+        chain_ids = self.chain_id_list
+        for chain, chain_numbering in numbering.items():
+            if chain not in chain_ids:
+                raise KeyError(f"{chain=} not in structure {chain_ids=}")
+
+            chain_mask = self.chain_id == short_string_to_int(chain)
+            chain_length = chain_mask.sum().item()
+
+            if chain_length != len(chain_numbering):
+                raise AssertionError(
+                    f"{chain=}: {chain_length=} != {len(chain_numbering)=}"
+                )
+
+            ids, ins = list(zip(*chain_numbering, strict=True))
+            ids = torch.as_tensor(
+                ids, dtype=torch.int64, device=self.author_seq_id.device
+            )
+            ins = torch.frombuffer(
+                bytearray(numpy.array(ins).astype("|S8").tobytes()), dtype=torch.int64
+            ).to(device=self.author_ins_code.device)
+
+            author_seq_id = torch.masked_scatter(author_seq_id, chain_mask, ids)
+            author_ins_code = torch.masked_scatter(author_ins_code, chain_mask, ins)
+
+        return dataclasses.replace(
+            self, author_seq_id=author_seq_id, author_ins_code=author_ins_code
+        )
+
+    def renumber_from_gapped_domain(
+        self, gapped: dict[str, str], pre_gap: int = 0, post_gap: int = 0
+    ):
+        sequence = self.sequence
+        numbering = {
+            k: _gapped_domain_to_numbering(
+                gapped=v, full=sequence[k], pre_gap=pre_gap, post_gap=post_gap
+            )
+            for k, v in gapped.items()
+        }
+        return self.renumber(numbering)
 
 
 @implements(torch.cat)
