@@ -1,5 +1,4 @@
 import torch
-from biotite.database import rcsb
 
 from beignet.constants import CDR_RANGES_AHO
 from beignet.structure import ResidueArray
@@ -9,16 +8,9 @@ from beignet.structure.residue_selectors import (
     ChainSelectorFromAnnotations,
 )
 
-GAPPED_AHO_7K7R = {
-    "A": "DVVLTQSPLSLPVILGQPASISCRSS--QSLVYSD-GRTYLNWFQQRPGQSPRRLIYK--------ISKRDSGVPERFSGSGSG--TDFTLEISRVEAEDVGIYYCMQGSH-----------------------WPVTFGQGTKVEIKR",
-    "B": "-VQLVES-GGGLVKPGGSLRLSCVSSG-FTFSN-----YWMSWVRQAPGGGLEWVANINQD---GSEKYYVDSVKGRFTSSRDNTKNSLFLQLNSLRAEDTGIYYCTRDPP-----------------------YFDNWGQGTLVTVSS",
-    "D": "DVVLTQSPLSLPVILGQPASISCRSS--QSLVYSD-GRTYLNWFQQRPGQSPRRLIYK--------ISKRDSGVPERFSGSGSG--TDFTLEISRVEAEDVGIYYCMQGSH-----------------------WPVTFGQGTKVEIKR",
-    "E": "QVQLVES-GGGLVKPGGSLRLSCVSSG-FTFSN-----YWMSWVRQAPGGGLEWVANINQD---GSEKYYVDSVKGRFTSSRDNTKNSLFLQLNSLRAEDTGIYYCTRDPP-----------------------YFDNWGQGTLVTVSS",
-}
 
-
-def test_chain_selector():
-    p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
+def test_chain_selector(structure_7k7r_cif):
+    p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
     selected = p[ChainSelector(["A"])]
@@ -28,8 +20,8 @@ def test_chain_selector():
     assert selected.chain_id_list == ["A", "B"]
 
 
-def test_chain_selector_from_annotation():
-    p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
+def test_chain_selector_from_annotation(structure_7k7r_cif):
+    p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
     selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A"]})]
@@ -39,21 +31,21 @@ def test_chain_selector_from_annotation():
     assert selected.chain_id_list == ["A", "D"]
 
 
-def test_renumber_residue_array():
-    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
-    renumbered = p.renumber_from_gapped_domain(GAPPED_AHO_7K7R)
+def test_renumber_residue_array(structure_7k7r_pdb, gapped_aho_7k7r):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
+    renumbered = p.renumber_from_gapped_domain(gapped_aho_7k7r)
 
     assert not torch.equal(p.author_seq_id, renumbered.author_seq_id)
 
 
-def test_cdr_residue_selector():
-    p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
+def test_cdr_residue_selector(structure_7k7r_cif, gapped_aho_7k7r):
+    p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    p = p.renumber_from_gapped_domain(GAPPED_AHO_7K7R)
+    p = p.renumber_from_gapped_domain(gapped_aho_7k7r)
 
     for cdr in [f"H{i}" for i in (1, 2, 3, 4)]:
-        expected = GAPPED_AHO_7K7R["B"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
+        expected = gapped_aho_7k7r["B"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
         selector = CDRResidueSelector(
             which_cdrs=[cdr], heavy_chain="B", light_chain="A", scheme="aho"
         )
@@ -61,7 +53,7 @@ def test_cdr_residue_selector():
         assert selected.sequence[selector.heavy_chain] == expected
 
     for cdr in [f"L{i}" for i in (1, 2, 3, 4)]:
-        expected = GAPPED_AHO_7K7R["A"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
+        expected = gapped_aho_7k7r["A"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
         selector = CDRResidueSelector(
             which_cdrs=[cdr], heavy_chain="B", light_chain="A", scheme="aho"
         )

@@ -4,7 +4,6 @@ import io
 import biotite.structure
 import optree
 import torch
-from biotite.database import rcsb
 from biotite.structure.io import pdbx
 
 from beignet.constants import ATOM_THIN_ATOMS
@@ -17,23 +16,27 @@ def test_atom_thin_atoms():
         assert len(v) == n_atom_thin, f"{k=}"
 
 
-def test_residue_array_from_cif():
-    p0 = ResidueArray.from_pdb(rcsb.fetch("1A8O", "pdb"))
-    p1 = ResidueArray.from_mmcif(rcsb.fetch("1A8O", "cif"))
-    p2 = ResidueArray.from_bcif(rcsb.fetch("1A8O", "bcif"))
+def test_residue_array_from_cif(
+    structure_7k7r_pdb, structure_7k7r_cif, structure_7k7r_bcif
+):
+    p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
+    p1 = ResidueArray.from_mmcif(structure_7k7r_cif)
+    p2 = ResidueArray.from_bcif(structure_7k7r_bcif)
 
     assert torch.equal(p0.atom_thin_xyz, p1.atom_thin_xyz)
     assert torch.equal(p0.atom_thin_xyz, p2.atom_thin_xyz)
 
 
-def test_residue_array_chain_id_list():
-    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_chain_id_list(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
 
-def test_residue_array_from_cif_with_seqres():
-    p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
-    p_seqres = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=True)
+def test_residue_array_from_cif_with_seqres(structure_7k7r_cif):
+    p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
+
+    structure_7k7r_cif.seek(0)  # reset stream
+    p_seqres = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=True)
 
     assert p.residue_type.shape == (891,)
     assert p_seqres.residue_type.shape == (926,)
@@ -61,8 +64,8 @@ def test_residue_array_from_cif_with_seqres():
             raise RuntimeError(f"seqres indices not consistent for {field}")
 
 
-def test_residue_array_atom_array_roundtrip():
-    file = pdbx.BinaryCIFFile.read(rcsb.fetch("4cni", "bcif"))
+def test_residue_array_atom_array_roundtrip(structure_7k7r_bcif):
+    file = pdbx.BinaryCIFFile.read(structure_7k7r_bcif)
     atom_array = pdbx.get_structure(
         file,
         model=1,
@@ -81,8 +84,8 @@ def test_residue_array_atom_array_roundtrip():
         )
 
 
-def test_residue_array_optree():
-    file = pdbx.BinaryCIFFile.read(rcsb.fetch("4cni", "bcif"))
+def test_residue_array_optree(structure_7k7r_bcif):
+    file = pdbx.BinaryCIFFile.read(structure_7k7r_bcif)
     atom_array = pdbx.get_structure(
         file,
         model=1,
@@ -102,8 +105,8 @@ def test_residue_array_optree():
         assert torch.equal(getattr(p, f.name), getattr(p_mapped, f.name)), f"{f.name=}"
 
 
-def test_residue_array_pdb_roundtrip():
-    p = ResidueArray.from_pdb(rcsb.fetch("4cni", "pdb"))
+def test_residue_array_pdb_roundtrip(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
     pdb_string = p.to_pdb_string()
     p_roundtrip = ResidueArray.from_pdb(io.StringIO(pdb_string))
 
@@ -113,8 +116,8 @@ def test_residue_array_pdb_roundtrip():
         )
 
 
-def test_residue_array_pdb_roundtrip_with_ins_code():
-    p = ResidueArray.from_pdb(rcsb.fetch("1s78", "pdb"))
+def test_residue_array_pdb_roundtrip_with_ins_code(structure_1s78_pdb):
+    p = ResidueArray.from_pdb(structure_1s78_pdb)
     pdb_string = p.to_pdb_string()
     p_roundtrip = ResidueArray.from_pdb(io.StringIO(pdb_string))
 
@@ -129,8 +132,8 @@ def test_residue_array_from_sequence():
     assert p.residue_type.shape == (9,)
 
 
-def test_residue_array_cat():
-    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_cat(structure_7k7r_pdb):
+    p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
 
     assert p0.shape == (891,)
 
@@ -139,8 +142,8 @@ def test_residue_array_cat():
     assert p.shape == (2 * 891,)
 
 
-def test_residue_array_stack():
-    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_stack(structure_7k7r_pdb):
+    p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
 
     assert p0.shape == (891,)
 
@@ -152,8 +155,8 @@ def test_residue_array_stack():
     )
 
 
-def test_residue_array_unbind():
-    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_unbind(structure_7k7r_pdb):
+    p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
 
     assert p0.shape == (891,)
 
@@ -166,8 +169,8 @@ def test_residue_array_unbind():
         assert torch.equal(getattr(p0, f.name), getattr(b, f.name)), f"{f.name=}"
 
 
-def test_residue_array_slice():
-    p0 = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_slice(structure_7k7r_pdb):
+    p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
     a = p0[:100]
     b = p0[100:]
 
@@ -180,8 +183,8 @@ def test_residue_array_slice():
         assert torch.equal(getattr(p0, f.name), getattr(p1, f.name)), f"{f.name=}"
 
 
-def test_residue_array_to_backbone_dihedrals():
-    file = pdbx.BinaryCIFFile.read(rcsb.fetch("4cni", "bcif"))
+def test_residue_array_to_backbone_dihedrals(structure_7k7r_bcif):
+    file = pdbx.BinaryCIFFile.read(structure_7k7r_bcif)
     atom_array = pdbx.get_structure(
         file,
         model=1,
@@ -204,8 +207,8 @@ def test_residue_array_to_backbone_dihedrals():
     torch.testing.assert_close(omega, torch.from_numpy(omega_ref), equal_nan=True)
 
 
-def test_residue_array_to_chain_sequences():
-    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_to_chain_sequences(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
     L = p.shape[0]
     seq = p.sequence
 
@@ -213,8 +216,8 @@ def test_residue_array_to_chain_sequences():
     assert sum(len(v) for v in seq.values()) == L
 
 
-def test_residue_array_type_conversion():
-    p = ResidueArray.from_pdb(rcsb.fetch("7k7r", "pdb"))
+def test_residue_array_type_conversion(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
     p = p.to(torch.float64)
 
     assert p.residue_type.dtype == torch.int64
