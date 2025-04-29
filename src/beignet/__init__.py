@@ -149,6 +149,7 @@ from ._gauss_physicists_hermite_polynomial_quadrature import (
 from ._gauss_probabilists_hermite_polynomial_quadrature import (
     gauss_probabilists_hermite_polynomial_quadrature,
 )
+from ._identity_matrix import identity_matrix
 from ._integrate_chebyshev_polynomial import integrate_chebyshev_polynomial
 from ._integrate_laguerre_polynomial import integrate_laguerre_polynomial
 from ._integrate_legendre_polynomial import integrate_legendre_polynomial
@@ -164,6 +165,7 @@ from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
+from ._kabsch import kabsch
 from ._laguerre_polynomial_companion import laguerre_polynomial_companion
 from ._laguerre_polynomial_domain import laguerre_polynomial_domain
 from ._laguerre_polynomial_from_roots import laguerre_polynomial_from_roots
@@ -462,6 +464,7 @@ __all__ = [
     "gauss_legendre_quadrature",
     "gauss_physicists_hermite_polynomial_quadrature",
     "gauss_probabilists_hermite_polynomial_quadrature",
+    "identity_matrix",
     "integrate_chebyshev_polynomial",
     "integrate_laguerre_polynomial",
     "integrate_legendre_polynomial",
@@ -473,6 +476,7 @@ __all__ = [
     "invert_rotation_matrix",
     "invert_rotation_vector",
     "invert_transform",
+    "kabsch",
     "laguerre_polynomial_companion",
     "laguerre_polynomial_domain",
     "laguerre_polynomial_from_roots",
