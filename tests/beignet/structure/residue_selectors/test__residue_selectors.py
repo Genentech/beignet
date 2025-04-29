@@ -21,16 +21,22 @@ def test_chain_selector():
     p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    p = p[ChainSelector(["A"])]
-    assert p.chain_id_list == ["A"]
+    selected = p[ChainSelector(["A"])]
+    assert selected.chain_id_list == ["A"]
+
+    selected = p[ChainSelector(["A", "B"])]
+    assert selected.chain_id_list == ["A", "B"]
 
 
 def test_chain_selector_from_annotation():
     p = ResidueArray.from_mmcif(rcsb.fetch("7k7r", "cif"), use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    p = p[ChainSelectorFromAnnotations("foo")(p, {"foo": "A"})]
-    assert p.chain_id_list == ["A"]
+    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A"]})]
+    assert selected.chain_id_list == ["A"]
+
+    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A", "D"]})]
+    assert selected.chain_id_list == ["A", "D"]
 
 
 def test_renumber_residue_array():

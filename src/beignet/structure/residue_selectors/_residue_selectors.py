@@ -16,7 +16,7 @@ class ChainSelector:
     def __call__(self, input: ResidueArray, **_):
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
         for c in self.which_chains:
-            mask = mask | input.chain_id == short_string_to_int(c)
+            mask = mask | (input.chain_id == short_string_to_int(c))
         return mask
 
 
@@ -29,7 +29,7 @@ class ChainSelectorFromAnnotations:
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
         if which_chains is not None:
             for c in which_chains:
-                mask = mask | input.chain_id == short_string_to_int(c)
+                mask = mask | (input.chain_id == short_string_to_int(c))
         return mask
 
 
