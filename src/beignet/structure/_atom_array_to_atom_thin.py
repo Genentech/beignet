@@ -118,10 +118,10 @@ def atom_array_to_atom_thin(
         device=device,
     )
 
-    xyz_atom_thin = torch.zeros(L, n_atom_thin, 3, dtype=dtype, device=device)
-    xyz_atom_thin.index_put_(
+    atom_thin_xyz = torch.zeros(L, n_atom_thin, 3, dtype=dtype, device=device)
+    atom_thin_xyz.index_put_(
         (residue_positions, atom_thin_idx),
-        torch.as_tensor(array.coord, dtype=xyz_atom_thin.dtype, device=device),
+        torch.as_tensor(array.coord, dtype=atom_thin_xyz.dtype, device=device),
     )
 
     atom_thin_mask = torch.zeros(L, n_atom_thin, dtype=bool, device=device)
@@ -130,24 +130,24 @@ def atom_array_to_atom_thin(
     )
 
     if "b_factor" in array.get_annotation_categories():
-        b_factors = torch.zeros(L, n_atom_thin, dtype=dtype, device=device)
-        b_factors.index_put_(
+        b_factor = torch.zeros(L, n_atom_thin, dtype=dtype, device=device)
+        b_factor.index_put_(
             (residue_positions, atom_thin_idx),
-            torch.tensor(array.b_factor, dtype=b_factors.dtype, device=device),
+            torch.tensor(array.b_factor, dtype=b_factor.dtype, device=device),
         )
-        b_factors[~atom_thin_mask] = 0.0  # zero out positions we don't want
+        b_factor[~atom_thin_mask] = 0.0  # zero out positions we don't want
     else:
-        b_factors = None
+        b_factor = None
 
     if "occupancy" in array.get_annotation_categories():
-        occupancies = torch.zeros(L, n_atom_thin, dtype=dtype, device=device)
-        occupancies.index_put_(
+        occupancy = torch.zeros(L, n_atom_thin, dtype=dtype, device=device)
+        occupancy.index_put_(
             (residue_positions, atom_thin_idx),
-            torch.tensor(array.occupancy, dtype=occupancies.dtype, device=device),
+            torch.tensor(array.occupancy, dtype=occupancy.dtype, device=device),
         )
-        occupancies[~atom_thin_mask] = 0.0  # zero out positions we don't want
+        occupancy[~atom_thin_mask] = 0.0  # zero out positions we don't want
     else:
-        occupancies = None
+        occupancy = None
 
     return {
         "residue_type": residue_type,
@@ -156,8 +156,8 @@ def atom_array_to_atom_thin(
         "chain_id": chain_id,
         "author_seq_id": author_seq_id,
         "author_ins_code": author_ins_code,
-        "xyz_atom_thin": xyz_atom_thin,
+        "atom_thin_xyz": atom_thin_xyz,
         "atom_thin_mask": atom_thin_mask,
-        "b_factors": b_factors,
-        "occupancies": occupancies,
+        "b_factor": b_factor,
+        "occupancy": occupancy,
     }

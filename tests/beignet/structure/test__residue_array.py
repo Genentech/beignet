@@ -15,8 +15,8 @@ def test_residue_array_from_cif():
     p1 = ResidueArray.from_mmcif(rcsb.fetch("1A8O", "cif"))
     p2 = ResidueArray.from_bcif(rcsb.fetch("1A8O", "bcif"))
 
-    assert torch.equal(p0.xyz_atom_thin, p1.xyz_atom_thin)
-    assert torch.equal(p0.xyz_atom_thin, p2.xyz_atom_thin)
+    assert torch.equal(p0.atom_thin_xyz, p1.atom_thin_xyz)
+    assert torch.equal(p0.atom_thin_xyz, p2.atom_thin_xyz)
 
 
 def test_residue_array_chain_id_list():
@@ -213,6 +213,6 @@ def test_residue_array_type_conversion():
     p = p.to(torch.float64)
 
     assert p.residue_type.dtype == torch.int64
-    assert p.xyz_atom_thin.dtype == torch.float64
-    assert p.occupancies.dtype == torch.float64
-    assert p.b_factors.dtype == torch.float64
+    assert p.atom_thin_xyz.dtype == torch.float64
+    assert p.occupancy.dtype == torch.float64
+    assert p.b_factor.dtype == torch.float64

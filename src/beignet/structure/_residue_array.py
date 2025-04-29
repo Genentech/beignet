@@ -73,14 +73,14 @@ class ResidueArray:
     residue_index: Tensor
     chain_id: Tensor
     padding_mask: Tensor
-    xyz_atom_thin: Tensor
+    atom_thin_xyz: Tensor
     atom_thin_mask: Tensor
 
     # optional
     author_seq_id: Tensor | None = None
     author_ins_code: Tensor | None = None
-    occupancies: Tensor | None = None
-    b_factors: Tensor | None = None
+    occupancy: Tensor | None = None
+    b_factor: Tensor | None = None
 
     @property
     def shape(self) -> tuple[int, ...]:
@@ -135,7 +135,7 @@ class ResidueArray:
 
     @property
     def backbone_coordinates(self) -> tuple[Tensor, Tensor]:
-        return self.xyz_atom_thin[..., :3, :], self.atom_thin_mask[..., :3]
+        return self.atom_thin_xyz[..., :3, :], self.atom_thin_mask[..., :3]
 
     @property
     def backbone_dihedrals(self) -> tuple[Tensor, Tensor]:
@@ -174,7 +174,7 @@ class ResidueArray:
 
         padding_mask = torch.ones(shape, device=device, dtype=bool)
 
-        xyz_atom_thin = torch.zeros(
+        atom_thin_xyz = torch.zeros(
             (*shape, n_atom_thin, 3), device=device, dtype=dtype
         )
         atom_thin_mask = torch.zeros((*shape, n_atom_thin), device=device, dtype=bool)
@@ -182,20 +182,20 @@ class ResidueArray:
         author_seq_id = torch.zeros(shape, device=device, dtype=torch.int64)
         author_ins_code = torch.full(shape, ord(" "), device=device, dtype=torch.int64)
 
-        occupancies = torch.ones((*shape, n_atom_thin), device=device, dtype=dtype)
-        b_factors = torch.zeros((*shape, n_atom_thin), device=device, dtype=dtype)
+        occupancy = torch.ones((*shape, n_atom_thin), device=device, dtype=dtype)
+        b_factor = torch.zeros((*shape, n_atom_thin), device=device, dtype=dtype)
 
         return cls(
             residue_type=residue_type,
             residue_index=residue_index,
             chain_id=chain_id,
             padding_mask=padding_mask,
-            xyz_atom_thin=xyz_atom_thin,
+            atom_thin_xyz=atom_thin_xyz,
             atom_thin_mask=atom_thin_mask,
             author_seq_id=author_seq_id,
             author_ins_code=author_ins_code,
-            occupancies=occupancies,
-            b_factors=b_factors,
+            occupancy=occupancy,
+            b_factor=b_factor,
         )
 
     @classmethod
@@ -240,10 +240,10 @@ class ResidueArray:
             chain_id=self.chain_id,
             author_seq_id=self.author_seq_id,
             author_ins_code=self.author_ins_code,
-            xyz_atom_thin=self.xyz_atom_thin,
+            atom_thin_xyz=self.atom_thin_xyz,
             atom_thin_mask=self.atom_thin_mask,
-            b_factors=self.b_factors,
-            occupancies=self.occupancies,
+            b_factor=self.b_factor,
+            occupancy=self.occupancy,
         )
 
     @classmethod
