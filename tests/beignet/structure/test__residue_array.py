@@ -7,7 +7,7 @@ import torch
 from biotite.structure.io import pdbx
 
 from beignet.constants import ATOM_THIN_ATOMS
-from beignet.structure import ResidueArray
+from beignet.structure import ResidueArray, Rigid
 
 
 def test_atom_thin_atoms():
@@ -224,3 +224,14 @@ def test_residue_array_type_conversion(structure_7k7r_pdb):
     assert p.atom_thin_xyz.dtype == torch.float64
     assert p.occupancy.dtype == torch.float64
     assert p.b_factor.dtype == torch.float64
+
+
+def test_residue_array_kabsch(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
+    T = Rigid.rand()
+
+    p_T = dataclasses.replace(p, atom_thin_xyz=T[None](p.atom_thin_xyz))
+
+    T_kabsch = p.kabsch(p_T)
+    torch.testing.assert_close(T_kabsch.t, T.t, atol=1e-4, rtol=1e-4)
+    torch.testing.assert_close(T_kabsch.r, T.r, atol=1e-4, rtol=1e-4)
