@@ -7,7 +7,14 @@ import torch
 from biotite.database import rcsb
 from biotite.structure.io import pdbx
 
+from beignet.constants import ATOM_THIN_ATOMS
 from beignet.structure import ResidueArray
+
+
+def test_atom_thin_atoms():
+    n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
+    for k, v in ATOM_THIN_ATOMS.items():
+        assert len(v) == n_atom_thin, f"{k=}"
 
 
 def test_residue_array_from_cif():
@@ -63,7 +70,6 @@ def test_residue_array_atom_array_roundtrip():
         use_author_fields=True,
     )
     atom_array = atom_array[~atom_array.hetero]
-    atom_array = atom_array[~(atom_array.atom_name == "OXT")]
 
     p = ResidueArray.from_atom_array(atom_array)
     array_roundtrip = p.to_atom_array()
@@ -84,7 +90,6 @@ def test_residue_array_optree():
         use_author_fields=True,
     )
     atom_array = atom_array[~atom_array.hetero]
-    atom_array = atom_array[~(atom_array.atom_name == "OXT")]
 
     p = ResidueArray.from_atom_array(atom_array)
 
