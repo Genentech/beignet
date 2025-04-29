@@ -26,25 +26,37 @@ def backbone_coordinates_to_dihedrals(
     chain_boundary_mask = torch.diff(chain_id, n=1, dim=-1) == 0
     chain_break_mask = torch.diff(residue_index, n=1, dim=-1) == 1
 
-    N = backbone_coordinates[..., :, 0, :]
-    CA = backbone_coordinates[..., :, 1, :]
-    C = backbone_coordinates[..., :, 2, :]
+    bb_n_xyz = backbone_coordinates[..., :, 0, :]
+    bb_ca_xyz = backbone_coordinates[..., :, 1, :]
+    bb_c_xyz = backbone_coordinates[..., :, 2, :]
 
-    N_mask = mask[..., :, 0]
-    CA_mask = mask[..., :, 1]
-    C_mask = mask[..., :, 2]
+    bb_n_mask = mask[..., :, 0]
+    bb_ca_mask = mask[..., :, 1]
+    bb_c_mask = mask[..., :, 2]
 
     phi = dihedral_angle(
         torch.stack(
-            [C[..., :-1, :], N[..., 1:, :], CA[..., 1:, :], C[..., 1:, :]], dim=-2
+            [
+                bb_c_xyz[..., :-1, :],
+                bb_n_xyz[..., 1:, :],
+                bb_ca_xyz[..., 1:, :],
+                bb_c_xyz[..., 1:, :],
+            ],
+            dim=-2,
         )
     )
     phi_mask = torch.stack(
-        [C_mask[..., :-1], N_mask[..., 1:], CA_mask[..., 1:], C_mask[..., 1:]], dim=-1
+        [
+            bb_c_mask[..., :-1],
+            bb_n_mask[..., 1:],
+            bb_ca_mask[..., 1:],
+            bb_c_mask[..., 1:],
+        ],
+        dim=-1,
     ).all(dim=-1)
 
     nan_tensor = torch.full_like(phi[..., :1], float("nan"))
-    false_tensor = torch.zeros_like(N_mask[..., :1])
+    false_tensor = torch.zeros_like(bb_n_mask[..., :1])
 
     phi = torch.cat([nan_tensor, phi], dim=-1)
     phi_mask = (
@@ -55,12 +67,24 @@ def backbone_coordinates_to_dihedrals(
 
     psi = dihedral_angle(
         torch.stack(
-            [N[..., :-1, :], CA[..., :-1, :], C[..., :-1, :], N[..., 1:, :]], dim=-2
+            [
+                bb_n_xyz[..., :-1, :],
+                bb_ca_xyz[..., :-1, :],
+                bb_c_xyz[..., :-1, :],
+                bb_n_xyz[..., 1:, :],
+            ],
+            dim=-2,
         )
     )
 
     psi_mask = torch.stack(
-        [N_mask[..., :-1], CA_mask[..., :-1], C_mask[..., :-1], N_mask[..., 1:]], dim=-1
+        [
+            bb_n_mask[..., :-1],
+            bb_ca_mask[..., :-1],
+            bb_c_mask[..., :-1],
+            bb_n_mask[..., 1:],
+        ],
+        dim=-1,
     ).all(dim=-1)
 
     psi = torch.cat([psi, nan_tensor], dim=-1)
@@ -72,12 +96,24 @@ def backbone_coordinates_to_dihedrals(
 
     omega = dihedral_angle(
         torch.stack(
-            [CA[..., :-1, :], C[..., :-1, :], N[..., 1:, :], CA[..., 1:, :]], dim=-2
+            [
+                bb_ca_xyz[..., :-1, :],
+                bb_c_xyz[..., :-1, :],
+                bb_n_xyz[..., 1:, :],
+                bb_ca_xyz[..., 1:, :],
+            ],
+            dim=-2,
         )
     )
 
     omega_mask = torch.stack(
-        [CA_mask[..., :-1], C_mask[..., :-1], N_mask[..., 1:], CA_mask[..., 1:]], dim=-1
+        [
+            bb_ca_mask[..., :-1],
+            bb_c_mask[..., :-1],
+            bb_n_mask[..., 1:],
+            bb_ca_mask[..., 1:],
+        ],
+        dim=-1,
     ).all(dim=-1)
 
     omega = torch.cat([omega, nan_tensor], dim=-1)
