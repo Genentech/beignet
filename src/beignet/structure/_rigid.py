@@ -66,6 +66,7 @@ class Rigid:
         *,
         weights: Tensor | None = None,
         driver: str | None = None,
+        keepdim: bool = True,
     ):
         """Compute the optimal rigid transformation between two paired sets of points.
 
@@ -74,7 +75,7 @@ class Rigid:
         >>> B, N, D = (11, 4, 3)
         >>> T = Rigid.rand(B)
         >>> x = torch.randn(B,N,D)
-        >>> y = T.unsqueeze(-1)(x)
+        >>> y = T(x)
         >>> T_kabsch = Rigid.kabsch(y, x)
         >>> torch.testing.assert_close(T_kabsch.t, T.t)
         >>> torch.testing.assert_close(T_kabsch.r, T.r)
@@ -82,7 +83,7 @@ class Rigid:
         In this example we see that the kabsch algorithm successfully recovers the exact
         translation/rotation describing the transformation between x_ref and y.
         """
-        t, r = kabsch(x, y, weights=weights, driver=driver)
+        t, r = kabsch(x, y, weights=weights, driver=driver, keepdim=keepdim)
         return cls(t, r)
 
     @classmethod

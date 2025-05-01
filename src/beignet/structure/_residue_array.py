@@ -574,7 +574,7 @@ class ResidueArray:
         weights = weights & atom_mask
 
         if align:
-            T = Rigid.kabsch(y, x, weights=weights)
+            T = Rigid.kabsch(y, x, weights=weights, keepdim=True)
             x = T(x)
         else:
             T = None

@@ -15,6 +15,7 @@ def kabsch(
     *,
     weights: Tensor | None = None,
     driver: str | None = None,
+    keepdim: bool = True,
 ) -> tuple[Tensor, Tensor]:
     """Compute an optimal rotation and translation between two paired sets of points.
 
@@ -36,9 +37,9 @@ def kabsch(
     Returns
     -------
     t: Tensor
-        Optimal translation. Shape (*, 3).
+        Optimal translation. Shape (*, 1, 3)
     r: Tensor
-        Optimal rotation matrix. Shape (*, 3, 3).
+        Optimal rotation matrix. Shape (*, 1, 3, 3)
     """
     _, D = x.shape[-2:]
     assert y.shape == x.shape
@@ -68,8 +69,11 @@ def kabsch(
         ],
         dim=-1,
     )
-    r = torch.einsum("...ki,...k,...jk->...ij", vh, sign, u)  # V S U^T
+    r = torch.einsum("...ki,...k,...jk->...ij", vh, sign, u).unsqueeze(-3)  # V S U^T
+    t = x_mu - torch.einsum("...ij,...j->...i", r, y_mu)
 
-    t = x_mu.squeeze(-2) - torch.einsum("...ij,...j->...i", r, y_mu.squeeze(-2))
+    if not keepdim:
+        r = torch.squeeze(r, -3)
+        t = torch.squeeze(t, -2)
 
     return t, r
