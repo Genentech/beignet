@@ -520,7 +520,7 @@ class ResidueArray:
         }
         return self.renumber(numbering)
 
-    def _rmsd(
+    def _align(
         self,
         target: "ResidueArray",
         residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
@@ -528,7 +528,7 @@ class ResidueArray:
         align: bool = False,
         optimize_ambiguous_atoms: bool = False,
         **residue_selector_kwargs,
-    ):
+    ) -> tuple[Tensor, Rigid, Tensor]:
         match atom_selector:
             case "c_alpha":
                 atom_mask = _atom_name_mask("CA", device=self.residue_type.device)[
@@ -586,7 +586,11 @@ class ResidueArray:
 
         rmsd = torch.sqrt(a / b)
 
-        return rmsd, T
+        atom_thin_xyz_aligned = einops.rearrange(
+            x, "... (l n) d -> ... l n d", n=n_atom_thin
+        )
+
+        return atom_thin_xyz_aligned, T, rmsd
 
     def rmsd(
         self,
@@ -597,7 +601,7 @@ class ResidueArray:
         optimize_ambiguous_atoms: bool = False,
         **residue_selector_kwargs,
     ) -> Tensor:
-        rmsd, _ = self._rmsd(
+        _, _, rmsd = self._align(
             target=target,
             residue_selector=residue_selector,
             atom_selector=atom_selector,
@@ -616,7 +620,7 @@ class ResidueArray:
         optimize_ambiguous_atoms: bool = False,
         **residue_selector_kwargs,
     ) -> Rigid:
-        _, T = self._rmsd(
+        _, T, _ = self._align(
             target=target,
             residue_selector=residue_selector,
             atom_selector=atom_selector,
@@ -626,6 +630,26 @@ class ResidueArray:
         )
 
         return T
+
+    def align_to(
+        self,
+        target: "ResidueArray",
+        residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
+        atom_selector: Literal["c_alpha", "all"] = "all",
+        align: bool = True,
+        optimize_ambiguous_atoms: bool = False,
+        **residue_selector_kwargs,
+    ) -> "ResidueArray":
+        atom_thin_xyz_aligned, _, _ = self._align(
+            target=target,
+            residue_selector=residue_selector,
+            atom_selector=atom_selector,
+            align=align,
+            optimize_ambiguous_atoms=optimize_ambiguous_atoms,
+            **residue_selector_kwargs,
+        )
+
+        return dataclasses.replace(self, atom_thin_xyz=atom_thin_xyz_aligned)
 
 
 @implements(torch.cat)
