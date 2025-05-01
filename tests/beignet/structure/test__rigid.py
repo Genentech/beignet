@@ -22,11 +22,11 @@ def test_rigid_inverse():
 
 def test_kabsch():
     B, N, D = (101, 20, 3)
-    T = Rigid.rand(B)
+    T = Rigid.rand(B, 1)
     x = torch.randn(B, N, D)
-    y = torch.unsqueeze(T, 1)(x)
+    y = T(x)
     T_kabsch = Rigid.kabsch(y, x)
-    y_kabsch = torch.unsqueeze(T_kabsch, 1)(x)
+    y_kabsch = T_kabsch(x)
     torch.testing.assert_close(T_kabsch.t, T.t)
     torch.testing.assert_close(T_kabsch.r, T.r)
     torch.testing.assert_close(y_kabsch, y)
@@ -45,28 +45,28 @@ def test_kabsch_masked():
 
     # we get the wrong answer if we don't mask out the modified coordinates
     T_kabsch = Rigid.kabsch(y, x)
-    y_kabsch = T_kabsch[:, None](x)
+    y_kabsch = T_kabsch(x)
     with pytest.raises(AssertionError):
         torch.testing.assert_close(y[mask], y_kabsch[mask])
 
     # if we mask out the modified coordinates using indexing we get the right answer again
     T_kabsch = Rigid.kabsch(y[:, :-1, :], x[:, :-1, :])
-    y_kabsch = T_kabsch[:, None](x)
+    y_kabsch = T_kabsch(x)
     torch.testing.assert_close(y_kabsch[mask], y[mask])
 
     # instead of using index we can provide the mask directly through the weights parameter
     T_kabsch = Rigid.kabsch(y, x, weights=mask)
-    y_kabsch = T_kabsch[:, None](x)
+    y_kabsch = T_kabsch(x)
     torch.testing.assert_close(y_kabsch[mask], y[mask])
 
 
 def test_kabsch_multiple_batch_dimensions():
     B1, B2, N, D = (1001, 7, 20, 3)
-    T = Rigid.rand(B1, B2)
+    T = Rigid.rand(B1, B2, 1)
     x = torch.randn(B1, B2, N, D)
-    y = T[:, :, None](x)
+    y = T(x)
     T_kabsch = Rigid.kabsch(y, x)
-    y_kabsch = T_kabsch[:, :, None](x)
+    y_kabsch = T_kabsch(x)
     torch.testing.assert_close(T_kabsch.t, T.t)
     torch.testing.assert_close(T_kabsch.r, T.r)
     torch.testing.assert_close(y_kabsch, y)
