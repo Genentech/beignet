@@ -8,6 +8,7 @@ from biotite.structure.io import pdbx
 
 from beignet.constants import ATOM_THIN_ATOMS
 from beignet.structure import ResidueArray, Rigid
+from beignet.structure._rename_symmetric_atoms import _swap_symmetric_atom_thin_atoms
 
 
 def test_atom_thin_atoms():
@@ -230,8 +231,32 @@ def test_residue_array_kabsch(structure_7k7r_pdb):
     p = ResidueArray.from_pdb(structure_7k7r_pdb)
     T = Rigid.rand()
 
-    p_T = dataclasses.replace(p, atom_thin_xyz=T[None](p.atom_thin_xyz))
+    p_T = dataclasses.replace(p, atom_thin_xyz=T(p.atom_thin_xyz))
 
     T_kabsch = p.kabsch(p_T)
     torch.testing.assert_close(T_kabsch.t, T.t, atol=1e-4, rtol=1e-4)
     torch.testing.assert_close(T_kabsch.r, T.r, atol=1e-4, rtol=1e-4)
+
+
+def test_residue_array_rmsd(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
+    T = Rigid.rand()
+
+    p_T = dataclasses.replace(
+        p,
+        atom_thin_xyz=_swap_symmetric_atom_thin_atoms(
+            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
+        )[0],
+    )
+
+    rmsd = p.rmsd(p_T, align=False, optimize_ambiguous_atoms=False)
+    assert rmsd.item() > 1.0
+
+    rmsd = p.rmsd(p_T, align=False, optimize_ambiguous_atoms=True)
+    assert rmsd.item() > 1.0
+
+    rmsd = p.rmsd(p_T, align=True, optimize_ambiguous_atoms=False)
+    assert rmsd.item() > 1e-2
+
+    rmsd = p.rmsd(p_T, align=True, optimize_ambiguous_atoms=True)
+    assert rmsd.item() < 1e-4

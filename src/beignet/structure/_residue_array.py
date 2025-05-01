@@ -21,9 +21,9 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
+from ._rename_symmetric_atoms import rename_symmetric_atoms
 from ._rigid import Rigid
 from ._short_string import int_to_short_string, short_string_to_int
-from ._swap_ambiguous_atom_thin_atoms import rename_symmetric_atoms
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
