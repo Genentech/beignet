@@ -23,6 +23,7 @@ from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
 from ._rigid import Rigid
 from ._short_string import int_to_short_string, short_string_to_int
+from ._swap_ambiguous_atom_thin_atoms import rename_symmetric_atoms
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
@@ -519,13 +520,15 @@ class ResidueArray:
         }
         return self.renumber(numbering)
 
-    def kabsch(
+    def _rmsd(
         self,
         target: "ResidueArray",
         residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
         atom_selector: Literal["c_alpha", "all"] = "all",
+        align: bool = False,
+        optimize_ambiguous_atoms: bool = False,
         **residue_selector_kwargs,
-    ) -> Rigid:
+    ):
         match atom_selector:
             case "c_alpha":
                 atom_mask = _atom_name_mask("CA", device=self.residue_type.device)[
@@ -541,8 +544,20 @@ class ResidueArray:
         else:
             residue_mask = torch.ones_like(self.padding_mask)
 
-        x = einops.rearrange(self.atom_thin_xyz, "... l n d -> ... (l n) d")
-        x_mask = einops.rearrange(self.atom_thin_mask, "... l n -> ... (l n)")
+        if optimize_ambiguous_atoms:
+            atom_thin_xyz = rename_symmetric_atoms(
+                self.residue_type,
+                self.atom_thin_xyz,
+                self.atom_thin_mask,
+                target.atom_thin_xyz,
+            )
+        else:
+            atom_thin_xyz = self.atom_thin_xyz
+
+        atom_thin_mask = self.atom_thin_mask
+
+        x = einops.rearrange(atom_thin_xyz, "... l n d -> ... (l n) d")
+        x_mask = einops.rearrange(atom_thin_mask, "... l n -> ... (l n)")
 
         y = einops.rearrange(target.atom_thin_xyz, "... l n d -> ... (l n) d")
         y_mask = einops.rearrange(target.atom_thin_mask, "... l n -> ... (l n)")
@@ -558,7 +573,57 @@ class ResidueArray:
         )
         weights = weights & atom_mask
 
-        T = Rigid.kabsch(y, x, weights=weights)
+        if align:
+            T = Rigid.kabsch(y, x, weights=weights)
+            x = T(x)
+        else:
+            T = None
+
+        delta2 = torch.square(x - y)
+
+        a = einops.reduce(delta2 * weights[..., None], "... n d -> ...", "sum")
+        b = einops.reduce(weights, "... n -> ...", "sum")
+
+        rmsd = torch.sqrt(a / b)
+
+        return rmsd, T
+
+    def rmsd(
+        self,
+        target: "ResidueArray",
+        residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
+        atom_selector: Literal["c_alpha", "all"] = "all",
+        align: bool = False,
+        optimize_ambiguous_atoms: bool = False,
+        **residue_selector_kwargs,
+    ) -> Tensor:
+        rmsd, _ = self._rmsd(
+            target=target,
+            residue_selector=residue_selector,
+            atom_selector=atom_selector,
+            align=align,
+            optimize_ambiguous_atoms=optimize_ambiguous_atoms,
+            **residue_selector_kwargs,
+        )
+
+        return rmsd
+
+    def kabsch(
+        self,
+        target: "ResidueArray",
+        residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
+        atom_selector: Literal["c_alpha", "all"] = "all",
+        optimize_ambiguous_atoms: bool = False,
+        **residue_selector_kwargs,
+    ) -> Rigid:
+        _, T = self._rmsd(
+            target=target,
+            residue_selector=residue_selector,
+            atom_selector=atom_selector,
+            align=True,
+            optimize_ambiguous_atoms=optimize_ambiguous_atoms,
+            **residue_selector_kwargs,
+        )
 
         return T
 
