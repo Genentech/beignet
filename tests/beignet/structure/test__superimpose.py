@@ -8,6 +8,7 @@ from beignet.structure import (
     superimpose,
     swap_symmetric_atom_thin_atoms,
 )
+from beignet.structure.atom_selectors import AlphaCarbonSelector
 from beignet.structure.residue_selectors import ChainSelector
 
 
@@ -18,6 +19,22 @@ def test_superimpose(structure_7k7r_pdb):
     p_T = dataclasses.replace(p, atom_thin_xyz=T(p.atom_thin_xyz))
 
     _, T_kabsch, rmsd = superimpose(p_T, p)
+
+    print(f"{rmsd=}")
+
+    assert rmsd.item() < 1e-4
+
+    torch.testing.assert_close(T_kabsch.t, T.t, atol=1e-4, rtol=1e-4)
+    torch.testing.assert_close(T_kabsch.r, T.r, atol=1e-4, rtol=1e-4)
+
+
+def test_superimpose_with_atom_selector(structure_7k7r_pdb):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
+    T = Rigid.rand(1)
+
+    p_T = dataclasses.replace(p, atom_thin_xyz=T(p.atom_thin_xyz))
+
+    _, T_kabsch, rmsd = superimpose(p_T, p, atom_selector=AlphaCarbonSelector())
 
     print(f"{rmsd=}")
 

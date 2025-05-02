@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Callable, Literal
+from typing import Callable
 
 import einops
 import torch
@@ -15,21 +15,6 @@ from ._rigid import Rigid
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
 n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
-
-
-def _atom_name_mask(atom_name: str, device=None) -> Tensor:
-    return torch.stack(
-        [
-            (
-                torch.nn.functional.one_hot(
-                    torch.as_tensor(v.index(atom_name), device=device), n_atom_thin
-                )
-                if atom_name in v
-                else torch.zeros(n_atom_thin, device=device, dtype=torch.int64)
-            )
-            for v in ATOM_THIN_ATOMS.values()
-        ]
-    )
 
 
 def superimpose_atom_thin(
@@ -66,25 +51,27 @@ def rmsd_atom_thin(
 def rmsd(
     input: ResidueArray,
     target: ResidueArray,
-    residue_selector: Callable[[ResidueArray], Tensor] | None = None,
-    atom_selector: Literal["c_alpha", "all"] = "all",
-    rename_symmetric_atoms: bool = True,
+    residue_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     **residue_selector_kwargs,
 ) -> Tensor:
-    match atom_selector:
-        case "c_alpha":
-            atom_thin_mask = _atom_name_mask("CA", device=input.residue_type.device)[
-                input.residue_type
-            ]
-        case "all":
-            atom_thin_mask = torch.ones_like(input.atom_thin_mask)
-        case _:
-            raise AssertionError(f"{atom_selector=} not supported")
-
-    if residue_selector is not None:
+    if callable(residue_selector):
         residue_mask = residue_selector(input, **residue_selector_kwargs)
-    else:
+    elif isinstance(residue_selector, Tensor):
+        residue_mask = residue_selector
+    elif residue_selector is None:
         residue_mask = torch.ones_like(input.padding_mask)
+    else:
+        raise AssertionError(f"{type(residue_selector)=} not supported")
+
+    if callable(atom_selector):
+        atom_thin_mask = atom_selector(input)
+    elif isinstance(atom_selector, Tensor):
+        atom_thin_mask = atom_selector
+    elif atom_selector is None:
+        atom_thin_mask = torch.ones_like(input.atom_thin_mask)
+    else:
+        raise AssertionError(f"{type(atom_selector)=} not supported")
 
     atom_thin_mask = atom_thin_mask & input.atom_thin_mask
     atom_thin_mask = atom_thin_mask & target.atom_thin_mask
@@ -101,24 +88,27 @@ def superimpose(
     fixed: ResidueArray,
     mobile: ResidueArray,
     residue_selector: Callable[[ResidueArray], Tensor] | None = None,
-    atom_selector: Literal["c_alpha", "all"] = "all",
+    atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     rename_symmetric_atoms: bool = True,
     **residue_selector_kwargs,
 ) -> tuple[ResidueArray, Rigid, Tensor]:
-    match atom_selector:
-        case "c_alpha":
-            atom_thin_mask = _atom_name_mask("CA", device=mobile.residue_type.device)[
-                mobile.residue_type
-            ]
-        case "all":
-            atom_thin_mask = torch.ones_like(mobile.atom_thin_mask)
-        case _:
-            raise AssertionError(f"{atom_selector=} not supported")
-
-    if residue_selector is not None:
-        residue_mask = residue_selector(mobile, **residue_selector_kwargs)
+    if callable(residue_selector):
+        residue_mask = residue_selector(fixed, **residue_selector_kwargs)
+    elif isinstance(residue_selector, Tensor):
+        residue_mask = residue_selector
+    elif residue_selector is None:
+        residue_mask = torch.ones_like(fixed.padding_mask)
     else:
-        residue_mask = torch.ones_like(mobile.padding_mask)
+        raise AssertionError(f"{type(residue_selector)=} not supported")
+
+    if callable(atom_selector):
+        atom_thin_mask = atom_selector(fixed)
+    elif isinstance(atom_selector, Tensor):
+        atom_thin_mask = atom_selector
+    elif atom_selector is None:
+        atom_thin_mask = torch.ones_like(fixed.atom_thin_mask)
+    else:
+        raise AssertionError(f"{type(atom_selector)=} not supported")
 
     if rename_symmetric_atoms:
         mobile_atom_thin_xyz = _rename_symmetric_atoms(

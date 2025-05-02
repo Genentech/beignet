@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Callable
+
+from torch import Tensor
 
 from .. import ResidueArray, rmsd, superimpose
 from ..residue_selectors import CDRResidueSelector, ChainSelector
@@ -24,7 +26,7 @@ class AntibodyRMSDDescriptors:
         target: ResidueArray,
         heavy_chain: str | None = "H",
         light_chain: str | None = "L",
-        atom_selector: Literal["c_alpha", "all"] = "all",
+        atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     ):
         chains = []
         if heavy_chain is not None:
