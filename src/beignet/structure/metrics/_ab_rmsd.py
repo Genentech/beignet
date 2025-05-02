@@ -36,7 +36,11 @@ class AntibodyRMSDDescriptors:
             chains.append(light_chain)
 
         predicted, _, full_ab_rmsd = superimpose(
-            target, predicted, atom_selector=atom_selector, rename_symmetric_atoms=True
+            target,
+            predicted,
+            residue_selector=ChainSelector(chains),
+            atom_selector=atom_selector,
+            rename_symmetric_atoms=True,
         )
 
         full_ab_rmsd = full_ab_rmsd.item()
