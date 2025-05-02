@@ -6,11 +6,8 @@ import optree
 import torch
 from biotite.structure.io import pdbx
 
-from beignet import pad_to_target_length
 from beignet.constants import ATOM_THIN_ATOMS
-from beignet.structure import ResidueArray, Rigid
-from beignet.structure._rename_symmetric_atoms import _swap_symmetric_atom_thin_atoms
-from beignet.structure.residue_selectors import ChainSelector
+from beignet.structure import ResidueArray
 
 
 def test_atom_thin_atoms():
@@ -227,78 +224,3 @@ def test_residue_array_type_conversion(structure_7k7r_pdb):
     assert p.atom_thin_xyz.dtype == torch.float64
     assert p.occupancy.dtype == torch.float64
     assert p.b_factor.dtype == torch.float64
-
-
-def test_residue_array_kabsch(structure_7k7r_pdb):
-    p = ResidueArray.from_pdb(structure_7k7r_pdb)
-    T = Rigid.rand(1)
-
-    p_T = dataclasses.replace(p, atom_thin_xyz=T(p.atom_thin_xyz))
-
-    T_kabsch = p.kabsch(p_T)
-    torch.testing.assert_close(T_kabsch.t, T.t, atol=1e-4, rtol=1e-4)
-    torch.testing.assert_close(T_kabsch.r, T.r, atol=1e-4, rtol=1e-4)
-
-
-def test_residue_array_rmsd(structure_7k7r_pdb):
-    p = ResidueArray.from_pdb(structure_7k7r_pdb)
-    T = Rigid.rand()
-
-    p_T = dataclasses.replace(
-        p,
-        atom_thin_xyz=_swap_symmetric_atom_thin_atoms(
-            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
-        )[0],
-    )
-
-    rmsd = p.rmsd(p_T, align=False, optimize_ambiguous_atoms=False)
-    assert rmsd.item() > 1.0
-
-    rmsd = p.rmsd(p_T, align=False, optimize_ambiguous_atoms=True)
-    assert rmsd.item() > 1.0
-
-    rmsd = p.rmsd(p_T, align=True, optimize_ambiguous_atoms=False)
-    assert rmsd.item() > 1e-2
-
-    rmsd = p.rmsd(p_T, align=True, optimize_ambiguous_atoms=True)
-    assert rmsd.item() < 1e-4
-
-
-def test_residue_array_rmsd_batched(structure_7k7r_pdb):
-    p = ResidueArray.from_pdb(structure_7k7r_pdb)
-    T = Rigid.rand()
-
-    p_T = dataclasses.replace(
-        p,
-        atom_thin_xyz=_swap_symmetric_atom_thin_atoms(
-            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
-        )[0],
-    )
-
-    batch = torch.stack(
-        [
-            optree.tree_map(
-                lambda x: pad_to_target_length(x, target_length=256),
-                p[ChainSelector([c])],
-                namespace="beignet",
-            )
-            for c in p.chain_id_list
-        ]
-    )
-
-    batch_T = torch.stack(
-        [
-            optree.tree_map(
-                lambda x: pad_to_target_length(x, target_length=256),
-                p_T[ChainSelector([c])],
-                namespace="beignet",
-            )
-            for c in p.chain_id_list
-        ]
-    )
-
-    rmsd = batch.rmsd(batch_T, align=True, optimize_ambiguous_atoms=True)
-
-    assert rmsd.shape == (6,)
-
-    assert (rmsd < 1e-4).all()

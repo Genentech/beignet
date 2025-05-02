@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from .. import ResidueArray
+from .. import ResidueArray, rmsd, superimpose
 from ..residue_selectors import CDRResidueSelector, ChainSelector
 
 
@@ -33,41 +33,22 @@ class AntibodyRMSDDescriptors:
         if light_chain is not None:
             chains.append(light_chain)
 
-        match atom_selector:
-            case "c_alpha":
-                optimize_ambiguous_atoms = False
-            case "all":
-                optimize_ambiguous_atoms = True
-            case _:
-                raise RuntimeError(f"{atom_selector=} not supported")
-
-        predicted = predicted.align_to(
-            target,
-            residue_selector=ChainSelector(chains),
-            atom_selector=atom_selector,
-            align=True,
-            optimize_ambiguous_atoms=optimize_ambiguous_atoms,
+        predicted, _, full_ab_rmsd = superimpose(
+            target, predicted, atom_selector=atom_selector, rename_symmetric_atoms=True
         )
 
-        full_ab_rmsd = predicted.rmsd(
-            target,
-            residue_selector=ChainSelector(chains),
-            atom_selector=atom_selector,
-            align=False,
-            optimize_ambiguous_atoms=False,
-        ).item()
+        full_ab_rmsd = full_ab_rmsd.item()
 
         if heavy_chain is not None:
-            fv_heavy_rmsd = predicted.rmsd(
+            fv_heavy_rmsd = rmsd(
+                predicted,
                 target,
                 residue_selector=ChainSelector([heavy_chain]),
                 atom_selector=atom_selector,
-                align=False,
-                optimize_ambiguous_atoms=False,
             ).item()
-
             heavy_cdr_rmsds = {
-                f"cdr_h{i}_rmsd": predicted.rmsd(
+                f"cdr_h{i}_rmsd": rmsd(
+                    predicted,
                     target,
                     residue_selector=CDRResidueSelector(
                         which_cdrs=[f"H{i}"],
@@ -75,8 +56,7 @@ class AntibodyRMSDDescriptors:
                         light_chain=light_chain,
                     ),
                     atom_selector=atom_selector,
-                    align=False,
-                    optimize_ambiguous_atoms=False,
+                    rename_symmetric_atoms=False,
                 ).item()
                 for i in (1, 2, 3)
             }
@@ -85,16 +65,15 @@ class AntibodyRMSDDescriptors:
             heavy_cdr_rmsds = {}
 
         if light_chain is not None:
-            fv_light_rmsd = predicted.rmsd(
+            fv_light_rmsd = rmsd(
+                predicted,
                 target,
                 residue_selector=ChainSelector([light_chain]),
                 atom_selector=atom_selector,
-                align=False,
-                optimize_ambiguous_atoms=False,
             ).item()
-
             light_cdr_rmsds = {
-                f"cdr_l{i}_rmsd": predicted.rmsd(
+                f"cdr_l{i}_rmsd": rmsd(
+                    predicted,
                     target,
                     residue_selector=CDRResidueSelector(
                         which_cdrs=[f"L{i}"],
@@ -102,8 +81,7 @@ class AntibodyRMSDDescriptors:
                         light_chain=light_chain,
                     ),
                     atom_selector=atom_selector,
-                    align=False,
-                    optimize_ambiguous_atoms=False,
+                    rename_symmetric_atoms=False,
                 ).item()
                 for i in (1, 2, 3)
             }

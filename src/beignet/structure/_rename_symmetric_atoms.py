@@ -41,7 +41,7 @@ def _make_atom_thin_is_symmetric_mask() -> list[int]:
     return out
 
 
-def _swap_symmetric_atom_thin_atoms(
+def swap_symmetric_atom_thin_atoms(
     residue_type: Tensor, atom_thin_xyz: Tensor, atom_thin_mask: Tensor | None = None
 ) -> tuple[Tensor, Tensor | None]:
     symmetric_swap_indices = torch.as_tensor(
@@ -73,7 +73,7 @@ def rename_symmetric_atoms(
     atom_thin_xyz_reference: Tensor,
     eps: float = 1e-12,
 ):
-    atom_thin_xyz_alt, _ = _swap_symmetric_atom_thin_atoms(
+    atom_thin_xyz_alt, _ = swap_symmetric_atom_thin_atoms(
         residue_type, atom_thin_xyz, atom_thin_mask
     )
 
