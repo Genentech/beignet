@@ -314,6 +314,7 @@ from ._quaternion_to_rotation_matrix import (
 from ._quaternion_to_rotation_vector import (
     quaternion_to_rotation_vector,
 )
+from ._radius import radius, radius_graph
 from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
@@ -573,6 +574,8 @@ __all__ = [
     "quaternion_to_euler_angle",
     "quaternion_to_rotation_matrix",
     "quaternion_to_rotation_vector",
+    "radius",
+    "radius_graph",
     "random_euler_angle",
     "random_quaternion",
     "random_rotation_matrix",
