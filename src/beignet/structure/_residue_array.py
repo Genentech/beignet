@@ -1,4 +1,3 @@
-import dataclasses
 import functools
 import io
 import operator
@@ -26,34 +25,6 @@ restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
 n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
 HANDLED_FUNCTIONS = {}
-
-
-def _gapped_domain_to_numbering(
-    gapped: str,
-    full: str,
-    pre_gap: int = 0,
-    post_gap: int = 0,
-) -> list[tuple[int, str]]:
-    domain = gapped.replace("-", "")
-    start = full.find(domain)
-    if start == -1:
-        raise RuntimeError("gapped not found in full")
-
-    pre = [i - pre_gap for i in range(-start, 0)]
-    mid = [i for i, r in enumerate(gapped) if r != "-"]
-    post = [
-        i + post_gap
-        for i in range(len(gapped), len(gapped) + (len(full) - len(domain) - start))
-    ]
-
-    out = pre + mid + post
-
-    if not len(out) == len(full):
-        raise AssertionError(f"{len(out)=} != {len(full)}")
-
-    # convert to one indexed
-    # NOTE no insertion codes
-    return [(i + 1, "") for i in out]
 
 
 def implements(torch_function):
@@ -438,68 +409,6 @@ class ResidueArray:
             self,
             namespace="beignet",
         )
-
-    def renumber(self, numbering: dict[str, list[tuple[int, str]]]):
-        """Renumber ResidueArray.
-
-        Parameters
-        ----------
-        numbering: dict[str, list[tuple[int, str]]]
-            Dictionary mapping from chain ids to lists of
-            (index, insertion_code) tuples.
-
-        Returns
-        -------
-        ResidueArray
-            New object with `author_seq_id` and `author_ins_code` fields updated
-        """
-        if self.ndim != 1:
-            raise RuntimeError(
-                f"ResidueArray.renumber only supported for ndim == 1 {self.ndim=}"
-            )
-
-        author_seq_id = self.author_seq_id
-        author_ins_code = self.author_ins_code
-
-        chain_ids = self.chain_id_list
-        for chain, chain_numbering in numbering.items():
-            if chain not in chain_ids:
-                raise KeyError(f"{chain=} not in structure {chain_ids=}")
-
-            chain_mask = self.chain_id == short_string_to_int(chain)
-            chain_length = chain_mask.sum().item()
-
-            if chain_length != len(chain_numbering):
-                raise AssertionError(
-                    f"{chain=}: {chain_length=} != {len(chain_numbering)=}"
-                )
-
-            ids, ins = list(zip(*chain_numbering, strict=True))
-            ids = torch.as_tensor(
-                ids, dtype=torch.int64, device=self.author_seq_id.device
-            )
-            ins = torch.frombuffer(
-                bytearray(numpy.array(ins).astype("|S8").tobytes()), dtype=torch.int64
-            ).to(device=self.author_ins_code.device)
-
-            author_seq_id = torch.masked_scatter(author_seq_id, chain_mask, ids)
-            author_ins_code = torch.masked_scatter(author_ins_code, chain_mask, ins)
-
-        return dataclasses.replace(
-            self, author_seq_id=author_seq_id, author_ins_code=author_ins_code
-        )
-
-    def renumber_from_gapped_domain(
-        self, gapped: dict[str, str], pre_gap: int = 0, post_gap: int = 0
-    ):
-        sequence = self.sequence
-        numbering = {
-            k: _gapped_domain_to_numbering(
-                gapped=v, full=sequence[k], pre_gap=pre_gap, post_gap=post_gap
-            )
-            for k, v in gapped.items()
-        }
-        return self.renumber(numbering)
 
 
 @implements(torch.cat)

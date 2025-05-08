@@ -1,7 +1,7 @@
 import torch
 
 from beignet.constants import CDR_RANGES_AHO
-from beignet.structure import ResidueArray
+from beignet.structure import ResidueArray, renumber_from_gapped
 from beignet.structure.residue_selectors import (
     CDRResidueSelector,
     ChainSelector,
@@ -33,7 +33,7 @@ def test_chain_selector_from_annotation(structure_7k7r_cif):
 
 def test_renumber_residue_array(structure_7k7r_pdb, gapped_aho_7k7r):
     p = ResidueArray.from_pdb(structure_7k7r_pdb)
-    renumbered = p.renumber_from_gapped_domain(gapped_aho_7k7r)
+    renumbered = renumber_from_gapped(p, gapped_aho_7k7r)
 
     assert not torch.equal(p.author_seq_id, renumbered.author_seq_id)
 
@@ -42,7 +42,7 @@ def test_cdr_residue_selector(structure_7k7r_cif, gapped_aho_7k7r):
     p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    p = p.renumber_from_gapped_domain(gapped_aho_7k7r)
+    p = renumber_from_gapped(p, gapped_aho_7k7r)
 
     for cdr in [f"H{i}" for i in (1, 2, 3, 4)]:
         expected = gapped_aho_7k7r["B"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
