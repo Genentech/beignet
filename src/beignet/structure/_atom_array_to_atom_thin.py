@@ -44,7 +44,7 @@ def atom_array_to_atom_thin(
     chains = torch.frombuffer(
         bytearray(biotite.structure.get_chains(array).astype("|S8").tobytes()),
         dtype=torch.int64,
-    )
+    ).to(device=device)
 
     residue_starts = biotite.structure.get_residue_starts(array)
     L = len(residue_starts)
@@ -57,7 +57,9 @@ def atom_array_to_atom_thin(
     if use_label_seq_id:
         if "label_seq_id" not in array.get_annotation_categories():
             raise KeyError("label_seq_id not in annotations")
-        label_seq_id = torch.from_numpy(array.label_seq_id.astype(int)[residue_starts])
+        label_seq_id = torch.from_numpy(
+            array.label_seq_id.astype(int)[residue_starts]
+        ).to(device=device)
         residue_index = label_seq_id - 1  # adjust to zero based indexing
     else:
         # residue_index goes from [0, ..., C-1] for each chain
@@ -77,7 +79,7 @@ def atom_array_to_atom_thin(
     author_ins_code = torch.frombuffer(
         bytearray(array.ins_code[residue_starts].astype("|S8").tobytes()),
         dtype=torch.int64,
-    )
+    ).to(device=device)
 
     residue_type = torch.tensor(
         [
