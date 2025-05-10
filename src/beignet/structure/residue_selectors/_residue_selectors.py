@@ -10,6 +10,13 @@ from .._short_string import short_string_to_int
 
 
 @dataclass
+class AllSelector:
+    def __call__(self, input: ResidueArray, **_):
+        mask = torch.ones_like(input.chain_id, dtype=torch.bool)
+        return mask
+
+
+@dataclass
 class ChainSelector:
     which_chains: list[str]
 

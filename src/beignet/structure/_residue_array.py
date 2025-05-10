@@ -365,7 +365,7 @@ class ResidueArray:
             return NotImplemented
         return HANDLED_FUNCTIONS[func](*args, **kwargs)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> "ResidueArray":
         if callable(key):
             return self[key(self)]
         return optree.tree_map(

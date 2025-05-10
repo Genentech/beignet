@@ -1,4 +1,5 @@
 from ._residue_selectors import (
+    AllSelector,
     CDRResidueSelector,
     ChainSelector,
     ChainSelectorFromAnnotations,
@@ -6,6 +7,7 @@ from ._residue_selectors import (
 )
 
 __all__ = [
+    "AllSelector",
     "CDRResidueSelector",
     "ChainSelector",
     "ChainSelectorFromAnnotations",
