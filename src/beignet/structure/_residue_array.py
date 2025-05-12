@@ -1,6 +1,7 @@
 import functools
 import io
 import operator
+from typing import Callable
 
 import fastpdb
 import numpy
@@ -18,7 +19,10 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
+from ._renumber import renumber, renumber_from_gapped
+from ._rigid import Rigid
 from ._short_string import int_to_short_string, short_string_to_int
+from ._superimpose import rmsd, superimpose
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
@@ -408,6 +412,51 @@ class ResidueArray:
             ),
             self,
             namespace="beignet",
+        )
+
+    def renumber(
+        self: "ResidueArray", numbering: dict[str, list[tuple[int, str]]]
+    ) -> "ResidueArray":
+        return renumber(self, numbering)
+
+    def renumber_from_gapped(
+        self: "ResidueArray",
+        gapped: dict[str, str],
+        pre_gap: int = 0,
+        post_gap: int = 0,
+    ) -> "ResidueArray":
+        return renumber_from_gapped(self, gapped, pre_gap, post_gap)
+
+    def superimpose(
+        self,
+        mobile: "ResidueArray",
+        residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
+        atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+        rename_symmetric_atoms: bool = True,
+        **residue_selector_kwargs,
+    ) -> tuple["ResidueArray", Rigid, Tensor]:
+        return superimpose(
+            fixed=self,
+            mobile=mobile,
+            residue_selector=residue_selector,
+            atom_selector=atom_selector,
+            rename_symmetric_atoms=rename_symmetric_atoms,
+            **residue_selector_kwargs,
+        )
+
+    def rmsd(
+        self,
+        target: "ResidueArray",
+        residue_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+        atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+        **residue_selector_kwargs,
+    ) -> Tensor:
+        return rmsd(
+            input=self,
+            target=target,
+            residue_selector=residue_selector,
+            atom_selector=atom_selector,
+            **residue_selector_kwargs,
         )
 
 

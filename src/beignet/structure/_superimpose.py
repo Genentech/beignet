@@ -1,4 +1,5 @@
 import dataclasses
+import typing
 from typing import Callable
 
 import einops
@@ -9,8 +10,10 @@ from torch import Tensor
 from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 
 from ._rename_symmetric_atoms import rename_symmetric_atoms as _rename_symmetric_atoms
-from ._residue_array import ResidueArray
 from ._rigid import Rigid
+
+if typing.TYPE_CHECKING:
+    from ._residue_array import ResidueArray
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
@@ -49,10 +52,10 @@ def rmsd_atom_thin(
 
 
 def rmsd(
-    input: ResidueArray,
-    target: ResidueArray,
-    residue_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
-    atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    input: "ResidueArray",
+    target: "ResidueArray",
+    residue_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+    atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     **residue_selector_kwargs,
 ) -> Tensor:
     if callable(residue_selector):
@@ -85,13 +88,13 @@ def rmsd(
 
 
 def superimpose(
-    fixed: ResidueArray,
-    mobile: ResidueArray,
-    residue_selector: Callable[[ResidueArray], Tensor] | None = None,
-    atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    fixed: "ResidueArray",
+    mobile: "ResidueArray",
+    residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
+    atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     rename_symmetric_atoms: bool = True,
     **residue_selector_kwargs,
-) -> tuple[ResidueArray, Rigid, Tensor]:
+) -> tuple["ResidueArray", Rigid, Tensor]:
     if callable(residue_selector):
         residue_mask = residue_selector(fixed, **residue_selector_kwargs)
     elif isinstance(residue_selector, Tensor):

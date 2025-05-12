@@ -1,11 +1,14 @@
 import dataclasses
+import typing
 
 import numpy
 import torch
 from torch import Tensor
 
-from ._residue_array import ResidueArray
 from ._short_string import short_string_to_int
+
+if typing.TYPE_CHECKING:
+    from ._residue_array import ResidueArray
 
 
 def _gapped_domain_to_numbering(
@@ -93,8 +96,8 @@ def _renumber_from_gapped(
 
 
 def renumber(
-    input: ResidueArray, numbering: dict[str, list[tuple[int, str]]]
-) -> ResidueArray:
+    input: "ResidueArray", numbering: dict[str, list[tuple[int, str]]]
+) -> "ResidueArray":
     author_seq_id, author_ins_code = _renumber(
         numbering,
         chain_id=input.chain_id,
@@ -110,17 +113,19 @@ def renumber(
 
 
 def renumber_from_gapped(
-    input: ResidueArray,
+    input: "ResidueArray",
     gapped: dict[str, str],
     pre_gap: int = 0,
     post_gap: int = 0,
-) -> ResidueArray:
+) -> "ResidueArray":
     author_seq_id, author_ins_code = _renumber_from_gapped(
         gapped=gapped,
         sequence=input.sequence,
         chain_id=input.chain_id,
         author_seq_id=input.author_seq_id,
         author_ins_code=input.author_ins_code,
+        pre_gap=pre_gap,
+        post_gap=post_gap,
     )
 
     return dataclasses.replace(
