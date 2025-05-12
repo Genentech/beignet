@@ -1,5 +1,3 @@
-import itertools
-
 import biotite.structure
 import numpy
 import torch
@@ -99,12 +97,14 @@ def atom_array_to_atom_thin(
         device=device,
     )
 
-    # NOTE no OXT
-    known_atom_types = set(itertools.chain.from_iterable(ATOM_THIN_ATOMS.values()))
-
     # check which atoms we actually know about
     known_atom_mask = numpy.any(
-        numpy.array([array.atom_name == name for name in known_atom_types]),
+        numpy.array(
+            [
+                numpy.isin(array.atom_name, v) & (array.res_name == k)
+                for k, v in ATOM_THIN_ATOMS.items()
+            ]
+        ),
         axis=0,
     )
 
