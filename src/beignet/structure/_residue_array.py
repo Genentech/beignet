@@ -459,6 +459,21 @@ class ResidueArray:
             **residue_selector_kwargs,
         )
 
+    def cat(self, dim=0):
+        return torch.cat(self, dim=dim)
+
+    def stack(self, dim=0):
+        return torch.stack(self, dim=dim)
+
+    def unbind(self, dim=0):
+        return torch.unbind(self, dim=dim)
+
+    def unsqueeze(self, dim: int):
+        return torch.unsqueeze(self, dim=dim)
+
+    def squeeze(self, dim: int):
+        return torch.squeeze(self, dim=dim)
+
 
 @implements(torch.cat)
 def cat(input, dim=0):
@@ -484,7 +499,7 @@ def unbind(input, dim=0):
 @implements(torch.unsqueeze)
 def unsqueeze(input, dim: int):
     if dim < 0:
-        dim = input.shape - dim
+        dim = input.ndim + dim + 1
     return optree.tree_map(
         lambda x: torch.unsqueeze(x, dim=dim), input, namespace="beignet"
     )
@@ -493,7 +508,7 @@ def unsqueeze(input, dim: int):
 @implements(torch.squeeze)
 def squeeze(input, dim: int):
     if dim < 0:
-        dim = input.shape - dim
+        dim = input.ndim + dim + 1
     return optree.tree_map(
         lambda x: torch.squeeze(x, dim=dim), input, namespace="beignet"
     )
