@@ -19,6 +19,7 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
+from ._rename_chains import rename_chains
 from ._renumber import renumber, renumber_from_gapped
 from ._rigid import Rigid
 from ._short_string import int_to_short_string, short_string_to_int
@@ -458,6 +459,9 @@ class ResidueArray:
             atom_selector=atom_selector,
             **residue_selector_kwargs,
         )
+
+    def rename_chains(self, mapping: dict[str, str]) -> "ResidueArray":
+        return rename_chains(self, mapping=mapping)
 
     def cat(self, dim=0):
         return torch.cat(self, dim=dim)
