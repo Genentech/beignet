@@ -17,6 +17,16 @@ def _atom_thin_to_contact_matrix(
     atom_mask_B: Tensor | None = None,
     radius_cutoff: float = 10.0,
 ):
+    if atom_thin_xyz.ndim == 4:
+        has_batch = True
+    elif atom_thin_xyz.ndim == 3:
+        has_batch = False
+        # temporarily add batch dimension
+        atom_thin_xyz = atom_thin_xyz[None]
+        atom_thin_mask = atom_thin_mask[None]
+    else:
+        raise RuntimeError(f"{atom_thin_xyz.ndim=} not supported")
+
     B, L, _, _ = atom_thin_xyz.shape
     device = atom_thin_xyz.device
 
@@ -65,6 +75,9 @@ def _atom_thin_to_contact_matrix(
 
     # symmetrize
     contact_matrix = (contact_matrix + torch.transpose(contact_matrix, -2, -1)) > 0
+
+    if not has_batch:
+        contact_matrix = contact_matrix.view(L, L)
 
     return contact_matrix
 
