@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Callable, Literal
 
 import torch
+from torch import Tensor
 
 from beignet.constants import CDR_RANGES_AHO
 
+from .._contact_matrix import contact_matrix
 from .._residue_array import ResidueArray
 from .._short_string import short_string_to_int
 
@@ -13,7 +15,7 @@ from .._short_string import short_string_to_int
 class AllSelector:
     def __call__(self, input: ResidueArray, **_):
         mask = torch.ones_like(input.chain_id, dtype=torch.bool)
-        return mask
+        return mask[..., None]
 
 
 @dataclass
@@ -24,7 +26,7 @@ class ChainSelector:
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
         for c in self.which_chains:
             mask = mask | (input.chain_id == short_string_to_int(c))
-        return mask
+        return mask[..., None]
 
 
 @dataclass
@@ -37,7 +39,7 @@ class ChainSelectorFromAnnotations:
         if which_chains is not None:
             for c in which_chains:
                 mask = mask | (input.chain_id == short_string_to_int(c))
-        return mask
+        return mask[..., None]
 
 
 @dataclass
@@ -55,7 +57,7 @@ class ResidueIndexSelector:
                     torch.as_tensor(resids, device=mask.device, dtype=torch.int64),
                 )
             )
-        return mask
+        return mask[..., None]
 
 
 @dataclass
@@ -87,4 +89,23 @@ class CDRResidueSelector:
                     torch.as_tensor(resids, device=mask.device, dtype=torch.int64),
                 )
             )
-        return mask
+        return mask[..., None]
+
+
+@dataclass
+class InterfaceResidueSelector:
+    selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None
+    selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None
+    radius_cutoff: float = 10.0
+
+    def __call__(self, input: ResidueArray, **_):
+        contacts = contact_matrix(
+            input,
+            selector_A=self.selector_A,
+            selector_B=self.selector_B,
+            radius_cutoff=self.radius_cutoff,
+        )
+
+        is_in_interface = torch.sum(contacts, dim=-1) > 0
+
+        return is_in_interface

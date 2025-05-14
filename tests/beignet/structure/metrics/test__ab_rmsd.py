@@ -2,7 +2,7 @@ import dataclasses
 
 from beignet.structure import ResidueArray, Rigid, swap_symmetric_atom_thin_atoms
 from beignet.structure.metrics import AntibodyRMSDDescriptors
-from beignet.structure.residue_selectors import ChainSelector
+from beignet.structure.selectors import ChainSelector
 
 
 def test_antibody_rmsd_descriptors(structure_7k7r_pdb):

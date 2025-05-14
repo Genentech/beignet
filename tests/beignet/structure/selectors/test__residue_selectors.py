@@ -2,10 +2,12 @@ import torch
 
 from beignet.constants import CDR_RANGES_AHO
 from beignet.structure import ResidueArray, renumber_from_gapped
-from beignet.structure.residue_selectors import (
+from beignet.structure.selectors import (
+    AndSelector,
     CDRResidueSelector,
     ChainSelector,
     ChainSelectorFromAnnotations,
+    ProteinBackboneSelector,
 )
 
 
@@ -24,10 +26,12 @@ def test_chain_selector_from_annotation(structure_7k7r_cif):
     p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A"]})]
+    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A"]}).any(dim=-1)]
     assert selected.chain_id_list == ["A"]
 
-    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A", "D"]})]
+    selected = p[
+        ChainSelectorFromAnnotations("foo")(p, {"foo": ["A", "D"]}).any(dim=-1)
+    ]
     assert selected.chain_id_list == ["A", "D"]
 
 
@@ -59,3 +63,19 @@ def test_cdr_residue_selector(structure_7k7r_cif, gapped_aho_7k7r):
         )
         selected = p[selector]
         assert selected.sequence[selector.light_chain] == expected
+
+
+def test_and_selector(structure_7k7r_cif):
+    p = ResidueArray.from_mmcif(structure_7k7r_cif)
+
+    selector1 = ChainSelector(["A"])
+    selector2 = ProteinBackboneSelector()
+
+    mask1 = selector1(p)
+    mask2 = selector2(p)
+
+    ref = mask1 & mask2
+
+    mask1and2 = AndSelector(selector1, selector2)(p)
+
+    assert torch.equal(mask1and2, ref)

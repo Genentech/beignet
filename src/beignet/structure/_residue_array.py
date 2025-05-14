@@ -372,7 +372,9 @@ class ResidueArray:
 
     def __getitem__(self, key) -> "ResidueArray":
         if callable(key):
-            return self[key(self)]
+            mask = key(self)
+            residue_mask = mask.any(dim=-1)
+            return self[residue_mask]
         return optree.tree_map(
             lambda x: operator.getitem(x, key), self, namespace="beignet"
         )

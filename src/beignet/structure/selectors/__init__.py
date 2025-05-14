@@ -1,3 +1,9 @@
+from ._atom_selectors import (
+    AllAtomSelector,
+    AlphaCarbonSelector,
+    ProteinBackboneSelector,
+)
+from ._logical import AndSelector
 from ._residue_selectors import (
     AllSelector,
     CDRResidueSelector,
@@ -7,9 +13,13 @@ from ._residue_selectors import (
 )
 
 __all__ = [
+    "AllAtomSelector",
     "AllSelector",
+    "AndSelector",
+    "AlphaCarbonSelector",
     "CDRResidueSelector",
     "ChainSelector",
     "ChainSelectorFromAnnotations",
+    "ProteinBackboneSelector",
     "ResidueIndexSelector",
 ]

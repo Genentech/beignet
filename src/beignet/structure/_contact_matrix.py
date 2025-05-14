@@ -11,10 +11,8 @@ from ._residue_array import ResidueArray
 def _atom_thin_to_contact_matrix(
     atom_thin_xyz: Tensor,
     atom_thin_mask: Tensor,
-    residue_mask_A: Tensor | None = None,
-    residue_mask_B: Tensor | None = None,
-    atom_mask_A: Tensor | None = None,
-    atom_mask_B: Tensor | None = None,
+    mask_A: Tensor | None = None,
+    mask_B: Tensor | None = None,
     radius_cutoff: float = 10.0,
 ):
     if atom_thin_xyz.ndim == 4:
@@ -30,17 +28,15 @@ def _atom_thin_to_contact_matrix(
     B, L, _, _ = atom_thin_xyz.shape
     device = atom_thin_xyz.device
 
-    mask_A = atom_thin_mask
-    if residue_mask_A is not None:
-        mask_A = mask_A & residue_mask_A[..., None]
-    if atom_mask_A is not None:
-        mask_A = mask_A & atom_mask_A
+    if mask_A is None:
+        mask_A = atom_thin_mask
+    else:
+        mask_A = mask_A & atom_thin_mask
 
-    mask_B = atom_thin_mask
-    if residue_mask_B is not None:
-        mask_B = mask_B & residue_mask_B[..., None]
-    if atom_mask_B is not None:
-        mask_B = mask_B & atom_mask_B
+    if mask_B is None:
+        mask_B = atom_thin_mask
+    else:
+        mask_B = mask_B & atom_thin_mask
 
     batch_A, residue_A, _ = torch.nonzero(mask_A, as_tuple=True)
     batch_B, residue_B, _ = torch.nonzero(mask_B, as_tuple=True)
@@ -84,55 +80,33 @@ def _atom_thin_to_contact_matrix(
 
 def contact_matrix(
     input: ResidueArray,
-    residue_selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None,
-    residue_selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None,
-    atom_selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None,
-    atom_selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     radius_cutoff: float = 10.0,
-    **residue_selector_kwargs,
+    **selector_kwargs,
 ) -> Tensor:
-    if callable(residue_selector_A):
-        residue_mask_A = residue_selector_A(input, **residue_selector_kwargs)
-    elif isinstance(residue_selector_A, Tensor):
-        residue_mask_A = residue_selector_A
-    elif residue_selector_A is None:
-        residue_mask_A = None
+    if callable(selector_A):
+        mask_A = selector_A(input, **selector_kwargs)
+    elif isinstance(selector_A, Tensor):
+        mask_A = selector_A
+    elif selector_A is None:
+        mask_A = None
     else:
-        raise AssertionError(f"{type(residue_selector_A)=} not supported")
+        raise AssertionError(f"{type(selector_A)=} not supported")
 
-    if callable(residue_selector_B):
-        residue_mask_B = residue_selector_B(input, **residue_selector_kwargs)
-    elif isinstance(residue_selector_B, Tensor):
-        residue_mask_B = residue_selector_B
-    elif residue_selector_B is None:
-        residue_mask_B = None
+    if callable(selector_B):
+        mask_B = selector_B(input, **selector_kwargs)
+    elif isinstance(selector_B, Tensor):
+        mask_B = selector_B
+    elif selector_B is None:
+        mask_B = None
     else:
-        raise AssertionError(f"{type(residue_selector_B)=} not supported")
-
-    if callable(atom_selector_A):
-        atom_mask_A = atom_selector_A(input)
-    elif isinstance(atom_selector_A, Tensor):
-        atom_mask_A = atom_selector_A
-    elif atom_selector_A is None:
-        atom_mask_A = None
-    else:
-        raise AssertionError(f"{type(atom_selector_A)=} not supported")
-
-    if callable(atom_selector_B):
-        atom_mask_B = atom_selector_B(input)
-    elif isinstance(atom_selector_B, Tensor):
-        atom_mask_B = atom_selector_B
-    elif atom_selector_B is None:
-        atom_mask_B = None
-    else:
-        raise AssertionError(f"{type(atom_selector_B)=} not supported")
+        raise AssertionError(f"{type(selector_B)=} not supported")
 
     return _atom_thin_to_contact_matrix(
         atom_thin_xyz=input.atom_thin_xyz,
         atom_thin_mask=input.atom_thin_mask,
-        residue_mask_A=residue_mask_A,
-        residue_mask_B=residue_mask_B,
-        atom_mask_A=atom_mask_A,
-        atom_mask_B=atom_mask_B,
+        mask_A=mask_A,
+        mask_B=mask_B,
         radius_cutoff=radius_cutoff,
     )

@@ -4,7 +4,7 @@ from typing import Callable
 from torch import Tensor
 
 from .. import ResidueArray, rmsd, superimpose
-from ..residue_selectors import CDRResidueSelector, ChainSelector
+from ..selectors import CDRResidueSelector, ChainSelector
 
 
 @dataclass

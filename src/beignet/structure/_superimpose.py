@@ -54,31 +54,20 @@ def rmsd_atom_thin(
 def rmsd(
     input: "ResidueArray",
     target: "ResidueArray",
-    residue_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
-    atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
-    **residue_selector_kwargs,
+    selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+    **selector_kwargs,
 ) -> Tensor:
-    if callable(residue_selector):
-        residue_mask = residue_selector(input, **residue_selector_kwargs)
-    elif isinstance(residue_selector, Tensor):
-        residue_mask = residue_selector
-    elif residue_selector is None:
-        residue_mask = torch.ones_like(input.padding_mask)
-    else:
-        raise AssertionError(f"{type(residue_selector)=} not supported")
-
-    if callable(atom_selector):
-        atom_thin_mask = atom_selector(input)
-    elif isinstance(atom_selector, Tensor):
-        atom_thin_mask = atom_selector
-    elif atom_selector is None:
+    if callable(selector):
+        atom_thin_mask = selector(input, **selector_kwargs)
+    elif isinstance(selector, Tensor):
+        atom_thin_mask = selector
+    elif selector is None:
         atom_thin_mask = torch.ones_like(input.atom_thin_mask)
     else:
-        raise AssertionError(f"{type(atom_selector)=} not supported")
+        raise AssertionError(f"{type(selector)=} not supported")
 
     atom_thin_mask = atom_thin_mask & input.atom_thin_mask
     atom_thin_mask = atom_thin_mask & target.atom_thin_mask
-    atom_thin_mask = atom_thin_mask & residue_mask[..., None]
 
     return rmsd_atom_thin(
         atom_thin_xyz=input.atom_thin_xyz,
@@ -90,28 +79,18 @@ def rmsd(
 def superimpose(
     fixed: "ResidueArray",
     mobile: "ResidueArray",
-    residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
-    atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+    selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     rename_symmetric_atoms: bool = True,
-    **residue_selector_kwargs,
+    **selector_kwargs,
 ) -> tuple["ResidueArray", Rigid, Tensor]:
-    if callable(residue_selector):
-        residue_mask = residue_selector(fixed, **residue_selector_kwargs)
-    elif isinstance(residue_selector, Tensor):
-        residue_mask = residue_selector
-    elif residue_selector is None:
-        residue_mask = torch.ones_like(fixed.padding_mask)
-    else:
-        raise AssertionError(f"{type(residue_selector)=} not supported")
-
-    if callable(atom_selector):
-        atom_thin_mask = atom_selector(fixed)
-    elif isinstance(atom_selector, Tensor):
-        atom_thin_mask = atom_selector
-    elif atom_selector is None:
+    if callable(selector):
+        atom_thin_mask = selector(fixed, **selector_kwargs)
+    elif isinstance(selector, Tensor):
+        atom_thin_mask = selector
+    elif selector is None:
         atom_thin_mask = torch.ones_like(fixed.atom_thin_mask)
     else:
-        raise AssertionError(f"{type(atom_selector)=} not supported")
+        raise AssertionError(f"{type(selector)=} not supported")
 
     if rename_symmetric_atoms:
         mobile_atom_thin_xyz = _rename_symmetric_atoms(
@@ -125,7 +104,6 @@ def superimpose(
 
     atom_thin_mask = atom_thin_mask & mobile.atom_thin_mask
     atom_thin_mask = atom_thin_mask & fixed.atom_thin_mask
-    atom_thin_mask = atom_thin_mask & residue_mask[..., None]
 
     aligned_atom_thin_xyz, T = superimpose_atom_thin(
         fixed_atom_thin_xyz=fixed.atom_thin_xyz,

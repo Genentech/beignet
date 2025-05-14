@@ -8,8 +8,7 @@ from beignet.structure import (
     superimpose,
     swap_symmetric_atom_thin_atoms,
 )
-from beignet.structure.atom_selectors import AlphaCarbonSelector
-from beignet.structure.residue_selectors import ChainSelector
+from beignet.structure.selectors import AlphaCarbonSelector, ChainSelector
 
 
 def test_superimpose(structure_7k7r_pdb):
