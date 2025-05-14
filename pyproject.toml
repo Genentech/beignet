@@ -72,5 +72,6 @@ local_scheme = "no-local-version"
 
 [dependency-groups]
 dev = [
+    "ipykernel>=6.29.5",
     "ipython",
 ]
