@@ -7,7 +7,7 @@ from beignet.structure.selectors import (
     CDRResidueSelector,
     ChainFromAnnotationsSelector,
     ChainSelector,
-    ProteinBackboneSelector,
+    PeptideBackboneSelector,
 )
 
 
@@ -69,7 +69,7 @@ def test_and_selector(structure_7k7r_cif):
     p = ResidueArray.from_mmcif(structure_7k7r_cif)
 
     selector1 = ChainSelector(["A"])
-    selector2 = ProteinBackboneSelector()
+    selector2 = PeptideBackboneSelector()
 
     mask1 = selector1(p)
     mask2 = selector2(p)

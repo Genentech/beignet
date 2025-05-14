@@ -1,2 +1,2 @@
 from ._ab_rmsd import AntibodyRMSDDescriptors
-from ._dockq import dockq_contact_score
+from ._dockq import dockq_contact_score, dockq_irmsd_score

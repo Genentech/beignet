@@ -27,13 +27,13 @@ def test_superimpose(structure_7k7r_pdb):
     torch.testing.assert_close(T_kabsch.r, T.r, atol=1e-4, rtol=1e-4)
 
 
-def test_superimpose_with_atom_selector(structure_7k7r_pdb):
+def test_superimpose_with_selector(structure_7k7r_pdb):
     p = ResidueArray.from_pdb(structure_7k7r_pdb)
     T = Rigid.rand(1)
 
     p_T = dataclasses.replace(p, atom_thin_xyz=T(p.atom_thin_xyz))
 
-    _, T_kabsch, rmsd = superimpose(p_T, p, atom_selector=AlphaCarbonSelector())
+    _, T_kabsch, rmsd = superimpose(p_T, p, selector=AlphaCarbonSelector())
 
     print(f"{rmsd=}")
 

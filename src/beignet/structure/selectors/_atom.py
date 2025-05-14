@@ -18,9 +18,9 @@ def _atom_name_mask(atom_name: str, device=None) -> Tensor:
             (
                 torch.nn.functional.one_hot(
                     torch.as_tensor(v.index(atom_name), device=device), n_atom_thin
-                )
+                ).bool()
                 if atom_name in v
-                else torch.zeros(n_atom_thin, device=device, dtype=torch.int64)
+                else torch.zeros(n_atom_thin, device=device, dtype=torch.bool)
             )
             for v in ATOM_THIN_ATOMS.values()
         ]
@@ -28,19 +28,32 @@ def _atom_name_mask(atom_name: str, device=None) -> Tensor:
 
 
 @dataclass
-class AlphaCarbonSelector:
+class AtomNameSelector:
+    which_atoms: list[str]
+
     def __call__(self, input: "ResidueArray") -> Tensor:
-        mask = _atom_name_mask("CA", device=input.residue_type.device)[
-            input.residue_type
-        ]
+        mask = torch.zeros(
+            len(ATOM_THIN_ATOMS),
+            n_atom_thin,
+            device=input.residue_type.device,
+            dtype=torch.bool,
+        )
+
+        for atom_name in self.which_atoms:
+            mask = mask | _atom_name_mask(atom_name, device=input.residue_type.device)
+
+        mask = mask[input.residue_type]
+
         return mask
 
 
 @dataclass
-class ProteinBackboneSelector:
+class AlphaCarbonSelector:
     def __call__(self, input: "ResidueArray") -> Tensor:
-        mask = _atom_name_mask("CA", device=input.residue_type.device)
-        mask = mask | _atom_name_mask("C", device=input.residue_type.device)
-        mask = mask | _atom_name_mask("N", device=input.residue_type.device)
-        mask = mask[input.residue_type]
-        return mask
+        return AtomNameSelector(["CA"])(input)
+
+
+@dataclass
+class PeptideBackboneSelector:
+    def __call__(self, input: "ResidueArray") -> Tensor:
+        return AtomNameSelector(["CA", "C", "N"])(input)

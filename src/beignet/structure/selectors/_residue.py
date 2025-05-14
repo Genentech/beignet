@@ -111,4 +111,4 @@ class InterfaceResidueSelector:
 
         is_in_interface = torch.sum(contacts, dim=-1) > 0
 
-        return is_in_interface
+        return is_in_interface[..., None]
