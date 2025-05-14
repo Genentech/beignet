@@ -5,8 +5,8 @@ from beignet.structure import ResidueArray, renumber_from_gapped
 from beignet.structure.selectors import (
     AndSelector,
     CDRResidueSelector,
+    ChainFromAnnotationsSelector,
     ChainSelector,
-    ChainSelectorFromAnnotations,
     ProteinBackboneSelector,
 )
 
@@ -26,11 +26,11 @@ def test_chain_selector_from_annotation(structure_7k7r_cif):
     p = ResidueArray.from_mmcif(structure_7k7r_cif, use_seqres=False)
     assert p.chain_id_list == ["A", "B", "C", "D", "E", "F"]
 
-    selected = p[ChainSelectorFromAnnotations("foo")(p, {"foo": ["A"]}).any(dim=-1)]
+    selected = p[ChainFromAnnotationsSelector("foo")(p, {"foo": ["A"]}).any(dim=-1)]
     assert selected.chain_id_list == ["A"]
 
     selected = p[
-        ChainSelectorFromAnnotations("foo")(p, {"foo": ["A", "D"]}).any(dim=-1)
+        ChainFromAnnotationsSelector("foo")(p, {"foo": ["A", "D"]}).any(dim=-1)
     ]
     assert selected.chain_id_list == ["A", "D"]
 

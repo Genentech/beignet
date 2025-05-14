@@ -1,3 +1,4 @@
+import typing
 from typing import Callable
 
 import torch
@@ -5,7 +6,10 @@ from torch import Tensor
 
 from beignet import radius
 
-from ._residue_array import ResidueArray
+from ._invoke_selector import invoke_selector
+
+if typing.TYPE_CHECKING:
+    from ._residue_array import ResidueArray
 
 
 def _atom_thin_to_contact_matrix(
@@ -79,30 +83,14 @@ def _atom_thin_to_contact_matrix(
 
 
 def contact_matrix(
-    input: ResidueArray,
-    selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None,
-    selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    input: "ResidueArray",
+    selector_A: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+    selector_B: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     radius_cutoff: float = 10.0,
     **selector_kwargs,
 ) -> Tensor:
-    if callable(selector_A):
-        mask_A = selector_A(input, **selector_kwargs)
-    elif isinstance(selector_A, Tensor):
-        mask_A = selector_A
-    elif selector_A is None:
-        mask_A = None
-    else:
-        raise AssertionError(f"{type(selector_A)=} not supported")
-
-    if callable(selector_B):
-        mask_B = selector_B(input, **selector_kwargs)
-    elif isinstance(selector_B, Tensor):
-        mask_B = selector_B
-    elif selector_B is None:
-        mask_B = None
-    else:
-        raise AssertionError(f"{type(selector_B)=} not supported")
-
+    mask_A = invoke_selector(selector_A, input, **selector_kwargs)
+    mask_B = invoke_selector(selector_B, input, **selector_kwargs)
     return _atom_thin_to_contact_matrix(
         atom_thin_xyz=input.atom_thin_xyz,
         atom_thin_mask=input.atom_thin_mask,

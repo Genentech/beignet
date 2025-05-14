@@ -9,6 +9,7 @@ from torch import Tensor
 
 from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 
+from ._invoke_selector import invoke_selector
 from ._rename_symmetric_atoms import rename_symmetric_atoms as _rename_symmetric_atoms
 from ._rigid import Rigid
 
@@ -57,14 +58,7 @@ def rmsd(
     selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     **selector_kwargs,
 ) -> Tensor:
-    if callable(selector):
-        atom_thin_mask = selector(input, **selector_kwargs)
-    elif isinstance(selector, Tensor):
-        atom_thin_mask = selector
-    elif selector is None:
-        atom_thin_mask = torch.ones_like(input.atom_thin_mask)
-    else:
-        raise AssertionError(f"{type(selector)=} not supported")
+    atom_thin_mask = invoke_selector(selector, input, **selector_kwargs)
 
     atom_thin_mask = atom_thin_mask & input.atom_thin_mask
     atom_thin_mask = atom_thin_mask & target.atom_thin_mask
@@ -83,14 +77,7 @@ def superimpose(
     rename_symmetric_atoms: bool = True,
     **selector_kwargs,
 ) -> tuple["ResidueArray", Rigid, Tensor]:
-    if callable(selector):
-        atom_thin_mask = selector(fixed, **selector_kwargs)
-    elif isinstance(selector, Tensor):
-        atom_thin_mask = selector
-    elif selector is None:
-        atom_thin_mask = torch.ones_like(fixed.atom_thin_mask)
-    else:
-        raise AssertionError(f"{type(selector)=} not supported")
+    atom_thin_mask = invoke_selector(selector, fixed, **selector_kwargs)
 
     if rename_symmetric_atoms:
         mobile_atom_thin_xyz = _rename_symmetric_atoms(

@@ -4,7 +4,7 @@ from typing import Callable
 from torch import Tensor
 
 from .. import ResidueArray, rmsd, superimpose
-from ..selectors import CDRResidueSelector, ChainSelector
+from ..selectors import AndSelector, CDRResidueSelector, ChainSelector
 
 
 @dataclass
@@ -26,7 +26,7 @@ class AntibodyRMSDDescriptors:
         target: ResidueArray,
         heavy_chain: str | None = "H",
         light_chain: str | None = "L",
-        atom_selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+        selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     ):
         chains = []
         if heavy_chain is not None:
@@ -38,8 +38,7 @@ class AntibodyRMSDDescriptors:
         predicted, _, full_ab_rmsd = superimpose(
             target,
             predicted,
-            residue_selector=ChainSelector(chains),
-            atom_selector=atom_selector,
+            selector=AndSelector(ChainSelector(chains), selector),
             rename_symmetric_atoms=True,
         )
 
@@ -49,19 +48,20 @@ class AntibodyRMSDDescriptors:
             fv_heavy_rmsd = rmsd(
                 predicted,
                 target,
-                residue_selector=ChainSelector([heavy_chain]),
-                atom_selector=atom_selector,
+                selector=AndSelector(ChainSelector([heavy_chain]), selector),
             ).item()
             heavy_cdr_rmsds = {
                 f"cdr_h{i}_rmsd": rmsd(
                     predicted,
                     target,
-                    residue_selector=CDRResidueSelector(
-                        which_cdrs=[f"H{i}"],
-                        heavy_chain=heavy_chain,
-                        light_chain=light_chain,
+                    selector=AndSelector(
+                        CDRResidueSelector(
+                            which_cdrs=[f"H{i}"],
+                            heavy_chain=heavy_chain,
+                            light_chain=light_chain,
+                        ),
+                        selector,
                     ),
-                    atom_selector=atom_selector,
                     rename_symmetric_atoms=False,
                 ).item()
                 for i in (1, 2, 3)
@@ -74,19 +74,20 @@ class AntibodyRMSDDescriptors:
             fv_light_rmsd = rmsd(
                 predicted,
                 target,
-                residue_selector=ChainSelector([light_chain]),
-                atom_selector=atom_selector,
+                selector=AndSelector(ChainSelector([light_chain]), selector),
             ).item()
             light_cdr_rmsds = {
                 f"cdr_l{i}_rmsd": rmsd(
                     predicted,
                     target,
-                    residue_selector=CDRResidueSelector(
-                        which_cdrs=[f"L{i}"],
-                        heavy_chain=heavy_chain,
-                        light_chain=light_chain,
+                    selector=AndSelector(
+                        CDRResidueSelector(
+                            which_cdrs=[f"L{i}"],
+                            heavy_chain=heavy_chain,
+                            light_chain=light_chain,
+                        ),
+                        selector,
                     ),
-                    atom_selector=atom_selector,
                     rename_symmetric_atoms=False,
                 ).item()
                 for i in (1, 2, 3)

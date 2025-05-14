@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass
 from typing import Callable, Literal
 
@@ -7,13 +8,15 @@ from torch import Tensor
 from beignet.constants import CDR_RANGES_AHO
 
 from .._contact_matrix import contact_matrix
-from .._residue_array import ResidueArray
 from .._short_string import short_string_to_int
+
+if typing.TYPE_CHECKING:
+    from .. import ResidueArray
 
 
 @dataclass
 class AllSelector:
-    def __call__(self, input: ResidueArray, **_):
+    def __call__(self, input: "ResidueArray", **_):
         mask = torch.ones_like(input.chain_id, dtype=torch.bool)
         return mask[..., None]
 
@@ -22,7 +25,7 @@ class AllSelector:
 class ChainSelector:
     which_chains: list[str]
 
-    def __call__(self, input: ResidueArray, **_):
+    def __call__(self, input: "ResidueArray", **_):
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
         for c in self.which_chains:
             mask = mask | (input.chain_id == short_string_to_int(c))
@@ -30,10 +33,10 @@ class ChainSelector:
 
 
 @dataclass
-class ChainSelectorFromAnnotations:
+class ChainFromAnnotationsSelector:
     key: str
 
-    def __call__(self, input: ResidueArray, annotations: dict, **_):
+    def __call__(self, input: "ResidueArray", annotations: dict, **_):
         which_chains = annotations.get(self.key, None)
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
         if which_chains is not None:
@@ -46,7 +49,7 @@ class ChainSelectorFromAnnotations:
 class ResidueIndexSelector:
     selection: dict[str, list[int]]
 
-    def __call__(self, input: ResidueArray, **_):
+    def __call__(self, input: "ResidueArray", **_):
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
 
         for chain, resids in self.selection.items():
@@ -76,7 +79,7 @@ class CDRResidueSelector:
         if self.scheme not in {"aho"}:
             raise ValueError(f"{self.scheme=} not supported")
 
-    def __call__(self, input: ResidueArray, **_):
+    def __call__(self, input: "ResidueArray", **_):
         mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
 
         for cdr in self.which_cdrs:
@@ -94,11 +97,11 @@ class CDRResidueSelector:
 
 @dataclass
 class InterfaceResidueSelector:
-    selector_A: Callable[[ResidueArray], Tensor] | Tensor | None = None
-    selector_B: Callable[[ResidueArray], Tensor] | Tensor | None = None
+    selector_A: Callable[["ResidueArray"], Tensor] | Tensor | None = None
+    selector_B: Callable[["ResidueArray"], Tensor] | Tensor | None = None
     radius_cutoff: float = 10.0
 
-    def __call__(self, input: ResidueArray, **_):
+    def __call__(self, input: "ResidueArray", **_):
         contacts = contact_matrix(
             input,
             selector_A=self.selector_A,
