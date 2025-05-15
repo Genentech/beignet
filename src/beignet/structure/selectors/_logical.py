@@ -2,6 +2,7 @@ import typing
 from dataclasses import dataclass
 from typing import Callable
 
+import torch
 from torch import Tensor
 
 from .._invoke_selector import invoke_selector
@@ -12,26 +13,26 @@ if typing.TYPE_CHECKING:
 
 @dataclass
 class AndSelector:
-    selector1: Callable | Tensor | None
-    selector2: Callable | Tensor | None
+    selectors: list[Callable | Tensor | None]
 
     def __call__(self, input: "ResidueArray", **kwargs):
-        mask1 = invoke_selector(self.selector1, input, **kwargs)
-        mask2 = invoke_selector(self.selector2, input, **kwargs)
+        mask = torch.ones_like(input.atom_thin_mask)
+        for selector in self.selectors:
+            mask = mask & invoke_selector(selector, input, **kwargs)
 
-        return mask1 & mask2
+        return mask
 
 
 @dataclass
 class OrSelector:
-    selector1: Callable | Tensor | None
-    selector2: Callable | Tensor | None
+    selectors: list[Callable | Tensor | None]
 
     def __call__(self, input: "ResidueArray", **kwargs):
-        mask1 = invoke_selector(self.selector1, input, **kwargs)
-        mask2 = invoke_selector(self.selector2, input, **kwargs)
+        mask = torch.zeros_like(input.atom_thin_mask)
+        for selector in self.selectors:
+            mask = mask | invoke_selector(selector, input, **kwargs)
 
-        return mask1 | mask2
+        return mask
 
 
 @dataclass

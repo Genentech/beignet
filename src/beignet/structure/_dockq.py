@@ -23,15 +23,15 @@ def dockq_contact_score(
 
     native_contacts = contact_matrix(
         native,
-        selector_A=AndSelector(ChainSelector(receptor_chains), atom_thin_mask),
-        selector_B=AndSelector(ChainSelector(ligand_chains), atom_thin_mask),
+        selector_A=AndSelector([ChainSelector(receptor_chains), atom_thin_mask]),
+        selector_B=AndSelector([ChainSelector(ligand_chains), atom_thin_mask]),
         radius_cutoff=5.0,
     )
 
     model_contacts = contact_matrix(
         model,
-        selector_A=AndSelector(ChainSelector(receptor_chains), atom_thin_mask),
-        selector_B=AndSelector(ChainSelector(ligand_chains), atom_thin_mask),
+        selector_A=AndSelector([ChainSelector(receptor_chains), atom_thin_mask]),
+        selector_B=AndSelector([ChainSelector(ligand_chains), atom_thin_mask]),
         radius_cutoff=5.0,
     )
 
@@ -65,12 +65,14 @@ def dockq_irmsd_score(
         native,
         model,
         selector=AndSelector(
-            InterfaceResidueSelector(
-                ChainSelector(receptor_chains),
-                ChainSelector(ligand_chains),
-                radius_cutoff=radius_cutoff,
-            ),
-            PeptideBackboneSelector(include_oxygen=True),
+            [
+                InterfaceResidueSelector(
+                    ChainSelector(receptor_chains),
+                    ChainSelector(ligand_chains),
+                    radius_cutoff=radius_cutoff,
+                ),
+                PeptideBackboneSelector(include_oxygen=True),
+            ]
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -90,8 +92,10 @@ def dockq_lrmsd_score(
         native,
         model,
         selector=AndSelector(
-            ChainSelector(receptor_chains),
-            PeptideBackboneSelector(include_oxygen=True),
+            [
+                ChainSelector(receptor_chains),
+                PeptideBackboneSelector(include_oxygen=True),
+            ]
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -101,8 +105,10 @@ def dockq_lrmsd_score(
         model,
         native,
         selector=AndSelector(
-            ChainSelector(ligand_chains),
-            PeptideBackboneSelector(include_oxygen=True),
+            [
+                ChainSelector(ligand_chains),
+                PeptideBackboneSelector(include_oxygen=True),
+            ]
         ),
     )
 

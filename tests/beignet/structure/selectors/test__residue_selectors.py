@@ -76,6 +76,6 @@ def test_and_selector(structure_7k7r_cif):
 
     ref = mask1 & mask2
 
-    mask1and2 = AndSelector(selector1, selector2)(p)
+    mask1and2 = AndSelector([selector1, selector2])(p)
 
     assert torch.equal(mask1and2, ref)

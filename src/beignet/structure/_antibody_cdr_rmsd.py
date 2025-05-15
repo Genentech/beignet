@@ -4,7 +4,11 @@ from torch import Tensor
 
 from ._residue_array import ResidueArray
 from ._superimpose import rmsd, superimpose
-from .selectors import AndSelector, CDRResidueSelector, ChainSelector
+from .selectors import (
+    AndSelector,
+    CDRResidueSelector,
+    ChainSelector,
+)
 
 
 def antibody_cdr_rmsd(
@@ -24,7 +28,7 @@ def antibody_cdr_rmsd(
     model, _, full_ab_rmsd = superimpose(
         native,
         model,
-        selector=AndSelector(ChainSelector(chains), selector),
+        selector=AndSelector([ChainSelector(chains), selector]),
         rename_symmetric_atoms=True,
     )
 
@@ -32,19 +36,21 @@ def antibody_cdr_rmsd(
         heavy_rmsd = rmsd(
             model,
             native,
-            selector=AndSelector(ChainSelector([heavy_chain]), selector),
+            selector=AndSelector([ChainSelector([heavy_chain]), selector]),
         )
         heavy_cdr_rmsds = {
             f"cdr_h{i}_rmsd": rmsd(
                 model,
                 native,
                 selector=AndSelector(
-                    CDRResidueSelector(
-                        which_cdrs=[f"H{i}"],
-                        heavy_chain=heavy_chain,
-                        light_chain=light_chain,
-                    ),
-                    selector,
+                    [
+                        CDRResidueSelector(
+                            which_cdrs=[f"H{i}"],
+                            heavy_chain=heavy_chain,
+                            light_chain=light_chain,
+                        ),
+                        selector,
+                    ]
                 ),
                 rename_symmetric_atoms=False,
             )
@@ -58,19 +64,21 @@ def antibody_cdr_rmsd(
         light_rmsd = rmsd(
             model,
             native,
-            selector=AndSelector(ChainSelector([light_chain]), selector),
+            selector=AndSelector([ChainSelector([light_chain]), selector]),
         )
         light_cdr_rmsds = {
             f"cdr_l{i}_rmsd": rmsd(
                 model,
                 native,
                 selector=AndSelector(
-                    CDRResidueSelector(
-                        which_cdrs=[f"L{i}"],
-                        heavy_chain=heavy_chain,
-                        light_chain=light_chain,
-                    ),
-                    selector,
+                    [
+                        CDRResidueSelector(
+                            which_cdrs=[f"L{i}"],
+                            heavy_chain=heavy_chain,
+                            light_chain=light_chain,
+                        ),
+                        selector,
+                    ]
                 ),
                 rename_symmetric_atoms=False,
             )
