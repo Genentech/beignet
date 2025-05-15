@@ -10,9 +10,11 @@ if typing.TYPE_CHECKING:
 
 
 def _rename_chains(chain_id: Tensor, mapping: dict[str, str]) -> Tensor:
-    for k, v in mapping.items():
-        mask = short_string_to_int(k) == chain_id
-        chain_id = chain_id.masked_fill(mask, short_string_to_int(v))
+    masks = {v: short_string_to_int(k) == chain_id for k, v in mapping.items()}
+
+    for c, mask in masks.items():
+        chain_id = chain_id.masked_fill(mask, short_string_to_int(c))
+
     return chain_id
 
 
