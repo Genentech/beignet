@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 
 if typing.TYPE_CHECKING:
-    from . import ResidueArray
+    from ._residue_array import ResidueArray
 
 
 def invoke_selector(
