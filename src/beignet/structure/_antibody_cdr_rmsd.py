@@ -21,13 +21,6 @@ def antibody_cdr_rmsd(
     selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
     rename_symmetric_atoms: bool = True,
 ) -> dict[str, Tensor | None]:
-    chains = []
-    if heavy_chain is not None:
-        chains.append(heavy_chain)
-
-    if light_chain is not None:
-        chains.append(light_chain)
-
     HCDR = CDRResidueSelector(
         ["H1", "H2", "H3", "H4"], heavy_chain=heavy_chain, light_chain=light_chain
     )
