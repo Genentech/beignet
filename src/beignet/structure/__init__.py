@@ -1,4 +1,4 @@
-from ._antibody_cdr_rmsd import antibody_cdr_rmsd
+from ._antibody_fv_rmsd import antibody_fv_rmsd
 from ._contact_matrix import contact_matrix
 from ._dockq import dockq, dockq_contact_score, dockq_irmsd_score, dockq_lrmsd_score
 from ._rename_chains import rename_chains
