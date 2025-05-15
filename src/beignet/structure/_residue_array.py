@@ -433,16 +433,14 @@ class ResidueArray:
     def superimpose(
         self,
         mobile: "ResidueArray",
-        residue_selector: Callable[["ResidueArray"], Tensor] | None = None,
-        atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+        selector: Callable[["ResidueArray"], Tensor] | None = None,
         rename_symmetric_atoms: bool = True,
         **residue_selector_kwargs,
     ) -> tuple["ResidueArray", Rigid, Tensor]:
         return superimpose(
             fixed=self,
             mobile=mobile,
-            residue_selector=residue_selector,
-            atom_selector=atom_selector,
+            selector=selector,
             rename_symmetric_atoms=rename_symmetric_atoms,
             **residue_selector_kwargs,
         )
@@ -450,15 +448,13 @@ class ResidueArray:
     def rmsd(
         self,
         target: "ResidueArray",
-        residue_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
-        atom_selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
+        selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
         **residue_selector_kwargs,
     ) -> Tensor:
         return rmsd(
             input=self,
             target=target,
-            residue_selector=residue_selector,
-            atom_selector=atom_selector,
+            selector=selector,
             **residue_selector_kwargs,
         )
 
