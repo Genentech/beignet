@@ -3,7 +3,7 @@ from ._atom import (
     AtomNameSelector,
     PeptideBackboneSelector,
 )
-from ._logical import AndSelector
+from ._logical import AndSelector, NotSelector, OrSelector
 from ._residue import (
     AllSelector,
     CDRResidueSelector,
@@ -21,7 +21,9 @@ __all__ = [
     "CDRResidueSelector",
     "ChainFromAnnotationsSelector",
     "ChainSelector",
+    "InterfaceResidueSelector",
+    "NotSelector",
+    "OrSelector",
     "PeptideBackboneSelector",
     "ResidueIndexSelector",
-    "InterfaceResidueSelector",
 ]

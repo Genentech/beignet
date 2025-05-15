@@ -20,3 +20,24 @@ class AndSelector:
         mask2 = invoke_selector(self.selector2, input, **kwargs)
 
         return mask1 & mask2
+
+
+@dataclass
+class OrSelector:
+    selector1: Callable | Tensor | None
+    selector2: Callable | Tensor | None
+
+    def __call__(self, input: "ResidueArray", **kwargs):
+        mask1 = invoke_selector(self.selector1, input, **kwargs)
+        mask2 = invoke_selector(self.selector2, input, **kwargs)
+
+        return mask1 | mask2
+
+
+@dataclass
+class NotSelector:
+    selector: Callable | Tensor | None
+
+    def __call__(self, input: "ResidueArray", **kwargs):
+        mask = invoke_selector(self.selector, input, **kwargs)
+        return ~mask
