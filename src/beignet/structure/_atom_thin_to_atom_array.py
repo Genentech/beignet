@@ -30,12 +30,12 @@ def atom_thin_to_atom_array(
         chain_id[L].cpu().numpy().tobytes(), dtype="|S8"
     ).astype(numpy.dtypes.StringDType())
 
-    author_seq_id_flat = author_seq_id[L]
+    author_seq_id_flat = author_seq_id[L].cpu().numpy()
     author_ins_code_flat = numpy.frombuffer(
         author_ins_code[L].cpu().numpy().tobytes(), dtype="|S8"
     ).astype(numpy.dtypes.StringDType())
 
-    atom_pos_flat = atom_thin_xyz[L, W]
+    atom_pos_flat = atom_thin_xyz[L, W].cpu().numpy()
 
     atom_name = numpy.array(
         [ATOM_THIN_ATOMS[AMINO_ACID_1_TO_3[r]] for r in STANDARD_RESIDUES]
