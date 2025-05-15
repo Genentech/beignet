@@ -2,6 +2,7 @@ import json
 import pathlib
 from pprint import pprint
 
+import optree
 import pytest
 import torch
 
@@ -20,7 +21,6 @@ def test_dockq(dockq_test_data_path):
     )
     native = torch.cat(
         [
-            native[ChainSelector(["A"])],
             native[ChainSelector(["B"])],
             native[ChainSelector(["C"])],
         ]
@@ -32,7 +32,6 @@ def test_dockq(dockq_test_data_path):
     )
     model = torch.cat(
         [
-            model[ChainSelector(["B"])].rename_chains({"B": "A"}),
             model[ChainSelector(["A"])].rename_chains({"A": "B"}),
             model[ChainSelector(["C"])],
         ]
@@ -43,7 +42,13 @@ def test_dockq(dockq_test_data_path):
 
     pprint(ref["best_result"]["BC"])
 
-    results = dockq(model, native, receptor_chains=["C"], ligand_chains=["B"])
+    results = dockq(
+        model,
+        native,
+        receptor_chains=["C"],
+        ligand_chains=["B"],
+        rename_symmetric_atoms=False,
+    )
 
     pprint(results)
 
@@ -64,5 +69,69 @@ def test_dockq(dockq_test_data_path):
     )
 
     assert results["DockQ"].item() == pytest.approx(
+        ref["best_result"]["BC"]["DockQ"], abs=1e-3
+    )
+
+
+def test_dockq_batched(dockq_test_data_path):
+    native = ResidueArray.from_pdb(
+        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
+    )
+    native = torch.cat(
+        [
+            native[ChainSelector(["B"])],
+            native[ChainSelector(["C"])],
+        ]
+    )
+
+    native = torch.stack([native, native], dim=0)
+
+    # reorder chains to match
+    model = ResidueArray.from_pdb(
+        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
+    )
+    model = torch.cat(
+        [
+            model[ChainSelector(["A"])].rename_chains({"A": "B"}),
+            model[ChainSelector(["C"])],
+        ]
+    )
+
+    model = torch.stack([model, model], dim=0)
+
+    with open(dockq_test_data_path / "dockq_ref.json", "r") as f:
+        ref = json.load(f)
+
+    results = dockq(
+        model,
+        native,
+        receptor_chains=["C"],
+        ligand_chains=["B"],
+        rename_symmetric_atoms=False,
+    )
+    pprint(results)
+
+    results1, results2 = optree.tree_transpose_map(
+        lambda x: torch.unbind(x, dim=0), results
+    )
+
+    assert results1 == pytest.approx(results2, abs=1e-6)
+    assert results1["model_contacts"].item() == ref["best_result"]["BC"]["model_total"]
+    assert results1["native_contacts"].item() == ref["best_result"]["BC"]["nat_total"]
+    assert results1["shared_contacts"].item() == ref["best_result"]["BC"]["nat_correct"]
+    assert (
+        results1["non_native_contacts"].item()
+        == ref["best_result"]["BC"]["nonnat_count"]
+    )
+
+    assert results1["interface_rmsd"].item() == pytest.approx(
+        ref["best_result"]["BC"]["iRMSD"], abs=1e-3
+    )
+
+    assert results1["ligand_rmsd"].item() == pytest.approx(
+        ref["best_result"]["BC"]["LRMSD"], abs=1e-3
+    )
+
+    assert results1["DockQ"].item() == pytest.approx(
         ref["best_result"]["BC"]["DockQ"], abs=1e-3
     )
