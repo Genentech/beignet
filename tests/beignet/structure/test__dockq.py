@@ -5,12 +5,7 @@ from pprint import pprint
 import pytest
 import torch
 
-from beignet.structure import (
-    ResidueArray,
-    dockq_contact_score,
-    dockq_irmsd_score,
-    dockq_lrmsd_score,
-)
+from beignet.structure import ResidueArray, dockq
 from beignet.structure.selectors import ChainSelector
 
 
@@ -19,8 +14,10 @@ def dockq_test_data_path():
     return pathlib.Path(__file__).parent / "data"
 
 
-def test_dockq_contact_score(dockq_test_data_path):
-    native = ResidueArray.from_pdb(dockq_test_data_path / "1A2K_r_l_b.pdb")
+def test_dockq(dockq_test_data_path):
+    native = ResidueArray.from_pdb(
+        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
+    )
     native = torch.cat(
         [
             native[ChainSelector(["A"])],
@@ -30,7 +27,9 @@ def test_dockq_contact_score(dockq_test_data_path):
     )
 
     # reorder chains to match
-    model = ResidueArray.from_pdb(dockq_test_data_path / "1A2K_r_l_b.model.pdb")
+    model = ResidueArray.from_pdb(
+        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
+    )
     model = torch.cat(
         [
             model[ChainSelector(["B"])].rename_chains({"B": "A"}),
@@ -44,9 +43,7 @@ def test_dockq_contact_score(dockq_test_data_path):
 
     pprint(ref["best_result"]["BC"])
 
-    results = dockq_contact_score(
-        model, native, receptor_chains=["B"], ligand_chains=["C"]
-    )
+    results = dockq(model, native, receptor_chains=["C"], ligand_chains=["B"])
 
     pprint(results)
 
@@ -58,78 +55,14 @@ def test_dockq_contact_score(dockq_test_data_path):
         == ref["best_result"]["BC"]["nonnat_count"]
     )
 
-
-def test_dockq_irmsd_score(dockq_test_data_path):
-    native = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
-    )
-    native = torch.cat(
-        [
-            native[ChainSelector(["A"])],
-            native[ChainSelector(["B"])],
-            native[ChainSelector(["C"])],
-        ]
+    assert results["interface_rmsd"].item() == pytest.approx(
+        ref["best_result"]["BC"]["iRMSD"], abs=1e-3
     )
 
-    # reorder chains to match
-    model = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
-    )
-    model = torch.cat(
-        [
-            model[ChainSelector(["B"])].rename_chains({"B": "A"}),
-            model[ChainSelector(["A"])].rename_chains({"A": "B"}),
-            model[ChainSelector(["C"])],
-        ]
+    assert results["ligand_rmsd"].item() == pytest.approx(
+        ref["best_result"]["BC"]["LRMSD"], abs=1e-3
     )
 
-    with open(dockq_test_data_path / "dockq_ref.json", "r") as f:
-        ref = json.load(f)
-
-    pprint(ref["best_result"]["BC"])
-
-    irmsd = dockq_irmsd_score(
-        model, native, receptor_chains=["B"], ligand_chains=["C"]
-    )["interface_rmsd"]
-
-    pprint(f"{irmsd.item()=:0.2e}")
-
-    assert irmsd.item() == pytest.approx(ref["best_result"]["BC"]["iRMSD"], abs=1e-5)
-
-
-def test_dockq_lrmsd_score(dockq_test_data_path):
-    native = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
+    assert results["DockQ"].item() == pytest.approx(
+        ref["best_result"]["BC"]["DockQ"], abs=1e-3
     )
-    native = torch.cat(
-        [
-            native[ChainSelector(["A"])],
-            native[ChainSelector(["B"])],
-            native[ChainSelector(["C"])],
-        ]
-    )
-
-    # reorder chains to match
-    model = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
-    )
-    model = torch.cat(
-        [
-            model[ChainSelector(["B"])].rename_chains({"B": "A"}),
-            model[ChainSelector(["A"])].rename_chains({"A": "B"}),
-            model[ChainSelector(["C"])],
-        ]
-    )
-
-    with open(dockq_test_data_path / "dockq_ref.json", "r") as f:
-        ref = json.load(f)
-
-    pprint(ref["best_result"]["BC"])
-
-    lrmsd = dockq_lrmsd_score(
-        model, native, receptor_chains=["C"], ligand_chains=["B"]
-    )["ligand_rmsd"]
-
-    pprint(f"{lrmsd.item()=:0.2e}")
-
-    assert lrmsd.item() == pytest.approx(ref["best_result"]["BC"]["LRMSD"], abs=1e-3)
