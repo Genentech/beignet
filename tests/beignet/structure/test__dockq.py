@@ -5,8 +5,8 @@ from pprint import pprint
 import pytest
 import torch
 
-from beignet.structure import ResidueArray
-from beignet.structure.metrics import (
+from beignet.structure import (
+    ResidueArray,
     dockq_contact_score,
     dockq_irmsd_score,
     dockq_lrmsd_score,

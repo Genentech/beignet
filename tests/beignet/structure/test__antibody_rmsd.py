@@ -1,7 +1,12 @@
 import dataclasses
+from pprint import pprint
 
-from beignet.structure import ResidueArray, Rigid, swap_symmetric_atom_thin_atoms
-from beignet.structure.metrics import AntibodyRMSDDescriptors
+from beignet.structure import (
+    ResidueArray,
+    Rigid,
+    antibody_cdr_rmsd,
+    swap_symmetric_atom_thin_atoms,
+)
 from beignet.structure.selectors import ChainSelector
 
 
@@ -17,8 +22,6 @@ def test_antibody_rmsd_descriptors(structure_7k7r_pdb):
         )[0],
     )
 
-    descriptors = AntibodyRMSDDescriptors.from_residue_array(
-        p_T, p, heavy_chain="B", light_chain="A"
-    )
+    result = antibody_cdr_rmsd(p_T, p, heavy_chain="B", light_chain="A")
 
-    print(descriptors)
+    pprint(result)

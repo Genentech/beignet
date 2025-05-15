@@ -1,8 +1,10 @@
 import einops
 from torch import Tensor
 
-from .. import ResidueArray, contact_matrix, rmsd, superimpose
-from ..selectors import (
+from ._residue_array import ResidueArray
+from ._superimpose import rmsd, superimpose
+from ._contact_matrix import contact_matrix
+from .selectors import (
     AndSelector,
     AtomNameSelector,
     ChainSelector,
