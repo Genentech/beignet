@@ -1,9 +1,9 @@
 import einops
 from torch import Tensor
 
+from ._contact_matrix import contact_matrix
 from ._residue_array import ResidueArray
 from ._superimpose import rmsd, superimpose
-from ._contact_matrix import contact_matrix
 from .selectors import (
     AndSelector,
     AtomNameSelector,
