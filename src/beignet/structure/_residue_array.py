@@ -183,9 +183,7 @@ class ResidueArray:
             for i, (c, seq) in enumerate(chain_sequences.items())
         ]
 
-        return optree.tree_map(
-            lambda *x: torch.cat([*x], dim=0), *chains, namespace="beignet"
-        )
+        return torch.cat(chains, dim=0)
 
     @classmethod
     def from_atom_array(
