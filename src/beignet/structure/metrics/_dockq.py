@@ -63,14 +63,8 @@ def dockq_irmsd_score(
         model,
         selector=AndSelector(
             InterfaceResidueSelector(
-                AndSelector(
-                    ChainSelector(receptor_chains),
-                    AtomNameSelector(["CA", "C", "N", "O"]),
-                ),
-                AndSelector(
-                    ChainSelector(ligand_chains),
-                    AtomNameSelector(["CA", "C", "N", "O"]),
-                ),
+                ChainSelector(receptor_chains),
+                ChainSelector(ligand_chains),
                 radius_cutoff=radius_cutoff,
             ),
             AtomNameSelector(["CA", "C", "N", "O"]),
