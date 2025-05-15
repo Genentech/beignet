@@ -6,9 +6,9 @@ from ._residue_array import ResidueArray
 from ._superimpose import rmsd, superimpose
 from .selectors import (
     AndSelector,
-    AtomNameSelector,
     ChainSelector,
     InterfaceResidueSelector,
+    PeptideBackboneSelector,
 )
 
 
@@ -70,7 +70,7 @@ def dockq_irmsd_score(
                 ChainSelector(ligand_chains),
                 radius_cutoff=radius_cutoff,
             ),
-            AtomNameSelector(["CA", "C", "N", "O"]),
+            PeptideBackboneSelector(include_oxygen=True),
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -91,7 +91,7 @@ def dockq_lrmsd_score(
         model,
         selector=AndSelector(
             ChainSelector(receptor_chains),
-            AtomNameSelector(["CA", "C", "N", "O"]),
+            PeptideBackboneSelector(include_oxygen=True),
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -102,7 +102,7 @@ def dockq_lrmsd_score(
         native,
         selector=AndSelector(
             ChainSelector(ligand_chains),
-            AtomNameSelector(["CA", "C", "N", "O"]),
+            PeptideBackboneSelector(include_oxygen=True),
         ),
     )
 

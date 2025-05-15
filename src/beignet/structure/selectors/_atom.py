@@ -55,5 +55,12 @@ class AlphaCarbonSelector:
 
 @dataclass
 class PeptideBackboneSelector:
+    include_oxygen: bool = False
+
     def __call__(self, input: "ResidueArray") -> Tensor:
-        return AtomNameSelector(["CA", "C", "N"])(input)
+        if self.include_oxygen:
+            atom_names = ["CA", "C", "N", "O"]
+        else:
+            atom_names = ["CA", "C", "N"]
+
+        return AtomNameSelector(atom_names)(input)
