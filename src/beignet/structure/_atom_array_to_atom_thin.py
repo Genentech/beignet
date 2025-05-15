@@ -2,6 +2,7 @@ import biotite.structure
 import numpy
 import torch
 from biotite.structure import AtomArray
+from torch import Tensor
 
 from beignet.constants import (
     AMINO_ACID_3_TO_1,
@@ -31,7 +32,7 @@ def atom_array_to_atom_thin(
     use_label_seq_id: bool = False,
     device=None,
     dtype=None,
-) -> dict:
+) -> dict[str, Tensor]:
     # we only handle amino acids
     aa_mask = numpy.isin(array.res_name, biotite.structure.info.amino_acid_names())
     array = array[aa_mask]
