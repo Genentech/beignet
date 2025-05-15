@@ -127,13 +127,13 @@ def antibody_fv_rmsd(
         )
 
         heavy_cdr_rmsds = {
-            f"cdr_h{i}_rmsd": rmsd(
+            f"cdr_{cdr.lower()}_rmsd": rmsd(
                 model,
                 native,
                 selector=AndSelector(
                     [
                         CDRResidueSelector(
-                            which_cdrs=heavy_cdrs,
+                            which_cdrs=[cdr],
                             heavy_chain=heavy_chain,
                             light_chain=light_chain,
                         ),
@@ -142,7 +142,7 @@ def antibody_fv_rmsd(
                 ),
                 rename_symmetric_atoms=False,
             )
-            for i in (1, 2, 3, 4)
+            for cdr in heavy_cdrs
         }
     else:
         heavy_rmsd = None
@@ -162,13 +162,13 @@ def antibody_fv_rmsd(
             selector=AndSelector([ChainSelector([light_chain]), selector]),
         )
         light_cdr_rmsds = {
-            f"cdr_l{i}_rmsd": rmsd(
+            f"cdr_{cdr.lower()}_rmsd": rmsd(
                 model,
                 native,
                 selector=AndSelector(
                     [
                         CDRResidueSelector(
-                            which_cdrs=light_cdrs,
+                            which_cdrs=[cdr],
                             heavy_chain=heavy_chain,
                             light_chain=light_chain,
                         ),
@@ -177,7 +177,7 @@ def antibody_fv_rmsd(
                 ),
                 rename_symmetric_atoms=False,
             )
-            for i in (1, 2, 3, 4)
+            for cdr in light_cdrs
         }
     else:
         light_rmsd = None
