@@ -59,6 +59,7 @@ def dockq_irmsd_score(
     receptor_chains: list[str],
     ligand_chains: list[str],
     radius_cutoff: float = 10.0,
+    rename_symmetric_atoms: bool = True,
 ) -> dict[str, Tensor]:
     _, _, interface_rmsd = superimpose(
         native,
@@ -71,7 +72,7 @@ def dockq_irmsd_score(
             ),
             AtomNameSelector(["CA", "C", "N", "O"]),
         ),
-        rename_symmetric_atoms=False,
+        rename_symmetric_atoms=rename_symmetric_atoms,
     )
 
     return {"interface_rmsd": interface_rmsd}
@@ -82,6 +83,7 @@ def dockq_lrmsd_score(
     native: "ResidueArray",
     receptor_chains: list[str],
     ligand_chains: list[str],
+    rename_symmetric_atoms: bool = True,
 ) -> dict[str, Tensor]:
     # align on receptor
     model, _, receptor_rmsd = superimpose(
@@ -91,6 +93,7 @@ def dockq_lrmsd_score(
             ChainSelector(receptor_chains),
             AtomNameSelector(["CA", "C", "N", "O"]),
         ),
+        rename_symmetric_atoms=rename_symmetric_atoms,
     )
 
     # rmsd on ligand
@@ -123,6 +126,7 @@ def dockq(
     native: "ResidueArray",
     receptor_chains: list[str],
     ligand_chains: list[str],
+    rename_symmetric_atoms: bool = True,
 ) -> dict[str, Tensor]:
     contact = dockq_contact_score(
         model=model,
@@ -136,6 +140,7 @@ def dockq(
         native=native,
         receptor_chains=receptor_chains,
         ligand_chains=ligand_chains,
+        rename_symmetric_atoms=rename_symmetric_atoms,
     )
 
     lrmsd = dockq_lrmsd_score(
@@ -143,6 +148,7 @@ def dockq(
         native=native,
         receptor_chains=receptor_chains,
         ligand_chains=ligand_chains,
+        rename_symmetric_atoms=rename_symmetric_atoms,
     )
 
     f1_value = f1(
