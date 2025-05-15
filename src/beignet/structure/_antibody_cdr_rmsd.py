@@ -8,6 +8,8 @@ from .selectors import (
     AndSelector,
     CDRResidueSelector,
     ChainSelector,
+    NotSelector,
+    OrSelector,
 )
 
 
@@ -17,6 +19,7 @@ def antibody_cdr_rmsd(
     heavy_chain: str | None = "H",
     light_chain: str | None = "L",
     selector: Callable[[ResidueArray], Tensor] | Tensor | None = None,
+    rename_symmetric_atoms: bool = True,
 ) -> dict[str, Tensor | None]:
     chains = []
     if heavy_chain is not None:
@@ -25,19 +28,45 @@ def antibody_cdr_rmsd(
     if light_chain is not None:
         chains.append(light_chain)
 
-    model, _, full_ab_rmsd = superimpose(
+    HCDR = CDRResidueSelector(
+        ["H1", "H2", "H3", "H4"], heavy_chain=heavy_chain, light_chain=light_chain
+    )
+    HFW = AndSelector([ChainSelector([heavy_chain]), NotSelector(HCDR)])
+
+    LCDR = CDRResidueSelector(
+        ["L1", "L2", "L3", "L4"], heavy_chain=heavy_chain, light_chain=light_chain
+    )
+    LFW = AndSelector([ChainSelector([light_chain]), NotSelector(LCDR)])
+
+    FW = OrSelector([HFW, LFW])
+
+    model, _, _ = superimpose(
         native,
         model,
-        selector=AndSelector([ChainSelector(chains), selector]),
-        rename_symmetric_atoms=True,
+        selector=AndSelector([FW, selector]),
+        rename_symmetric_atoms=rename_symmetric_atoms,
+    )
+
+    full_ab_rmsd = rmsd(
+        model,
+        native,
+        selector=AndSelector([ChainSelector([heavy_chain, light_chain]), selector]),
     )
 
     if heavy_chain is not None:
+        model, _, _ = superimpose(
+            native,
+            model,
+            selector=AndSelector([HFW, selector]),
+            rename_symmetric_atoms=False,
+        )
+
         heavy_rmsd = rmsd(
             model,
             native,
             selector=AndSelector([ChainSelector([heavy_chain]), selector]),
         )
+
         heavy_cdr_rmsds = {
             f"cdr_h{i}_rmsd": rmsd(
                 model,
@@ -54,13 +83,20 @@ def antibody_cdr_rmsd(
                 ),
                 rename_symmetric_atoms=False,
             )
-            for i in (1, 2, 3)
+            for i in (1, 2, 3, 4)
         }
     else:
         heavy_rmsd = None
         heavy_cdr_rmsds = {}
 
     if light_chain is not None:
+        model, _, _ = superimpose(
+            native,
+            model,
+            selector=AndSelector([LFW, selector]),
+            rename_symmetric_atoms=False,
+        )
+
         light_rmsd = rmsd(
             model,
             native,
@@ -82,7 +118,7 @@ def antibody_cdr_rmsd(
                 ),
                 rename_symmetric_atoms=False,
             )
-            for i in (1, 2, 3)
+            for i in (1, 2, 3, 4)
         }
     else:
         light_rmsd = None
