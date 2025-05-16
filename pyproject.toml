@@ -7,8 +7,13 @@ requires = [
 ]
 
 [project]
-authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }]
+authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }, { email = "kleinhej@gene.com", name = "Joseph Kleinhenz" }]
 dependencies = [
+    "biotite",
+    "einops>=0.8.1",
+    "fastpdb",
+    "numpy>=2",
+    "optree",
     "pooch",
     "torch",
     "tqdm",
@@ -38,20 +43,23 @@ mdtraj = [
 ]
 test = [
     "hypothesis",
-    "numpy==1.26.4",
     "pytest",
     "pytest-mock",
     "scipy",
 ]
 
-[tool.ruff]
-lint.select = [
+[tool.ruff.lint]
+select = [
     "B",  # FLAKE8-BUGBEAR
     "E",  # PYCODESTYLE ERRORS
     "F",  # PYFLAKES
     "I",  # ISORT
     "W",  # PYCODESTYLE WARNINGS
     "UP006", # non-pep585-annotation
+]
+
+ignore = [
+    "E501",  # line too long, handled by format
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -61,3 +69,9 @@ lint.select = [
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipython",
+]
