@@ -388,10 +388,10 @@ class ResidueArray:
         file.set_structure(array)
         file.write(f)
 
-    def to_cif(self, f):
+    def to_mmcif(self, f):
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_cif only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_mmcif only supported for ndim == 1 {self.ndim=}"
             )
         array = self.to_atom_array()
         cif = pdbx.CIFFile()
