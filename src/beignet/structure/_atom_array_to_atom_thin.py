@@ -37,7 +37,7 @@ def _mutate_sec_to_cys(array: AtomArray) -> AtomArray:
     return array
 
 
-def _selenium_to_sulfer(array: AtomArray) -> AtomArray:
+def _selenium_to_sulfur(array: AtomArray) -> AtomArray:
     array = _mutate_mse_to_met(array)
     array = _mutate_sec_to_cys(array)
     return array
@@ -45,7 +45,7 @@ def _selenium_to_sulfer(array: AtomArray) -> AtomArray:
 
 def atom_array_to_atom_thin(
     array: AtomArray,
-    selenium_to_sulfer: bool = True,
+    selenium_to_sulfur: bool = True,
     use_label_seq_id: bool = False,
     device=None,
     dtype=None,
@@ -56,7 +56,7 @@ def atom_array_to_atom_thin(
     ----------
     array: AtomArray
         input data
-    selenium_to_sulfer: bool = True
+    selenium_to_sulfur: bool = True
         If True, mutate MSE to MET and SEC to CYS.
     use_label_seq_id: bool = False
         If True use `label_seq_id` annotation of `array` to set `residue_index`
@@ -86,8 +86,8 @@ def atom_array_to_atom_thin(
     aa_mask = numpy.isin(array.res_name, biotite.structure.info.amino_acid_names())
     array = array[aa_mask]
 
-    if selenium_to_sulfer:
-        array = _selenium_to_sulfer(array)
+    if selenium_to_sulfur:
+        array = _selenium_to_sulfur(array)
 
     chains = torch.frombuffer(
         bytearray(biotite.structure.get_chains(array).astype("|S8").tobytes()),
