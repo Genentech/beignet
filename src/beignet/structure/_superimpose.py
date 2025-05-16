@@ -12,6 +12,7 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._invoke_selector import invoke_selector
 from ._rename_symmetric_atoms import rename_symmetric_atoms as _rename_symmetric_atoms
 from ._rigid import Rigid
+from .selectors import AllSelector
 
 if typing.TYPE_CHECKING:
     from ._residue_array import ResidueArray
@@ -58,6 +59,8 @@ def rmsd(
     selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     **selector_kwargs,
 ) -> Tensor:
+    if selector is None:
+        selector = AllSelector()
     atom_thin_mask = invoke_selector(selector, input, **selector_kwargs)
 
     atom_thin_mask = atom_thin_mask & input.atom_thin_mask
@@ -77,6 +80,8 @@ def superimpose(
     rename_symmetric_atoms: bool = True,
     **selector_kwargs,
 ) -> tuple["ResidueArray", Rigid, Tensor]:
+    if selector is None:
+        selector = AllSelector()
     atom_thin_mask = invoke_selector(selector, fixed, **selector_kwargs)
 
     if rename_symmetric_atoms:

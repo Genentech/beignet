@@ -1,7 +1,6 @@
 import typing
 from typing import Callable
 
-import torch
 from torch import Tensor
 
 if typing.TYPE_CHECKING:
@@ -9,7 +8,7 @@ if typing.TYPE_CHECKING:
 
 
 def invoke_selector(
-    selector: Callable[["ResidueArray"], Tensor] | Tensor | None,
+    selector: Callable[["ResidueArray"], Tensor] | Tensor,
     input: "ResidueArray",
     **kwargs,
 ):
@@ -17,8 +16,6 @@ def invoke_selector(
         mask = selector(input, **kwargs)
     elif isinstance(selector, Tensor):
         mask = selector
-    elif selector is None:
-        mask = torch.ones_like(input.atom_thin_mask)
     else:
         raise AssertionError(f"{selector=} not supported")
 

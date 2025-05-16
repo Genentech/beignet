@@ -18,7 +18,8 @@ class AndSelector:
     def __call__(self, input: "ResidueArray", **kwargs):
         mask = torch.ones_like(input.atom_thin_mask)
         for selector in self.selectors:
-            mask = mask & invoke_selector(selector, input, **kwargs)
+            if selector is not None:
+                mask = mask & invoke_selector(selector, input, **kwargs)
 
         return mask
 
@@ -30,14 +31,15 @@ class OrSelector:
     def __call__(self, input: "ResidueArray", **kwargs):
         mask = torch.zeros_like(input.atom_thin_mask)
         for selector in self.selectors:
-            mask = mask | invoke_selector(selector, input, **kwargs)
+            if selector is not None:
+                mask = mask | invoke_selector(selector, input, **kwargs)
 
         return mask
 
 
 @dataclass
 class NotSelector:
-    selector: Callable | Tensor | None
+    selector: Callable | Tensor
 
     def __call__(self, input: "ResidueArray", **kwargs):
         mask = invoke_selector(self.selector, input, **kwargs)
