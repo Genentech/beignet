@@ -59,6 +59,31 @@ def rmsd(
     selector: Callable[["ResidueArray"], Tensor] | Tensor | None = None,
     **selector_kwargs,
 ) -> Tensor:
+    """
+    Calculate the RMSD between two residue arrays.
+
+    Parameters
+    ----------
+    input : ResidueArray
+        Input residue array for comparison.
+    target : ResidueArray
+        Target residue array to compare against.
+    selector : Callable[[ResidueArray], Tensor] | Tensor | None, optional
+        Selector function or mask to determine which atoms to include in the RMSD calculation.
+        If None, all atoms are used (default: None).
+    **selector_kwargs
+        Additional keyword arguments to pass to the selector function.
+
+    Returns
+    -------
+    Tensor
+        The calculated RMSD value between the input and target structures.
+
+    Notes
+    -----
+    RMSD is calculated only on atoms that are present in both structures and match
+    the selection criteria.
+    """
     if selector is None:
         selector = AllSelector()
     atom_thin_mask = invoke_selector(selector, input, **selector_kwargs)
@@ -80,6 +105,35 @@ def superimpose(
     rename_symmetric_atoms: bool = True,
     **selector_kwargs,
 ) -> tuple["ResidueArray", Rigid, Tensor]:
+    """
+    Superimpose a mobile structure onto a fixed reference structure.
+
+    Parameters
+    ----------
+    fixed : ResidueArray
+        The reference structure that remains fixed.
+    mobile : ResidueArray
+        The structure to be superimposed onto the fixed structure.
+    selector : Callable[[ResidueArray], Tensor] | Tensor | None, optional
+        Selector function or mask to determine which atoms to use for superposition.
+        If None, all atoms are used (default: None).
+    rename_symmetric_atoms : bool, optional
+        Whether to rename symmetric atoms to match between structures (default: True).
+        This improves superposition for residues with symmetric side chains.
+    **selector_kwargs
+        Additional keyword arguments to pass to the selector function.
+
+    Returns
+    -------
+    tuple[ResidueArray, Rigid, Tensor]
+        A tuple containing:
+        - aligned : ResidueArray
+            The mobile structure after superposition onto the fixed structure.
+        - T : Rigid
+            The rigid transformation applied to the mobile structure.
+        - rmsd : Tensor
+            The RMSD between the aligned structure and the fixed structure.
+    """
     if selector is None:
         selector = AllSelector()
     atom_thin_mask = invoke_selector(selector, fixed, **selector_kwargs)
