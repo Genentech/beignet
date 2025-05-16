@@ -189,14 +189,14 @@ class ResidueArray:
     def from_atom_array(
         cls,
         array: AtomArray,
-        mutate_mse_to_met: bool = True,
+        selenium_to_sulfer: bool = True,
         use_label_seq_id: bool = False,
         device=None,
         dtype=None,
     ):
         features = atom_array_to_atom_thin(
             array,
-            mutate_mse_to_met=mutate_mse_to_met,
+            selenium_to_sulfer=selenium_to_sulfer,
             use_label_seq_id=use_label_seq_id,
             device=device,
             dtype=dtype,
@@ -225,7 +225,7 @@ class ResidueArray:
         cls,
         path,
         model: int = 1,
-        mutate_mse_to_met: bool = True,
+        selenium_to_sulfer: bool = True,
         device=None,
         dtype=None,
     ):
@@ -233,7 +233,7 @@ class ResidueArray:
         array = file.get_structure(model=model, extra_fields=["b_factor", "occupancy"])
         return cls.from_atom_array(
             array,
-            mutate_mse_to_met=mutate_mse_to_met,
+            selenium_to_sulfer=selenium_to_sulfer,
             use_label_seq_id=False,
             device=device,
             dtype=dtype,
@@ -244,7 +244,7 @@ class ResidueArray:
         cls,
         path,
         model: int = 1,
-        mutate_mse_to_met: bool = True,
+        selenium_to_sulfer: bool = True,
         use_seqres: bool = False,
         device=None,
         dtype=None,
@@ -253,7 +253,7 @@ class ResidueArray:
         return cls._from_cif(
             file,
             model=model,
-            mutate_mse_to_met=mutate_mse_to_met,
+            selenium_to_sulfer=selenium_to_sulfer,
             use_seqres=use_seqres,
             device=device,
             dtype=dtype,
@@ -264,7 +264,7 @@ class ResidueArray:
         cls,
         path,
         model: int = 1,
-        mutate_mse_to_met: bool = True,
+        selenium_to_sulfer: bool = True,
         use_seqres: bool = False,
         device=None,
         dtype=None,
@@ -273,7 +273,7 @@ class ResidueArray:
         return cls._from_cif(
             file,
             model=model,
-            mutate_mse_to_met=mutate_mse_to_met,
+            selenium_to_sulfer=selenium_to_sulfer,
             use_seqres=use_seqres,
             device=device,
             dtype=dtype,
@@ -284,7 +284,7 @@ class ResidueArray:
         cls,
         file: pdbx.CIFFile | pdbx.BinaryCIFFile,
         model: int = 1,
-        mutate_mse_to_met: bool = True,
+        selenium_to_sulfer: bool = True,
         use_seqres: bool = False,
         device=None,
         dtype=None,
@@ -298,7 +298,7 @@ class ResidueArray:
 
         p = cls.from_atom_array(
             array,
-            mutate_mse_to_met=mutate_mse_to_met,
+            selenium_to_sulfer=selenium_to_sulfer,
             use_label_seq_id=True,
             device=device,
             dtype=dtype,

@@ -26,19 +26,68 @@ def _mutate_mse_to_met(array: AtomArray) -> AtomArray:
     return array
 
 
+def _mutate_sec_to_cys(array: AtomArray) -> AtomArray:
+    array = array.copy()
+    is_sec = array.res_name == "SEC"
+    is_sec_selenium = is_sec & (array.atom_name == "SE")
+    array.res_name[is_sec] = "CYS"
+    array.atom_name[is_sec_selenium] = "SG"
+    array.element[is_sec_selenium] = "S"
+    array.hetero[is_sec_selenium] = False
+    return array
+
+
+def _selenium_to_sulfer(array: AtomArray) -> AtomArray:
+    array = _mutate_mse_to_met(array)
+    array = _mutate_sec_to_cys(array)
+    return array
+
+
 def atom_array_to_atom_thin(
     array: AtomArray,
-    mutate_mse_to_met: bool = True,
+    selenium_to_sulfer: bool = True,
     use_label_seq_id: bool = False,
     device=None,
     dtype=None,
 ) -> dict[str, Tensor]:
+    """Convert a biotite `AtomArray` into dict of torch tensors in "atom thin" format.
+
+    Parameters
+    ----------
+    array: AtomArray
+        input data
+    selenium_to_sulfer: bool = True
+        If True, mutate MSE to MET and SEC to CYS.
+    use_label_seq_id: bool = False
+        If True use `label_seq_id` annotation of `array` to set `residue_index`
+    device = None
+        device for torch tensors
+    dtype = None
+        dtype for floating point data
+
+    Returns
+    -------
+    dict[str, Tensor | None]
+        A dictionary of shape [L, *] torch tensors where L is the
+        number of amino acid residues in the input array.
+        Keys:
+        - "residue_type"
+        - "padding_mask"
+        - "residue_index"
+        - "chain_id"
+        - "author_seq_id"
+        - "author_ins_code"
+        - "atom_thin_xyz"
+        - "atom_thin_mask"
+        - "b_factor"
+        - "occupancy"
+    """
     # we only handle amino acids
     aa_mask = numpy.isin(array.res_name, biotite.structure.info.amino_acid_names())
     array = array[aa_mask]
 
-    if mutate_mse_to_met:
-        array = _mutate_mse_to_met(array)
+    if selenium_to_sulfer:
+        array = _selenium_to_sulfer(array)
 
     chains = torch.frombuffer(
         bytearray(biotite.structure.get_chains(array).astype("|S8").tobytes()),
