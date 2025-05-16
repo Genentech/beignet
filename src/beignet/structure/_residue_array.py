@@ -380,13 +380,26 @@ class ResidueArray:
     def to_pdb(self, f):
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_pdb only supported for ndim == 1 {self.ndim=}"
             )
 
         array = self.to_atom_array()
         file = fastpdb.PDBFile()
         file.set_structure(array)
         file.write(f)
+
+    def to_cif(self, f):
+        if self.ndim != 1:
+            raise RuntimeError(
+                f"ResidueArray.to_cif only supported for ndim == 1 {self.ndim=}"
+            )
+        array = self.to_atom_array()
+        cif = pdbx.CIFFile()
+        pdbx.set_structure(
+            cif,
+            array,
+        )
+        cif.write(f)
 
     def to_pdb_string(self) -> str:
         if self.ndim != 1:
