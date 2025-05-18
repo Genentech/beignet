@@ -1,0 +1,227 @@
+import functools
+import itertools
+
+import torch
+from torch import Tensor
+
+from beignet.constants import AMINO_ACID_3_TO_1, STANDARD_RESIDUES
+
+from ._rigid import Rigid
+from ._rigid_group_atom_coordinates import RIGID_GROUP_ATOM_COORDINATES
+from ._rigid_group_default_frame import make_bbt_rigid_group_default_frame
+
+
+@functools.cache
+def make_default_atom_coordinates_dict() -> dict:
+    """Create dictionary with default atom coordinates data.
+
+    Returns
+    -------
+    frame_to_atoms
+
+    key is tuple of (residue_index, frame_index).
+    value is tuple of (atom_names, atom_coordinates).
+    frame_index is in [0, 6) and corresponds to bb, o, chi1, chi2, chi3, chi4.
+    atom_coordinates have Shape (NAtom,3) where NAtom is the number of atoms in the frame.
+    """
+    # bb, o, chi1, chi2, chi3, chi4
+    GROUP_INDICES = [
+        0,
+        3,
+        4,
+        5,
+        6,
+        7,
+    ]  # refers to group_index in rigid_group_atom_coordinates
+    out = {}
+    for resname, resdata in RIGID_GROUP_ATOM_COORDINATES.items():
+        residue_index = STANDARD_RESIDUES.index(AMINO_ACID_3_TO_1[resname])
+
+        for k, g in itertools.groupby(resdata, key=lambda x: x[1]):
+            g = list(g)
+            frame_index = GROUP_INDICES.index(k)
+            atom_names = [x[0] for x in g]
+            default_atom_coordinates = [x[2] for x in g]
+            k = (residue_index, frame_index)
+            out[k] = (atom_names, torch.as_tensor(default_atom_coordinates))
+    return out
+
+
+@functools.cache
+def make_default_atom_coordinates_tensor() -> tuple[Tensor, Tensor]:
+    """Create tensor holding default atom coordinates for each residue/frame.
+
+    Returns
+    -------
+    frame6_atom8: Tensor
+        Shape [N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3] == [20, 6, 8, 3]
+    """
+    frame_to_default_atom_coordinates = make_default_atom_coordinates_dict()
+    N_RESIDUE_TYPES = 20
+    N_FRAMES = 6  # bb, 0, chi1, chi2, chi3, chi4
+    MAX_N_ATOMS_PER_FRAME = max(
+        v[1].shape[0] for _, v in frame_to_default_atom_coordinates.items()
+    )
+    atom_coordinates = torch.zeros(N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3)
+    atom_coordinates_mask = torch.zeros(
+        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.bool
+    )
+    for (i, j), (
+        _,
+        default_atom_coordinates,
+    ) in frame_to_default_atom_coordinates.items():
+        n_atoms = default_atom_coordinates.shape[0]
+        atom_coordinates[i, j, :n_atoms, :] = default_atom_coordinates
+        atom_coordinates_mask[i, j, :n_atoms] = True
+
+    return atom_coordinates, atom_coordinates_mask
+
+
+def backbone_coordinates_to_frames(
+    backbone_coordinates: Tensor, mask: Tensor, residue_type: Tensor
+) -> tuple[Rigid, Tensor]:
+    """Calculate backbone frames from backbone coordinates.
+
+    Parameters
+    ----------
+    residue_type: torch.Tensor
+        Shape: (*, L)
+    coordinates: torch.masked.MaskedTensor
+        Shape: (*, L, 4, 3)
+
+    Returns
+    -------
+    bb_frames: Rigid
+        Backbone frames. Shape (*).
+    bb_mask: torch.Tensor
+        Mask indicating if all atoms in frame are present in `coordinates`. Shape (*).
+
+    Notes
+    -----
+    This invokes Kabsch which reads from the masked-out values of the coordinates tensor,
+    so they should be a non-NaN, non-inifinity value, e.g. zero.
+    """
+
+    default_xyz, default_mask = make_default_atom_coordinates_tensor()
+    default_xyz = default_xyz.to(backbone_coordinates.device)
+    default_mask = default_mask.to(backbone_coordinates.device)
+
+    backbone_default_coordinates = default_xyz[residue_type, 0, :4, :]
+    bb_default_mask = default_mask[residue_type, 0, :4]
+
+    # no missing atoms
+    bb_mask = mask.sum(dim=-1) == bb_default_mask.sum(dim=-1)
+
+    bb_frames = Rigid.kabsch(
+        backbone_coordinates,
+        backbone_default_coordinates,
+        weights=(mask & bb_default_mask),
+        keepdim=False,
+    )
+
+    return bb_frames, bb_mask
+
+
+def backbone_frames_to_coordinates(
+    bb_frames: Rigid, bb_mask: Tensor, residue_type: Tensor
+) -> tuple[Tensor, Tensor]:
+    default_xyz, default_mask = make_default_atom_coordinates_tensor()
+    default_xyz = default_xyz.to(bb_frames.t.device)
+    default_mask = default_mask.to(bb_frames.t.device)
+
+    backbone_default_coordinates = default_xyz[residue_type, 0, :4, :]
+    bb_default_mask = default_mask[residue_type, 0, :4]
+
+    backbone_coordinates = torch.unsqueeze(bb_frames, dim=-1)(
+        backbone_default_coordinates
+    )
+
+    mask = bb_mask[..., None] & bb_default_mask
+
+    return backbone_coordinates, mask
+
+
+def _rotation_x(phi: Tensor) -> Tensor:
+    """Generate a rotation matrix for a rotation by angle phi around the x-axis."""
+    cos = torch.cos(phi)
+    sin = torch.sin(phi)
+
+    ones = torch.ones_like(cos)
+    zeros = torch.zeros_like(cos)
+
+    R = torch.stack(
+        [
+            torch.stack([ones, zeros, zeros], dim=-1),
+            torch.stack([zeros, cos, sin], dim=-1),
+            torch.stack([zeros, -sin, cos], dim=-1),
+        ],
+        dim=-1,
+    )
+    return R
+
+
+def _rigid_rotation_x(phi: Tensor) -> Rigid:
+    r = _rotation_x(phi)
+    t = torch.zeros(
+        (*phi.shape, 3),
+        device=phi.device,
+        dtype=phi.dtype,
+        requires_grad=phi.requires_grad,
+    )
+    return Rigid(t, r)
+
+
+def bbt_to_global_frames(
+    bb_frames: Rigid,
+    bb_mask: Tensor,
+    torsions: Tensor,
+    torsions_mask: Tensor,
+    residue_type: Tensor,
+) -> tuple[Rigid, Tensor]:
+    default_frames = make_bbt_rigid_group_default_frame().to(
+        dtype=bb_frames.t.dtype, device=bb_frames.t.device
+    )[residue_type]
+
+    psi_o, chi1, chi2, chi3, chi4 = torsions.unbind(dim=-1)
+    psi_o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask = torsions_mask.unbind(
+        dim=-1
+    )
+
+    T_o_local = _rigid_rotation_x(psi_o)
+    T_chi1_local = _rigid_rotation_x(chi1)
+    T_chi2_local = _rigid_rotation_x(chi2)
+    T_chi3_local = _rigid_rotation_x(chi3)
+    T_chi4_local = _rigid_rotation_x(chi4)
+
+    o_mask = bb_mask & psi_o_mask
+    chi1_mask = bb_mask & chi1_mask
+    chi2_mask = chi1_mask & chi2_mask
+    chi3_mask = chi2_mask & chi3_mask
+    chi4_mask = chi3_mask & chi4_mask
+
+    otobb, chi1tobb, chi2tochi1, chi3tochi2, chi4tochi3 = torch.unbind(
+        default_frames, dim=-1
+    )
+
+    T_o = bb_frames.compose(otobb).compose(T_o_local)
+    T_chi1 = bb_frames.compose(chi1tobb).compose(T_chi1_local)
+    T_chi2 = T_chi1.compose(chi2tochi1).compose(T_chi2_local)
+    T_chi3 = T_chi2.compose(chi3tochi2).compose(T_chi3_local)
+    T_chi4 = T_chi3.compose(chi4tochi3).compose(T_chi4_local)
+
+    global_frame = torch.stack([bb_frames, T_o, T_chi1, T_chi2, T_chi3, T_chi4], dim=-1)
+    global_frame_mask = torch.stack(
+        [bb_mask, o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask], dim=-1
+    )
+
+    return global_frame, global_frame_mask
+
+
+def bbt_to_atom_thin(
+    bb_frames: Rigid,
+    bb_mask: Tensor,
+    torsions: Tensor,
+    torsions_mask: Tensor,
+    residue_type: Tensor,
+) -> tuple[Tensor, Tensor]:
+    pass
