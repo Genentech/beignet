@@ -504,6 +504,8 @@ def stack(input, dim=0):
 
 @implements(torch.unbind)
 def unbind(input, dim=0):
+    if dim < 0:
+        dim = input.ndim + dim
     return optree.tree_transpose_map(
         lambda x: torch.unbind(x, dim=dim), input, namespace="beignet"
     )
@@ -521,7 +523,7 @@ def unsqueeze(input, dim: int):
 @implements(torch.squeeze)
 def squeeze(input, dim: int):
     if dim < 0:
-        dim = input.ndim + dim + 1
+        dim = input.ndim + dim
     return optree.tree_map(
         lambda x: torch.squeeze(x, dim=dim), input, namespace="beignet"
     )
