@@ -509,6 +509,8 @@ class ResidueArray:
 
 @implements(torch.cat)
 def cat(input, dim=0):
+    if dim < 0:
+        dim = input[0].ndim + dim
     return optree.tree_map(
         lambda *x: torch.cat([*x], dim=dim), *input, namespace="beignet"
     )
@@ -516,6 +518,8 @@ def cat(input, dim=0):
 
 @implements(torch.stack)
 def stack(input, dim=0):
+    if dim < 0:
+        dim = input[0].ndim + dim + 1
     return optree.tree_map(
         lambda *x: torch.stack([*x], dim=dim), *input, namespace="beignet"
     )
