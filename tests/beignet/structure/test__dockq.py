@@ -115,7 +115,9 @@ def test_dockq_batched(dockq_test_data_path):
         lambda x: torch.unbind(x, dim=0), results
     )
 
-    assert results1 == pytest.approx(results2, abs=1e-6)
+    assert optree.tree_map(lambda x: x.item(), results1) == pytest.approx(
+        optree.tree_map(lambda x: x.item(), results2), abs=1e-6, rel=1e-6
+    )
     assert results1["model_contacts"].item() == ref["best_result"]["BC"]["model_total"]
     assert results1["native_contacts"].item() == ref["best_result"]["BC"]["nat_total"]
     assert results1["shared_contacts"].item() == ref["best_result"]["BC"]["nat_correct"]
