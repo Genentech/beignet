@@ -19,7 +19,7 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
-from ._frames import backbone_coordinates_to_frames
+from ._frames import atom_thin_to_backbone_frames
 from ._rename_chains import rename_chains
 from ._renumber import renumber, renumber_from_gapped
 from ._rigid import Rigid
@@ -127,14 +127,9 @@ class ResidueArray:
 
     @property
     def backbone_frames(self) -> tuple[Rigid, Tensor]:
-        coords = self.atom_thin_xyz[..., :4, :]
-        mask = self.atom_thin_mask[..., :4]
-
-        bb_frames, bb_mask = backbone_coordinates_to_frames(
-            coords, mask, self.residue_type
+        return atom_thin_to_backbone_frames(
+            self.atom_thin_xyz, self.atom_thin_mask, self.residue_type
         )
-
-        return bb_frames, bb_mask
 
     @property
     def torsions(self) -> tuple[Tensor, Tensor]:

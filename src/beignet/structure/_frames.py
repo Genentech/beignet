@@ -1,6 +1,7 @@
 import functools
 import itertools
 
+import einops
 import torch
 from torch import Tensor
 
@@ -110,68 +111,28 @@ def make_default_atom_coordinates_atom_thin_index_tensor() -> tuple[Tensor, Tens
     return atom_index, atom_index_mask
 
 
-def backbone_coordinates_to_frames(
-    backbone_coordinates: Tensor, mask: Tensor, residue_type: Tensor
-) -> tuple[Rigid, Tensor]:
-    """Calculate backbone frames from backbone coordinates.
+def atom_thin_to_backbone_frames(
+    atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor
+):
+    # [20, 6, 8]
+    atom_thin_index, _ = make_default_atom_coordinates_atom_thin_index_tensor()
 
-    Parameters
-    ----------
-    residue_type: torch.Tensor
-        Shape: (*, L)
-    coordinates: torch.masked.MaskedTensor
-        Shape: (*, L, 4, 3)
+    # [L, 4]
+    bb_atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type, 0, :4]
 
-    Returns
-    -------
-    bb_frames: Rigid
-        Backbone frames. Shape (*).
-    bb_mask: torch.Tensor
-        Mask indicating if all atoms in frame are present in `coordinates`. Shape (*).
-
-    Notes
-    -----
-    This invokes Kabsch which reads from the masked-out values of the coordinates tensor,
-    so they should be a non-NaN, non-inifinity value, e.g. zero.
-    """
+    bb_xyz = torch.gather(
+        atom_thin_xyz, dim=-2, index=einops.repeat(bb_atom_thin_index, "... -> ... 3")
+    )
+    mask = torch.gather(atom_thin_mask, dim=-1, index=bb_atom_thin_index)
 
     default_xyz, default_mask = make_default_atom_coordinates_tensor()
-    default_xyz = default_xyz.to(backbone_coordinates.device)
-    default_mask = default_mask.to(backbone_coordinates.device)
+    bb_default_xyz = default_xyz.to(residue_type.device)[residue_type, 0, :4, :]
+    mask = mask & default_mask.to(residue_type.device)[residue_type, 0, :4]
 
-    backbone_default_coordinates = default_xyz[residue_type, 0, :4, :]
-    bb_default_mask = default_mask[residue_type, 0, :4]
-
-    # no missing atoms
-    bb_mask = mask.sum(dim=-1) == bb_default_mask.sum(dim=-1)
-
-    bb_frames = Rigid.kabsch(
-        backbone_coordinates,
-        backbone_default_coordinates,
-        weights=(mask & bb_default_mask),
-        keepdim=False,
-    )
+    bb_mask = mask.sum(dim=-1) >= 3
+    bb_frames = Rigid.kabsch(bb_xyz, bb_default_xyz, weights=mask, keepdim=False)
 
     return bb_frames, bb_mask
-
-
-def backbone_frames_to_coordinates(
-    bb_frames: Rigid, bb_mask: Tensor, residue_type: Tensor
-) -> tuple[Tensor, Tensor]:
-    default_xyz, default_mask = make_default_atom_coordinates_tensor()
-    default_xyz = default_xyz.to(bb_frames.t.device)
-    default_mask = default_mask.to(bb_frames.t.device)
-
-    backbone_default_coordinates = default_xyz[residue_type, 0, :4, :]
-    bb_default_mask = default_mask[residue_type, 0, :4]
-
-    backbone_coordinates = torch.unsqueeze(bb_frames, dim=-1)(
-        backbone_default_coordinates
-    )
-
-    mask = bb_mask[..., None] & bb_default_mask
-
-    return backbone_coordinates, mask
 
 
 def _rotation_x(phi: Tensor) -> Tensor:
@@ -267,9 +228,9 @@ def bbt_to_atom_thin(
         residue_type=residue_type,
     )
 
-    # [L, 6, 8, 3]
     default_xyz, default_mask = make_default_atom_coordinates_tensor()
 
+    # [L, 6, 8, 3]
     default_xyz = default_xyz.to(residue_type.device)[residue_type]
     default_mask = default_mask.to(residue_type.device)[residue_type]
 
@@ -287,7 +248,7 @@ def bbt_to_atom_thin(
     atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type]
 
     # [N,]
-    atom_thin_idx = atom_thin_index[xyz_mask]
+    atom_thin_index = atom_thin_index[xyz_mask]
 
     n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
@@ -300,10 +261,13 @@ def bbt_to_atom_thin(
     )
 
     indices = torch.nonzero(xyz_mask, as_tuple=True)
-    atom_thin_xyz = torch.index_put(atom_thin_xyz, (*indices[:-2], atom_thin_idx), xyz)
+
+    atom_thin_xyz = torch.index_put(
+        atom_thin_xyz, (*indices[:-2], atom_thin_index), xyz
+    )
     atom_thin_mask = torch.index_put(
         atom_thin_mask,
-        (*indices[:-2], atom_thin_idx),
+        (*indices[:-2], atom_thin_index),
         torch.as_tensor(True, device=residue_type.device),
     )
 
