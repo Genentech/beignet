@@ -50,7 +50,7 @@ def make_frame_to_xyz_dict() -> dict:
 
 
 @functools.cache
-def make_from_to_xyz_tensors() -> tuple[Tensor, Tensor, Tensor]:
+def make_frame_to_xyz_tensors() -> tuple[Tensor, Tensor, Tensor]:
     """Create tensor holding default atom coordinates for each residue/frame.
 
     Returns
@@ -92,7 +92,7 @@ def atom_thin_to_backbone_frames(
     atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor
 ):
     # [20, 6, 8]
-    default_xyz, default_mask, atom_thin_index = make_from_to_xyz_tensors()
+    default_xyz, default_mask, atom_thin_index = make_frame_to_xyz_tensors()
 
     # [L, 4]
     bb_atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type, 0, :4]
@@ -209,7 +209,7 @@ def bbt_to_atom_thin(
         default_frames=default_frames,
     )
 
-    default_xyz, default_mask, atom_thin_index = make_from_to_xyz_tensors()
+    default_xyz, default_mask, atom_thin_index = make_frame_to_xyz_tensors()
 
     # [L, 6, 8, 3]
     default_xyz = default_xyz.to(residue_type.device)[residue_type]
