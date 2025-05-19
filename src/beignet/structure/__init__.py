@@ -10,9 +10,5 @@ from ._rename_symmetric_atoms import (
 from ._renumber import renumber, renumber_from_gapped
 from ._residue_array import ResidueArray
 from ._rigid import Rigid
-from ._rigid_group_default_frame import (
-    make_bbt_rigid_group_default_frame,
-    make_rigid_group_default_frame_4x4,
-)
 from ._superimpose import rmsd, superimpose
 from ._torsions import atom_thin_to_torsions
