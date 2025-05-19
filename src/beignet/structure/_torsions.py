@@ -115,7 +115,7 @@ def atom_thin_to_oxygen_torsion(
     atom_thin_xyz: Tensor,
     atom_thin_mask: Tensor,
 ) -> tuple[Tensor, Tensor]:
-    reference_atom_indices = (0, 1, 2, 4)  # [N, Ca, C, O]
+    reference_atom_indices = (0, 1, 2, 3)  # [N, Ca, C, O]
     coords = atom_thin_xyz[..., reference_atom_indices, :]  # [..., 4, 3]
     mask = atom_thin_mask[..., reference_atom_indices]
 
