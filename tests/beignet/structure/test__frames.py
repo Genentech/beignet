@@ -1,5 +1,6 @@
 import dataclasses
 
+import pytest
 import torch
 
 from beignet.structure import ResidueArray, rmsd
@@ -76,3 +77,29 @@ def test_bbt_roundtrip_rmsd(structure_7k7r_pdb):
     rmsd_val = rmsd(p_ideal, p_roundtrip).item()
     print(f"{rmsd_val=:0.2e}")
     assert rmsd_val < 1e-4
+
+
+@pytest.mark.parametrize("chi_index", [1, 2, 3, 4])
+def test_chi_mask(structure_7k7r_pdb, chi_index):
+    p = ResidueArray.from_pdb(structure_7k7r_pdb)
+    p = p[ChainSelector(["A", "B"])]
+
+    bb_frames, bb_mask = p.backbone_frames
+    torsions, torsions_mask = p.torsions
+
+    # check that chi1-4 are present before we mask
+    assert torsions_mask[:, (1, 2, 3, 4)].any(dim=0).all().item()
+
+    # mask out chi_i
+    torsions_mask[:, chi_index] = False
+
+    atom_thin_xyz, atom_thin_mask = bbt_to_atom_thin(
+        bb_frames, bb_mask, torsions, torsions_mask, p.residue_type
+    )
+
+    p_masked = dataclasses.replace(
+        p, atom_thin_xyz=atom_thin_xyz, atom_thin_mask=atom_thin_mask
+    )
+    for i in (1, 2, 3, 4):
+        if i >= chi_index:
+            assert not p_masked.torsions[1][:, i].any()
