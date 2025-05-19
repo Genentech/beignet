@@ -14,7 +14,7 @@ from ._rigid_group_default_frame import make_bbt_rigid_group_default_frame
 
 
 @functools.cache
-def make_default_atom_coordinates_dict() -> dict:
+def make_frame_to_xyz_dict() -> dict:
     """Create dictionary with default atom coordinates data.
 
     Returns
@@ -50,72 +50,49 @@ def make_default_atom_coordinates_dict() -> dict:
 
 
 @functools.cache
-def make_default_atom_coordinates_tensor() -> tuple[Tensor, Tensor]:
+def make_from_to_xyz_tensors() -> tuple[Tensor, Tensor, Tensor]:
     """Create tensor holding default atom coordinates for each residue/frame.
 
     Returns
     -------
-    frame6_atom8: Tensor
+    xyz: Tensor
         Shape [N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3] == [20, 6, 8, 3]
-    """
-    frame_to_default_atom_coordinates = make_default_atom_coordinates_dict()
-    N_RESIDUE_TYPES = 20
-    N_FRAMES = 6  # bb, 0, chi1, chi2, chi3, chi4
-    MAX_N_ATOMS_PER_FRAME = max(
-        v[1].shape[0] for _, v in frame_to_default_atom_coordinates.items()
-    )
-    atom_coordinates = torch.zeros(N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3)
-    atom_coordinates_mask = torch.zeros(
-        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.bool
-    )
-    for (i, j), (
-        _,
-        default_atom_coordinates,
-    ) in frame_to_default_atom_coordinates.items():
-        n_atoms = default_atom_coordinates.shape[0]
-        atom_coordinates[i, j, :n_atoms, :] = default_atom_coordinates
-        atom_coordinates_mask[i, j, :n_atoms] = True
-
-    return atom_coordinates, atom_coordinates_mask
-
-
-@functools.cache
-def make_default_atom_coordinates_atom_thin_index_tensor() -> tuple[Tensor, Tensor]:
-    """Create masked tensor holding the atom_wide index for each residue/frame.
-
-    Returns
-    -------
-    atom_index: Tensor
+    mask: Tensor
+        Shape [N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME] == [20, 6, 8]
+    atom_thin_index: Tensor
         Shape [N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME] == [20, 6, 8]
     """
-    frame_to_default_atom_coordinates = make_default_atom_coordinates_dict()
+    frame_to_xyz = make_frame_to_xyz_dict()
     N_RESIDUE_TYPES = 20
     N_FRAMES = 6  # bb, 0, chi1, chi2, chi3, chi4
-    MAX_N_ATOMS_PER_FRAME = max(
-        v[1].shape[0] for _, v in frame_to_default_atom_coordinates.items()
-    )
-    atom_index = torch.zeros(
-        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.int64
-    )
-    atom_index_mask = torch.zeros(
+    MAX_N_ATOMS_PER_FRAME = max(v[1].shape[0] for _, v in frame_to_xyz.items())
+    xyz = torch.zeros(N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3)
+    mask = torch.zeros(
         N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.bool
     )
-    for (i, j), (atom_names, _) in frame_to_default_atom_coordinates.items():
-        n_atoms = len(atom_names)
+    atom_thin_index = torch.zeros(
+        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.int64
+    )
+    for (i, j), (
+        atom_names,
+        default_xyz,
+    ) in frame_to_xyz.items():
         resname = AMINO_ACID_1_TO_3[STANDARD_RESIDUES[i]]
-        atom_index[i, j, :n_atoms] = torch.tensor(
+        n_atoms = default_xyz.shape[0]
+        xyz[i, j, :n_atoms, :] = default_xyz
+        mask[i, j, :n_atoms] = True
+        atom_thin_index[i, j, :n_atoms] = torch.tensor(
             [ATOM_THIN_ATOMS[resname].index(n) for n in atom_names]
         )
-        atom_index_mask[i, j, :n_atoms] = True
 
-    return atom_index, atom_index_mask
+    return xyz, mask, atom_thin_index
 
 
 def atom_thin_to_backbone_frames(
     atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor
 ):
     # [20, 6, 8]
-    atom_thin_index, _ = make_default_atom_coordinates_atom_thin_index_tensor()
+    default_xyz, default_mask, atom_thin_index = make_from_to_xyz_tensors()
 
     # [L, 4]
     bb_atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type, 0, :4]
@@ -125,7 +102,6 @@ def atom_thin_to_backbone_frames(
     )
     mask = torch.gather(atom_thin_mask, dim=-1, index=bb_atom_thin_index)
 
-    default_xyz, default_mask = make_default_atom_coordinates_tensor()
     bb_default_xyz = default_xyz.to(residue_type.device)[residue_type, 0, :4, :]
     mask = mask & default_mask.to(residue_type.device)[residue_type, 0, :4]
 
@@ -228,7 +204,7 @@ def bbt_to_atom_thin(
         residue_type=residue_type,
     )
 
-    default_xyz, default_mask = make_default_atom_coordinates_tensor()
+    default_xyz, default_mask, atom_thin_index = make_from_to_xyz_tensors()
 
     # [L, 6, 8, 3]
     default_xyz = default_xyz.to(residue_type.device)[residue_type]
@@ -240,9 +216,6 @@ def bbt_to_atom_thin(
 
     # [N, 3]
     xyz = xyz[xyz_mask]
-
-    # [20, 6, 8]
-    atom_thin_index, _ = make_default_atom_coordinates_atom_thin_index_tensor()
 
     # [L, 6, 8]
     atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type]
