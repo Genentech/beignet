@@ -70,6 +70,8 @@ def test_bbt_roundtrip_rmsd(structure_7k7r_pdb):
         atom_thin_mask=atom_thin_mask_roundtrip,
     )
 
+    assert torch.equal(p_ideal.atom_thin_mask, p_roundtrip.atom_thin_mask)
+
     bb_rmsd_val = rmsd(p_ideal, p_roundtrip, selector=PeptideBackboneSelector()).item()
     print(f"{bb_rmsd_val=:0.2e}")
     assert bb_rmsd_val < 1e-4
