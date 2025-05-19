@@ -147,10 +147,13 @@ def bbt_to_global_frames(
     torsions: Tensor,
     torsions_mask: Tensor,
     residue_type: Tensor,
+    default_frames: Rigid | None = None,
 ) -> tuple[Rigid, Tensor]:
-    default_frames = make_bbt_rigid_group_default_frame().to(
-        dtype=bb_frames.t.dtype, device=bb_frames.t.device
-    )[residue_type]
+    if default_frames is None:
+        default_frames = make_bbt_rigid_group_default_frame().to(
+            dtype=bb_frames.t.dtype, device=bb_frames.t.device
+        )
+        default_frames = default_frames[residue_type]
 
     psi_o, chi1, chi2, chi3, chi4 = torsions.unbind(dim=-1)
     psi_o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask = torsions_mask.unbind(
@@ -195,6 +198,7 @@ def bbt_to_atom_thin(
     torsions: Tensor,
     torsions_mask: Tensor,
     residue_type: Tensor,
+    default_frames: Rigid | None = None,
 ) -> tuple[Tensor, Tensor]:
     global_frames, global_frames_mask = bbt_to_global_frames(
         bb_frames=bb_frames,
@@ -202,6 +206,7 @@ def bbt_to_atom_thin(
         torsions=torsions,
         torsions_mask=torsions_mask,
         residue_type=residue_type,
+        default_frames=default_frames,
     )
 
     default_xyz, default_mask, atom_thin_index = make_from_to_xyz_tensors()
