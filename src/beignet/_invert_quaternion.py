@@ -1,5 +1,7 @@
 from torch import Tensor
 
+from ._canonicalize_quaternion import canonicalize_quaternion
+
 
 def invert_quaternion(
     input: Tensor,
@@ -26,6 +28,9 @@ def invert_quaternion(
     inverted_quaternions : Tensor, shape (..., 4)
         Inverted rotation quaternions.
     """
-    input[:, :3] = -input[:, :3]
+    input[..., :3] = -input[..., :3]
+
+    if canonical:
+        return canonicalize_quaternion(input)
 
     return input

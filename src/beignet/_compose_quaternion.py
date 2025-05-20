@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+from ._canonicalize_quaternion import canonicalize_quaternion
+
 
 def compose_quaternion(
     input: Tensor,
@@ -31,43 +33,22 @@ def compose_quaternion(
     output : Tensor, shape=(..., 4)
         Composed rotation quaternions.
     """
-    output = torch.empty(
-        [max(input.shape[0], other.shape[0]), 4],
-        dtype=input.dtype,
-        layout=input.layout,
-        device=input.device,
-    )
 
-    for j in range(max(input.shape[0], other.shape[0])):
-        a = input[j, 0]
-        b = input[j, 1]
-        c = input[j, 2]
-        d = input[j, 3]
+    a, b, c, d = torch.unbind(input, dim=-1)
+    p, q, r, s = torch.unbind(other, dim=-1)
 
-        p = other[j, 0]
-        q = other[j, 1]
-        r = other[j, 2]
-        s = other[j, 3]
+    t = d * p + s * a + b * r - c * q
+    u = d * q + s * b + c * p - a * r
+    v = d * r + s * c + a * q - b * p
+    w = d * s - a * p - b * q - c * r
 
-        t = output[j, 0]
-        u = output[j, 1]
-        v = output[j, 2]
-        w = output[j, 3]
+    output = torch.stack([t, u, v, w], dim=-1)
 
-        output[j, 0] = d * p + s * a + b * r - c * q
-        output[j, 1] = d * q + s * b + c * p - a * r
-        output[j, 2] = d * r + s * c + a * q - b * p
-        output[j, 3] = d * s - a * p - b * q - c * r
+    x = torch.sqrt(torch.sum(torch.square(output), dim=-1, keepdim=True))
 
-        x = torch.sqrt(t**2.0 + u**2.0 + v**2.0 + w**2.0)
+    output = torch.where(x == 0.0, torch.nan, output / x)
 
-        if x == 0.0:
-            output[j] = torch.nan
-
-        output[j] = output[j] / x
-
-        if canonical:
-            if w == 0 and (t == 0 and (u == 0 and v < 0 or u < 0) or t < 0) or w < 0:
-                output[j] = -output[j]
+    if canonical:
+        return canonicalize_quaternion(output)
 
     return output
