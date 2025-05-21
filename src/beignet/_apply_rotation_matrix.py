@@ -40,8 +40,8 @@ def apply_rotation_matrix(
         Rotated vectors.
     """
     if inverse:
-        output = torch.einsum("ikj, ik -> ij", rotation, input)
+        output = torch.einsum("...kj, ...k -> ...j", rotation, input)
     else:
-        output = torch.einsum("ijk, ik -> ij", rotation, input)
+        output = torch.einsum("...jk, ...k -> ...j", rotation, input)
 
     return output
