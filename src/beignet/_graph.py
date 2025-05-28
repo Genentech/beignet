@@ -1,262 +1,274 @@
+from jaxtyping import Float, Int
 from torch import Tensor
 
 
-def breath_first_ordering(input: Tensor, start: Tensor) -> Tensor:
+def breath_first_ordering(
+    input: Float[Tensor, "batch n n"],
+    start: Int[Tensor, " batch"],
+) -> Float[Tensor, "batch n"]:
     """
-    Breadth-first orderings of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing directed graphs.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
-    start : int
-        Indexes of the starting nodes.
+    start : Int[Tensor, "batch"]
+        Start node indexes.
 
     Returns
     -------
-    output : Tensor
-        Breadth-first orderings of directed graphs.
-
-    Note
-    ----
-    A breadth-first ordering is not unique, but a breadth-first tree that
-    yields a breath-first ordering is unique.
+    output : Float[Tensor, "batch n"]
+        Breadth-first orderings.
     """
     pass
 
 
-def breadth_first_tree(input: Tensor, start: Tensor) -> Tensor:
+def breadth_first_tree(
+    input: Float[Tensor, "batch n n"],
+    start: Int[Tensor, " batch"],
+) -> Float[Tensor, "batch n"]:
     """
-    Breadth-first trees of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing directed graphs.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
-    start : int
-        Indexes of the starting nodes.
+    start : Int[Tensor, "batch"]
+        Start node indexes.
 
     Returns
     -------
-    output : Tensor
-        Breadth-first trees of directed graphs.
+    output : Float[Tensor, "batch n"]
+        Breadth-first trees.
     """
     pass
 
 
-def cuthill_mckee(input: Tensor) -> Tensor:
+def cuthill_mckee(
+    input: Float[Tensor, "batch m n"],
+) -> Float[Tensor, "batch m"]:
     """
-    Cuthill-McKee orderings of sparse matrices.
-
     Parameters
     ----------
-    input : Tensor
+    input : Float[Tensor, "batch m n"]
         Sparse matrices.
 
     Returns
     -------
-    output : Tensor
-        Cuthill-McKee orderings of sparse matrices.
+    output : Float[Tensor, "batch m"]
+        Cuthill-McKee orderings
     """
     pass
 
 
-def depth_first_ordering(input: Tensor, start: Tensor) -> Tensor:
+def depth_first_ordering(
+    input: Float[Tensor, "batch n n"],
+    start: Int[Tensor, " batch"],
+) -> Float[Tensor, "batch n"]:
     """
-    Depth-first orderings of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing directed graphs.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
-    start : int
-        Indexes of the starting nodes.
-
-    Note
-    ----
-    Neither the depth-first ordering or the depth-first tree that yields the
-    depth-first ordering is unique.
+    start : Int[Tensor, " batch"]
+        Start node indexes.
 
     Returns
     -------
-    output : Tensor
-        Depth-first orderings of directed graphs.
+    output : Float[Tensor, "batch n"]
+        Depth-first orderings.
     """
     pass
 
 
-def depth_first_tree(input: Tensor, start: Tensor) -> Tensor:
+def depth_first_tree(
+    input: Float[Tensor, "batch n n"],
+    start: Int[Tensor, " batch"],
+) -> Float[Tensor, "batch n"]:
     """
-    Depth-first trees of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing directed graphs.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
-    start : int
-        Indexes of the starting nodes.
+    start : Int[Tensor, " batch"]
+        Start node indexes.
 
     Returns
     -------
-    output : Tensor
-        Depth-first trees of directed graphs.
+    output : Float[Tensor, "batch n"]
+        Depth-first trees.
     """
     pass
 
 
-def dinic(input: Tensor, source: Tensor, sink: Tensor) -> Tensor:
-    """
-    Maximize the flow between two nodes.
-
+def dinic(
+    input: Int[Tensor, "batch n n"],
+    source: Int[Tensor, " batch"],
+    sink: Int[Tensor, " batch"],
+) -> Float[Tensor, " batch"]:
+    r"""
     Parameters
     ----------
-    input :    Tensor
-        Square matrices representing a directed graph whose :math:`(i, j)`
-        entry is an integer representing the capacity of the edge between
-        vertices :math:`i` and :math:`j`.
+    input : Int[Tensor, "batch n n"],
+        Directed graphs where :math:`(i, j)` is the capacity of the edge
+        between :math:`i` and :math:`j`.
 
-    source : Tensor
-        Indexes of the source nodes.
+    source : Int[Tensor, "batch"],
+        Source node indexes.
 
-    sink : int
-        Indexes of the sink nodes.
+    sink : Int[Tensor, "batch"],
+        Sink node indexes.
 
     Returns
     -------
-    output : Tensor
-        Maximum flows from the source nodes to the sink nodes.
+    output : Float[Tensor, "batch"]
+        Maximum flows.
     """
     pass
 
 
-def edmonds_karp(input: Tensor, source: Tensor, sink: Tensor) -> Tensor:
+def edmonds_karp(
+    input: Int[Tensor, "batch n n"],
+    source: Int[Tensor, " batch"],
+    sink: Int[Tensor, " batch"],
+) -> Float[Tensor, " batch"]:
     """
-    Maximize the flow between two nodes.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing a directed graph whose :math:`(i, j)`
-        entry is an integer representing the capacity of the edge between
-        vertices :math:`i` and :math:`j`.
+    input : Int[Tensor, "batch n n"],
+        Directed graphs where :math:`(…, i, j)` are the capacities of the edges
+        between :math:`i` and :math:`j`.
 
-    source : Tensor
-        Indexes of the source nodes.
+    source : Int[Tensor, "batch"],
+        Source node indexes.
 
-    sink : int
-        Indexes of the sink nodes.
+    sink : Int[Tensor, "batch"],
+        Sink node indexes.
 
     Returns
     -------
-    output : Tensor
-        Maximum flows from the source nodes to the sink nodes.
+    output : Float[Tensor, "batch"]
+        Maximum flows.
     """
     pass
 
 
-def hopcroft_karp(input: Tensor) -> Tensor:
+def hopcroft_karp(
+    input: Float[Tensor, "batch m n"],
+) -> Float[Tensor, "batch m n"]:
     """
-    Maximum cardinality matchings of bipartite graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Matrices representing bipartite graphs.
+    input : Float[Tensor, "batch m n"]
+        Bipartite graphs.
 
     Returns
     -------
-    output : Tensor
-        Square matrices representing maximum cardinality matchings of bipartite graphs.
+    output : Float[Tensor, "batch m n"]
+        Maximum cardinality matchings.
     """
     pass
 
 
-def kruskal(input: Tensor) -> Tensor:
+def kruskal(
+    input: Float[Tensor, "batch n n"],
+) -> Float[Tensor, "batch n n"]:
     """
-    Minimum spanning forests of undirected edge-weighted graphs.
-
     Parameters
     ----------
-    input : Tensor
-        Square matrices representing undirected edge-weighted graphs.
+    input : Float[Tensor, "batch n n"]
+        Undirected graphs.
 
     Returns
     -------
-    output : Tensor
-        Square matrices representing undirected minimum spanning forests.
-
-    Note
-    ----
-    If a graph is unconnected, the minimum spanning forest is returned (i.e.,
-    the union of the minimum spanning trees on each connected component).
-
-    Example
-    -------
-    >>> import beignet
-    >>> import torch
-    >>> input = torch.tensor([[0, 8, 0, 3], [0, 0, 2, 5], [0, 0, 0, 6], [0, 0, 0, 0]])
-    >>> input = input.to_sparse_csr()
-    >>> output = beignet.kruskal(input)
-    tensor([[0, 0, 0, 3],
-            [0, 0, 2, 5],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]])
+    output : Float[Tensor, "batch n n"]
+        Undirected minimum spanning forests.
     """
     pass
 
 
-def laplacian_matrix(input: Tensor) -> Tensor:
+def laplacian_matrix(
+    input: Float[Tensor, "batch n n"],
+) -> Float[Tensor, "batch n n"]:
     """
-    Laplacian matrices of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        The adjacency matrix of the graph, where `input[i, j]` represents the
-        weight of the edge from node `i` to node `j`.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
     Returns
     -------
-    output : Tensor
-        Laplacian matrices of directed graphs.
+    output : Float[Tensor, "batch n n"]
+        Laplacian matrices.
     """
     pass
 
 
-def reverse_cuthill_mckee(input: Tensor) -> Tensor:
+def reverse_cuthill_mckee(
+    input: Float[Tensor, "batch m n"],
+) -> Float[Tensor, "batch m"]:
     """
-    Reverse Cuthill-McKee orderings of sparse matrices.
-
     Parameters
     ----------
-    input : Tensor
+    input : Float[Tensor, "batch m n"]
         Sparse matrices.
 
     Returns
     -------
-    output : Tensor
-        Reverse Cuthill-McKee orderings of sparse matrices.
+    output : Float[Tensor, "batch m"]
+        Reverse Cuthill-McKee orderings
     """
     pass
 
 
-def symmetrically_normalized_laplacian_matrix(input: Tensor) -> Tensor:
+def strongly_connected_components(
+    input: Float[Tensor, "batch n n"],
+) -> Int[Tensor, "batch n"]:
     """
-    Symmetrically normalized Laplacian matrices of directed graphs.
-
     Parameters
     ----------
-    input : Tensor
-        The adjacency matrix of the graph, where `input[i, j]` represents the
-        weight of the edge from node `i` to node `j`.
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
 
     Returns
     -------
-    output : Tensor
+    output : Int[Tensor, "batch n"]
+        Strongly connected components.
+    """
+    pass
+
+
+def symmetrically_normalized_laplacian_matrix(
+    input: Float[Tensor, "batch n n"],
+) -> Float[Tensor, "batch n n"]:
+    """
+    Parameters
+    ----------
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
+
+    Returns
+    -------
+    output : Float[Tensor, "batch n n"]
         Symmetrically normalized Laplacian matrices.
+    """
+    pass
+
+
+def weak_components(
+    input: Float[Tensor, "batch n n"],
+) -> Int[Tensor, "batch n"]:
+    """
+    Parameters
+    ----------
+    input : Float[Tensor, "batch n n"]
+        Directed graphs.
+
+    Returns
+    -------
+    output : Int[Tensor, "batch n"]
+        Weak components.
     """
     pass
