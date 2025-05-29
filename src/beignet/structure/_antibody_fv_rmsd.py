@@ -140,7 +140,6 @@ def antibody_fv_rmsd(
                         selector,
                     ]
                 ),
-                rename_symmetric_atoms=False,
             )
             for cdr in heavy_cdrs
         }
@@ -175,7 +174,6 @@ def antibody_fv_rmsd(
                         selector,
                     ]
                 ),
-                rename_symmetric_atoms=False,
             )
             for cdr in light_cdrs
         }
