@@ -4,7 +4,6 @@ from torch import Tensor
 
 def quaternion_identity(
     size: int,
-    canonical: bool | None = False,
     *,
     out: Tensor | None = None,
     dtype: torch.dtype | None = None,
@@ -19,14 +18,6 @@ def quaternion_identity(
     ----------
     size : int
         Output size.
-
-    canonical : bool, optional
-        Whether to map the redundant double cover of rotation space to a unique
-        canonical single cover. If `True`, then the rotation quaternion is
-        chosen from :math:`{q, -q}` such that the :math:`w` term is positive.
-        If the :math:`w` term is :math:`0`, then the rotation quaternion is
-        chosen such that the first non-zero term of the :math:`x`, :math:`y`,
-        and :math:`z` terms is positive.
 
     out : Tensor, optional
         Output tensor. Default, `None`.
