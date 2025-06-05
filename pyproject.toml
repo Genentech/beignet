@@ -38,7 +38,7 @@ mdtraj = [
     "mdtraj",
 ]
 test = [
-    "hypothesis",
+    "hypothesis>=6.135.0",
     "numpy==1.26.4",
     "pytest",
     "pytest-mock",
