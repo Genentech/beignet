@@ -19,7 +19,9 @@ from ._apply_quaternion import (
 from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
+from ._bellman_ford import bellman_ford
 from ._bisect import bisect
+from ._breadth_first_search import breadth_first_search
 from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
@@ -43,6 +45,7 @@ from ._compose_quaternion import compose_quaternion
 from ._compose_rotation_matrix import compose_rotation_matrix
 from ._compose_rotation_vector import compose_rotation_vector
 from ._convolve import convolve
+from ._depth_first_search import depth_first_search
 from ._differentiate_chebyshev_polynomial import differentiate_chebyshev_polynomial
 from ._differentiate_laguerre_polynomial import differentiate_laguerre_polynomial
 from ._differentiate_legendre_polynomial import differentiate_legendre_polynomial
@@ -53,6 +56,8 @@ from ._differentiate_polynomial import differentiate_polynomial
 from ._differentiate_probabilists_hermite_polynomial import (
     differentiate_probabilists_hermite_polynomial,
 )
+from ._dijkstra import dijkstra
+from ._dinic import dinic
 from ._divide_chebyshev_polynomial import divide_chebyshev_polynomial
 from ._divide_laguerre_polynomial import divide_laguerre_polynomial
 from ._divide_legendre_polynomial import divide_legendre_polynomial
@@ -61,6 +66,7 @@ from ._divide_polynomial import divide_polynomial
 from ._divide_probabilists_hermite_polynomial import (
     divide_probabilists_hermite_polynomial,
 )
+from ._edmonds_karp import edmonds_karp
 from ._euler_angle_identity import euler_angle_identity
 from ._euler_angle_magnitude import euler_angle_magnitude
 from ._euler_angle_mean import euler_angle_mean
@@ -139,6 +145,7 @@ from ._fit_legendre_polynomial import fit_legendre_polynomial
 from ._fit_physicists_hermite_polynomial import fit_physicists_hermite_polynomial
 from ._fit_polynomial import fit_polynomial
 from ._fit_probabilists_hermite_polynomial import fit_probabilists_hermite_polynomial
+from ._floyd_warshall import floyd_warshall
 from ._gauss_laguerre_quadrature import gauss_laguerre_quadrature
 from ._gauss_legendre_quadrature import gauss_legendre_quadrature
 from ._gauss_physicists_hermite_polynomial_quadrature import (
@@ -147,6 +154,7 @@ from ._gauss_physicists_hermite_polynomial_quadrature import (
 from ._gauss_probabilists_hermite_polynomial_quadrature import (
     gauss_probabilists_hermite_polynomial_quadrature,
 )
+from ._hopcroft_karp import hopcroft_karp
 from ._integrate_chebyshev_polynomial import integrate_chebyshev_polynomial
 from ._integrate_laguerre_polynomial import integrate_laguerre_polynomial
 from ._integrate_legendre_polynomial import integrate_legendre_polynomial
@@ -162,6 +170,8 @@ from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
+from ._johnson import johnson
+from ._kruskal import kruskal
 from ._laguerre_polynomial_companion import laguerre_polynomial_companion
 from ._laguerre_polynomial_domain import laguerre_polynomial_domain
 from ._laguerre_polynomial_from_roots import laguerre_polynomial_from_roots
@@ -334,6 +344,7 @@ from ._rotation_vector_to_quaternion import (
 from ._rotation_vector_to_rotation_matrix import (
     rotation_vector_to_rotation_matrix,
 )
+from ._strongly_connected_components import strongly_connected_components
 from ._subtract_chebyshev_polynomial import subtract_chebyshev_polynomial
 from ._subtract_laguerre_polynomial import subtract_laguerre_polynomial
 from ._subtract_legendre_polynomial import subtract_legendre_polynomial
@@ -361,6 +372,8 @@ from ._trim_polynomial_coefficients import trim_polynomial_coefficients
 from ._trim_probabilists_hermite_polynomial_coefficients import (
     trim_probabilists_hermite_polynomial_coefficients,
 )
+from ._weak_components import weak_components
+from ._yen import yen
 from .special import error_erf, error_erfc
 
 __all__ = [
@@ -375,6 +388,7 @@ __all__ = [
     "apply_rotation_matrix",
     "apply_rotation_vector",
     "apply_transform",
+    "bellman_ford",
     "chebyshev_extrema",
     "chebyshev_gauss_quadrature",
     "chebyshev_interpolation",

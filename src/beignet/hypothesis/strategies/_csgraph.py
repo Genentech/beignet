@@ -12,6 +12,7 @@ def csr_array_graph(
     dtypes: List[numpy.dtype] | None = None,
     integer_weights: bool = False,
     allow_negative: bool = True,
+    force_int32_indices: bool = False,
 ) -> scipy.sparse.csr_array:
     """
     Generate CSR arrays representing graphs with configurable weight properties.
@@ -26,6 +27,9 @@ def csr_array_graph(
     allow_negative : bool
         If True, allow negative weights. If False, generate only non-negative weights
         (useful for algorithms that don't handle negative cycles).
+    force_int32_indices : bool
+        If True, force indices and indptr arrays to be int32 dtype for SciPy
+        compatibility.
     """
     n = draw(
         hypothesis.strategies.integers(
@@ -78,7 +82,7 @@ def csr_array_graph(
                 max_value=+10,
             )
 
-    return scipy.sparse.csr_array(
+    csr = scipy.sparse.csr_array(
         (
             numpy.asarray(
                 draw(
@@ -118,13 +122,22 @@ def csr_array_graph(
         shape=(n, n),
     )
 
+    # Force int32 indices for SciPy compatibility if requested
+    if force_int32_indices:
+        csr.indices = csr.indices.astype(numpy.int32)
+        csr.indptr = csr.indptr.astype(numpy.int32)
+
+    return csr
+
 
 # Convenience functions for backward compatibility and common use cases
 def csr_array_no_negative_cycles(**kwargs):
     """Generate CSR arrays without negative cycles (no negative weights)."""
+    kwargs.setdefault("force_int32_indices", True)
     return csr_array_graph(allow_negative=False, **kwargs)
 
 
 def csr_array_integer_weights(**kwargs):
     """Generate CSR arrays with integer weights for flow algorithms."""
+    kwargs.setdefault("force_int32_indices", True)
     return csr_array_graph(integer_weights=True, allow_negative=False, **kwargs)
