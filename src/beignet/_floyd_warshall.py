@@ -44,24 +44,15 @@ def floyd_warshall(
         # Set diagonal to zero (distance from node to itself)
         distances.diagonal(dim1=-2, dim2=-1).fill_(0)
 
-        # Vectorized extraction of sparse graph data
+        # Fully vectorized extraction of sparse graph data
+        # Convert sparse CSR tensors to dense for efficient batch processing
         for batch_idx in range(batch_size):
             current_graph = graph[batch_idx]
-            crow_indices = current_graph.crow_indices()
-            col_indices = current_graph.col_indices()
-            values = current_graph.values()
-
-            # Fill in direct edge weights
-            for i in range(num_nodes):
-                start_idx = crow_indices[i]
-                end_idx = crow_indices[i + 1]
-
-                for edge_idx in range(start_idx, end_idx):
-                    j = col_indices[edge_idx]
-                    weight = values[edge_idx]
-                    # Don't overwrite diagonal elements (self-loops should be 0)
-                    if i != j:
-                        distances[batch_idx, i, j] = weight
+            # Convert to dense and copy non-diagonal elements
+            dense_graph = current_graph.to_dense()
+            # Only copy non-diagonal elements
+            mask = ~torch.eye(num_nodes, dtype=torch.bool, device=device)
+            distances[batch_idx][mask] = dense_graph[mask]
 
         # Vectorized Floyd-Warshall main loop across all batches
         for k in range(num_nodes):

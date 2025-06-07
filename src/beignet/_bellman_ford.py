@@ -50,34 +50,39 @@ def bellman_ford(
         batch_indices = torch.arange(batch_size, device=device)
         distances[batch_indices, source] = 0
 
+        # Convert sparse graphs to dense for vectorized operations
+        dense_graphs = torch.zeros(
+            (batch_size, num_nodes, num_nodes), dtype=dtype, device=device
+        )
+        for batch_idx in range(batch_size):
+            dense_graphs[batch_idx] = graph[batch_idx].to_dense()
+
         # Bellman-Ford relaxation (V-1 iterations)
         for _ in range(num_nodes - 1):
             prev_distances = distances.clone()
 
-            # Vectorized edge relaxation across all batches
-            for batch_idx in range(batch_size):
-                current_graph = graph[batch_idx]
-                crow_indices = current_graph.crow_indices()
-                col_indices = current_graph.col_indices()
-                values = current_graph.values()
+            # Fully vectorized edge relaxation across all batches
+            # For each source node, compute distances to all neighbors
+            distances_expanded = distances.unsqueeze(2)  # (batch_size, num_nodes, 1)
+            edge_weights = dense_graphs  # (batch_size, num_nodes, num_nodes)
 
-                # Relax all edges for this batch
-                for src in range(num_nodes):
-                    if distances[batch_idx, src] == float("inf"):
-                        continue
+            # Create mask for valid edges (non-zero weights)
+            valid_edges = edge_weights != 0
 
-                    # Get edges from this source node
-                    start_idx = crow_indices[src]
-                    end_idx = crow_indices[src + 1]
+            # Compute new distances: distances[src] + edge_weight[src, dst]
+            new_distances = distances_expanded + edge_weights
 
-                    for edge_idx in range(start_idx, end_idx):
-                        dst = col_indices[edge_idx]
-                        edge_weight = values[edge_idx]
+            # Only consider valid edges and finite source distances
+            finite_sources = (distances != float("inf")).unsqueeze(2)
+            valid_updates = valid_edges & finite_sources
 
-                        # Relax edge
-                        new_distance = distances[batch_idx, src] + edge_weight
-                        if new_distance < distances[batch_idx, dst]:
-                            distances[batch_idx, dst] = new_distance
+            # Apply relaxation: take minimum of current distance and new distance
+            masked_new_distances = torch.where(
+                valid_updates, new_distances, torch.tensor(float("inf"), device=device)
+            )
+            # Take minimum across all possible source nodes for each destination
+            min_distances, _ = torch.min(masked_new_distances, dim=1)
+            distances = torch.minimum(distances, min_distances)
 
             # Early termination if no improvement across all batches
             if torch.allclose(distances, prev_distances):

@@ -54,6 +54,13 @@ def dijkstra(
         # Track visited nodes for all batches
         visited = torch.zeros((batch_size, num_nodes), dtype=torch.bool, device=device)
 
+        # Convert sparse graphs to dense for vectorized operations
+        dense_graphs = torch.zeros(
+            (batch_size, num_nodes, num_nodes), dtype=dtype, device=device
+        )
+        for batch_idx in range(batch_size):
+            dense_graphs[batch_idx] = graph[batch_idx].to_dense()
+
         # Dijkstra's main loop
         for _ in range(num_nodes):
             # Find unvisited node with minimum distance for each batch
@@ -69,30 +76,33 @@ def dijkstra(
             # Mark current nodes as visited
             visited[batch_indices, current_nodes] = True
 
-            # Update distances for each batch
-            for batch_idx in range(batch_size):
-                if min_dists[batch_idx] == float("inf"):
-                    continue  # No reachable nodes left in this batch
+            # Vectorized distance updates for all batches
+            # Get current distances for each batch's current node
+            current_distances = distances[batch_indices, current_nodes]  # (batch_size,)
 
-                current = current_nodes[batch_idx]
-                current_graph = graph[batch_idx]
-                crow_indices = current_graph.crow_indices()
-                col_indices = current_graph.col_indices()
-                values = current_graph.values()
+            # Get edge weights from current nodes to all neighbors
+            # Shape: (batch_size, num_nodes)
+            edge_weights = dense_graphs[batch_indices, current_nodes, :]
 
-                # Get edges from current node
-                start_idx = crow_indices[current]
-                end_idx = crow_indices[current + 1]
+            # Compute new distances: current_distance + edge_weight
+            current_distances_expanded = current_distances.unsqueeze(
+                1
+            )  # (batch_size, 1)
+            new_distances = (
+                current_distances_expanded + edge_weights
+            )  # (batch_size, num_nodes)
 
-                # Update distances to neighbors
-                for edge_idx in range(start_idx, end_idx):
-                    neighbor = col_indices[edge_idx]
-                    edge_weight = values[edge_idx]
+            # Create mask for valid updates (non-zero edges and unvisited nodes)
+            valid_edges = edge_weights != 0
+            unvisited = ~visited
+            valid_updates = valid_edges & unvisited
 
-                    if not visited[batch_idx, neighbor]:
-                        new_distance = distances[batch_idx, current] + edge_weight
-                        if new_distance < distances[batch_idx, neighbor]:
-                            distances[batch_idx, neighbor] = new_distance
+            # Only update where new distance is better
+            better_distance = new_distances < distances
+            should_update = valid_updates & better_distance
+
+            # Apply updates
+            distances = torch.where(should_update, new_distances, distances)
 
         return distances
     else:

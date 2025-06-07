@@ -55,6 +55,13 @@ def breadth_first_search(
         result[batch_indices, 0] = source
         order_pos[:] = 1
 
+        # Convert sparse graphs to dense for efficient neighbor access
+        dense_graphs = torch.zeros(
+            (batch_size, num_nodes, num_nodes), dtype=torch.bool, device=device
+        )
+        for batch_idx in range(batch_size):
+            dense_graphs[batch_idx] = graph[batch_idx].to_dense() != 0
+
         # Current level nodes for each batch (initially just sources)
         current_level = torch.full(
             (batch_size, num_nodes), -1, dtype=dtype, device=device
