@@ -10,7 +10,8 @@ def johnson(
 
     Johnson's algorithm combines Bellman-Ford and Dijkstra's algorithms to
     efficiently compute all-pairs shortest paths in sparse graphs with
-    negative edge weights (but no negative cycles).
+    negative edge weights (but no negative cycles). This implementation
+    supports batched operations.
 
     Note: This is a simplified implementation that uses Floyd-Warshall
     for small graphs to avoid complex sparse tensor operations.
@@ -19,15 +20,48 @@ def johnson(
     ----------
     graph : Tensor
         Sparse CSR tensor representing the weighted adjacency matrix with
-        shape (num_nodes, num_nodes). Non-zero entries represent edge weights.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edge weights.
 
     Returns
     -------
     distances : Tensor
-        Matrix of shortest distances between all pairs of nodes with shape
-        (num_nodes, num_nodes). distances[i, j] is the shortest distance
+        Matrix of shortest distances between all pairs of nodes. For single graphs,
+        shape (num_nodes, num_nodes). For batched operation, shape
+        (batch_size, num_nodes, num_nodes). distances[i, j] is the shortest distance
         from node i to node j. Unreachable pairs have distance infinity.
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        num_nodes = graph.shape[-1]
+        device = graph.device
+        dtype = graph.dtype
+
+        # For small graphs, use vectorized Floyd-Warshall for all batches
+        if num_nodes <= 10:
+            return _vectorized_floyd_warshall_johnson(graph)
+
+        # For larger graphs, fall back to sequential processing
+        # (full Johnson vectorization is complex due to sparse operations)
+        result = torch.full(
+            (batch_size, num_nodes, num_nodes), float("inf"), dtype=dtype, device=device
+        )
+
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            distances = _single_graph_johnson(current_graph)
+            result[batch_idx] = distances
+
+        return result
+    else:
+        # Single graph operation
+        return _single_graph_johnson(graph)
+
+
+def _single_graph_johnson(graph: Tensor) -> Tensor:
+    """Internal function for single graph Johnson's algorithm."""
     num_nodes = graph.shape[-1]
 
     # For small graphs, use Floyd-Warshall for simplicity
@@ -38,6 +72,53 @@ def johnson(
     # For larger graphs, use actual Johnson's algorithm
     # (not implemented here due to gradient complexity)
     return _floyd_warshall_johnson(graph)
+
+
+def _vectorized_floyd_warshall_johnson(graph: Tensor) -> Tensor:
+    """Vectorized Floyd-Warshall implementation for Johnson's algorithm."""
+    batch_size = graph.shape[0]
+    num_nodes = graph.shape[-1]
+    device = graph.device
+    dtype = graph.dtype
+
+    # Initialize distance matrices with infinity
+    distances = torch.full(
+        (batch_size, num_nodes, num_nodes), float("inf"), dtype=dtype, device=device
+    )
+
+    # Set diagonal to zero (distance from node to itself)
+    distances.diagonal(dim1=-2, dim2=-1).fill_(0)
+
+    # Vectorized extraction of sparse graph data
+    for batch_idx in range(batch_size):
+        current_graph = graph[batch_idx]
+        crow_indices = current_graph.crow_indices()
+        col_indices = current_graph.col_indices()
+        values = current_graph.values()
+
+        # Fill in direct edge weights
+        for i in range(num_nodes):
+            start_idx = crow_indices[i]
+            end_idx = crow_indices[i + 1]
+
+            for edge_idx in range(start_idx, end_idx):
+                j = col_indices[edge_idx]
+                weight = values[edge_idx]
+                # Don't overwrite diagonal elements (self-loops should be 0)
+                if i != j:
+                    distances[batch_idx, i, j] = weight
+
+    # Vectorized Floyd-Warshall main loop across all batches
+    for k in range(num_nodes):
+        # Compute new distances through intermediate node k for all batches at once
+        dist_ik = distances[:, :, k : k + 1]  # Shape: (batch_size, num_nodes, 1)
+        dist_kj = distances[:, k : k + 1, :]  # Shape: (batch_size, 1, num_nodes)
+        new_distances = dist_ik + dist_kj  # Broadcasting
+
+        # Update distances where new path is shorter
+        distances = torch.minimum(distances, new_distances)
+
+    return distances
 
 
 def _floyd_warshall_johnson(graph: Tensor) -> Tensor:

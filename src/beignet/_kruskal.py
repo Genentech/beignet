@@ -10,19 +10,45 @@ def kruskal(
 
     Kruskal's algorithm finds a minimum spanning tree by greedily
     selecting the minimum weight edges that don't create cycles.
+    This implementation supports batched operations.
 
     Parameters
     ----------
     graph : Tensor
         Sparse CSR tensor representing the weighted adjacency matrix with
-        shape (num_nodes, num_nodes). Non-zero entries represent edge weights.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edge weights.
 
     Returns
     -------
     mst : Tensor
-        Sparse CSR tensor representing the minimum spanning tree with the
-        same shape as the input graph. Contains only the edges in the MST.
+        Sparse CSR tensor representing the minimum spanning tree. For single graphs,
+        shape (num_nodes, num_nodes). For batched operation, shape
+        (batch_size, num_nodes, num_nodes). Contains only the edges in the MST.
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        # num_nodes = graph.shape[-1]
+        # device = graph.device
+
+        # Process each graph in the batch
+        batch_results = []
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            mst = _single_graph_kruskal(current_graph)
+            batch_results.append(mst)
+
+        # Stack the results to create a batched sparse tensor
+        return torch.stack(batch_results, dim=0)
+    else:
+        # Single graph operation
+        return _single_graph_kruskal(graph)
+
+
+def _single_graph_kruskal(graph: Tensor) -> Tensor:
+    """Internal function for single graph Kruskal's algorithm."""
     num_nodes = graph.shape[-1]
     device = graph.device
     dtype = graph.dtype

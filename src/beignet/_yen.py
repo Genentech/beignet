@@ -13,25 +13,78 @@ def yen(
 
     Yen's algorithm finds the k shortest simple paths from source to sink.
     This is a simplified implementation that returns the lengths of the paths.
+    This implementation supports batched operations.
 
     Parameters
     ----------
     graph : Tensor
         Sparse CSR tensor representing the weighted adjacency matrix with
-        shape (num_nodes, num_nodes). Non-zero entries represent edge weights.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edge weights.
     source : Tensor
-        Source node index (scalar tensor).
+        Source node indices. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
     sink : Tensor
-        Sink node index (scalar tensor).
+        Sink node indices. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
     k : Tensor
-        Number of shortest paths to find (scalar tensor).
+        Number of shortest paths to find. For single graphs, a scalar tensor.
+        For batched operation, can be a scalar (same k for all graphs) or
+        a 1D tensor with shape (batch_size,).
 
     Returns
     -------
     path_lengths : Tensor
-        Lengths of the k shortest paths with shape (k,).
+        Lengths of the k shortest paths. For single graphs, shape (k,).
+        For batched operation, shape (batch_size, max_k).
         If fewer than k paths exist, returns -1 for non-existent paths.
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        device = graph.device
+        dtype = graph.dtype
+
+        if source.dim() != 1 or source.numel() != batch_size:
+            raise ValueError("Source tensor must be 1D with length matching batch size")
+        if sink.dim() != 1 or sink.numel() != batch_size:
+            raise ValueError("Sink tensor must be 1D with length matching batch size")
+
+        # Handle k parameter - can be scalar or per-batch
+        if k.dim() == 0:  # Scalar k for all graphs
+            k_vals = k.item()
+            max_k = k_vals
+            k_per_batch = [k_vals] * batch_size
+        else:  # Per-batch k values
+            if k.numel() != batch_size:
+                raise ValueError("K tensor must have length matching batch size")
+            k_per_batch = [k[i].item() for i in range(batch_size)]
+            max_k = max(k_per_batch)
+
+        # Pre-allocate result tensor
+        result = torch.full((batch_size, max_k), -1, dtype=dtype, device=device)
+
+        # Process each graph in the batch
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            current_source = source[batch_idx]
+            current_sink = sink[batch_idx]
+            current_k = torch.tensor(k_per_batch[batch_idx], device=device)
+            path_lengths = _single_graph_yen(
+                current_graph, current_source, current_sink, current_k
+            )
+            result_length = min(len(path_lengths), max_k)
+            result[batch_idx, :result_length] = path_lengths[:result_length]
+
+        return result
+    else:
+        # Single graph operation
+        return _single_graph_yen(graph, source, sink, k)
+
+
+def _single_graph_yen(graph: Tensor, source: Tensor, sink: Tensor, k: Tensor) -> Tensor:
+    """Internal function for single graph Yen's algorithm."""
     num_nodes = graph.shape[-1]
     device = graph.device
     dtype = graph.dtype
@@ -148,9 +201,9 @@ def yen(
             if not torch.isinf(spur_distance):
                 # Construct total path
                 root_distance = 0
-                for k in range(j):
+                for k_idx in range(j):
                     # Add edge weights for root path
-                    u, v = last_path[k], last_path[k + 1]
+                    u, v = last_path[k_idx], last_path[k_idx + 1]
                     start_idx = graph.crow_indices()[u]
                     end_idx = graph.crow_indices()[u + 1]
 

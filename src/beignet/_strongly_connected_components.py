@@ -10,19 +10,48 @@ def strongly_connected_components(
 
     A strongly connected component is a maximal set of vertices such that
     there is a path from every vertex to every other vertex in the set.
+    This implementation supports batched operations.
 
     Parameters
     ----------
     graph : Tensor
         Sparse CSR tensor representing the adjacency matrix with
-        shape (num_nodes, num_nodes). Non-zero entries represent edges.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edges.
 
     Returns
     -------
     labels : Tensor
-        Component labels for each node with shape (num_nodes,).
+        Component labels for each node. For single graphs, shape (num_nodes,).
+        For batched operation, shape (batch_size, num_nodes).
         Nodes in the same component have the same label.
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        num_nodes = graph.shape[-1]
+        device = graph.device
+
+        # Pre-allocate result tensor
+        result = torch.full(
+            (batch_size, num_nodes), -1, dtype=torch.long, device=device
+        )
+
+        # Process each graph in the batch
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            labels = _single_graph_strongly_connected_components(current_graph)
+            result[batch_idx] = labels
+
+        return result
+    else:
+        # Single graph operation
+        return _single_graph_strongly_connected_components(graph)
+
+
+def _single_graph_strongly_connected_components(graph: Tensor) -> Tensor:
+    """Internal function for single graph strongly connected components."""
     num_nodes = graph.shape[-1]
     device = graph.device
 

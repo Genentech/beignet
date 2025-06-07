@@ -12,22 +12,58 @@ def dinic(
 
     Dinic's algorithm uses level graphs and blocking flows to find
     maximum flow more efficiently than Edmonds-Karp.
+    This implementation supports batched operations.
 
     Parameters
     ----------
     graph : Tensor
         Sparse CSR tensor representing the capacity matrix with
-        shape (num_nodes, num_nodes). Non-zero entries represent edge capacities.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edge capacities.
     source : Tensor
-        Source node index (scalar tensor).
+        Source node indices. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
     sink : Tensor
-        Sink node index (scalar tensor).
+        Sink node indices. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
 
     Returns
     -------
     max_flow : Tensor
-        Maximum flow value (scalar tensor).
+        Maximum flow values. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        device = graph.device
+        dtype = graph.dtype
+
+        if source.dim() != 1 or source.numel() != batch_size:
+            raise ValueError("Source tensor must be 1D with length matching batch size")
+        if sink.dim() != 1 or sink.numel() != batch_size:
+            raise ValueError("Sink tensor must be 1D with length matching batch size")
+
+        # Pre-allocate result tensor
+        result = torch.zeros(batch_size, dtype=dtype, device=device)
+
+        # Process each graph in the batch
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            current_source = source[batch_idx]
+            current_sink = sink[batch_idx]
+            max_flow = _single_graph_dinic(current_graph, current_source, current_sink)
+            result[batch_idx] = max_flow
+
+        return result
+    else:
+        # Single graph operation
+        return _single_graph_dinic(graph, source, sink)
+
+
+def _single_graph_dinic(graph: Tensor, source: Tensor, sink: Tensor) -> Tensor:
+    """Internal function for single graph Dinic's algorithm."""
     num_nodes = graph.shape[-1]
     device = graph.device
     dtype = graph.dtype

@@ -79,7 +79,7 @@ def test_bellman_ford(data):
     torch_graph = torch.sparse_csr_tensor(
         crow_indices=torch.from_numpy(graph.indptr),
         col_indices=torch.from_numpy(graph.indices),
-        values=torch.from_numpy(graph.data).float(),
+        values=torch.from_numpy(graph.data).to(torch.get_default_dtype()),
         size=graph.shape,
     )
 

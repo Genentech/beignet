@@ -11,21 +11,48 @@ def hopcroft_karp(
     The Hopcroft-Karp algorithm finds a maximum matching in a bipartite graph.
     This is a simplified implementation that assumes the graph represents
     a bipartite graph where the first half of nodes are in one partition
-    and the second half are in the other partition.
+    and the second half are in the other partition. This implementation
+    supports batched operations.
 
     Parameters
     ----------
     graph : Tensor
         Sparse CSR tensor representing the bipartite graph with
-        shape (num_nodes, num_nodes). Non-zero entries represent edges.
-        Assumes nodes 0 to num_nodes//2-1 are in the left partition
-        and nodes num_nodes//2 to num_nodes-1 are in the right partition.
+        shape (num_nodes, num_nodes) for single graphs, or
+        (batch_size, num_nodes, num_nodes) for batched graphs.
+        Non-zero entries represent edges. Assumes nodes 0 to num_nodes//2-1
+        are in the left partition and nodes num_nodes//2 to num_nodes-1 are
+        in the right partition.
 
     Returns
     -------
     matching_size : Tensor
-        Size of the maximum matching (scalar tensor).
+        Size of the maximum matching. For single graphs, a scalar tensor.
+        For batched operation, a 1D tensor with shape (batch_size,).
     """
+    # Check if we have a batched operation
+    if graph.dim() == 3:  # Batched CSR tensor
+        batch_size = graph.shape[0]
+        device = graph.device
+        dtype = graph.dtype
+
+        # Pre-allocate result tensor
+        result = torch.zeros(batch_size, dtype=dtype, device=device)
+
+        # Process each graph in the batch
+        for batch_idx in range(batch_size):
+            current_graph = graph[batch_idx]
+            matching_size = _single_graph_hopcroft_karp(current_graph)
+            result[batch_idx] = matching_size
+
+        return result
+    else:
+        # Single graph operation
+        return _single_graph_hopcroft_karp(graph)
+
+
+def _single_graph_hopcroft_karp(graph: Tensor) -> Tensor:
+    """Internal function for single graph Hopcroft-Karp algorithm."""
     num_nodes = graph.shape[-1]
     device = graph.device
     dtype = graph.dtype
