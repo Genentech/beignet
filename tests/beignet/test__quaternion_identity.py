@@ -16,15 +16,12 @@ def _strategy(function):
 
     rotation = Rotation.identity(size)
 
-    canonical = function(hypothesis.strategies.booleans())
-
     return (
         {
             "size": size,
-            "canonical": canonical,
             "dtype": torch.float64,
         },
-        torch.from_numpy(rotation.as_quat(canonical)),
+        torch.from_numpy(rotation.as_quat()),
     )
 
 
