@@ -19,11 +19,13 @@ from beignet.constants import ATOM_THIN_ATOMS, STANDARD_RESIDUES
 from ._atom_array_to_atom_thin import atom_array_to_atom_thin
 from ._atom_thin_to_atom_array import atom_thin_to_atom_array
 from ._backbone_coordinates_to_dihedrals import backbone_coordinates_to_dihedrals
+from ._frames import atom_thin_to_backbone_frames
 from ._rename_chains import rename_chains
 from ._renumber import renumber, renumber_from_gapped
 from ._rigid import Rigid
 from ._short_string import int_to_short_string, short_string_to_int
 from ._superimpose import rmsd, superimpose
+from ._torsions import atom_thin_to_torsions
 
 restypes_with_x = STANDARD_RESIDUES + ["X"]
 restype_order_with_x = {r: i for i, r in enumerate(restypes_with_x)}
@@ -121,6 +123,18 @@ class ResidueArray:
             mask=mask,
             residue_index=self.residue_index,
             chain_id=self.chain_id,
+        )
+
+    @property
+    def backbone_frames(self) -> tuple[Rigid, Tensor]:
+        return atom_thin_to_backbone_frames(
+            self.atom_thin_xyz, self.atom_thin_mask, self.residue_type
+        )
+
+    @property
+    def torsions(self) -> tuple[Tensor, Tensor]:
+        return atom_thin_to_torsions(
+            self.atom_thin_xyz, self.atom_thin_mask, self.residue_type
         )
 
     @classmethod
@@ -490,6 +504,8 @@ class ResidueArray:
 
 @implements(torch.cat)
 def cat(input, dim=0):
+    if dim < 0:
+        dim = input[0].ndim + dim
     return optree.tree_map(
         lambda *x: torch.cat([*x], dim=dim), *input, namespace="beignet"
     )
@@ -497,6 +513,8 @@ def cat(input, dim=0):
 
 @implements(torch.stack)
 def stack(input, dim=0):
+    if dim < 0:
+        dim = input[0].ndim + dim + 1
     return optree.tree_map(
         lambda *x: torch.stack([*x], dim=dim), *input, namespace="beignet"
     )
@@ -504,6 +522,8 @@ def stack(input, dim=0):
 
 @implements(torch.unbind)
 def unbind(input, dim=0):
+    if dim < 0:
+        dim = input.ndim + dim
     return optree.tree_transpose_map(
         lambda x: torch.unbind(x, dim=dim), input, namespace="beignet"
     )
@@ -521,7 +541,7 @@ def unsqueeze(input, dim: int):
 @implements(torch.squeeze)
 def squeeze(input, dim: int):
     if dim < 0:
-        dim = input.ndim + dim + 1
+        dim = input.ndim + dim
     return optree.tree_map(
         lambda x: torch.squeeze(x, dim=dim), input, namespace="beignet"
     )
