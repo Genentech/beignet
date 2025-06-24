@@ -56,6 +56,27 @@ class ResidueIndexSelector:
             mask = mask | (
                 (input.chain_id == short_string_to_int(chain))
                 & torch.isin(
+                    input.residue_index,
+                    torch.as_tensor(resids, device=mask.device, dtype=torch.int64),
+                )
+            )
+        return mask[..., None]
+
+
+@dataclass
+class AuthorSeqIdSelector:
+    selection: dict[str, list[int]]
+
+    def __call__(self, input: "ResidueArray", **_):
+        mask = torch.zeros_like(input.chain_id, dtype=torch.bool)
+
+        if input.author_seq_id is None:
+            raise AssertionError("author_seq_id is None")
+
+        for chain, resids in self.selection.items():
+            mask = mask | (
+                (input.chain_id == short_string_to_int(chain))
+                & torch.isin(
                     input.author_seq_id,
                     torch.as_tensor(resids, device=mask.device, dtype=torch.int64),
                 )
