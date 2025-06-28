@@ -43,6 +43,7 @@ nav:
     - "beignet.func":
         - "Molecular dynamics": "reference/func/molecular-dynamics.md"
     - "beignet.io": "reference/beignet.io.md"
+    - "beignet.tokenizers": "reference/beignet.tokenizers.md"
     - "beignet.transforms":
         - "General-purpose": "reference/transforms/general-purpose.md"
 plugins:
