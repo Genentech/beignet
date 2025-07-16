@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-class LegendrePolynomialPower:
+class LegendrePolynomialPowerBenchmark:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

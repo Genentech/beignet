@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class DawsonIntegralF:
+class DawsonIntegralFBenchmark:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

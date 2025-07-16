@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-class DivideLegendrePolynomial:
+class DivideLegendrePolynomialBenchmark:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

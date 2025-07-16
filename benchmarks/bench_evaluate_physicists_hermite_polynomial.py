@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-class EvaluatePhysicistsHermitePolynomial:
+class EvaluatePhysicistsHermitePolynomialBenchmark:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

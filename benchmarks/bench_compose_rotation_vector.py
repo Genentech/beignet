@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-class ComposeRotationVector:
+class ComposeRotationVectorBenchmark:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],
