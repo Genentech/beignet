@@ -25,8 +25,22 @@ class ApplyEulerAngle:
         self.rotation = torch.randn(batch_size, dtype=dtype)
 
         self.axes = random.choice(
-            ["x", "y", "z", "xy", "xz", "yz", "xyz", "yx", "zx", "zy", "zyx", "yxz"]
+            [
+                "x",
+                "y",
+                "z",
+                "xy",
+                "xz",
+                "yz",
+                "xyz",
+                "yx",
+                "zx",
+                "zy",
+                "zyx",
+                "yxz",
+            ]
         )
+
         self.degrees = random.choice([True, False])
 
         self.inverse = random.choice([True, False])
