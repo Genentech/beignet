@@ -26,18 +26,12 @@ class ApplyEulerAngle:
 
         self.axes = random.choice(
             [
-                "x",
-                "y",
-                "z",
-                "xy",
-                "xz",
-                "yz",
                 "xyz",
-                "yx",
-                "zx",
-                "zy",
-                "zyx",
+                "xzy",
                 "yxz",
+                "yzx",
+                "zxy",
+                "zyx",
             ]
         )
 

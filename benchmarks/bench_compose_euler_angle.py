@@ -25,8 +25,16 @@ class ComposeEulerAngle:
         self.other = torch.randn(batch_size, dtype=dtype)
 
         self.axes = random.choice(
-            ["x", "y", "z", "xy", "xz", "yz", "xyz", "yx", "zx", "zy", "zyx", "yxz"]
+            [
+                "xyz",
+                "xzy",
+                "yxz",
+                "yzx",
+                "zxy",
+                "zyx",
+            ]
         )
+
         self.degrees = torch.randn(batch_size, dtype=dtype)
 
     def time_compose_euler_angle(self, batch_size, dtype):

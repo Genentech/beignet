@@ -23,8 +23,16 @@ class RandomEulerAngle:
         self.size = 10
 
         self.axes = random.choice(
-            ["x", "y", "z", "xy", "xz", "yz", "xyz", "yx", "zx", "zy", "zyx", "yxz"]
+            [
+                "xyz",
+                "xzy",
+                "yxz",
+                "yzx",
+                "zxy",
+                "zyx",
+            ]
         )
+
         self.degrees = torch.randn(batch_size, dtype=dtype)
 
         self.generator = random.choice([None, torch.Generator()])

@@ -23,8 +23,16 @@ class EulerAngleToQuaternion:
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
         self.axes = random.choice(
-            ["x", "y", "z", "xy", "xz", "yz", "xyz", "yx", "zx", "zy", "zyx", "yxz"]
+            [
+                "xyz",
+                "xzy",
+                "yxz",
+                "yzx",
+                "zxy",
+                "zyx",
+            ]
         )
+
         self.degrees = random.choice([True, False])
 
         self.canonical = torch.randn(batch_size, dtype=dtype)

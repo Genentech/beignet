@@ -23,8 +23,16 @@ class QuaternionToEulerAngle:
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
         self.axes = random.choice(
-            ["x", "y", "z", "xy", "xz", "yz", "xyz", "yx", "zx", "zy", "zyx", "yxz"]
+            [
+                "xyz",
+                "xzy",
+                "yxz",
+                "yzx",
+                "zxy",
+                "zyx",
+            ]
         )
+
         self.degrees = random.choice([True, False])
 
     def time_quaternion_to_euler_angle(self, batch_size, dtype):
