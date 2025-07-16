@@ -15,8 +15,8 @@ class BenchTDCDataset:
 
     def setup(self, batch_size):
         self.dataset = TDCDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/tdc",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             identifier=4259572,
             suffix="tsv",
             checksum="md5:e8e7c5ba675129db0161913ba4871834",
@@ -28,8 +28,8 @@ class BenchTDCDataset:
 
     def time___init__(self, batch_size):
         TDCDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/tdc",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             identifier=4259572,
             suffix="tsv",
             checksum="md5:e8e7c5ba675129db0161913ba4871834",
@@ -41,8 +41,8 @@ class BenchTDCDataset:
 
     def peak_memory___init__(self, batch_size):
         TDCDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/tdc",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             identifier=4259572,
             suffix="tsv",
             checksum="md5:e8e7c5ba675129db0161913ba4871834",

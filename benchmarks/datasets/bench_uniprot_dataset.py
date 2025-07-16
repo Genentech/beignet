@@ -15,24 +15,24 @@ class BenchUniProtDataset:
 
     def setup(self, batch_size):
         self.dataset = UniProtDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/uniprot",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def time___init__(self, batch_size):
         UniProtDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/uniprot",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         UniProtDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/uniprot",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

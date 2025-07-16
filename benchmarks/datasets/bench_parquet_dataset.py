@@ -15,10 +15,8 @@ class BenchParquetDataset:
 
     def setup(self, batch_size):
         self.dataset = ParquetDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/parquet_dataset",
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/parquet_dataset.parquet",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             columns=None,
             target_columns=None,
             transform=None,
@@ -27,9 +25,8 @@ class BenchParquetDataset:
 
     def time___init__(self, batch_size):
         ParquetDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/parquet_dataset",
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
-            + "/parquet_dataset.parquet",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             columns=None,
             target_columns=None,
             transform=None,
@@ -38,9 +35,8 @@ class BenchParquetDataset:
 
     def peak_memory___init__(self, batch_size):
         ParquetDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/parquet_dataset",
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
-            + "/parquet_dataset.parquet",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             columns=None,
             target_columns=None,
             transform=None,

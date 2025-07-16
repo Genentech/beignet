@@ -16,7 +16,7 @@ class BenchClinToxDataset:
     def setup(self, batch_size):
         self.dataset = ClinToxDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,15 +24,15 @@ class BenchClinToxDataset:
     def time___init__(self, batch_size):
         ClinToxDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         ClinToxDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/clintox",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

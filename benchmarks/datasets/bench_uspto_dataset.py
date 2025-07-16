@@ -15,24 +15,24 @@ class BenchUSPTODataset:
 
     def setup(self, batch_size):
         self.dataset = USPTODataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/uspto",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def time___init__(self, batch_size):
         USPTODataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/uspto",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         USPTODataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/uspto",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

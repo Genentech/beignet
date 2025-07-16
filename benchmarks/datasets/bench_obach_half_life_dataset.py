@@ -15,25 +15,24 @@ class BenchObachHalfLifeDataset:
 
     def setup(self, batch_size):
         self.dataset = ObachHalfLifeDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/obach_half_life",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def time___init__(self, batch_size):
         ObachHalfLifeDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/obach_half_life",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         ObachHalfLifeDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/obach_half_life",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

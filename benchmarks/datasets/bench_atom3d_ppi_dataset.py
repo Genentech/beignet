@@ -16,7 +16,7 @@ class BenchATOM3DPPIDataset:
     def setup(self, batch_size):
         self.dataset = ATOM3DPPIDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,15 +24,15 @@ class BenchATOM3DPPIDataset:
     def time___init__(self, batch_size):
         ATOM3DPPIDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         ATOM3DPPIDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/atom3d_ppi",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

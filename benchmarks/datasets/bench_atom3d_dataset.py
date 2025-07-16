@@ -16,33 +16,30 @@ class BenchATOM3DDataset:
     def setup(self, batch_size):
         self.dataset = ATOM3DDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/atom3d/data.lmdb",
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             resource="https://example.com/atom3d.tar.gz",
             name="atom3d",
-            download=True,
+            download=False,
             transform=None,
         )
 
     def time___init__(self, batch_size):
         ATOM3DDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/atom3d/data.lmdb",
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             resource="https://example.com/atom3d.tar.gz",
             name="atom3d",
-            download=True,
+            download=False,
             transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         ATOM3DDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
-            + "/atom3d/data.lmdb",
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             resource="https://example.com/atom3d.tar.gz",
             name="atom3d",
-            download=True,
+            download=False,
             transform=None,
         )
 

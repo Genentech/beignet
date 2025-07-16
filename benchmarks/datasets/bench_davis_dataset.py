@@ -16,7 +16,7 @@ class BenchDAVISDataset:
     def setup(self, batch_size):
         self.dataset = DAVISDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,15 +24,15 @@ class BenchDAVISDataset:
     def time___init__(self, batch_size):
         DAVISDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         DAVISDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/davis",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

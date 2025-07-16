@@ -16,7 +16,7 @@ class BenchAstraZenecaLipophilicityDataset:
     def setup(self, batch_size):
         self.dataset = AstraZenecaLipophilicityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchAstraZenecaLipophilicityDataset:
     def time___init__(self, batch_size):
         AstraZenecaLipophilicityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -33,7 +33,7 @@ class BenchAstraZenecaLipophilicityDataset:
         AstraZenecaLipophilicityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/astrazeneca_lipophilicity",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

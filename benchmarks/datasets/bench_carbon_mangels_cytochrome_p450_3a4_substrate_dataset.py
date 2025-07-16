@@ -16,7 +16,7 @@ class BenchCarbonMangelsCytochromeP4503A4SubstrateDataset:
     def setup(self, batch_size):
         self.dataset = CarbonMangelsCytochromeP4503A4SubstrateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchCarbonMangelsCytochromeP4503A4SubstrateDataset:
     def time___init__(self, batch_size):
         CarbonMangelsCytochromeP4503A4SubstrateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -33,7 +33,7 @@ class BenchCarbonMangelsCytochromeP4503A4SubstrateDataset:
         CarbonMangelsCytochromeP4503A4SubstrateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/carbon_mangels_cytochrome_p450_3a4_substrate",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

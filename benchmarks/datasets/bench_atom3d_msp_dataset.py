@@ -16,7 +16,7 @@ class BenchATOM3DMSPDataset:
     def setup(self, batch_size):
         self.dataset = ATOM3DMSPDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,15 +24,15 @@ class BenchATOM3DMSPDataset:
     def time___init__(self, batch_size):
         ATOM3DMSPDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         ATOM3DMSPDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/atom3d_msp",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )

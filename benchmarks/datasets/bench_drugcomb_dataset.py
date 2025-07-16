@@ -16,7 +16,7 @@ class BenchDrugCombDataset:
     def setup(self, batch_size):
         self.dataset = DrugCombDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchDrugCombDataset:
     def time___init__(self, batch_size):
         DrugCombDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -32,7 +32,7 @@ class BenchDrugCombDataset:
     def peak_memory___init__(self, batch_size):
         DrugCombDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

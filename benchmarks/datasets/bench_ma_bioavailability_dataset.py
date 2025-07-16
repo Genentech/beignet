@@ -17,7 +17,7 @@ class BenchMaBioavailabilityDataset:
         self.dataset = MaBioavailabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/ma_bioavailability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchMaBioavailabilityDataset:
         MaBioavailabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/ma_bioavailability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchMaBioavailabilityDataset:
         MaBioavailabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/ma_bioavailability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

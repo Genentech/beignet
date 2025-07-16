@@ -16,7 +16,7 @@ class BenchBroccatelliPGlycoproteinInhibitionDataset:
     def setup(self, batch_size):
         self.dataset = BroccatelliPGlycoproteinInhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchBroccatelliPGlycoproteinInhibitionDataset:
     def time___init__(self, batch_size):
         BroccatelliPGlycoproteinInhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -33,7 +33,7 @@ class BenchBroccatelliPGlycoproteinInhibitionDataset:
         BroccatelliPGlycoproteinInhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/broccatelli_p_glycoprotein_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

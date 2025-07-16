@@ -29,7 +29,7 @@ class BenchDataFrameDataset:
 
     def peak_memory___init__(self, batch_size):
         DataFrameDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/data_frame",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             transform=None,
             target_transform=None,
         )

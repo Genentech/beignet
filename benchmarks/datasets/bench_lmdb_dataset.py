@@ -15,7 +15,7 @@ class BenchLMDBDataset:
 
     def setup(self, batch_size):
         self.dataset = LMDBDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/lmdb_dataset",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             lock=False,
             max_readers=1,
             meminit=True,
@@ -26,7 +26,7 @@ class BenchLMDBDataset:
 
     def time___init__(self, batch_size):
         LMDBDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/lmdb_dataset",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             lock=False,
             max_readers=1,
             meminit=True,
@@ -37,7 +37,7 @@ class BenchLMDBDataset:
 
     def peak_memory___init__(self, batch_size):
         LMDBDataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".") + "/lmdb_dataset",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             lock=False,
             max_readers=1,
             meminit=True,

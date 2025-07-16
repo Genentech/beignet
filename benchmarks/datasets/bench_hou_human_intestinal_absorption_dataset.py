@@ -17,7 +17,7 @@ class BenchHouHumanIntestinalAbsorptionDataset:
         self.dataset = HouHumanIntestinalAbsorptionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/hou_human_intestinal_absorption",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchHouHumanIntestinalAbsorptionDataset:
         HouHumanIntestinalAbsorptionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/hou_human_intestinal_absorption",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchHouHumanIntestinalAbsorptionDataset:
         HouHumanIntestinalAbsorptionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/hou_human_intestinal_absorption",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

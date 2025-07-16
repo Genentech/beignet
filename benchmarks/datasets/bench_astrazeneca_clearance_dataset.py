@@ -16,7 +16,7 @@ class BenchAstraZenecaClearanceDataset:
     def setup(self, batch_size):
         self.dataset = AstraZenecaClearanceDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchAstraZenecaClearanceDataset:
     def time___init__(self, batch_size):
         AstraZenecaClearanceDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -33,7 +33,7 @@ class BenchAstraZenecaClearanceDataset:
         AstraZenecaClearanceDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/astrazeneca_clearance",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

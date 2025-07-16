@@ -17,7 +17,7 @@ class BenchZhuAcuteToxicityLD50Dataset:
         self.dataset = ZhuAcuteToxicityLD50Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/zhu_acute_toxicity_ld50",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchZhuAcuteToxicityLD50Dataset:
         ZhuAcuteToxicityLD50Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/zhu_acute_toxicity_ld50",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchZhuAcuteToxicityLD50Dataset:
         ZhuAcuteToxicityLD50Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/zhu_acute_toxicity_ld50",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

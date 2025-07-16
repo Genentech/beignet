@@ -16,21 +16,21 @@ class BenchMOSESDataset:
     def setup(self, batch_size):
         self.dataset = MOSESDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
         )
 
     def time___init__(self, batch_size):
         MOSESDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
         )
 
     def peak_memory___init__(self, batch_size):
         MOSESDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
         )
 

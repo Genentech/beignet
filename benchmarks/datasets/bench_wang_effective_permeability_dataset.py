@@ -17,7 +17,7 @@ class BenchWangEffectivePermeabilityDataset:
         self.dataset = WangEffectivePermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/wang_effective_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchWangEffectivePermeabilityDataset:
         WangEffectivePermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/wang_effective_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchWangEffectivePermeabilityDataset:
         WangEffectivePermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/wang_effective_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

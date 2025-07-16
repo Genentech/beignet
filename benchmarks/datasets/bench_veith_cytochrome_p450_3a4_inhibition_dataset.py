@@ -17,7 +17,7 @@ class BenchVeithCytochromeP4503A4InhibitionDataset:
         self.dataset = VeithCytochromeP4503A4InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/veith_cytochrome_p450_3a4_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchVeithCytochromeP4503A4InhibitionDataset:
         VeithCytochromeP4503A4InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/veith_cytochrome_p450_3a4_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchVeithCytochromeP4503A4InhibitionDataset:
         VeithCytochromeP4503A4InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/veith_cytochrome_p450_3a4_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

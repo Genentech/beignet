@@ -17,7 +17,7 @@ class BenchMartinsBloodBrainBarrierDataset:
         self.dataset = MartinsBloodBrainBarrierDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/martins_blood_brain_barrier",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchMartinsBloodBrainBarrierDataset:
         MartinsBloodBrainBarrierDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/martins_blood_brain_barrier",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchMartinsBloodBrainBarrierDataset:
         MartinsBloodBrainBarrierDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/martins_blood_brain_barrier",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

@@ -16,7 +16,7 @@ class BenchAstraZenecaPlasmaProteinBindingRateDataset:
     def setup(self, batch_size):
         self.dataset = AstraZenecaPlasmaProteinBindingRateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchAstraZenecaPlasmaProteinBindingRateDataset:
     def time___init__(self, batch_size):
         AstraZenecaPlasmaProteinBindingRateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -33,7 +33,7 @@ class BenchAstraZenecaPlasmaProteinBindingRateDataset:
         AstraZenecaPlasmaProteinBindingRateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/astrazeneca_plasma_protein_binding_rate",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

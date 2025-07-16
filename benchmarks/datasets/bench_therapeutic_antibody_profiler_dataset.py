@@ -17,7 +17,7 @@ class BenchTherapeuticAntibodyProfilerDataset:
         self.dataset = TherapeuticAntibodyProfilerDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/therapeutic_antibody_profiler",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchTherapeuticAntibodyProfilerDataset:
         TherapeuticAntibodyProfilerDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/therapeutic_antibody_profiler",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchTherapeuticAntibodyProfilerDataset:
         TherapeuticAntibodyProfilerDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/therapeutic_antibody_profiler",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

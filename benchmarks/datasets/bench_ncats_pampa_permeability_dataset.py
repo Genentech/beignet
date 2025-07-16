@@ -17,7 +17,7 @@ class BenchNCATSPAMPAPermeabilityDataset:
         self.dataset = NCATSPAMPAPermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/ncats_pampa_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchNCATSPAMPAPermeabilityDataset:
         NCATSPAMPAPermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/ncats_pampa_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchNCATSPAMPAPermeabilityDataset:
         NCATSPAMPAPermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/ncats_pampa_permeability",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

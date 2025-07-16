@@ -17,7 +17,7 @@ class BenchVeithCytochromeP4502C19InhibitionDataset:
         self.dataset = VeithCytochromeP4502C19InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/veith_cytochrome_p450_2c19_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchVeithCytochromeP4502C19InhibitionDataset:
         VeithCytochromeP4502C19InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/veith_cytochrome_p450_2c19_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchVeithCytochromeP4502C19InhibitionDataset:
         VeithCytochromeP4502C19InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/veith_cytochrome_p450_2c19_inhibition",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

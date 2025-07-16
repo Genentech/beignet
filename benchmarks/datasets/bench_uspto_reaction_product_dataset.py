@@ -17,7 +17,7 @@ class BenchUSPTOReactionProductDataset:
         self.dataset = USPTOReactionProductDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/uspto_reaction_product",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchUSPTOReactionProductDataset:
         USPTOReactionProductDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/uspto_reaction_product",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchUSPTOReactionProductDataset:
         USPTOReactionProductDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/uspto_reaction_product",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

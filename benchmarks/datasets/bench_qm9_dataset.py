@@ -15,8 +15,8 @@ class BenchQM9Dataset:
 
     def setup(self, batch_size):
         self.dataset = QM9Dataset(
-            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/qm9",
-            download=True,
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -24,7 +24,7 @@ class BenchQM9Dataset:
     def time___init__(self, batch_size):
         QM9Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -32,7 +32,7 @@ class BenchQM9Dataset:
     def peak_memory___init__(self, batch_size):
         QM9Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )

@@ -17,7 +17,7 @@ class BenchLombardoVolumeOfDistributionAtSteadyStateDataset:
         self.dataset = LombardoVolumeOfDistributionAtSteadyStateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/lombardo_volume_of_distribution_at_steady_state",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -26,7 +26,7 @@ class BenchLombardoVolumeOfDistributionAtSteadyStateDataset:
         LombardoVolumeOfDistributionAtSteadyStateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/lombardo_volume_of_distribution_at_steady_state",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
@@ -35,7 +35,7 @@ class BenchLombardoVolumeOfDistributionAtSteadyStateDataset:
         LombardoVolumeOfDistributionAtSteadyStateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", ".")
             + "/lombardo_volume_of_distribution_at_steady_state",
-            download=True,
+            download=False,
             transform=None,
             target_transform=None,
         )
