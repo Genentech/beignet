@@ -1,0 +1,67 @@
+import random
+
+import torch
+
+import beignet
+
+
+class Chandrupatla:
+    params = [
+        [10, 100, 1000, 10000],
+        [torch.float32, torch.float64],
+    ]
+
+    param_names = ["batch_size", "dtype"]
+
+    def __init__(self):
+        self.func = torch.compile(
+            beignet.chandrupatla,
+            fullgraph=True,
+        )
+
+    def setup(self, batch_size, dtype):
+        self.func = torch.randn(batch_size, dtype=dtype)
+
+        self.a = torch.tensor(-1.0, dtype=dtype)
+
+        self.b = torch.tensor(1.0, dtype=dtype)
+
+        self.rtol = torch.randn(batch_size, dtype=dtype)
+
+        self.atol = torch.randn(batch_size, dtype=dtype)
+
+        self.maxiter = 10
+
+        self.return_solution_info = True
+
+        self.check_bracket = random.choice([True, False])
+
+        self.unroll = 10
+
+    def time_chandrupatla(self, batch_size, dtype):
+        self.func(
+            self.input,
+            self.func,
+            self.a,
+            self.b,
+            self.rtol,
+            self.atol,
+            self.maxiter,
+            self.return_solution_info,
+            self.check_bracket,
+            self.unroll,
+        )
+
+    def peak_memory_chandrupatla(self, batch_size, dtype):
+        self.func(
+            self.input,
+            self.func,
+            self.a,
+            self.b,
+            self.rtol,
+            self.atol,
+            self.maxiter,
+            self.return_solution_info,
+            self.check_bracket,
+            self.unroll,
+        )

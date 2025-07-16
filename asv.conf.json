@@ -1,0 +1,20 @@
+{
+    "version": 1,
+    "project": "beignet",
+    "project_url": "https://github.com/genentech/beignet",
+    "repo": ".",
+    "branches": ["main"],
+    "dvcs": "git",
+    "environment_type": "virtualenv",
+    "install_command": ["python -m pip install -e .[test]"],
+    "show_commit_url": "https://github.com/genentech/beignet/commit/",
+    "pythons": ["3.12"],
+    "matrix": {},
+    "benchmark_dir": "benchmarks",
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html",
+    "build_cache_size": 5,
+    "install_timeout": 600.0,
+    "exclude": []
+}
