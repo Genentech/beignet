@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class ErrorErfc:
+class ErrorERF:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],
@@ -15,7 +15,7 @@ class ErrorErfc:
 
     def __init__(self):
         self.func = torch.compile(
-            beignet.error_erfc,
+            beignet.error_erf,
             fullgraph=True,
         )
 
@@ -24,8 +24,8 @@ class ErrorErfc:
 
         self.out = random.choice([None, torch.randn(batch_size, dtype=dtype)])
 
-    def time_error_erfc(self, batch_size, dtype):
+    def time_error_erf(self, batch_size, dtype):
         self.func(self.input, self.out)
 
-    def peak_memory_error_erfc(self, batch_size, dtype):
+    def peak_memory_error_erf(self, batch_size, dtype):
         self.func(self.input, self.out)
