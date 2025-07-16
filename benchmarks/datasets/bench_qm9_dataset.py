@@ -1,7 +1,7 @@
 from beignet.datasets import QM9Dataset
 
 
-class QM9DatasetBenchmark:
+class BenchQM9Dataset:
     params = [
         [10, 100, 1000],
     ]

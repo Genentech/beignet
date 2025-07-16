@@ -1,7 +1,7 @@
 from beignet.datasets import ATOM3DDataset
 
 
-class ATOM3DDatasetBenchmark:
+class BenchATOM3DDataset:
     params = [
         [10, 100, 1000],
     ]

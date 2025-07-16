@@ -1,7 +1,7 @@
 from beignet.datasets import RandomQuaternionDataset
 
 
-class RandomQuaternionDatasetBenchmark:
+class BenchRandomQuaternionDataset:
     params = [
         [10, 100, 1000, 10000],
         [True, False],

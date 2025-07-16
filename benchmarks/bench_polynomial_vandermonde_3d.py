@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class PolynomialVandermonde3DBenchmark:
+class BenchPolynomialVandermonde3D:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

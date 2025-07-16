@@ -3,7 +3,7 @@ import torch
 import beignet
 
 
-class EvaluateLaguerrePolynomialCartesian2DBenchmark:
+class BenchEvaluateLaguerrePolynomialCartesian2D:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

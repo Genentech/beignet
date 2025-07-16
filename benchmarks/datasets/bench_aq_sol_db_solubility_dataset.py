@@ -1,7 +1,7 @@
 from beignet.datasets import AqSolDBSolubilityDataset
 
 
-class AqSolDBSolubilityDatasetBenchmark:
+class BenchAqSolDBSolubilityDataset:
     params = [
         [10, 100, 1000],
     ]

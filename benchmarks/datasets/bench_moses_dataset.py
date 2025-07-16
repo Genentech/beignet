@@ -1,7 +1,7 @@
 from beignet.datasets import MOSESDataset
 
 
-class MOSESDatasetBenchmark:
+class BenchMOSESDataset:
     params = [
         [10, 100, 1000],
     ]

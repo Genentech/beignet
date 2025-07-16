@@ -1,7 +1,7 @@
 from beignet.datasets import BindingDBIC50Dataset
 
 
-class BindingDBIC50DatasetBenchmark:
+class BenchBindingDBIC50Dataset:
     params = [
         [10, 100, 1000],
     ]

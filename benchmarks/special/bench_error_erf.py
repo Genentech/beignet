@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class ErrorERFBenchmark:
+class BenchErrorERF:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

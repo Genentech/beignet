@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class ChebyshevPolynomialVandermonde2DBenchmark:
+class BenchChebyshevPolynomialVandermonde2D:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],

@@ -1,7 +1,7 @@
 from beignet.datasets import Tox21Dataset
 
 
-class Tox21DatasetBenchmark:
+class BenchTox21Dataset:
     params = [
         [10, 100, 1000],
     ]

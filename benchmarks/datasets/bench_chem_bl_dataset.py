@@ -1,7 +1,7 @@
 from beignet.datasets import ChEMBLDataset
 
 
-class ChEMBLDatasetBenchmark:
+class BenchChEMBLDataset:
     params = [
         [10, 100, 1000],
     ]
