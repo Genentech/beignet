@@ -1,3 +1,5 @@
+import os
+
 from beignet.datasets import BindingDBIC50Dataset
 
 
@@ -13,7 +15,7 @@ class BenchBindingDBIC50Dataset:
 
     def setup(self, batch_size):
         self.dataset = BindingDBIC50Dataset(
-            root="/tmp/bindingdb",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=True,
             transform=None,
             target_transform=None,
@@ -21,7 +23,15 @@ class BenchBindingDBIC50Dataset:
 
     def time___init__(self, batch_size):
         BindingDBIC50Dataset(
-            root="/tmp/bindingdb",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=True,
+            transform=None,
+            target_transform=None,
+        )
+
+    def peak_memory___init__(self, batch_size):
+        BindingDBIC50Dataset(
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=True,
             transform=None,
             target_transform=None,
@@ -30,17 +40,12 @@ class BenchBindingDBIC50Dataset:
     def time___len__(self, batch_size):
         len(self.dataset)
 
+    def peak_memory___len__(self, batch_size):
+        len(self.dataset)
+
     def time___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):
             self.dataset[i]
-
-    def peak_memory___init__(self, batch_size):
-        BindingDBIC50Dataset(
-            root="/tmp/bindingdb",
-            download=True,
-            transform=None,
-            target_transform=None,
-        )
 
     def peak_memory___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):

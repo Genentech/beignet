@@ -1,3 +1,5 @@
+import os
+
 from beignet.datasets import ChEMBLDataset
 
 
@@ -13,14 +15,21 @@ class BenchChEMBLDataset:
 
     def setup(self, batch_size):
         self.dataset = ChEMBLDataset(
-            root="/tmp/chembl",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/chembl",
             download=True,
             transform=None,
         )
 
     def time___init__(self, batch_size):
         ChEMBLDataset(
-            root="/tmp/chembl",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/chembl",
+            download=True,
+            transform=None,
+        )
+
+    def peak_memory___init__(self, batch_size):
+        ChEMBLDataset(
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/chembl",
             download=True,
             transform=None,
         )
@@ -28,16 +37,12 @@ class BenchChEMBLDataset:
     def time___len__(self, batch_size):
         len(self.dataset)
 
+    def peak_memory___len__(self, batch_size):
+        len(self.dataset)
+
     def time___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):
             self.dataset[i]
-
-    def peak_memory___init__(self, batch_size):
-        ChEMBLDataset(
-            root="/tmp/chembl",
-            download=True,
-            transform=None,
-        )
 
     def peak_memory___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):

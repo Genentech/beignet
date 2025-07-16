@@ -1,3 +1,5 @@
+import os
+
 from beignet.datasets import ATOM3DDataset
 
 
@@ -13,8 +15,9 @@ class BenchATOM3DDataset:
 
     def setup(self, batch_size):
         self.dataset = ATOM3DDataset(
-            root="/tmp/atom3d",
-            path="/tmp/atom3d/data.lmdb",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
+            + "/atom3d/data.lmdb",
             resource="https://example.com/atom3d.tar.gz",
             name="atom3d",
             download=True,
@@ -23,8 +26,20 @@ class BenchATOM3DDataset:
 
     def time___init__(self, batch_size):
         ATOM3DDataset(
-            root="/tmp/atom3d",
-            path="/tmp/atom3d/data.lmdb",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
+            + "/atom3d/data.lmdb",
+            resource="https://example.com/atom3d.tar.gz",
+            name="atom3d",
+            download=True,
+            transform=None,
+        )
+
+    def peak_memory___init__(self, batch_size):
+        ATOM3DDataset(
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            path=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
+            + "/atom3d/data.lmdb",
             resource="https://example.com/atom3d.tar.gz",
             name="atom3d",
             download=True,
@@ -34,19 +49,12 @@ class BenchATOM3DDataset:
     def time___len__(self, batch_size):
         len(self.dataset)
 
+    def peak_memory___len__(self, batch_size):
+        len(self.dataset)
+
     def time___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):
             self.dataset[i]
-
-    def peak_memory___init__(self, batch_size):
-        ATOM3DDataset(
-            root="/tmp/atom3d",
-            path="/tmp/atom3d/data.lmdb",
-            resource="https://example.com/atom3d.tar.gz",
-            name="atom3d",
-            download=True,
-            transform=None,
-        )
 
     def peak_memory___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):

@@ -1,3 +1,5 @@
+import os
+
 from beignet.datasets import Tox21Dataset
 
 
@@ -13,7 +15,7 @@ class BenchTox21Dataset:
 
     def setup(self, batch_size):
         self.dataset = Tox21Dataset(
-            root="/tmp/tox21",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=True,
             transform=None,
             target_transform=None,
@@ -21,7 +23,15 @@ class BenchTox21Dataset:
 
     def time___init__(self, batch_size):
         Tox21Dataset(
-            root="/tmp/tox21",
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
+            download=True,
+            transform=None,
+            target_transform=None,
+        )
+
+    def peak_memory___init__(self, batch_size):
+        Tox21Dataset(
+            root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp") + "/tox21",
             download=True,
             transform=None,
             target_transform=None,
@@ -30,17 +40,12 @@ class BenchTox21Dataset:
     def time___len__(self, batch_size):
         len(self.dataset)
 
+    def peak_memory___len__(self, batch_size):
+        len(self.dataset)
+
     def time___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):
             self.dataset[i]
-
-    def peak_memory___init__(self, batch_size):
-        Tox21Dataset(
-            root="/tmp/tox21",
-            download=True,
-            transform=None,
-            target_transform=None,
-        )
 
     def peak_memory___getitem__(self, batch_size):
         for i in range(min(batch_size, len(self.dataset))):
