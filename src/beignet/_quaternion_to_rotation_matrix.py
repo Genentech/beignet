@@ -16,7 +16,6 @@ def quaternion_to_rotation_matrix(input: Tensor) -> Tensor:
     output : Tensor, shape=(..., 3, 3)
         Rotation matrices. Rotation quaternions are normalized to unit norm.
     """
-    # Ensure quaternions are normalized to unit length for valid rotation matrices
     normalized_input = input / torch.norm(input, dim=-1, keepdim=True)
 
     a, b, c, d = torch.unbind(normalized_input, dim=-1)
