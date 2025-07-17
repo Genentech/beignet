@@ -44,7 +44,6 @@ def test_quaternion_to_rotation_matrix(data):
     unnormalized_quat = parameters["input"] * 2.5  # Scale it
     result_unnormalized = beignet.quaternion_to_rotation_matrix(unnormalized_quat)
 
-    # Should produce the same result as normalized quaternions
     torch.testing.assert_close(result_unnormalized, expected, atol=1e-5, rtol=1e-5)
 
     determinants = torch.det(result_unnormalized)
