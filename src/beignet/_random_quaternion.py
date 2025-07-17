@@ -57,7 +57,7 @@ def random_quaternion(
     Returns
     -------
     random_quaternions : Tensor, shape (..., 4)
-        Random rotation quaternions. These are normalized to unit length.
+        Random rotation quaternions. Normalized to unit length.
     """
     quaternions = torch.rand(
         [size, 4],
@@ -70,7 +70,6 @@ def random_quaternion(
         pin_memory=pin_memory,
     )
 
-    # Normalize to unit length to get valid rotation quaternions
     quaternions = quaternions / torch.norm(quaternions, dim=-1, keepdim=True)
 
     if canonical:
