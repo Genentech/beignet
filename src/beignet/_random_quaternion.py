@@ -90,6 +90,9 @@ def random_quaternion(
                     and quaternions[index][2] < 0
                 )
             ):
-                quaternions[index] = -quaternions[index]
+                quaternions[index][0] *= -1.0
+                quaternions[index][1] *= -1.0
+                quaternions[index][2] *= -1.0
+                quaternions[index][3] *= -1.0
 
     return quaternions
