@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchLaguerrePolynomialVandermonde:
     params = [
@@ -20,6 +22,8 @@ class BenchLaguerrePolynomialVandermonde:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.x = torch.randn(batch_size, 3, dtype=dtype)
 
         self.degree = random.randint(1, 10)

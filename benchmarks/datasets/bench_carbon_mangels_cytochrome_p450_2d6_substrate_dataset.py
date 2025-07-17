@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import CarbonMangelsCytochromeP4502D6SubstrateDataset
 
+from .._set_seed import set_seed
+
 
 class BenchCarbonMangelsCytochromeP4502D6SubstrateDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchCarbonMangelsCytochromeP4502D6SubstrateDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = CarbonMangelsCytochromeP4502D6SubstrateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

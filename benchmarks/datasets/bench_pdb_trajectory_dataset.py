@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import PDBTrajectoryDataset
 
+from .._set_seed import set_seed
+
 
 class BenchPDBTrajectoryDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchPDBTrajectoryDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = PDBTrajectoryDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/pdb_trajectory.pdb",

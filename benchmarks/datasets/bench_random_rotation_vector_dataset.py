@@ -1,5 +1,7 @@
 from beignet.datasets import RandomRotationVectorDataset
 
+from .._set_seed import set_seed
+
 
 class BenchRandomRotationVectorDataset:
     params = [
@@ -9,6 +11,8 @@ class BenchRandomRotationVectorDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.size = batch_size
 
         self.dataset = RandomRotationVectorDataset(

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import BroccatelliPGlycoproteinInhibitionDataset
 
+from .._set_seed import set_seed
+
 
 class BenchBroccatelliPGlycoproteinInhibitionDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchBroccatelliPGlycoproteinInhibitionDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = BroccatelliPGlycoproteinInhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

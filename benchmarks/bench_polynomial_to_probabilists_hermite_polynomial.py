@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchPolynomialToProbabilistsHermitePolynomial:
     params = [
@@ -18,6 +20,8 @@ class BenchPolynomialToProbabilistsHermitePolynomial:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_polynomial_to_probabilists_hermite_polynomial(self, batch_size, dtype):

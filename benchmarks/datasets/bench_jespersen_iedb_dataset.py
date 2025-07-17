@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import JespersenIEDBDataset
 
+from .._set_seed import set_seed
+
 
 class BenchJespersenIEDBDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchJespersenIEDBDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = JespersenIEDBDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

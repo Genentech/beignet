@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchChandrupatla:
     params = [
@@ -20,6 +22,8 @@ class BenchChandrupatla:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, dtype=dtype)
 
         self.f = lambda x: x**3 - x - 2

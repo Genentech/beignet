@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import FASTADataset
 
+from .._set_seed import set_seed
+
 
 class BenchFASTADataset:
     params = [
@@ -11,6 +13,8 @@ class BenchFASTADataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = FASTADataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             transform=None,

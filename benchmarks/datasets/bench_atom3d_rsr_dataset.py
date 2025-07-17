@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import ATOM3DRSRDataset
 
+from .._set_seed import set_seed
+
 
 class BenchATOM3DRSRDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchATOM3DRSRDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = ATOM3DRSRDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

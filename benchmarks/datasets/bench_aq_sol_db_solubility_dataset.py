@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import AqSolDBSolubilityDataset
 
+from .._set_seed import set_seed
+
 
 class BenchAqSolDBSolubilityDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchAqSolDBSolubilityDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = AqSolDBSolubilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

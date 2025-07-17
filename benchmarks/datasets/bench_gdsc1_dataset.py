@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import GDSC1Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchGDSC1Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchGDSC1Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = GDSC1Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

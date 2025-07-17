@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchEvaluateChebyshevPolynomial3D:
     params = [
@@ -18,6 +20,8 @@ class BenchEvaluateChebyshevPolynomial3D:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.x = torch.randn(batch_size, 3, dtype=dtype)
 
         self.y = torch.randn(batch_size, dtype=dtype)

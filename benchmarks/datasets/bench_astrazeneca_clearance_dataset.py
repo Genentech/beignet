@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import AstraZenecaClearanceDataset
 
+from .._set_seed import set_seed
+
 
 class BenchAstraZenecaClearanceDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchAstraZenecaClearanceDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = AstraZenecaClearanceDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

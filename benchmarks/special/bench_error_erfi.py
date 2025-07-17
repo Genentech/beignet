@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from .._set_seed import set_seed
+
 
 class BenchErrorERFI:
     params = [
@@ -20,6 +22,8 @@ class BenchErrorERFI:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, dtype=dtype)
 
         self.out = random.choice([None, torch.randn(batch_size, dtype=dtype)])

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import MartinsBloodBrainBarrierDataset
 
+from .._set_seed import set_seed
+
 
 class BenchMartinsBloodBrainBarrierDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchMartinsBloodBrainBarrierDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = MartinsBloodBrainBarrierDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/martins_blood_brain_barrier",

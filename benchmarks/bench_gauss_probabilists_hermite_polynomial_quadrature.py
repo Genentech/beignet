@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchGaussProbabilistsHermitePolynomialQuadrature:
     params = [
@@ -20,6 +22,8 @@ class BenchGaussProbabilistsHermitePolynomialQuadrature:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.degree = random.randint(1, 10)
 
     def time_gauss_probabilists_hermite_polynomial_quadrature(self, batch_size, dtype):

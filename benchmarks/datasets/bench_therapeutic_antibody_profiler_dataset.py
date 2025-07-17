@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import TherapeuticAntibodyProfilerDataset
 
+from .._set_seed import set_seed
+
 
 class BenchTherapeuticAntibodyProfilerDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchTherapeuticAntibodyProfilerDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = TherapeuticAntibodyProfilerDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/therapeutic_antibody_profiler",

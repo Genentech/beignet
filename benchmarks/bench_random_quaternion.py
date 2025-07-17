@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchRandomQuaternion:
     params = [
@@ -20,6 +22,8 @@ class BenchRandomQuaternion:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.size = 10
 
         self.canonical = random.choice([True, False])

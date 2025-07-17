@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchIdentityMatrix:
     params = [
@@ -20,6 +22,8 @@ class BenchIdentityMatrix:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.d = random.randint(1, 10)
 
         self.size = ()

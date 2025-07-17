@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchDefaultDtypeManager:
     params = [
@@ -18,6 +20,8 @@ class BenchDefaultDtypeManager:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.dtype = dtype
 
     def time_default_dtype_manager(self, batch_size, dtype):

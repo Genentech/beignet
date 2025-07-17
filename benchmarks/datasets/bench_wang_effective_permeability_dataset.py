@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import WangEffectivePermeabilityDataset
 
+from .._set_seed import set_seed
+
 
 class BenchWangEffectivePermeabilityDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchWangEffectivePermeabilityDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = WangEffectivePermeabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/wang_effective_permeability",

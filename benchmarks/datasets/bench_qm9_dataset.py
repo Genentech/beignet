@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import QM9Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchQM9Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchQM9Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = QM9Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

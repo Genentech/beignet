@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import Tox21Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchTox21Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchTox21Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = Tox21Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

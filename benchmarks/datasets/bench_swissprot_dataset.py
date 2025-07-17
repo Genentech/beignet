@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import SwissProtDataset
 
+from .._set_seed import set_seed
+
 
 class BenchSwissProtDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchSwissProtDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = SwissProtDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

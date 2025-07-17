@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchFarthestFirstTraversal:
     params = [
@@ -20,6 +22,8 @@ class BenchFarthestFirstTraversal:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.library = torch.randn(batch_size, dtype=dtype)
 
         self.distance_fn = lambda x, y: torch.norm(x - y, dim=-1)
@@ -29,7 +33,7 @@ class BenchFarthestFirstTraversal:
         self.n = random.randint(1, 10)
 
         self.descending = random.choice([True, False])
-        self.input = torch.randn(batch_size, 3, dtype=dtype)
+
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_farthest_first_traversal(self, batch_size, dtype):

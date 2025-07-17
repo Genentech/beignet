@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import REALDatabaseDataset
 
+from .._set_seed import set_seed
+
 
 class BenchREALDatabaseDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchREALDatabaseDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = REALDatabaseDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

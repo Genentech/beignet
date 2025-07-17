@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import HouHumanIntestinalAbsorptionDataset
 
+from .._set_seed import set_seed
+
 
 class BenchHouHumanIntestinalAbsorptionDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchHouHumanIntestinalAbsorptionDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = HouHumanIntestinalAbsorptionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/hou_human_intestinal_absorption",

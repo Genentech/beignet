@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchEulerAngleIdentity:
     params = [
@@ -17,6 +19,8 @@ class BenchEulerAngleIdentity:
         pass
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.size = batch_size
 
         self.axes = random.choice(

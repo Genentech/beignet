@@ -1,5 +1,7 @@
 from beignet.datasets import RandomRotationMatrixDataset
 
+from .._set_seed import set_seed
+
 
 class BenchRandomRotationMatrixDataset:
     params = [
@@ -9,6 +11,8 @@ class BenchRandomRotationMatrixDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.size = batch_size
 
         self.dataset = RandomRotationMatrixDataset(

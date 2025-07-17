@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import BindingDBIC50Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchBindingDBIC50Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchBindingDBIC50Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = BindingDBIC50Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

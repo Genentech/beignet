@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchInvertTransform:
     params = [
@@ -18,6 +20,8 @@ class BenchInvertTransform:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.transform = torch.randn(batch_size, dtype=dtype)
 
     def time_invert_transform(self, batch_size, dtype):

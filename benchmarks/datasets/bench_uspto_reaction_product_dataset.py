@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import USPTOReactionProductDataset
 
+from .._set_seed import set_seed
+
 
 class BenchUSPTOReactionProductDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchUSPTOReactionProductDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = USPTOReactionProductDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/uspto_reaction_product",

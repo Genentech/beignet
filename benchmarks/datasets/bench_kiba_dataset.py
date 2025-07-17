@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import KIBADataset
 
+from .._set_seed import set_seed
+
 
 class BenchKIBADataset:
     params = [
@@ -11,6 +13,8 @@ class BenchKIBADataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = KIBADataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

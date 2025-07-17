@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import ATOM3DPPIDataset
 
+from .._set_seed import set_seed
+
 
 class BenchATOM3DPPIDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchATOM3DPPIDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = ATOM3DPPIDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

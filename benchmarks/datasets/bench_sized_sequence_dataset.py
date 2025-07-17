@@ -4,6 +4,8 @@ import numpy as np
 
 from beignet.datasets import SizedSequenceDataset
 
+from .._set_seed import set_seed
+
 
 class BenchSizedSequenceDataset:
     params = [
@@ -13,6 +15,8 @@ class BenchSizedSequenceDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = SizedSequenceDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/sized_sequence_dataset",

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import AstraZenecaPlasmaProteinBindingRateDataset
 
+from .._set_seed import set_seed
+
 
 class BenchAstraZenecaPlasmaProteinBindingRateDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchAstraZenecaPlasmaProteinBindingRateDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = AstraZenecaPlasmaProteinBindingRateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

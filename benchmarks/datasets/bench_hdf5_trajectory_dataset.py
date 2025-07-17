@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import HDF5TrajectoryDataset
 
+from .._set_seed import set_seed
+
 
 class BenchHDF5TrajectoryDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchHDF5TrajectoryDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = HDF5TrajectoryDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/hdf5_trajectory.h5",

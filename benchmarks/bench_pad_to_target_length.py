@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchPadToTargetLength:
     params = [
@@ -20,6 +22,8 @@ class BenchPadToTargetLength:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
         self.target_length = 10

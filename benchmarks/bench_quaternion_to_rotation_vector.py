@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchQuaternionToRotationVector:
     params = [
@@ -20,6 +22,8 @@ class BenchQuaternionToRotationVector:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, 4, dtype=dtype)
 
         self.degrees = random.choice([True, False])

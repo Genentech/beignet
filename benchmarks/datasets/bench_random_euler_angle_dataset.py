@@ -1,5 +1,7 @@
 from beignet.datasets import RandomEulerAngleDataset
 
+from .._set_seed import set_seed
+
 
 class BenchRandomEulerAngleDataset:
     params = [
@@ -10,6 +12,8 @@ class BenchRandomEulerAngleDataset:
     param_names = ["batch_size", "axes"]
 
     def setup(self, batch_size, axes):
+        set_seed()
+
         self.size = batch_size
         self.axes = axes
         self.dataset = RandomEulerAngleDataset(

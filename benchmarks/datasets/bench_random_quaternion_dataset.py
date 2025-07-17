@@ -1,5 +1,7 @@
 from beignet.datasets import RandomQuaternionDataset
 
+from .._set_seed import set_seed
+
 
 class BenchRandomQuaternionDataset:
     params = [
@@ -10,6 +12,8 @@ class BenchRandomQuaternionDataset:
     param_names = ["batch_size", "canonical"]
 
     def setup(self, batch_size, canonical):
+        set_seed()
+
         self.size = batch_size
 
         self.canonical = canonical

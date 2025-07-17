@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import LombardoVolumeOfDistributionAtSteadyStateDataset
 
+from .._set_seed import set_seed
+
 
 class BenchLombardoVolumeOfDistributionAtSteadyStateDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchLombardoVolumeOfDistributionAtSteadyStateDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = LombardoVolumeOfDistributionAtSteadyStateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/lombardo_volume_of_distribution_at_steady_state",

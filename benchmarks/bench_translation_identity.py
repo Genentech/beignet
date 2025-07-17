@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchTranslationIdentity:
     params = [
@@ -20,6 +22,8 @@ class BenchTranslationIdentity:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.size = 10
 
         self.out = random.choice([None, torch.empty((self.size, 3), dtype=dtype)])

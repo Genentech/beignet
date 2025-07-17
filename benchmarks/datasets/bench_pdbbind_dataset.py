@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import PDBbindDataset
 
+from .._set_seed import set_seed
+
 
 class BenchPDBbindDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchPDBbindDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = PDBbindDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import UniProtDataset
 
+from .._set_seed import set_seed
+
 
 class BenchUniProtDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchUniProtDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = UniProtDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import ZhuAcuteToxicityLD50Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchZhuAcuteToxicityLD50Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchZhuAcuteToxicityLD50Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = ZhuAcuteToxicityLD50Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/zhu_acute_toxicity_ld50",

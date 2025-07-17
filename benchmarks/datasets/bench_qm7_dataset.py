@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import QM7Dataset
 
+from .._set_seed import set_seed
+
 
 class BenchQM7Dataset:
     params = [
@@ -11,6 +13,8 @@ class BenchQM7Dataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = QM7Dataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

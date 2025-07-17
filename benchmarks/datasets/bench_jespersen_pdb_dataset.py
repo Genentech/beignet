@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import JespersenPDBDataset
 
+from .._set_seed import set_seed
+
 
 class BenchJespersenPDBDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchJespersenPDBDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = JespersenPDBDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

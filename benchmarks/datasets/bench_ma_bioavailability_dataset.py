@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import MaBioavailabilityDataset
 
+from .._set_seed import set_seed
+
 
 class BenchMaBioavailabilityDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchMaBioavailabilityDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = MaBioavailabilityDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/ma_bioavailability",

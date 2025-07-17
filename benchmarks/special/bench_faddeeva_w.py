@@ -4,6 +4,8 @@ import torch
 
 import beignet
 
+from .._set_seed import set_seed
+
 
 class BenchFaddeevaW:
     params = [
@@ -20,6 +22,8 @@ class BenchFaddeevaW:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(
             batch_size,
             dtype=torch.complex64 if dtype == torch.float32 else torch.complex128,

@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import VeithCytochromeP4502C19InhibitionDataset
 
+from .._set_seed import set_seed
+
 
 class BenchVeithCytochromeP4502C19InhibitionDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchVeithCytochromeP4502C19InhibitionDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = VeithCytochromeP4502C19InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")
             + "/veith_cytochrome_p450_2c19_inhibition",

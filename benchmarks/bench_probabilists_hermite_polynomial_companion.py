@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchProbabilistsHermitePolynomialCompanion:
     params = [
@@ -18,6 +20,8 @@ class BenchProbabilistsHermitePolynomialCompanion:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_probabilists_hermite_polynomial_companion(self, batch_size, dtype):

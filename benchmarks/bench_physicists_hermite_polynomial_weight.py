@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchPhysicistsHermitePolynomialWeight:
     params = [
@@ -18,6 +20,8 @@ class BenchPhysicistsHermitePolynomialWeight:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.x = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_physicists_hermite_polynomial_weight(self, batch_size, dtype):

@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchChebyshevPolynomialToPolynomial:
     params = [
@@ -18,6 +20,8 @@ class BenchChebyshevPolynomialToPolynomial:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_chebyshev_polynomial_to_polynomial(self, batch_size, dtype):

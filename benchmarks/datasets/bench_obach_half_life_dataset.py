@@ -2,6 +2,8 @@ import os
 
 from beignet.datasets import ObachHalfLifeDataset
 
+from .._set_seed import set_seed
+
 
 class BenchObachHalfLifeDataset:
     params = [
@@ -11,6 +13,8 @@ class BenchObachHalfLifeDataset:
     param_names = ["batch_size"]
 
     def setup(self, batch_size):
+        set_seed()
+
         self.dataset = ObachHalfLifeDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),
             download=False,

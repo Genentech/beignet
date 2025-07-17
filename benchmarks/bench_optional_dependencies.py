@@ -2,6 +2,8 @@ import torch
 
 import beignet
 
+from ._set_seed import set_seed
+
 
 class BenchOptionalDependencies:
     params = [
@@ -18,6 +20,8 @@ class BenchOptionalDependencies:
         )
 
     def setup(self, batch_size, dtype):
+        set_seed()
+
         self.names = torch.randn(batch_size, dtype=dtype)
 
         self.groups = torch.randn(batch_size, dtype=dtype)
