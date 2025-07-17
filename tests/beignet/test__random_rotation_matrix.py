@@ -1,4 +1,5 @@
 import hypothesis.strategies
+import torch
 
 import beignet
 
@@ -24,6 +25,11 @@ def _strategy(function):
 def test_random_rotation_matrix(data):
     parameters, _ = data
 
-    assert beignet.random_rotation_matrix(
-        **parameters,
-    ).shape == (parameters["size"], 3, 3)
+    rotation_matrices = beignet.random_rotation_matrix(**parameters)
+
+    assert rotation_matrices.shape == (parameters["size"], 3, 3)
+
+    determinants = torch.det(rotation_matrices)
+    torch.testing.assert_close(
+        determinants, torch.ones_like(determinants), atol=1e-5, rtol=1e-5
+    )

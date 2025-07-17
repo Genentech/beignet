@@ -16,8 +16,9 @@ def quaternion_to_rotation_matrix(input: Tensor) -> Tensor:
     output : Tensor, shape=(..., 3, 3)
         Rotation matrices.
     """
+    normalized_input = input / torch.norm(input, dim=-1, keepdim=True)
 
-    a, b, c, d = torch.unbind(input, dim=-1)
+    a, b, c, d = torch.unbind(normalized_input, dim=-1)
 
     return torch.stack(
         [
