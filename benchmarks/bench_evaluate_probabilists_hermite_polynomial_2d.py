@@ -25,9 +25,9 @@ class BenchEvaluateProbabilistsHermitePolynomial2D:
         self.coefficients = torch.randn(batch_size, 10, dtype=dtype)
 
     def time_evaluate_probabilists_hermite_polynomial_2d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.coefficients, self.x, self.y)
 
     def peak_memory_evaluate_probabilists_hermite_polynomial_2d(
         self, batch_size, dtype
     ):
-        self.func(self.input)
+        self.func(self.coefficients, self.x, self.y)

@@ -25,7 +25,7 @@ class BenchLegendrePolynomialVandermonde:
         self.degree = random.randint(1, 10)
 
     def time_legendre_polynomial_vandermonde(self, batch_size, dtype):
-        self.func(self.input, self.x, self.degree)
+        self.func(self.x, self.degree)
 
     def peak_memory_legendre_polynomial_vandermonde(self, batch_size, dtype):
-        self.func(self.input, self.x, self.degree)
+        self.func(self.x, self.degree)

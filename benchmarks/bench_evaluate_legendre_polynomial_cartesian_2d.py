@@ -25,7 +25,7 @@ class BenchEvaluateLegendrePolynomialCartesian2D:
         self.c = torch.randn(batch_size, dtype=dtype)
 
     def time_evaluate_legendre_polynomial_cartesian_2d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.c, self.x, self.y)
 
     def peak_memory_evaluate_legendre_polynomial_cartesian_2d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.c, self.x, self.y)

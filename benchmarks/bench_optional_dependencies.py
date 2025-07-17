@@ -23,7 +23,7 @@ class BenchOptionalDependencies:
         self.groups = torch.randn(batch_size, dtype=dtype)
 
     def time_optional_dependencies(self, batch_size, dtype):
-        self.func(self.input, self.names, self.groups)
+        self.func(self.names, self.groups)
 
     def peak_memory_optional_dependencies(self, batch_size, dtype):
-        self.func(self.input, self.names, self.groups)
+        self.func(self.names, self.groups)

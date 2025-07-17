@@ -20,12 +20,14 @@ class BenchChebyshevInterpolation:
         )
 
     def setup(self, batch_size, dtype):
-        self.func = torch.randn(batch_size, dtype=dtype)
+        self.input = torch.randn(batch_size, dtype=dtype)
 
         self.degree = random.randint(1, 10)
 
+        self.f = lambda x: x**2
+
     def time_chebyshev_interpolation(self, batch_size, dtype):
-        self.func(self.input, self.func, self.degree)
+        self.func(self.input, self.f, self.degree)
 
     def peak_memory_chebyshev_interpolation(self, batch_size, dtype):
-        self.func(self.input, self.func, self.degree)
+        self.func(self.input, self.f, self.degree)

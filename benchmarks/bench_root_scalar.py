@@ -18,7 +18,7 @@ class BenchRootScalar:
         )
 
     def setup(self, batch_size, dtype):
-        self.func = torch.randn(batch_size, dtype=dtype)
+        self.input = torch.randn(batch_size, dtype=dtype)
 
         self.method = torch.randn(batch_size, dtype=dtype)
 

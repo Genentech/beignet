@@ -29,6 +29,8 @@ class BenchFarthestFirstTraversal:
         self.n = random.randint(1, 10)
 
         self.descending = random.choice([True, False])
+        self.input = torch.randn(batch_size, 3, dtype=dtype)
+        self.input = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_farthest_first_traversal(self, batch_size, dtype):
         self.func(

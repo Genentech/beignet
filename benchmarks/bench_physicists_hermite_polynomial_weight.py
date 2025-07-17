@@ -21,7 +21,7 @@ class BenchPhysicistsHermitePolynomialWeight:
         self.x = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_physicists_hermite_polynomial_weight(self, batch_size, dtype):
-        self.func(self.input, self.x)
+        self.func(self.x)
 
     def peak_memory_physicists_hermite_polynomial_weight(self, batch_size, dtype):
-        self.func(self.input, self.x)
+        self.func(self.x)

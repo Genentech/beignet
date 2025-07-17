@@ -23,7 +23,7 @@ class BenchChebyshevGaussQuadrature:
         self.degree = random.randint(1, 10)
 
     def time_chebyshev_gauss_quadrature(self, batch_size, dtype):
-        self.func(self.input, self.degree)
+        self.func(self.degree)
 
     def peak_memory_chebyshev_gauss_quadrature(self, batch_size, dtype):
-        self.func(self.input, self.degree)
+        self.func(self.degree)

@@ -23,7 +23,7 @@ class BenchGaussLaguerreQuadrature:
         self.degree = random.randint(1, 10)
 
     def time_gauss_laguerre_quadrature(self, batch_size, dtype):
-        self.func(self.input, self.degree)
+        self.func(self.degree)
 
     def peak_memory_gauss_laguerre_quadrature(self, batch_size, dtype):
-        self.func(self.input, self.degree)
+        self.func(self.degree)

@@ -31,7 +31,7 @@ class BenchKabsch:
         self.keepdim = random.choice([True, False])
 
     def time_kabsch(self, batch_size, dtype):
-        self.func(self.input, self.x, self.y, self.weights, self.driver, self.keepdim)
+        self.func(self.x, self.y, self.weights, self.driver, self.keepdim)
 
     def peak_memory_kabsch(self, batch_size, dtype):
-        self.func(self.input, self.x, self.y, self.weights, self.driver, self.keepdim)
+        self.func(self.x, self.y, self.weights, self.driver, self.keepdim)

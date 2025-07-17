@@ -29,9 +29,9 @@ class BenchEvaluateProbabilistsHermitePolynomialCartersian3D:
     def time_evaluate_probabilists_hermite_polynomial_cartersian_3d(
         self, batch_size, dtype
     ):
-        self.func(self.input)
+        self.func(self.c, self.x, self.y, self.z)
 
     def peak_memory_evaluate_probabilists_hermite_polynomial_cartersian_3d(
         self, batch_size, dtype
     ):
-        self.func(self.input)
+        self.func(self.c, self.x, self.y, self.z)

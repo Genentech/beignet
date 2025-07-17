@@ -21,7 +21,7 @@ class BenchLaguerrePolynomialWeight:
         self.x = torch.randn(batch_size, 3, dtype=dtype)
 
     def time_laguerre_polynomial_weight(self, batch_size, dtype):
-        self.func(self.input, self.x)
+        self.func(self.x)
 
     def peak_memory_laguerre_polynomial_weight(self, batch_size, dtype):
-        self.func(self.input, self.x)
+        self.func(self.x)

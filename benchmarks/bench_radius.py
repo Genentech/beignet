@@ -24,17 +24,16 @@ class BenchRadius:
 
         self.r = torch.randn(batch_size, dtype=dtype)
 
-        self.batch_x = torch.randn(batch_size, dtype=dtype)
+        self.batch_x = torch.zeros(batch_size, dtype=torch.long)
 
-        self.batch_y = torch.randn(batch_size, dtype=dtype)
+        self.batch_y = torch.zeros(batch_size, dtype=torch.long)
 
         self.ignore_same_index = True
 
-        self.chunk_size = torch.randn(batch_size, dtype=dtype)
+        self.chunk_size = 1024
 
     def time_radius(self, batch_size, dtype):
         self.func(
-            self.input,
             self.x,
             self.y,
             self.r,
@@ -46,7 +45,6 @@ class BenchRadius:
 
     def peak_memory_radius(self, batch_size, dtype):
         self.func(
-            self.input,
             self.x,
             self.y,
             self.r,

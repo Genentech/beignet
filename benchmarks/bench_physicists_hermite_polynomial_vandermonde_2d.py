@@ -27,9 +27,9 @@ class BenchPhysicistsHermitePolynomialVandermonde2D:
         self.degree = random.randint(1, 10)
 
     def time_physicists_hermite_polynomial_vandermonde_2d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.x, self.y, self.degree)
 
     def peak_memory_physicists_hermite_polynomial_vandermonde_2d(
         self, batch_size, dtype
     ):
-        self.func(self.input)
+        self.func(self.x, self.y, self.degree)

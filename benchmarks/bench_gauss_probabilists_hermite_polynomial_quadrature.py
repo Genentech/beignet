@@ -23,9 +23,9 @@ class BenchGaussProbabilistsHermitePolynomialQuadrature:
         self.degree = random.randint(1, 10)
 
     def time_gauss_probabilists_hermite_polynomial_quadrature(self, batch_size, dtype):
-        self.func(self.input, self.degree)
+        self.func(self.degree)
 
     def peak_memory_gauss_probabilists_hermite_polynomial_quadrature(
         self, batch_size, dtype
     ):
-        self.func(self.input, self.degree)
+        self.func(self.degree)

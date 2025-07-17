@@ -27,7 +27,7 @@ class BenchEvaluatePhysicistsHermitePolynomial3D:
         self.coefficients = torch.randn(batch_size, 10, dtype=dtype)
 
     def time_evaluate_physicists_hermite_polynomial_3d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.coefficients, self.x, self.y, self.z)
 
     def peak_memory_evaluate_physicists_hermite_polynomial_3d(self, batch_size, dtype):
-        self.func(self.input)
+        self.func(self.coefficients, self.x, self.y, self.z)

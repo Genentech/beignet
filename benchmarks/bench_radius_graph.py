@@ -22,14 +22,14 @@ class BenchRadiusGraph:
 
         self.r = torch.randn(batch_size, dtype=dtype)
 
-        self.batch = torch.randn(batch_size, dtype=dtype)
+        self.batch = torch.zeros(batch_size, dtype=torch.long)
 
-        self.chunk_size = torch.randn(batch_size, dtype=dtype)
+        self.chunk_size = 1024
 
         self.loop = True
 
     def time_radius_graph(self, batch_size, dtype):
-        self.func(self.input, self.x, self.r, self.batch, self.chunk_size, self.loop)
+        self.func(self.x, self.r, self.batch, self.chunk_size, self.loop)
 
     def peak_memory_radius_graph(self, batch_size, dtype):
-        self.func(self.input, self.x, self.r, self.batch, self.chunk_size, self.loop)
+        self.func(self.x, self.r, self.batch, self.chunk_size, self.loop)

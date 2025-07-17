@@ -21,7 +21,7 @@ class BenchInvertTransform:
         self.transform = torch.randn(batch_size, dtype=dtype)
 
     def time_invert_transform(self, batch_size, dtype):
-        self.func(self.input, self.transform)
+        self.func(self.transform)
 
     def peak_memory_invert_transform(self, batch_size, dtype):
-        self.func(self.input, self.transform)
+        self.func(self.transform)
