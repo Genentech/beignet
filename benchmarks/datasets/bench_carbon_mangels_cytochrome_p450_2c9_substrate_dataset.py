@@ -10,9 +10,6 @@ class BenchCarbonMangelsCytochromeP4502C9SubstrateDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.dataset = CarbonMangelsCytochromeP4502C9SubstrateDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),

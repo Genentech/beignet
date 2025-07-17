@@ -8,11 +8,9 @@ class BenchRandomRotationVectorDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.size = batch_size
+
         self.dataset = RandomRotationVectorDataset(
             size=self.size,
             transform=None,

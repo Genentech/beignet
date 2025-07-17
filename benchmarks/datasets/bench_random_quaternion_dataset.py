@@ -9,9 +9,6 @@ class BenchRandomQuaternionDataset:
 
     param_names = ["batch_size", "canonical"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size, canonical):
         self.size = batch_size
 

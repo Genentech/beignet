@@ -10,9 +10,6 @@ class BenchDrugCombDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.dataset = DrugCombDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),

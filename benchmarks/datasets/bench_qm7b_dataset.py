@@ -10,9 +10,6 @@ class BenchQM7bDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.dataset = QM7bDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),

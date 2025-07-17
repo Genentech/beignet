@@ -9,9 +9,6 @@ class BenchRandomEulerAngleDataset:
 
     param_names = ["batch_size", "axes"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size, axes):
         self.size = batch_size
         self.axes = axes

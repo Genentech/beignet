@@ -10,9 +10,6 @@ class BenchVeithCytochromeP4502C19InhibitionDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.dataset = VeithCytochromeP4502C19InhibitionDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "/tmp")

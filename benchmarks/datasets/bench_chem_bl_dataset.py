@@ -10,9 +10,6 @@ class BenchChEMBLDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.dataset = ChEMBLDataset(
             root=os.getenv("BEIGNET_BENCHMARKS_DATASET_ROOT", "."),

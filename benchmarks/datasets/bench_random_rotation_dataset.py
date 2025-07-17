@@ -10,11 +10,9 @@ class BenchRandomRotationDataset:
 
     param_names = ["batch_size"]
 
-    def __init__(self):
-        pass
-
     def setup(self, batch_size):
         self.size = batch_size
+
         self.dataset = RandomRotationDataset(
             data=torch.randn(self.size, 3, 3),
             transform=None,
