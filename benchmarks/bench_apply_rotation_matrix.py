@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 import beignet
@@ -20,9 +22,9 @@ class BenchApplyRotationMatrix:
     def setup(self, batch_size, dtype):
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
-        self.rotation = torch.randn(batch_size, dtype=dtype)
+        self.rotation = torch.randn(batch_size, 3, 3, dtype=dtype)
 
-        self.inverse = torch.randn(batch_size, dtype=dtype)
+        self.inverse = random.choice([True, False])
 
     def time_apply_rotation_matrix(self, batch_size, dtype):
         self.func(self.input, self.rotation, self.inverse)

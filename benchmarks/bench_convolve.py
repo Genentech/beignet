@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 import beignet
@@ -22,7 +24,7 @@ class BenchConvolve:
 
         self.other = torch.randn(batch_size, dtype=dtype)
 
-        self.mode = torch.randn(batch_size, dtype=dtype)
+        self.mode = random.choice(["full", "valid", "same"])
 
     def time_convolve(self, batch_size, dtype):
         self.func(self.input, self.other, self.mode)

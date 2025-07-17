@@ -22,7 +22,7 @@ class BenchFarthestFirstTraversal:
     def setup(self, batch_size, dtype):
         self.library = torch.randn(batch_size, dtype=dtype)
 
-        self.distance_fn = torch.rand(batch_size, dtype=dtype) * 10.0 + 0.1
+        self.distance_fn = lambda x, y: torch.norm(x - y, dim=-1)
 
         self.ranking_scores = torch.randn(batch_size, dtype=dtype)
 

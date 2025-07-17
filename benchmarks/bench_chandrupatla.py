@@ -22,6 +22,8 @@ class BenchChandrupatla:
     def setup(self, batch_size, dtype):
         self.input = torch.randn(batch_size, dtype=dtype)
 
+        self.f = lambda x: x**3 - x - 2
+
         self.a = torch.tensor(-1.0, dtype=dtype)
 
         self.b = torch.tensor(1.0, dtype=dtype)
@@ -41,7 +43,7 @@ class BenchChandrupatla:
     def time_chandrupatla(self, batch_size, dtype):
         self.func(
             self.input,
-            self.func,
+            self.f,
             self.a,
             self.b,
             self.rtol,
@@ -55,7 +57,7 @@ class BenchChandrupatla:
     def peak_memory_chandrupatla(self, batch_size, dtype):
         self.func(
             self.input,
-            self.func,
+            self.f,
             self.a,
             self.b,
             self.rtol,

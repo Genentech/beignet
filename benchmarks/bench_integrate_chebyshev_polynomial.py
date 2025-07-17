@@ -30,7 +30,7 @@ class BenchIntegrateChebyshevPolynomial:
 
         self.scale = torch.randn(batch_size, dtype=dtype)
 
-        self.axis = torch.randn(batch_size, dtype=dtype)
+        self.axis = random.randint(0, 2)
 
     def time_integrate_chebyshev_polynomial(self, batch_size, dtype):
         self.func(
