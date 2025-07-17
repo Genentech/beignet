@@ -9,12 +9,12 @@ def quaternion_to_rotation_matrix(input: Tensor) -> Tensor:
     Parameters
     ----------
     input : Tensor, shape=(..., 4)
-        Rotation quaternions.
+        Rotation quaternions. Rotation quaternions are normalized to unit norm.
 
     Returns
     -------
     output : Tensor, shape=(..., 3, 3)
-        Rotation matrices. Rotation quaternions are normalized to unit norm.
+        Rotation matrices.
     """
     normalized_input = input / torch.norm(input, dim=-1, keepdim=True)
 
