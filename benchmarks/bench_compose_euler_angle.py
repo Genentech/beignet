@@ -22,7 +22,7 @@ class BenchComposeEulerAngle:
     def setup(self, batch_size, dtype):
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
-        self.other = torch.randn(batch_size, dtype=dtype)
+        self.other = torch.randn(batch_size, 3, dtype=dtype)
 
         self.axes = random.choice(
             [
@@ -35,7 +35,7 @@ class BenchComposeEulerAngle:
             ]
         )
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
     def time_compose_euler_angle(self, batch_size, dtype):
         self.func(self.input, self.other, self.axes, self.degrees)

@@ -26,42 +26,40 @@ class BenchRandomRotationVector:
 
         self.generator = random.choice([None, torch.Generator()])
 
-        self.out = random.choice([None, torch.randn(batch_size, dtype=dtype)])
+        self.out = random.choice([None, torch.empty((self.size, 3), dtype=dtype)])
 
-        self.dtype = torch.randn(batch_size, dtype=dtype)
+        self.dtype = dtype
 
-        self.layout = torch.randn(batch_size, dtype=dtype)
+        self.layout = torch.strided
 
-        self.device = torch.randn(batch_size, dtype=dtype)
+        self.device = torch.device("cpu")
 
-        self.requires_grad = torch.randn(batch_size, dtype=dtype)
+        self.requires_grad = random.choice([True, False])
 
-        self.pin_memory = torch.randn(batch_size, dtype=dtype)
+        self.pin_memory = random.choice([True, False])
 
     def time_random_rotation_vector(self, batch_size, dtype):
         self.func(
-            self.input,
             self.size,
             self.degrees,
-            self.generator,
-            self.out,
-            self.dtype,
-            self.layout,
-            self.device,
-            self.requires_grad,
-            self.pin_memory,
+            generator=self.generator,
+            out=self.out,
+            dtype=self.dtype,
+            layout=self.layout,
+            device=self.device,
+            requires_grad=self.requires_grad,
+            pin_memory=self.pin_memory,
         )
 
     def peak_memory_random_rotation_vector(self, batch_size, dtype):
         self.func(
-            self.input,
             self.size,
             self.degrees,
-            self.generator,
-            self.out,
-            self.dtype,
-            self.layout,
-            self.device,
-            self.requires_grad,
-            self.pin_memory,
+            generator=self.generator,
+            out=self.out,
+            dtype=self.dtype,
+            layout=self.layout,
+            device=self.device,
+            requires_grad=self.requires_grad,
+            pin_memory=self.pin_memory,
         )

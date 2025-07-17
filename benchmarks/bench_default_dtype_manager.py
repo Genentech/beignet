@@ -18,10 +18,12 @@ class BenchDefaultDtypeManager:
         )
 
     def setup(self, batch_size, dtype):
-        self.dtype = torch.randn(batch_size, dtype=dtype)
+        self.dtype = dtype
 
     def time_default_dtype_manager(self, batch_size, dtype):
-        self.func(self.input, self.dtype)
+        with self.func(self.dtype):
+            pass
 
     def peak_memory_default_dtype_manager(self, batch_size, dtype):
-        self.func(self.input, self.dtype)
+        with self.func(self.dtype):
+            pass

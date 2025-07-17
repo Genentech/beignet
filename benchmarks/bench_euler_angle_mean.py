@@ -35,7 +35,7 @@ class BenchEulerAngleMean:
             ]
         )
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
     def time_euler_angle_mean(self, batch_size, dtype):
         self.func(self.input, self.weight, self.axes, self.degrees)

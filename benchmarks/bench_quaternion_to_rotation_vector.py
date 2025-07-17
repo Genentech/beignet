@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 import beignet
@@ -18,9 +20,9 @@ class BenchQuaternionToRotationVector:
         )
 
     def setup(self, batch_size, dtype):
-        self.input = torch.randn(batch_size, 3, dtype=dtype)
+        self.input = torch.randn(batch_size, 4, dtype=dtype)
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
     def time_quaternion_to_rotation_vector(self, batch_size, dtype):
         self.func(self.input, self.degrees)

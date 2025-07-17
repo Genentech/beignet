@@ -24,7 +24,7 @@ class BenchRotationVectorMean:
 
         self.weight = random.choice([None, torch.randn(batch_size, dtype=dtype)])
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
     def time_rotation_vector_mean(self, batch_size, dtype):
         self.func(self.input, self.weight, self.degrees)

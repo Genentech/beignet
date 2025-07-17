@@ -22,14 +22,14 @@ class BenchIdentityMatrix:
     def setup(self, batch_size, dtype):
         self.d = random.randint(1, 10)
 
-        self.size = torch.randn(batch_size, dtype=dtype)
+        self.size = ()
 
-        self.dtype = torch.randn(batch_size, dtype=dtype)
+        self.dtype = dtype
 
-        self.device = torch.randn(batch_size, dtype=dtype)
+        self.device = torch.device("cpu")
 
     def time_identity_matrix(self, batch_size, dtype):
-        self.func(self.input, self.d, self.size, self.dtype, self.device)
+        self.func(self.d, self.size, self.dtype, self.device)
 
     def peak_memory_identity_matrix(self, batch_size, dtype):
-        self.func(self.input, self.d, self.size, self.dtype, self.device)
+        self.func(self.d, self.size, self.dtype, self.device)

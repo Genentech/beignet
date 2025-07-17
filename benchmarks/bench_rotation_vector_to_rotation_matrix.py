@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 import beignet
@@ -20,7 +22,7 @@ class BenchRotationVectorToRotationMatrix:
     def setup(self, batch_size, dtype):
         self.input = torch.randn(batch_size, 3, dtype=dtype)
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
     def time_rotation_vector_to_rotation_matrix(self, batch_size, dtype):
         self.func(self.input, self.degrees)

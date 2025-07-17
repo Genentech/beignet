@@ -14,13 +14,10 @@ class BenchEulerAngleIdentity:
     param_names = ["batch_size", "dtype"]
 
     def __init__(self):
-        self.func = torch.compile(
-            beignet.euler_angle_identity,
-            fullgraph=True,
-        )
+        pass
 
     def setup(self, batch_size, dtype):
-        self.size = 10
+        self.size = batch_size
 
         self.axes = random.choice(
             [
@@ -33,40 +30,38 @@ class BenchEulerAngleIdentity:
             ]
         )
 
-        self.degrees = torch.randn(batch_size, dtype=dtype)
+        self.degrees = random.choice([True, False])
 
-        self.out = random.choice([None, torch.randn(batch_size, dtype=dtype)])
+        self.out = random.choice([None, torch.randn(batch_size, 3, dtype=dtype)])
 
-        self.dtype = torch.randn(batch_size, dtype=dtype)
+        self.dtype = dtype
 
-        self.layout = torch.randn(batch_size, dtype=dtype)
+        self.layout = torch.strided
 
-        self.device = torch.randn(batch_size, dtype=dtype)
+        self.device = torch.device("cpu")
 
-        self.requires_grad = torch.randn(batch_size, dtype=dtype)
+        self.requires_grad = random.choice([True, False])
 
     def time_euler_angle_identity(self, batch_size, dtype):
-        self.func(
-            self.input,
+        beignet.euler_angle_identity(
             self.size,
             self.axes,
             self.degrees,
-            self.out,
-            self.dtype,
-            self.layout,
-            self.device,
-            self.requires_grad,
+            out=self.out,
+            dtype=self.dtype,
+            layout=self.layout,
+            device=self.device,
+            requires_grad=self.requires_grad,
         )
 
     def peak_memory_euler_angle_identity(self, batch_size, dtype):
-        self.func(
-            self.input,
+        beignet.euler_angle_identity(
             self.size,
             self.axes,
             self.degrees,
-            self.out,
-            self.dtype,
-            self.layout,
-            self.device,
-            self.requires_grad,
+            out=self.out,
+            dtype=self.dtype,
+            layout=self.layout,
+            device=self.device,
+            requires_grad=self.requires_grad,
         )
