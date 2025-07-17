@@ -7,7 +7,11 @@ import torch
 
 def set_seed(seed=None):
     if seed is None:
-        seed = int(os.getenv("BEIGNET_BENCHMARK_SEED", "0x00B1"))
+        seed_str = os.getenv("BEIGNET_BENCHMARK_SEED", "42")
+        if seed_str.startswith("0x"):
+            seed = int(seed_str, 16)
+        else:
+            seed = int(seed_str)
 
     random.seed(seed)
 

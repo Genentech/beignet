@@ -6,7 +6,7 @@
     "branches": ["main"],
     "dvcs": "git",
     "environment_type": "virtualenv",
-    "install_command": ["python -m pip install -e .[test]"],
+    "install_command": ["python -m pip install -e .[all]"],
     "show_commit_url": "https://github.com/genentech/beignet/commit/",
     "pythons": ["3.12"],
     "matrix": {},
