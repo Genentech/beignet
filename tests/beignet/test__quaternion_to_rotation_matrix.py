@@ -32,11 +32,22 @@ def _strategy(function):
 
 @hypothesis.given(_strategy())
 def test_quaternion_to_rotation_matrix(data):
+    """Test quaternion to rotation matrix conversion with basic properties."""
     parameters, expected = data
 
+    # Test with normalized quaternions from scipy
     torch.testing.assert_close(
-        beignet.quaternion_to_rotation_matrix(
-            **parameters,
-        ),
+        beignet.quaternion_to_rotation_matrix(**parameters),
         expected,
+    )
+
+    unnormalized_quat = parameters["input"] * 2.5  # Scale it
+    result_unnormalized = beignet.quaternion_to_rotation_matrix(unnormalized_quat)
+
+    # Should produce the same result as normalized quaternions
+    torch.testing.assert_close(result_unnormalized, expected, atol=1e-5, rtol=1e-5)
+
+    determinants = torch.det(result_unnormalized)
+    torch.testing.assert_close(
+        determinants, torch.ones_like(determinants), atol=1e-5, rtol=1e-5
     )
