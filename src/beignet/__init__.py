@@ -149,6 +149,8 @@ from ._gauss_physicists_hermite_polynomial_quadrature import (
 from ._gauss_probabilists_hermite_polynomial_quadrature import (
     gauss_probabilists_hermite_polynomial_quadrature,
 )
+from ._global_distance_test_high_accuracy import global_distance_test_high_accuracy
+from ._global_distance_test_total_score import global_distance_test_total_score
 from ._identity_matrix import identity_matrix
 from ._integrate_chebyshev_polynomial import integrate_chebyshev_polynomial
 from ._integrate_laguerre_polynomial import integrate_laguerre_polynomial
@@ -465,6 +467,8 @@ __all__ = [
     "gauss_legendre_quadrature",
     "gauss_physicists_hermite_polynomial_quadrature",
     "gauss_probabilists_hermite_polynomial_quadrature",
+    "global_distance_test_high_accuracy",
+    "global_distance_test_total_score",
     "identity_matrix",
     "integrate_chebyshev_polynomial",
     "integrate_laguerre_polynomial",
