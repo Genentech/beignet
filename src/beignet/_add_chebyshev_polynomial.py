@@ -1,5 +1,6 @@
-import torch
 from torch import Tensor
+
+from ._add_polynomial import add_polynomial
 
 
 def add_chebyshev_polynomial(input: Tensor, other: Tensor) -> Tensor:
@@ -19,37 +20,4 @@ def add_chebyshev_polynomial(input: Tensor, other: Tensor) -> Tensor:
     output : Tensor
         Polynomial coefficients.
     """
-    input = torch.atleast_1d(input)
-    other = torch.atleast_1d(other)
-
-    dtype = torch.promote_types(input.dtype, other.dtype)
-
-    input = input.to(dtype)
-    other = other.to(dtype)
-
-    if input.shape[0] > other.shape[0]:
-        output = torch.concatenate(
-            [
-                other,
-                torch.zeros(
-                    input.shape[0] - other.shape[0],
-                    dtype=other.dtype,
-                ),
-            ],
-        )
-
-        output = input + output
-    else:
-        output = torch.concatenate(
-            [
-                input,
-                torch.zeros(
-                    other.shape[0] - input.shape[0],
-                    dtype=input.dtype,
-                ),
-            ]
-        )
-
-        output = other + output
-
-    return output
+    return add_polynomial(input, other)
