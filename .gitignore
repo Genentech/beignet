@@ -4,13 +4,17 @@
 *.so
 *~
 .DS_Store
+.asv
+.claude
 .coverage
 .hypothesis/
 .idea/
 .ipynb_checkpoints
 .pytest_cache/
 .ruff_cache/
+CLAUDE.md
 __pycache__/
+benchmark_results.json
 build/
 dist/
 notebooks/*.ipynb

@@ -14,6 +14,7 @@ dependencies = [
     "fastpdb",
     "numpy>=2",
     "optree",
+    "pandas>=2.3.1",
     "pooch",
     "torch",
     "tqdm",
@@ -26,7 +27,10 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [
-    "beignet[datasets,docs,mdtraj,test]",
+    "beignet[benchmark,datasets,docs,mdtraj,test]",
+]
+benchmark = [
+    "asv",
 ]
 datasets = [
     "biopython",
@@ -47,6 +51,7 @@ test = [
     "pytest",
     "pytest-mock",
     "scipy",
+    "psutil",  # For benchmark memory tracking
 ]
 
 [tool.ruff.lint]
