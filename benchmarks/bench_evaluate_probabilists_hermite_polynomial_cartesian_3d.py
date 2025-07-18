@@ -5,7 +5,7 @@ import beignet
 from ._set_seed import set_seed
 
 
-class BenchEvaluateProbabilistsHermitePolynomialCartersian2D:
+class BenchEvaluateProbabilistsHermitePolynomialCartesian3D:
     params = [
         [10, 100, 1000, 10000],
         [torch.float32, torch.float64],
@@ -15,7 +15,7 @@ class BenchEvaluateProbabilistsHermitePolynomialCartersian2D:
 
     def __init__(self):
         self.func = torch.compile(
-            beignet.evaluate_probabilists_hermite_polynomial_cartersian_2d,
+            beignet.evaluate_probabilists_hermite_polynomial_cartersian_3d,
             fullgraph=True,
         )
 
@@ -26,14 +26,16 @@ class BenchEvaluateProbabilistsHermitePolynomialCartersian2D:
 
         self.y = torch.randn(batch_size, dtype=dtype)
 
+        self.z = torch.randn(batch_size, dtype=dtype)
+
         self.c = torch.randn(batch_size, dtype=dtype)
 
-    def time_evaluate_probabilists_hermite_polynomial_cartersian_2d(
+    def time_evaluate_probabilists_hermite_polynomial_cartesian_3d(
         self, batch_size, dtype
     ):
-        self.func(self.c, self.x, self.y)
+        self.func(self.c, self.x, self.y, self.z)
 
-    def peak_memory_evaluate_probabilists_hermite_polynomial_cartersian_2d(
+    def peak_memory_evaluate_probabilists_hermite_polynomial_cartesian_3d(
         self, batch_size, dtype
     ):
-        self.func(self.c, self.x, self.y)
+        self.func(self.c, self.x, self.y, self.z)

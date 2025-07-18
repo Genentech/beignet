@@ -16,7 +16,10 @@ class BenchEulerAngleIdentity:
     param_names = ["batch_size", "dtype"]
 
     def __init__(self):
-        pass
+        self.func = torch.compile(
+            beignet.euler_angle_identity,
+            fullgraph=False,
+        )
 
     def setup(self, batch_size, dtype):
         set_seed()
@@ -47,7 +50,7 @@ class BenchEulerAngleIdentity:
         self.requires_grad = random.choice([True, False])
 
     def time_euler_angle_identity(self, batch_size, dtype):
-        beignet.euler_angle_identity(
+        self.func(
             self.size,
             self.axes,
             self.degrees,
@@ -59,7 +62,7 @@ class BenchEulerAngleIdentity:
         )
 
     def peak_memory_euler_angle_identity(self, batch_size, dtype):
-        beignet.euler_angle_identity(
+        self.func(
             self.size,
             self.axes,
             self.degrees,
