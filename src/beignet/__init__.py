@@ -350,6 +350,7 @@ from ._subtract_polynomial import subtract_polynomial
 from ._subtract_probabilists_hermite_polynomial import (
     subtract_probabilists_hermite_polynomial,
 )
+from ._template_modeling_score import template_modeling_score
 from ._translation_identity import translation_identity
 from ._trim_chebyshev_polynomial_coefficients import (
     trim_chebyshev_polynomial_coefficients,
@@ -599,6 +600,7 @@ __all__ = [
     "subtract_physicists_hermite_polynomial",
     "subtract_polynomial",
     "subtract_probabilists_hermite_polynomial",
+    "template_modeling_score",
     "translation_identity",
     "trim_chebyshev_polynomial_coefficients",
     "trim_laguerre_polynomial_coefficients",
