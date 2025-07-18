@@ -17,8 +17,8 @@ jobs:
           additional_permissions: |
             actions: read
           allowed_tools: "Bash(uv sync),Bash(uv run pytest),Bash(uv run python)"
-          assignee_trigger: "claude-bot"
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          label_trigger: "claude"
           model: "claude-opus-4-20250514"
 on:
   issue_comment:
