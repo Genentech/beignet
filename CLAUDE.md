@@ -14,7 +14,7 @@ Beignet is a standard library for biological research built on PyTorch. It provi
 - **Lint code**: `uv run ruff check` (with auto-fix: `uv run ruff check --fix`)
 - **Format code**: `uv run ruff format`
 - **Build package**: `uv run python -m build .`
-- **Run benchmarks**: `uv run python -m benchmarks.run_benchmarks`
+- **Run benchmarks**: `uv run asv run` (see Benchmarking section for details)
 
 ### Development Setup
 - **Sync all dependencies**: `uv sync` (installs all optional groups automatically)
@@ -23,11 +23,11 @@ Beignet is a standard library for biological research built on PyTorch. It provi
 - **Install docs dependencies**: `python -m pip install --editable '.[docs]'`
 
 ### Benchmarking
-- **Run all benchmarks**: `uv run python -m benchmarks.run_benchmarks`
-- **Quick benchmark subset**: `uv run python -m benchmarks.run_benchmarks --quick`
-- **Category-specific**: `uv run python -m benchmarks.run_benchmarks --category geometric`
-- **Filter by function**: `uv run python -m benchmarks.run_benchmarks --filter quaternion`
-- **Custom parameters**: `uv run python -m benchmarks.run_benchmarks --iterations 20 --warmup 10`
+- **Run all benchmarks**: `uv run asv run`
+- **Run specific benchmarks**: `uv run asv run -b bench_foo`
+- **Compare commits**: `uv run asv continuous HEAD~1 HEAD`
+- **Generate HTML reports**: `uv run asv publish`
+- **View results**: `uv run asv show`
 
 ### Documentation
 - **Serve docs locally**: `mkdocs serve`
@@ -82,10 +82,10 @@ Beignet is a standard library for biological research built on PyTorch. It provi
 - **Reproducible results**: Seed management via BEIGNET_BENCHMARK_SEED environment variable (default: 42)
 - **Parameterized benchmarks**: Multiple batch sizes and dtypes tested
 - **ASV commands**:
-  - `asv run`: Run all benchmarks
-  - `asv continuous`: Compare performance between commits
-  - `asv publish`: Generate HTML reports
-  - `asv show`: Display benchmark results
+  - `uv run asv run`: Run all benchmarks
+  - `uv run asv continuous`: Compare performance between commits
+  - `uv run asv publish`: Generate HTML reports
+  - `uv run asv show`: Display benchmark results
 
 ## Adding New Operators
 
