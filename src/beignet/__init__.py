@@ -201,6 +201,7 @@ from ._linear_polynomial import linear_polynomial
 from ._linear_probabilists_hermite_polynomial import (
     linear_probabilists_hermite_polynomial,
 )
+from ._local_distance_difference_test import local_distance_difference_test
 from ._multiply_chebyshev_polynomial import multiply_chebyshev_polynomial
 from ._multiply_chebyshev_polynomial_by_x import multiply_chebyshev_polynomial_by_x
 from ._multiply_laguerre_polynomial import multiply_laguerre_polynomial
@@ -506,6 +507,7 @@ __all__ = [
     "legendre_polynomial_zero",
     "lennard_jones_potential",
     "linear_chebyshev_polynomial",
+    "local_distance_difference_test",
     "linear_laguerre_polynomial",
     "linear_legendre_polynomial",
     "linear_physicists_hermite_polynomial",
