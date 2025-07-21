@@ -114,7 +114,7 @@ wheels = [
 
 [[package]]
 name = "beignet"
-version = "0.0.14.dev16"
+version = "0.0.14.dev9"
 source = { editable = "." }
 dependencies = [
     { name = "biotite" },

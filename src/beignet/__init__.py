@@ -201,6 +201,7 @@ from ._linear_polynomial import linear_polynomial
 from ._linear_probabilists_hermite_polynomial import (
     linear_probabilists_hermite_polynomial,
 )
+from ._minimum_spanning_tree import minimum_spanning_tree
 from ._multiply_chebyshev_polynomial import multiply_chebyshev_polynomial
 from ._multiply_chebyshev_polynomial_by_x import multiply_chebyshev_polynomial_by_x
 from ._multiply_laguerre_polynomial import multiply_laguerre_polynomial
@@ -511,6 +512,7 @@ __all__ = [
     "linear_physicists_hermite_polynomial",
     "linear_polynomial",
     "linear_probabilists_hermite_polynomial",
+    "minimum_spanning_tree",
     "multiply_chebyshev_polynomial",
     "multiply_chebyshev_polynomial_by_x",
     "multiply_laguerre_polynomial",
