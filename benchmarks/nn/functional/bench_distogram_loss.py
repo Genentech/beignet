@@ -2,17 +2,7 @@ import torch
 
 import beignet.nn.functional
 
-try:
-    from ..._set_seed import set_seed
-except ImportError:
-    # For direct testing
-    import os
-    import sys
-
-    sys.path.insert(
-        0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    )
-    from _set_seed import set_seed
+from ..._set_seed import set_seed
 
 
 class BenchDistogramLoss:
