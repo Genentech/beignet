@@ -165,6 +165,7 @@ from ._invert_quaternion import invert_quaternion
 from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
+from ._isothermal_compressibility import isothermal_compressibility
 from ._kabsch import kabsch
 from ._laguerre_polynomial_companion import laguerre_polynomial_companion
 from ._laguerre_polynomial_domain import laguerre_polynomial_domain
@@ -477,6 +478,7 @@ __all__ = [
     "invert_rotation_matrix",
     "invert_rotation_vector",
     "invert_transform",
+    "isothermal_compressibility",
     "kabsch",
     "laguerre_polynomial_companion",
     "laguerre_polynomial_domain",
