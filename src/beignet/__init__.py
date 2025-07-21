@@ -319,6 +319,7 @@ from ._random_euler_angle import random_euler_angle
 from ._random_quaternion import random_quaternion
 from ._random_rotation_matrix import random_rotation_matrix
 from ._random_rotation_vector import random_rotation_vector
+from ._relative_permittivity import relative_permittivity
 from ._root_scalar import root_scalar
 from ._rotation_matrix_identity import rotation_matrix_identity
 from ._rotation_matrix_magnitude import rotation_matrix_magnitude
@@ -580,6 +581,7 @@ __all__ = [
     "random_quaternion",
     "random_rotation_matrix",
     "random_rotation_vector",
+    "relative_permittivity",
     "root_scalar",
     "rotation_matrix_identity",
     "rotation_matrix_magnitude",
