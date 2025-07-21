@@ -45,8 +45,8 @@ class BenchDistogramLoss:
             self.logits,
             self.target_distances,
             self.mask,
-            min_bin=2.3125,
-            max_bin=21.6875,
+            min_bin=2.3125,  # AlphaFold default
+            max_bin=21.6875,  # AlphaFold default
             n_bins=self.n_bins,
             reduction="mean",
         )
@@ -56,8 +56,8 @@ class BenchDistogramLoss:
             self.logits,
             self.target_distances,
             self.mask,
-            min_bin=2.3125,
-            max_bin=21.6875,
+            min_bin=2.3125,  # AlphaFold default
+            max_bin=21.6875,  # AlphaFold default
             n_bins=self.n_bins,
             reduction="mean",
         )

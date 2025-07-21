@@ -7,9 +7,9 @@ def distogram_loss(
     logits: Tensor,
     target_distances: Tensor,
     mask: Tensor,
-    min_bin: float = 2.3125,
-    max_bin: float = 21.6875,
-    n_bins: int = 64,
+    min_bin: float = 2.3125,  # Å - slightly above minimum Cβ-Cβ distance
+    max_bin: float = 21.6875,  # Å - captures most structural contacts
+    n_bins: int = 64,  # gives ~0.3 Å resolution per bin
     reduction: str = "mean",
 ) -> Tensor:
     r"""
@@ -28,11 +28,13 @@ def distogram_loss(
     mask : Tensor, shape=(..., N, N)
         Binary mask indicating valid residue pairs (1 for valid, 0 for invalid).
     min_bin : float, default=2.3125
-        Minimum distance for binning (in Angstroms).
+        Minimum distance for binning (in Angstroms). Default value from AlphaFold,
+        representing slightly above the minimum possible Cβ-Cβ distance in proteins.
     max_bin : float, default=21.6875
-        Maximum distance for binning (in Angstroms).
+        Maximum distance for binning (in Angstroms). Default value from AlphaFold,
+        capturing most meaningful structural contacts.
     n_bins : int, default=64
-        Number of distance bins.
+        Number of distance bins. With default min/max, gives ~0.3 Å resolution.
     reduction : str, default="mean"
         Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'.
         'none': no reduction will be applied,
