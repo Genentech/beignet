@@ -1,5 +1,4 @@
 import torch
-import torch._dynamo
 import torch.nn.functional as F
 from torch import Tensor
 
@@ -89,36 +88,7 @@ def distogram_loss(
     clamped_distances = torch.clamp(target_distances, min_bin, max_bin - 1e-6)
     target_bins = ((clamped_distances - min_bin) / bin_width).long()
 
-    # Early exit for empty mask (removed for torch.compile compatibility)
-
-    # Check if we're running under torch.compile
-    # The sparse path is faster but not compatible with torch.compile
-    is_compiling = torch._dynamo.is_compiling()
-
-    # Use sparse operations when mask has many zeros (common case)
-    mask_bool = mask.bool()
-    sparsity = 1.0 - mask_bool.float().mean().item()
-
-    if not is_compiling and sparsity > 0.5 and reduction != "none":
-        # Sparse path: only compute loss for valid pairs
-        # This is much faster when many pairs are masked
-        mask_flat_bool = mask_bool.reshape(-1)
-        valid_indices = mask_flat_bool.nonzero(as_tuple=True)[0]
-
-        if len(valid_indices) == 0:
-            return torch.tensor(0.0, dtype=logits.dtype, device=logits.device)
-
-        logits_valid = logits.reshape(-1, n_bins)[valid_indices]
-        targets_valid = target_bins.reshape(-1)[valid_indices]
-
-        loss_valid = F.cross_entropy(logits_valid, targets_valid, reduction="none")
-
-        if reduction == "sum":
-            return loss_valid.sum()
-        else:  # mean
-            return loss_valid.mean()
-
-    # Dense path: compute for all pairs then mask
+    # Compute loss for all pairs then mask
     # Reshape for cross_entropy: (batch * N * N, n_bins)
     logits_flat = logits.reshape(-1, n_bins)
     target_bins_flat = target_bins.reshape(-1)
@@ -137,8 +107,6 @@ def distogram_loss(
     # Reshape back to original shape for "none" reduction
     if reduction == "none":
         return loss_flat.reshape(logits.shape[:-1])
-
-    # Apply reduction for dense path
     elif reduction == "sum":
         return loss_flat.sum()
     else:  # mean
