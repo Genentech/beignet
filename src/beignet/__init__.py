@@ -20,6 +20,7 @@ from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
 from ._bisect import bisect
+from ._boruvka import boruvka
 from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
@@ -166,6 +167,7 @@ from ._invert_rotation_matrix import invert_rotation_matrix
 from ._invert_rotation_vector import invert_rotation_vector
 from ._invert_transform import invert_transform
 from ._kabsch import kabsch
+from ._kruskal import kruskal
 from ._laguerre_polynomial_companion import laguerre_polynomial_companion
 from ._laguerre_polynomial_domain import laguerre_polynomial_domain
 from ._laguerre_polynomial_from_roots import laguerre_polynomial_from_roots
@@ -381,6 +383,7 @@ __all__ = [
     "apply_rotation_matrix",
     "apply_rotation_vector",
     "apply_transform",
+    "boruvka",
     "chebyshev_extrema",
     "chebyshev_gauss_quadrature",
     "chebyshev_interpolation",
@@ -478,6 +481,7 @@ __all__ = [
     "invert_rotation_vector",
     "invert_transform",
     "kabsch",
+    "kruskal",
     "laguerre_polynomial_companion",
     "laguerre_polynomial_domain",
     "laguerre_polynomial_from_roots",

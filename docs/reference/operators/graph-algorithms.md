@@ -1,0 +1,3 @@
+::: beignet.kruskal
+
+::: beignet.boruvka
