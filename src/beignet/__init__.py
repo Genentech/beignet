@@ -20,6 +20,7 @@ from ._apply_rotation_matrix import apply_rotation_matrix
 from ._apply_rotation_vector import apply_rotation_vector
 from ._apply_transform import apply_transform
 from ._bisect import bisect
+from ._boruvka import boruvka
 from ._chandrupatla import chandrupatla
 from ._chebyshev_extrema import chebyshev_extrema
 from ._chebyshev_gauss_quadrature import chebyshev_gauss_quadrature
@@ -382,6 +383,7 @@ __all__ = [
     "apply_rotation_matrix",
     "apply_rotation_vector",
     "apply_transform",
+    "boruvka",
     "chebyshev_extrema",
     "chebyshev_gauss_quadrature",
     "chebyshev_interpolation",
