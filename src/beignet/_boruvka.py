@@ -179,11 +179,10 @@ def _boruvka_single_sparse(adj_matrix: Tensor) -> Tensor:
     if n_nodes == 0:
         return adj_matrix.clone()
 
-    # Convert to dense for now - full sparse implementation would be more complex
-    # but this maintains the API contract of returning same format
+    # Convert to dense for processing, then back to sparse to maintain API contract
+    # A pure sparse implementation would require specialized sparse tensor operations
+    # that are not yet fully supported in PyTorch for the required index manipulations
     dense_result = _boruvka_single_dense(adj_matrix.to_dense())
-
-    # Convert back to sparse CSR
     return dense_result.to_sparse_csr()
 
 

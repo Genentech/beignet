@@ -56,6 +56,6 @@ class BenchBoruvka:
         """Time compiled Borůvka's algorithm execution."""
         self.compiled_fn(self.adj_matrix)
 
-    def peakmem_boruvka(self, num_nodes, density, dtype):
+    def peak_memory_boruvka(self, num_nodes, density, dtype):
         """Measure peak memory usage of Borůvka's algorithm."""
         beignet.boruvka(self.adj_matrix)
