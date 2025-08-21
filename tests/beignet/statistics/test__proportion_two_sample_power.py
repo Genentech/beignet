@@ -1,16 +1,10 @@
-import numpy as np
 import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-import beignet
+import beignet.statistics
 
-try:
-    from statsmodels.stats.power import proportions_ztest_power
-
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
+# from statsmodels.stats.power import proportions_ztest_power  # Function not available in current statsmodels version
 
 
 @given(
@@ -35,7 +29,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
     )
 
     # Test basic functionality - two-sided test
-    result = beignet.proportion_two_sample_power(
+    result = beignet.statistics.proportion_two_sample_power(
         p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="two-sided"
     )
     assert result.shape == p1_values.shape
@@ -44,19 +38,19 @@ def test_proportion_two_sample_power(batch_size, dtype):
     assert torch.all(result <= 1.0)
 
     # Test with equal sample sizes (n2=None)
-    result_equal = beignet.proportion_two_sample_power(
+    result_equal = beignet.statistics.proportion_two_sample_power(
         p1_values, p2_values, n1_values, None, alpha=0.05, alternative="two-sided"
     )
-    result_explicit = beignet.proportion_two_sample_power(
+    result_explicit = beignet.statistics.proportion_two_sample_power(
         p1_values, p2_values, n1_values, n1_values, alpha=0.05, alternative="two-sided"
     )
     assert torch.allclose(result_equal, result_explicit)
 
     # Test one-sided tests
-    result_greater = beignet.proportion_two_sample_power(
+    result_greater = beignet.statistics.proportion_two_sample_power(
         p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="greater"
     )
-    result_less = beignet.proportion_two_sample_power(
+    result_less = beignet.statistics.proportion_two_sample_power(
         p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="less"
     )
 
@@ -67,7 +61,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test with out parameter
     out = torch.empty_like(p1_values)
-    result_out = beignet.proportion_two_sample_power(
+    result_out = beignet.statistics.proportion_two_sample_power(
         p1_values,
         p2_values,
         n1_values,
@@ -80,13 +74,13 @@ def test_proportion_two_sample_power(batch_size, dtype):
     assert torch.allclose(result_out, result)
 
     # Test power increases with effect size
-    small_effect = beignet.proportion_two_sample_power(
+    small_effect = beignet.statistics.proportion_two_sample_power(
         torch.tensor(0.5, dtype=dtype),
         torch.tensor(0.51, dtype=dtype),
         torch.tensor(100.0, dtype=dtype),
         torch.tensor(100.0, dtype=dtype),
     )
-    large_effect = beignet.proportion_two_sample_power(
+    large_effect = beignet.statistics.proportion_two_sample_power(
         torch.tensor(0.5, dtype=dtype),
         torch.tensor(0.6, dtype=dtype),
         torch.tensor(100.0, dtype=dtype),
@@ -96,13 +90,13 @@ def test_proportion_two_sample_power(batch_size, dtype):
     assert large_effect > small_effect
 
     # Test power increases with sample size
-    small_n = beignet.proportion_two_sample_power(
+    small_n = beignet.statistics.proportion_two_sample_power(
         torch.tensor(0.5, dtype=dtype),
         torch.tensor(0.6, dtype=dtype),
         torch.tensor(50.0, dtype=dtype),
         torch.tensor(50.0, dtype=dtype),
     )
-    large_n = beignet.proportion_two_sample_power(
+    large_n = beignet.statistics.proportion_two_sample_power(
         torch.tensor(0.5, dtype=dtype),
         torch.tensor(0.6, dtype=dtype),
         torch.tensor(200.0, dtype=dtype),
@@ -116,7 +110,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
     p2_grad = p2_values.clone().requires_grad_(True)
     n1_grad = n1_values.clone().requires_grad_(True)
     n2_grad = n2_values.clone().requires_grad_(True)
-    result_grad = beignet.proportion_two_sample_power(
+    result_grad = beignet.statistics.proportion_two_sample_power(
         p1_grad, p2_grad, n1_grad, n2_grad
     )
 
@@ -131,7 +125,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_proportion_two_sample_power = torch.compile(
-        beignet.proportion_two_sample_power, fullgraph=True
+        beignet.statistics.proportion_two_sample_power, fullgraph=True
     )
     result_compiled = compiled_proportion_two_sample_power(
         p1_values, p2_values, n1_values, n2_values
@@ -140,7 +134,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test invalid alternative
     try:
-        beignet.proportion_two_sample_power(
+        beignet.statistics.proportion_two_sample_power(
             torch.tensor(0.5, dtype=dtype),
             torch.tensor(0.6, dtype=dtype),
             torch.tensor(100.0, dtype=dtype),
@@ -151,15 +145,13 @@ def test_proportion_two_sample_power(batch_size, dtype):
     except ValueError:
         pass
 
-
-def test_proportion_two_sample_power_against_known_values():
-    """Test two-sample proportion power against known theoretical values."""
+    # Test against known theoretical values
     # For moderate effect (0.5 vs 0.6) with n=100 each, power should be reasonable
-    p1 = torch.tensor(0.5, dtype=torch.float32)
-    p2 = torch.tensor(0.6, dtype=torch.float32)
-    n1 = torch.tensor(100.0, dtype=torch.float32)
-    n2 = torch.tensor(100.0, dtype=torch.float32)
-    power = beignet.proportion_two_sample_power(
+    p1 = torch.tensor(0.5, dtype=dtype)
+    p2 = torch.tensor(0.6, dtype=dtype)
+    n1 = torch.tensor(100.0, dtype=dtype)
+    n2 = torch.tensor(100.0, dtype=dtype)
+    power = beignet.statistics.proportion_two_sample_power(
         p1, p2, n1, n2, alpha=0.05, alternative="two-sided"
     )
 
@@ -167,86 +159,37 @@ def test_proportion_two_sample_power_against_known_values():
     assert 0.15 < power < 0.8
 
     # Test edge cases - same proportions should give power ≈ alpha
-    same_props = beignet.proportion_two_sample_power(p1, p1, n1, n2, alpha=0.05)
+    same_props = beignet.statistics.proportion_two_sample_power(
+        p1, p1, n1, n2, alpha=0.05
+    )
     assert torch.abs(same_props - 0.05) < 0.03
 
+    # Skip statsmodels comparison - proportions_ztest_power function not available in statsmodels
+    pass
 
-def test_proportion_two_sample_power_against_statsmodels():
-    """Test two-sample proportion power against statsmodels reference implementation."""
-    if not HAS_STATSMODELS:
-        return
-
-    # Test parameters
-    test_cases = [
-        (0.4, 0.5, 100, 100, 0.05, "two-sided"),
-        (0.5, 0.6, 150, 150, 0.05, "two-sided"),
-        (0.3, 0.4, 200, 200, 0.01, "two-sided"),
-        (0.5, 0.6, 100, 120, 0.05, "two-sided"),  # Unequal sample sizes
-    ]
-
-    for p1_val, p2_val, n1_val, n2_val, alpha_val, alternative in test_cases:
-        # Our implementation
-        p1 = torch.tensor(p1_val, dtype=torch.float64)
-        p2 = torch.tensor(p2_val, dtype=torch.float64)
-        n1 = torch.tensor(float(n1_val), dtype=torch.float64)
-        n2 = torch.tensor(float(n2_val), dtype=torch.float64)
-        beignet_result = beignet.proportion_two_sample_power(
-            p1, p2, n1, n2, alpha=alpha_val, alternative=alternative
-        )
-
-        # Statsmodels implementation for two-sample proportions
-        try:
-            # Effect size for two-sample proportions test
-            effect_size = p2_val - p1_val
-
-            # For two-sample proportions, we can use the formula with pooled variance
-            # This is an approximation for comparison
-            pooled_p = (p1_val * n1_val + p2_val * n2_val) / (n1_val + n2_val)
-            pooled_se = np.sqrt(pooled_p * (1 - pooled_p) * (1 / n1_val + 1 / n2_val))
-            standardized_effect = effect_size / pooled_se
-
-            # Use proportions_ztest_power as approximation
-            sm_result = proportions_ztest_power(
-                effect_size=standardized_effect,
-                nobs1=min(n1_val, n2_val),  # Conservative estimate
-                alpha=alpha_val,
-                alternative=alternative,
-            )
-
-            # Compare results with reasonable tolerance (statsmodels may use different formula)
-            tolerance = 0.15  # More lenient for two-sample tests
-            diff = abs(float(beignet_result) - sm_result)
-            if diff >= tolerance:
-                # Log the difference but don't fail since formula differences are expected
-                print(
-                    f"Note: Large difference for p1={p1_val}, p2={p2_val}, n1={n1_val}, n2={n2_val}: beignet={float(beignet_result):.4f}, statsmodels≈{sm_result:.4f}"
-                )
-
-        except (ImportError, AttributeError, TypeError):
-            # If specific function not available or has issues, skip comparison
-            pass
-
-
-def test_proportion_two_sample_power_edge_cases():
-    """Test edge cases for two-sample proportion power calculation."""
+    # Test edge cases
     # Test with very small proportions
-    tiny_p1 = torch.tensor(0.001, dtype=torch.float64)
-    tiny_p2 = torch.tensor(0.002, dtype=torch.float64)
-    n = torch.tensor(1000.0, dtype=torch.float64)
-    tiny_power = beignet.proportion_two_sample_power(tiny_p1, tiny_p2, n, n)
+    tiny_p1 = torch.tensor(0.001, dtype=dtype)
+    tiny_p2 = torch.tensor(0.002, dtype=dtype)
+    large_n = torch.tensor(1000.0, dtype=dtype)
+    tiny_power = beignet.statistics.proportion_two_sample_power(
+        tiny_p1, tiny_p2, large_n, large_n
+    )
     assert 0.0 <= tiny_power <= 1.0
 
     # Test with proportions close to 1
-    large_p1 = torch.tensor(0.998, dtype=torch.float64)
-    large_p2 = torch.tensor(0.999, dtype=torch.float64)
-    large_power = beignet.proportion_two_sample_power(large_p1, large_p2, n, n)
+    large_p1 = torch.tensor(0.998, dtype=dtype)
+    large_p2 = torch.tensor(0.999, dtype=dtype)
+    large_power = beignet.statistics.proportion_two_sample_power(
+        large_p1, large_p2, large_n, large_n
+    )
     assert 0.0 <= large_power <= 1.0
 
     # Test with very different sample sizes
-    unequal_power = beignet.proportion_two_sample_power(
-        torch.tensor(0.5, dtype=torch.float64),
-        torch.tensor(0.6, dtype=torch.float64),
-        torch.tensor(50.0, dtype=torch.float64),
-        torch.tensor(500.0, dtype=torch.float64),
+    unequal_power = beignet.statistics.proportion_two_sample_power(
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        torch.tensor(50.0, dtype=dtype),
+        torch.tensor(500.0, dtype=dtype),
     )
     assert 0.0 <= unequal_power <= 1.0

@@ -37,9 +37,7 @@ class BenchTTestSampleSize:
         )
 
     def time_t_test_sample_size_less(self, batch_size, dtype):
-        return self.func(
-            self.effect_sizes, power=0.8, alpha=0.05, alternative="less"
-        )
+        return self.func(self.effect_sizes, power=0.8, alpha=0.05, alternative="less")
 
     def peakmem_t_test_sample_size(self, batch_size, dtype):
         return beignet.statistics.t_test_sample_size(

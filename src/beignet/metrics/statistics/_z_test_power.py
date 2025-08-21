@@ -7,7 +7,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-from beignet.statistics._z_test_power import z_test_power
+import beignet.statistics
 
 
 class ZTestPower(Metric):
@@ -72,7 +72,7 @@ class ZTestPower(Metric):
 
     def compute(self) -> Tensor:
         """Compute the statistical power."""
-        return z_test_power(
+        return beignet.statistics.z_test_power(
             effect_size=self.effect_size,
             sample_size=self.sample_size,
             alpha=self.alpha,
@@ -188,21 +188,21 @@ class ZTestPower(Metric):
 
             for x_val in x_values:
                 if dep_var == "sample_size":
-                    power_val = z_test_power(
+                    power_val = beignet.statistics.z_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(x_val)),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "effect_size":
-                    power_val = z_test_power(
+                    power_val = beignet.statistics.z_test_power(
                         effect_size=torch.tensor(float(x_val)),
                         sample_size=torch.tensor(float(param_val)),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "alpha":
-                    power_val = z_test_power(
+                    power_val = beignet.statistics.z_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(30.0),  # Default sample size
                         alpha=float(x_val),

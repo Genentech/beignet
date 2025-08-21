@@ -7,7 +7,9 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-from beignet.statistics._chi_squared_goodness_of_fit_power import chi_square_goodness_of_fit_power
+from beignet.statistics._chi_squared_goodness_of_fit_power import (
+    chi_square_goodness_of_fit_power,
+)
 
 
 class ChiSquareGoodnessOfFitPower(Metric):

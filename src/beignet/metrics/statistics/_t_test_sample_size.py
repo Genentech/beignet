@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class TTestSampleSize(Metric):
@@ -95,7 +95,7 @@ class TTestSampleSize(Metric):
         pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
         effect_size = (mean1 - mean2) / pooled_std
 
-        return beignet.t_test_sample_size(
+        return beignet.statistics.t_test_sample_size(
             effect_size,
             power=self.power,
             alpha=self.alpha,

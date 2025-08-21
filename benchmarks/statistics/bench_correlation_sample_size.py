@@ -27,19 +27,13 @@ class BenchCorrelationSampleSize:
         )
 
     def time_correlation_sample_size_two_sided(self, batch_size, dtype):
-        return self.func(
-            self.r_values, power=0.8, alpha=0.05, alternative="two-sided"
-        )
+        return self.func(self.r_values, power=0.8, alpha=0.05, alternative="two-sided")
 
     def time_correlation_sample_size_greater(self, batch_size, dtype):
-        return self.func(
-            self.r_values, power=0.8, alpha=0.05, alternative="greater"
-        )
+        return self.func(self.r_values, power=0.8, alpha=0.05, alternative="greater")
 
     def time_correlation_sample_size_less(self, batch_size, dtype):
-        return self.func(
-            self.r_values, power=0.8, alpha=0.05, alternative="less"
-        )
+        return self.func(self.r_values, power=0.8, alpha=0.05, alternative="less")
 
     def peakmem_correlation_sample_size(self, batch_size, dtype):
         return beignet.statistics.correlation_sample_size(

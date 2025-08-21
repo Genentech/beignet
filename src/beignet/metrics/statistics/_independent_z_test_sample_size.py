@@ -7,7 +7,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-from beignet.statistics._independent_z_test_sample_size import independent_z_test_sample_size
+import beignet.statistics
 
 
 class IndependentZTestSampleSize(Metric):
@@ -80,7 +80,7 @@ class IndependentZTestSampleSize(Metric):
 
     def compute(self) -> Tensor:
         """Compute the required sample size."""
-        return independent_z_test_sample_size(
+        return beignet.statistics.independent_z_test_sample_size(
             effect_size=self.effect_size,
             ratio=self.ratio,
             power=self.power,
@@ -200,7 +200,7 @@ class IndependentZTestSampleSize(Metric):
 
             for x_val in x_values:
                 if dep_var == "effect_size":
-                    sample_size_val = independent_z_test_sample_size(
+                    sample_size_val = beignet.statistics.independent_z_test_sample_size(
                         effect_size=torch.tensor(float(x_val)),
                         ratio=self.ratio,
                         power=torch.tensor(float(param_val)),
@@ -208,7 +208,7 @@ class IndependentZTestSampleSize(Metric):
                         alternative=self.alternative,
                     )
                 elif dep_var == "power":
-                    sample_size_val = independent_z_test_sample_size(
+                    sample_size_val = beignet.statistics.independent_z_test_sample_size(
                         effect_size=torch.tensor(float(param_val)),
                         ratio=self.ratio,
                         power=torch.tensor(float(x_val)),
@@ -216,7 +216,7 @@ class IndependentZTestSampleSize(Metric):
                         alternative=self.alternative,
                     )
                 elif dep_var == "ratio":
-                    sample_size_val = independent_z_test_sample_size(
+                    sample_size_val = beignet.statistics.independent_z_test_sample_size(
                         effect_size=torch.tensor(float(param_val)),
                         ratio=torch.tensor(float(x_val)),
                         power=self.power,

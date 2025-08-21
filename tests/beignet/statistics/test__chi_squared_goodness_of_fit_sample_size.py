@@ -1,23 +1,15 @@
 """Test chi-square goodness-of-fit sample size."""
 
-import pytest
 import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.statistics._chi_square_goodness_of_fit_power import (
+from beignet.statistics._chi_squared_goodness_of_fit_power import (
     chi_square_goodness_of_fit_power,
 )
-from beignet.statistics._chi_square_goodness_of_fit_power_sample_size import (
+from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
     chi_square_goodness_of_fit_power_sample_size,
 )
-
-try:
-    import statsmodels.stats.power as smp
-
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
 
 
 @given(
@@ -25,7 +17,9 @@ except ImportError:
     dtype=st.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)  # Disable deadline for torch.compile
-def test_chisquare_gof_sample_size(batch_size: int, dtype: torch.dtype) -> None:
+def test_chi_square_goodness_of_fit_power_sample_size(
+    batch_size: int, dtype: torch.dtype
+) -> None:
     """Test chi-square goodness-of-fit sample size calculation."""
 
     # Basic functionality tests
@@ -141,11 +135,7 @@ def test_chisquare_gof_sample_size(batch_size: int, dtype: torch.dtype) -> None:
     )
     assert torch.all(small_sample <= large_sample)
 
-
-@pytest.mark.skipif(not HAS_STATSMODELS, reason="statsmodels not available")
-def test_chisquare_gof_sample_size_consistency() -> None:
-    """Test that sample size calculation is consistent with power calculation."""
-
+    # Test that sample size calculation is consistent with power calculation
     # Test several cases to ensure consistency
     test_cases = [
         (0.3, 3, 0.8, 0.05),

@@ -1,23 +1,15 @@
 """Test chi-square independence sample size."""
 
-import pytest
 import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.statistics._chi_square_independence_power import (
-    chi_square_independence_power,
+from beignet.statistics._chi_squared_independence_power import (
+    chisquare_independence_power,
 )
-from beignet.statistics._chi_square_independence_sample_size import (
+from beignet.statistics._chi_squared_independence_sample_size import (
     chi_square_independence_sample_size,
 )
-
-try:
-    import statsmodels.stats.power as smp
-
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
 
 
 @given(
@@ -25,7 +17,7 @@ except ImportError:
     dtype=st.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)  # Disable deadline for torch.compile
-def test_chisquare_independence_sample_size(
+def test_chi_square_independence_sample_size(
     batch_size: int, dtype: torch.dtype
 ) -> None:
     """Test chi-square independence sample size calculation."""
@@ -101,7 +93,7 @@ def test_chisquare_independence_sample_size(
     assert torch.all(sample_size_large_table >= 5.0 * large_rows * large_cols)
 
     # Test that computed sample size achieves desired power
-    computed_power = chi_square_independence_power(
+    computed_power = chisquare_independence_power(
         effect_size, sample_size, rows, cols, alpha=alpha
     )
 
@@ -169,11 +161,7 @@ def test_chisquare_independence_sample_size(
     )
     assert torch.all(small_sample <= large_sample)
 
-
-@pytest.mark.skipif(not HAS_STATSMODELS, reason="statsmodels not available")
-def test_chisquare_independence_sample_size_consistency() -> None:
-    """Test that sample size calculation is consistent with power calculation."""
-
+    # Test that sample size calculation is consistent with power calculation
     # Test several cases to ensure consistency
     test_cases = [
         (0.3, 3, 3, 0.8, 0.05),
@@ -193,7 +181,7 @@ def test_chisquare_independence_sample_size_consistency() -> None:
         )
 
         # Calculate actual power with that sample size
-        actual_power = chi_square_independence_power(
+        actual_power = chisquare_independence_power(
             torch.tensor(effect),
             sample_size,
             torch.tensor(rows_val),
@@ -208,10 +196,7 @@ def test_chisquare_independence_sample_size_consistency() -> None:
         # (since we round up)
         assert float(actual_power) >= power_target - 0.01
 
-
-def test_chisquare_independence_sample_size_special_cases() -> None:
-    """Test special cases for chi-square independence sample size."""
-
+    # Test special cases for chi-square independence sample size
     # Test 2x2 table (most common case)
     effect_size = torch.tensor(0.3)
     rows = torch.tensor(2)

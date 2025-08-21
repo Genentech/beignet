@@ -27,9 +27,7 @@ class BenchChiSquareGoodnessOfFitPower:
         self.df = torch.randint(1, 10, (batch_size,), dtype=dtype)
 
     def time_chisquare_gof_power(self, batch_size, dtype):
-        return self.func(
-            self.effect_size, self.sample_size, self.df, alpha=0.05
-        )
+        return self.func(self.effect_size, self.sample_size, self.df, alpha=0.05)
 
     def peakmem_chisquare_gof_power(self, batch_size, dtype):
         return beignet.statistics.chi_squared_goodness_of_fit_power(

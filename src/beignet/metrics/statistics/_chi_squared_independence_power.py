@@ -4,7 +4,9 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-from beignet.statistics._chi_squared_independence_power import chisquare_independence_power
+from beignet.statistics._chi_squared_independence_power import (
+    chisquare_independence_power,
+)
 
 
 class ChiSquareIndependencePower(Metric):

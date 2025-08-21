@@ -33,4 +33,6 @@ class BenchPhiCoefficient:
         return self.func(self.chi_square_values, self.sample_sizes)
 
     def peakmem_phi_coefficient(self, batch_size, dtype):
-        return beignet.statistics.phi_coefficient(self.chi_square_values, self.sample_sizes)
+        return beignet.statistics.phi_coefficient(
+            self.chi_square_values, self.sample_sizes
+        )

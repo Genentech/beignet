@@ -7,13 +7,6 @@ from hypothesis import strategies as st
 
 from beignet.statistics._z_test_power import z_test_power
 
-try:
-    import statsmodels.stats.power as smp
-
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
-
 
 @given(
     batch_size=st.integers(min_value=1, max_value=10),
@@ -96,16 +89,13 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     assert torch.allclose(out, power_regular, rtol=1e-5)
     assert result is out
 
-
-def test_z_test_power_known_values() -> None:
-    """Test normal power with known values."""
-
+    # Test known values
     # Test case: effect size = 0.5, n = 16, one-sided should give reasonable power
-    effect_size = torch.tensor(0.5)
-    sample_size = torch.tensor(16)
+    effect_size_known = torch.tensor(0.5, dtype=dtype)
+    sample_size_known = torch.tensor(16, dtype=dtype)
 
     power_one_sided = z_test_power(
-        effect_size, sample_size, alpha=0.05, alternative="larger"
+        effect_size_known, sample_size_known, alpha=0.05, alternative="larger"
     )
 
     # Should be reasonable power, not too high or too low
@@ -113,4 +103,4 @@ def test_z_test_power_known_values() -> None:
 
     # Test invalid alternative
     with pytest.raises(ValueError):
-        z_test_power(effect_size, sample_size, alternative="invalid")
+        z_test_power(effect_size_known, sample_size_known, alternative="invalid")

@@ -4,7 +4,9 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-from beignet.statistics._chi_squared_goodness_of_fit_sample_size import chi_square_goodness_of_fit_power_sample_size
+from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
+    chi_square_goodness_of_fit_power_sample_size,
+)
 
 
 class ChiSquareGoodnessOfFitSampleSize(Metric):
