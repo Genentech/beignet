@@ -1,15 +1,15 @@
+import hypothesis.strategies
 import statsmodels  # noqa: F401
 import torch
 from hypothesis import given, settings
-from hypothesis import strategies as st
 
 import beignet
 import beignet.statistics
 
 
 @given(
-    batch_size=st.integers(min_value=1, max_value=5),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=5),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)
 def test_proportion_sample_size(batch_size, dtype):

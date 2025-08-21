@@ -1,16 +1,16 @@
-"""Test z-test power (z-test with known variance)."""
-
+import hypothesis.strategies
 import pytest
 import torch
 from hypothesis import given, settings
-from hypothesis import strategies as st
 
 from beignet.statistics._z_test_power import z_test_power
 
+"""Test z-test power (z-test with known variance)."""
+
 
 @given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)  # Disable deadline for torch.compile
 def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:

@@ -1,16 +1,16 @@
+import hypothesis.strategies
 import torch
 from hypothesis import given, settings
-from hypothesis import strategies as st
 
 import beignet
 import beignet.statistics
 
 
 @given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    n1=st.integers(min_value=5, max_value=20),
-    n2=st.integers(min_value=5, max_value=20),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    n1=hypothesis.strategies.integers(min_value=5, max_value=20),
+    n2=hypothesis.strategies.integers(min_value=5, max_value=20),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)
 def test_hedges_g(batch_size, n1, n2, dtype):

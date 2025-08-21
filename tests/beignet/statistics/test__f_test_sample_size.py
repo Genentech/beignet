@@ -1,16 +1,16 @@
-"""Test F-test sample size."""
-
+import hypothesis.strategies
 import pytest
 import torch
 from hypothesis import given, settings
-from hypothesis import strategies as st
 
 from beignet.statistics._f_test_sample_size import f_test_sample_size
 
+"""Test F-test sample size."""
+
 
 @given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)  # Disable deadline for torch.compile
 def test_f_test_sample_size(batch_size: int, dtype: torch.dtype) -> None:
