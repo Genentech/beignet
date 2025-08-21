@@ -70,8 +70,8 @@ def cohens_f(
            facilitate cumulative science. Frontiers in Psychology, 4, 863.
     """
     # Convert inputs to tensors if needed
-    group_means = torch.as_tensor(group_means)
-    pooled_std = torch.as_tensor(pooled_std)
+    group_means = torch.atleast_1d(torch.as_tensor(group_means))
+    pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
 
     # Ensure both tensors have the same dtype
     if group_means.dtype == torch.float64 or pooled_std.dtype == torch.float64:

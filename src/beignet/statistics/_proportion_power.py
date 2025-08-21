@@ -76,9 +76,9 @@ def proportion_power(
            for rates and proportions. John Wiley & Sons.
     """
     # Convert inputs to tensors if needed
-    p0 = torch.as_tensor(p0)
-    p1 = torch.as_tensor(p1)
-    sample_size = torch.as_tensor(sample_size)
+    p0 = torch.atleast_1d(torch.as_tensor(p0))
+    p1 = torch.atleast_1d(torch.as_tensor(p1))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     # Ensure all tensors have the same dtype
     if (

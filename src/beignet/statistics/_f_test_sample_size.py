@@ -96,9 +96,9 @@ def f_test_sample_size(
            Erlbaum.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    power = torch.as_tensor(power)
-    df1 = torch.as_tensor(df1)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    power = torch.atleast_1d(torch.as_tensor(power))
+    df1 = torch.atleast_1d(torch.as_tensor(df1))
 
     # Input validation (only when not compiled)
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():

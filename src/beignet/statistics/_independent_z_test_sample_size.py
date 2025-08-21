@@ -92,12 +92,12 @@ def independent_z_test_sample_size(
            sciences. Routledge.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    power = torch.as_tensor(power)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    power = torch.atleast_1d(torch.as_tensor(power))
     if ratio is None:
         ratio = torch.tensor(1.0)
     else:
-        ratio = torch.as_tensor(ratio)
+        ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
     # Input validation (only when not compiled)
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():

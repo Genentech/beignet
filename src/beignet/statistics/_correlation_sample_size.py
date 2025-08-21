@@ -52,7 +52,7 @@ def correlation_sample_size(
     tensor(85)
     """
     # Convert inputs to tensors if needed
-    r = torch.as_tensor(r)
+    r = torch.atleast_1d(torch.as_tensor(r))
 
     # Fisher z-transformation of the correlation
     # z_r = 0.5 * ln((1 + r) / (1 - r))

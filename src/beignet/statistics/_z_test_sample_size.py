@@ -86,8 +86,8 @@ def z_test_sample_size(
     .. [2] Cohen, J. (1992). A power primer. Psychological Bulletin, 112(1), 155-159.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    power = torch.as_tensor(power)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    power = torch.atleast_1d(torch.as_tensor(power))
 
     # Input validation (only when not compiled)
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():

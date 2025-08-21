@@ -85,9 +85,9 @@ def anova_power(
            Behavior Research Methods, 39(2), 175-191.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    sample_size = torch.as_tensor(sample_size)
-    k = torch.as_tensor(k)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    k = torch.atleast_1d(torch.as_tensor(k))
 
     # Ensure all tensors have the same dtype
     if (

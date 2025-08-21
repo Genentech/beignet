@@ -81,8 +81,8 @@ def proportion_two_sample_sample_size(
            in clinical research. CRC press.
     """
     # Convert inputs to tensors if needed
-    p1 = torch.as_tensor(p1)
-    p2 = torch.as_tensor(p2)
+    p1 = torch.atleast_1d(torch.as_tensor(p1))
+    p2 = torch.atleast_1d(torch.as_tensor(p2))
 
     # Ensure tensors have the same dtype
     if p1.dtype == torch.float64 or p2.dtype == torch.float64:

@@ -92,9 +92,9 @@ def f_test_power(
            Erlbaum.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    df1 = torch.as_tensor(df1)
-    df2 = torch.as_tensor(df2)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    df1 = torch.atleast_1d(torch.as_tensor(df1))
+    df2 = torch.atleast_1d(torch.as_tensor(df2))
 
     # Ensure tensors have the same dtype
     if (

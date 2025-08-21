@@ -57,8 +57,8 @@ def phi_coefficient(
     table and indicates the direction of association.
     """
     # Convert inputs to tensors if needed
-    chi_square = torch.as_tensor(chi_square)
-    sample_size = torch.as_tensor(sample_size)
+    chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     # Ensure both have the same dtype
     if chi_square.dtype != sample_size.dtype:

@@ -89,8 +89,8 @@ def z_test_power(
     .. [2] Cohen, J. (1992). A power primer. Psychological Bulletin, 112(1), 155-159.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    sample_size = torch.as_tensor(sample_size)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64:

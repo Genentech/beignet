@@ -83,8 +83,8 @@ def chi_square_goodness_of_fit_power_sample_size(
            University Press.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    df = torch.as_tensor(df)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    df = torch.atleast_1d(torch.as_tensor(df))
 
     # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or df.dtype == torch.float64:

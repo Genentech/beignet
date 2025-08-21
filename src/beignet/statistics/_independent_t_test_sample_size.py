@@ -82,11 +82,11 @@ def independent_t_test_sample_size(
            sciences. Routledge.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     if ratio is None:
         ratio = torch.tensor(1.0)
     else:
-        ratio = torch.as_tensor(ratio)
+        ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
     # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or ratio.dtype == torch.float64:

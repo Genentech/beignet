@@ -91,13 +91,13 @@ def independent_z_test_power(
            sciences. Routledge.
     """
     # Convert inputs to tensors if needed
-    effect_size = torch.as_tensor(effect_size)
-    sample_size1 = torch.as_tensor(sample_size1)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    sample_size1 = torch.atleast_1d(torch.as_tensor(sample_size1))
 
     if sample_size2 is None:
         sample_size2 = sample_size1
     else:
-        sample_size2 = torch.as_tensor(sample_size2)
+        sample_size2 = torch.atleast_1d(torch.as_tensor(sample_size2))
 
     # Ensure tensors have the same dtype
     if (

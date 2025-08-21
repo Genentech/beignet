@@ -53,8 +53,8 @@ def correlation_power(
     tensor(0.5704)
     """
     # Convert inputs to tensors if needed
-    r = torch.as_tensor(r)
-    sample_size = torch.as_tensor(sample_size)
+    r = torch.atleast_1d(torch.as_tensor(r))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     # Ensure both have the same dtype
     if r.dtype != sample_size.dtype:

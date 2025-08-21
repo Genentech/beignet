@@ -60,9 +60,9 @@ def cramers_v(
     - Large effect: V = 0.50
     """
     # Convert inputs to tensors if needed
-    chi_square = torch.as_tensor(chi_square)
-    sample_size = torch.as_tensor(sample_size)
-    min_dim = torch.as_tensor(min_dim)
+    chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    min_dim = torch.atleast_1d(torch.as_tensor(min_dim))
 
     # Ensure all have the same dtype
     dtype = chi_square.dtype

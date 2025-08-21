@@ -83,14 +83,14 @@ def proportion_two_sample_power(
     .. [2] Agresti, A. (2013). Categorical data analysis. John Wiley & Sons.
     """
     # Convert inputs to tensors if needed
-    p1 = torch.as_tensor(p1)
-    p2 = torch.as_tensor(p2)
-    n1 = torch.as_tensor(n1)
+    p1 = torch.atleast_1d(torch.as_tensor(p1))
+    p2 = torch.atleast_1d(torch.as_tensor(p2))
+    n1 = torch.atleast_1d(torch.as_tensor(n1))
 
     if n2 is None:
         n2 = n1
     else:
-        n2 = torch.as_tensor(n2)
+        n2 = torch.atleast_1d(torch.as_tensor(n2))
 
     # Ensure all tensors have the same dtype
     if (
