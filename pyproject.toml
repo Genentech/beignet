@@ -12,11 +12,13 @@ dependencies = [
     "biotite",
     "einops>=0.8.1",
     "fastpdb",
+    "notebook>=7.4.5",
     "numpy>=2",
     "optree",
     "pandas>=2.3.1",
     "pooch",
     "torch",
+    "torchmetrics>=1.8.1",
     "tqdm",
 ]
 dynamic = ["version"]

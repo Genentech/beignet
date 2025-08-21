@@ -6,12 +6,15 @@ try:
 except PackageNotFoundError:
     __version__ = None
 
+from . import metrics
 from ._add_chebyshev_polynomial import add_chebyshev_polynomial
 from ._add_laguerre_polynomial import add_laguerre_polynomial
 from ._add_legendre_polynomial import add_legendre_polynomial
 from ._add_physicists_hermite_polynomial import add_physicists_hermite_polynomial
 from ._add_polynomial import add_polynomial
 from ._add_probabilists_hermite_polynomial import add_probabilists_hermite_polynomial
+from ._anova_power import anova_power
+from ._anova_sample_size import anova_sample_size
 from ._apply_euler_angle import apply_euler_angle
 from ._apply_quaternion import (
     apply_quaternion,
@@ -38,11 +41,21 @@ from ._chebyshev_polynomial_weight import chebyshev_polynomial_weight
 from ._chebyshev_polynomial_x import chebyshev_polynomial_x
 from ._chebyshev_polynomial_zero import chebyshev_polynomial_zero
 from ._chebyshev_zeros import chebyshev_zeros
+from ._chisquare_gof_power import chisquare_gof_power
+from ._chisquare_gof_sample_size import chisquare_gof_sample_size
+from ._chisquare_independence_power import chisquare_independence_power
+from ._chisquare_independence_sample_size import chisquare_independence_sample_size
+from ._cohens_d import cohens_d
+from ._cohens_f import cohens_f
+from ._cohens_f_squared import cohens_f_squared
 from ._compose_euler_angle import compose_euler_angle
 from ._compose_quaternion import compose_quaternion
 from ._compose_rotation_matrix import compose_rotation_matrix
 from ._compose_rotation_vector import compose_rotation_vector
 from ._convolve import convolve
+from ._correlation_power import correlation_power
+from ._correlation_sample_size import correlation_sample_size
+from ._cramers_v import cramers_v
 from ._default_dtype_manager import default_dtype_manager
 from ._differentiate_chebyshev_polynomial import differentiate_chebyshev_polynomial
 from ._differentiate_laguerre_polynomial import differentiate_laguerre_polynomial
@@ -134,6 +147,8 @@ from ._evaluate_probabilists_hermite_polynomial_cartersian_2d import (
 from ._evaluate_probabilists_hermite_polynomial_cartersian_3d import (
     evaluate_probabilists_hermite_polynomial_cartersian_3d,
 )
+from ._f_test_power import f_test_power
+from ._f_test_sample_size import f_test_sample_size
 from ._farthest_first_traversal import farthest_first_traversal
 from ._fit_chebyshev_polynomial import fit_chebyshev_polynomial
 from ._fit_laguerre_polynomial import fit_laguerre_polynomial
@@ -149,7 +164,12 @@ from ._gauss_physicists_hermite_polynomial_quadrature import (
 from ._gauss_probabilists_hermite_polynomial_quadrature import (
     gauss_probabilists_hermite_polynomial_quadrature,
 )
+from ._hedges_g import hedges_g
 from ._identity_matrix import identity_matrix
+from ._independent_t_test_power import independent_t_test_power
+from ._independent_t_test_sample_size import independent_t_test_sample_size
+from ._independent_z_test_power import independent_z_test_power
+from ._independent_z_test_sample_size import independent_z_test_sample_size
 from ._integrate_chebyshev_polynomial import integrate_chebyshev_polynomial
 from ._integrate_laguerre_polynomial import integrate_laguerre_polynomial
 from ._integrate_legendre_polynomial import integrate_legendre_polynomial
@@ -223,6 +243,7 @@ from ._multiply_probabilists_hermite_polynomial_by_x import (
 )
 from ._optional_dependencies import optional_dependencies
 from ._pad import pad_to_target_length
+from ._phi_coefficient import phi_coefficient
 from ._physicists_hermite_polynomial_companion import (
     physicists_hermite_polynomial_companion,
 )
@@ -301,6 +322,10 @@ from ._probabilists_hermite_polynomial_weight import (
 )
 from ._probabilists_hermite_polynomial_x import probabilists_hermite_polynomial_x
 from ._probabilists_hermite_polynomial_zero import probabilists_hermite_polynomial_zero
+from ._proportion_power import proportion_power
+from ._proportion_sample_size import proportion_sample_size
+from ._proportion_two_sample_power import proportion_two_sample_power
+from ._proportion_two_sample_sample_size import proportion_two_sample_sample_size
 from ._quaternion_identity import quaternion_identity
 from ._quaternion_magnitude import quaternion_magnitude
 from ._quaternion_mean import quaternion_mean
@@ -350,6 +375,8 @@ from ._subtract_polynomial import subtract_polynomial
 from ._subtract_probabilists_hermite_polynomial import (
     subtract_probabilists_hermite_polynomial,
 )
+from ._t_test_power import t_test_power
+from ._t_test_sample_size import t_test_sample_size
 from ._translation_identity import translation_identity
 from ._trim_chebyshev_polynomial_coefficients import (
     trim_chebyshev_polynomial_coefficients,
@@ -367,6 +394,8 @@ from ._trim_polynomial_coefficients import trim_polynomial_coefficients
 from ._trim_probabilists_hermite_polynomial_coefficients import (
     trim_probabilists_hermite_polynomial_coefficients,
 )
+from ._z_test_power import z_test_power
+from ._z_test_sample_size import z_test_sample_size
 from .special import error_erf, error_erfc
 
 __all__ = [
@@ -376,6 +405,8 @@ __all__ = [
     "add_physicists_hermite_polynomial",
     "add_polynomial",
     "add_probabilists_hermite_polynomial",
+    "anova_power",
+    "anova_sample_size",
     "apply_euler_angle",
     "apply_quaternion",
     "apply_rotation_matrix",
@@ -398,6 +429,16 @@ __all__ = [
     "chebyshev_polynomial_x",
     "chebyshev_polynomial_zero",
     "chebyshev_zeros",
+    "cohens_d",
+    "cohens_f",
+    "cohens_f_squared",
+    "chisquare_gof_power",
+    "chisquare_gof_sample_size",
+    "chisquare_independence_power",
+    "chisquare_independence_sample_size",
+    "correlation_power",
+    "correlation_sample_size",
+    "cramers_v",
     "compose_euler_angle",
     "compose_quaternion",
     "compose_rotation_matrix",
@@ -455,6 +496,8 @@ __all__ = [
     "evaluate_probabilists_hermite_polynomial_cartersian_2d",
     "evaluate_probabilists_hermite_polynomial_cartersian_3d",
     "farthest_first_traversal",
+    "f_test_power",
+    "f_test_sample_size",
     "fit_chebyshev_polynomial",
     "fit_laguerre_polynomial",
     "fit_legendre_polynomial",
@@ -465,6 +508,12 @@ __all__ = [
     "gauss_legendre_quadrature",
     "gauss_physicists_hermite_polynomial_quadrature",
     "gauss_probabilists_hermite_polynomial_quadrature",
+    "hedges_g",
+    "phi_coefficient",
+    "proportion_power",
+    "proportion_sample_size",
+    "proportion_two_sample_power",
+    "proportion_two_sample_sample_size",
     "identity_matrix",
     "integrate_chebyshev_polynomial",
     "integrate_laguerre_polynomial",
@@ -523,6 +572,10 @@ __all__ = [
     "multiply_polynomial_by_x",
     "multiply_probabilists_hermite_polynomial",
     "multiply_probabilists_hermite_polynomial_by_x",
+    "independent_z_test_power",
+    "independent_z_test_sample_size",
+    "z_test_power",
+    "z_test_sample_size",
     "optional_dependencies",
     "pad_to_target_length",
     "physicists_hermite_polynomial_companion",
@@ -600,10 +653,17 @@ __all__ = [
     "subtract_polynomial",
     "subtract_probabilists_hermite_polynomial",
     "translation_identity",
+    "t_test_power",
+    "t_test_sample_size",
+    "independent_t_test_power",
+    "independent_t_test_sample_size",
+    "t_test_power",
+    "t_test_sample_size",
     "trim_chebyshev_polynomial_coefficients",
     "trim_laguerre_polynomial_coefficients",
     "trim_legendre_polynomial_coefficients",
     "trim_physicists_hermite_polynomial_coefficients",
     "trim_polynomial_coefficients",
     "trim_probabilists_hermite_polynomial_coefficients",
+    "metrics",
 ]
