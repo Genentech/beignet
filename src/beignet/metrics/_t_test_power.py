@@ -45,18 +45,26 @@ class TTestPower(Metric):
         self.alpha = alpha
         self.alternative = alternative
 
-        self.add_state("effect_sizes", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_sizes", default=[], dist_reduce_fx="cat")
+        # Validate parameters
+        if not 0 < alpha < 1:
+            raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
+        if alternative not in ["two-sided", "greater", "less"]:
+            raise ValueError(
+                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
+            )
 
-    def update(self, effect_size: torch.Tensor, sample_size: torch.Tensor) -> None:
-        """Update the metric state with new effect sizes and sample sizes.
+        self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
+        self.add_state("group2_samples", default=[], dist_reduce_fx="cat")
+
+    def update(self, group1: torch.Tensor, group2: torch.Tensor) -> None:
+        """Update the metric state with new samples.
 
         Args:
-            effect_size: Standardized effect size (Cohen's d).
-            sample_size: Sample size (number of observations).
+            group1: Samples from the first group.
+            group2: Samples from the second group.
         """
-        self.effect_sizes.append(effect_size.detach())
-        self.sample_sizes.append(sample_size.detach())
+        self.group1_samples.append(group1.detach())
+        self.group2_samples.append(group2.detach())
 
     def compute(self) -> torch.Tensor:
         """Compute the statistical power for all accumulated values.
@@ -64,12 +72,31 @@ class TTestPower(Metric):
         Returns:
             Statistical power values.
         """
-        effect_sizes = torch.cat(self.effect_sizes, dim=0)
-        sample_sizes = torch.cat(self.sample_sizes, dim=0)
+        if not self.group1_samples or not self.group2_samples:
+            raise RuntimeError("No samples have been added to the metric.")
+
+        # Concatenate all samples
+        group1_all = torch.cat(self.group1_samples, dim=0)
+        group2_all = torch.cat(self.group2_samples, dim=0)
+
+        # Compute Cohen's d effect size
+        mean1 = torch.mean(group1_all, dim=0)
+        mean2 = torch.mean(group2_all, dim=0)
+
+        # Use pooled standard deviation
+        var1 = torch.var(group1_all, dim=0, unbiased=True)
+        var2 = torch.var(group2_all, dim=0, unbiased=True)
+        n1 = group1_all.shape[0]
+        n2 = group2_all.shape[0]
+        pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+        effect_size = (mean1 - mean2) / pooled_std
+
+        # Use smaller sample size for power calculation (conservative)
+        sample_size = torch.tensor(min(n1, n2), dtype=group1_all.dtype)
 
         return beignet.t_test_power(
-            effect_sizes,
-            sample_sizes,
+            effect_size,
+            sample_size,
             alpha=self.alpha,
             alternative=self.alternative,
         )
@@ -225,3 +252,6 @@ class TTestPower(Metric):
 
         plt.tight_layout()
         return fig
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(alpha={self.alpha}, alternative='{self.alternative}')"

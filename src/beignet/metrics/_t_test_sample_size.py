@@ -42,19 +42,33 @@ class TTestSampleSize(Metric):
             **kwargs: Additional keyword arguments passed to the parent class.
         """
         super().__init__(**kwargs)
+
+        # Validate parameters
+        if not 0 < alpha < 1:
+            raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
+        if not 0 < power < 1:
+            raise ValueError(f"power must be between 0 and 1, got {power}")
+        if alternative not in ["two-sided", "greater", "less"]:
+            raise ValueError(
+                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
+            )
+
         self.power = power
         self.alpha = alpha
         self.alternative = alternative
 
-        self.add_state("effect_sizes", default=[], dist_reduce_fx="cat")
+        self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
+        self.add_state("group2_samples", default=[], dist_reduce_fx="cat")
 
-    def update(self, effect_size: torch.Tensor) -> None:
-        """Update the metric state with new effect sizes.
+    def update(self, group1: torch.Tensor, group2: torch.Tensor) -> None:
+        """Update the metric state with new samples.
 
         Args:
-            effect_size: Standardized effect size (Cohen's d).
+            group1: Samples from the first group.
+            group2: Samples from the second group.
         """
-        self.effect_sizes.append(effect_size.detach())
+        self.group1_samples.append(group1.detach())
+        self.group2_samples.append(group2.detach())
 
     def compute(self) -> torch.Tensor:
         """Compute the required sample size for all accumulated effect sizes.
@@ -62,10 +76,27 @@ class TTestSampleSize(Metric):
         Returns:
             Required sample sizes.
         """
-        effect_sizes = torch.cat(self.effect_sizes, dim=0)
+        if not self.group1_samples or not self.group2_samples:
+            raise RuntimeError("No samples have been added to the metric.")
+
+        # Concatenate all samples
+        group1_all = torch.cat(self.group1_samples, dim=0)
+        group2_all = torch.cat(self.group2_samples, dim=0)
+
+        # Compute Cohen's d effect size
+        mean1 = torch.mean(group1_all, dim=0)
+        mean2 = torch.mean(group2_all, dim=0)
+
+        # Use pooled standard deviation
+        var1 = torch.var(group1_all, dim=0, unbiased=True)
+        var2 = torch.var(group2_all, dim=0, unbiased=True)
+        n1 = group1_all.shape[0]
+        n2 = group2_all.shape[0]
+        pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+        effect_size = (mean1 - mean2) / pooled_std
 
         return beignet.t_test_sample_size(
-            effect_sizes,
+            effect_size,
             power=self.power,
             alpha=self.alpha,
             alternative=self.alternative,
@@ -219,3 +250,6 @@ class TTestSampleSize(Metric):
 
         plt.tight_layout()
         return fig
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(power={self.power}, alpha={self.alpha}, alternative='{self.alternative}')"
