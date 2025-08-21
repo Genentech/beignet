@@ -1,6 +1,6 @@
 import hypothesis.strategies
 import pytest
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -169,7 +169,7 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
 
     # Use statsmodels zt_ind_solve_power for two-sample z-tests
     # This function solves for sample size when power is given
-    statsmodels_result = smp.zt_ind_solve_power(
+    statsmodels_result = statsmodels.stats.power.zt_ind_solve_power(
         effect_size=effect_size_sm,
         nobs1=None,  # Solve for sample size
         alpha=alpha_sm,

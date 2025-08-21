@@ -1,7 +1,7 @@
 """Test F-test power."""
 
 import hypothesis.strategies
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -117,7 +117,7 @@ def test_f_test_power(batch_size: int, dtype: torch.dtype) -> None:
 
     # Use statsmodels ftest_power with correct parameter names
     # ftest_power(effect_size, df2, df1, alpha, ncc=1)
-    statsmodels_result = smp.ftest_power(
+    statsmodels_result = statsmodels.stats.power.ftest_power(
         effect_size=effect_size_sm,
         df2=df2_sm,
         df1=df1_sm,

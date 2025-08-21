@@ -1,5 +1,5 @@
 import hypothesis.strategies
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -133,7 +133,7 @@ def test_independent_t_test_sample_size(batch_size, dtype):
                     )
 
                     # Use tt_ind_solve_power for independent samples t-test
-                    statsmodels_n = smp.tt_ind_solve_power(
+                    statsmodels_n = statsmodels.stats.power.tt_ind_solve_power(
                         effect_size=effect_size_val,
                         nobs1=None,
                         alpha=0.05,

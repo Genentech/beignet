@@ -1,6 +1,6 @@
 import hypothesis.strategies
 import pytest
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -130,7 +130,7 @@ def test_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> None:
     )
 
     # Statsmodels uses zt_ind_solve_power for z-tests with known variance
-    statsmodels_result = smp.zt_ind_solve_power(
+    statsmodels_result = statsmodels.stats.power.zt_ind_solve_power(
         effect_size=effect_size_sm,
         nobs1=None,
         alpha=alpha_sm,

@@ -1,5 +1,5 @@
 import hypothesis.strategies
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -153,7 +153,7 @@ def test_correlation_sample_size(batch_size, dtype):
         # Use Fisher z-transformation sample size calculation from statsmodels
         try:
             # Calculate sample size using Fisher z-transformation
-            sm_result = smp.zt_ind_solve_power(
+            sm_result = statsmodels.stats.power.zt_ind_solve_power(
                 effect_size=r_val,
                 nobs1=None,
                 alpha=alpha_val,

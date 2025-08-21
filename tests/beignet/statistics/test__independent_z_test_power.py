@@ -1,6 +1,6 @@
 import hypothesis.strategies
 import pytest
-import statsmodels.stats.power as smp
+import statsmodels.stats.power
 import torch
 from hypothesis import given, settings
 
@@ -169,7 +169,7 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
 
     # Use statsmodels normal_power with effective sample size
     # normal_power calculates power directly, no power parameter needed
-    statsmodels_result = smp.normal_power(
+    statsmodels_result = statsmodels.stats.power.normal_power(
         effect_size=effect_size_sm,
         nobs=effective_n,
         alpha=alpha_sm,
