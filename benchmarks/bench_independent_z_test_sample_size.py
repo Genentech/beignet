@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class TimeTTestIndPower:
+class TimeIndependentZTestSampleSize:
     params = ([1, 10, 100], [torch.float32, torch.float64])
     param_names = ["batch_size", "dtype"]
 
@@ -15,58 +15,64 @@ class TimeTTestIndPower:
 
         self.effect_sizes = (
             torch.tensor([0.2, 0.5, 0.8], dtype=dtype).repeat(batch_size, 1).flatten()
-        )
-        self.nobs1_values = (
-            torch.tensor([20, 30, 50], dtype=dtype).repeat(batch_size, 1).flatten()
         )
         self.ratio_values = (
             torch.tensor([1.0, 1.5, 2.0], dtype=dtype).repeat(batch_size, 1).flatten()
         )
 
         # Compile for optimal performance
-        self.compiled_ttest_ind_power = torch.compile(
-            beignet.ttest_ind_power, fullgraph=True
+        self.compiled_independent_z_test_sample_size = torch.compile(
+            beignet.independent_z_test_sample_size, fullgraph=True
         )
 
-    def time_ttest_ind_power_two_sided(self, batch_size, dtype):
-        return self.compiled_ttest_ind_power(
+    def time_independent_z_test_sample_size_power_08(self, batch_size, dtype):
+        return self.compiled_independent_z_test_sample_size(
             self.effect_sizes,
-            self.nobs1_values,
             self.ratio_values,
+            power=0.8,
             alpha=0.05,
             alternative="two-sided",
         )
 
-    def time_ttest_ind_power_larger(self, batch_size, dtype):
-        return self.compiled_ttest_ind_power(
+    def time_independent_z_test_sample_size_power_09(self, batch_size, dtype):
+        return self.compiled_independent_z_test_sample_size(
             self.effect_sizes,
-            self.nobs1_values,
             self.ratio_values,
+            power=0.9,
             alpha=0.05,
-            alternative="larger",
+            alternative="two-sided",
         )
 
-    def time_ttest_ind_power_balanced(self, batch_size, dtype):
+    def time_independent_z_test_sample_size_balanced(self, batch_size, dtype):
         ratio_ones = torch.ones_like(self.effect_sizes)
-        return self.compiled_ttest_ind_power(
+        return self.compiled_independent_z_test_sample_size(
             self.effect_sizes,
-            self.nobs1_values,
             ratio_ones,
+            power=0.8,
             alpha=0.05,
             alternative="two-sided",
         )
 
-    def time_ttest_ind_power_alpha_001(self, batch_size, dtype):
-        return self.compiled_ttest_ind_power(
+    def time_independent_z_test_sample_size_alpha_01(self, batch_size, dtype):
+        return self.compiled_independent_z_test_sample_size(
             self.effect_sizes,
-            self.nobs1_values,
             self.ratio_values,
+            power=0.8,
             alpha=0.01,
             alternative="two-sided",
         )
 
+    def time_independent_z_test_sample_size_greater(self, batch_size, dtype):
+        return self.compiled_independent_z_test_sample_size(
+            self.effect_sizes,
+            self.ratio_values,
+            power=0.8,
+            alpha=0.05,
+            alternative="greater",
+        )
 
-class PeakMemoryTTestIndPower:
+
+class PeakMemoryIndependentZTestSampleSize:
     params = ([1, 10, 100], [torch.float32, torch.float64])
     param_names = ["batch_size", "dtype"]
 
@@ -77,18 +83,15 @@ class PeakMemoryTTestIndPower:
         self.effect_sizes = (
             torch.tensor([0.2, 0.5, 0.8], dtype=dtype).repeat(batch_size, 1).flatten()
         )
-        self.nobs1_values = (
-            torch.tensor([20, 30, 50], dtype=dtype).repeat(batch_size, 1).flatten()
-        )
         self.ratio_values = (
             torch.tensor([1.0, 1.5, 2.0], dtype=dtype).repeat(batch_size, 1).flatten()
         )
 
-    def peakmem_ttest_ind_power(self, batch_size, dtype):
-        return beignet.ttest_ind_power(
+    def peakmem_independent_z_test_sample_size(self, batch_size, dtype):
+        return beignet.independent_z_test_sample_size(
             self.effect_sizes,
-            self.nobs1_values,
             self.ratio_values,
+            power=0.8,
             alpha=0.05,
             alternative="two-sided",
         )

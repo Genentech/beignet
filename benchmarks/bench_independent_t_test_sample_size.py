@@ -5,7 +5,7 @@ import torch
 import beignet
 
 
-class TimeTTestIndSampleSize:
+class TimeIndependentTTestSampleSize:
     params = ([1, 10, 100], [torch.float32, torch.float64])
     param_names = ["batch_size", "dtype"]
 
@@ -21,12 +21,12 @@ class TimeTTestIndSampleSize:
         )
 
         # Compile for optimal performance
-        self.compiled_ttest_ind_sample_size = torch.compile(
-            beignet.ttest_ind_sample_size, fullgraph=True
+        self.compiled_independent_t_test_sample_size = torch.compile(
+            beignet.independent_t_test_sample_size, fullgraph=True
         )
 
-    def time_ttest_ind_sample_size_power_08(self, batch_size, dtype):
-        return self.compiled_ttest_ind_sample_size(
+    def time_independent_t_test_sample_size_power_08(self, batch_size, dtype):
+        return self.compiled_independent_t_test_sample_size(
             self.effect_sizes,
             self.ratio_values,
             power=0.8,
@@ -34,8 +34,8 @@ class TimeTTestIndSampleSize:
             alternative="two-sided",
         )
 
-    def time_ttest_ind_sample_size_power_09(self, batch_size, dtype):
-        return self.compiled_ttest_ind_sample_size(
+    def time_independent_t_test_sample_size_power_09(self, batch_size, dtype):
+        return self.compiled_independent_t_test_sample_size(
             self.effect_sizes,
             self.ratio_values,
             power=0.9,
@@ -43,9 +43,9 @@ class TimeTTestIndSampleSize:
             alternative="two-sided",
         )
 
-    def time_ttest_ind_sample_size_balanced(self, batch_size, dtype):
+    def time_independent_t_test_sample_size_balanced(self, batch_size, dtype):
         ratio_ones = torch.ones_like(self.effect_sizes)
-        return self.compiled_ttest_ind_sample_size(
+        return self.compiled_independent_t_test_sample_size(
             self.effect_sizes,
             ratio_ones,
             power=0.8,
@@ -53,8 +53,8 @@ class TimeTTestIndSampleSize:
             alternative="two-sided",
         )
 
-    def time_ttest_ind_sample_size_alpha_001(self, batch_size, dtype):
-        return self.compiled_ttest_ind_sample_size(
+    def time_independent_t_test_sample_size_alpha_001(self, batch_size, dtype):
+        return self.compiled_independent_t_test_sample_size(
             self.effect_sizes,
             self.ratio_values,
             power=0.8,
@@ -62,8 +62,17 @@ class TimeTTestIndSampleSize:
             alternative="two-sided",
         )
 
+    def time_independent_t_test_sample_size_one_sided(self, batch_size, dtype):
+        return self.compiled_independent_t_test_sample_size(
+            self.effect_sizes,
+            self.ratio_values,
+            power=0.8,
+            alpha=0.05,
+            alternative="larger",
+        )
 
-class PeakMemoryTTestIndSampleSize:
+
+class PeakMemoryIndependentTTestSampleSize:
     params = ([1, 10, 100], [torch.float32, torch.float64])
     param_names = ["batch_size", "dtype"]
 
@@ -78,8 +87,8 @@ class PeakMemoryTTestIndSampleSize:
             torch.tensor([1.0, 1.5, 2.0], dtype=dtype).repeat(batch_size, 1).flatten()
         )
 
-    def peakmem_ttest_ind_sample_size(self, batch_size, dtype):
-        return beignet.ttest_ind_sample_size(
+    def peakmem_independent_t_test_sample_size(self, batch_size, dtype):
+        return beignet.independent_t_test_sample_size(
             self.effect_sizes,
             self.ratio_values,
             power=0.8,

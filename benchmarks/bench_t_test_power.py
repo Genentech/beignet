@@ -54,7 +54,7 @@ class PeakMemoryTTestPower:
             torch.tensor([10, 30, 100], dtype=dtype).repeat(batch_size, 1).flatten()
         )
 
-    def peakmem_ttest_power(self, batch_size, dtype):
+    def peakmem_t_test_power(self, batch_size, dtype):
         return beignet.t_test_power(
             self.effect_sizes, self.sample_sizes, alpha=0.05, alternative="two-sided"
         )
