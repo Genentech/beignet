@@ -1,18 +1,18 @@
+import hypothesis
 import hypothesis.strategies
 import torch
-from hypothesis import given, settings
 
 import beignet
 import beignet.statistics
 
 
-@given(
+@hypothesis.given(
     batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
     n1=hypothesis.strategies.integers(min_value=5, max_value=20),
     n2=hypothesis.strategies.integers(min_value=5, max_value=20),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
-@settings(deadline=None)
+@hypothesis.settings(deadline=None)
 def test_hedges_g(batch_size, n1, n2, dtype):
     """Test Hedges' g effect size calculation."""
     # Generate test data

@@ -1,17 +1,17 @@
+import hypothesis
 import hypothesis.strategies
 import statsmodels.stats.power
 import torch
-from hypothesis import given, settings
 
 import beignet
 import beignet.statistics
 
 
-@given(
+@hypothesis.given(
     batch_size=hypothesis.strategies.integers(min_value=1, max_value=5),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
-@settings(deadline=None)
+@hypothesis.settings(deadline=None)
 def test_correlation_power(batch_size, dtype):
     """Test correlation power calculation."""
     # Generate test parameters

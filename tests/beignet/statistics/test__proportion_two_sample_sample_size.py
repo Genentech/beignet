@@ -1,17 +1,17 @@
+import hypothesis
 import hypothesis.strategies
 import torch
-from hypothesis import given, settings
 
 import beignet.statistics
 
 # from statsmodels.stats.power import proportions_ztest_power  # Function not available in current statsmodels version
 
 
-@given(
+@hypothesis.given(
     batch_size=hypothesis.strategies.integers(min_value=1, max_value=5),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
-@settings(deadline=None)
+@hypothesis.settings(deadline=None)
 def test_proportion_two_sample_sample_size(batch_size, dtype):
     """Test two-sample proportion sample size calculation."""
     # Generate test parameters

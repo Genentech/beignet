@@ -1,6 +1,6 @@
+import hypothesis
 import hypothesis.strategies
 import torch
-from hypothesis import given, settings
 
 import beignet
 import beignet.statistics
@@ -11,11 +11,11 @@ except ImportError:
     HAS_SCIPY = False
 
 
-@given(
+@hypothesis.given(
     batch_size=hypothesis.strategies.integers(min_value=1, max_value=5),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
-@settings(deadline=None)
+@hypothesis.settings(deadline=None)
 def test_cohens_f(batch_size, dtype):
     """Test Cohen's f effect size calculation."""
     # Generate test parameters - create group means for 3 groups

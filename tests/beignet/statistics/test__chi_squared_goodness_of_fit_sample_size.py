@@ -1,8 +1,8 @@
 """Test chi-square goodness-of-fit sample size."""
 
+import hypothesis
 import hypothesis.strategies
 import torch
-from hypothesis import given, settings
 
 from beignet.statistics._chi_squared_goodness_of_fit_power import (
     chi_square_goodness_of_fit_power,
@@ -12,11 +12,11 @@ from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
 )
 
 
-@given(
+@hypothesis.given(
     batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
-@settings(deadline=None)  # Disable deadline for torch.compile
+@hypothesis.settings(deadline=None)  # Disable deadline for torch.compile
 def test_chi_square_goodness_of_fit_power_sample_size(
     batch_size: int, dtype: torch.dtype
 ) -> None:
