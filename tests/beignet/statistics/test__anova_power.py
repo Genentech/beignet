@@ -82,6 +82,8 @@ def test_anova_power(batch_size, dtype):
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(6.0, dtype=dtype),
     )
+    
+    assert few_groups > many_groups
 
     # With fixed total N, more groups means smaller n per group, so power might decrease
     # This depends on the specific case, but generally true for moderate effect sizes

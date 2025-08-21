@@ -7,7 +7,10 @@ requires = [
 ]
 
 [project]
-authors = [{ email = "allen.goodman@icloud.com", name = "Allen Goodman" }, { email = "kleinhej@gene.com", name = "Joseph Kleinhenz" }]
+authors = [
+    { email = "allen.goodman@icloud.com", name = "Allen Goodman" },
+    { email = "kleinhej@gene.com", name = "Joseph Kleinhenz" },
+]
 dependencies = [
     "biotite",
     "einops>=0.8.1",
@@ -29,7 +32,7 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 all = [
-    "beignet[benchmark,datasets,docs,mdtraj,test]",
+    "beignet[benchmark,datasets,docs,metrics,mdtraj,test]",
 ]
 benchmark = [
     "asv",
@@ -44,16 +47,20 @@ docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
 ]
+metrics = [
+    "torchmetrics",
+]
 mdtraj = [
     "mdtraj",
     "netcdf4",
 ]
 test = [
     "hypothesis",
+    "psutil",
     "pytest",
     "pytest-mock",
+    "statsmodels",
     "scipy",
-    "psutil",  # For benchmark memory tracking
 ]
 
 [tool.ruff.lint]

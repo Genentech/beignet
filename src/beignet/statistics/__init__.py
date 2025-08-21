@@ -1,16 +1,17 @@
 from ._anova_power import anova_power
 from ._anova_sample_size import anova_sample_size
-from ._chi_square_goodness_of_fit_power import chi_square_goodness_of_fit_power
-from ._chi_square_goodness_of_fit_power_sample_size import (
+from ._chi_squared_goodness_of_fit_power import chi_square_goodness_of_fit_power
+from ._chi_squared_goodness_of_fit_sample_size import (
     chi_square_goodness_of_fit_power_sample_size,
 )
-from ._chi_square_independence_power import chi_square_independence_power
-from ._chi_square_independence_sample_size import chi_square_independence_sample_size
+from ._chi_squared_independence_power import chisquare_independence_power
+from ._chi_squared_independence_sample_size import chi_square_independence_sample_size
 from ._cohens_d import cohens_d
 from ._cohens_f import cohens_f
 from ._cohens_f_squared import cohens_f_squared
 from ._correlation_power import correlation_power
 from ._correlation_sample_size import correlation_sample_size
+from ._cramers_v import cramers_v
 from ._f_test_power import f_test_power
 from ._f_test_sample_size import f_test_sample_size
 from ._hedges_g import hedges_g
@@ -33,13 +34,14 @@ __all__ = [
     "anova_sample_size",
     "chi_square_goodness_of_fit_power",
     "chi_square_goodness_of_fit_power_sample_size",
-    "chi_square_independence_power",
+    "chisquare_independence_power",
     "chi_square_independence_sample_size",
     "cohens_d",
     "cohens_f",
     "cohens_f_squared",
     "correlation_power",
     "correlation_sample_size",
+    "cramers_v",
     "f_test_power",
     "f_test_sample_size",
     "hedges_g",
