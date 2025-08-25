@@ -83,12 +83,12 @@ class IndependentTTestPower(Metric):
         nobs1_values = torch.cat(self.nobs1_values, dim=0)
         ratio_values = torch.cat(self.ratio_values, dim=0)
 
-        return beignet.independent_t_test_power(
+        return beignet.statistics.independent_t_test_power(
             effect_sizes,
             nobs1_values,
-            ratio_values,
             alpha=self.alpha,
             alternative=self.alternative,
+            ratio=ratio_values,
         )
 
     def plot(
@@ -210,7 +210,7 @@ class IndependentTTestPower(Metric):
 
             for x_val in x_values:
                 if dep_var == "effect_size":
-                    power_val = beignet.independent_t_test_power(
+                    power_val = beignet.statistics.independent_t_test_power(
                         effect_size=torch.tensor(float(x_val)),
                         nobs1=torch.tensor(float(param_val)),
                         ratio=torch.tensor(float(default_ratio)),
@@ -218,7 +218,7 @@ class IndependentTTestPower(Metric):
                         alternative=self.alternative,
                     )
                 elif dep_var == "nobs1":
-                    power_val = beignet.independent_t_test_power(
+                    power_val = beignet.statistics.independent_t_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         nobs1=torch.tensor(float(x_val)),
                         ratio=torch.tensor(float(default_ratio)),
@@ -226,7 +226,7 @@ class IndependentTTestPower(Metric):
                         alternative=self.alternative,
                     )
                 elif dep_var == "ratio":
-                    power_val = beignet.independent_t_test_power(
+                    power_val = beignet.statistics.independent_t_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         nobs1=torch.tensor(float(default_nobs1)),
                         ratio=torch.tensor(float(x_val)),

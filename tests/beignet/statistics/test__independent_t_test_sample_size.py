@@ -196,7 +196,7 @@ def test_independent_t_test_sample_size(batch_size, dtype):
     )
     # Calculate power with that sample size
     achieved_power = beignet.statistics.independent_t_test_power(
-        effect_size_consistency, nobs1, ratio_consistency
+        effect_size_consistency, nobs1, ratio=ratio_consistency
     )
     # Should achieve approximately the target power
     assert torch.abs(achieved_power - target_power) < 0.1

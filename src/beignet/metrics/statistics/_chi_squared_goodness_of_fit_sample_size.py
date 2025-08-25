@@ -5,7 +5,7 @@ from torch import Tensor
 from torchmetrics import Metric
 
 from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
-    chi_square_goodness_of_fit_power_sample_size,
+    chi_square_goodness_of_fit_sample_size,
 )
 
 
@@ -67,7 +67,7 @@ class ChiSquareGoodnessOfFitSampleSize(Metric):
 
     def compute(self) -> Tensor:
         """Compute the required sample size."""
-        return chi_square_goodness_of_fit_power_sample_size(
+        return chi_square_goodness_of_fit_sample_size(
             effect_size=self.effect_size,
             df=self.df,
             power=self.power,

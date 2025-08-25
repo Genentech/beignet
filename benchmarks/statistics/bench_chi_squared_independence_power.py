@@ -15,7 +15,7 @@ class BenchChiSquareIndependencePower:
 
     def __init__(self):
         self.func = torch.compile(
-            beignet.statistics.chi_squared_independence_power,
+            beignet.statistics.chi_square_independence_power,
             fullgraph=True,
         )
 
@@ -27,12 +27,12 @@ class BenchChiSquareIndependencePower:
         self.rows = torch.randint(2, 5, (batch_size,), dtype=dtype)
         self.cols = torch.randint(2, 5, (batch_size,), dtype=dtype)
 
-    def time_chisquare_independence_power(self, batch_size, dtype):
+    def time_chi_square_independence_power(self, batch_size, dtype):
         return self.func(
             self.effect_size, self.sample_size, self.rows, self.cols, alpha=0.05
         )
 
-    def peakmem_chisquare_independence_power(self, batch_size, dtype):
-        return beignet.statistics.chi_squared_independence_power(
+    def peakmem_chi_square_independence_power(self, batch_size, dtype):
+        return beignet.statistics.chi_square_independence_power(
             self.effect_size, self.sample_size, self.rows, self.cols, alpha=0.05
         )

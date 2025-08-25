@@ -15,7 +15,7 @@ class BenchIndependentTTestPower:
 
     def __init__(self):
         self.func = torch.compile(
-            beignet.independent_t_test_power,
+            beignet.statistics.independent_t_test_power,
             fullgraph=True,
         )
 
@@ -36,16 +36,16 @@ class BenchIndependentTTestPower:
         self.func(
             self.effect_sizes,
             self.nobs1_values,
-            self.ratio_values,
             alpha=0.05,
             alternative="two-sided",
+            ratio=self.ratio_values,
         )
 
     def peak_memory_independent_t_test_power(self, batch_size, dtype):
         self.func(
             self.effect_sizes,
             self.nobs1_values,
-            self.ratio_values,
             alpha=0.05,
             alternative="two-sided",
+            ratio=self.ratio_values,
         )

@@ -8,7 +8,7 @@ from beignet.statistics._chi_squared_goodness_of_fit_power import (
     chi_square_goodness_of_fit_power,
 )
 from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
-    chi_square_goodness_of_fit_power_sample_size,
+    chi_square_goodness_of_fit_sample_size,
 )
 
 
@@ -17,7 +17,7 @@ from beignet.statistics._chi_squared_goodness_of_fit_sample_size import (
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)  # Disable deadline for torch.compile
-def test_chi_square_goodness_of_fit_power_sample_size(
+def test_chi_square_goodness_of_fit_sample_size(
     batch_size: int, dtype: torch.dtype
 ) -> None:
     """Test chi-square goodness-of-fit sample size calculation."""
@@ -29,7 +29,7 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     alpha = 0.05
 
     # Test basic computation
-    sample_size = chi_square_goodness_of_fit_power_sample_size(
+    sample_size = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=power, alpha=alpha
     )
 
@@ -40,10 +40,10 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     assert torch.all(sample_size <= 1000000.0)  # Maximum constraint
 
     # Test different power levels
-    sample_size_low = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_low = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=0.6, alpha=alpha
     )
-    sample_size_high = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_high = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=0.9, alpha=alpha
     )
 
@@ -51,10 +51,10 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     assert torch.all(sample_size_high >= sample_size_low)
 
     # Test different alpha levels
-    sample_size_strict = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_strict = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=power, alpha=0.01
     )
-    sample_size_lenient = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_lenient = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=power, alpha=0.10
     )
 
@@ -64,10 +64,10 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     # Test monotonicity: larger effect size should decrease required sample size
     small_effect = effect_size * 0.5
     large_effect = effect_size * 1.5
-    sample_size_small = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_small = chi_square_goodness_of_fit_sample_size(
         small_effect, df, power=power, alpha=alpha
     )
-    sample_size_large = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_large = chi_square_goodness_of_fit_sample_size(
         large_effect, df, power=power, alpha=alpha
     )
     assert torch.all(sample_size_small >= sample_size_large)
@@ -85,7 +85,7 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     effect_size.requires_grad_(True)
     df.requires_grad_(True)
 
-    sample_size = chi_square_goodness_of_fit_power_sample_size(
+    sample_size = chi_square_goodness_of_fit_sample_size(
         effect_size, df, power=power, alpha=alpha
     )
     loss = sample_size.sum()
@@ -102,19 +102,19 @@ def test_chi_square_goodness_of_fit_power_sample_size(
 
     # Test torch.compile compatibility
     compiled_func = torch.compile(
-        chi_square_goodness_of_fit_power_sample_size, fullgraph=True
+        chi_square_goodness_of_fit_sample_size, fullgraph=True
     )
     sample_size_compiled = compiled_func(
         effect_size.detach(), df.detach(), power=power, alpha=alpha
     )
-    sample_size_regular = chi_square_goodness_of_fit_power_sample_size(
+    sample_size_regular = chi_square_goodness_of_fit_sample_size(
         effect_size.detach(), df.detach(), power=power, alpha=alpha
     )
     assert torch.allclose(sample_size_compiled, sample_size_regular, rtol=1e-5)
 
     # Test with out parameter
     out = torch.empty_like(sample_size)
-    result = chi_square_goodness_of_fit_power_sample_size(
+    result = chi_square_goodness_of_fit_sample_size(
         effect_size.detach(), df.detach(), power=power, alpha=alpha, out=out
     )
     assert torch.allclose(out, sample_size_regular, rtol=1e-5)
@@ -123,14 +123,14 @@ def test_chi_square_goodness_of_fit_power_sample_size(
     # Test edge cases
     # Very small effect size should require large sample size
     tiny_effect = torch.full_like(effect_size, 0.05)
-    large_sample = chi_square_goodness_of_fit_power_sample_size(
+    large_sample = chi_square_goodness_of_fit_sample_size(
         tiny_effect, df, power=power, alpha=alpha
     )
     assert torch.all(large_sample >= 100)
 
     # Large effect size should require smaller sample size
     big_effect = torch.full_like(effect_size, 0.8)
-    small_sample = chi_square_goodness_of_fit_power_sample_size(
+    small_sample = chi_square_goodness_of_fit_sample_size(
         big_effect, df, power=power, alpha=alpha
     )
     assert torch.all(small_sample <= large_sample)
@@ -146,7 +146,7 @@ def test_chi_square_goodness_of_fit_power_sample_size(
 
     for effect, df_val, power_target, alpha in test_cases:
         # Calculate required sample size
-        sample_size = chi_square_goodness_of_fit_power_sample_size(
+        sample_size = chi_square_goodness_of_fit_sample_size(
             torch.tensor(effect), torch.tensor(df_val), power=power_target, alpha=alpha
         )
 

@@ -5,7 +5,7 @@ import hypothesis.strategies
 import torch
 
 from beignet.statistics._chi_squared_independence_power import (
-    chisquare_independence_power,
+    chi_square_independence_power,
 )
 from beignet.statistics._chi_squared_independence_sample_size import (
     chi_square_independence_sample_size,
@@ -93,7 +93,7 @@ def test_chi_square_independence_sample_size(
     assert torch.all(sample_size_large_table >= 5.0 * large_rows * large_cols)
 
     # Test that computed sample size achieves desired power
-    computed_power = chisquare_independence_power(
+    computed_power = chi_square_independence_power(
         effect_size, sample_size, rows, cols, alpha=alpha
     )
 
@@ -181,7 +181,7 @@ def test_chi_square_independence_sample_size(
         )
 
         # Calculate actual power with that sample size
-        actual_power = chisquare_independence_power(
+        actual_power = chi_square_independence_power(
             torch.tensor(effect),
             sample_size,
             torch.tensor(rows_val),

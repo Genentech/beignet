@@ -5,7 +5,7 @@ from torch import Tensor
 from torchmetrics import Metric
 
 from beignet.statistics._chi_squared_independence_power import (
-    chisquare_independence_power,
+    chi_square_independence_power,
 )
 
 
@@ -84,7 +84,7 @@ class ChiSquareIndependencePower(Metric):
 
     def compute(self) -> Tensor:
         """Compute the statistical power."""
-        return chisquare_independence_power(
+        return chi_square_independence_power(
             effect_size=self.effect_size,
             sample_size=self.sample_size,
             rows=self.rows,

@@ -27,7 +27,7 @@ def test_independent_t_test_power(batch_size, dtype):
 
     # Test basic functionality
     result = beignet.statistics.independent_t_test_power(
-        effect_sizes, nobs1_values, ratio_values, alpha=0.05
+        effect_sizes, nobs1_values, alpha=0.05, ratio=ratio_values
     )
     assert result.shape == effect_sizes.shape
     assert result.dtype == dtype
@@ -37,7 +37,7 @@ def test_independent_t_test_power(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(effect_sizes)
     result_out = beignet.statistics.independent_t_test_power(
-        effect_sizes, nobs1_values, ratio_values, alpha=0.05, out=out
+        effect_sizes, nobs1_values, alpha=0.05, ratio=ratio_values, out=out
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
@@ -71,7 +71,7 @@ def test_independent_t_test_power(batch_size, dtype):
     nobs1_grad = nobs1_values.clone().requires_grad_(True)
     ratio_grad = ratio_values.clone().requires_grad_(True)
     result_grad = beignet.statistics.independent_t_test_power(
-        effect_grad, nobs1_grad, ratio_grad
+        effect_grad, nobs1_grad, ratio=ratio_grad
     )
 
     # Compute gradients
@@ -86,7 +86,7 @@ def test_independent_t_test_power(batch_size, dtype):
     compiled_ttest_ind_power = torch.compile(
         beignet.statistics.independent_t_test_power, fullgraph=True
     )
-    result_compiled = compiled_ttest_ind_power(effect_sizes, nobs1_values, ratio_values)
+    result_compiled = compiled_ttest_ind_power(effect_sizes, nobs1_values, ratio=ratio_values)
     assert torch.allclose(result, result_compiled, atol=1e-5)
 
     # Test different alternative hypotheses
@@ -131,9 +131,9 @@ def test_independent_t_test_power(batch_size, dtype):
                     beignet_power = beignet.statistics.independent_t_test_power(
                         torch.tensor(effect_size_val, dtype=dtype),
                         torch.tensor(float(nobs1_val), dtype=dtype),
-                        torch.tensor(ratio_val, dtype=dtype),
                         alpha=0.05,
                         alternative="two-sided",
+                        ratio=torch.tensor(ratio_val, dtype=dtype),
                     )
 
                     # Use tt_ind_solve_power for independent samples t-test
@@ -178,10 +178,10 @@ def test_independent_t_test_power(batch_size, dtype):
     nobs1_ratio = torch.tensor(30.0, dtype=dtype)
     # Balanced design (ratio=1) should generally have higher power than unbalanced
     power_balanced = beignet.statistics.independent_t_test_power(
-        effect_size_ratio, nobs1_ratio, torch.tensor(1.0, dtype=dtype)
+        effect_size_ratio, nobs1_ratio, ratio=torch.tensor(1.0, dtype=dtype)
     )
     power_unbalanced = beignet.statistics.independent_t_test_power(
-        effect_size_ratio, nobs1_ratio, torch.tensor(0.5, dtype=dtype)
+        effect_size_ratio, nobs1_ratio, ratio=torch.tensor(0.5, dtype=dtype)
     )
     # For same total sample size, balanced is more powerful
     assert power_balanced > power_unbalanced
@@ -196,7 +196,7 @@ def test_independent_t_test_power(batch_size, dtype):
     )
     # Calculate power with that sample size
     achieved_power = beignet.statistics.independent_t_test_power(
-        effect_size_consistency, nobs1_consistency, ratio_consistency
+        effect_size_consistency, nobs1_consistency, ratio=ratio_consistency
     )
     # Should achieve approximately the target power
     assert torch.abs(achieved_power - target_power) < 0.1
