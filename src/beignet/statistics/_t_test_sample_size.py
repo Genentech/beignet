@@ -114,8 +114,10 @@ def t_test_sample_size(
 
     # Iterative refinement to account for finite df effects
     n_current = n_initial
+    convergence_tolerance = 1e-6
+    max_iterations = 10
 
-    for _ in range(5):  # Usually converges in 3-4 iterations
+    for _iteration in range(max_iterations):
         # Calculate current degrees of freedom
         df_current = n_current - 1
         df_current = torch.clamp(df_current, min=1.0)
@@ -151,9 +153,10 @@ def t_test_sample_size(
         # Clamp power to valid range
         power_current = torch.clamp(power_current, 0.01, 0.99)
 
-        # Newton-Raphson style adjustment
+        # Calculate power difference
         power_diff = power - power_current
 
+        # Newton-Raphson style adjustment with convergence damping
         # Approximate derivative: d(power)/d(n) ≈ d(power)/d(ncp) * d(ncp)/d(n)
         # d(ncp)/d(n) = effect_size / (2 * sqrt(n))
         # Adjust sample size based on power difference
@@ -162,6 +165,10 @@ def t_test_sample_size(
             * n_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
+
+        # Dampen adjustment if close to convergence (compile-friendly)
+        converged_mask = torch.abs(power_diff) < convergence_tolerance
+        adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         n_current = n_current + adjustment
 
         # Ensure minimum constraints

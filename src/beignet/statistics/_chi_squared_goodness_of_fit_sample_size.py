@@ -111,10 +111,12 @@ def chi_square_goodness_of_fit_sample_size(
     # Ensure minimum sample size
     n_initial = torch.clamp(n_initial, min=5.0)  # Minimum for chi-square validity
 
-    # Iterative refinement to account for finite df effects
+    # Iterative refinement with convergence detection
     n_current = n_initial
+    convergence_tolerance = 1e-6
+    max_iterations = 10
 
-    for _ in range(5):  # Usually converges in 3-4 iterations
+    for _iteration in range(max_iterations):
         # Current noncentrality parameter
         ncp_current = n_current * effect_size**2
 
@@ -138,7 +140,7 @@ def chi_square_goodness_of_fit_sample_size(
         # Calculate power difference
         power_diff = power - power_current
 
-        # Newton-Raphson style adjustment
+        # Newton-Raphson style adjustment with convergence damping
         # Approximate derivative: d(power)/d(n) ≈ d(power)/d(λ) * w²
         # The adjustment considers how changing n affects the noncentrality parameter
         adjustment = (
@@ -146,6 +148,10 @@ def chi_square_goodness_of_fit_sample_size(
             * n_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
+
+        # Dampen adjustment if close to convergence (compile-friendly)
+        converged_mask = torch.abs(power_diff) < convergence_tolerance
+        adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         n_current = n_current + adjustment
 
         # Ensure minimum constraints

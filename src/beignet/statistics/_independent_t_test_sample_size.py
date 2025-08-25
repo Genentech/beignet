@@ -122,8 +122,10 @@ def independent_t_test_sample_size(
 
     # Iterative refinement to account for finite df effects
     n1_current = n1_initial
+    convergence_tolerance = 1e-6
+    max_iterations = 10
 
-    for _ in range(5):  # Usually converges in 3-4 iterations
+    for _iteration in range(max_iterations):
         # Calculate current sample sizes and degrees of freedom
         n2_current = n1_current * ratio
         total_n = n1_current + n2_current
@@ -171,7 +173,7 @@ def independent_t_test_sample_size(
         # Calculate power difference
         power_diff = power - power_current
 
-        # Newton-Raphson style adjustment
+        # Newton-Raphson style adjustment with convergence damping
         # Approximate derivative: d(power)/d(n1) through chain rule
         # The adjustment considers how changing n1 affects the noncentrality parameter
         adjustment = (
@@ -179,6 +181,10 @@ def independent_t_test_sample_size(
             * n1_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
+
+        # Dampen adjustment if close to convergence (compile-friendly)
+        converged_mask = torch.abs(power_diff) < convergence_tolerance
+        adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         n1_current = n1_current + adjustment
 
         # Ensure minimum constraints

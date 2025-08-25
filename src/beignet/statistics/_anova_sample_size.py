@@ -137,10 +137,12 @@ def anova_sample_size(
     # Ensure minimum sample size greater than k
     n_initial = torch.clamp(n_initial, min=k + 1)
 
-    # Iterative refinement (3-4 iterations should be sufficient)
+    # Iterative refinement with convergence detection
     n_current = n_initial
+    convergence_tolerance = 1e-6
+    max_iterations = 8
 
-    for _ in range(4):
+    for _iteration in range(max_iterations):
         # Calculate current df2
         df2_current = n_current - k
         df2_current = torch.clamp(df2_current, min=1.0)
@@ -174,12 +176,16 @@ def anova_sample_size(
         # Current power
         power_current = (1 - torch.erf(z_current / sqrt_2)) / 2
 
-        # Adjustment factor to reach target power
+        # Calculate power difference
         power_diff = power - power_current
 
         # Approximate derivative: d(power)/d(N) ≈ d(power)/d(λ) * f²
         # Adjust sample size based on power difference
         adjustment = power_diff * n_current * 0.5  # Conservative adjustment factor
+
+        # Dampen adjustment if close to convergence (compile-friendly)
+        converged_mask = torch.abs(power_diff) < convergence_tolerance
+        adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         n_current = n_current + adjustment
 
         # Ensure minimum constraints
