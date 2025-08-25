@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -80,31 +78,63 @@ def correlation_power(
     z_stat = z_r / se_z
 
     # Critical values using standard normal approximation
-    sqrt_2 = math.sqrt(2.0)
+    # Normalize alternative
+    alt = alternative.lower()
+    if alt in {"larger", "greater", ">"}:
+        alt = "greater"
+    elif alt in {"smaller", "less", "<"}:
+        alt = "less"
+    elif alt != "two-sided":
+        raise ValueError(f"Unknown alternative: {alternative}")
 
-    if alternative == "two-sided":
+    if alt == "two-sided":
         # Two-sided critical value
-        z_alpha_2 = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=r.dtype)) * sqrt_2
+        z_alpha_2 = torch.erfinv(
+            torch.tensor(1 - alpha / 2, dtype=r.dtype)
+        ) * torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
 
         # Power = P(|Z| > z_alpha/2 | H1) where Z ~ N(z_stat, 1)
         # This is 1 - P(-z_alpha/2 < Z < z_alpha/2 | H1)
         # = 1 - [Φ(z_alpha/2 - z_stat) - Φ(-z_alpha/2 - z_stat)]
-        cdf_upper = 0.5 * (1 + torch.erf((z_alpha_2 - z_stat) / sqrt_2))
-        cdf_lower = 0.5 * (1 + torch.erf((-z_alpha_2 - z_stat) / sqrt_2))
+        cdf_upper = 0.5 * (
+            1
+            + torch.erf(
+                (z_alpha_2 - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
+            )
+        )
+        cdf_lower = 0.5 * (
+            1
+            + torch.erf(
+                (-z_alpha_2 - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
+            )
+        )
         power = 1 - (cdf_upper - cdf_lower)
 
-    elif alternative == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=r.dtype)) * sqrt_2
+    elif alt == "greater":
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=r.dtype)) * torch.sqrt(
+            torch.tensor(2.0, dtype=r.dtype)
+        )
 
         # Power = P(Z > z_alpha | H1) = 1 - Φ(z_alpha - z_stat)
-        power = 1 - 0.5 * (1 + torch.erf((z_alpha - z_stat) / sqrt_2))
+        power = 1 - 0.5 * (
+            1
+            + torch.erf(
+                (z_alpha - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
+            )
+        )
 
-    elif alternative == "less":
-        z_alpha = torch.erfinv(torch.tensor(alpha, dtype=r.dtype)) * sqrt_2
+    elif alt == "less":
+        z_alpha = torch.erfinv(torch.tensor(alpha, dtype=r.dtype)) * torch.sqrt(
+            torch.tensor(2.0, dtype=r.dtype)
+        )
 
         # Power = P(Z < z_alpha | H1) = Φ(z_alpha - z_stat)
-        power = 0.5 * (1 + torch.erf((z_alpha - z_stat) / sqrt_2))
-
+        power = 0.5 * (
+            1
+            + torch.erf(
+                (z_alpha - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
+            )
+        )
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 

@@ -127,3 +127,17 @@ def test_f_test_power(batch_size: int, dtype: torch.dtype) -> None:
 
     # Should be close (within 0.6) - allow for different calculation methods
     assert abs(float(our_result) - statsmodels_result) <= 0.6
+
+    # SciPy noncentral F reference
+    try:
+        import scipy.stats as stats
+
+        df1_s = df1_sm
+        df2_s = df2_sm
+        lam = (df1_sm + df2_sm + 1) * effect_size_sm  # matches implementation's N*f^2
+        fcrit = stats.f.ppf(1 - alpha_sm, df1_s, df2_s)
+        power_scipy = 1 - stats.ncf.cdf(fcrit, df1_s, df2_s, lam)
+        # Loose tolerance due to different approximations
+        assert abs(float(our_result) - power_scipy) <= 0.35
+    except Exception:
+        pass

@@ -3,7 +3,12 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import beignet
-from beignet.metrics import CohensD, HedgesG, TTestPower, TTestSampleSize
+from beignet.metrics.statistics import (
+    CohensD,
+    HedgesG,
+    TTestPower,
+    TTestSampleSize,
+)
 
 
 @given(
@@ -28,7 +33,7 @@ def test_cohens_d_metric(n1, n2, dtype):
     assert result_pooled.numel() == 1
 
     # Compare with direct calculation
-    direct_result = beignet.cohens_d(
+    direct_result = beignet.statistics.cohens_d(
         group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
     )
     assert torch.allclose(result_pooled, direct_result.squeeze(), atol=1e-6)
@@ -38,7 +43,7 @@ def test_cohens_d_metric(n1, n2, dtype):
     metric_nonpooled.update(group1, group2)
     result_nonpooled = metric_nonpooled.compute()
 
-    direct_nonpooled = beignet.cohens_d(
+    direct_nonpooled = beignet.statistics.cohens_d(
         group1.unsqueeze(0), group2.unsqueeze(0), pooled=False
     )
     assert torch.allclose(result_nonpooled, direct_nonpooled.squeeze(), atol=1e-6)
@@ -47,7 +52,7 @@ def test_cohens_d_metric(n1, n2, dtype):
     metric_pooled.reset()
     try:
         metric_pooled.compute()
-        assert False, "Should have raised RuntimeError after reset"
+        raise AssertionError("Should have raised RuntimeError after reset")
     except RuntimeError:
         pass
 
@@ -89,14 +94,16 @@ def test_hedges_g_metric(n1, n2, dtype):
     assert result.numel() == 1
 
     # Compare with direct calculation
-    direct_result = beignet.hedges_g(group1.unsqueeze(0), group2.unsqueeze(0))
+    direct_result = beignet.statistics.hedges_g(
+        group1.unsqueeze(0), group2.unsqueeze(0)
+    )
     assert torch.allclose(result, direct_result.squeeze(), atol=1e-6)
 
     # Test reset functionality
     metric.reset()
     try:
         metric.compute()
-        assert False, "Should have raised RuntimeError after reset"
+        raise AssertionError("Should have raised RuntimeError after reset")
     except RuntimeError:
         pass
 
@@ -160,20 +167,20 @@ def test_t_test_power_metric(n1, n2, dtype):
     metric.reset()
     try:
         metric.compute()
-        assert False, "Should have raised RuntimeError after reset"
+        raise AssertionError("Should have raised RuntimeError after reset")
     except RuntimeError:
         pass
 
     # Test invalid parameters
     try:
         TTestPower(alpha=1.5)
-        assert False, "Should have raised ValueError for invalid alpha"
+        raise AssertionError("Should have raised ValueError for invalid alpha")
     except ValueError:
         pass
 
     try:
         TTestPower(alternative="invalid")
-        assert False, "Should have raised ValueError for invalid alternative"
+        raise AssertionError("Should have raised ValueError for invalid alternative")
     except ValueError:
         pass
 
@@ -237,26 +244,26 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
     metric.reset()
     try:
         metric.compute()
-        assert False, "Should have raised RuntimeError after reset"
+        raise AssertionError("Should have raised RuntimeError after reset")
     except RuntimeError:
         pass
 
     # Test invalid parameters
     try:
         TTestSampleSize(alpha=0)
-        assert False, "Should have raised ValueError for invalid alpha"
+        raise AssertionError("Should have raised ValueError for invalid alpha")
     except ValueError:
         pass
 
     try:
         TTestSampleSize(power=1.1)
-        assert False, "Should have raised ValueError for invalid power"
+        raise AssertionError("Should have raised ValueError for invalid power")
     except ValueError:
         pass
 
     try:
         TTestSampleSize(alternative="invalid")
-        assert False, "Should have raised ValueError for invalid alternative"
+        raise AssertionError("Should have raised ValueError for invalid alternative")
     except ValueError:
         pass
 
@@ -270,18 +277,19 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
 
 def test_metrics_module_import():
     """Test that metrics can be imported from beignet."""
-    # Test importing from main beignet module
+    # Test importing from metrics.statistics module
     assert hasattr(beignet, "metrics")
-    assert hasattr(beignet.metrics, "CohensD")
-    assert hasattr(beignet.metrics, "HedgesG")
-    assert hasattr(beignet.metrics, "TTestPower")
-    assert hasattr(beignet.metrics, "TTestSampleSize")
+    assert hasattr(beignet.metrics, "statistics")
+    assert hasattr(beignet.metrics.statistics, "CohensD")
+    assert hasattr(beignet.metrics.statistics, "HedgesG")
+    assert hasattr(beignet.metrics.statistics, "TTestPower")
+    assert hasattr(beignet.metrics.statistics, "TTestSampleSize")
 
     # Test instantiation
-    cohens_d_metric = beignet.metrics.CohensD()
-    hedges_g_metric = beignet.metrics.HedgesG()
-    power_metric = beignet.metrics.TTestPower()
-    sample_size_metric = beignet.metrics.TTestSampleSize()
+    cohens_d_metric = beignet.metrics.statistics.CohensD()
+    hedges_g_metric = beignet.metrics.statistics.HedgesG()
+    power_metric = beignet.metrics.statistics.TTestPower()
+    sample_size_metric = beignet.metrics.statistics.TTestSampleSize()
 
     assert isinstance(cohens_d_metric, CohensD)
     assert isinstance(hedges_g_metric, HedgesG)
@@ -301,7 +309,7 @@ def test_metric_consistency():
     cohens_d_metric.update(group1, group2)
     metric_result = cohens_d_metric.compute()
 
-    direct_result = beignet.cohens_d(
+    direct_result = beignet.statistics.cohens_d(
         group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
     )
     assert torch.allclose(metric_result, direct_result.squeeze(), atol=1e-6)
@@ -311,7 +319,9 @@ def test_metric_consistency():
     hedges_g_metric.update(group1, group2)
     metric_hedges = hedges_g_metric.compute()
 
-    direct_hedges = beignet.hedges_g(group1.unsqueeze(0), group2.unsqueeze(0))
+    direct_hedges = beignet.statistics.hedges_g(
+        group1.unsqueeze(0), group2.unsqueeze(0)
+    )
     assert torch.allclose(metric_hedges, direct_hedges.squeeze(), atol=1e-6)
 
     # Test power calculation consistency
@@ -320,11 +330,11 @@ def test_metric_consistency():
     metric_power = power_metric.compute()
 
     # Manual calculation
-    effect_size = beignet.cohens_d(
+    effect_size = beignet.statistics.cohens_d(
         group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
     )
     sample_size = torch.tensor(25.0, dtype=torch.float32)
-    direct_power = beignet.t_test_power(
+    direct_power = beignet.statistics.t_test_power(
         effect_size.squeeze(), sample_size, alpha=0.05, alternative="two-sided"
     )
     assert torch.allclose(metric_power, direct_power, atol=1e-6)
@@ -335,7 +345,7 @@ def test_metric_consistency():
     metric_n = sample_size_metric.compute()
 
     # Manual calculation
-    direct_n = beignet.t_test_sample_size(
+    direct_n = beignet.statistics.t_test_sample_size(
         effect_size.squeeze(), power=0.8, alpha=0.05, alternative="two-sided"
     )
     assert torch.allclose(metric_n, direct_n, atol=1e-6)

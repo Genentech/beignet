@@ -1,7 +1,5 @@
 """Chi-square goodness-of-fit power."""
 
-import math
-
 import torch
 from torch import Tensor
 
@@ -116,11 +114,11 @@ def chi_square_goodness_of_fit_power(
     ncp = sample_size * effect_size**2
 
     # Critical chi-square value using normal approximation
-    sqrt_2 = math.sqrt(2.0)
-
     # For large df, chi-square approaches normal: χ² ≈ N(df, 2*df)
     # Critical value: χ²_α = df + z_α * √(2*df)
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
+        torch.tensor(2.0, dtype=dtype)
+    )
     chi2_critical = df + z_alpha * torch.sqrt(2 * df)
 
     # For noncentral chi-square, use normal approximation:
@@ -133,7 +131,7 @@ def chi_square_goodness_of_fit_power(
     z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
 
     # Power = P(Z > z_score) = 1 - Φ(z_score)
-    power = (1 - torch.erf(z_score / sqrt_2)) / 2
+    power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
 
     # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)

@@ -115,17 +115,13 @@ def proportion_sample_size(
     effect_safe = torch.where(effect < 1e-6, torch.tensor(1e-6, dtype=dtype), effect)
 
     # Sample size formula
-    numerator = z_alpha * se_null + z_beta * se_alt
-    sample_size = (numerator / effect_safe) ** 2
+    sample_size = ((z_alpha * se_null + z_beta * se_alt) / effect_safe) ** 2
 
-    # Round up to nearest integer
-    output = torch.ceil(sample_size)
-
-    # Ensure minimum sample size of 1
-    output = torch.clamp(output, min=1.0)
+    output = torch.clamp(torch.ceil(sample_size), min=1.0)
 
     if out is not None:
         out.copy_(output)
+
         return out
 
     return output

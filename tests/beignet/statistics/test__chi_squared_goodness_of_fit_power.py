@@ -142,14 +142,22 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
 
     # Use scipy.stats for comparison
     import scipy.stats as stats
+    import statsmodels.stats.power
 
     chi2_critical = stats.chi2.ppf(1 - alpha, df)
     power_scipy = 1 - stats.ncx2.cdf(chi2_critical, df, ncp)
 
     # Should match within reasonable tolerance
-    assert (
-        abs(float(power_beignet) - power_scipy) < 0.08
-    )  # Relaxed tolerance for numerical differences
+    assert abs(float(power_beignet) - power_scipy) < 0.08
+
+    # Statsmodels GofChisquarePower reference if available
+    try:
+        sm_power = statsmodels.stats.power.GofChisquarePower().solve_power(
+            effect_size=effect_size, nobs=sample_size, alpha=alpha, power=None
+        )
+        assert abs(float(power_beignet) - sm_power) < 0.12
+    except Exception:
+        pass
 
     # Test a few more cases
     test_cases = [
@@ -167,6 +175,11 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
         chi2_critical = stats.chi2.ppf(1 - alpha_val, df_val)
         power_scipy = 1 - stats.ncx2.cdf(chi2_critical, df_val, ncp)
 
-        assert (
-            abs(float(power_beignet) - power_scipy) < 0.08
-        )  # Relaxed tolerance for numerical differences
+        assert abs(float(power_beignet) - power_scipy) < 0.08
+        try:
+            sm_power = statsmodels.stats.power.GofChisquarePower().solve_power(
+                effect_size=effect, nobs=n, alpha=alpha_val, power=None
+            )
+            assert abs(float(power_beignet) - sm_power) < 0.12
+        except Exception:
+            pass

@@ -162,3 +162,107 @@ def test_t_test_power(batch_size, dtype):
     )
     # Should achieve approximately the target power
     assert torch.abs(achieved_power - target_power) < 0.05
+
+
+def test_t_test_power_cross_validation_and_broadcasting():
+    import statsmodels.stats.power
+
+    dtype = torch.float64
+
+    # Cross-validation grid (relative tolerance)
+    effects = [0.2, 0.5, 0.8]
+    ns = [20, 30, 50, 100]
+    alphas = [0.01, 0.05]
+    alts = ["two-sided"]
+
+    import scipy.stats as stats
+
+    for eff in effects:
+        for n in ns:
+            for alpha in alphas:
+                for alt in alts:
+                    beignet_power = beignet.statistics.t_test_power(
+                        torch.tensor(eff, dtype=dtype),
+                        torch.tensor(float(n), dtype=dtype),
+                        alpha=alpha,
+                        alternative=alt,
+                    )
+                    sm_alt = "two-sided" if alt == "two-sided" else "larger"
+                    sm_power = statsmodels.stats.power.TTestPower().solve_power(
+                        effect_size=eff,
+                        nobs=n,
+                        alpha=alpha,
+                        power=None,
+                        alternative=sm_alt,
+                    )
+                    # SciPy noncentral t reference
+                    df = n - 1
+                    ncp = eff * (n**0.5)
+                    if alt == "two-sided":
+                        tcrit = stats.t.ppf(1 - alpha / 2, df)
+                        # P(T > tcrit) + P(T < -tcrit) under noncentral t
+                        ref = (1 - stats.nct.cdf(tcrit, df, ncp)) + stats.nct.cdf(
+                            -tcrit, df, ncp
+                        )
+                    else:
+                        tcrit = stats.t.ppf(1 - alpha, df)
+                        ref = 1 - stats.nct.cdf(tcrit, df, ncp)
+                    if sm_power is None or (
+                        isinstance(sm_power, float) and (sm_power != sm_power)
+                    ):
+                        # statsmodels may return nan in extreme cases; skip comparison
+                        continue
+                    # Relative tolerance + absolute floor for very small powers
+                    ok = torch.isclose(
+                        beignet_power,
+                        torch.tensor(sm_power, dtype=dtype),
+                        rtol=0.25,
+                        atol=0.002,
+                    ).item()
+                    if not ok:
+                        diff = abs(float(beignet_power) - float(sm_power))
+                        ok = diff < 0.09
+                    # Check SciPy reference too with similar tolerances
+                    ok2 = torch.isclose(
+                        beignet_power,
+                        torch.tensor(ref, dtype=dtype),
+                        rtol=0.25,
+                        atol=0.01,
+                    ).item()
+                    if not ok2:
+                        diff2 = abs(float(beignet_power) - float(ref))
+                        ok2 = diff2 < 0.1
+                    assert ok and ok2, (
+                        f"eff={eff}, n={n}, alpha={alpha}, alt={alt}, "
+                        f"beignet={float(beignet_power):.4f}, sm={float(sm_power):.4f}, scipy={float(ref):.4f}"
+                    )
+
+    # Broadcasting semantics
+    eff = torch.tensor([[0.2], [0.5]], dtype=dtype)  # (2,1)
+    n = torch.tensor([[20.0, 50.0, 100.0]], dtype=dtype)  # (1,3)
+    out = beignet.statistics.t_test_power(eff, n)  # expect (2,3)
+    assert out.shape == (2, 3)
+
+    # Out parameter negative test: wrong shape should raise
+    wrong_out = torch.empty((3, 2), dtype=dtype)
+    try:
+        beignet.statistics.t_test_power(eff, n, out=wrong_out)
+        raise AssertionError("Expected a RuntimeError due to shape mismatch for out")
+    except RuntimeError:
+        pass
+
+
+def test_t_test_power_directionality_grad_sign():
+    # For greater: d up => power up (positive grad); for less: d up => power down (negative grad)
+    dtype = torch.float64
+    d = torch.tensor(0.4, dtype=dtype, requires_grad=True)
+    n = torch.tensor(40.0, dtype=dtype)
+
+    p_greater = beignet.statistics.t_test_power(d, n, alternative="greater")
+    p_greater.sum().backward()
+    assert d.grad is not None and d.grad > 0
+
+    d2 = torch.tensor(0.4, dtype=dtype, requires_grad=True)
+    p_less = beignet.statistics.t_test_power(d2, n, alternative="less")
+    p_less.sum().backward()
+    assert d2.grad is not None and d2.grad < 0

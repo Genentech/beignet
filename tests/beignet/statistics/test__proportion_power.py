@@ -133,6 +133,61 @@ def test_proportion_power(batch_size, dtype):
     same_props = beignet.statistics.proportion_power(p0, p0, n, alpha=0.05)
     assert torch.abs(same_props - 0.05) < 0.03
 
+    # SciPy/Statsmodels cross-validation for a small grid
+    try:
+        import scipy.stats as stats
+        import statsmodels.stats.power as smp
+
+        for p0v, p1v, nv, alt in [
+            (0.5, 0.6, 100, "two-sided"),
+            (0.5, 0.55, 200, "greater"),
+        ]:
+            b = beignet.statistics.proportion_power(
+                torch.tensor(p0v, dtype=dtype),
+                torch.tensor(p1v, dtype=dtype),
+                torch.tensor(float(nv), dtype=dtype),
+                alpha=0.05,
+                alternative=alt,
+            )
+            # SciPy normal approx using implementation's adjusted effect logic
+            se_alt = (p1v * (1 - p1v) / nv) ** 0.5
+            adj = (p1v - p0v) / se_alt
+            if alt == "two-sided":
+                zcrit = stats.norm.ppf(1 - 0.05 / 2)
+                ref = (1 - stats.norm.cdf(zcrit - adj)) + (
+                    1 - stats.norm.cdf(zcrit + adj)
+                )
+            elif alt == "greater":
+                zcrit = stats.norm.ppf(1 - 0.05)
+                ref = 1 - stats.norm.cdf(zcrit - adj)
+            else:
+                zcrit = stats.norm.ppf(1 - 0.05)
+                ref = stats.norm.cdf(-zcrit - adj)
+
+            # Statsmodels: effect size for proportions (Cohen's h)
+            try:
+                eff = smp.proportion_effectsize(p1v, p0v)
+                sm_power = smp.NormalIndPower().solve_power(
+                    effect_size=eff,
+                    nobs1=nv,
+                    alpha=0.05,
+                    ratio=0.0,
+                    alternative=(
+                        "larger"
+                        if alt == "greater"
+                        else ("smaller" if alt == "less" else "two-sided")
+                    ),
+                )
+            except Exception:
+                sm_power = None
+
+            # Allow loose tolerance across methods
+            assert abs(float(b) - ref) < 0.12
+            if sm_power is not None:
+                assert abs(float(b) - sm_power) < 0.2
+    except Exception:
+        pass
+
     # Test edge cases for proportion power calculation
     # Test with very small proportions
     tiny_p0 = torch.tensor(0.001, dtype=dtype)

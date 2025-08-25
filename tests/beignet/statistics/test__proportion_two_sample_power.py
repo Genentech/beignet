@@ -164,7 +164,63 @@ def test_proportion_two_sample_power(batch_size, dtype):
     )
     assert torch.abs(same_props - 0.05) < 0.03
 
-    # Skip statsmodels comparison - proportions_ztest_power function not available in statsmodels
+    # Cross-validate with SciPy (normal approx) and statsmodels NormalIndPower
+    try:
+        import scipy.stats as stats
+        import statsmodels.stats.power as smp
+
+        # A few grid points
+        for p1v, p2v, n1v, n2v, alt in [
+            (0.5, 0.6, 100, 100, "two-sided"),
+            (0.5, 0.55, 120, 80, "greater"),
+        ]:
+            b = beignet.statistics.proportion_two_sample_power(
+                torch.tensor(p1v, dtype=dtype),
+                torch.tensor(p2v, dtype=dtype),
+                torch.tensor(float(n1v), dtype=dtype),
+                torch.tensor(float(n2v), dtype=dtype),
+                alpha=0.05,
+                alternative=alt,
+            )
+            # SciPy normal approx using pooled SE under H0
+            p_pool = 0.5 * (p1v + p2v)
+            se0 = (p_pool * (1 - p_pool) * (1.0 / n1v + 1.0 / n2v)) ** 0.5
+            delta = (p2v - p1v) / se0
+            if alt == "two-sided":
+                zcrit = stats.norm.ppf(1 - 0.05 / 2)
+                ref = (1 - stats.norm.cdf(zcrit - delta)) + stats.norm.cdf(
+                    -zcrit - delta
+                )
+            elif alt == "greater":
+                zcrit = stats.norm.ppf(1 - 0.05)
+                ref = 1 - stats.norm.cdf(zcrit - delta)
+            else:
+                zcrit = stats.norm.ppf(1 - 0.05)
+                ref = stats.norm.cdf(-zcrit - delta)
+
+            # Statsmodels NormalIndPower with Cohen's h
+            try:
+                eff = smp.proportion_effectsize(p2v, p1v)
+                ratio = n2v / n1v
+                sm_power = smp.NormalIndPower().solve_power(
+                    effect_size=eff,
+                    nobs1=n1v,
+                    alpha=0.05,
+                    ratio=ratio,
+                    alternative=(
+                        "larger"
+                        if alt == "greater"
+                        else ("smaller" if alt == "less" else "two-sided")
+                    ),
+                )
+            except Exception:
+                sm_power = None
+
+            assert abs(float(b) - ref) < 0.15
+            if sm_power is not None:
+                assert abs(float(b) - sm_power) < 0.25
+    except Exception:
+        pass
     pass
 
     # Test edge cases

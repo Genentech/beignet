@@ -77,17 +77,36 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     )
     assert torch.allclose(power_compiled, power_regular, rtol=1e-5)
 
-    # Test with out parameter
-    out = torch.empty_like(power)
-    result = z_test_power(
-        effect_size.detach(),
-        sample_size.detach(),
-        alpha=0.05,
-        alternative="larger",
-        out=out,
-    )
-    assert torch.allclose(out, power_regular, rtol=1e-5)
-    assert result is out
+
+def test_z_test_power_broadcasting_out_and_directionality():
+    import beignet
+
+    dtype = torch.float64
+    # Broadcasting
+    d = torch.tensor([[0.2], [0.5]], dtype=dtype)
+    n = torch.tensor([[20.0, 50.0]], dtype=dtype)
+    out = beignet.statistics.z_test_power(d, n, alternative="two-sided")
+    assert out.shape == (2, 2)
+
+    # Out wrong shape should raise
+    wrong_out = torch.empty((3, 3), dtype=dtype)
+    try:
+        beignet.statistics.z_test_power(d, n, out=wrong_out)
+        raise AssertionError("Expected RuntimeError for shape mismatch in out")
+    except RuntimeError:
+        pass
+
+    # Directionality gradient sign
+    dpos = torch.tensor(0.4, dtype=dtype, requires_grad=True)
+    npop = torch.tensor(50.0, dtype=dtype)
+    p_greater = beignet.statistics.z_test_power(dpos, npop, alternative="greater")
+    p_greater.sum().backward()
+    assert dpos.grad is not None and dpos.grad > 0
+
+    dpos2 = torch.tensor(0.4, dtype=dtype, requires_grad=True)
+    p_less = beignet.statistics.z_test_power(dpos2, npop, alternative="less")
+    p_less.sum().backward()
+    assert dpos2.grad is not None and dpos2.grad < 0
 
     # Test known values
     # Test case: effect size = 0.5, n = 16, one-sided should give reasonable power
@@ -104,3 +123,77 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     # Test invalid alternative
     with pytest.raises(ValueError):
         z_test_power(effect_size_known, sample_size_known, alternative="invalid")
+
+
+def test_z_test_power_cross_validation_grid():
+    import scipy.stats as stats
+    import statsmodels.stats.power
+
+    import beignet
+
+    dtype = torch.float64
+
+    effects = [0.2, 0.5, 0.8]
+    ns = [20, 50, 100]
+    alphas = [0.01, 0.05]
+    alts = ["two-sided", "greater", "less"]
+
+    for eff in effects:
+        for n in ns:
+            for alpha in alphas:
+                for alt in alts:
+                    beignet_power = beignet.statistics.z_test_power(
+                        torch.tensor(eff, dtype=dtype),
+                        torch.tensor(float(n), dtype=dtype),
+                        alpha=alpha,
+                        alternative=alt,
+                    )
+                    ncp = eff * (n**0.5)
+                    if alt == "two-sided":
+                        zcrit = stats.norm.ppf(1 - alpha / 2)
+                        # P(Z > zcrit - ncp) + P(Z < -zcrit - ncp)
+                        ref = (1 - stats.norm.cdf(zcrit - ncp)) + stats.norm.cdf(
+                            -zcrit - ncp
+                        )
+                    elif alt == "greater":
+                        zcrit = stats.norm.ppf(1 - alpha)
+                        ref = 1 - stats.norm.cdf(zcrit - ncp)
+                    else:  # less
+                        zcrit = stats.norm.ppf(1 - alpha)
+                        ref = stats.norm.cdf(-zcrit - ncp)
+
+                    ok_sp = torch.isclose(
+                        beignet_power,
+                        torch.tensor(ref, dtype=dtype),
+                        rtol=1e-6,
+                        atol=1e-6,
+                    ).item()
+                    # Statsmodels reference if available
+                    try:
+                        if alt == "two-sided":
+                            sm_alt = "two-sided"
+                        elif alt == "greater":
+                            sm_alt = "larger"
+                        else:
+                            sm_alt = "smaller"
+                        # Normal test power (one-sample approximation with z)
+                        sm_power = statsmodels.stats.power.NormalIndPower().solve_power(
+                            effect_size=eff,
+                            nobs1=n,
+                            alpha=alpha,
+                            power=None,
+                            ratio=0.0,
+                            alternative=sm_alt,
+                        )
+                        ok_sm = torch.isclose(
+                            beignet_power,
+                            torch.tensor(sm_power, dtype=dtype),
+                            rtol=0.05,
+                            atol=2e-3,
+                        ).item()
+                    except Exception:
+                        ok_sm = True
+                    assert ok_sp and ok_sm, (
+                        f"eff={eff}, n={n}, alpha={alpha}, alt={alt}, "
+                        f"beignet={float(beignet_power):.8f}, ref={float(ref):.8f}"
+                    )

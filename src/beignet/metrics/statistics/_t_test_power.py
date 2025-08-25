@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class TTestPower(Metric):
@@ -94,7 +94,7 @@ class TTestPower(Metric):
         # Use smaller sample size for power calculation (conservative)
         sample_size = torch.tensor(min(n1, n2), dtype=group1_all.dtype)
 
-        return beignet.t_test_power(
+        return beignet.statistics.t_test_power(
             effect_size,
             sample_size,
             alpha=self.alpha,

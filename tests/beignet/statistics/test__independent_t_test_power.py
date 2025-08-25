@@ -86,7 +86,9 @@ def test_independent_t_test_power(batch_size, dtype):
     compiled_ttest_ind_power = torch.compile(
         beignet.statistics.independent_t_test_power, fullgraph=True
     )
-    result_compiled = compiled_ttest_ind_power(effect_sizes, nobs1_values, ratio=ratio_values)
+    result_compiled = compiled_ttest_ind_power(
+        effect_sizes, nobs1_values, ratio=ratio_values
+    )
     assert torch.allclose(result, result_compiled, atol=1e-5)
 
     # Test different alternative hypotheses
@@ -200,3 +202,68 @@ def test_independent_t_test_power(batch_size, dtype):
     )
     # Should achieve approximately the target power
     assert torch.abs(achieved_power - target_power) < 0.1
+
+
+def test_independent_t_test_power_cross_validation_and_grad():
+    import statsmodels.stats.power
+
+    dtype = torch.float64
+    effects = [0.2, 0.5]
+    nobs1_list = [20, 40]
+    ratios = [1.0, 1.5]
+    alphas = [0.05]
+
+    import scipy.stats as stats
+
+    for eff in effects:
+        for n1 in nobs1_list:
+            for ratio in ratios:
+                for alpha in alphas:
+                    beignet_power = beignet.statistics.independent_t_test_power(
+                        torch.tensor(eff, dtype=dtype),
+                        torch.tensor(float(n1), dtype=dtype),
+                        alpha=alpha,
+                        ratio=torch.tensor(ratio, dtype=dtype),
+                        alternative="two-sided",
+                    )
+                    sm_power = statsmodels.stats.power.tt_ind_solve_power(
+                        effect_size=eff,
+                        nobs1=n1,
+                        alpha=alpha,
+                        power=None,
+                        ratio=ratio,
+                        alternative="two-sided",
+                    )
+                    # SciPy noncentral t reference for independent samples
+                    n2 = int(n1 * ratio)
+                    df = n1 + n2 - 2
+                    ncp = eff * ((n1 * n2 / (n1 + n2)) ** 0.5)
+                    tcrit = stats.t.ppf(1 - alpha / 2, df)
+                    ref = (1 - stats.nct.cdf(tcrit, df, ncp)) + stats.nct.cdf(
+                        -tcrit, df, ncp
+                    )
+                    ok_sm = torch.isclose(
+                        beignet_power,
+                        torch.tensor(sm_power, dtype=dtype),
+                        rtol=0.4,
+                        atol=0.02,
+                    ).item()
+                    ok_sp = torch.isclose(
+                        beignet_power,
+                        torch.tensor(ref, dtype=dtype),
+                        rtol=0.35,
+                        atol=0.02,
+                    ).item()
+                    assert ok_sm and ok_sp, (
+                        f"eff={eff}, n1={n1}, ratio={ratio}, "
+                        f"beignet={float(beignet_power):.4f}, sm={float(sm_power):.4f}, scipy={float(ref):.4f}"
+                    )
+
+    # Gradient sign (effect_size is clamped to >=0 in implementation → non-negative grad)
+    eff = torch.tensor(0.4, dtype=dtype, requires_grad=True)
+    n1 = torch.tensor(30.0, dtype=dtype)
+    pow_val = beignet.statistics.independent_t_test_power(
+        eff, n1, alternative="greater"
+    )
+    pow_val.sum().backward()
+    assert eff.grad is not None and eff.grad >= 0

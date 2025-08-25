@@ -1,7 +1,5 @@
 """Z-test power (one-sample z-test with known variance)."""
 
-import math
-
 import torch
 from torch import Tensor
 
@@ -107,28 +105,45 @@ def z_test_power(
     # Calculate noncentrality parameter
     ncp = effect_size * torch.sqrt(sample_size)
 
-    # Standard normal critical values using erfinv
-    sqrt_2 = math.sqrt(2.0)
+    # Normalize alternative
+    alt = alternative.lower()
+    if alt in {"larger", "greater", ">"}:
+        alt = "greater"
+    elif alt in {"smaller", "less", "<"}:
+        alt = "less"
+    elif alt != "two-sided":
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
+        )
 
-    if alternative == "two-sided":
-        z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+    # Standard normal critical values
+    sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+
+    def z_of(p):
+        pt = torch.as_tensor(p, dtype=dtype)
+        eps = torch.finfo(dtype).eps
+        pt = torch.clamp(pt, min=eps, max=1 - eps)
+        return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
+
+    if alt == "two-sided":
+        z_alpha_half = z_of(1 - alpha / 2)
         # Power = P(Z > z_{α/2} - δ) + P(Z < -z_{α/2} - δ)
         # where δ = d√n is the noncentrality parameter
-        power_upper = (1 - torch.erf((z_alpha_half - ncp) / sqrt_2)) / 2
-        power_lower = torch.erf((-z_alpha_half - ncp) / sqrt_2) / 2
-        power = power_upper + power_lower
-    elif alternative == "larger":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-        # Power = P(Z > z_α - δ)
-        power = (1 - torch.erf((z_alpha - ncp) / sqrt_2)) / 2
-    elif alternative == "smaller":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-        # Power = P(Z < -z_α + δ)
-        power = torch.erf((-z_alpha + ncp) / sqrt_2) / 2
-    else:
-        raise ValueError(
-            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
+        power_upper = 0.5 * (
+            1 - torch.erf((z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
         )
+        power_lower = 0.5 * (
+            1 + torch.erf((-z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
+        )
+        power = power_upper + power_lower
+    elif alt == "greater":
+        z_alpha = z_of(1 - alpha)
+        # Power = P(Z > z_α - δ)
+        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
+    else:  # alt == 'less'
+        z_alpha = z_of(1 - alpha)
+        # Power = P(Z < -z_α - δ) = Φ(-z_α - ncp)
+        power = 0.5 * (1 + torch.erf((-z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
 
     # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)

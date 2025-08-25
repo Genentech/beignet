@@ -1,0 +1,58 @@
+import math
+
+import torch
+from torch import Tensor
+
+from ._two_one_sided_tests_one_sample_t_power import (
+    two_one_sided_tests_one_sample_t_power,
+)
+
+
+def two_one_sided_tests_one_sample_t_sample_size(
+    true_effect: Tensor,
+    low: Tensor,
+    high: Tensor,
+    power: float = 0.8,
+    alpha: float = 0.05,
+    *,
+    out: Tensor | None = None,
+) -> Tensor:
+    """
+    Required sample size for one-sample Two One-Sided Tests (equivalence).
+
+    Solves for n such that min(P((d−low)>crit), P((d−high)<−crit)) ≥ power.
+    Uses iterative refinement and the same approximations as the power function.
+    """
+    d = torch.atleast_1d(torch.as_tensor(true_effect))
+    low = torch.atleast_1d(torch.as_tensor(low))
+    high = torch.atleast_1d(torch.as_tensor(high))
+    dtype = (
+        torch.float64
+        if any(t.dtype == torch.float64 for t in (d, low, high))
+        else torch.float32
+    )
+    d = d.to(dtype)
+    low = low.to(dtype)
+    high = high.to(dtype)
+
+    # Initial guess using z-approx
+    sqrt2 = math.sqrt(2.0)
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    # Use worst-case margin distance for conservative start
+    margin = torch.minimum(d - low, high - d)
+    margin = torch.clamp(margin, min=1e-8)
+    n0 = ((z_alpha + z_beta) / margin) ** 2
+    n0 = torch.clamp(n0, min=2.0)
+
+    n_curr = n0
+    for _ in range(12):
+        p = two_one_sided_tests_one_sample_t_power(d, n_curr, low, high, alpha=alpha)
+        gap = torch.clamp(power - p, min=-0.45, max=0.45)
+        n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=2.0, max=1e7)
+
+    n_out = torch.ceil(n_curr)
+    if out is not None:
+        out.copy_(n_out)
+        return out
+    return n_out

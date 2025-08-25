@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -97,14 +95,26 @@ def t_test_sample_size(
     effect_size = torch.clamp(effect_size, min=1e-6)
 
     # Standard normal quantiles using erfinv
-    sqrt_2 = math.sqrt(2.0)
+    # Normalize alternative
+    alt = alternative.lower()
+    if alt in {"larger", "greater", ">"}:
+        alt = "greater"
+    elif alt in {"smaller", "less", "<"}:
+        alt = "less"
+    elif alt not in {"two-sided", "one-sided", "greater", "less"}:
+        raise ValueError(f"Unknown alternative: {alternative}")
 
-    if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+    # Use same historical approximation as power function for consistency
+    sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    if alt == "two-sided":
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
     else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+    # z_beta = Phi^{-1}(power)
+    z_beta = torch.sqrt(torch.tensor(2.0, dtype=dtype)) * torch.erfinv(
+        2.0 * torch.as_tensor(power, dtype=dtype) - 1.0
+    )
 
     # Initial normal approximation: n = ((z_alpha + z_beta) / d)^2
     n_initial = ((z_alpha + z_beta) / effect_size) ** 2
@@ -143,12 +153,16 @@ def t_test_sample_size(
         if alternative == "two-sided":
             z_upper = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
             z_lower = (-t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
-            power_current = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
-                1 - torch.erf(-z_lower / sqrt_2)
-            ) / 2
+            power_current = 0.5 * (
+                1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            ) + 0.5 * (
+                1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            )
         else:
             z_score = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
-            power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
+            power_current = 0.5 * (
+                1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            )
 
         # Clamp power to valid range
         power_current = torch.clamp(power_current, 0.01, 0.99)

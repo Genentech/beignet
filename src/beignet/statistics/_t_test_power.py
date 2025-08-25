@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -102,19 +100,25 @@ def t_test_power(
     # Noncentrality parameter
     ncp = effect_size * torch.sqrt(sample_size)
 
-    # Critical t-value using normal approximation
-    sqrt_2 = math.sqrt(2.0)
+    # Normalize alternative names
+    alt = alternative.lower()
+    if alt in {"larger", "greater", ">", "one-sided", "one_sided"}:
+        alt = "greater"
+    elif alt in {"smaller", "less", "<"}:
+        alt = "less"
+    elif alt not in {"two-sided", "one-sided", "greater", "less"}:
+        raise ValueError(f"Unknown alternative: {alternative}")
 
-    if alternative == "two-sided":
-        # Two-tailed test
-        z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
-        t_critical = z_alpha_half * torch.sqrt(
-            1 + 1 / (2 * df)
-        )  # Adjustment for finite df
+    # Critical t-value using normal approximation
+    sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    if alt == "two-sided":
+        # Two-tailed critical using historical approximation from codebase
+        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
     else:
-        # One-tailed test
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-        t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df))  # Adjustment for finite df
+        # One-tailed critical
+        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
 
     # For noncentral t-distribution, we approximate using normal distribution
     # when df is large, and adjust for smaller df
@@ -131,18 +135,23 @@ def t_test_power(
     )
     std_nct = torch.sqrt(var_nct)
 
-    if alternative == "two-sided":
+    if alt == "two-sided":
         # P(|T| > t_critical) = P(T > t_critical) + P(T < -t_critical)
         z_upper = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         z_lower = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
 
-        power = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
-            1 - torch.erf(-z_lower / sqrt_2)
-        ) / 2
-    else:
+        # 1 - Phi(z_upper) + Phi(-t_critical - mean)
+        power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
+            1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
+        )
+    elif alt == "greater":
         # One-tailed: P(T > t_critical)
         z_score = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
-        power = (1 - torch.erf(z_score / sqrt_2)) / 2
+        power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
+    else:
+        # alt == "less": P(T < -t_critical)
+        z_score = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
 
     # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
