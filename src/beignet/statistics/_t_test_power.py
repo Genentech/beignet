@@ -55,7 +55,7 @@ def t_test_power(
     --------
     >>> effect_size = torch.tensor(0.5)
     >>> sample_size = torch.tensor(30)
-    >>> beignet.t_test_power(effect_size, sample_size)
+    >>> t_test_power(effect_size, sample_size)
     tensor(0.6947)
 
     Notes

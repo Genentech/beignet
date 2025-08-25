@@ -52,7 +52,7 @@ def anova_power(
     >>> effect_size = torch.tensor(0.25)
     >>> sample_size = torch.tensor(120)
     >>> k = torch.tensor(3)
-    >>> beignet.anova_power(effect_size, sample_size, k)
+    >>> anova_power(effect_size, sample_size, k)
     tensor(0.7061)
 
     Notes

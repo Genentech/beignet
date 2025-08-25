@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 
 
-def chi_square_goodness_of_fit_power_sample_size(
+def chi_square_goodness_of_fit_sample_size(
     effect_size: Tensor,
     df: Tensor,
     power: float = 0.8,
@@ -54,7 +54,7 @@ def chi_square_goodness_of_fit_power_sample_size(
     --------
     >>> effect_size = torch.tensor(0.3)
     >>> df = torch.tensor(3)
-    >>> beignet.chi_square_goodness_of_fit_power_sample_size(effect_size, df, power=0.8)
+    >>> chi_square_goodness_of_fit_sample_size(effect_size, df, power=0.8)
     tensor(108)
 
     Notes

@@ -40,7 +40,7 @@ def phi_coefficient(
     --------
     >>> chi_sq = torch.tensor(6.25)
     >>> n = torch.tensor(100)
-    >>> beignet.phi_coefficient(chi_sq, n)
+    >>> phi_coefficient(chi_sq, n)
     tensor(0.2500)
 
     Notes

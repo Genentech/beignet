@@ -59,7 +59,7 @@ def chi_square_independence_sample_size(
     >>> effect_size = torch.tensor(0.3)
     >>> rows = torch.tensor(3)
     >>> cols = torch.tensor(3)
-    >>> beignet.chi_square_independence_sample_size(effect_size, rows, cols, power=0.8)
+    >>> chi_square_independence_sample_size(effect_size, rows, cols, power=0.8)
     tensor(124)
 
     Notes

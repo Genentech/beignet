@@ -56,7 +56,7 @@ def z_test_sample_size(
     Examples
     --------
     >>> effect_size = torch.tensor(0.5)
-    >>> beignet.z_test_sample_size(effect_size, power=0.8)
+    >>> z_test_sample_size(effect_size, power=0.8)
     tensor(32)
 
     Notes

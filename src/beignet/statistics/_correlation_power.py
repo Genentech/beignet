@@ -49,7 +49,7 @@ def correlation_power(
     --------
     >>> r = torch.tensor(0.3)
     >>> n = torch.tensor(50)
-    >>> beignet.correlation_power(r, n)
+    >>> correlation_power(r, n)
     tensor(0.5704)
     """
     # Convert inputs to tensors if needed

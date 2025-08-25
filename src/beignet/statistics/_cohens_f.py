@@ -23,7 +23,7 @@ def cohens_f(
 
     Parameters
     ----------
-    group_means : Tensor, shape=(..., k)
+    group_means : Tensor, shape (..., k)
         Means for each group. The last dimension represents different groups.
 
     pooled_std : Tensor
@@ -41,7 +41,7 @@ def cohens_f(
     --------
     >>> group_means = torch.tensor([10.0, 12.0, 14.0])
     >>> pooled_std = torch.tensor(2.0)
-    >>> beignet.cohens_f(group_means, pooled_std)
+    >>> cohens_f(group_means, pooled_std)
     tensor(1.0000)
 
     Notes

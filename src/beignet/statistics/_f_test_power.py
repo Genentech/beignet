@@ -56,7 +56,7 @@ def f_test_power(
     >>> effect_size = torch.tensor(0.15)  # Cohen's f² = 0.15 (medium effect)
     >>> df1 = torch.tensor(3)  # 3 predictors
     >>> df2 = torch.tensor(96)  # N - k - 1 = 100 - 3 - 1
-    >>> beignet.f_test_power(effect_size, df1, df2)
+    >>> f_test_power(effect_size, df1, df2)
     tensor(0.8743)
 
     Notes

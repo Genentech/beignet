@@ -56,7 +56,7 @@ def f_test_sample_size(
     --------
     >>> effect_size = torch.tensor(0.15)  # Cohen's f² = 0.15 (medium effect)
     >>> df1 = torch.tensor(3)  # 3 predictors
-    >>> beignet.f_test_sample_size(effect_size, df1, power=0.8)
+    >>> f_test_sample_size(effect_size, df1, power=0.8)
     tensor(100)
 
     Notes

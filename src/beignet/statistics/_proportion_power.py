@@ -56,7 +56,7 @@ def proportion_power(
     >>> p0 = torch.tensor(0.5)
     >>> p1 = torch.tensor(0.6)
     >>> n = torch.tensor(100)
-    >>> beignet.proportion_power(p0, p1, n)
+    >>> proportion_power(p0, p1, n)
     tensor(0.7139)
 
     Notes

@@ -23,10 +23,10 @@ def cohens_d(
 
     Parameters
     ----------
-    group1 : Tensor, shape=(..., N1)
+    group1 : Tensor, shape (..., N1)
         First group of observations. The last dimension contains the observations.
 
-    group2 : Tensor, shape=(..., N2)
+    group2 : Tensor, shape (..., N2)
         Second group of observations. The last dimension contains the observations.
 
     pooled : bool, default=True
@@ -38,14 +38,14 @@ def cohens_d(
 
     Returns
     -------
-    output : Tensor, shape=(...)
+    output : Tensor, shape (...)
         Cohen's d effect size. Positive values indicate group1 > group2.
 
     Examples
     --------
     >>> group1 = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])
     >>> group2 = torch.tensor([2.0, 3.0, 4.0, 5.0, 6.0])
-    >>> beignet.cohens_d(group1, group2)
+    >>> cohens_d(group1, group2)
     tensor(-0.7071)
     """
     mean1 = torch.mean(group1, dim=-1)

@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 
 
-def chisquare_independence_power(
+def chi_square_independence_power(
     effect_size: Tensor,
     sample_size: Tensor,
     rows: Tensor,
@@ -60,7 +60,7 @@ def chisquare_independence_power(
     >>> sample_size = torch.tensor(100)
     >>> rows = torch.tensor(3)
     >>> cols = torch.tensor(3)
-    >>> beignet.chisquare_independence_power(effect_size, sample_size, rows, cols)
+    >>> chi_square_independence_power(effect_size, sample_size, rows, cols)
     tensor(0.7985)
 
     Notes

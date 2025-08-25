@@ -59,7 +59,7 @@ def proportion_two_sample_sample_size(
     --------
     >>> p1 = torch.tensor(0.5)
     >>> p2 = torch.tensor(0.6)
-    >>> beignet.proportion_two_sample_sample_size(p1, p2, power=0.8)
+    >>> proportion_two_sample_sample_size(p1, p2, power=0.8)
     tensor(387)
 
     Notes

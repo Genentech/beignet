@@ -54,7 +54,7 @@ def independent_z_test_power(
     >>> effect_size = torch.tensor(0.5)
     >>> sample_size1 = torch.tensor(30)
     >>> sample_size2 = torch.tensor(30)
-    >>> beignet.independent_z_test_power(effect_size, sample_size1, sample_size2)
+    >>> independent_z_test_power(effect_size, sample_size1, sample_size2)
     tensor(0.5614)
 
     Notes

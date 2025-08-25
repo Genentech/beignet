@@ -45,7 +45,7 @@ def cramers_v(
     >>> chi_sq = torch.tensor(10.5)
     >>> n = torch.tensor(100)
     >>> min_dim = torch.tensor(1)  # 2x2 table: min(2-1, 2-1) = 1
-    >>> beignet.cramers_v(chi_sq, n, min_dim)
+    >>> cramers_v(chi_sq, n, min_dim)
     tensor(0.3240)
 
     Notes

@@ -7,9 +7,9 @@ from torch import Tensor
 def independent_t_test_power(
     effect_size: Tensor,
     nobs1: Tensor,
-    ratio: Tensor | None = None,
     alpha: float = 0.05,
     alternative: str = "two-sided",
+    ratio: Tensor | None = None,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
@@ -51,7 +51,7 @@ def independent_t_test_power(
     --------
     >>> effect_size = torch.tensor(0.5)
     >>> nobs1 = torch.tensor(30)
-    >>> beignet.independent_t_test_power(effect_size, nobs1)
+    >>> independent_t_test_power(effect_size, nobs1)
     tensor(0.4741)
 
     Notes

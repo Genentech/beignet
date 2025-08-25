@@ -48,7 +48,7 @@ def correlation_sample_size(
     Examples
     --------
     >>> r = torch.tensor(0.3)
-    >>> beignet.correlation_sample_size(r, power=0.8)
+    >>> correlation_sample_size(r, power=0.8)
     tensor(85)
     """
     # Convert inputs to tensors if needed

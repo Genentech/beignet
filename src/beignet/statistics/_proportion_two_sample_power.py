@@ -61,7 +61,7 @@ def proportion_two_sample_power(
     >>> p2 = torch.tensor(0.6)
     >>> n1 = torch.tensor(100)
     >>> n2 = torch.tensor(100)
-    >>> beignet.proportion_two_sample_power(p1, p2, n1, n2)
+    >>> proportion_two_sample_power(p1, p2, n1, n2)
     tensor(0.5592)
 
     Notes

@@ -57,7 +57,7 @@ def chi_square_goodness_of_fit_power(
     >>> effect_size = torch.tensor(0.3)
     >>> sample_size = torch.tensor(100)
     >>> df = torch.tensor(3)
-    >>> beignet.chi_square_goodness_of_fit_power(effect_size, sample_size, df)
+    >>> chi_square_goodness_of_fit_power(effect_size, sample_size, df)
     tensor(0.6740)
 
     Notes
