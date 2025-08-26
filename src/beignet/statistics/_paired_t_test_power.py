@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def paired_t_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     alpha: float = 0.05,
     alternative: str = "two-sided",
@@ -13,22 +13,41 @@ def paired_t_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     dtype = (
         torch.float64
-        if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
+        if (input.dtype == torch.float64 or sample_size.dtype == torch.float64)
         else torch.float32
     )
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_size = torch.clamp(sample_size.to(dtype), min=2.0)
 
     degrees_of_freedom = sample_size - 1
 
-    noncentrality = effect_size * torch.sqrt(sample_size)
+    noncentrality = input * torch.sqrt(sample_size)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

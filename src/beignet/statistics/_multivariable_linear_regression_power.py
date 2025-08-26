@@ -13,7 +13,26 @@ def multivariable_linear_regression_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    r_squared : Tensor
+        Covariate correlation.
+    sample_size : Tensor
+        Sample size.
+    n_predictors : Tensor
+        N Predictors parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
+
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))

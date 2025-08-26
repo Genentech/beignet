@@ -15,7 +15,26 @@ def anova_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    sample_size : Tensor
+        Sample size.
+    groups : Tensor
+        Number of groups.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Effect size.
     """
+
     n0 = torch.as_tensor(sample_size)
     groups0 = torch.as_tensor(groups)
 

@@ -3,7 +3,7 @@ from torch import Tensor
 
 
 def independent_t_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     nobs1: Tensor,
     alpha: float = 0.05,
     alternative: str = "two-sided",
@@ -12,8 +12,29 @@ def independent_t_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    nobs1 : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    ratio : Tensor | None, optional
+        Sample size ratio.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     if ratio is None:
@@ -22,7 +43,7 @@ def independent_t_test_power(
         ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
     if (
-        effect_size.dtype == torch.float64
+        input.dtype == torch.float64
         or sample_size_group_1.dtype == torch.float64
         or ratio.dtype == torch.float64
     ):
@@ -30,13 +51,13 @@ def independent_t_test_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_size_group_1 = sample_size_group_1.to(dtype)
 
     ratio = ratio.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
 
@@ -52,7 +73,7 @@ def independent_t_test_power(
 
     se_factor = torch.sqrt(1 / sample_size_group_1 + 1 / sample_size_group_2)
 
-    noncentrality = effect_size / se_factor
+    noncentrality = input / se_factor
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -115,4 +136,3 @@ def independent_t_test_power(
     if out is not None:
         out.copy_(result)
         return out
-

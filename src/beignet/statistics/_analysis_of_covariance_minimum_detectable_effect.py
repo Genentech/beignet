@@ -17,7 +17,30 @@ def analysis_of_covariance_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    sample_size : Tensor
+        Sample size.
+    groups : Tensor
+        Number of groups.
+    covariate_r2 : Tensor
+        Covariate correlation.
+    n_covariates : Tensor | int, default 1
+        Covariate correlation.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Effect size.
     """
+
     sample_size_tensor = torch.as_tensor(sample_size)
 
     groups_tensor = torch.as_tensor(groups)

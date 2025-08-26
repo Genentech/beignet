@@ -17,7 +17,30 @@ def proportional_hazards_model_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    hazard_ratio : Tensor
+        Sample size ratio.
+    event_rate : Tensor
+        Event Rate parameter.
+    p_exposed : Tensor, default 0.5
+        P Exposed parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
 
     event_rate = torch.atleast_1d(torch.as_tensor(event_rate))
@@ -94,4 +117,3 @@ def proportional_hazards_model_sample_size(
         out.copy_(n_out)
         return out
     return n_out
-    return result

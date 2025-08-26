@@ -15,7 +15,30 @@ def proportion_two_sample_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    p1 : Tensor
+        P1 parameter.
+    p2 : Tensor
+        P2 parameter.
+    n1 : Tensor
+        N1 parameter.
+    n2 : Tensor | None, optional
+        N2 parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
+
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
 
@@ -97,4 +120,3 @@ def proportion_two_sample_power(
     if out is not None:
         out.copy_(result)
         return out
-

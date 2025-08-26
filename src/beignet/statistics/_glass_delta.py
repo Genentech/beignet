@@ -9,7 +9,22 @@ def glass_delta(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    x : Tensor
+        X parameter.
+    y : Tensor
+        Y parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     x = torch.atleast_1d(torch.as_tensor(x))
     y = torch.atleast_1d(torch.as_tensor(y))
 

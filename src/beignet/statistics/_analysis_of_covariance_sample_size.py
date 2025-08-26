@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def analysis_of_covariance_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     groups: Tensor,
     covariate_r2: Tensor,
     n_covariates: Tensor | int = 1,
@@ -15,8 +15,31 @@ def analysis_of_covariance_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    groups : Tensor
+        Number of groups.
+    covariate_r2 : Tensor
+        Covariate correlation.
+    n_covariates : Tensor | int, default 1
+        Covariate correlation.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    effect_size_f = torch.atleast_1d(torch.as_tensor(input))
 
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
@@ -31,7 +54,11 @@ def analysis_of_covariance_sample_size(
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    covariate_r_squared = torch.clamp(covariate_r_squared.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
+    covariate_r_squared = torch.clamp(
+        covariate_r_squared.to(dtype),
+        min=0.0,
+        max=1 - torch.finfo(dtype).eps,
+    )
 
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
@@ -49,7 +76,11 @@ def analysis_of_covariance_sample_size(
 
     lam0 = ((z_alpha + z_beta) * math.sqrt(2.0)) ** 2
 
-    n0 = lam0 * torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps) / (effect_size_f**2)
+    n0 = (
+        lam0
+        * torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
+        / (effect_size_f**2)
+    )
 
     n0 = torch.clamp(n0, min=groups + num_covariates + 2.0)
 

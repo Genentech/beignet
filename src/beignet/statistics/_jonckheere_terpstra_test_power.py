@@ -5,28 +5,45 @@ from torch import Tensor
 
 
 def jonckheere_terpstra_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_sizes: Tensor,
     alpha: float = 0.05,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_sizes : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
 
     dtype = (
         torch.float64
-        if (effect_size.dtype == torch.float64 or sample_sizes.dtype == torch.float64)
+        if (input.dtype == torch.float64 or sample_sizes.dtype == torch.float64)
         else torch.float32
     )
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_sizes = sample_sizes.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
@@ -42,7 +59,7 @@ def jonckheere_terpstra_test_power(
 
     mean_null = n * n / 4
 
-    mean_alt = mean_null + effect_size * std_null
+    mean_alt = mean_null + input * std_null
 
     square_root_two = math.sqrt(2.0)
 

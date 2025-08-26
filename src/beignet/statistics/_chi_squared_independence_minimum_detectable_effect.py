@@ -16,7 +16,28 @@ def chi_square_independence_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    sample_size : Tensor
+        Sample size.
+    rows : Tensor
+        Rows parameter.
+    cols : Tensor
+        Cols parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Effect size.
     """
+
     sample_size_0 = torch.as_tensor(sample_size)
 
     r0 = torch.as_tensor(rows)

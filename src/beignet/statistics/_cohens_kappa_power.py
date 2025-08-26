@@ -13,7 +13,26 @@ def cohens_kappa_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    kappa : Tensor
+        Kappa parameter.
+    sample_size : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
+
     kappa = torch.atleast_1d(torch.as_tensor(kappa))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
@@ -68,4 +87,3 @@ def cohens_kappa_power(
         out.copy_(power)
         return out
     return power
-    return result

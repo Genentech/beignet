@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def chi_square_independence_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     rows: Tensor,
     cols: Tensor,
@@ -14,24 +14,45 @@ def chi_square_independence_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    rows : Tensor
+        Rows parameter.
+    cols : Tensor
+        Cols parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
     dtype = torch.float32
-    for tensor in (effect_size, sample_size, rows, cols):
+    for tensor in (input, sample_size, rows, cols):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
     sample_size = sample_size.to(dtype)
 
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_size = torch.clamp(sample_size, min=1.0)
 
@@ -40,7 +61,7 @@ def chi_square_independence_power(
 
     degrees_of_freedom = (rows - 1) * (cols - 1)
 
-    noncentrality = sample_size * effect_size**2
+    noncentrality = sample_size * input**2
 
     square_root_2 = math.sqrt(2.0)
 

@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def kolmogorov_smirnov_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     alpha: float = 0.05,
     alternative: str = "two-sided",
@@ -13,19 +13,38 @@ def kolmogorov_smirnov_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     dtype = (
         torch.float64
-        if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
+        if (input.dtype == torch.float64 or sample_size.dtype == torch.float64)
         else torch.float32
     )
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0, max=1.0)
+    input = torch.clamp(input, min=0.0, max=1.0)
 
     sample_size = torch.clamp(sample_size, min=3.0)
 
@@ -56,7 +75,7 @@ def kolmogorov_smirnov_test_power(
 
     d_critical = c_alpha / sqrt_n
 
-    expected_d = effect_size
+    expected_d = input
 
     se_d = torch.sqrt(1.0 / (2 * sample_size))
 

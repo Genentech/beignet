@@ -9,7 +9,22 @@ def cohens_f(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    group_means : Tensor
+        Group Means parameter.
+    pooled_std : Tensor
+        Pooled Std parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     group_means = torch.atleast_1d(torch.as_tensor(group_means))
 
     pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
@@ -32,4 +47,3 @@ def cohens_f(
         out.copy_(result)
 
         return out
-

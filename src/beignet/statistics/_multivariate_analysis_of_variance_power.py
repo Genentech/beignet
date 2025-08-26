@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def multivariate_analysis_of_variance_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     n_variables: Tensor,
     n_groups: Tensor,
@@ -14,24 +14,45 @@ def multivariate_analysis_of_variance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    n_variables : Tensor
+        N Variables parameter.
+    n_groups : Tensor
+        Number of groups.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
 
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
     dtype = torch.float32
-    for tensor in (effect_size, sample_size, n_variables, n_groups):
+    for tensor in (input, sample_size, n_variables, n_groups):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
     sample_size = sample_size.to(dtype)
     n_variables = n_variables.to(dtype)
 
     n_groups = n_groups.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_size = torch.clamp(sample_size, min=n_groups + n_variables + 5)
 
@@ -49,7 +70,7 @@ def multivariate_analysis_of_variance_power(
 
     df2 = torch.clamp(df2, min=1.0)
 
-    effect_size_f_squared = effect_size**2
+    effect_size_f_squared = input**2
 
     lambda_nc = sample_size * effect_size_f_squared
 

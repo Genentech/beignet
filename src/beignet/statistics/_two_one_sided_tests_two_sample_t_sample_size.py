@@ -19,7 +19,30 @@ def two_one_sided_tests_two_sample_t_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    true_effect : Tensor
+        True Effect parameter.
+    ratio : Tensor | float, default 1.0
+        Sample size ratio.
+    low : Tensor, default 0.0
+        Low parameter.
+    high : Tensor, default 0.0
+        High parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
 
     r = torch.as_tensor(ratio)
@@ -77,9 +100,8 @@ def two_one_sided_tests_two_sample_t_sample_size(
             max=1e7,
         )
 
-    sample_size_group_1_result = torch.ceil(sample_size_group_1_iteration)
+    sample_size_group_1_output = torch.ceil(sample_size_group_1_iteration)
     if out is not None:
         out.copy_(sample_size_group_1_output)
         return out
     return sample_size_group_1_output
-    return result

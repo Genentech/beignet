@@ -7,7 +7,7 @@ from ._logistic_regression_power import logistic_regression_power
 
 
 def logistic_regression_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     p_exposure: Tensor = 0.5,
     power: float = 0.8,
     alpha: float = 0.05,
@@ -16,25 +16,46 @@ def logistic_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    p_exposure : Tensor, default 0.5
+        P Exposure parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     dtype = (
         torch.float64
-        if (effect_size.dtype == torch.float64 or p_exposure.dtype == torch.float64)
+        if (input.dtype == torch.float64 or p_exposure.dtype == torch.float64)
         else torch.float32
     )
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     p_exposure = p_exposure.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
+    input = torch.clamp(input, min=0.01, max=100.0)
 
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    beta = torch.log(effect_size)
+    beta = torch.log(input)
 
     sqrt2 = math.sqrt(2.0)
 
@@ -69,7 +90,7 @@ def logistic_regression_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = logistic_regression_power(
-            effect_size,
+            input,
             n_iteration,
             p_exposure,
             alpha=alpha,

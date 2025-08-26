@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def welch_t_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     nobs1: Tensor,
     nobs2: Tensor,
     var_ratio: Tensor | float = 1.0,
@@ -15,8 +15,31 @@ def welch_t_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    nobs1 : Tensor
+        Sample size.
+    nobs2 : Tensor
+        Sample size.
+    var_ratio : Tensor | float, default 1.0
+        Sample size ratio.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     sample_size_group_2 = torch.atleast_1d(torch.as_tensor(nobs2))
@@ -26,7 +49,7 @@ def welch_t_test_power(
     if any(
         t.dtype == torch.float64
         for t in (
-            effect_size,
+            input,
             sample_size_group_1,
             sample_size_group_2,
             vr if isinstance(vr, Tensor) else torch.tensor(0.0),
@@ -36,7 +59,7 @@ def welch_t_test_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_size_group_1 = sample_size_group_1.to(dtype)
     sample_size_group_2 = sample_size_group_2.to(dtype)
@@ -45,7 +68,7 @@ def welch_t_test_power(
     else:
         vr = torch.tensor(float(vr), dtype=dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
     sample_size_group_2 = torch.clamp(sample_size_group_2, min=2.0)
@@ -65,7 +88,7 @@ def welch_t_test_power(
         + b**2 / torch.clamp(sample_size_group_2 - 1, min=1.0)
     )
 
-    noncentrality = effect_size / torch.clamp(standard_error, min=1e-12)
+    noncentrality = input / torch.clamp(standard_error, min=1e-12)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

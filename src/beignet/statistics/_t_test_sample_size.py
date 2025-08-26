@@ -3,7 +3,7 @@ from torch import Tensor
 
 
 def t_test_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     power: float = 0.8,
     alpha: float = 0.05,
     alternative: str = "two-sided",
@@ -11,17 +11,36 @@ def t_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
-    """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
-    if effect_size.dtype == torch.float64:
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
+    """
+
+    input = torch.atleast_1d(torch.as_tensor(input))
+
+    if input.dtype == torch.float64:
         dtype = torch.float64
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-6)
+    input = torch.clamp(input, min=1e-6)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -33,7 +52,9 @@ def t_test_sample_size(
 
     square_root_two = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
@@ -41,7 +62,7 @@ def t_test_sample_size(
         2.0 * torch.as_tensor(power, dtype=dtype) - 1.0,
     )
 
-    sample_size_initial = ((z_alpha + z_beta) / effect_size) ** 2
+    sample_size_initial = ((z_alpha + z_beta) / input) ** 2
 
     sample_size_initial = torch.clamp(sample_size_initial, min=2.0)
 
@@ -59,7 +80,7 @@ def t_test_sample_size(
             min=1.0,
         )
 
-        noncentrality_iteration = effect_size * torch.sqrt(sample_size_iteration)
+        noncentrality_iteration = input * torch.sqrt(sample_size_iteration)
 
         if alternative == "two-sided":
             t_critical = z_alpha * torch.sqrt(
@@ -132,4 +153,3 @@ def t_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
-

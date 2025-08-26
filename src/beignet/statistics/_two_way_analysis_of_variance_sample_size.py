@@ -7,7 +7,7 @@ from ._two_way_analysis_of_variance_power import two_way_analysis_of_variance_po
 
 
 def two_way_analysis_of_variance_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     levels_factor_a: Tensor,
     levels_factor_b: Tensor,
     power: float = 0.8,
@@ -17,24 +17,47 @@ def two_way_analysis_of_variance_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    levels_factor_a : Tensor
+        Levels Factor A parameter.
+    levels_factor_b : Tensor
+        Levels Factor B parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    effect_type : str, default 'main_a'
+        Effect Type parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
-    dtypes = [effect_size.dtype, levels_factor_a.dtype, levels_factor_b.dtype]
+    dtypes = [input.dtype, levels_factor_a.dtype, levels_factor_b.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-8)
+    input = torch.clamp(input, min=1e-8)
 
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)
@@ -57,14 +80,14 @@ def two_way_analysis_of_variance_sample_size(
     lambda_approximate = ((z_alpha + z_beta) * torch.sqrt(df_effect)) ** 2
 
     n_per_cell_initial = lambda_approximate / (
-        effect_size**2 * levels_factor_a * levels_factor_b
+        input**2 * levels_factor_a * levels_factor_b
     )
     n_per_cell_initial = torch.clamp(n_per_cell_initial, min=5.0)
 
     n_iteration = n_per_cell_initial
     for _ in range(12):
         current_power = two_way_analysis_of_variance_power(
-            effect_size,
+            input,
             n_iteration,
             levels_factor_a,
             levels_factor_b,

@@ -13,7 +13,26 @@ def f_test_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    df1 : Tensor
+        Degrees of freedom.
+    df2 : Tensor
+        Degrees of freedom.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Effect size.
     """
+
     df1_0 = torch.as_tensor(df1)
     df2_0 = torch.as_tensor(df2)
 
@@ -77,4 +96,3 @@ def f_test_minimum_detectable_effect(
             out.copy_(out_t)
             return out
         return out_t
-    return result

@@ -18,7 +18,28 @@ def two_one_sided_tests_one_sample_t_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    true_effect : Tensor
+        True Effect parameter.
+    low : Tensor
+        Low parameter.
+    high : Tensor
+        High parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
 
     low = torch.atleast_1d(torch.as_tensor(low))

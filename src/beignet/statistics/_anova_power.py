@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def anova_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     groups: Tensor,
     alpha: float = 0.05,
@@ -13,14 +13,33 @@ def anova_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    groups : Tensor
+        Number of groups.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
     if (
-        effect_size.dtype == torch.float64
+        input.dtype == torch.float64
         or sample_size.dtype == torch.float64
         or groups.dtype == torch.float64
     ):
@@ -28,12 +47,12 @@ def anova_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
     sample_size = sample_size.to(dtype)
 
     groups = groups.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     degrees_of_freedom_1 = groups - 1
 
@@ -52,7 +71,7 @@ def anova_power(
 
     f_critical = chi_squared_critical / degrees_of_freedom_1
 
-    lambda_nc = sample_size * effect_size**2
+    lambda_nc = sample_size * input**2
 
     mean_nc_chi2 = degrees_of_freedom_1 + lambda_nc
 
@@ -76,4 +95,3 @@ def anova_power(
     if out is not None:
         out.copy_(result)
         return out
-

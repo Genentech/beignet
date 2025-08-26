@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def independent_z_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size1: Tensor,
     sample_size2: Tensor | None = None,
     alpha: float = 0.05,
@@ -14,8 +14,29 @@ def independent_z_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size1 : Tensor
+        Sample size.
+    sample_size2 : Tensor | None, optional
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_size1 = torch.atleast_1d(torch.as_tensor(sample_size1))
 
@@ -25,7 +46,7 @@ def independent_z_test_power(
         sample_size2 = torch.atleast_1d(torch.as_tensor(sample_size2))
 
     if (
-        effect_size.dtype == torch.float64
+        input.dtype == torch.float64
         or sample_size1.dtype == torch.float64
         or sample_size2.dtype == torch.float64
     ):
@@ -33,7 +54,7 @@ def independent_z_test_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_size1 = sample_size1.to(dtype)
     sample_size2 = sample_size2.to(dtype)
@@ -43,14 +64,18 @@ def independent_z_test_power(
 
     n_eff = (sample_size1 * sample_size2) / (sample_size1 + sample_size2)
 
-    noncentrality = effect_size * torch.sqrt(n_eff)
+    noncentrality = input * torch.sqrt(n_eff)
 
     square_root_two = math.sqrt(2.0)
 
     if alternative == "two-sided":
-        z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha_half = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
 
-        power_upper = (1 - torch.erf((z_alpha_half - noncentrality) / square_root_two)) / 2
+        power_upper = (
+            1 - torch.erf((z_alpha_half - noncentrality) / square_root_two)
+        ) / 2
         power_lower = torch.erf((-z_alpha_half - noncentrality) / square_root_two) / 2
 
         power = power_upper + power_lower
@@ -72,4 +97,3 @@ def independent_z_test_power(
     if out is not None:
         out.copy_(result)
         return out
-

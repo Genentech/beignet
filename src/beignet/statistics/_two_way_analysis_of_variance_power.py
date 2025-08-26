@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def two_way_analysis_of_variance_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size_per_cell: Tensor,
     levels_factor_a: Tensor,
     levels_factor_b: Tensor,
@@ -15,8 +15,31 @@ def two_way_analysis_of_variance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size_per_cell : Tensor
+        Sample size.
+    levels_factor_a : Tensor
+        Levels Factor A parameter.
+    levels_factor_b : Tensor
+        Levels Factor B parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    effect_type : str, default 'main_a'
+        Effect Type parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_size_per_cell = torch.atleast_1d(torch.as_tensor(sample_size_per_cell))
 
@@ -24,17 +47,17 @@ def two_way_analysis_of_variance_power(
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
     dtype = torch.float32
-    for tensor in (effect_size, sample_size_per_cell, levels_factor_a, levels_factor_b):
+    for tensor in (input, sample_size_per_cell, levels_factor_a, levels_factor_b):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_size_per_cell = sample_size_per_cell.to(dtype)
 
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_size_per_cell = torch.clamp(sample_size_per_cell, min=2.0)
 
@@ -56,7 +79,7 @@ def two_way_analysis_of_variance_power(
 
     df_den = torch.clamp(df_den, min=1.0)
 
-    lambda_nc = total_n * effect_size**2
+    lambda_nc = total_n * input**2
 
     square_root_two = math.sqrt(2.0)
 

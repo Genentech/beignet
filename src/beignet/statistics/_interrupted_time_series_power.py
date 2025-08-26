@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def interrupted_time_series_power(
-    effect_size: Tensor,
+    input: Tensor,
     n_time_points: Tensor,
     n_pre_intervention: Tensor,
     autocorrelation: Tensor = 0.0,
@@ -14,8 +14,29 @@ def interrupted_time_series_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_time_points : Tensor
+        Time parameter.
+    n_pre_intervention : Tensor
+        N Pre Intervention parameter.
+    autocorrelation : Tensor, default 0.0
+        Correlation coefficient.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     n_time_points = torch.atleast_1d(torch.as_tensor(n_time_points))
 
@@ -24,7 +45,7 @@ def interrupted_time_series_power(
     autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
 
     dtypes = [
-        effect_size.dtype,
+        input.dtype,
         n_time_points.dtype,
         n_pre_intervention.dtype,
         autocorrelation.dtype,
@@ -34,7 +55,7 @@ def interrupted_time_series_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     n_time_points = n_time_points.to(dtype)
 
@@ -42,7 +63,7 @@ def interrupted_time_series_power(
 
     autocorrelation = autocorrelation.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     n_time_points = torch.clamp(n_time_points, min=6.0)
 
@@ -67,7 +88,7 @@ def interrupted_time_series_power(
 
     se_intervention = 1.0 / torch.sqrt(effective_n * design_variance)
 
-    noncentrality = effect_size / se_intervention
+    noncentrality = input / se_intervention
 
     degrees_of_freedom_approximate = torch.clamp(effective_n - 4.0, min=1.0)
 

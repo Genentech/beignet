@@ -16,7 +16,28 @@ def intraclass_correlation_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    icc : Tensor
+        Icc parameter.
+    n_raters : Tensor
+        N Raters parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'greater'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
@@ -81,4 +102,3 @@ def intraclass_correlation_sample_size(
         out.copy_(n_out)
         return out
     return n_out
-    return result

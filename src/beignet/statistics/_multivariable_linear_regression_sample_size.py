@@ -17,7 +17,26 @@ def multivariable_linear_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    r_squared : Tensor
+        Covariate correlation.
+    n_predictors : Tensor
+        N Predictors parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
 
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
@@ -71,4 +90,3 @@ def multivariable_linear_regression_sample_size(
         out.copy_(n_out)
         return out
     return n_out
-    return result

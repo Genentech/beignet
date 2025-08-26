@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def friedman_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     n_subjects: Tensor,
     n_treatments: Tensor,
     alpha: float = 0.05,
@@ -13,23 +13,42 @@ def friedman_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_subjects : Tensor
+        N Subjects parameter.
+    n_treatments : Tensor
+        N Treatments parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
 
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 
     dtype = torch.float32
-    for tensor in (effect_size, n_subjects, n_treatments):
+    for tensor in (input, n_subjects, n_treatments):
         dtype = torch.promote_types(dtype, tensor.dtype)
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     n_subjects = n_subjects.to(dtype)
 
     n_treatments = n_treatments.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     n_subjects = torch.clamp(n_subjects, min=3.0)
 
@@ -37,7 +56,7 @@ def friedman_test_power(
 
     degrees_of_freedom = n_treatments - 1
 
-    lambda_nc = 12 * n_subjects * effect_size / (n_treatments * (n_treatments + 1))
+    lambda_nc = 12 * n_subjects * input / (n_treatments * (n_treatments + 1))
 
     square_root_two = math.sqrt(2.0)
 

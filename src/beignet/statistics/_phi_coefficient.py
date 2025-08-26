@@ -9,7 +9,22 @@ def phi_coefficient(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    chi_square : Tensor
+        Chi Square parameter.
+    sample_size : Tensor
+        Sample size.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))

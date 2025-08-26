@@ -9,7 +9,7 @@ from ._multivariate_analysis_of_variance_power import (
 
 
 def multivariate_analysis_of_variance_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     n_variables: Tensor,
     n_groups: Tensor,
     power: float = 0.8,
@@ -18,22 +18,43 @@ def multivariate_analysis_of_variance_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_variables : Tensor
+        N Variables parameter.
+    n_groups : Tensor
+        Number of groups.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
     n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
 
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
     dtype = torch.float32
-    for tensor in (effect_size, n_variables, n_groups):
+    for tensor in (input, n_variables, n_groups):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
     n_variables = n_variables.to(dtype)
 
     n_groups = n_groups.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-8)
+    input = torch.clamp(input, min=1e-8)
 
     n_variables = torch.clamp(n_variables, min=1.0)
 
@@ -45,15 +66,13 @@ def multivariate_analysis_of_variance_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
-    n_initial = (
-        ((z_alpha + z_beta) / effect_size) ** 2 * n_variables + n_groups + n_variables
-    )
+    n_initial = ((z_alpha + z_beta) / input) ** 2 * n_variables + n_groups + n_variables
     n_initial = torch.clamp(n_initial, min=n_groups + n_variables + 10)
 
     n_iteration = n_initial
     for _ in range(15):
         current_power = multivariate_analysis_of_variance_power(
-            effect_size,
+            input,
             n_iteration,
             n_variables,
             n_groups,

@@ -10,9 +10,26 @@ def cohens_d(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    group1 : Tensor
+        Group1 parameter.
+    group2 : Tensor
+        Group2 parameter.
+    pooled : bool, default True
+        Pooled parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     if pooled:
-        output = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.sqrt(
+        result = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.sqrt(
             (
                 (group1.shape[-1] - 1) * torch.var(group1, dim=-1, unbiased=True)
                 + (group2.shape[-1] - 1) * torch.var(group2, dim=-1, unbiased=True)
@@ -20,7 +37,7 @@ def cohens_d(
             / (group1.shape[-1] + group2.shape[-1] - 2),
         )
     else:
-        output = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.std(
+        result = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.std(
             group1,
             dim=-1,
             unbiased=True,
@@ -28,7 +45,6 @@ def cohens_d(
 
     if out is not None:
         out.copy_(result)
-
         return out
 
     return result

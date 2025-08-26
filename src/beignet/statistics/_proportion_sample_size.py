@@ -14,7 +14,28 @@ def proportion_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    p0 : Tensor
+        P0 parameter.
+    p1 : Tensor
+        P1 parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
+
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
 

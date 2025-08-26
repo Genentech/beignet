@@ -13,7 +13,26 @@ def correlation_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    sample_size : Tensor
+        Sample size.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Effect size.
     """
+
     sample_size_0 = torch.as_tensor(sample_size)
 
     scalar_out = sample_size_0.ndim == 0
@@ -34,7 +53,9 @@ def correlation_minimum_detectable_effect(
 
     square_root_two = math.sqrt(2.0)
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 

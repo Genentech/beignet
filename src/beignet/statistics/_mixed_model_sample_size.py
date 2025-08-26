@@ -7,7 +7,7 @@ from ._mixed_model_power import mixed_model_power
 
 
 def mixed_model_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     n_observations_per_subject: Tensor,
     icc: Tensor,
     power: float = 0.8,
@@ -16,27 +16,48 @@ def mixed_model_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_observations_per_subject : Tensor
+        N Observations Per Subject parameter.
+    icc : Tensor
+        Icc parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     n_observations_per_subject = torch.atleast_1d(
         torch.as_tensor(n_observations_per_subject),
     )
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
-    dtypes = [effect_size.dtype, n_observations_per_subject.dtype, icc.dtype]
+    dtypes = [input.dtype, n_observations_per_subject.dtype, icc.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     n_observations_per_subject = n_observations_per_subject.to(dtype)
 
     icc = icc.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-8)
+    input = torch.clamp(input, min=1e-8)
 
     n_observations_per_subject = torch.clamp(n_observations_per_subject, min=1.0)
 
@@ -50,7 +71,7 @@ def mixed_model_sample_size(
 
     design_effect = 1.0 + (n_observations_per_subject - 1.0) * icc
 
-    n_eff_needed = 4 * ((z_alpha + z_beta) / effect_size) ** 2
+    n_eff_needed = 4 * ((z_alpha + z_beta) / input) ** 2
 
     n_subjects_initial = n_eff_needed * design_effect / n_observations_per_subject
 
@@ -59,7 +80,7 @@ def mixed_model_sample_size(
     n_iteration = n_subjects_initial
     for _ in range(15):
         current_power = mixed_model_power(
-            effect_size,
+            input,
             n_iteration,
             n_observations_per_subject,
             icc,
@@ -78,4 +99,3 @@ def mixed_model_sample_size(
         out.copy_(n_out)
         return out
     return n_out
-    return result

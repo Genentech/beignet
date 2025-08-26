@@ -5,31 +5,48 @@ from torch import Tensor
 
 
 def kruskal_wallis_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_sizes: Tensor,
     alpha: float = 0.05,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_sizes : Tensor
+        Sample size.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
 
-    if effect_size.dtype.is_floating_point and sample_sizes.dtype.is_floating_point:
-        if effect_size.dtype == torch.float64 or sample_sizes.dtype == torch.float64:
+    if input.dtype.is_floating_point and sample_sizes.dtype.is_floating_point:
+        if input.dtype == torch.float64 or sample_sizes.dtype == torch.float64:
             dtype = torch.float64
         else:
             dtype = torch.float32
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     sample_sizes = sample_sizes.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
@@ -39,14 +56,14 @@ def kruskal_wallis_test_power(
 
     degrees_of_freedom = groups - 1
 
-    lambda_nc = 12 * n * effect_size / (n + 1)
+    lambda_nc = 12 * n * input / (n + 1)
 
     square_root_two = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom
+        2 * degrees_of_freedom,
     )
 
     mean_nc_chi2 = degrees_of_freedom + lambda_nc

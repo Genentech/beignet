@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def analysis_of_covariance_power(
-    effect_size: Tensor,
+    input: Tensor,
     sample_size: Tensor,
     k: Tensor,
     covariate_r2: Tensor,
@@ -15,8 +15,31 @@ def analysis_of_covariance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    sample_size : Tensor
+        Sample size.
+    k : Tensor
+        Number of groups.
+    covariate_r2 : Tensor
+        Covariate correlation.
+    n_covariates : Tensor | int, default 1
+        Covariate correlation.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    effect_size_f = torch.atleast_1d(torch.as_tensor(input))
 
     n = torch.atleast_1d(torch.as_tensor(sample_size))
 
@@ -35,7 +58,11 @@ def analysis_of_covariance_power(
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    covariate_r_squared = torch.clamp(covariate_r_squared.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
+    covariate_r_squared = torch.clamp(
+        covariate_r_squared.to(dtype),
+        min=0.0,
+        max=1 - torch.finfo(dtype).eps,
+    )
 
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
@@ -51,7 +78,11 @@ def analysis_of_covariance_power(
 
     f_critical = chi_squared_critical / df1
 
-    lambda_nc = n * effect_size_f**2 / torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
+    lambda_nc = (
+        n
+        * effect_size_f**2
+        / torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
+    )
 
     mean_nc_chi2 = df1 + lambda_nc
 

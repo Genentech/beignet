@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def independent_z_test_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     ratio: Tensor | None = None,
     power: Tensor | float = 0.8,
     alpha: float = 0.05,
@@ -14,8 +14,29 @@ def independent_z_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    ratio : Tensor | None, optional
+        Sample size ratio.
+    power : Tensor | float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     power = torch.atleast_1d(torch.as_tensor(power))
     if ratio is None:
@@ -28,7 +49,7 @@ def independent_z_test_sample_size(
             raise ValueError("Power must be between 0 and 1 (exclusive)")
 
     if (
-        effect_size.dtype == torch.float64
+        input.dtype == torch.float64
         or ratio.dtype == torch.float64
         or power.dtype == torch.float64
     ):
@@ -36,14 +57,14 @@ def independent_z_test_sample_size(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     ratio = ratio.to(dtype)
     power = power.to(dtype)
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
 
-    abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
+    abs_effect_size = torch.clamp(torch.abs(input), min=1e-6)
 
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
@@ -52,7 +73,9 @@ def independent_z_test_sample_size(
     z_beta = torch.erfinv(power) * square_root_two
 
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
     elif alternative in ["larger", "smaller"]:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
     else:
@@ -71,4 +94,3 @@ def independent_z_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
-

@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def z_test_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     power: Tensor | float = 0.8,
     alpha: float = 0.05,
     alternative: str = "two-sided",
@@ -13,8 +13,27 @@ def z_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    power : Tensor | float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     power = torch.atleast_1d(torch.as_tensor(power))
 
@@ -23,23 +42,25 @@ def z_test_sample_size(
             raise ValueError("Power must be between 0 and 1 (exclusive)")
 
     dtype = torch.float32
-    for tensor in (effect_size, power):
+    for tensor in (input, power):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     power = power.to(dtype)
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
 
-    abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
+    abs_effect_size = torch.clamp(torch.abs(input), min=1e-6)
 
     square_root_two = math.sqrt(2.0)
 
     z_beta = torch.erfinv(power) * square_root_two
 
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
     elif alternative in ["larger", "smaller"]:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
         raise ValueError(
@@ -55,4 +76,3 @@ def z_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
-

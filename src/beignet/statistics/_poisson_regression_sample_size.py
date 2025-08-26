@@ -7,7 +7,7 @@ from ._poisson_regression_power import poisson_regression_power
 
 
 def poisson_regression_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     mean_rate: Tensor,
     p_exposure: Tensor = 0.5,
     power: float = 0.8,
@@ -17,32 +17,55 @@ def poisson_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    mean_rate : Tensor
+        Mean Rate parameter.
+    p_exposure : Tensor, default 0.5
+        P Exposure parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     mean_rate = torch.atleast_1d(torch.as_tensor(mean_rate))
 
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
-    dtypes = [effect_size.dtype, mean_rate.dtype, p_exposure.dtype]
+    dtypes = [input.dtype, mean_rate.dtype, p_exposure.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     mean_rate = mean_rate.to(dtype)
 
     p_exposure = p_exposure.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
+    input = torch.clamp(input, min=0.01, max=100.0)
 
     mean_rate = torch.clamp(mean_rate, min=0.01)
 
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    beta = torch.log(effect_size)
+    beta = torch.log(input)
 
     sqrt2 = math.sqrt(2.0)
 
@@ -61,7 +84,7 @@ def poisson_regression_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    mean_exposed = mean_rate * effect_size
+    mean_exposed = mean_rate * input
 
     expected_count = p_exposure * mean_exposed + (1 - p_exposure) * mean_rate
 
@@ -73,7 +96,7 @@ def poisson_regression_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = poisson_regression_power(
-            effect_size,
+            input,
             n_iteration,
             mean_rate,
             p_exposure,

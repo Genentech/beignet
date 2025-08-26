@@ -14,7 +14,28 @@ def intraclass_correlation_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    icc : Tensor
+        Icc parameter.
+    n_subjects : Tensor
+        N Subjects parameter.
+    n_raters : Tensor
+        N Raters parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    alternative : str, default 'two-sided'
+        Alternative hypothesis ("two-sided", "greater", "less").
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
+
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
@@ -77,4 +98,3 @@ def intraclass_correlation_power(
         out.copy_(power)
         return out
     return power
-    return result

@@ -10,7 +10,24 @@ def cramers_v(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    chi_square : Tensor
+        Chi Square parameter.
+    sample_size : Tensor
+        Sample size.
+    min_dim : Tensor
+        Min Dim parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
@@ -38,4 +55,3 @@ def cramers_v(
     if out is not None:
         out.copy_(result)
         return out
-

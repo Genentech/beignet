@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def mixed_model_power(
-    effect_size: Tensor,
+    input: Tensor,
     n_subjects: Tensor,
     n_observations_per_subject: Tensor,
     icc: Tensor,
@@ -14,8 +14,29 @@ def mixed_model_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_subjects : Tensor
+        N Subjects parameter.
+    n_observations_per_subject : Tensor
+        N Observations Per Subject parameter.
+    icc : Tensor
+        Icc parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
 
@@ -25,7 +46,7 @@ def mixed_model_power(
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
     dtypes = [
-        effect_size.dtype,
+        input.dtype,
         n_subjects.dtype,
         n_observations_per_subject.dtype,
         icc.dtype,
@@ -35,7 +56,7 @@ def mixed_model_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     n_subjects = n_subjects.to(dtype)
 
@@ -43,7 +64,7 @@ def mixed_model_power(
 
     icc = icc.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     n_subjects = torch.clamp(n_subjects, min=3.0)
 
@@ -57,7 +78,7 @@ def mixed_model_power(
 
     effective_n = total_observations / design_effect
 
-    noncentrality = effect_size * torch.sqrt(effective_n / 4.0)
+    noncentrality = input * torch.sqrt(effective_n / 4.0)
 
     df_approximate = n_subjects - 2.0
 

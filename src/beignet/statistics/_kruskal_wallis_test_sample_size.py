@@ -7,7 +7,7 @@ from ._kruskal_wallis_test_power import kruskal_wallis_test_power
 
 
 def kruskal_wallis_test_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     groups: Tensor | int,
     power: float = 0.8,
     alpha: float = 0.05,
@@ -15,24 +15,43 @@ def kruskal_wallis_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    groups : Tensor | int
+        Number of groups.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
-    if effect_size.dtype.is_floating_point and groups.dtype.is_floating_point:
-        if effect_size.dtype == torch.float64 or groups.dtype == torch.float64:
+    if input.dtype.is_floating_point and groups.dtype.is_floating_point:
+        if input.dtype == torch.float64 or groups.dtype == torch.float64:
             dtype = torch.float64
         else:
             dtype = torch.float32
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     groups = groups.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-8)
+    input = torch.clamp(input, min=1e-8)
 
     groups = torch.clamp(groups, min=3.0)
 
@@ -44,18 +63,21 @@ def kruskal_wallis_test_sample_size(
 
     degrees_of_freedom = groups - 1
 
-    n_initial = ((z_alpha + z_beta) ** 2) / (effect_size * degrees_of_freedom)
+    n_initial = ((z_alpha + z_beta) ** 2) / (input * degrees_of_freedom)
 
     n_initial = torch.clamp(n_initial, min=5.0)
 
     n_iteration = n_initial
     for _ in range(12):
         sample_sizes = n_iteration.unsqueeze(-1).expand(
-            *n_iteration.shape, int(groups.max().item())
+            *n_iteration.shape,
+            int(groups.max().item()),
         )
 
         current_power = kruskal_wallis_test_power(
-            effect_size, sample_sizes, alpha=alpha
+            input,
+            sample_sizes,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)

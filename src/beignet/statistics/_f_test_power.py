@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def f_test_power(
-    effect_size: Tensor,
+    input: Tensor,
     df1: Tensor,
     df2: Tensor,
     alpha: float = 0.05,
@@ -13,14 +13,33 @@ def f_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    df1 : Tensor
+        Degrees of freedom.
+    df2 : Tensor
+        Degrees of freedom.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     df1 = torch.atleast_1d(torch.as_tensor(df1))
     df2 = torch.atleast_1d(torch.as_tensor(df2))
 
     if (
-        effect_size.dtype == torch.float64
+        input.dtype == torch.float64
         or df1.dtype == torch.float64
         or df2.dtype == torch.float64
     ):
@@ -28,12 +47,12 @@ def f_test_power(
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     df1 = df1.to(dtype)
     df2 = df2.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     df1 = torch.clamp(df1, min=1.0)
     df2 = torch.clamp(df2, min=1.0)
@@ -42,7 +61,7 @@ def f_test_power(
 
     total_sample_size = df1 + df2 + 1
 
-    lambda_param = total_sample_size * effect_size
+    lambda_param = total_sample_size * input
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 

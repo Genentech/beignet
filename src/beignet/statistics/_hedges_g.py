@@ -10,7 +10,22 @@ def hedges_g(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    group1 : Tensor
+        Group1 parameter.
+    group2 : Tensor
+        Group2 parameter.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Computed statistic.
     """
+
     cohens_d_value = cohens_d(group1, group2, pooled=True)
 
     sample_size_group_1 = group1.shape[-1]

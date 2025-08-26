@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def chi_square_independence_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     rows: Tensor,
     cols: Tensor,
     power: float = 0.8,
@@ -14,22 +14,43 @@ def chi_square_independence_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    rows : Tensor
+        Rows parameter.
+    cols : Tensor
+        Cols parameter.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
     dtype = torch.float32
-    for tensor in (effect_size, rows, cols):
+    for tensor in (input, rows, cols):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-6)
+    input = torch.clamp(input, min=1e-6)
 
     rows = torch.clamp(rows, min=2.0)
     cols = torch.clamp(cols, min=2.0)
@@ -42,7 +63,7 @@ def chi_square_independence_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_2
 
-    n_initial = ((z_alpha + z_beta) / effect_size) ** 2
+    n_initial = ((z_alpha + z_beta) / input) ** 2
 
     min_sample_size = 5.0 * rows * cols
 
@@ -55,7 +76,7 @@ def chi_square_independence_sample_size(
     maximum_iterations = 10
 
     for _iteration in range(maximum_iterations):
-        ncp_iteration = n_iteration * effect_size**2
+        ncp_iteration = n_iteration * input**2
 
         chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
             2 * degrees_of_freedom,

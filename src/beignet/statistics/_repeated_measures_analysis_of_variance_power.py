@@ -5,7 +5,7 @@ from torch import Tensor
 
 
 def repeated_measures_analysis_of_variance_power(
-    effect_size: Tensor,
+    input: Tensor,
     n_subjects: Tensor,
     n_timepoints: Tensor,
     epsilon: Tensor = 1.0,
@@ -14,8 +14,29 @@ def repeated_measures_analysis_of_variance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    n_subjects : Tensor
+        N Subjects parameter.
+    n_timepoints : Tensor
+        Time parameter.
+    epsilon : Tensor, default 1.0
+        Epsilon parameter.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Statistical power.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
 
@@ -24,10 +45,10 @@ def repeated_measures_analysis_of_variance_power(
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
     dtype = torch.float32
-    for tensor in (effect_size, n_subjects, n_timepoints, epsilon):
+    for tensor in (input, n_subjects, n_timepoints, epsilon):
         dtype = torch.promote_types(dtype, tensor.dtype)
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     n_subjects = n_subjects.to(dtype)
 
@@ -35,7 +56,7 @@ def repeated_measures_analysis_of_variance_power(
 
     epsilon = epsilon.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=0.0)
+    input = torch.clamp(input, min=0.0)
 
     n_subjects = torch.clamp(n_subjects, min=3.0)
 
@@ -57,7 +78,7 @@ def repeated_measures_analysis_of_variance_power(
 
     df_error_corrected = torch.clamp(df_error_corrected, min=1.0)
 
-    lambda_nc = n_subjects * (effect_size**2) * n_timepoints
+    lambda_nc = n_subjects * (input**2) * n_timepoints
 
     square_root_two = math.sqrt(2.0)
 

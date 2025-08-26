@@ -7,7 +7,7 @@ from ._interrupted_time_series_power import interrupted_time_series_power
 
 
 def interrupted_time_series_sample_size(
-    effect_size: Tensor,
+    input: Tensor,
     pre_post_ratio: Tensor = 1.0,
     autocorrelation: Tensor = 0.0,
     power: float = 0.8,
@@ -16,26 +16,47 @@ def interrupted_time_series_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r"""
+
+    Parameters
+    ----------
+    input : Tensor
+        Input tensor.
+    pre_post_ratio : Tensor, default 1.0
+        Sample size ratio.
+    autocorrelation : Tensor, default 0.0
+        Correlation coefficient.
+    power : float, default 0.8
+        Statistical power.
+    alpha : float, default 0.05
+        Type I error rate.
+    out : Tensor | None
+        Output tensor.
+
+    Returns
+    -------
+    Tensor
+        Sample size.
     """
-    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
+    input = torch.atleast_1d(torch.as_tensor(input))
 
     pre_post_ratio = torch.atleast_1d(torch.as_tensor(pre_post_ratio))
 
     autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
 
-    dtypes = [effect_size.dtype, pre_post_ratio.dtype, autocorrelation.dtype]
+    dtypes = [input.dtype, pre_post_ratio.dtype, autocorrelation.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
     else:
         dtype = torch.float32
 
-    effect_size = effect_size.to(dtype)
+    input = input.to(dtype)
 
     pre_post_ratio = pre_post_ratio.to(dtype)
 
     autocorrelation = autocorrelation.to(dtype)
 
-    effect_size = torch.clamp(effect_size, min=1e-8)
+    input = torch.clamp(input, min=1e-8)
 
     pre_post_ratio = torch.clamp(pre_post_ratio, min=0.1, max=10.0)
 
@@ -56,7 +77,7 @@ def interrupted_time_series_sample_size(
 
     design_variance = p_post * (1.0 - p_post)
 
-    n_initial = ((z_alpha + z_beta) / effect_size) ** 2
+    n_initial = ((z_alpha + z_beta) / input) ** 2
 
     n_initial = n_initial / (ar_adjustment * design_variance)
 
@@ -78,7 +99,7 @@ def interrupted_time_series_sample_size(
         )
 
         current_power = interrupted_time_series_power(
-            effect_size,
+            input,
             n_total_iteration,
             n_pre_iteration,
             autocorrelation,
@@ -101,4 +122,3 @@ def interrupted_time_series_sample_size(
         out.copy_(n_out)
         return out
     return n_out
-    return result
