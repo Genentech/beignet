@@ -19,10 +19,9 @@ def multivariate_analysis_of_variance_power(
 
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
-    dtypes = [effect_size.dtype, sample_size.dtype, n_variables.dtype, n_groups.dtype]
     dtype = torch.float32
-    for dt in dtypes:
-        dtype = torch.promote_types(dtype, dt)
+    for tensor in (effect_size, sample_size, n_variables, n_groups):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)

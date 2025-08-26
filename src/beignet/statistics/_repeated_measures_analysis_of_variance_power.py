@@ -21,10 +21,9 @@ def repeated_measures_analysis_of_variance_power(
 
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
-    dtypes = [effect_size.dtype, n_subjects.dtype, n_timepoints.dtype, epsilon.dtype]
     dtype = torch.float32
-    for dt in dtypes:
-        dtype = torch.promote_types(dtype, dt)
+    for tensor in (effect_size, n_subjects, n_timepoints, epsilon):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
