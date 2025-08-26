@@ -27,6 +27,51 @@ def proportion_two_sample_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Clinical trials comparing treatment and control success rates
+    - Quality control comparing defect rates between production lines
+    - Market research comparing conversion rates between different campaigns
+    - Educational research comparing pass rates between teaching methods
+    - Political polling comparing support rates between different demographics
+    - Public health studies comparing disease rates between exposed/unexposed groups
+
+    **Machine Learning Contexts:**
+    - A/B testing comparing conversion rates between different algorithms
+    - Model evaluation comparing accuracy rates between different architectures
+    - Recommendation system evaluation comparing click-through rates
+    - Computer vision comparing classification accuracy between different models
+    - NLP comparing sentiment classification success rates
+    - Anomaly detection comparing detection rates between different methods
+    - Fraud detection comparing true positive rates between detection systems
+    - Web analytics comparing engagement rates between different interfaces
+    - Mobile app testing comparing retention rates between app versions
+    - Search engine evaluation comparing relevance rates between ranking algorithms
+    - Fairness auditing comparing outcome rates across different demographic groups
+    - Transfer learning comparing adaptation success rates across domains
+
+    **Choose two-sample proportion tests over one-sample when:**
+    - Comparing two groups rather than testing against a fixed standard
+    - No established benchmark proportion to serve as null hypothesis
+    - Both groups represent different treatments, conditions, or populations
+    - Interest is in relative comparison rather than absolute evaluation
+
+    **Choose proportion tests over continuous tests when:**
+    - Outcome is naturally binary (success/failure, yes/no, pass/fail)
+    - Continuous measurements are converted to binary classifications
+    - Interest is in rates, percentages, or probabilities rather than means
+    - Data collection naturally produces categorical outcomes
+
+    **Interpretation Guidelines:**
+    - Effect size is |p₁ - p₂|: difference in proportions
+    - Small effect: |p₁ - p₂| ≈ 0.10, Medium: ≈ 0.25, Large: ≈ 0.40
+    - Power increases with larger sample sizes and larger effect sizes
+    - Power is lowest when both proportions are near 0.5 (maximum variance)
+    - Two-sided tests require larger samples than one-sided tests
+    - Equal sample sizes generally provide optimal power for fixed total N
+    - Consider continuity correction for small samples or extreme proportions
+
     Parameters
     ----------
     p1 : Tensor

@@ -19,6 +19,57 @@ def jonckheere_terpstra_test_power(
     identical distributions against the alternative that the distributions are
     ordered (e.g., μ₁ ≤ μ₂ ≤ μ₃ ≤ ... with at least one strict inequality).
 
+    This function is differentiable with respect to all tensor parameters.
+    While traditional power analysis doesn't require gradients, differentiability
+    enables integration into machine learning pipelines where effect sizes or
+    sample sizes might be learned parameters or part of experimental design
+    optimization.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Dose-response studies with ordered treatment levels
+    - Clinical trials with ordered severity groups or treatment intensities
+    - Educational research with ordered grade levels or intervention intensities
+    - Agricultural experiments with ordered fertilizer concentrations
+    - Quality control with ordered process conditions or material grades
+    - Psychology studies with ordered stimulus intensities or exposure levels
+
+    **Machine Learning Contexts:**
+    - Hyperparameter optimization with ordered parameter values
+    - Model complexity evaluation with ordered architectural complexity
+    - Active learning with ordered query complexity or information content
+    - Transfer learning with ordered domain similarity levels
+    - Ensemble methods with ordered model complexity or contribution levels
+    - Computer vision with ordered image complexity or resolution levels
+    - NLP with ordered text complexity, length, or difficulty levels
+    - Recommendation systems with ordered preference intensities
+    - Anomaly detection with ordered anomaly severity levels
+    - Feature engineering with ordered feature transformation complexity
+    - Cross-validation with ordered training set sizes or complexity
+    - Time series analysis with ordered temporal periods or seasons
+
+    **Choose Jonckheere-Terpstra over other tests when:**
+    - Have 3 or more independent groups with natural ordering
+    - Expect monotonic trend across ordered groups rather than arbitrary differences
+    - Data may not meet normality assumptions for parametric trend tests
+    - Want robust test that doesn't depend on specific distributional assumptions
+    - Interested in trend detection rather than specific pairwise comparisons
+
+    **Choose this over Kruskal-Wallis when:**
+    - Groups have natural ordering and expect monotonic trend
+    - Want higher power for detecting ordered alternatives
+    - Trend direction is specified a priori (one-sided test)
+    - Research hypothesis specifically involves ordered progression
+
+    **Interpretation Guidelines:**
+    - Test is one-sided by nature (tests for ordered trend)
+    - Effect size represents standardized trend across ordered groups
+    - Power increases with larger sample sizes and stronger monotonic trends
+    - Assumes independence between groups but not normality
+    - More powerful than Kruskal-Wallis when ordered alternative is true
+    - Less powerful than parametric trend tests when normality assumptions hold
+
     Parameters
     ----------
     effect_size : Tensor

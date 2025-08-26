@@ -17,6 +17,61 @@ def analysis_of_covariance_power(
     r"""
     Power for fixed-effects ANCOVA (one-way) with covariate adjustment.
 
+    This function computes statistical power for Analysis of Covariance designs
+    where treatment effects are tested after accounting for one or more covariates.
+    ANCOVA increases power by reducing error variance through covariate adjustment.
+
+    This function is differentiable with respect to all tensor parameters.
+    While traditional power analysis doesn't require gradients, differentiability
+    enables integration into machine learning pipelines where effect sizes or
+    covariate relationships might be learned parameters.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Clinical trials with baseline measurements as covariates
+    - Educational research controlling for pre-test scores
+    - Agricultural experiments controlling for soil quality or plot characteristics
+    - Psychological studies controlling for individual difference variables
+    - Medical research controlling for age, gender, or other patient characteristics
+    - Quality control studies controlling for batch or environmental factors
+
+    **Machine Learning Contexts:**
+    - Model comparison controlling for dataset characteristics or complexity
+    - A/B testing with user characteristics as covariates
+    - Hyperparameter optimization controlling for computational resources
+    - Cross-validation controlling for data distribution characteristics
+    - Transfer learning evaluation controlling for source domain features
+    - Ensemble method comparison controlling for base model characteristics
+    - Active learning evaluation controlling for initial training set properties
+    - Domain adaptation studies controlling for domain similarity measures
+    - Fairness evaluation controlling for protected attribute correlations
+    - Causal inference with observational confounders as covariates
+    - Recommendation system evaluation controlling for user behavior patterns
+    - Computer vision model comparison controlling for image complexity metrics
+
+    **Choose ANCOVA over ANOVA when:**
+    - Have continuous covariates that correlate with the outcome
+    - Want to increase statistical power by reducing error variance
+    - Need to control for confounding variables
+    - Baseline measurements are available before treatment assignment
+    - Individual differences need to be accounted for in group comparisons
+
+    **Choose ANCOVA over regression when:**
+    - Primary interest is in group differences (categorical predictors)
+    - Treatment groups are the main focus, not individual covariate effects
+    - Need to test overall group effect after covariate adjustment
+    - Want to increase power for group comparisons specifically
+
+    **Interpretation Guidelines:**
+    - Power increases as covariate R² increases (better error variance reduction)
+    - Effect size should be Cohen's f for the group effect before covariate adjustment
+    - Higher covariate R² means smaller sample sizes needed for same power
+    - Number of covariates affects degrees of freedom and critical values
+    - R² represents proportion of outcome variance explained by covariates
+    - Assumes linear relationship between covariates and outcome
+    - Assumes homogeneity of regression slopes across groups
+
     Parameters
     ----------
     effect_size : Tensor

@@ -23,6 +23,50 @@ def correlation_sample_size(
     differentiability can be useful when correlation strengths are learned
     parameters or when optimizing experimental designs in machine learning contexts.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning studies to detect associations between continuous variables
+    - Validating measurement instruments for convergent/discriminant validity
+    - Survey research planning to detect relationships between scale scores
+    - Quality control: planning studies to detect process variable correlations
+    - Medical research: planning studies to detect biomarker associations
+    - Educational research: planning studies to detect test score relationships
+
+    **Machine Learning Contexts:**
+    - Feature selection: planning studies to detect feature-target correlations
+    - Model evaluation: planning validation of feature importance relationships
+    - Hyperparameter optimization: planning correlation studies between parameters and performance
+    - Cross-validation: planning studies to detect stability correlations across folds
+    - Transfer learning: planning studies to detect source-target domain correlations
+    - Ensemble methods: planning studies to detect base model correlation patterns
+    - Active learning: planning studies to detect query strategy effectiveness correlations
+    - Domain adaptation: planning studies to detect adaptation metric correlations
+    - Fairness evaluation: planning studies to detect bias correlations in model outputs
+    - Causal inference: planning studies to detect instrument variable correlations
+    - Recommendation systems: planning studies to detect user-item correlation patterns
+    - Time series: planning studies to detect temporal correlation patterns
+
+    **Choose correlation tests over other tests when:**
+    - Both variables are continuous (or can be meaningfully treated as such)
+    - Interest is in linear association strength rather than group differences
+    - Need to quantify degree of relationship rather than just test for association
+    - Working within correlation/regression framework
+
+    **Choose Pearson correlation over other correlation measures when:**
+    - Both variables are approximately normally distributed
+    - Relationship is expected to be linear
+    - Working with interval or ratio scale measurements
+    - Need parametric confidence intervals and significance tests
+
+    **Interpretation Guidelines:**
+    - Effect size r: 0.10 (small), 0.30 (medium), 0.50 (large) correlations
+    - Sample size increases dramatically as expected correlation approaches zero
+    - Fisher z-transformation ensures normal sampling distribution
+    - Two-sided tests require larger samples than one-sided tests
+    - Consider nonlinear relationships that might affect linear correlation
+    - Account for restriction of range that can attenuate correlations
+
     Parameters
     ----------
     r : Tensor

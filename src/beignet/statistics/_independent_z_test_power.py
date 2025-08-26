@@ -28,6 +28,50 @@ def independent_z_test_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Quality control with known population variances from historical data
+    - Laboratory experiments where measurement precision is well-established
+    - Survey research comparing means between groups with known sampling error
+    - Industrial process monitoring with established variance parameters
+    - Educational testing with standardized instruments having known reliability
+
+    **Machine Learning Contexts:**
+    - Model comparison when performance variance is known from extensive benchmarking
+    - A/B testing with metrics having well-established variance (e.g., click-through rates)
+    - Algorithm evaluation using standardized benchmark datasets with known properties
+    - Hyperparameter optimization when computational variance is predictable
+    - Cross-validation studies with established variance estimates from pilot studies
+    - Transfer learning evaluation with known source domain performance variance
+    - Ensemble method comparison when individual model variances are established
+    - Active learning evaluation with known sampling variance properties
+    - Domain adaptation studies with established target domain variance
+    - Recommendation system evaluation with known user behavior variance
+    - Computer vision model comparison using standardized evaluation protocols
+    - NLP model evaluation with established benchmark variance parameters
+
+    **Choose z-test over t-test when:**
+    - Population variances are truly known (not estimated from data)
+    - Sample sizes are very large (>30 per group) making t ≈ z
+    - Working with standardized, well-characterized measurement systems
+    - Historical data provides reliable variance estimates
+    - Simulation studies where true parameters are known
+
+    **Choose two-sample z-test over one-sample when:**
+    - Comparing two groups rather than testing against a fixed value
+    - No established population mean to serve as null hypothesis value
+    - Both groups are sampled from potentially different populations
+    - Interest is in relative difference rather than absolute comparison
+
+    **Interpretation Guidelines:**
+    - Effect size d = (μ₁ - μ₂) / σ_pooled follows Cohen's conventions
+    - d = 0.20 (small), 0.50 (medium), 0.80 (large) effect sizes
+    - Power increases with larger effect sizes and larger sample sizes
+    - Two-sided tests require larger samples than one-sided for same power
+    - Equal sample sizes generally provide optimal power for fixed total N
+    - Assumes normality and known, equal variances between groups
+
     Parameters
     ----------
     effect_size : Tensor

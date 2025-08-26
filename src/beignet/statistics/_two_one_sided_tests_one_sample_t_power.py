@@ -16,6 +16,61 @@ def two_one_sided_tests_one_sample_t_power(
     """
     Compute power for one-sample Two One-Sided Tests (equivalence) with standardized margins.
 
+    The Two One-Sided Tests (TOST) procedure tests for equivalence rather than
+    difference, establishing that a treatment effect falls within a specified
+    margin of practical equivalence. This is particularly important when the
+    goal is to show that treatments are similar rather than different.
+
+    This function is differentiable with respect to all tensor parameters.
+    While traditional power analysis doesn't require gradients, differentiability
+    enables integration into machine learning pipelines where effect sizes or
+    equivalence margins might be learned parameters.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Bioequivalence studies: proving generic drugs are equivalent to branded drugs
+    - Clinical trials: showing new treatment is equivalent to standard treatment
+    - Quality control: proving process changes don't meaningfully affect outcomes
+    - Educational research: showing alternative teaching methods are equivalent
+    - Psychology: demonstrating intervention effects are within negligible range
+    - Regulatory studies: proving safety/efficacy equivalence for approval
+
+    **Machine Learning Contexts:**
+    - Model comparison: proving new model performs equivalently to baseline
+    - A/B testing: showing new algorithm doesn't hurt existing performance
+    - Fairness evaluation: proving model performs equivalently across groups
+    - Transfer learning: showing performance is maintained across domains
+    - Model compression: proving compressed model is equivalent to full model
+    - Active learning: showing reduced samples maintain equivalent performance
+    - Cross-validation: proving performance is stable across different partitions
+    - Hyperparameter optimization: showing robustness within parameter ranges
+    - Ensemble methods: proving individual components contribute equivalently
+    - Computer vision: showing model equivalence across different image conditions
+    - NLP: showing language model equivalence across different text domains
+    - Recommendation systems: proving algorithm changes don't hurt user experience
+
+    **Choose TOST over traditional t-tests when:**
+    - Research goal is to prove equivalence rather than detect difference
+    - Want to establish that effect is practically negligible
+    - Need to show non-inferiority or equivalence for regulatory approval
+    - Testing whether change/intervention has no meaningful impact
+    - Want to shift burden of proof from rejecting H₀ to proving equivalence
+
+    **Choose one-sample TOST over two-sample when:**
+    - Comparing single treatment group to known standard/reference value
+    - Historical control or established benchmark is available
+    - Interested in absolute equivalence to specific target value
+    - Single group design is more feasible than controlled comparison
+
+    **Interpretation Guidelines:**
+    - Power represents probability of proving equivalence when it truly exists
+    - Requires specifying equivalence margins (low, high) a priori
+    - Both one-sided tests must be significant to conclude equivalence
+    - Narrower equivalence margins require larger sample sizes
+    - True effect closer to margin boundaries reduces power
+    - Effect exactly at boundaries gives power ≈ α (low power region)
+
     Parameters
     ----------
     true_effect : Tensor

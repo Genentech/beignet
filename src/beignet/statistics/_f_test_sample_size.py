@@ -27,6 +27,50 @@ def f_test_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Multiple regression: planning sample sizes to detect R² changes
+    - ANOVA: planning sample sizes for general linear model comparisons
+    - Nested model testing: planning comparisons between restricted/unrestricted models
+    - Experimental design: planning factorial experiments with multiple factors
+    - Clinical trials: planning sample sizes for multivariable treatment comparisons
+    - Quality control: planning multivariate process monitoring studies
+
+    **Machine Learning Contexts:**
+    - Model comparison: planning studies to compare nested model architectures
+    - Feature selection: planning studies to detect feature set importance
+    - Hyperparameter optimization: planning studies to detect parameter importance
+    - Cross-validation: planning studies for nested model validation
+    - Ensemble methods: planning studies to compare ensemble component contributions
+    - Transfer learning: planning studies to detect domain-specific feature importance
+    - Active learning: planning studies to compare multi-dimensional selection strategies
+    - Regularization studies: planning comparisons between different penalty approaches
+    - Causal inference: planning studies to detect multivariable treatment effects
+    - Computer vision: planning studies to compare multi-layer feature contributions
+    - NLP: planning studies to compare multi-feature language model components
+    - Recommendation systems: planning studies to compare multi-factor rating predictions
+
+    **Choose F-tests over t-tests when:**
+    - Testing multiple parameters simultaneously (df1 > 1)
+    - Comparing nested models with different numbers of parameters
+    - Need to control Type I error across multiple comparisons
+    - Testing overall effect of a factor with multiple levels
+
+    **Choose general F-test over specific tests when:**
+    - Effect size is expressed as f² or R² change
+    - Working with general linear models or regression contexts
+    - Need flexibility in specifying degrees of freedom
+    - Comparing models that don't fit standard ANOVA or t-test designs
+
+    **Interpretation Guidelines:**
+    - Effect size f² = R²/(1-R²) for regression contexts
+    - f² = 0.02 (small), 0.15 (medium), 0.35 (large) following Cohen's conventions
+    - Sample size N should exceed df1 + 10 for stable results
+    - Larger df1 (more parameters) requires larger sample sizes
+    - Consider model complexity and overfitting with small samples
+    - Assumes normality and homogeneity of variance
+
     Parameters
     ----------
     effect_size : Tensor

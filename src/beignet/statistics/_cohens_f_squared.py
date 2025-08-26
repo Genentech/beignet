@@ -20,6 +20,45 @@ def cohens_f_squared(
     differentiability enables integration into machine learning pipelines
     where group statistics might be computed from learned representations.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - ANOVA effect size interpretation: quantifying magnitude of group differences
+    - Meta-analysis: combining effect sizes across multiple studies
+    - Research reporting: standardized effect size for publication requirements
+    - Experimental design: planning studies with meaningful effect size targets
+    - Power analysis input: converting eta-squared to f² for sample size calculations
+
+    **Machine Learning Contexts:**
+    - Model comparison: comparing performance across multiple algorithms or architectures
+    - A/B testing: quantifying effect sizes in multi-group experiments
+    - Feature importance: measuring variance explained by categorical features
+    - Hyperparameter optimization: evaluating effect sizes across different configurations
+    - Cross-validation: assessing effect sizes across different model setups
+    - Ensemble methods: comparing variance explained by different ensemble configurations
+    - Transfer learning: measuring effect sizes across different source domains
+    - Domain adaptation: quantifying adaptation effects across multiple target domains
+    - Active learning: comparing effect sizes of different sample selection strategies
+    - Anomaly detection: measuring variance explained by different detection methods
+    - Recommendation systems: comparing effect sizes across different recommendation approaches
+    - Computer vision: quantifying model performance differences across architectures
+    - NLP: measuring effect sizes in language model comparisons
+    - Causal inference: quantifying treatment effects in multi-group experiments
+
+    **Choose Cohen's f² over other effect sizes when:**
+    - Working with ANOVA results where eta-squared is available
+    - Need effect size for power analysis calculations (f² directly used in formulas)
+    - Comparing results with Cohen's conventions (f² = 0.01/0.0625/0.16)
+    - Converting between eta-squared and standardized effect sizes
+    - Meta-analysis requires f² for combining ANOVA studies
+
+    **Interpretation Guidelines:**
+    - Cohen's f²: 0.01 (small), 0.0625 (medium), 0.16 (large)
+    - Direct conversion: f² = η² / (1 - η²)
+    - For two groups: f² = d² / 4, where d is Cohen's d
+    - Represents proportion of variance explained relative to unexplained variance
+    - Values > 0.35 indicate very large effects in most contexts
+
     Parameters
     ----------
     group_means : Tensor, shape (..., k)

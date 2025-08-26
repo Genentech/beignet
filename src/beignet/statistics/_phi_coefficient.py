@@ -20,6 +20,48 @@ def phi_coefficient(
     it enables integration into machine learning pipelines where chi-square
     statistics may be computed from learned representations.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Measuring association between two binary variables (2×2 contingency tables)
+    - Medical research: association between treatment and outcome (success/failure)
+    - Educational assessment: relationship between binary test results
+    - Quality control: association between process factors and pass/fail outcomes
+    - Survey research: relationship between binary demographic and response variables
+
+    **Machine Learning Contexts:**
+    - Feature selection: measuring association between binary features and binary targets
+    - Model evaluation: relationship between binary predictions and true binary labels
+    - A/B testing: measuring association strength in binary outcome experiments
+    - Fairness auditing: measuring association between protected attributes and decisions
+    - Classification performance: alternative to other binary classification metrics
+    - Data preprocessing: identifying strongly associated binary feature pairs
+    - Anomaly detection: measuring association between binary flags and anomaly status
+    - Recommendation systems: measuring user preference associations (like/dislike)
+    - Computer vision: measuring association between binary image features
+    - NLP: measuring association between binary text features and sentiment
+    - Web analytics: measuring association between user actions and conversions
+    - Causal inference: measuring association in binary treatment-outcome studies
+
+    **Choose phi coefficient over other measures when:**
+    - Both variables are genuinely binary (not artificially dichotomized)
+    - Working specifically with 2×2 contingency tables
+    - Need a correlation-like measure for binary data (-1 to +1 range)
+    - Comparing with Pearson correlations on the same binary variables
+    - Effect size interpretation needs to follow correlation conventions
+
+    **Choose phi over Cramer's V when:**
+    - Data is exactly 2×2 (Cramer's V reduces to |phi| for 2×2 tables)
+    - Need directional information (phi can be negative, Cramer's V is always positive)
+    - Working within correlation framework where sign matters
+
+    **Interpretation Guidelines:**
+    - |φ| = 0.10 (small effect), 0.30 (medium effect), 0.50 (large effect)
+    - Ranges from -1 to +1, similar to Pearson correlation
+    - Sign depends on table arrangement (which category is coded as 1)
+    - Values near ±1 indicate very strong association between binary variables
+    - φ² gives proportion of variance shared between the two binary variables
+
     Parameters
     ----------
     chi_square : Tensor

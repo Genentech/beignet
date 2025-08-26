@@ -25,6 +25,51 @@ def chi_square_goodness_of_fit_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning studies to test if data follows specific theoretical distributions
+    - Quality control: planning inspections to detect deviations from expected patterns
+    - Genetics: planning sample sizes for Hardy-Weinberg equilibrium tests
+    - Survey research: planning studies to test response pattern assumptions
+    - Manufacturing: planning studies to test if defects follow expected categories
+    - Clinical trials: planning studies to test if adverse events follow expected patterns
+
+    **Machine Learning Contexts:**
+    - Planning validation studies for synthetic data generators (categorical features)
+    - A/B testing: planning experiments to detect changes in categorical outcome patterns
+    - Model evaluation: planning studies to test if predictions follow expected distributions
+    - Fairness auditing: planning studies to detect demographic bias in algorithmic decisions
+    - Feature engineering: planning validation of categorical feature transformations
+    - Recommendation systems: planning studies to test if item popularity follows expected patterns
+    - Computer vision: planning studies to validate class balance in synthetic datasets
+    - NLP: planning validation studies for text generation model outputs
+    - Web analytics: planning studies to test if user behavior follows expected patterns
+    - Anomaly detection: planning studies to validate normal behavior pattern assumptions
+    - Time series: planning studies to test if seasonal patterns match expectations
+    - Causal inference: planning studies to test covariate balance assumptions
+
+    **Choose chi-square goodness-of-fit over other tests when:**
+    - Testing against specific theoretical distribution (not comparing groups)
+    - Outcome variable is categorical with multiple categories (>2)
+    - Expected frequencies under null hypothesis are known or specified
+    - Need to test overall pattern deviation rather than specific comparisons
+
+    **Choose this over chi-square independence when:**
+    - Testing one categorical variable against expected distribution
+    - Not comparing relationship between two categorical variables
+    - Have specific theoretical expectations for category frequencies
+    - Interest is in goodness-of-fit rather than association
+
+    **Interpretation Guidelines:**
+    - Cohen's w effect size: 0.1 (small), 0.3 (medium), 0.5 (large)
+    - Effect size w = √(Σ((observed - expected)²/expected)/N)
+    - Larger effect sizes require smaller sample sizes
+    - More categories (higher df) generally require larger sample sizes
+    - Expected cell frequencies should be ≥5 for test validity
+    - Consider exact tests for small samples or sparse categories
+    - Degrees of freedom = number of categories - 1
+
     Parameters
     ----------
     effect_size : Tensor

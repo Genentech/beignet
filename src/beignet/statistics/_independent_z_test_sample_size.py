@@ -29,6 +29,50 @@ def independent_z_test_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning experiments with known population variances from historical data
+    - Laboratory studies where measurement precision is well-established
+    - Quality control studies with established process variance parameters
+    - Survey research with known sampling error from previous studies
+    - Industrial experiments where population parameters are well-characterized
+
+    **Machine Learning Contexts:**
+    - Planning A/B tests with established baseline performance variance
+    - Model comparison studies with known benchmark variance from extensive testing
+    - Algorithm evaluation with standardized datasets having known variance properties
+    - Hyperparameter optimization with predictable computational variance
+    - Cross-validation planning with established variance estimates from pilot studies
+    - Transfer learning evaluation with known source domain variance characteristics
+    - Ensemble method comparison with established individual model variance
+    - Active learning evaluation with known sampling strategy variance
+    - Domain adaptation studies with established variance across domains
+    - Computer vision evaluation with standardized benchmark variance parameters
+    - NLP model comparison with established evaluation protocol variance
+    - Recommendation system testing with known user behavior variance patterns
+
+    **Choose z-test sample size over t-test sample size when:**
+    - Population standard deviations are truly known (not estimated)
+    - Working with very large samples where t-distribution approaches normal
+    - Using standardized measurement instruments with known reliability
+    - Historical data provides reliable population variance estimates
+    - Simulation studies where true parameters are specified
+
+    **Choose two-sample over one-sample when:**
+    - Comparing two independent groups rather than testing against fixed value
+    - No established population mean to use as null hypothesis reference
+    - Both groups represent different treatments, conditions, or populations
+    - Research question focuses on relative difference between groups
+
+    **Interpretation Guidelines:**
+    - Effect size d follows Cohen's conventions: 0.2 (small), 0.5 (medium), 0.8 (large)
+    - Equal allocation (ratio = 1) provides optimal power for fixed total sample size
+    - Unequal allocation reduces power but may be necessary for practical constraints
+    - Sample size ratio of 2:1 or 1:2 has minimal power loss compared to 1:1
+    - Very unequal ratios (>4:1) substantially reduce power
+    - Two-sided tests require approximately 26% larger samples than one-sided tests
+
     Parameters
     ----------
     effect_size : Tensor
