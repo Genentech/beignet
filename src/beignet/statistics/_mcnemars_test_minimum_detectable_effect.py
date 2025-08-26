@@ -49,7 +49,7 @@ def mcnemars_test_minimum_detectable_effect(
     z_beta = z_of(power)
 
     diff0 = (z_alpha + z_beta) * torch.sqrt(
-        torch.clamp(d / sample_size, min=torch.finfo(dtype).eps)
+        torch.clamp(d / sample_size, min=torch.finfo(dtype).eps),
     )
     max_allowed = torch.minimum(d, torch.tensor(1.0, dtype=dtype))
 
@@ -67,7 +67,11 @@ def mcnemars_test_minimum_detectable_effect(
         p10_hi = torch.clamp(d - p01_hi, 0.0, 1.0)
 
         p_hi = mcnemars_test_power(
-            p01_hi, p10_hi, sample_size, alpha=alpha, two_sided=two_sided
+            p01_hi,
+            p10_hi,
+            sample_size,
+            alpha=alpha,
+            two_sided=two_sided,
         )
         need_expand = p_hi < power
         if not torch.any(need_expand):
@@ -81,7 +85,11 @@ def mcnemars_test_minimum_detectable_effect(
         p10_mid = torch.clamp(d - p01_mid, 0.0, 1.0)
 
         p_mid = mcnemars_test_power(
-            p01_mid, p10_mid, sample_size, alpha=alpha, two_sided=two_sided
+            p01_mid,
+            p10_mid,
+            sample_size,
+            alpha=alpha,
+            two_sided=two_sided,
         )
         go_right = p_mid < power
 

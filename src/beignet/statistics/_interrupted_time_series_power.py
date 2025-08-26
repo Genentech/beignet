@@ -45,7 +45,9 @@ def interrupted_time_series_power(
     n_time_points = torch.clamp(n_time_points, min=6.0)
 
     n_pre_intervention = torch.clamp(
-        n_pre_intervention, min=torch.tensor(3.0, dtype=dtype), max=n_time_points - 3.0
+        n_pre_intervention,
+        min=torch.tensor(3.0, dtype=dtype),
+        max=n_time_points - 3.0,
     )
     autocorrelation = torch.clamp(autocorrelation, min=-0.99, max=0.99)
 

@@ -38,7 +38,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
@@ -46,7 +46,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
         eps = torch.finfo(dtype).eps
 
         q = torch.clamp(q, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * q - 1.0)
+        return square_root_two * torch.erfinv(2.0 * q - 1.0)
 
     z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
 
@@ -74,7 +74,10 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
         max_power_prob = prob_hi
 
     max_power = wilcoxon_signed_rank_test_power(
-        max_power_prob, sample_size, alpha=alpha, alternative=alt
+        max_power_prob,
+        sample_size,
+        alpha=alpha,
+        alternative=alt,
     )
 
     unattainable = max_power < power - 1e-6
@@ -82,7 +85,10 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     probability = (prob_lo + prob_hi) * 0.5
     for _ in range(24):
         current_power = wilcoxon_signed_rank_test_power(
-            probability, sample_size, alpha=alpha, alternative=alt
+            probability,
+            sample_size,
+            alpha=alpha,
+            alternative=alt,
         )
         too_low = current_power < power
 

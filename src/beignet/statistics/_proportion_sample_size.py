@@ -16,10 +16,9 @@ def proportion_sample_size(
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
 
-    if p0.dtype == torch.float64 or p1.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (p0, p1):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     p0 = p0.to(dtype)
     p1 = p1.to(dtype)
@@ -39,7 +38,6 @@ def proportion_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
         z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
-    else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
     se_null = torch.sqrt(p0 * (1 - p0))
@@ -52,11 +50,11 @@ def proportion_sample_size(
 
     sample_size = ((z_alpha * se_null + z_beta * se_alt) / effect_safe) ** 2
 
-    output = torch.clamp(torch.ceil(sample_size), min=1.0)
+    result = torch.clamp(torch.ceil(sample_size), min=1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
 
         return out
 
-    return output
+    return result

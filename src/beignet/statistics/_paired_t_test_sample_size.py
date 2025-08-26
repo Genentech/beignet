@@ -55,11 +55,13 @@ def paired_t_test_sample_size(
         standard_deviation_nct = torch.sqrt(variance_nct)
         if alt == "two-sided":
             zu = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             zl = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             current_power = 0.5 * (
@@ -67,7 +69,8 @@ def paired_t_test_sample_size(
             ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
         elif alt == "greater":
             zscore = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             current_power = 0.5 * (
@@ -75,7 +78,8 @@ def paired_t_test_sample_size(
             )
         else:
             zscore = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
             current_power = 0.5 * (
                 1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
@@ -83,7 +87,9 @@ def paired_t_test_sample_size(
         gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
 
         sample_size_curr = torch.clamp(
-            sample_size_curr * (1.0 + 1.25 * gap), min=2.0, max=1e7
+            sample_size_curr * (1.0 + 1.25 * gap),
+            min=2.0,
+            max=1e7,
         )
 
     sample_size_out = torch.ceil(sample_size_curr)
@@ -91,3 +97,4 @@ def paired_t_test_sample_size(
         out.copy_(sample_size_out)
         return out
     return sample_size_out
+    return result

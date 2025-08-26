@@ -82,3 +82,4 @@ def two_way_analysis_of_variance_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

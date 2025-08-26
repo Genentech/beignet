@@ -77,10 +77,10 @@ def proportion_power(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

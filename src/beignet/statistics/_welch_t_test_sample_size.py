@@ -47,7 +47,9 @@ def welch_t_test_sample_size(
 
     square_root_two = math.sqrt(2.0)
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        z_alpha = (
+            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
+        )
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
@@ -139,4 +141,3 @@ def welch_t_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
-    return result

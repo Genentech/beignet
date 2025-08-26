@@ -39,9 +39,9 @@ def kruskal_wallis_test_power(
 
     lambda_nc = 12 * n * effect_size / (n + 1)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
         2 * degrees_of_freedom
@@ -55,7 +55,7 @@ def kruskal_wallis_test_power(
 
     z_score = (chi_squared_critical - mean_nc_chi2) / std_nc_chi2
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

@@ -60,13 +60,13 @@ def kolmogorov_smirnov_test_power(
 
     z_score = (d_critical - expected_d) / torch.clamp(se_d, min=1e-12)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
     if alt == "two-sided":
-        power = 1 - torch.erf(torch.abs(z_score) / sqrt2)
+        power = 1 - torch.erf(torch.abs(z_score) / square_root_two)
     elif alt == "greater":
-        power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+        power = 0.5 * (1 - torch.erf(z_score / square_root_two))
     else:
-        power = 0.5 * (1 + torch.erf(z_score / sqrt2))
+        power = 0.5 * (1 + torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

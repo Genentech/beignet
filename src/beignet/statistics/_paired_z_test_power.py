@@ -34,7 +34,7 @@ def paired_z_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     def z_of(p: float) -> torch.Tensor:
         probability = torch.tensor(p, dtype=dtype)
@@ -42,7 +42,7 @@ def paired_z_test_power(
         eps = torch.finfo(dtype).eps
 
         probability = torch.clamp(probability, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * probability - 1.0)
+        return square_root_two * torch.erfinv(2.0 * probability - 1.0)
 
     if alt == "two-sided":
         z_critical = z_of(1 - alpha / 2)
@@ -51,14 +51,14 @@ def paired_z_test_power(
             1
             - torch.erf(
                 (z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
         )
         lower = 0.5 * (
             1
             + torch.erf(
                 (-z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
         )
         power = upper + lower
@@ -69,7 +69,7 @@ def paired_z_test_power(
             1
             - torch.erf(
                 (z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
         )
     else:
@@ -79,7 +79,7 @@ def paired_z_test_power(
             1
             + torch.erf(
                 (-z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
         )
 

@@ -20,10 +20,9 @@ def z_test_sample_size(
         if torch.any(power <= 0) or torch.any(power >= 1):
             raise ValueError("Power must be between 0 and 1 (exclusive)")
 
-    if effect_size.dtype == torch.float64 or power.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, power):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -41,19 +40,17 @@ def z_test_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
     elif alternative in ["larger", "smaller"]:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-    else:
         raise ValueError(
-            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
+            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
         )
 
     sample_size = ((z_alpha + z_beta) / abs_effect_size) ** 2
 
-    output = torch.ceil(sample_size)
+    result = torch.ceil(sample_size)
 
-    output = torch.clamp(output, min=1.0)
+    result = torch.clamp(result, min=1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output

@@ -55,19 +55,18 @@ def independent_z_test_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
     else:
         raise ValueError(
-            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
+            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
         )
 
     variance_scaling = 1 + 1 / ratio
 
     sample_size1 = ((z_alpha + z_beta) / abs_effect_size) ** 2 * variance_scaling
 
-    output = torch.ceil(sample_size1)
+    result = torch.ceil(sample_size1)
 
-    output = torch.clamp(output, min=1.0)
+    result = torch.clamp(result, min=1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output

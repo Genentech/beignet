@@ -54,10 +54,10 @@ def f_test_power(
 
     power = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

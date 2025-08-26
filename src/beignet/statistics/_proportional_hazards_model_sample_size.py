@@ -92,3 +92,4 @@ def proportional_hazards_model_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

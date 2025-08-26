@@ -20,10 +20,9 @@ def multivariable_linear_regression_sample_size(
 
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
 
-    if r_squared.dtype == torch.float64 or n_predictors.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (r_squared, n_predictors):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     r_squared = r_squared.to(dtype)
 
@@ -48,7 +47,10 @@ def multivariable_linear_regression_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = multivariable_linear_regression_power(
-            r_squared, n_iteration, n_predictors, alpha=alpha
+            r_squared,
+            n_iteration,
+            n_predictors,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -67,3 +69,4 @@ def multivariable_linear_regression_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

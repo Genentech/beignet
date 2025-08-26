@@ -87,3 +87,4 @@ def poisson_regression_power(
         out.copy_(power)
         return out
     return power
+    return result

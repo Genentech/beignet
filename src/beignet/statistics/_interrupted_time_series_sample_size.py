@@ -67,7 +67,7 @@ def interrupted_time_series_sample_size(
     n_total_iteration = n_initial
     for _ in range(15):
         n_pre_iteration = torch.ceil(
-            n_total_iteration * pre_post_ratio / (1.0 + pre_post_ratio)
+            n_total_iteration * pre_post_ratio / (1.0 + pre_post_ratio),
         )
         n_pre_iteration = torch.clamp(
             n_pre_iteration,
@@ -88,7 +88,9 @@ def interrupted_time_series_sample_size(
         adjustment = 1.0 + 1.4 * power_gap
 
         n_total_iteration = torch.clamp(
-            n_total_iteration * adjustment, min=10.0, max=1e4
+            n_total_iteration * adjustment,
+            min=10.0,
+            max=1e4,
         )
 
     n_out = torch.ceil(n_total_iteration)
@@ -97,3 +99,4 @@ def interrupted_time_series_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

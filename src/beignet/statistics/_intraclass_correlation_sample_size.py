@@ -60,7 +60,11 @@ def intraclass_correlation_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = intraclass_correlation_power(
-            icc, n_iteration, n_raters, alpha=alpha, alternative=alternative
+            icc,
+            n_iteration,
+            n_raters,
+            alpha=alpha,
+            alternative=alternative,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -75,3 +79,4 @@ def intraclass_correlation_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

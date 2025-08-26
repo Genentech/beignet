@@ -26,7 +26,7 @@ def mann_whitney_u_test_power(
                 r.to(sample_size_group_1.dtype)
                 if isinstance(r, Tensor)
                 else torch.tensor(float(r), dtype=sample_size_group_1.dtype)
-            )
+            ),
         )
     else:
         sample_size_group_2 = torch.atleast_1d(torch.as_tensor(nobs2))
@@ -66,7 +66,7 @@ def mann_whitney_u_test_power(
 
     noncentrality = (mean1 - mean0) / sd0
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
         pt = torch.tensor(p, dtype=dtype)
@@ -74,7 +74,7 @@ def mann_whitney_u_test_power(
         eps = torch.finfo(dtype).eps
 
         pt = torch.clamp(pt, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
+        return square_root_two * torch.erfinv(2.0 * pt - 1.0)
 
     if alt == "two-sided":
         z_critical = z_of(1 - alpha / 2)

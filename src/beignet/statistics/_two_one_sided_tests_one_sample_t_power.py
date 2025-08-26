@@ -59,7 +59,8 @@ def two_one_sided_tests_one_sample_t_power(
         standard_deviation = torch.sqrt(variance)
 
         zscore = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation, min=1e-10
+            standard_deviation,
+            min=1e-10,
         )
         return 0.5 * (
             1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
@@ -74,7 +75,8 @@ def two_one_sided_tests_one_sample_t_power(
         standard_deviation = torch.sqrt(variance)
 
         zscore = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation, min=1e-10
+            standard_deviation,
+            min=1e-10,
         )
         return 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
@@ -92,3 +94,4 @@ def two_one_sided_tests_one_sample_t_power(
         out.copy_(power)
         return out
     return power
+    return result

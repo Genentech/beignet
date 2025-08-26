@@ -20,10 +20,9 @@ def multivariate_analysis_of_variance_power(
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
     dtypes = [effect_size.dtype, sample_size.dtype, n_variables.dtype, n_groups.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for dt in dtypes:
+        dtype = torch.promote_types(dtype, dt)
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
@@ -53,9 +52,9 @@ def multivariate_analysis_of_variance_power(
 
     lambda_nc = sample_size * effect_size_f_squared
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
@@ -70,7 +69,7 @@ def multivariate_analysis_of_variance_power(
 
     z_score = (f_critical - mean_nc_f) / std_nc_f
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

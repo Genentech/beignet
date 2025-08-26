@@ -37,10 +37,10 @@ def correlation_sample_size(
 
     sample_size = ((z_alpha + z_beta) / torch.abs(z_r_safe)) ** 2 + 3
 
-    output = torch.ceil(sample_size)
+    result = torch.ceil(sample_size)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

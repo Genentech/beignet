@@ -43,11 +43,11 @@ def f_test_sample_size(
 
     df1 = torch.clamp(df1, min=1.0)
 
-    sqrt_2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(power) * sqrt_2
+    z_beta = torch.erfinv(power) * square_root_two
 
     base_n = ((z_alpha + z_beta) / torch.sqrt(effect_size)) ** 2
 
@@ -57,10 +57,9 @@ def f_test_sample_size(
 
     max_n = torch.tensor(10000.0, dtype=dtype)
 
-    output = torch.ceil(torch.clamp(n_estimate, min=min_n, max=max_n))
+    result = torch.ceil(torch.clamp(n_estimate, min=min_n, max=max_n))
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output

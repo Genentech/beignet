@@ -18,7 +18,7 @@ def mixed_model_power(
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
 
     n_observations_per_subject = torch.atleast_1d(
-        torch.as_tensor(n_observations_per_subject)
+        torch.as_tensor(n_observations_per_subject),
     )
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
@@ -77,3 +77,4 @@ def mixed_model_power(
         out.copy_(power)
         return out
     return power
+    return result

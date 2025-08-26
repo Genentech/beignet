@@ -58,4 +58,3 @@ def chi_square_goodness_of_fit_power(
         out.copy_(result)
         return out
 
-    return result

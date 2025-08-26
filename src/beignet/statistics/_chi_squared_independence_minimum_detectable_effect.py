@@ -27,21 +27,19 @@ def chi_square_independence_minimum_detectable_effect(
     r = torch.atleast_1d(r0)
     c = torch.atleast_1d(c0)
 
-    dtype = (
-        torch.float64
-        if any(t.dtype == torch.float64 for t in (sample_size, r, c))
-        else torch.float32
-    )
+    dtype = torch.float32
+    for tensor in (sample_size, r, c):
+        dtype = torch.promote_types(dtype, tensor.dtype)
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
     r = torch.clamp(r.to(dtype), min=2.0)
     c = torch.clamp(c.to(dtype), min=2.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
 

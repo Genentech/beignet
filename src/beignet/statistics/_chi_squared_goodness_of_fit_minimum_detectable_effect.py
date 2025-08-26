@@ -36,11 +36,11 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
 
     degrees_of_freedom = torch.clamp(degrees_of_freedom.to(dtype), min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
 
@@ -50,7 +50,10 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
 
     for _ in range(8):
         p_hi = chi_square_goodness_of_fit_power(
-            w_hi, sample_size, degrees_of_freedom, alpha
+            w_hi,
+            sample_size,
+            degrees_of_freedom,
+            alpha,
         )
         need_expand = p_hi < power
         if not torch.any(need_expand):
@@ -62,7 +65,10 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     w = (w_lo + w_hi) * 0.5
     for _ in range(24):
         p_mid = chi_square_goodness_of_fit_power(
-            w, sample_size, degrees_of_freedom, alpha
+            w,
+            sample_size,
+            degrees_of_freedom,
+            alpha,
         )
         go_right = p_mid < power
 

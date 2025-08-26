@@ -66,3 +66,4 @@ def cohens_kappa_power(
         out.copy_(power)
         return out
     return power
+    return result

@@ -44,19 +44,26 @@ def mcnemars_test_sample_size(
     z_beta = z_of(power)
 
     probability = torch.where(
-        (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
+        (p01 + p10) > 0,
+        p01 / torch.clamp(p01 + p10, min=1e-12),
+        torch.zeros_like(p01),
     )
     delta = torch.abs(probability - 0.5)
 
     n0 = ((z_alpha + z_beta) / (2 * torch.clamp(delta, min=1e-8))) ** 2 / torch.clamp(
-        p01 + p10, min=1e-8
+        p01 + p10,
+        min=1e-8,
     )
     n0 = torch.clamp(n0, min=4.0)
 
     n_curr = n0
     for _ in range(12):
         pwr = mcnemars_test_power(
-            p01, p10, torch.ceil(n_curr), alpha=alpha, two_sided=two_sided
+            p01,
+            p10,
+            torch.ceil(n_curr),
+            alpha=alpha,
+            two_sided=two_sided,
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
 
@@ -67,3 +74,4 @@ def mcnemars_test_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

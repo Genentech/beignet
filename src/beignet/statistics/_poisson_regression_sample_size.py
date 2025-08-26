@@ -91,3 +91,4 @@ def poisson_regression_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

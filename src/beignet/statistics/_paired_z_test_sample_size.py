@@ -18,7 +18,7 @@ def paired_z_test_sample_size(
 
     effect_size = torch.clamp(effect_size.to(dtype), min=1e-8)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -34,7 +34,7 @@ def paired_z_test_sample_size(
         eps = torch.finfo(dtype).eps
 
         pt = torch.clamp(pt, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
+        return square_root_two * torch.erfinv(2.0 * pt - 1.0)
 
     if alt == "two-sided":
         z_alpha = z_of(1 - alpha / 2)

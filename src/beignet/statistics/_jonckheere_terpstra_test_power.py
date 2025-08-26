@@ -42,15 +42,15 @@ def jonckheere_terpstra_test_power(
 
     mean_alt = mean_null + effect_size * std_null
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     critical = mean_null + z_alpha * std_null
 
     z_score = (critical - mean_alt) / std_null
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

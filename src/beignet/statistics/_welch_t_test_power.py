@@ -92,11 +92,13 @@ def welch_t_test_power(
 
     if alt == "two-sided":
         zu = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         zl = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (
@@ -104,7 +106,8 @@ def welch_t_test_power(
         ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
     elif alt == "greater":
         zscore = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (
@@ -112,15 +115,16 @@ def welch_t_test_power(
         )
     else:
         zscore = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
-    return output
+    return result

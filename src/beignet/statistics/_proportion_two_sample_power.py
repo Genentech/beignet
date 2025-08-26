@@ -51,11 +51,11 @@ def proportion_two_sample_power(
     p_pooled = torch.clamp(p_pooled, epsilon, 1 - epsilon)
 
     se_null = torch.sqrt(
-        p_pooled * (1 - p_pooled) * (1 / sample_size_group_1 + 1 / sample_size_group_2)
+        p_pooled * (1 - p_pooled) * (1 / sample_size_group_1 + 1 / sample_size_group_2),
     )
 
     se_alt = torch.sqrt(
-        p1 * (1 - p1) / sample_size_group_1 + p2 * (1 - p2) / sample_size_group_2
+        p1 * (1 - p1) / sample_size_group_1 + p2 * (1 - p2) / sample_size_group_2,
     )
 
     effect = (p1 - p2) / se_null
@@ -90,10 +90,10 @@ def proportion_two_sample_power(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

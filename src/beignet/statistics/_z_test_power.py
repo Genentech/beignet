@@ -48,26 +48,20 @@ def z_test_power(
         z_alpha_half = z_of(1 - alpha / 2)
 
         power_upper = 0.5 * (
-            1
-            - torch.erf((z_alpha_half - noncentrality) / square_root_two)
+            1 - torch.erf((z_alpha_half - noncentrality) / square_root_two)
         )
         power_lower = 0.5 * (
-            1
-            + torch.erf((-z_alpha_half - noncentrality) / square_root_two)
+            1 + torch.erf((-z_alpha_half - noncentrality) / square_root_two)
         )
         power = power_upper + power_lower
     elif alt == "greater":
         z_alpha = z_of(1 - alpha)
 
-        power = 0.5 * (
-            1 - torch.erf((z_alpha - noncentrality) / square_root_two)
-        )
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / square_root_two))
     else:
         z_alpha = z_of(1 - alpha)
 
-        power = 0.5 * (
-            1 + torch.erf((-z_alpha - noncentrality) / square_root_two)
-        )
+        power = 0.5 * (1 + torch.erf((-z_alpha - noncentrality) / square_root_two))
 
     result = torch.clamp(power, 0.0, 1.0)
 

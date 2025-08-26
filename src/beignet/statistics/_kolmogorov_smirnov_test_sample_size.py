@@ -47,9 +47,9 @@ def kolmogorov_smirnov_test_sample_size(
         else:
             c_alpha = torch.sqrt(-0.5 * torch.log(torch.tensor(alpha, dtype=dtype)))
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     n_initial = (c_alpha / effect_size) ** 2
 
@@ -62,7 +62,10 @@ def kolmogorov_smirnov_test_sample_size(
     n_iteration = n_initial
     for _ in range(12):
         current_power = kolmogorov_smirnov_test_power(
-            effect_size, n_iteration, alpha=alpha, alternative=alternative
+            effect_size,
+            n_iteration,
+            alpha=alpha,
+            alternative=alternative,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)

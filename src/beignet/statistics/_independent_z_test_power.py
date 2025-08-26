@@ -62,13 +62,12 @@ def independent_z_test_power(
         power = torch.erf((-z_alpha + noncentrality) / sqrt_2) / 2
     else:
         raise ValueError(
-            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
+            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
         )
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output

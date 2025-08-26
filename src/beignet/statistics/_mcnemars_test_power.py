@@ -31,7 +31,9 @@ def mcnemars_test_power(
     d = sample_size * (p01 + p10)
 
     probability = torch.where(
-        (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
+        (p01 + p10) > 0,
+        p01 / torch.clamp(p01 + p10, min=1e-12),
+        torch.zeros_like(p01),
     )
     mean = d * (probability - 0.5)
 
@@ -69,3 +71,4 @@ def mcnemars_test_power(
         out.copy_(out_t)
         return out
     return out_t
+    return result

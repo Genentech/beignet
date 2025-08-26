@@ -19,10 +19,9 @@ def independent_t_test_sample_size(
     else:
         ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
-    if effect_size.dtype == torch.float64 or ratio.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, ratio):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -36,7 +35,6 @@ def independent_t_test_sample_size(
 
     if alternative == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
-    else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
@@ -63,22 +61,22 @@ def independent_t_test_sample_size(
         degrees_of_freedom_iteration = total_n - 2
 
         degrees_of_freedom_iteration = torch.clamp(
-            degrees_of_freedom_iteration, min=1.0
+            degrees_of_freedom_iteration,
+            min=1.0,
         )
 
         se_factor = torch.sqrt(
-            1 / sample_size_group_1_iteration + 1 / sample_size_group_2_iteration
+            1 / sample_size_group_1_iteration + 1 / sample_size_group_2_iteration,
         )
 
         ncp_iteration = effect_size / se_factor
 
         if alternative == "two-sided":
             t_critical = z_alpha * torch.sqrt(
-                1 + 1 / (2 * degrees_of_freedom_iteration)
+                1 + 1 / (2 * degrees_of_freedom_iteration),
             )
-        else:
             t_critical = z_alpha * torch.sqrt(
-                1 + 1 / (2 * degrees_of_freedom_iteration)
+                1 + 1 / (2 * degrees_of_freedom_iteration),
             )
 
         variance_nct = torch.where(
@@ -91,11 +89,13 @@ def independent_t_test_sample_size(
 
         if alternative == "two-sided":
             z_upper = (t_critical - ncp_iteration) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             z_lower = (-t_critical - ncp_iteration) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             power_iteration = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
@@ -103,13 +103,14 @@ def independent_t_test_sample_size(
             ) / 2
         elif alternative == "larger":
             z_score = (t_critical - ncp_iteration) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             power_iteration = (1 - torch.erf(z_score / sqrt_2)) / 2
-        else:
             z_score = (-t_critical - (-ncp_iteration)) / torch.clamp(
-                standard_deviation_nct, min=1e-10
+                standard_deviation_nct,
+                min=1e-10,
             )
 
             power_iteration = (1 - torch.erf(-z_score / sqrt_2)) / 2
@@ -130,15 +131,17 @@ def independent_t_test_sample_size(
         sample_size_group_1_iteration = sample_size_group_1_iteration + adjustment
 
         sample_size_group_1_iteration = torch.clamp(
-            sample_size_group_1_iteration, min=2.0, max=100000.0
+            sample_size_group_1_iteration,
+            min=2.0,
+            max=100000.0,
         )
 
-    output = torch.ceil(sample_size_group_1_iteration)
+    result = torch.ceil(sample_size_group_1_iteration)
 
-    output = torch.clamp(output, min=2.0)
+    result = torch.clamp(result, min=2.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

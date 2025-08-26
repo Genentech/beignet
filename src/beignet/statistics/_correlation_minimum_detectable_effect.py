@@ -39,7 +39,7 @@ def correlation_minimum_detectable_effect(
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     z_required = (z_alpha + z_beta) / torch.sqrt(
-        torch.clamp(sample_size - 3.0, min=1.0)
+        torch.clamp(sample_size - 3.0, min=1.0),
     )
     r_mag = torch.tanh(torch.abs(z_required))
 

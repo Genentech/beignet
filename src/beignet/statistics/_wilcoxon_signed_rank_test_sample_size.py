@@ -21,7 +21,7 @@ def wilcoxon_signed_rank_test_sample_size(
     probability = probability.to(dtype)
 
     sqrt3 = math.sqrt(3.0)
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
@@ -29,7 +29,7 @@ def wilcoxon_signed_rank_test_sample_size(
         eps = torch.finfo(dtype).eps
 
         q = torch.clamp(q, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * q - 1.0)
+        return square_root_two * torch.erfinv(2.0 * q - 1.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -52,7 +52,10 @@ def wilcoxon_signed_rank_test_sample_size(
     n_curr = n0
     for _ in range(12):
         pwr = wilcoxon_signed_rank_test_power(
-            probability, torch.ceil(n_curr), alpha=alpha, alternative=alt
+            probability,
+            torch.ceil(n_curr),
+            alpha=alpha,
+            alternative=alt,
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
 

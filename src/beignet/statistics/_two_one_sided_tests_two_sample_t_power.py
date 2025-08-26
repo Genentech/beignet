@@ -51,21 +51,24 @@ def two_one_sided_tests_two_sample_t_power(
     sample_size_group_2 = sample_size_group_1 * ratio_t
 
     degrees_of_freedom = torch.clamp(
-        sample_size_group_1 + sample_size_group_2 - 2, min=1.0
+        sample_size_group_1 + sample_size_group_2 - 2,
+        min=1.0,
     )
 
     se_factor = torch.sqrt(1.0 / sample_size_group_1 + 1.0 / sample_size_group_2)
 
     noncentrality_parameter_low = (true_effect_size - low) / torch.clamp(
-        se_factor, min=1e-12
+        se_factor,
+        min=1e-12,
     )
     noncentrality_parameter_high = (true_effect_size - high) / torch.clamp(
-        se_factor, min=1e-12
+        se_factor,
+        min=1e-12,
     )
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
@@ -78,7 +81,8 @@ def two_one_sided_tests_two_sample_t_power(
         standard_deviation = torch.sqrt(variance)
 
         zscore = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation, min=1e-10
+            standard_deviation,
+            min=1e-10,
         )
         return 0.5 * (
             1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
@@ -93,7 +97,8 @@ def two_one_sided_tests_two_sample_t_power(
         standard_deviation = torch.sqrt(variance)
 
         zscore = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation, min=1e-10
+            standard_deviation,
+            min=1e-10,
         )
         return 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))

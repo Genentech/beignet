@@ -48,7 +48,10 @@ def friedman_test_sample_size(
     n_iteration = n_initial
     for _ in range(12):
         current_power = friedman_test_power(
-            effect_size, n_iteration, n_treatments, alpha=alpha
+            effect_size,
+            n_iteration,
+            n_treatments,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -63,3 +66,4 @@ def friedman_test_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

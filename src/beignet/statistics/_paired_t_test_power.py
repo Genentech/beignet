@@ -55,11 +55,13 @@ def paired_t_test_power(
 
     if alt == "two-sided":
         zu = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         zl = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (
@@ -67,7 +69,8 @@ def paired_t_test_power(
         ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
     elif alt == "greater":
         zscore = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (
@@ -75,7 +78,8 @@ def paired_t_test_power(
         )
     else:
         zscore = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         power = 0.5 * (

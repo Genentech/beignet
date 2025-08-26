@@ -18,7 +18,7 @@ def mixed_model_sample_size(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     n_observations_per_subject = torch.atleast_1d(
-        torch.as_tensor(n_observations_per_subject)
+        torch.as_tensor(n_observations_per_subject),
     )
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
@@ -57,7 +57,11 @@ def mixed_model_sample_size(
     n_iteration = n_subjects_initial
     for _ in range(15):
         current_power = mixed_model_power(
-            effect_size, n_iteration, n_observations_per_subject, icc, alpha=alpha
+            effect_size,
+            n_iteration,
+            n_observations_per_subject,
+            icc,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -72,3 +76,4 @@ def mixed_model_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

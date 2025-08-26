@@ -24,7 +24,7 @@ def cohens_kappa_sample_size(
 
     kappa = torch.clamp(kappa, min=-0.99, max=0.99)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -35,11 +35,11 @@ def cohens_kappa_sample_size(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
     else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     p_e_approximate = torch.tensor(0.5, dtype=dtype)
 
@@ -54,7 +54,10 @@ def cohens_kappa_sample_size(
     n_iteration = n_initial
     for _ in range(12):
         current_power = cohens_kappa_power(
-            kappa, n_iteration, alpha=alpha, alternative=alternative
+            kappa,
+            n_iteration,
+            alpha=alpha,
+            alternative=alternative,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)

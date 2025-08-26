@@ -17,10 +17,9 @@ def proportion_two_sample_sample_size(
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
 
-    if p1.dtype == torch.float64 or p2.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (p1, p2):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     p1 = p1.to(dtype)
     p2 = p2.to(dtype)
@@ -42,7 +41,6 @@ def proportion_two_sample_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
         z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
-    else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
     p_pooled = (p1 + p2 * ratio) / (1 + ratio)
@@ -61,12 +59,12 @@ def proportion_two_sample_sample_size(
 
     sample_size = (numerator / effect_safe) ** 2
 
-    output = torch.ceil(sample_size)
+    result = torch.ceil(sample_size)
 
-    output = torch.clamp(output, min=1.0)
+    result = torch.clamp(result, min=1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

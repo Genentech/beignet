@@ -51,7 +51,11 @@ def two_one_sided_tests_one_sample_t_sample_size(
     n_curr = n0
     for _ in range(12):
         current_power = two_one_sided_tests_one_sample_t_power(
-            true_effect_size, n_curr, low, high, alpha=alpha
+            true_effect_size,
+            n_curr,
+            low,
+            high,
+            alpha=alpha,
         )
         gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
 

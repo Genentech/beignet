@@ -31,10 +31,10 @@ def f_test_minimum_detectable_effect(
     n = df1 + df2 + 1.0
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
-        torch.tensor(2.0, dtype=dtype)
+        torch.tensor(2.0, dtype=dtype),
     )
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * torch.sqrt(
-        torch.tensor(2.0, dtype=dtype)
+        torch.tensor(2.0, dtype=dtype),
     )
     f2_0 = torch.clamp(((z_alpha + z_beta) / torch.sqrt(n)) ** 2, min=1e-8)
 
@@ -75,3 +75,4 @@ def f_test_minimum_detectable_effect(
             out.copy_(out_t)
             return out
         return out_t
+    return result

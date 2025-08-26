@@ -15,16 +15,18 @@ def cohens_d(
                 (group1.shape[-1] - 1) * torch.var(group1, dim=-1, unbiased=True)
                 + (group2.shape[-1] - 1) * torch.var(group2, dim=-1, unbiased=True)
             )
-            / (group1.shape[-1] + group2.shape[-1] - 2)
+            / (group1.shape[-1] + group2.shape[-1] - 2),
         )
     else:
         output = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.std(
-            group1, dim=-1, unbiased=True
+            group1,
+            dim=-1,
+            unbiased=True,
         )
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
 
         return out
 
-    return output
+    return result

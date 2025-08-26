@@ -67,7 +67,11 @@ def logistic_regression_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = logistic_regression_power(
-            effect_size, n_iteration, p_exposure, alpha=alpha, alternative=alternative
+            effect_size,
+            n_iteration,
+            p_exposure,
+            alpha=alpha,
+            alternative=alternative,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -82,3 +86,4 @@ def logistic_regression_sample_size(
         out.copy_(n_out)
         return out
     return n_out
+    return result

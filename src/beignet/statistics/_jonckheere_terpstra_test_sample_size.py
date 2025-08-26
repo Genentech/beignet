@@ -31,11 +31,11 @@ def jonckheere_terpstra_test_sample_size(
 
     groups = torch.clamp(groups, min=3.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     n_initial = ((z_alpha + z_beta) / effect_size) ** 2 / groups
 
@@ -44,11 +44,14 @@ def jonckheere_terpstra_test_sample_size(
     n_iteration = n_initial
     for _ in range(12):
         sample_sizes = n_iteration.unsqueeze(-1).expand(
-            *n_iteration.shape, int(groups.max().item())
+            *n_iteration.shape,
+            int(groups.max().item()),
         )
 
         current_power = jonckheere_terpstra_test_power(
-            effect_size, sample_sizes, alpha=alpha
+            effect_size,
+            sample_sizes,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)

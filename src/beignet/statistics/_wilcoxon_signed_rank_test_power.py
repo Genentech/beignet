@@ -45,7 +45,7 @@ def wilcoxon_signed_rank_test_power(
 
     noncentrality = (mean1 - mean0) / sd0
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
@@ -53,24 +53,24 @@ def wilcoxon_signed_rank_test_power(
         eps = torch.finfo(dtype).eps
 
         q = torch.clamp(q, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * q - 1.0)
+        return square_root_two * torch.erfinv(2.0 * q - 1.0)
 
     if alt == "two-sided":
         z_critical = z_of(1 - alpha / 2)
 
-        upper = 0.5 * (1 - torch.erf((z_critical - noncentrality) / sqrt2))
+        upper = 0.5 * (1 - torch.erf((z_critical - noncentrality) / square_root_two))
 
-        lower = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / sqrt2))
+        lower = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / square_root_two))
 
         power = upper + lower
     elif alt == "greater":
         z_critical = z_of(1 - alpha)
 
-        power = 0.5 * (1 - torch.erf((z_critical - noncentrality) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_critical - noncentrality) / square_root_two))
     else:
         z_critical = z_of(1 - alpha)
 
-        power = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / sqrt2))
+        power = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / square_root_two))
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

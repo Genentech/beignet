@@ -29,12 +29,12 @@ def cramers_v(
 
     min_dim = min_dim.to(dtype)
 
-    output = torch.sqrt(chi_square / (sample_size * min_dim))
+    result = torch.sqrt(chi_square / (sample_size * min_dim))
 
-    output = torch.clamp(output, 0.0, 1.0)
+    result = torch.clamp(result, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

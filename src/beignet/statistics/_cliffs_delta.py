@@ -12,10 +12,9 @@ def cliffs_delta(
     y = torch.atleast_1d(torch.as_tensor(y))
 
     if x.dtype.is_floating_point and y.dtype.is_floating_point:
-        if x.dtype == torch.float64 or y.dtype == torch.float64:
-            dtype = torch.float64
-        else:
-            dtype = torch.float32
+        dtype = torch.float32
+        for tensor in (x, y):
+            dtype = torch.promote_types(dtype, tensor.dtype)
     else:
         dtype = torch.float32
 
@@ -44,3 +43,4 @@ def cliffs_delta(
         out.copy_(delta)
         return out
     return delta
+    return result

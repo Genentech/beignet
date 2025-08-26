@@ -30,7 +30,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
                 r.to(sample_size_group_1.dtype)
                 if isinstance(r, Tensor)
                 else torch.tensor(float(r), dtype=sample_size_group_1.dtype)
-            )
+            ),
         )
     else:
         sample_size_group_2_0 = torch.as_tensor(nobs2)
@@ -74,7 +74,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
         12.0
         * sample_size_group_1
         * sample_size_group_2
-        / (sample_size_group_1 + sample_size_group_2 + 1.0)
+        / (sample_size_group_1 + sample_size_group_2 + 1.0),
     )
     delta = (z_alpha + z_beta) / torch.clamp(scale, min=1e-12)
 
@@ -84,7 +84,11 @@ def mann_whitney_u_test_minimum_detectable_effect(
         auc = torch.clamp(0.5 + delta, max=1.0)
 
     p_curr = mann_whitney_u_test_power(
-        auc, sample_size_group_1, sample_size_group_2, alpha=alpha, alternative=alt
+        auc,
+        sample_size_group_1,
+        sample_size_group_2,
+        alpha=alpha,
+        alternative=alt,
     )
     gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
 
@@ -105,3 +109,4 @@ def mann_whitney_u_test_minimum_detectable_effect(
             out.copy_(auc)
             return out
         return auc
+    return result
