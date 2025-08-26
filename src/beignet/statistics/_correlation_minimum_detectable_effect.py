@@ -35,8 +35,6 @@ def correlation_minimum_detectable_effect(
 
     sample_size_0 = torch.as_tensor(sample_size)
 
-    scalar_out = sample_size_0.ndim == 0
-
     sample_size = torch.atleast_1d(sample_size_0)
 
     dtype = torch.float64 if sample_size.dtype == torch.float64 else torch.float32
@@ -71,14 +69,7 @@ def correlation_minimum_detectable_effect(
     else:
         out_t = r_mag
 
-    if scalar_out:
-        out_scalar = out_t.reshape(())
-        if out is not None:
-            out.copy_(out_scalar)
-            return out
-        return out_scalar
-    else:
-        if out is not None:
-            out.copy_(out_t)
-            return out
-        return out_t
+    if out is not None:
+        out.copy_(out_t)
+        return out
+    return out_t

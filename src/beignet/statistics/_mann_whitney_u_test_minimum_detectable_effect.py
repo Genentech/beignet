@@ -16,11 +16,8 @@ def mann_whitney_u_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     sample_size_group_1_0 = torch.as_tensor(nobs1)
-
-    scalar_out = sample_size_group_1_0.ndim == 0
 
     sample_size_group_1 = torch.atleast_1d(sample_size_group_1_0)
     if nobs2 is None:
@@ -36,8 +33,6 @@ def mann_whitney_u_test_minimum_detectable_effect(
         )
     else:
         sample_size_group_2_0 = torch.as_tensor(nobs2)
-
-        scalar_out = scalar_out and (sample_size_group_2_0.ndim == 0)
         sample_size_group_2 = torch.atleast_1d(sample_size_group_2_0)
 
     dtype = (
@@ -61,8 +56,6 @@ def mann_whitney_u_test_minimum_detectable_effect(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
-    r"""
-    """
         q = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps
@@ -102,15 +95,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
     else:
         auc = torch.clamp(auc + torch.abs(step), 0.0, 1.0)
 
-    if scalar_out:
-        auc_s = auc.reshape(())
-        if out is not None:
-            out.copy_(auc_s)
-            return out
-        return auc_s
-    else:
-        if out is not None:
-            out.copy_(auc)
-            return out
-        return auc
-    return result
+    if out is not None:
+        out.copy_(auc)
+        return out
+    return auc

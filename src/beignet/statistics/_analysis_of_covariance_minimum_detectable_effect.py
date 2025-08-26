@@ -49,13 +49,6 @@ def analysis_of_covariance_minimum_detectable_effect(
 
     num_covariates_tensor = torch.as_tensor(n_covariates)
 
-    scalar_output = (
-        sample_size_tensor.ndim == 0
-        and groups_tensor.ndim == 0
-        and covariate_r_squared_tensor.ndim == 0
-        and num_covariates_tensor.ndim == 0
-    )
-
     sample_size_1d = torch.atleast_1d(sample_size_tensor)
 
     groups_1d = torch.atleast_1d(groups_tensor)
@@ -179,19 +172,7 @@ def analysis_of_covariance_minimum_detectable_effect(
 
     output = torch.clamp(effect_size_center, min=0.0)
 
-    if scalar_output:
-        result_scalar = output.reshape(())
-
-        if out is not None:
-            out.copy_(result_scalar)
-
-            return out
-
-        return result_scalar
-    else:
-        if out is not None:
-            out.copy_(output)
-
-            return out
-
-        return output
+    if out is not None:
+        out.copy_(output)
+        return out
+    return output

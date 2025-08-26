@@ -43,8 +43,6 @@ def chi_square_independence_minimum_detectable_effect(
     r0 = torch.as_tensor(rows)
     c0 = torch.as_tensor(cols)
 
-    scalar_out = sample_size_0.ndim == 0 and r0.ndim == 0 and c0.ndim == 0
-
     sample_size = torch.atleast_1d(sample_size_0)
 
     r = torch.atleast_1d(r0)
@@ -92,14 +90,7 @@ def chi_square_independence_minimum_detectable_effect(
         w = (w_lo + w_hi) * 0.5
 
     out_t = torch.clamp(w, min=0.0)
-    if scalar_out:
-        out_scalar = out_t.reshape(())
-        if out is not None:
-            out.copy_(out_scalar)
-            return out
-        return out_scalar
-    else:
-        if out is not None:
-            out.copy_(out_t)
-            return out
-        return out_t
+    if out is not None:
+        out.copy_(out_t)
+        return out
+    return out_t

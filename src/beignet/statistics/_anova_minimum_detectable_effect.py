@@ -38,8 +38,6 @@ def anova_minimum_detectable_effect(
     n0 = torch.as_tensor(sample_size)
     groups0 = torch.as_tensor(groups)
 
-    scalar_out = n0.ndim == 0 and groups0.ndim == 0
-
     n = torch.atleast_1d(n0)
 
     groups = torch.atleast_1d(groups0)
@@ -93,14 +91,7 @@ def anova_minimum_detectable_effect(
         effect_size_f = (effect_size_f_lo + effect_size_f_hi) * 0.5
 
     out_t = torch.clamp(effect_size_f, min=0.0)
-    if scalar_out:
-        out_scalar = out_t.reshape(())
-        if out is not None:
-            out.copy_(out_scalar)
-            return out
-        return out_scalar
-    else:
-        if out is not None:
-            out.copy_(out_t)
-            return out
-        return out_t
+    if out is not None:
+        out.copy_(out_t)
+        return out
+    return out_t

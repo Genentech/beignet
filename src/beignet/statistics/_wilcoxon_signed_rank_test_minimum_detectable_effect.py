@@ -14,11 +14,8 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     sample_size_0 = torch.as_tensor(nobs)
-
-    scalar_out = sample_size_0.ndim == 0
 
     sample_size = torch.atleast_1d(sample_size_0)
 
@@ -43,8 +40,6 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
-    r"""
-    """
         q = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps
@@ -107,14 +102,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     probability = torch.where(unattainable, max_power_prob, probability)
 
-    if scalar_out:
-        probability_s = probability.reshape(())
-        if out is not None:
-            out.copy_(probability_s)
-            return out
-        return probability_s
-    else:
-        if out is not None:
-            out.copy_(probability)
-            return out
-        return probability
+    if out is not None:
+        out.copy_(probability)
+        return out
+    return probability

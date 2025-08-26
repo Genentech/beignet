@@ -36,8 +36,6 @@ def f_test_minimum_detectable_effect(
     df1_0 = torch.as_tensor(df1)
     df2_0 = torch.as_tensor(df2)
 
-    scalar_out = df1_0.ndim == 0 and df2_0.ndim == 0
-
     df1 = torch.atleast_1d(df1_0)
     df2 = torch.atleast_1d(df2_0)
 
@@ -85,14 +83,7 @@ def f_test_minimum_detectable_effect(
         x = (f2_lo + f2_hi) * 0.5
 
     out_t = torch.clamp(x, min=0.0)
-    if scalar_out:
-        out_scalar = out_t.reshape(())
-        if out is not None:
-            out.copy_(out_scalar)
-            return out
-        return out_scalar
-    else:
-        if out is not None:
-            out.copy_(out_t)
-            return out
-        return out_t
+    if out is not None:
+        out.copy_(out_t)
+        return out
+    return out_t

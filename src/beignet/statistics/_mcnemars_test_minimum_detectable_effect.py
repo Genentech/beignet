@@ -15,13 +15,10 @@ def mcnemars_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     d0 = torch.as_tensor(discordant_rate)
 
     n0 = torch.as_tensor(sample_size)
-
-    scalar_out = d0.ndim == 0 and n0.ndim == 0
 
     d = torch.atleast_1d(d0)
 
@@ -39,8 +36,6 @@ def mcnemars_test_minimum_detectable_effect(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
-    r"""
-    """
         pt = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps
@@ -104,14 +99,7 @@ def mcnemars_test_minimum_detectable_effect(
 
     abs_diff = x
 
-    if scalar_out:
-        diff_s = abs_diff.reshape(())
-        if out is not None:
-            out.copy_(diff_s)
-            return out
-        return diff_s
-    else:
-        if out is not None:
-            out.copy_(abs_diff)
-            return out
-        return abs_diff
+    if out is not None:
+        out.copy_(abs_diff)
+        return out
+    return abs_diff
