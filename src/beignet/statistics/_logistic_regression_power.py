@@ -107,9 +107,11 @@ def logistic_regression_power(
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     # Ensure floating point dtype
-    dtype = torch.result_type(effect_size, sample_size, p_exposure)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if any(t.dtype == torch.float64 for t in (effect_size, sample_size, p_exposure))
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
     p_exposure = p_exposure.to(dtype)
@@ -125,7 +127,9 @@ def logistic_regression_power(
     # Estimate outcome probability under alternative
     # This is a simplified approximation assuming balanced design
     # For more precise calculation, we'd need baseline risk
-    logit_baseline = 0.0  # Assumes 50% baseline probability for simplicity
+    logit_baseline = torch.tensor(
+        0.0, dtype=dtype
+    )  # Assumes 50% baseline probability for simplicity
     logit_exposed = logit_baseline + beta
     logit_unexposed = logit_baseline
 

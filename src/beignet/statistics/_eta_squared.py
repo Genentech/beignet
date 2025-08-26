@@ -170,9 +170,11 @@ def partial_eta_squared(
     ss_error = torch.atleast_1d(torch.as_tensor(ss_error))
 
     # Ensure common floating point dtype
-    dtype = torch.promote_type(ss_effect.dtype, ss_error.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (ss_effect.dtype == torch.float64 or ss_error.dtype == torch.float64)
+        else torch.float32
+    )
     ss_effect = ss_effect.to(dtype)
     ss_error = ss_error.to(dtype)
 

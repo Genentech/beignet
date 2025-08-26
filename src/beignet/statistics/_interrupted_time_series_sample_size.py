@@ -148,7 +148,9 @@ def interrupted_time_series_sample_size(
         n_pre_current = torch.ceil(
             n_total_current * pre_post_ratio / (1.0 + pre_post_ratio)
         )
-        n_pre_current = torch.clamp(n_pre_current, min=3.0, max=n_total_current - 3.0)
+        n_pre_current = torch.clamp(
+            n_pre_current, min=torch.tensor(3.0, dtype=dtype), max=n_total_current - 3.0
+        )
 
         # Calculate current power
         current_power = interrupted_time_series_power(

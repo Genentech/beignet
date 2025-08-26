@@ -101,10 +101,7 @@ def glass_delta(
     mean_y = torch.mean(y, dim=-1)
 
     # Compute standard deviation of control group (y) with sample correction
-    n_y = torch.tensor(y.shape[-1], dtype=dtype)
-    if n_y < 2:
-        raise ValueError("Control group (y) must have at least 2 observations")
-
+    # Note: y.shape[-1] must be >= 2 for meaningful variance calculation
     var_y = torch.var(
         y, dim=-1, correction=1
     )  # Sample variance with Bessel's correction

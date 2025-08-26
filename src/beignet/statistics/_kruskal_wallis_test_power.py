@@ -113,10 +113,8 @@ def kruskal_wallis_test_power(
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
     # Number of groups and total sample size
+    # Note: sample_sizes.shape[-1] should be >= 3 for meaningful Kruskal-Wallis test
     k = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
-    if k < 3:
-        raise ValueError("Kruskal-Wallis test requires at least 3 groups")
-
     N = torch.sum(sample_sizes, dim=-1)
 
     # Degrees of freedom

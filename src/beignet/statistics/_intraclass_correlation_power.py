@@ -122,9 +122,11 @@ def intraclass_correlation_power(
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
 
     # Ensure floating point dtype
-    dtype = torch.result_type(icc, n_subjects, n_raters)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if any(t.dtype == torch.float64 for t in (icc, n_subjects, n_raters))
+        else torch.float32
+    )
     icc = icc.to(dtype)
     n_subjects = n_subjects.to(dtype)
     n_raters = n_raters.to(dtype)

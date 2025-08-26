@@ -107,9 +107,13 @@ def friedman_test_power(
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 
     # Ensure floating point dtype
-    dtype = torch.result_type(effect_size, n_subjects, n_treatments)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if any(
+            t.dtype == torch.float64 for t in (effect_size, n_subjects, n_treatments)
+        )
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     n_subjects = n_subjects.to(dtype)
     n_treatments = n_treatments.to(dtype)

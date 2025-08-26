@@ -58,9 +58,11 @@ def friedman_test_sample_size(
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 
     # Ensure floating point dtype
-    dtype = torch.promote_type(effect_size.dtype, n_treatments.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (effect_size.dtype == torch.float64 or n_treatments.dtype == torch.float64)
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     n_treatments = n_treatments.to(dtype)
 

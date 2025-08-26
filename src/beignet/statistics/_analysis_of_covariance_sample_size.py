@@ -82,7 +82,11 @@ def analysis_of_covariance_sample_size(
         power_curr = 0.5 * (1 - torch.erf(z / math.sqrt(2.0)))
 
         gap = torch.clamp(power - power_curr, min=-0.45, max=0.45)
-        N_curr = torch.clamp(N_curr * (1.0 + 1.0 * gap), min=k + p + 2.0, max=1e7)
+        N_curr = torch.clamp(
+            N_curr * (1.0 + 1.0 * gap),
+            min=k + p + 2.0,
+            max=torch.tensor(1e7, dtype=dtype),
+        )
 
     N_out = torch.ceil(N_curr)
     if out is not None:

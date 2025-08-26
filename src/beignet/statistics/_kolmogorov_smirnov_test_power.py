@@ -120,9 +120,11 @@ def kolmogorov_smirnov_test_power(
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     # Ensure floating point dtype
-    dtype = torch.promote_type(effect_size.dtype, sample_size.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
 

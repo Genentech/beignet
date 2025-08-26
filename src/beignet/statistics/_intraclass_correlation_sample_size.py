@@ -96,9 +96,11 @@ def intraclass_correlation_sample_size(
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
 
     # Ensure floating point dtype
-    dtype = torch.promote_type(icc.dtype, n_raters.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (icc.dtype == torch.float64 or n_raters.dtype == torch.float64)
+        else torch.float32
+    )
     icc = icc.to(dtype)
     n_raters = n_raters.to(dtype)
 

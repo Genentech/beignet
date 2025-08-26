@@ -129,7 +129,11 @@ def multivariable_linear_regression_sample_size(
         # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.1 * power_gap
-        n_current = torch.clamp(n_current * adjustment, min=n_predictors + 10, max=1e6)
+        n_current = torch.clamp(
+            n_current * adjustment,
+            min=n_predictors + 10,
+            max=torch.tensor(1e6, dtype=dtype),
+        )
 
     # Round up to nearest integer
     n_out = torch.ceil(n_current)

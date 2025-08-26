@@ -65,9 +65,11 @@ def logistic_regression_sample_size(
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     # Ensure floating point dtype
-    dtype = torch.promote_type(effect_size.dtype, p_exposure.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (effect_size.dtype == torch.float64 or p_exposure.dtype == torch.float64)
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     p_exposure = p_exposure.to(dtype)
 

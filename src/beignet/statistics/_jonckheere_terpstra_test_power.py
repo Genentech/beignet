@@ -118,9 +118,11 @@ def jonckheere_terpstra_test_power(
     sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
 
     # Ensure floating point dtype
-    dtype = torch.promote_type(effect_size.dtype, sample_sizes.dtype)
-    if not dtype.is_floating_point:
-        dtype = torch.float32
+    dtype = (
+        torch.float64
+        if (effect_size.dtype == torch.float64 or sample_sizes.dtype == torch.float64)
+        else torch.float32
+    )
     effect_size = effect_size.to(dtype)
     sample_sizes = sample_sizes.to(dtype)
 
