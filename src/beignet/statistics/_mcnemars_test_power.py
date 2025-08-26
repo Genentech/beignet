@@ -13,6 +13,8 @@ def mcnemars_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     p01 = torch.atleast_1d(torch.as_tensor(p01))
     p10 = torch.atleast_1d(torch.as_tensor(p10))
 
@@ -42,6 +44,8 @@ def mcnemars_test_power(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
+    r"""
+    """
         pt = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

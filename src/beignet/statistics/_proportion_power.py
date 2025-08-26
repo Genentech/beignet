@@ -13,6 +13,8 @@ def proportion_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
 

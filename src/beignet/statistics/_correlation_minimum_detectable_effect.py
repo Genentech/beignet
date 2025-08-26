@@ -12,6 +12,8 @@ def correlation_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     sample_size_0 = torch.as_tensor(sample_size)
 
     scalar_out = sample_size_0.ndim == 0

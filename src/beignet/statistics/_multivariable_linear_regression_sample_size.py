@@ -16,6 +16,8 @@ def multivariable_linear_regression_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
 
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))

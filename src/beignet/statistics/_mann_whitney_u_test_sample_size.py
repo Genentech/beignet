@@ -15,6 +15,8 @@ def mann_whitney_u_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     auc = torch.atleast_1d(torch.as_tensor(auc))
 
     r = torch.as_tensor(ratio)
@@ -31,6 +33,8 @@ def mann_whitney_u_test_sample_size(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
+    r"""
+    """
         pt = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

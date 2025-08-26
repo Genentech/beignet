@@ -15,6 +15,8 @@ def interrupted_time_series_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     pre_post_ratio = torch.atleast_1d(torch.as_tensor(pre_post_ratio))

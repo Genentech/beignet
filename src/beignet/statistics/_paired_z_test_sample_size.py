@@ -12,6 +12,8 @@ def paired_z_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     dtype = torch.float64 if effect_size.dtype == torch.float64 else torch.float32
@@ -29,6 +31,8 @@ def paired_z_test_sample_size(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     def z_of(p: float) -> torch.Tensor:
+    r"""
+    """
         pt = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

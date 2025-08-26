@@ -10,6 +10,8 @@ def correlation_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     r = torch.atleast_1d(torch.as_tensor(r))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))

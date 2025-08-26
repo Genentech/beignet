@@ -9,6 +9,8 @@ def cramers_v(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))

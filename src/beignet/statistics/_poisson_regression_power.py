@@ -14,6 +14,8 @@ def poisson_regression_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 

@@ -8,6 +8,8 @@ def eta_squared(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     ss_between = torch.atleast_1d(torch.as_tensor(ss_between))
 
     ss_total = torch.atleast_1d(torch.as_tensor(ss_total))
@@ -46,6 +48,8 @@ def partial_eta_squared(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     ss_effect = torch.atleast_1d(torch.as_tensor(ss_effect))
 
     ss_error = torch.atleast_1d(torch.as_tensor(ss_error))

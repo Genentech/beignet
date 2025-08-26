@@ -16,6 +16,8 @@ def mann_whitney_u_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     sample_size_group_1_0 = torch.as_tensor(nobs1)
 
     scalar_out = sample_size_group_1_0.ndim == 0
@@ -59,6 +61,8 @@ def mann_whitney_u_test_minimum_detectable_effect(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
+    r"""
+    """
         q = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

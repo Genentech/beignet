@@ -15,6 +15,8 @@ def mcnemars_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     d0 = torch.as_tensor(discordant_rate)
 
     n0 = torch.as_tensor(sample_size)
@@ -37,6 +39,8 @@ def mcnemars_test_minimum_detectable_effect(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
+    r"""
+    """
         pt = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

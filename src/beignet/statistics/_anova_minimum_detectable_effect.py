@@ -14,6 +14,8 @@ def anova_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     n0 = torch.as_tensor(sample_size)
     groups0 = torch.as_tensor(groups)
 

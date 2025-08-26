@@ -14,6 +14,8 @@ def welch_t_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))

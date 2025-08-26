@@ -14,6 +14,8 @@ def cohens_kappa_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     kappa = torch.atleast_1d(torch.as_tensor(kappa))
 
     dtype = kappa.dtype

@@ -8,6 +8,8 @@ def glass_delta(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     x = torch.atleast_1d(torch.as_tensor(x))
     y = torch.atleast_1d(torch.as_tensor(y))
 

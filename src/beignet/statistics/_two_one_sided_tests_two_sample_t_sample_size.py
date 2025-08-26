@@ -18,6 +18,8 @@ def two_one_sided_tests_two_sample_t_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
 
     r = torch.as_tensor(ratio)

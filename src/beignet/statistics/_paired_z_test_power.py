@@ -12,6 +12,8 @@ def paired_z_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
@@ -37,6 +39,8 @@ def paired_z_test_power(
     square_root_two = math.sqrt(2.0)
 
     def z_of(p: float) -> torch.Tensor:
+    r"""
+    """
         probability = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

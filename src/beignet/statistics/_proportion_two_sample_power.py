@@ -14,6 +14,8 @@ def proportion_two_sample_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
 

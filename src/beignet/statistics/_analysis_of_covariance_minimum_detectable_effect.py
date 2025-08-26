@@ -16,6 +16,8 @@ def analysis_of_covariance_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     sample_size_tensor = torch.as_tensor(sample_size)
 
     groups_tensor = torch.as_tensor(groups)

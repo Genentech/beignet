@@ -14,6 +14,8 @@ def analysis_of_covariance_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
 
     n = torch.atleast_1d(torch.as_tensor(sample_size))

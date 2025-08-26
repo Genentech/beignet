@@ -13,6 +13,8 @@ def independent_t_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     if ratio is None:
         ratio = torch.tensor(1.0)

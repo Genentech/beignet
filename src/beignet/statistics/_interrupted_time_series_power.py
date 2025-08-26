@@ -13,6 +13,8 @@ def interrupted_time_series_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     n_time_points = torch.atleast_1d(torch.as_tensor(n_time_points))

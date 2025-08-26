@@ -12,6 +12,8 @@ def correlation_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     r = torch.atleast_1d(torch.as_tensor(r))
 
     epsilon = 1e-7

@@ -13,6 +13,8 @@ def proportional_hazards_model_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
 
     n_events = torch.atleast_1d(torch.as_tensor(n_events))

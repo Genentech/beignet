@@ -14,6 +14,8 @@ def analysis_of_covariance_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
 
     groups = torch.atleast_1d(torch.as_tensor(groups))

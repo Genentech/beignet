@@ -8,6 +8,8 @@ def cohens_f_squared(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     group_means = torch.atleast_1d(torch.as_tensor(group_means))
 
     pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))

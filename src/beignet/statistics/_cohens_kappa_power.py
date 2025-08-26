@@ -12,6 +12,8 @@ def cohens_kappa_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     kappa = torch.atleast_1d(torch.as_tensor(kappa))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))

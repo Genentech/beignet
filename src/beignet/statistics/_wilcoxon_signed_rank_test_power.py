@@ -12,6 +12,8 @@ def wilcoxon_signed_rank_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
 
     sample_size = torch.atleast_1d(torch.as_tensor(nobs))
@@ -48,6 +50,8 @@ def wilcoxon_signed_rank_test_power(
     square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
+    r"""
+    """
         q = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

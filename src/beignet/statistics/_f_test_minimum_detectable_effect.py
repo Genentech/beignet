@@ -12,6 +12,8 @@ def f_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     df1_0 = torch.as_tensor(df1)
     df2_0 = torch.as_tensor(df2)
 

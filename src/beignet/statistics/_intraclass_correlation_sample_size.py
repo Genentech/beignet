@@ -15,6 +15,8 @@ def intraclass_correlation_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))

@@ -13,6 +13,8 @@ def intraclass_correlation_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))

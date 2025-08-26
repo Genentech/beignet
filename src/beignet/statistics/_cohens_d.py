@@ -9,6 +9,8 @@ def cohens_d(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     if pooled:
         output = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.sqrt(
             (

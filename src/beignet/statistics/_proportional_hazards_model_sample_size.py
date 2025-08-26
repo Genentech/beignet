@@ -16,6 +16,8 @@ def proportional_hazards_model_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
 
     event_rate = torch.atleast_1d(torch.as_tensor(event_rate))

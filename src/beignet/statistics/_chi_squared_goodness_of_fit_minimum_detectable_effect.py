@@ -14,6 +14,8 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     sample_size_0 = torch.as_tensor(sample_size)
 
     degrees_of_freedom_0 = torch.as_tensor(degrees_of_freedom)

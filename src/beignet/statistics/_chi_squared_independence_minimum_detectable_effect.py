@@ -15,6 +15,8 @@ def chi_square_independence_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
+    r"""
+    """
     sample_size_0 = torch.as_tensor(sample_size)
 
     r0 = torch.as_tensor(rows)
