@@ -14,10 +14,10 @@ def anova_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    N0 = torch.as_tensor(sample_size)
+    n0 = torch.as_tensor(sample_size)
     groups0 = torch.as_tensor(groups)
-    scalar_out = N0.ndim == 0 and groups0.ndim == 0
-    n = torch.atleast_1d(N0)
+    scalar_out = n0.ndim == 0 and groups0.ndim == 0
+    n = torch.atleast_1d(n0)
     groups = torch.atleast_1d(groups0)
     dtype = (
         torch.float64
