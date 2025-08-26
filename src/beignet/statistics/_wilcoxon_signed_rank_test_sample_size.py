@@ -14,8 +14,7 @@ def wilcoxon_signed_rank_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
 
     dtype = torch.float64 if probability.dtype == torch.float64 else torch.float32
@@ -26,8 +25,6 @@ def wilcoxon_signed_rank_test_sample_size(
     square_root_two = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
-    r"""
-    """
         q = torch.tensor(prob, dtype=dtype)
 
         eps = torch.finfo(dtype).eps

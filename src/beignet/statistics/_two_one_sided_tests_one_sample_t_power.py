@@ -13,8 +13,7 @@ def two_one_sided_tests_one_sample_t_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
 
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
@@ -53,8 +52,6 @@ def two_one_sided_tests_one_sample_t_power(
     t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
     def power_greater(noncentrality: Tensor) -> Tensor:
-    r"""
-    """
         variance = torch.where(
             degrees_of_freedom > 2,
             (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
@@ -71,8 +68,6 @@ def two_one_sided_tests_one_sample_t_power(
         )
 
     def power_less(noncentrality: Tensor) -> Tensor:
-    r"""
-    """
         variance = torch.where(
             degrees_of_freedom > 2,
             (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
@@ -100,4 +95,3 @@ def two_one_sided_tests_one_sample_t_power(
         out.copy_(power)
         return out
     return power
-    return result

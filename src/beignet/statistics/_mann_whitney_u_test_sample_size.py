@@ -15,8 +15,7 @@ def mann_whitney_u_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    """
+    r""" """
     auc = torch.atleast_1d(torch.as_tensor(auc))
 
     r = torch.as_tensor(ratio)
@@ -33,8 +32,6 @@ def mann_whitney_u_test_sample_size(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
-    r"""
-    """
         pt = torch.tensor(p, dtype=dtype)
 
         eps = torch.finfo(dtype).eps
@@ -73,7 +70,6 @@ def mann_whitney_u_test_sample_size(
 
     sample_size_group_1_result = torch.ceil(sample_size_group_1_iteration)
     if out is not None:
-        out.copy_(sample_size_group_1_output)
+        out.copy_(sample_size_group_1_result)
         return out
-    return sample_size_group_1_output
-    return result
+    return sample_size_group_1_result
