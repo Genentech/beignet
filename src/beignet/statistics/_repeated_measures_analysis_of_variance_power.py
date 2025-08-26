@@ -22,10 +22,9 @@ def repeated_measures_analysis_of_variance_power(
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
     dtypes = [effect_size.dtype, n_subjects.dtype, n_timepoints.dtype, epsilon.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for dt in dtypes:
+        dtype = torch.promote_types(dtype, dt)
 
     effect_size = effect_size.to(dtype)
 
@@ -59,12 +58,12 @@ def repeated_measures_analysis_of_variance_power(
 
     lambda_nc = n_subjects * (effect_size**2) * n_timepoints
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = df_time_corrected + z_alpha * torch.sqrt(
-        2 * df_time_corrected
+        2 * df_time_corrected,
     )
 
     f_critical = chi_squared_critical / df_time_corrected
@@ -85,7 +84,7 @@ def repeated_measures_analysis_of_variance_power(
 
     z_score = (f_critical - mean_f) / standard_deviation_f
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

@@ -23,11 +23,9 @@ def repeated_measures_analysis_of_variance_sample_size(
 
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
-    dtypes = [effect_size.dtype, n_timepoints.dtype, epsilon.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, n_timepoints, epsilon):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -45,11 +43,11 @@ def repeated_measures_analysis_of_variance_sample_size(
 
     epsilon = torch.clamp(epsilon, max=1.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     efficiency = n_timepoints * epsilon
 
@@ -60,7 +58,11 @@ def repeated_measures_analysis_of_variance_sample_size(
     n_iteration = n_initial
     for _ in range(12):
         current_power = repeated_measures_analysis_of_variance_power(
-            effect_size, n_iteration, n_timepoints, epsilon, alpha=alpha
+            effect_size,
+            n_iteration,
+            n_timepoints,
+            epsilon,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)

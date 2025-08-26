@@ -19,11 +19,9 @@ def proportional_hazards_model_power(
 
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
 
-    dtypes = [hazard_ratio.dtype, n_events.dtype, p_exposed.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (hazard_ratio, n_events, p_exposed):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     hazard_ratio = hazard_ratio.to(dtype)
 
@@ -43,7 +41,7 @@ def proportional_hazards_model_power(
 
     noncentrality = torch.sqrt(variance_null) * torch.abs(log_hr)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -54,26 +52,26 @@ def proportional_hazards_model_power(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
 
-        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
-            1 - torch.erf((z_alpha + noncentrality) / sqrt2)
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / square_root_two)) + 0.5 * (
+            1 - torch.erf((z_alpha + noncentrality) / square_root_two)
         )
     elif alt == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
         if torch.all(hazard_ratio >= 1.0):
-            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))
+            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / square_root_two))
         else:
-            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
-                1 - torch.erf((z_alpha + noncentrality) / sqrt2)
+            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / square_root_two)) + 0.5 * (
+                1 - torch.erf((z_alpha + noncentrality) / square_root_two)
             )
     else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
         if torch.all(hazard_ratio <= 1.0):
-            power = 0.5 * (1 - torch.erf((z_alpha + noncentrality) / sqrt2))
+            power = 0.5 * (1 - torch.erf((z_alpha + noncentrality) / square_root_two))
         else:
-            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
-                1 - torch.erf((z_alpha + noncentrality) / sqrt2)
+            power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / square_root_two)) + 0.5 * (
+                1 - torch.erf((z_alpha + noncentrality) / square_root_two)
             )
 
     power = torch.clamp(power, 0.0, 1.0)

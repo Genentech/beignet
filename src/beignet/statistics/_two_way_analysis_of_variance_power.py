@@ -21,16 +21,9 @@ def two_way_analysis_of_variance_power(
     levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
-    dtypes = [
-        effect_size.dtype,
-        sample_size_per_cell.dtype,
-        levels_factor_a.dtype,
-        levels_factor_b.dtype,
-    ]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, sample_size_per_cell, levels_factor_a, levels_factor_b):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -63,9 +56,9 @@ def two_way_analysis_of_variance_power(
 
     lambda_nc = total_n * effect_size**2
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = df_num + z_alpha * torch.sqrt(2 * df_num)
 
@@ -85,7 +78,7 @@ def two_way_analysis_of_variance_power(
 
     z_score = (f_critical - mean_f) / standard_deviation_f
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

@@ -13,10 +13,9 @@ def t_test_power(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    if effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, sample_size):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
@@ -35,13 +34,13 @@ def t_test_power(
     elif alt not in {"two-sided", "one-sided", "greater", "less"}:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    square_root_two = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
-        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
-        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
@@ -56,33 +55,37 @@ def t_test_power(
 
     if alt == "two-sided":
         z_upper = (t_critical - mean_nct) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
         z_lower = (-t_critical - mean_nct) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
-        power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
-            1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
+        power = 0.5 * (1 - torch.erf(z_upper / square_root_two)) + 0.5 * (
+            1 + torch.erf(z_lower / square_root_two)
         )
     elif alt == "greater":
         z_score = (t_critical - mean_nct) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
-        power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
+        power = 0.5 * (1 - torch.erf(z_score / square_root_two))
     else:
         z_score = (-t_critical - mean_nct) / torch.clamp(
-            standard_deviation_nct, min=1e-10
+            standard_deviation_nct,
+            min=1e-10,
         )
 
-        power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
+        power = 0.5 * (1 + torch.erf(z_score / square_root_two))
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

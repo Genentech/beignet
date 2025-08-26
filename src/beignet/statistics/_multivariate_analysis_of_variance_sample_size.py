@@ -23,10 +23,9 @@ def multivariate_analysis_of_variance_sample_size(
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
     dtypes = [effect_size.dtype, n_variables.dtype, n_groups.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for dt in dtypes:
+        dtype = torch.promote_types(dtype, dt)
 
     effect_size = effect_size.to(dtype)
     n_variables = n_variables.to(dtype)
@@ -39,11 +38,11 @@ def multivariate_analysis_of_variance_sample_size(
 
     n_groups = torch.clamp(n_groups, min=2.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     n_initial = (
         ((z_alpha + z_beta) / effect_size) ** 2 * n_variables + n_groups + n_variables
@@ -53,7 +52,11 @@ def multivariate_analysis_of_variance_sample_size(
     n_iteration = n_initial
     for _ in range(15):
         current_power = multivariate_analysis_of_variance_power(
-            effect_size, n_iteration, n_variables, n_groups, alpha=alpha
+            effect_size,
+            n_iteration,
+            n_variables,
+            n_groups,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
@@ -61,7 +64,9 @@ def multivariate_analysis_of_variance_sample_size(
         adjustment = 1.0 + 1.2 * power_gap
 
         n_iteration = torch.clamp(
-            n_iteration * adjustment, min=n_groups + n_variables + 10, max=1e6
+            n_iteration * adjustment,
+            min=n_groups + n_variables + 10,
+            max=1e6,
         )
 
     n_out = torch.ceil(n_iteration)

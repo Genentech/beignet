@@ -18,13 +18,9 @@ def friedman_test_power(
 
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64 for t in (effect_size, n_subjects, n_treatments)
-        )
-        else torch.float32
-    )
+    dtype = torch.float32
+    for tensor in (effect_size, n_subjects, n_treatments):
+        dtype = torch.promote_types(dtype, tensor.dtype)
     effect_size = effect_size.to(dtype)
 
     n_subjects = n_subjects.to(dtype)
@@ -41,12 +37,12 @@ def friedman_test_power(
 
     lambda_nc = 12 * n_subjects * effect_size / (n_treatments * (n_treatments + 1))
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom
+        2 * degrees_of_freedom,
     )
 
     mean_nc_chi2 = degrees_of_freedom + lambda_nc
@@ -57,7 +53,7 @@ def friedman_test_power(
 
     z_score = (chi_squared_critical - mean_nc_chi2) / std_nc_chi2
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 
