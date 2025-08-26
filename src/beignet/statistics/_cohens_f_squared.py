@@ -8,112 +8,9 @@ def cohens_f_squared(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Compute Cohen's f² effect size for ANOVA.
-
-    Cohen's f² is the squared version of Cohen's f effect size, providing
-    a measure of the proportion of variance explained by group differences.
-    It is related to eta-squared (η²) and partial eta-squared.
-
-    This function is differentiable with respect to both input parameters.
-    While effect size calculations don't typically require gradients,
-    differentiability enables integration into machine learning pipelines
-    where group statistics might be computed from learned representations.
-
-    When to Use
-    -----------
-    **Traditional Statistics:**
-    - ANOVA effect size interpretation: quantifying magnitude of group differences
-    - Meta-analysis: combining effect sizes across multiple studies
-    - Research reporting: standardized effect size for publication requirements
-    - Experimental design: planning studies with meaningful effect size targets
-    - Power analysis input: converting eta-squared to f² for sample size calculations
-
-    **Machine Learning Contexts:**
-    - Model comparison: comparing performance across multiple algorithms or architectures
-    - A/B testing: quantifying effect sizes in multi-group experiments
-    - Feature importance: measuring variance explained by categorical features
-    - Hyperparameter optimization: evaluating effect sizes across different configurations
-    - Cross-validation: assessing effect sizes across different model setups
-    - Ensemble methods: comparing variance explained by different ensemble configurations
-    - Transfer learning: measuring effect sizes across different source domains
-    - Domain adaptation: quantifying adaptation effects across multiple target domains
-    - Active learning: comparing effect sizes of different sample selection strategies
-    - Anomaly detection: measuring variance explained by different detection methods
-    - Recommendation systems: comparing effect sizes across different recommendation approaches
-    - Computer vision: quantifying model performance differences across architectures
-    - NLP: measuring effect sizes in language model comparisons
-    - Causal inference: quantifying treatment effects in multi-group experiments
-
-    **Choose Cohen's f² over other effect sizes when:**
-    - Working with ANOVA results where eta-squared is available
-    - Need effect size for power analysis calculations (f² directly used in formulas)
-    - Comparing results with Cohen's conventions (f² = 0.01/0.0625/0.16)
-    - Converting between eta-squared and standardized effect sizes
-    - Meta-analysis requires f² for combining ANOVA studies
-
-    **Interpretation Guidelines:**
-    - Cohen's f²: 0.01 (small), 0.0625 (medium), 0.16 (large)
-    - Direct conversion: f² = η² / (1 - η²)
-    - For two groups: f² = d² / 4, where d is Cohen's d
-    - Represents proportion of variance explained relative to unexplained variance
-    - Values > 0.35 indicate very large effects in most contexts
-
-    Parameters
-    ----------
-    group_means : Tensor, shape (..., k)
-        Means for each group. The last dimension represents different groups.
-
-    pooled_std : Tensor
-        Pooled within-group standard deviation. Should be broadcastable with group_means.
-
-    out : Tensor, optional
-        Output tensor. Default, `None`.
-
-    Returns
-    -------
-    output : Tensor
-        Cohen's f² effect size.
-
-    Examples
-    --------
-    >>> group_means = torch.tensor([10.0, 12.0, 14.0])
-    >>> pooled_std = torch.tensor(2.0)
-    >>> cohens_f_squared(group_means, pooled_std)
-    tensor(1.0000)
-
-    Notes
-    -----
-    Cohen's f² is calculated as:
-
-    f² = (σ_means / σ_pooled)²
-
-    Where σ_means is the standard deviation of the group means and σ_pooled
-    is the pooled within-group standard deviation.
-
-    The relationship to other effect sizes:
-    - f² = η² / (1 - η²), where η² is eta-squared
-    - η² = f² / (1 + f²)
-    - For two groups: f² = d² / 4, where d is Cohen's d
-
-    Interpretation guidelines (Cohen, 1988):
-    - Small effect: f² = 0.01 (η² ≈ 0.01)
-    - Medium effect: f² = 0.0625 (η² ≈ 0.059)
-    - Large effect: f² = 0.16 (η² ≈ 0.138)
-
-    References
-    ----------
-    .. [1] Cohen, J. (1988). Statistical power analysis for the behavioral
-           sciences (2nd ed.). Erlbaum.
-    .. [2] Richardson, J. T. E. (2011). Eta squared and partial eta squared
-           as measures of effect size in educational research. Educational
-           Research Review, 6(2), 135-147.
-    """
-    # Convert inputs to tensors if needed
     group_means = torch.atleast_1d(torch.as_tensor(group_means))
     pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
 
-    # Ensure both tensors have the same dtype
     if group_means.dtype == torch.float64 or pooled_std.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -122,8 +19,6 @@ def cohens_f_squared(
     group_means = group_means.to(dtype)
     pooled_std = pooled_std.to(dtype)
 
-    # Calculate the standard deviation of group means
-    # If group_means has shape (..., k), compute std along last dimension
     sigma_means = torch.std(group_means, dim=-1, unbiased=False)
 
     # Avoid division by zero

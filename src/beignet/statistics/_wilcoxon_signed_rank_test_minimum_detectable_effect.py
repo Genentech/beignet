@@ -85,7 +85,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # H0 moments
+    # H0 moments for initial guess
     S = sample_size * (sample_size + 1.0) / 2.0
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
@@ -102,21 +102,53 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     z_beta = z_of(power)
     delta = (z_alpha + z_beta) * sd0 / torch.clamp(S, min=1e-12)
 
+    # Initial guess
     if alt == "less":
-        probability = torch.clamp(0.5 - delta, 0.0, 1.0)
+        prob_initial = torch.clamp(0.5 - delta, 0.0, 1.0)
     else:
-        probability = torch.clamp(0.5 + delta, 0.0, 1.0)
+        prob_initial = torch.clamp(0.5 + delta, 0.0, 1.0)
 
-    # Optional small refinement
-    p_curr = wilcoxon_signed_rank_test_power(
-        probability, sample_size, alpha=alpha, alternative=alt
-    )
-    gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
-    step = gap * 0.02
+    # Use bisection method for accurate solution
     if alt == "less":
-        probability = torch.clamp(probability - torch.abs(step), 0.0, 1.0)
+        prob_lo = torch.zeros_like(prob_initial)
+        prob_hi = torch.full_like(prob_initial, 0.5)
     else:
-        probability = torch.clamp(probability + torch.abs(step), 0.0, 1.0)
+        prob_lo = torch.full_like(prob_initial, 0.5)
+        prob_hi = torch.ones_like(prob_initial)
+
+    # Check if target power is achievable - max power is at the appropriate boundary
+    if alt == "less":
+        max_power_prob = prob_lo  # For "less", maximum power at prob_positive = 0
+    else:
+        max_power_prob = prob_hi  # For others, maximum power at prob_positive = 1
+
+    max_power = wilcoxon_signed_rank_test_power(
+        max_power_prob, sample_size, alpha=alpha, alternative=alt
+    )
+
+    # If target power is unattainable, return the prob_positive that gives maximum power
+    unattainable = max_power < power - 1e-6
+
+    # For attainable targets, use bisection method
+    probability = (prob_lo + prob_hi) * 0.5
+    for _ in range(24):
+        current_power = wilcoxon_signed_rank_test_power(
+            probability, sample_size, alpha=alpha, alternative=alt
+        )
+        too_low = current_power < power
+
+        # For "less" alternative, power decreases as prob_positive increases
+        # So if power is too low, we need smaller prob_positive
+        if alt == "less":
+            prob_hi = torch.where(too_low, probability, prob_hi)
+            prob_lo = torch.where(too_low, prob_lo, probability)
+        else:
+            prob_lo = torch.where(too_low, probability, prob_lo)
+            prob_hi = torch.where(too_low, prob_hi, probability)
+        probability = (prob_lo + prob_hi) * 0.5
+
+    # For unattainable cases, return the boundary value that gives maximum power
+    probability = torch.where(unattainable, max_power_prob, probability)
 
     if scalar_out:
         probability_s = probability.reshape(())
