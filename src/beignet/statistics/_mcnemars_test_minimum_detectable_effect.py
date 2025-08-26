@@ -41,6 +41,44 @@ def mcnemars_test_minimum_detectable_effect(
     Under the normal approximation used in power/sample size, the noncentrality
     depends on |p01 - p10| only through (p01 + p10); thus
     |p01 - p10|_min ≈ (z_α + z_β) * sqrt((p01+p10)/n).
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Paired binary outcomes:** Testing changes in binary responses within subjects
+    - **Before-after comparisons:** Analyzing binary outcomes pre/post intervention
+    - **Matched case-control studies:** Testing association with paired binary data
+    - **Repeated measures with binary outcomes:** Comparing binary responses over time
+    - **Diagnostic test evaluation:** Comparing two diagnostic tests on same subjects
+    - **Treatment crossover studies:** Testing period effects in crossover designs
+
+    **Machine Learning Applications:**
+
+    - **Model comparison on same data:** Minimum detectable differences in binary classification accuracy
+    - **A/B testing with paired users:** Detecting changes in user binary behaviors (conversion, engagement)
+    - **Algorithm fairness evaluation:** Testing for discriminatory changes across demographic pairs
+    - **Feature impact assessment:** Minimum detectable changes from feature modifications
+    - **Recommendation system evaluation:** Paired comparison of recommendation acceptance rates
+    - **Spam detection validation:** Comparing spam classification before/after algorithm updates
+    - **Fraud detection assessment:** Testing changes in fraud detection rates with paired transactions
+    - **Click prediction optimization:** Minimum detectable improvements in click-through rates
+    - **Content moderation evaluation:** Testing changes in content classification decisions
+    - **Sentiment analysis validation:** Comparing sentiment classification before/after model updates
+    - **Information retrieval testing:** Paired evaluation of search result relevance binary ratings
+    - **Chatbot performance analysis:** Testing changes in successful interaction rates
+    - **Image classification assessment:** Comparing classification accuracy before/after model changes
+    - **Natural language processing:** Testing binary classification improvements in NLP tasks
+    - **Personalization effectiveness:** Minimum detectable changes in personalized content engagement
+
+    **Interpretation Guidelines:**
+
+    - **|p01 - p10| = 0.05:** Small discordancy difference (5% change in relative frequencies)
+    - **|p01 - p10| = 0.10:** Medium discordancy difference (10% change)
+    - **|p01 - p10| = 0.20:** Large discordancy difference (20% change)
+    - **Consider base discordant rate:** Effects are relative to p01 + p10
+    - **Practical significance:** Changes must be meaningful in application context
+    - **Symmetry assumption:** Test assumes equal variance for both discordant patterns
     """
     d0 = torch.as_tensor(discordant_rate)
     n0 = torch.as_tensor(sample_size)

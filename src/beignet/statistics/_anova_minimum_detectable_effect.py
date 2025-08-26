@@ -32,6 +32,44 @@ def anova_minimum_detectable_effect(
     -------
     Tensor
         Minimal Cohen's f achieving the requested power.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Study planning:** Determining the smallest effect size that can be reliably detected with available sample
+    - **Power estimation for grant proposals:** Calculating minimal detectable differences for funding applications
+    - **Experimental design optimization:** Understanding trade-offs between sample size and effect sensitivity
+    - **Multi-group comparisons:** When comparing means across 3+ independent groups
+    - **Factor analysis:** Testing main effects in single-factor experimental designs
+    - **Resource allocation:** Optimizing study design given fixed sample size constraints
+
+    **Machine Learning Applications:**
+
+    - **A/B/C+ testing:** Minimum detectable lift in conversion rates across multiple treatment groups
+    - **Feature importance validation:** Smallest effect size detectable when comparing feature contributions
+    - **Model performance comparison:** Minimum meaningful difference between 3+ model variants
+    - **Hyperparameter sensitivity analysis:** Detecting parameter effects across multiple configurations
+    - **Multi-arm bandit optimization:** Effect size thresholds for algorithmic arm selection
+    - **Recommendation system testing:** Minimum detectable engagement differences across algorithm variants
+    - **Ad targeting effectiveness:** Smallest CTR improvements detectable across audience segments
+    - **User segmentation validation:** Effect sizes for behavioral differences between user groups
+    - **Content optimization:** Minimum detectable engagement differences across content variants
+    - **Algorithm fairness testing:** Detecting performance disparities across demographic groups
+    - **Ensemble method comparison:** Minimum performance gaps between multiple ensemble strategies
+    - **Cross-validation strategy evaluation:** Effect size detection across different validation approaches
+    - **Feature engineering impact:** Minimum detectable improvements from feature transformations
+    - **Model deployment strategies:** Detecting performance differences across deployment configurations
+    - **Data preprocessing comparison:** Effect size detection across different preprocessing pipelines
+
+    **Interpretation Guidelines:**
+
+    - **Cohen's f = 0.1:** Small effect (1% of variance explained)
+    - **Cohen's f = 0.25:** Medium effect (6.25% of variance explained)
+    - **Cohen's f = 0.4:** Large effect (16% of variance explained)
+    - **Values < 0.1:** Very small effects, may lack practical significance
+    - **Consider practical significance:** Statistical detectability doesn't guarantee business impact
+    - **Resource constraints:** Balance between sample size costs and effect size sensitivity
     """
     N0 = torch.as_tensor(sample_size)
     k0 = torch.as_tensor(k)

@@ -32,6 +32,44 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     -------
     Tensor
         Minimal Cohen's w achieving the requested power.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Distribution testing:** Determining if observed frequencies match expected theoretical distributions
+    - **Model validation:** Testing goodness-of-fit for statistical models against data
+    - **Categorical data analysis:** When expected frequencies for each category are known
+    - **Quality control:** Testing if production distributions match specifications
+    - **Survey research:** Validating response patterns against expected distributions
+    - **Market research:** Testing consumer preference distributions against theoretical models
+
+    **Machine Learning Applications:**
+
+    - **Class imbalance detection:** Minimum detectable deviations from expected class distributions
+    - **Data drift monitoring:** Smallest distribution shifts detectable in production data
+    - **Feature distribution validation:** Testing if features match expected categorical distributions
+    - **Synthetic data quality assessment:** Validating generated data against target distributions
+    - **A/B testing categorical outcomes:** Minimum detectable changes in categorical response patterns
+    - **Recommendation system evaluation:** Distribution differences in user interaction patterns
+    - **Text classification validation:** Testing predicted category distributions against benchmarks
+    - **Clustering evaluation:** Validating cluster membership distributions against expected patterns
+    - **Fraud detection calibration:** Testing alert distribution patterns against baseline expectations
+    - **User behavior analysis:** Detecting changes in categorical user action distributions
+    - **Content performance testing:** Minimum detectable shifts in content category engagement
+    - **Algorithm fairness validation:** Testing for demographic distribution deviations
+    - **Model calibration assessment:** Validating predicted probability distributions
+    - **Feature importance validation:** Testing categorical feature contribution patterns
+    - **Data quality monitoring:** Detecting categorical data corruption or processing errors
+
+    **Interpretation Guidelines:**
+
+    - **Cohen's w = 0.1:** Small effect (small deviation from expected distribution)
+    - **Cohen's w = 0.3:** Medium effect (moderate distribution deviation)
+    - **Cohen's w = 0.5:** Large effect (substantial distribution difference)
+    - **Values < 0.1:** Very small deviations, may lack practical significance
+    - **Higher df requires larger sample sizes:** More categories reduce power for given effect size
+    - **Consider practical impact:** Statistical significance doesn't guarantee business relevance
     """
     n0 = torch.as_tensor(sample_size)
     df0 = torch.as_tensor(df)

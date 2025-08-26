@@ -35,6 +35,44 @@ def chi_square_independence_minimum_detectable_effect(
     -------
     Tensor
         Minimal Cohen's w achieving the requested power.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Contingency table analysis:** Testing association between two categorical variables
+    - **Cross-tabulation studies:** Examining relationships between demographic factors
+    - **Survey data analysis:** Testing independence of responses across categories
+    - **Medical research:** Analyzing treatment outcomes by patient characteristics
+    - **Quality control:** Testing independence between defect types and production factors
+    - **Market research:** Examining relationships between consumer segments and preferences
+
+    **Machine Learning Applications:**
+
+    - **Feature independence testing:** Minimum detectable associations between categorical features
+    - **Bias detection:** Smallest discriminatory patterns detectable in algorithmic decisions
+    - **A/B testing segmentation:** Detecting treatment effects across different user segments
+    - **User behavior analysis:** Minimum detectable correlations between user attributes and actions
+    - **Content recommendation validation:** Testing independence between content types and user engagement
+    - **Fraud detection pattern analysis:** Detecting associations between transaction attributes
+    - **Classification model validation:** Testing predicted class independence from sensitive attributes
+    - **Data preprocessing validation:** Ensuring categorical transformations maintain independence
+    - **Clustering evaluation:** Testing independence between cluster assignments and external variables
+    - **Multi-target prediction:** Validating independence assumptions between target variables
+    - **Feature selection validation:** Testing categorical feature relationships in high-dimensional data
+    - **Fairness testing in ML:** Detecting biased associations between protected and predicted classes
+    - **Synthetic data evaluation:** Validating independence preservation in generated categorical data
+    - **Model calibration across segments:** Testing prediction consistency across categorical groups
+    - **Data quality assessment:** Detecting unexpected categorical variable dependencies
+
+    **Interpretation Guidelines:**
+
+    - **Cohen's w = 0.1:** Small association between variables
+    - **Cohen's w = 0.3:** Medium association strength
+    - **Cohen's w = 0.5:** Large association effect
+    - **Values < 0.1:** Very weak associations, may lack practical significance
+    - **Higher dimensions require larger samples:** More rows/columns reduce power
+    - **Consider practical impact:** Statistical association doesn't guarantee causal relationship
     """
     n0 = torch.as_tensor(sample_size)
     r0 = torch.as_tensor(rows)

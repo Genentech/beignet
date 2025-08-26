@@ -30,6 +30,44 @@ def f_test_minimum_detectable_effect(
     -------
     Tensor
         Minimal f² achieving the requested power.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Variance ratio testing:** Comparing variances between groups or conditions
+    - **Model comparison:** Testing if additional terms significantly improve model fit
+    - **Nested model testing:** Comparing restricted vs. unrestricted statistical models
+    - **Regression analysis:** Testing overall model significance or subset of predictors
+    - **Design of experiments:** Planning studies with known degrees of freedom
+    - **Quality control:** Testing variance homogeneity in manufacturing processes
+
+    **Machine Learning Applications:**
+
+    - **Feature subset evaluation:** Minimum detectable improvement from additional features
+    - **Model complexity testing:** Comparing models with different numbers of parameters
+    - **Cross-validation analysis:** Testing significance of performance differences across folds
+    - **Hyperparameter optimization:** Minimum detectable effects of parameter changes
+    - **Ensemble method comparison:** Testing variance differences between ensemble components
+    - **Regularization effect analysis:** Detecting minimum impacts of regularization parameters
+    - **Architecture comparison:** Testing performance differences between neural network architectures
+    - **Data augmentation validation:** Minimum detectable effects of data augmentation techniques
+    - **Transfer learning assessment:** Testing significance of domain adaptation improvements
+    - **Active learning evaluation:** Minimum detectable differences in learning curve slopes
+    - **Distributed training analysis:** Testing consistency across different training configurations
+    - **Batch size optimization:** Detecting minimum effects of batch size on model variance
+    - **Learning rate scheduling:** Minimum detectable impacts of learning rate decay strategies
+    - **Multi-task learning:** Testing shared vs. separate model components effectiveness
+    - **Federated learning evaluation:** Minimum detectable differences across federated clients
+
+    **Interpretation Guidelines:**
+
+    - **f² = 0.02:** Small effect (Cohen's convention)
+    - **f² = 0.15:** Medium effect
+    - **f² = 0.35:** Large effect
+    - **Values < 0.02:** Very small effects, may lack practical significance
+    - **Consider degrees of freedom:** Higher df1/df2 ratios require larger effect sizes
+    - **F-statistic relationship:** F = 1 + f² under null, so f² represents proportional variance increase
     """
     df1_0 = torch.as_tensor(df1)
     df2_0 = torch.as_tensor(df2)

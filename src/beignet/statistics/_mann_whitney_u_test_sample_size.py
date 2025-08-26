@@ -17,6 +17,44 @@ def mann_whitney_u_test_sample_size(
 ) -> Tensor:
     """
     Required group-1 sample size for Mann–Whitney U (normal approximation), parameterized by AUC.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+
+    - **Non-parametric study planning:** When distributions are expected to be non-normal
+    - **Ordinal data analysis:** Planning studies with ranked or ordered categorical data
+    - **Robust comparison studies:** When outliers are expected and normality can't be assumed
+    - **Small sample planning:** Alternative to t-test when normality assumptions are questionable
+    - **Skewed data studies:** Planning comparisons when data distributions are asymmetric
+    - **Distribution-free testing:** When no assumptions about population distributions are desired
+
+    **Machine Learning Applications:**
+
+    - **Binary classification planning:** Sample size for ROC AUC-based model comparison
+    - **Ranking algorithm evaluation:** Planning studies for ranking quality assessment
+    - **Recommendation system testing:** Sample size for recommendation performance studies
+    - **Anomaly detection validation:** Planning discrimination studies between normal/abnormal cases
+    - **Information retrieval planning:** Sample size for search result quality comparisons
+    - **Feature importance studies:** Planning non-parametric feature discrimination analysis
+    - **Model fairness evaluation:** Sample size for bias detection across demographic groups
+    - **A/B testing with ordinal outcomes:** Planning experiments with ranked response metrics
+    - **Clustering validation planning:** Sample size for non-parametric cluster separation studies
+    - **Time series anomaly detection:** Planning temporal pattern discrimination studies
+    - **Multi-class classification:** Sample size for pairwise class discrimination analysis
+    - **Ensemble method evaluation:** Planning non-parametric ensemble component comparison
+    - **Transfer learning studies:** Sample size for domain adaptation discrimination analysis
+    - **Active learning planning:** Sample size for uncertainty-based sample selection studies
+    - **Personalization effectiveness:** Planning individual response discrimination studies
+
+    **Interpretation Guidelines:**
+
+    - **AUC = 0.6:** Small effect, requires large samples (n ≈ 863 per group for 80% power)
+    - **AUC = 0.7:** Medium effect (n ≈ 199 per group for 80% power)
+    - **AUC = 0.8:** Large effect (n ≈ 86 per group for 80% power)
+    - **AUC = 0.9:** Very large effect (n ≈ 34 per group for 80% power)
+    - **Distribution-free approach:** Valid regardless of underlying population distributions
+    - **Consider practical significance:** AUC thresholds should be meaningful in application context
     """
     auc = torch.atleast_1d(torch.as_tensor(auc))
     r = torch.as_tensor(ratio)
