@@ -16,6 +16,7 @@ def intraclass_correlation_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     icc = torch.atleast_1d(torch.as_tensor(icc))
+
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
 
     dtype = (
@@ -24,12 +25,15 @@ def intraclass_correlation_sample_size(
         else torch.float32
     )
     icc = icc.to(dtype)
+
     n_raters = n_raters.to(dtype)
 
     icc = torch.clamp(icc, min=0.01, max=0.99)
+
     n_raters = torch.clamp(n_raters, min=2.0)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -48,7 +52,9 @@ def intraclass_correlation_sample_size(
     f_expected = (1 + (n_raters - 1) * icc) / (1 - icc)
 
     effect_size = torch.log(f_expected)
+
     n_init = ((z_alpha + z_beta) / effect_size) ** 2
+
     n_init = torch.clamp(n_init, min=10.0)
 
     n_current = n_init
@@ -58,7 +64,9 @@ def intraclass_correlation_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.4 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=10.0, max=1e5)
 
     n_out = torch.ceil(n_current)

@@ -17,7 +17,9 @@ def poisson_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     mean_rate = torch.atleast_1d(torch.as_tensor(mean_rate))
+
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     dtypes = [effect_size.dtype, mean_rate.dtype, p_exposure.dtype]
@@ -27,16 +29,21 @@ def poisson_regression_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     mean_rate = mean_rate.to(dtype)
+
     p_exposure = p_exposure.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
+
     mean_rate = torch.clamp(mean_rate, min=0.01)
+
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
     beta = torch.log(effect_size)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -53,6 +60,7 @@ def poisson_regression_sample_size(
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     mean_exposed = mean_rate * effect_size
+
     expected_count = p_exposure * mean_exposed + (1 - p_exposure) * mean_rate
 
     n_init = ((z_alpha + z_beta) ** 2) / (
@@ -72,7 +80,9 @@ def poisson_regression_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.2 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
 
     n_out = torch.ceil(n_current)

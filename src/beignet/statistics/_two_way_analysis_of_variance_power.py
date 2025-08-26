@@ -15,7 +15,9 @@ def two_way_analysis_of_variance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     sample_size_per_cell = torch.atleast_1d(torch.as_tensor(sample_size_per_cell))
+
     levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
@@ -31,12 +33,16 @@ def two_way_analysis_of_variance_power(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     sample_size_per_cell = sample_size_per_cell.to(dtype)
+
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.0)
+
     sample_size_per_cell = torch.clamp(sample_size_per_cell, min=2.0)
+
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)
 
@@ -52,18 +58,25 @@ def two_way_analysis_of_variance_power(
         raise ValueError("effect_type must be 'main_a', 'main_b', or 'interaction'")
 
     df_den = levels_factor_a * levels_factor_b * (sample_size_per_cell - 1)
+
     df_den = torch.clamp(df_den, min=1.0)
 
     lambda_nc = total_n * effect_size**2
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     chi2_critical = df_num + z_alpha * torch.sqrt(2 * df_num)
+
     f_critical = chi2_critical / df_num
 
     mean_nc_chi2 = df_num + lambda_nc
+
     var_nc_chi2 = 2 * (df_num + 2 * lambda_nc)
+
     mean_f = mean_nc_chi2 / df_num
+
     var_f = var_nc_chi2 / (df_num**2)
 
     var_f = var_f * ((df_den + 2) / torch.clamp(df_den, min=1.0))

@@ -16,6 +16,7 @@ def proportion_two_sample_power(
 ) -> Tensor:
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
+
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(n1))
 
     if n2 is None:
@@ -35,10 +36,12 @@ def proportion_two_sample_power(
 
     p1 = p1.to(dtype)
     p2 = p2.to(dtype)
+
     sample_size_group_1 = sample_size_group_1.to(dtype)
     sample_size_group_2 = sample_size_group_2.to(dtype)
 
     epsilon = 1e-8
+
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
     p2 = torch.clamp(p2, epsilon, 1 - epsilon)
 

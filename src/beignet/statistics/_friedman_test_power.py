@@ -13,7 +13,9 @@ def friedman_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
+
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 
     dtype = (
@@ -24,11 +26,15 @@ def friedman_test_power(
         else torch.float32
     )
     effect_size = effect_size.to(dtype)
+
     n_subjects = n_subjects.to(dtype)
+
     n_treatments = n_treatments.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.0)
+
     n_subjects = torch.clamp(n_subjects, min=3.0)
+
     n_treatments = torch.clamp(n_treatments, min=3.0)
 
     degrees_of_freedom = n_treatments - 1
@@ -36,11 +42,15 @@ def friedman_test_power(
     lambda_nc = 12 * n_subjects * effect_size / (n_treatments * (n_treatments + 1))
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     mean_nc_chi2 = degrees_of_freedom + lambda_nc
+
     var_nc_chi2 = 2 * (degrees_of_freedom + 2 * lambda_nc)
+
     std_nc_chi2 = torch.sqrt(torch.clamp(var_nc_chi2, min=1e-12))
 
     z_score = (chi2_critical - mean_nc_chi2) / std_nc_chi2

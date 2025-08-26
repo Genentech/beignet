@@ -19,11 +19,13 @@ def cohens_kappa_sample_size(
     dtype = kappa.dtype
     if not dtype.is_floating_point:
         dtype = torch.float32
+
     kappa = kappa.to(dtype)
 
     kappa = torch.clamp(kappa, min=-0.99, max=0.99)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -40,7 +42,9 @@ def cohens_kappa_sample_size(
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     p_e_approx = torch.tensor(0.5, dtype=dtype)
+
     n_init = ((z_alpha + z_beta) ** 2) * p_e_approx / ((kappa**2) * (1 - p_e_approx))
+
     n_init = torch.clamp(n_init, min=15.0)
 
     n_current = n_init
@@ -50,7 +54,9 @@ def cohens_kappa_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.3 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=15.0, max=1e5)
 
     n_out = torch.ceil(n_current)

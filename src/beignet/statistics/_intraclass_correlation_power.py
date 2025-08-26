@@ -14,7 +14,9 @@ def intraclass_correlation_power(
     out: Tensor | None = None,
 ) -> Tensor:
     icc = torch.atleast_1d(torch.as_tensor(icc))
+
     n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
+
     n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
 
     dtype = (
@@ -23,11 +25,15 @@ def intraclass_correlation_power(
         else torch.float32
     )
     icc = icc.to(dtype)
+
     n_subjects = n_subjects.to(dtype)
+
     n_raters = n_raters.to(dtype)
 
     icc = torch.clamp(icc, min=0.0, max=0.99)
+
     n_subjects = torch.clamp(n_subjects, min=3.0)
+
     n_raters = torch.clamp(n_raters, min=2.0)
 
     df_between = n_subjects - 1
@@ -35,12 +41,15 @@ def intraclass_correlation_power(
     f_expected = (1 + (n_raters - 1) * icc) / (1 - icc)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
     f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df_between)
 
     mean_f = f_expected
+
     var_f = 2 * f_expected * f_expected / df_between
+
     std_f = torch.sqrt(torch.clamp(var_f, min=1e-12))
 
     z_score = (f_critical - mean_f) / std_f

@@ -24,6 +24,7 @@ def kolmogorov_smirnov_test_power(
     sample_size = sample_size.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.0, max=1.0)
+
     sample_size = torch.clamp(sample_size, min=3.0)
 
     alt = alternative.lower()

@@ -11,18 +11,23 @@ def correlation_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r = torch.atleast_1d(torch.as_tensor(r))
+
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     if r.dtype != sample_size.dtype:
         if r.dtype == torch.float64 or sample_size.dtype == torch.float64:
             r = r.to(torch.float64)
+
             sample_size = sample_size.to(torch.float64)
         else:
             r = r.to(torch.float32)
+
             sample_size = sample_size.to(torch.float32)
 
     epsilon = 1e-7
+
     r_clamped = torch.clamp(r, -1 + epsilon, 1 - epsilon)
+
     z_r = 0.5 * torch.log((1 + r_clamped) / (1 - r_clamped))
 
     se_z = 1.0 / torch.sqrt(sample_size - 3)

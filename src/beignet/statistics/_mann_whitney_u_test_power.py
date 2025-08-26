@@ -15,9 +15,11 @@ def mann_whitney_u_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     auc = torch.atleast_1d(torch.as_tensor(auc))
+
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     if nobs2 is None:
         r = torch.as_tensor(ratio)
+
         sample_size_group_2 = torch.ceil(
             sample_size_group_1
             * (
@@ -38,6 +40,7 @@ def mann_whitney_u_test_power(
         else torch.float32
     )
     auc = auc.to(dtype)
+
     sample_size_group_1 = torch.clamp(sample_size_group_1.to(dtype), min=2.0)
     sample_size_group_2 = torch.clamp(sample_size_group_2.to(dtype), min=2.0)
 
@@ -50,6 +53,7 @@ def mann_whitney_u_test_power(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     mean0 = sample_size_group_1 * sample_size_group_2 / 2.0
+
     var0 = (
         sample_size_group_1
         * sample_size_group_2
@@ -59,18 +63,22 @@ def mann_whitney_u_test_power(
     mean1 = sample_size_group_1 * sample_size_group_2 * auc
 
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
+
     noncentrality_parameter = (mean1 - mean0) / sd0
 
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
         pt = torch.tensor(p, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         pt = torch.clamp(pt, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
 
     if alt == "two-sided":
         zcrit = z_of(1 - alpha / 2)
+
         upper = 0.5 * (
             1 - torch.erf((zcrit - noncentrality_parameter) / math.sqrt(2.0))
         )
@@ -80,11 +88,13 @@ def mann_whitney_u_test_power(
         power = upper + lower
     elif alt == "greater":
         zcrit = z_of(1 - alpha)
+
         power = 0.5 * (
             1 - torch.erf((zcrit - noncentrality_parameter) / math.sqrt(2.0))
         )
     else:
         zcrit = z_of(1 - alpha)
+
         power = 0.5 * (
             1 + torch.erf((-zcrit - noncentrality_parameter) / math.sqrt(2.0))
         )

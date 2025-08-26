@@ -16,6 +16,7 @@ def mixed_model_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     n_observations_per_subject = torch.atleast_1d(
         torch.as_tensor(n_observations_per_subject)
     )
@@ -28,15 +29,21 @@ def mixed_model_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     n_observations_per_subject = n_observations_per_subject.to(dtype)
+
     icc = icc.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-8)
+
     n_observations_per_subject = torch.clamp(n_observations_per_subject, min=1.0)
+
     icc = torch.clamp(icc, min=0.0, max=0.99)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     design_effect = 1.0 + (n_observations_per_subject - 1.0) * icc
@@ -44,6 +51,7 @@ def mixed_model_sample_size(
     n_eff_needed = 4 * ((z_alpha + z_beta) / effect_size) ** 2
 
     n_subjects_init = n_eff_needed * design_effect / n_observations_per_subject
+
     n_subjects_init = torch.clamp(n_subjects_init, min=10.0)
 
     n_current = n_subjects_init
@@ -53,7 +61,9 @@ def mixed_model_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.3 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=10.0, max=1e5)
 
     n_out = torch.ceil(n_current)

@@ -13,6 +13,7 @@ def chi_square_goodness_of_fit_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     degrees_of_freedom = torch.atleast_1d(torch.as_tensor(df))
 
     if effect_size.dtype == torch.float64 or degrees_of_freedom.dtype == torch.float64:
@@ -21,13 +22,17 @@ def chi_square_goodness_of_fit_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     degrees_of_freedom = degrees_of_freedom.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-6)
+
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
     sqrt_2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
     n_initial = ((z_alpha + z_beta) / effect_size) ** 2
@@ -35,7 +40,9 @@ def chi_square_goodness_of_fit_sample_size(
     n_initial = torch.clamp(n_initial, min=5.0)
 
     n_current = n_initial
+
     convergence_tolerance = 1e-6
+
     max_iterations = 10
 
     for _iteration in range(max_iterations):
@@ -46,10 +53,13 @@ def chi_square_goodness_of_fit_sample_size(
         )
 
         mean_nc_chi2 = degrees_of_freedom + ncp_current
+
         var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp_current)
+
         std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
         z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
+
         power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
 
         power_current = torch.clamp(power_current, 0.01, 0.99)
@@ -63,10 +73,13 @@ def chi_square_goodness_of_fit_sample_size(
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
+
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
+
         n_current = n_current + adjustment
 
         n_current = torch.clamp(n_current, min=5.0)
+
         n_current = torch.clamp(n_current, max=1000000.0)
 
     output = torch.ceil(n_current)

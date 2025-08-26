@@ -9,14 +9,17 @@ def phi_coefficient(
     out: Tensor | None = None,
 ) -> Tensor:
     chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
+
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     if chi_square.dtype != sample_size.dtype:
         if chi_square.dtype == torch.float64 or sample_size.dtype == torch.float64:
             chi_square = chi_square.to(torch.float64)
+
             sample_size = sample_size.to(torch.float64)
         else:
             chi_square = chi_square.to(torch.float32)
+
             sample_size = sample_size.to(torch.float32)
 
     output = torch.sqrt(chi_square / sample_size)

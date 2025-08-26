@@ -13,6 +13,7 @@ def wilcoxon_signed_rank_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
+
     sample_size = torch.atleast_1d(torch.as_tensor(nobs))
 
     dtype = (
@@ -21,6 +22,7 @@ def wilcoxon_signed_rank_test_power(
         else torch.float32
     )
     probability = probability.to(dtype)
+
     sample_size = torch.clamp(sample_size.to(dtype), min=5.0)
 
     alt = alternative.lower()
@@ -32,31 +34,42 @@ def wilcoxon_signed_rank_test_power(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     s = sample_size * (sample_size + 1.0) / 2.0
+
     mean0 = s / 2.0
+
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
+
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
     mean1 = s * probability
+
     noncentrality_parameter = (mean1 - mean0) / sd0
 
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         q = torch.clamp(q, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
 
     if alt == "two-sided":
         zcrit = z_of(1 - alpha / 2)
+
         upper = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
+
         lower = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
+
         power = upper + lower
     elif alt == "greater":
         zcrit = z_of(1 - alpha)
+
         power = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
     else:
         zcrit = z_of(1 - alpha)
+
         power = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
 
     out_t = torch.clamp(power, 0.0, 1.0)

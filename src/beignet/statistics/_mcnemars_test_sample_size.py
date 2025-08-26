@@ -17,6 +17,7 @@ def mcnemars_test_sample_size(
 ) -> Tensor:
     p01 = torch.atleast_1d(torch.as_tensor(p01))
     p10 = torch.atleast_1d(torch.as_tensor(p10))
+
     dtype = (
         torch.float64
         if (p01.dtype == torch.float64 or p10.dtype == torch.float64)
@@ -29,7 +30,9 @@ def mcnemars_test_sample_size(
 
     def z_of(prob: float) -> Tensor:
         pt = torch.tensor(prob, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         pt = torch.clamp(pt, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
 
@@ -37,11 +40,14 @@ def mcnemars_test_sample_size(
         z_alpha = z_of(1 - alpha / 2)
     else:
         z_alpha = z_of(1 - alpha)
+
     z_beta = z_of(power)
+
     probability = torch.where(
         (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
     )
     delta = torch.abs(probability - 0.5)
+
     n0 = ((z_alpha + z_beta) / (2 * torch.clamp(delta, min=1e-8))) ** 2 / torch.clamp(
         p01 + p10, min=1e-8
     )
@@ -53,6 +59,7 @@ def mcnemars_test_sample_size(
             p01, p10, torch.ceil(n_curr), alpha=alpha, two_sided=two_sided
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
+
         n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=4.0, max=1e7)
 
     n_out = torch.ceil(n_curr)

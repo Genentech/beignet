@@ -39,12 +39,15 @@ def z_test_power(
 
     def z_of(p):
         pt = torch.as_tensor(p, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         pt = torch.clamp(pt, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
 
     if alt == "two-sided":
         z_alpha_half = z_of(1 - alpha / 2)
+
         power_upper = 0.5 * (
             1 - torch.erf((z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
         )
@@ -54,9 +57,11 @@ def z_test_power(
         power = power_upper + power_lower
     elif alt == "greater":
         z_alpha = z_of(1 - alpha)
+
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
     else:
         z_alpha = z_of(1 - alpha)
+
         power = 0.5 * (1 + torch.erf((-z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
 
     output = torch.clamp(power, 0.0, 1.0)

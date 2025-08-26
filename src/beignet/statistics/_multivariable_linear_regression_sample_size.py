@@ -17,25 +17,32 @@ def multivariable_linear_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
+
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
 
     if r_squared.dtype == torch.float64 or n_predictors.dtype == torch.float64:
         dtype = torch.float64
     else:
         dtype = torch.float32
+
     r_squared = r_squared.to(dtype)
+
     n_predictors = n_predictors.to(dtype)
 
     r_squared = torch.clamp(r_squared, min=1e-8, max=0.99)
+
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     f_squared = r_squared / (1 - r_squared)
 
     n_init = ((z_alpha + z_beta) ** 2) / f_squared + n_predictors + 1
+
     n_init = torch.clamp(n_init, min=n_predictors + 10)
 
     n_current = n_init
@@ -45,7 +52,9 @@ def multivariable_linear_regression_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.1 * power_gap
+
         n_current = torch.clamp(
             n_current * adjustment,
             min=n_predictors + 10,

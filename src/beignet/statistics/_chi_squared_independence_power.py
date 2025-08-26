@@ -15,6 +15,7 @@ def chi_square_independence_power(
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
@@ -30,12 +31,14 @@ def chi_square_independence_power(
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
+
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.0)
 
     sample_size = torch.clamp(sample_size, min=1.0)
+
     rows = torch.clamp(rows, min=2.0)
     cols = torch.clamp(cols, min=2.0)
 
@@ -46,10 +49,13 @@ def chi_square_independence_power(
     sqrt_2 = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
     chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     mean_nc_chi2 = degrees_of_freedom + ncp
+
     var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp)
+
     std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
     z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)

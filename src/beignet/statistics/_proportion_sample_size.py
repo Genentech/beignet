@@ -25,6 +25,7 @@ def proportion_sample_size(
     p1 = p1.to(dtype)
 
     epsilon = 1e-8
+
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
@@ -32,14 +33,17 @@ def proportion_sample_size(
 
     if alternative == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+
         z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
     elif alternative in ["greater", "less"]:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
         z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
     se_null = torch.sqrt(p0 * (1 - p0))
+
     se_alt = torch.sqrt(p1 * (1 - p1))
 
     effect = torch.abs(p1 - p0)

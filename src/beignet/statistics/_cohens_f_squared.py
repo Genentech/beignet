@@ -9,6 +9,7 @@ def cohens_f_squared(
     out: Tensor | None = None,
 ) -> Tensor:
     group_means = torch.atleast_1d(torch.as_tensor(group_means))
+
     pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
 
     if group_means.dtype == torch.float64 or pooled_std.dtype == torch.float64:
@@ -17,6 +18,7 @@ def cohens_f_squared(
         dtype = torch.float32
 
     group_means = group_means.to(dtype)
+
     pooled_std = pooled_std.to(dtype)
 
     sigma_means = torch.std(group_means, dim=-1, unbiased=False)
@@ -28,6 +30,7 @@ def cohens_f_squared(
     )
 
     cohens_f_value = sigma_means / pooled_std_safe
+
     output = cohens_f_value**2
 
     if out is not None:

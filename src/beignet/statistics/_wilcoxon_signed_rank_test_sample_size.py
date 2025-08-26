@@ -15,7 +15,9 @@ def wilcoxon_signed_rank_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
+
     dtype = torch.float64 if probability.dtype == torch.float64 else torch.float32
+
     probability = probability.to(dtype)
 
     sqrt3 = math.sqrt(3.0)
@@ -23,7 +25,9 @@ def wilcoxon_signed_rank_test_sample_size(
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         q = torch.clamp(q, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
 
@@ -38,9 +42,11 @@ def wilcoxon_signed_rank_test_sample_size(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     z_beta = z_of(power)
+
     delta = torch.abs(probability - 0.5)
 
     n0 = ((z_alpha + z_beta) / (sqrt3 * torch.clamp(delta, min=1e-8))) ** 2
+
     n0 = torch.clamp(n0, min=5.0)
 
     n_curr = n0
@@ -49,6 +55,7 @@ def wilcoxon_signed_rank_test_sample_size(
             probability, torch.ceil(n_curr), alpha=alpha, alternative=alt
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
+
         n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=5.0, max=1e7)
 
     n_out = torch.ceil(n_curr)

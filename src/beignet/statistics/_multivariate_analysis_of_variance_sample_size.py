@@ -19,6 +19,7 @@ def multivariate_analysis_of_variance_sample_size(
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
+
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
     dtypes = [effect_size.dtype, n_variables.dtype, n_groups.dtype]
@@ -29,14 +30,19 @@ def multivariate_analysis_of_variance_sample_size(
 
     effect_size = effect_size.to(dtype)
     n_variables = n_variables.to(dtype)
+
     n_groups = n_groups.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-8)
+
     n_variables = torch.clamp(n_variables, min=1.0)
+
     n_groups = torch.clamp(n_groups, min=2.0)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     n_init = (
@@ -51,7 +57,9 @@ def multivariate_analysis_of_variance_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.2 * power_gap
+
         n_current = torch.clamp(
             n_current * adjustment, min=n_groups + n_variables + 10, max=1e6
         )

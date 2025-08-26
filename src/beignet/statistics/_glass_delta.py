@@ -18,6 +18,7 @@ def glass_delta(
             dtype = torch.float32
     else:
         dtype = torch.float32
+
     x = x.to(dtype)
     y = y.to(dtype)
 
@@ -25,6 +26,7 @@ def glass_delta(
     mean_y = torch.mean(y, dim=-1)
 
     var_y = torch.var(y, dim=-1, correction=1)
+
     std_y = torch.sqrt(torch.clamp(var_y, min=torch.finfo(dtype).eps))
 
     delta = (mean_x - mean_y) / std_y

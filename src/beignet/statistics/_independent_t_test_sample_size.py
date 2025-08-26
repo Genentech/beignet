@@ -25,9 +25,11 @@ def independent_t_test_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     ratio = ratio.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-6)
+
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
     sqrt_2 = math.sqrt(2.0)
@@ -40,6 +42,7 @@ def independent_t_test_sample_size(
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
     variance_factor = (1 + 1 / ratio) / 2
+
     sample_size_group_1_initial = (
         (z_alpha + z_beta) / effect_size
     ) ** 2 * variance_factor
@@ -47,13 +50,18 @@ def independent_t_test_sample_size(
     sample_size_group_1_initial = torch.clamp(sample_size_group_1_initial, min=2.0)
 
     sample_size_group_1_current = sample_size_group_1_initial
+
     convergence_tolerance = 1e-6
+
     max_iterations = 10
 
     for _iteration in range(max_iterations):
         sample_size_group_2_current = sample_size_group_1_current * ratio
+
         total_n = sample_size_group_1_current + sample_size_group_2_current
+
         df_current = total_n - 2
+
         df_current = torch.clamp(df_current, min=1.0)
 
         se_factor = torch.sqrt(
@@ -76,15 +84,19 @@ def independent_t_test_sample_size(
 
         if alternative == "two-sided":
             z_upper = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+
             z_lower = (-t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+
             power_current = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
                 1 - torch.erf(-z_lower / sqrt_2)
             ) / 2
         elif alternative == "larger":
             z_score = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+
             power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
         else:
             z_score = (-t_critical - (-ncp_current)) / torch.clamp(std_nct, min=1e-10)
+
             power_current = (1 - torch.erf(-z_score / sqrt_2)) / 2
 
         power_current = torch.clamp(power_current, 0.01, 0.99)
@@ -98,6 +110,7 @@ def independent_t_test_sample_size(
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
+
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         sample_size_group_1_current = sample_size_group_1_current + adjustment
 

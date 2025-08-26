@@ -17,7 +17,9 @@ def proportional_hazards_model_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
+
     event_rate = torch.atleast_1d(torch.as_tensor(event_rate))
+
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
 
     dtypes = [hazard_ratio.dtype, event_rate.dtype, p_exposed.dtype]
@@ -27,16 +29,21 @@ def proportional_hazards_model_sample_size(
         dtype = torch.float32
 
     hazard_ratio = hazard_ratio.to(dtype)
+
     event_rate = event_rate.to(dtype)
+
     p_exposed = p_exposed.to(dtype)
 
     hazard_ratio = torch.clamp(hazard_ratio, min=0.01, max=100.0)
+
     event_rate = torch.clamp(event_rate, min=0.01, max=0.99)
+
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
     log_hr = torch.log(hazard_ratio)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -58,6 +65,7 @@ def proportional_hazards_model_sample_size(
     n_events_needed = torch.clamp(n_events_needed, min=10.0)
 
     n_total_init = n_events_needed / event_rate
+
     n_total_init = torch.clamp(n_total_init, min=20.0)
 
     n_current = n_total_init
@@ -73,7 +81,9 @@ def proportional_hazards_model_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.1 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
 
     n_out = torch.ceil(n_current)

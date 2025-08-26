@@ -16,6 +16,7 @@ def logistic_regression_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     dtype = (
@@ -24,14 +25,17 @@ def logistic_regression_sample_size(
         else torch.float32
     )
     effect_size = effect_size.to(dtype)
+
     p_exposure = p_exposure.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
+
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
     beta = torch.log(effect_size)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -48,11 +52,13 @@ def logistic_regression_sample_size(
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     p_outcome_approx = torch.tensor(0.5, dtype=dtype)
+
     variance_approx = 1.0 / (
         p_exposure * (1 - p_exposure) * p_outcome_approx * (1 - p_outcome_approx)
     )
 
     n_init = ((z_alpha + z_beta) ** 2) * variance_approx / (beta**2)
+
     n_init = torch.clamp(n_init, min=20.0)
 
     n_current = n_init
@@ -62,7 +68,9 @@ def logistic_regression_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.2 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
 
     n_out = torch.ceil(n_current)

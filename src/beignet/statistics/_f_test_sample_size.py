@@ -13,7 +13,9 @@ def f_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     power = torch.atleast_1d(torch.as_tensor(power))
+
     df1 = torch.atleast_1d(torch.as_tensor(df1))
 
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():
@@ -30,16 +32,21 @@ def f_test_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     power = power.to(dtype)
+
     df1 = df1.to(dtype)
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
+
     effect_size = torch.clamp(effect_size, min=1e-6)
+
     df1 = torch.clamp(df1, min=1.0)
 
     sqrt_2 = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
     z_beta = torch.erfinv(power) * sqrt_2
 
     base_n = ((z_alpha + z_beta) / torch.sqrt(effect_size)) ** 2
@@ -47,6 +54,7 @@ def f_test_sample_size(
     n_estimate = base_n / df1 * (df1 + 2)
 
     min_n = df1 + 10
+
     max_n = torch.tensor(10000.0, dtype=dtype)
 
     output = torch.ceil(torch.clamp(n_estimate, min=min_n, max=max_n))

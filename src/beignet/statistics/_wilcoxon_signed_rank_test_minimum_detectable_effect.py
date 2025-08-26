@@ -15,9 +15,13 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     sample_size_0 = torch.as_tensor(nobs)
+
     scalar_out = sample_size_0.ndim == 0
+
     sample_size = torch.atleast_1d(sample_size_0)
+
     dtype = torch.float64 if sample_size.dtype == torch.float64 else torch.float32
+
     sample_size = torch.clamp(sample_size.to(dtype), min=5.0)
 
     alt = alternative.lower()
@@ -29,19 +33,25 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     s = sample_size * (sample_size + 1.0) / 2.0
+
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
+
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:
         q = torch.tensor(prob, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         q = torch.clamp(q, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
 
     z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
+
     z_beta = z_of(power)
+
     delta = (z_alpha + z_beta) * sd0 / torch.clamp(s, min=1e-12)
 
     if alt == "less":
@@ -51,9 +61,11 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     if alt == "less":
         prob_lo = torch.zeros_like(prob_initial)
+
         prob_hi = torch.full_like(prob_initial, 0.5)
     else:
         prob_lo = torch.full_like(prob_initial, 0.5)
+
         prob_hi = torch.ones_like(prob_initial)
 
     if alt == "less":
@@ -80,6 +92,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
         else:
             prob_lo = torch.where(too_low, probability, prob_lo)
             prob_hi = torch.where(too_low, prob_hi, probability)
+
         probability = (prob_lo + prob_hi) * 0.5
 
     probability = torch.where(unattainable, max_power_prob, probability)

@@ -13,9 +13,13 @@ def correlation_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     sample_size_0 = torch.as_tensor(sample_size)
+
     scalar_out = sample_size_0.ndim == 0
+
     sample_size = torch.atleast_1d(sample_size_0)
+
     dtype = torch.float64 if sample_size.dtype == torch.float64 else torch.float32
+
     sample_size = torch.clamp(sample_size.to(dtype), min=4.0)
 
     alt = alternative.lower()
@@ -31,6 +35,7 @@ def correlation_minimum_detectable_effect(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     z_required = (z_alpha + z_beta) / torch.sqrt(

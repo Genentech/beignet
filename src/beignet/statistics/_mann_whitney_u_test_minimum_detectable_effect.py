@@ -17,10 +17,13 @@ def mann_whitney_u_test_minimum_detectable_effect(
     out: Tensor | None = None,
 ) -> Tensor:
     sample_size_group_1_0 = torch.as_tensor(nobs1)
+
     scalar_out = sample_size_group_1_0.ndim == 0
+
     sample_size_group_1 = torch.atleast_1d(sample_size_group_1_0)
     if nobs2 is None:
         r = torch.as_tensor(ratio)
+
         sample_size_group_2 = torch.ceil(
             sample_size_group_1
             * (
@@ -31,6 +34,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
         )
     else:
         sample_size_group_2_0 = torch.as_tensor(nobs2)
+
         scalar_out = scalar_out and (sample_size_group_2_0.ndim == 0)
         sample_size_group_2 = torch.atleast_1d(sample_size_group_2_0)
 
@@ -56,12 +60,16 @@ def mann_whitney_u_test_minimum_detectable_effect(
 
     def z_of(p: float) -> Tensor:
         q = torch.tensor(p, dtype=dtype)
+
         eps = torch.finfo(dtype).eps
+
         q = torch.clamp(q, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
 
     z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
+
     z_beta = z_of(power)
+
     scale = torch.sqrt(
         12.0
         * sample_size_group_1
@@ -79,6 +87,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
         auc, sample_size_group_1, sample_size_group_2, alpha=alpha, alternative=alt
     )
     gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
+
     step = gap * 0.05
     if alt == "less":
         auc = torch.clamp(auc - torch.abs(step), 0.0, 1.0)

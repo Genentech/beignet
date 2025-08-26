@@ -14,6 +14,7 @@ def independent_z_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     power = torch.atleast_1d(torch.as_tensor(power))
     if ratio is None:
         ratio = torch.tensor(1.0)
@@ -34,14 +35,18 @@ def independent_z_test_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     ratio = ratio.to(dtype)
     power = power.to(dtype)
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
+
     abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
+
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
     sqrt_2 = math.sqrt(2.0)
+
     z_beta = torch.erfinv(power) * sqrt_2
 
     if alternative == "two-sided":

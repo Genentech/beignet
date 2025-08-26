@@ -13,6 +13,7 @@ def z_test_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     power = torch.atleast_1d(torch.as_tensor(power))
 
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():
@@ -25,6 +26,7 @@ def z_test_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     power = power.to(dtype)
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
@@ -32,6 +34,7 @@ def z_test_sample_size(
     abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
 
     sqrt_2 = math.sqrt(2.0)
+
     z_beta = torch.erfinv(power) * sqrt_2
 
     if alternative == "two-sided":

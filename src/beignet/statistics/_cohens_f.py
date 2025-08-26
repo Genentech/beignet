@@ -9,6 +9,7 @@ def cohens_f(
     out: Tensor | None = None,
 ) -> Tensor:
     group_means = torch.atleast_1d(torch.as_tensor(group_means))
+
     pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
 
     if group_means.dtype == torch.float64 or pooled_std.dtype == torch.float64:
@@ -17,6 +18,7 @@ def cohens_f(
         dtype = torch.float32
 
     group_means = group_means.to(dtype)
+
     pooled_std = pooled_std.to(dtype)
 
     output = torch.std(group_means, dim=-1, unbiased=False) / torch.where(

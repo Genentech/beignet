@@ -15,6 +15,7 @@ def proportion_power(
 ) -> Tensor:
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
+
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
     if (
@@ -28,9 +29,11 @@ def proportion_power(
 
     p0 = p0.to(dtype)
     p1 = p1.to(dtype)
+
     sample_size = sample_size.to(dtype)
 
     epsilon = 1e-8
+
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
@@ -46,6 +49,7 @@ def proportion_power(
         z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
 
         variance_ratio = se_alt / se_null
+
         adjusted_effect = effect / variance_ratio
 
         power = (1 - torch.erf((z_alpha_half - adjusted_effect) / sqrt_2)) / 2 + (
@@ -56,6 +60,7 @@ def proportion_power(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
         variance_ratio = se_alt / se_null
+
         adjusted_effect = effect / variance_ratio
 
         power = (1 - torch.erf((z_alpha - adjusted_effect) / sqrt_2)) / 2
@@ -64,6 +69,7 @@ def proportion_power(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
         variance_ratio = se_alt / se_null
+
         adjusted_effect = effect / variance_ratio
 
         power = (1 + torch.erf((-z_alpha - adjusted_effect) / sqrt_2)) / 2

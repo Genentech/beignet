@@ -14,15 +14,18 @@ def paired_t_test_power(
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+
     dtype = (
         torch.float64
         if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
         else torch.float32
     )
     effect_size = effect_size.to(dtype)
+
     sample_size = torch.clamp(sample_size.to(dtype), min=2.0)
 
     degrees_of_freedom = sample_size - 1
+
     noncentrality_parameter = effect_size * torch.sqrt(sample_size)
 
     alt = alternative.lower()
@@ -36,9 +39,11 @@ def paired_t_test_power(
     sqrt2 = math.sqrt(2.0)
     if alt == "two-sided":
         z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+
         tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
         z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
         tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
     var_nct = torch.where(
@@ -50,17 +55,21 @@ def paired_t_test_power(
 
     if alt == "two-sided":
         zu = (tcrit - noncentrality_parameter) / torch.clamp(std_nct, min=1e-10)
+
         zl = (-tcrit - noncentrality_parameter) / torch.clamp(std_nct, min=1e-10)
+
         power = 0.5 * (
             1 - torch.erf(zu / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
     elif alt == "greater":
         zscore = (tcrit - noncentrality_parameter) / torch.clamp(std_nct, min=1e-10)
+
         power = 0.5 * (
             1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )
     else:
         zscore = (-tcrit - noncentrality_parameter) / torch.clamp(std_nct, min=1e-10)
+
         power = 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )

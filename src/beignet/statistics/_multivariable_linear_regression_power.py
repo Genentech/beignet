@@ -13,7 +13,9 @@ def multivariable_linear_regression_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
+
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
 
     dtypes = [r_squared.dtype, sample_size.dtype, n_predictors.dtype]
@@ -23,18 +25,25 @@ def multivariable_linear_regression_power(
         dtype = torch.float32
 
     r_squared = r_squared.to(dtype)
+
     sample_size = sample_size.to(dtype)
+
     n_predictors = n_predictors.to(dtype)
 
     r_squared = torch.clamp(r_squared, min=0.0, max=0.99)
+
     sample_size = torch.clamp(sample_size, min=n_predictors + 10)
+
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
     df_num = n_predictors
+
     df_den = sample_size - n_predictors - 1
+
     df_den = torch.clamp(df_den, min=1.0)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
     f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df_num)
@@ -42,6 +51,7 @@ def multivariable_linear_regression_power(
     lambda_nc = sample_size * r_squared / (1 - r_squared)
 
     mean_nf = (1 + lambda_nc / df_num) * (df_den / (df_den - 2))
+
     var_nf = (
         2
         * (df_den / (df_den - 2)) ** 2

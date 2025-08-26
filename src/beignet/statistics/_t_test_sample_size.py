@@ -44,11 +44,14 @@ def t_test_sample_size(
     sample_size_initial = torch.clamp(sample_size_initial, min=2.0)
 
     sample_size_current = sample_size_initial
+
     convergence_tolerance = 1e-6
+
     max_iterations = 10
 
     for _iteration in range(max_iterations):
         df_current = sample_size_current - 1
+
         df_current = torch.clamp(df_current, min=1.0)
 
         noncentrality_parameter_current = effect_size * torch.sqrt(sample_size_current)
@@ -99,7 +102,9 @@ def t_test_sample_size(
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
+
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
+
         sample_size_current = sample_size_current + adjustment
 
         sample_size_current = torch.clamp(sample_size_current, min=2.0, max=100000.0)

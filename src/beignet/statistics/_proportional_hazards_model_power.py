@@ -14,7 +14,9 @@ def proportional_hazards_model_power(
     out: Tensor | None = None,
 ) -> Tensor:
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
+
     n_events = torch.atleast_1d(torch.as_tensor(n_events))
+
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
 
     dtypes = [hazard_ratio.dtype, n_events.dtype, p_exposed.dtype]
@@ -24,11 +26,15 @@ def proportional_hazards_model_power(
         dtype = torch.float32
 
     hazard_ratio = hazard_ratio.to(dtype)
+
     n_events = n_events.to(dtype)
+
     p_exposed = p_exposed.to(dtype)
 
     hazard_ratio = torch.clamp(hazard_ratio, min=0.01, max=100.0)
+
     n_events = torch.clamp(n_events, min=5.0)
+
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
     log_hr = torch.log(hazard_ratio)
@@ -38,6 +44,7 @@ def proportional_hazards_model_power(
     ncp = torch.sqrt(variance_null) * torch.abs(log_hr)
 
     sqrt2 = math.sqrt(2.0)
+
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -48,6 +55,7 @@ def proportional_hazards_model_power(
 
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + ncp) / sqrt2)
         )

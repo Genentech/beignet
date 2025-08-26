@@ -18,7 +18,9 @@ def repeated_measures_analysis_of_variance_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     n_timepoints = torch.atleast_1d(torch.as_tensor(n_timepoints))
+
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
     dtypes = [effect_size.dtype, n_timepoints.dtype, epsilon.dtype]
@@ -28,23 +30,31 @@ def repeated_measures_analysis_of_variance_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     n_timepoints = n_timepoints.to(dtype)
+
     epsilon = epsilon.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-8)
+
     n_timepoints = torch.clamp(n_timepoints, min=2.0)
 
     epsilon_min = 1.0 / (n_timepoints - 1.0)
+
     epsilon = torch.maximum(epsilon, epsilon_min)
+
     epsilon = torch.clamp(epsilon, max=1.0)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
     efficiency_factor = n_timepoints * epsilon
 
     n_init = ((z_alpha + z_beta) / effect_size) ** 2 / efficiency_factor
+
     n_init = torch.clamp(n_init, min=5.0)
 
     n_current = n_init
@@ -54,7 +64,9 @@ def repeated_measures_analysis_of_variance_sample_size(
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+
         adjustment = 1.0 + 1.2 * power_gap
+
         n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e5)
 
     n_out = torch.ceil(n_current)

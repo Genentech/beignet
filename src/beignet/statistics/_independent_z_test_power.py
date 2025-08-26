@@ -14,6 +14,7 @@ def independent_z_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     sample_size1 = torch.atleast_1d(torch.as_tensor(sample_size1))
 
     if sample_size2 is None:
@@ -31,6 +32,7 @@ def independent_z_test_power(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     sample_size1 = sample_size1.to(dtype)
     sample_size2 = sample_size2.to(dtype)
 
@@ -45,16 +47,20 @@ def independent_z_test_power(
 
     if alternative == "two-sided":
         z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+
         power_upper = (
             1 - torch.erf((z_alpha_half - noncentrality_parameter) / sqrt_2)
         ) / 2
         power_lower = torch.erf((-z_alpha_half - noncentrality_parameter) / sqrt_2) / 2
+
         power = power_upper + power_lower
     elif alternative == "larger":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
         power = (1 - torch.erf((z_alpha - noncentrality_parameter) / sqrt_2)) / 2
     elif alternative == "smaller":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
         power = torch.erf((-z_alpha + noncentrality_parameter) / sqrt_2) / 2
     else:
         raise ValueError(

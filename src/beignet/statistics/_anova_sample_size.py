@@ -13,6 +13,7 @@ def anova_sample_size(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
     if effect_size.dtype == torch.float64 or groups.dtype == torch.float64:
@@ -21,30 +22,38 @@ def anova_sample_size(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     groups = groups.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=1e-6)
+
     groups = torch.clamp(groups, min=2.0)
 
     df1 = groups - 1
 
     sqrt_2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
     chi2_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
     lambda_initial = ((z_alpha + z_beta) * sqrt_2) ** 2
+
     n_initial = lambda_initial / (effect_size**2)
 
     n_initial = torch.clamp(n_initial, min=groups + 1)
 
     n_current = n_initial
+
     convergence_tolerance = 1e-6
+
     max_iterations = 8
 
     for _iteration in range(max_iterations):
         df2_current = n_current - groups
+
         df2_current = torch.clamp(df2_current, min=1.0)
 
         lambda_current = n_current * effect_size**2
@@ -52,18 +61,23 @@ def anova_sample_size(
         f_critical = chi2_critical / df1
 
         adjustment = 1 + 2 / torch.clamp(df2_current, min=1.0)
+
         f_critical = f_critical * adjustment
 
         mean_nc_chi2 = df1 + lambda_current
+
         var_nc_chi2 = 2 * (df1 + 2 * lambda_current)
 
         mean_f = mean_nc_chi2 / df1
+
         var_f = var_nc_chi2 / (df1**2)
 
         var_adjustment = (df2_current + 2) / torch.clamp(df2_current, min=1.0)
+
         var_f = var_f * var_adjustment
 
         std_f = torch.sqrt(var_f)
+
         z_current = (f_critical - mean_f) / torch.clamp(std_f, min=1e-10)
 
         power_current = (1 - torch.erf(z_current / sqrt_2)) / 2
@@ -73,10 +87,13 @@ def anova_sample_size(
         adjustment = power_diff * n_current * 0.5
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
+
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
+
         n_current = n_current + adjustment
 
         n_current = torch.clamp(n_current, min=groups + 1)
+
         n_current = torch.clamp(n_current, max=100000.0)
 
     output = torch.ceil(n_current)

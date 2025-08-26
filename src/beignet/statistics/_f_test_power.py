@@ -13,6 +13,7 @@ def f_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     df1 = torch.atleast_1d(torch.as_tensor(df1))
     df2 = torch.atleast_1d(torch.as_tensor(df2))
 
@@ -26,6 +27,7 @@ def f_test_power(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     df1 = df1.to(dtype)
     df2 = df2.to(dtype)
 
@@ -37,6 +39,7 @@ def f_test_power(
     sqrt_2 = math.sqrt(2.0)
 
     total_sample_size = df1 + df2 + 1
+
     lambda_param = total_sample_size * effect_size
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2

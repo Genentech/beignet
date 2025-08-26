@@ -14,8 +14,11 @@ def interrupted_time_series_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+
     n_time_points = torch.atleast_1d(torch.as_tensor(n_time_points))
+
     n_pre_intervention = torch.atleast_1d(torch.as_tensor(n_pre_intervention))
+
     autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
 
     dtypes = [
@@ -30,12 +33,17 @@ def interrupted_time_series_power(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
+
     n_time_points = n_time_points.to(dtype)
+
     n_pre_intervention = n_pre_intervention.to(dtype)
+
     autocorrelation = autocorrelation.to(dtype)
 
     effect_size = torch.clamp(effect_size, min=0.0)
+
     n_time_points = torch.clamp(n_time_points, min=6.0)
+
     n_pre_intervention = torch.clamp(
         n_pre_intervention, min=torch.tensor(3.0, dtype=dtype), max=n_time_points - 3.0
     )
@@ -60,6 +68,7 @@ def interrupted_time_series_power(
     degrees_of_freedom_approx = torch.clamp(effective_n - 4.0, min=1.0)
 
     sqrt2 = math.sqrt(2.0)
+
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
     t_critical = z_alpha * torch.sqrt(1.0 + 2.0 / degrees_of_freedom_approx)

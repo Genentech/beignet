@@ -18,6 +18,7 @@ def cliffs_delta(
             dtype = torch.float32
     else:
         dtype = torch.float32
+
     x = x.to(dtype)
     y = y.to(dtype)
 
@@ -25,12 +26,16 @@ def cliffs_delta(
     y_expanded = y.unsqueeze(-2)
 
     steepness_parameter = 100.0
+
     diff = x_expanded - y_expanded
+
     n_xy = torch.sum(torch.sigmoid(steepness_parameter * diff), dim=(-2, -1))
+
     n_yx = torch.sum(torch.sigmoid(steepness_parameter * (-diff)), dim=(-2, -1))
 
     n_x = torch.tensor(x.shape[-1], dtype=dtype)
     n_y = torch.tensor(y.shape[-1], dtype=dtype)
+
     total_comparisons = n_x * n_y
 
     delta = (n_xy - n_yx) / total_comparisons
