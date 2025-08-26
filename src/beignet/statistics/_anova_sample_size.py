@@ -30,15 +30,15 @@ def anova_sample_size(
 
     df1 = groups - 1
 
-    sqrt_2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
-    lambda_initial = ((z_alpha + z_beta) * sqrt_2) ** 2
+    lambda_initial = ((z_alpha + z_beta) * square_root_two) ** 2
 
     n_initial = lambda_initial / (effect_size**2)
 
@@ -82,7 +82,7 @@ def anova_sample_size(
             min=1e-10,
         )
 
-        power_iteration = (1 - torch.erf(z_iteration / sqrt_2)) / 2
+        power_iteration = (1 - torch.erf(z_iteration / square_root_two)) / 2
 
         power_diff = power - power_iteration
 

@@ -37,4 +37,3 @@ def cramers_v(
         out.copy_(result)
         return out
 
-    return result

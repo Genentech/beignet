@@ -97,4 +97,3 @@ def paired_t_test_sample_size(
         out.copy_(sample_size_out)
         return out
     return sample_size_out
-    return result

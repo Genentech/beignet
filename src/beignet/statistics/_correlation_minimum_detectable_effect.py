@@ -30,13 +30,13 @@ def correlation_minimum_detectable_effect(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
     else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     z_required = (z_alpha + z_beta) / torch.sqrt(
         torch.clamp(sample_size - 3.0, min=1.0),

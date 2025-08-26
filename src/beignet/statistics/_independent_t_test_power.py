@@ -60,13 +60,13 @@ def independent_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    square_root_two = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
-        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
-        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 

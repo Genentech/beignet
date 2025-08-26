@@ -69,14 +69,14 @@ def interrupted_time_series_power(
 
     degrees_of_freedom_approximate = torch.clamp(effective_n - 4.0, min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
 
     t_critical = z_alpha * torch.sqrt(1.0 + 2.0 / degrees_of_freedom_approximate)
 
     z_score = t_critical - noncentrality
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

@@ -36,13 +36,13 @@ def paired_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
     if alt == "two-sided":
-        z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
 
         t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
-        z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
         t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 

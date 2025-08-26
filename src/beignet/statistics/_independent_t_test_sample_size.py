@@ -144,4 +144,3 @@ def independent_t_test_sample_size(
         out.copy_(result)
         return out
 
-    return result

@@ -34,11 +34,11 @@ def two_one_sided_tests_one_sample_t_sample_size(
 
     high = high.to(dtype)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     margin = torch.minimum(true_effect_size - low, high - true_effect_size)
 

@@ -31,4 +31,3 @@ def cohens_f(
 
         return out
 
-    return result

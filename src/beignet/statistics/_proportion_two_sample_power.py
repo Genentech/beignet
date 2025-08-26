@@ -96,4 +96,3 @@ def proportion_two_sample_power(
         out.copy_(result)
         return out
 
-    return result

@@ -42,9 +42,9 @@ def multivariable_linear_regression_power(
 
     df_den = torch.clamp(df_den, min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df_num)
 
@@ -61,7 +61,7 @@ def multivariable_linear_regression_power(
 
     z_score = (f_critical - mean_nf) / std_nf
 
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
+    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)
 

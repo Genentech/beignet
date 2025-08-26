@@ -32,14 +32,14 @@ def z_test_sample_size(
 
     abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
 
-    sqrt_2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_beta = torch.erfinv(power) * sqrt_2
+    z_beta = torch.erfinv(power) * square_root_two
 
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
     elif alternative in ["larger", "smaller"]:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
         raise ValueError(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
         )
