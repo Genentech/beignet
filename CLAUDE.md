@@ -185,6 +185,38 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
 - **Error messages**: Provide clear, actionable error messages
 - **Code style**: Follow the project's linting rules (run `uv run ruff check` and `uv run ruff format`)
 
+## Code Style Requirements
+
+### Variable Naming
+- **All variables must use lowercase_with_underscores**: Never use PascalCase, camelCase, or UPPER_CASE for variables
+- **Mathematical variables**: Even single-letter mathematical variables should be lowercase (e.g., `n` not `N`, `r2` not `R2`)
+- **Examples**:
+  - ✅ `sample_size`, `effect_size`, `degrees_of_freedom`, `n`, `r2`
+  - ❌ `sampleSize`, `N`, `R2`, `DegreesOfFreedom`
+
+### Statement Spacing
+- **Add newlines between statements of different line lengths**: When consecutive assignment statements have different character counts, separate them with blank lines for improved readability
+- **Example**:
+  ```python
+  # Correct - newlines between different length statements
+  n0 = torch.as_tensor(sample_size)
+
+  groups0 = torch.as_tensor(groups)
+
+  r20 = torch.as_tensor(covariate_r2)
+
+  num_covariates0 = torch.as_tensor(n_covariates)
+  
+  # Same length statements can be grouped together
+  effect_size = effect_size.to(dtype)
+  sample_size = sample_size.to(dtype)
+  ```
+
+### Comments and Documentation
+- **No inline comments**: Remove all `#` comments from function implementations
+- **No docstrings in implementations**: Function implementations should not contain triple-quoted docstrings
+- **Clean, minimal code**: Focus on clear, self-documenting code without explanatory comments
+
 ### Example Operator Implementation Checklist
 - [ ] Create `src/beignet/_foo.py` with the operator implementation
 - [ ] Add import and export in `src/beignet/__init__.py`
