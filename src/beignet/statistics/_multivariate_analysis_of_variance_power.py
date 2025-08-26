@@ -149,10 +149,10 @@ def multivariate_analysis_of_variance_power(
     df2 = torch.clamp(df2, min=1.0)
 
     # Convert effect size to noncentrality parameter
-    f_squared = effect_size**2
+    effect_size_f_squared = effect_size**2
 
     # Noncentrality parameter for noncentral F
-    lambda_nc = sample_size * f_squared
+    lambda_nc = sample_size * effect_size_f_squared
 
     # Critical F-value using chi-square approximation
     sqrt2 = math.sqrt(2.0)

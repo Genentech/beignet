@@ -73,16 +73,16 @@ def wilcoxon_signed_rank_test_power(
     We approximate E[W⁺|H1] ≈ S * prob_positive and use Var[W⁺] from H0.
     This parallels the Mann–Whitney implementation parameterized by AUC.
     """
-    p = torch.atleast_1d(torch.as_tensor(prob_positive))
-    n = torch.atleast_1d(torch.as_tensor(nobs))
+    probability = torch.atleast_1d(torch.as_tensor(prob_positive))
+    sample_size = torch.atleast_1d(torch.as_tensor(nobs))
 
     dtype = (
         torch.float64
-        if (p.dtype == torch.float64 or n.dtype == torch.float64)
+        if (probability.dtype == torch.float64 or sample_size.dtype == torch.float64)
         else torch.float32
     )
-    p = p.to(dtype)
-    n = torch.clamp(n.to(dtype), min=5.0)
+    probability = probability.to(dtype)
+    sample_size = torch.clamp(sample_size.to(dtype), min=5.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -93,14 +93,14 @@ def wilcoxon_signed_rank_test_power(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     # Sum of ranks S and H0 moments for W+
-    S = n * (n + 1.0) / 2.0
+    S = sample_size * (sample_size + 1.0) / 2.0
     mean0 = S / 2.0
-    var0 = n * (n + 1.0) * (2.0 * n + 1.0) / 24.0
+    var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
     # H1 mean using prob_positive; variance approx by var0
-    mean1 = S * p
-    ncp = (mean1 - mean0) / sd0
+    mean1 = S * probability
+    noncentrality_parameter = (mean1 - mean0) / sd0
 
     sqrt2 = math.sqrt(2.0)
 
@@ -112,15 +112,15 @@ def wilcoxon_signed_rank_test_power(
 
     if alt == "two-sided":
         zcrit = z_of(1 - alpha / 2)
-        upper = 0.5 * (1 - torch.erf((zcrit - ncp) / sqrt2))
-        lower = 0.5 * (1 + torch.erf((-zcrit - ncp) / sqrt2))
+        upper = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
+        lower = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
         power = upper + lower
     elif alt == "greater":
         zcrit = z_of(1 - alpha)
-        power = 0.5 * (1 - torch.erf((zcrit - ncp) / sqrt2))
+        power = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
     else:
         zcrit = z_of(1 - alpha)
-        power = 0.5 * (1 + torch.erf((-zcrit - ncp) / sqrt2))
+        power = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

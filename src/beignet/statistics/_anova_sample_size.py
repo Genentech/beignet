@@ -6,7 +6,7 @@ from torch import Tensor
 
 def anova_sample_size(
     effect_size: Tensor,
-    k: Tensor,
+    groups: Tensor,
     power: float = 0.8,
     alpha: float = 0.05,
     *,
@@ -78,7 +78,7 @@ def anova_sample_size(
     effect_size : Tensor
         Cohen's f effect size. Should be positive.
 
-    k : Tensor
+    groups : Tensor
         Number of groups in the ANOVA.
 
     power : float, default=0.8
@@ -98,8 +98,8 @@ def anova_sample_size(
     Examples
     --------
     >>> effect_size = torch.tensor(0.25)
-    >>> k = torch.tensor(3)
-    >>> anova_sample_size(effect_size, k, power=0.8)
+    >>> groups = torch.tensor(3)
+    >>> anova_sample_size(effect_size, groups, power=0.8)
     tensor(159)
 
     Notes
@@ -132,23 +132,23 @@ def anova_sample_size(
     """
     # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
-    k = torch.atleast_1d(torch.as_tensor(k))
+    groups = torch.atleast_1d(torch.as_tensor(groups))
 
     # Ensure tensors have the same dtype
-    if effect_size.dtype == torch.float64 or k.dtype == torch.float64:
+    if effect_size.dtype == torch.float64 or groups.dtype == torch.float64:
         dtype = torch.float64
     else:
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
-    k = k.to(dtype)
+    groups = groups.to(dtype)
 
-    # Clamp effect size to positive values and k to at least 2
+    # Clamp effect size to positive values and groups to at least 2
     effect_size = torch.clamp(effect_size, min=1e-6)
-    k = torch.clamp(k, min=2.0)
+    groups = torch.clamp(groups, min=2.0)
 
-    # Calculate degrees of freedom (df1 is k-1)
-    df1 = k - 1
+    # Calculate degrees of freedom (df1 is groups-1)
+    df1 = groups - 1
 
     # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
@@ -182,8 +182,8 @@ def anova_sample_size(
     lambda_initial = ((z_alpha + z_beta) * sqrt_2) ** 2
     n_initial = lambda_initial / (effect_size**2)
 
-    # Ensure minimum sample size greater than k
-    n_initial = torch.clamp(n_initial, min=k + 1)
+    # Ensure minimum sample size greater than groups
+    n_initial = torch.clamp(n_initial, min=groups + 1)
 
     # Iterative refinement with convergence detection
     n_current = n_initial
@@ -192,7 +192,7 @@ def anova_sample_size(
 
     for _iteration in range(max_iterations):
         # Calculate current df2
-        df2_current = n_current - k
+        df2_current = n_current - groups
         df2_current = torch.clamp(df2_current, min=1.0)
 
         # Current noncentrality parameter
@@ -237,14 +237,14 @@ def anova_sample_size(
         n_current = n_current + adjustment
 
         # Ensure minimum constraints
-        n_current = torch.clamp(n_current, min=k + 1)
+        n_current = torch.clamp(n_current, min=groups + 1)
         n_current = torch.clamp(n_current, max=100000.0)  # Upper bound for practicality
 
     # Round up to nearest integer
     output = torch.ceil(n_current)
 
-    # Final check: ensure we have at least k+1 subjects
-    output = torch.clamp(output, min=k + 1)
+    # Final check: ensure we have at least groups+1 subjects
+    output = torch.clamp(output, min=groups + 1)
 
     if out is not None:
         out.copy_(output)

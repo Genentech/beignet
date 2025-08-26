@@ -169,7 +169,7 @@ def chi_square_independence_power(
     cols = torch.clamp(cols, min=2.0)
 
     # Calculate degrees of freedom for independence test
-    df = (rows - 1) * (cols - 1)
+    degrees_of_freedom = (rows - 1) * (cols - 1)
 
     # Noncentrality parameter
     ncp = sample_size * effect_size**2
@@ -177,15 +177,15 @@ def chi_square_independence_power(
     # Critical chi-square value using normal approximation
     sqrt_2 = math.sqrt(2.0)
 
-    # For large df, chi-square approaches normal: χ² ≈ N(df, 2*df)
-    # Critical value: χ²_α = df + z_α * √(2*df)
+    # For large degrees_of_freedom, chi-square approaches normal: χ² ≈ N(degrees_of_freedom, 2*degrees_of_freedom)
+    # Critical value: χ²_α = degrees_of_freedom + z_α * √(2*degrees_of_freedom)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-    chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     # For noncentral chi-square, use normal approximation:
-    # χ²(df, λ) ≈ N(df + λ, 2*(df + 2*λ))
-    mean_nc_chi2 = df + ncp
-    var_nc_chi2 = 2 * (df + 2 * ncp)
+    # χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2*(degrees_of_freedom + 2*λ))
+    mean_nc_chi2 = degrees_of_freedom + ncp
+    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp)
     std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
     # Calculate power: P(χ² > χ²_critical | λ = ncp)

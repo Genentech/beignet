@@ -114,11 +114,11 @@ def kruskal_wallis_test_power(
 
     # Number of groups and total sample size
     # Note: sample_sizes.shape[-1] should be >= 3 for meaningful Kruskal-Wallis test
-    k = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
+    groups = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
     N = torch.sum(sample_sizes, dim=-1)
 
     # Degrees of freedom
-    df = k - 1
+    degrees_of_freedom = groups - 1
 
     # Approximate noncentrality parameter
     # This is a simplified approximation based on the effect size
@@ -127,12 +127,12 @@ def kruskal_wallis_test_power(
     # Critical chi-square value using normal approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-    chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     # Noncentral chi-square approximation using normal distribution
-    # Under H1: H ~ χ²(df, λ) ≈ N(df + λ, 2(df + 2λ))
-    mean_nc_chi2 = df + lambda_nc
-    var_nc_chi2 = 2 * (df + 2 * lambda_nc)
+    # Under H1: H ~ χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2(degrees_of_freedom + 2λ))
+    mean_nc_chi2 = degrees_of_freedom + lambda_nc
+    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * lambda_nc)
     std_nc_chi2 = torch.sqrt(torch.clamp(var_nc_chi2, min=1e-12))
 
     # Standardized test statistic

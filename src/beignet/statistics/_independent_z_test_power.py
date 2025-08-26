@@ -166,7 +166,7 @@ def independent_z_test_power(
     n_eff = (sample_size1 * sample_size2) / (sample_size1 + sample_size2)
 
     # Calculate noncentrality parameter
-    ncp = effect_size * torch.sqrt(n_eff)
+    noncentrality_parameter = effect_size * torch.sqrt(n_eff)
 
     # Standard normal critical values using erfinv
     sqrt_2 = math.sqrt(2.0)
@@ -175,17 +175,19 @@ def independent_z_test_power(
         z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
         # Power = P(Z > z_{α/2} - δ) + P(Z < -z_{α/2} - δ)
         # where δ = d√(n₁n₂/(n₁+n₂)) is the noncentrality parameter
-        power_upper = (1 - torch.erf((z_alpha_half - ncp) / sqrt_2)) / 2
-        power_lower = torch.erf((-z_alpha_half - ncp) / sqrt_2) / 2
+        power_upper = (
+            1 - torch.erf((z_alpha_half - noncentrality_parameter) / sqrt_2)
+        ) / 2
+        power_lower = torch.erf((-z_alpha_half - noncentrality_parameter) / sqrt_2) / 2
         power = power_upper + power_lower
     elif alternative == "larger":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
         # Power = P(Z > z_α - δ)
-        power = (1 - torch.erf((z_alpha - ncp) / sqrt_2)) / 2
+        power = (1 - torch.erf((z_alpha - noncentrality_parameter) / sqrt_2)) / 2
     elif alternative == "smaller":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
         # Power = P(Z < -z_α + δ)
-        power = torch.erf((-z_alpha + ncp) / sqrt_2) / 2
+        power = torch.erf((-z_alpha + noncentrality_parameter) / sqrt_2) / 2
     else:
         raise ValueError(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"

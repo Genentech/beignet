@@ -79,7 +79,7 @@ def independent_t_test_power(
     Examples
     --------
     >>> effect_size = torch.tensor(0.5)
-    >>> nobs1 = torch.tensor(30)
+    >>> nostandard_deviation_1 = torch.tensor(30)
     >>> independent_t_test_power(effect_size, nobs1)
     tensor(0.4741)
 
@@ -110,7 +110,7 @@ def independent_t_test_power(
     """
     # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
-    nobs1 = torch.atleast_1d(torch.as_tensor(nobs1))
+    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     if ratio is None:
         ratio = torch.tensor(1.0)
     else:
@@ -119,7 +119,7 @@ def independent_t_test_power(
     # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
-        or nobs1.dtype == torch.float64
+        or sample_size_group_1.dtype == torch.float64
         or ratio.dtype == torch.float64
     ):
         dtype = torch.float64
@@ -127,27 +127,27 @@ def independent_t_test_power(
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
-    nobs1 = nobs1.to(dtype)
+    sample_size_group_1 = sample_size_group_1.to(dtype)
     ratio = ratio.to(dtype)
 
     # Ensure positive values and reasonable constraints
     effect_size = torch.clamp(effect_size, min=0.0)
-    nobs1 = torch.clamp(nobs1, min=2.0)
+    sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
     ratio = torch.clamp(ratio, min=0.1, max=10.0)  # Reasonable ratio range
 
     # Calculate sample sizes
-    nobs2 = nobs1 * ratio
-    total_n = nobs1 + nobs2
+    sample_size_group_2 = sample_size_group_1 * ratio
+    total_sample_size = sample_size_group_1 + sample_size_group_2
 
     # Degrees of freedom
-    df = total_n - 2
-    df = torch.clamp(df, min=1.0)
+    degrees_of_freedom = total_sample_size - 2
+    degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
     # Standard error factor: sqrt(1/n1 + 1/n2)
-    se_factor = torch.sqrt(1 / nobs1 + 1 / nobs2)
+    se_factor = torch.sqrt(1 / sample_size_group_1 + 1 / sample_size_group_2)
 
     # Noncentrality parameter: effect_size / se_factor
-    ncp = effect_size / se_factor
+    noncentrality_parameter = effect_size / se_factor
 
     # Normalize alternative
     alt = alternative.lower()
@@ -162,18 +162,20 @@ def independent_t_test_power(
     sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
         z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
         z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
     # Noncentral t-distribution approximation
-    # For large df, noncentral t approaches normal with mean=ncp and adjusted variance
-    mean_nct = ncp
+    # For large df, noncentral t approaches normal with mean=noncentrality_parameter and adjusted variance
+    mean_nct = noncentrality_parameter
 
     # Variance approximation for noncentral t
     var_nct = torch.where(
-        df > 2, (df + ncp**2) / (df - 2), 1 + ncp**2 / (2 * torch.clamp(df, min=1.0))
+        degrees_of_freedom > 2,
+        (degrees_of_freedom + noncentrality_parameter**2) / (degrees_of_freedom - 2),
+        1 + noncentrality_parameter**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
     )
     std_nct = torch.sqrt(var_nct)
 

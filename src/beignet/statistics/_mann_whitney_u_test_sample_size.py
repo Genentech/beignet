@@ -66,7 +66,7 @@ def mann_whitney_u_test_sample_size(
     auc = auc.to(dtype)
     r = torch.clamp(r.to(dtype), min=0.1, max=10.0)
 
-    # Initial z-approx for n1 using sd0 ≈ sqrt(n1*n2*(n1+n2+1)/12)
+    # Initial z-approx for sample_size_group_1 using sd0 ≈ sqrt(sample_size_group_1*sample_size_group_2*(sample_size_group_1+sample_size_group_2+1)/12)
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
@@ -78,21 +78,27 @@ def mann_whitney_u_test_sample_size(
     z_alpha = z_of(1 - (alpha / 2 if alternative == "two-sided" else alpha))
     z_beta = z_of(power)
     delta = torch.abs(auc - 0.5)
-    # crude: n1 ≈ ((z_alpha+z_beta) * c / delta)^2, c from variance term
+    # crude: sample_size_group_1 ≈ ((z_alpha+z_beta) * c / delta)^2, c from variance term
     c = torch.sqrt(1.0 + r) / torch.sqrt(12.0 * r)
-    n1 = ((z_alpha + z_beta) * c / torch.clamp(delta, min=1e-8)) ** 2
-    n1 = torch.clamp(n1, min=5.0)
+    sample_size_group_1 = ((z_alpha + z_beta) * c / torch.clamp(delta, min=1e-8)) ** 2
+    sample_size_group_1 = torch.clamp(sample_size_group_1, min=5.0)
 
-    n1_curr = n1
+    sample_size_group_1_current = sample_size_group_1
     for _ in range(12):
         pwr = mann_whitney_u_test_power(
-            auc, torch.ceil(n1_curr), ratio=r, alpha=alpha, alternative=alternative
+            auc,
+            torch.ceil(sample_size_group_1_current),
+            ratio=r,
+            alpha=alpha,
+            alternative=alternative,
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
-        n1_curr = torch.clamp(n1_curr * (1.0 + 1.25 * gap), min=5.0, max=1e7)
+        sample_size_group_1_current = torch.clamp(
+            sample_size_group_1_current * (1.0 + 1.25 * gap), min=5.0, max=1e7
+        )
 
-    n1_out = torch.ceil(n1_curr)
+    sample_size_group_1_output = torch.ceil(sample_size_group_1_current)
     if out is not None:
-        out.copy_(n1_out)
+        out.copy_(sample_size_group_1_output)
         return out
-    return n1_out
+    return sample_size_group_1_output

@@ -158,30 +158,30 @@ def interrupted_time_series_power(
     effective_n = n_time_points * ar_adjustment
 
     # Design matrix considerations for segmented regression
-    # The intervention indicator has variance p*(1-p) where p = n_post/n_total
-    p_post = n_post_intervention / n_time_points
-    design_variance = p_post * (1.0 - p_post)
+    # The intervention indicator has variance prob_post*(1-prob_post) where prob_post = n_post/n_total
+    prob_post = n_post_intervention / n_time_points
+    design_variance = prob_post * (1.0 - prob_post)
 
     # Standard error for the intervention effect
     # SE(β₂) ≈ σ / √(n * Var(I_t))
     se_intervention = 1.0 / torch.sqrt(effective_n * design_variance)
 
     # Noncentrality parameter
-    ncp = effect_size / se_intervention
+    noncentrality_parameter = effect_size / se_intervention
 
     # Degrees of freedom (approximate)
     # df = n - p_parameters, where p_parameters ≈ 4 for basic ITS model
-    df_approx = torch.clamp(effective_n - 4.0, min=1.0)
+    degrees_of_freedom_approx = torch.clamp(effective_n - 4.0, min=1.0)
 
     # Critical value (two-sided test)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
     # Adjust for finite degrees of freedom
-    t_critical = z_alpha * torch.sqrt(1.0 + 2.0 / df_approx)
+    t_critical = z_alpha * torch.sqrt(1.0 + 2.0 / degrees_of_freedom_approx)
 
     # Power calculation
-    z_score = t_critical - ncp
+    z_score = t_critical - noncentrality_parameter
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
     # Clamp to valid range

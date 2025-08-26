@@ -130,8 +130,8 @@ def jonckheere_terpstra_test_power(
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
-    k = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
-    if k < 3:
+    groups = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
+    if groups < 3:
         raise ValueError("Jonckheere-Terpstra test requires at least 3 groups")
 
     N = torch.sum(sample_sizes, dim=-1)

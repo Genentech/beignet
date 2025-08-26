@@ -69,17 +69,17 @@ def paired_z_test_power(
     - **Large sample assumption:** Generally appropriate when n > 30
     - **Consider practical significance:** Statistical power should align with meaningful effect sizes
     """
-    d = torch.atleast_1d(torch.as_tensor(effect_size))
-    n = torch.atleast_1d(torch.as_tensor(sample_size))
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     dtype = (
         torch.float64
-        if (d.dtype == torch.float64 or n.dtype == torch.float64)
+        if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
         else torch.float32
     )
-    d = d.to(dtype)
-    n = torch.clamp(n.to(dtype), min=1.0)
+    effect_size = effect_size.to(dtype)
+    sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    ncp = d * torch.sqrt(n)
+    noncentrality_parameter = effect_size * torch.sqrt(sample_size)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -91,29 +91,45 @@ def paired_z_test_power(
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> torch.Tensor:
-        pt = torch.tensor(p, dtype=dtype)
+        probability = torch.tensor(p, dtype=dtype)
         eps = torch.finfo(dtype).eps
-        pt = torch.clamp(pt, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
+        probability = torch.clamp(probability, min=eps, max=1 - eps)
+        return sqrt2 * torch.erfinv(2.0 * probability - 1.0)
 
     if alt == "two-sided":
         zcrit = z_of(1 - alpha / 2)
         upper = 0.5 * (
-            1 - torch.erf((zcrit - ncp) / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            - torch.erf(
+                (zcrit - noncentrality_parameter)
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+            )
         )
         lower = 0.5 * (
-            1 + torch.erf((-zcrit - ncp) / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            + torch.erf(
+                (-zcrit - noncentrality_parameter)
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+            )
         )
         power = upper + lower
     elif alt == "greater":
         zcrit = z_of(1 - alpha)
         power = 0.5 * (
-            1 - torch.erf((zcrit - ncp) / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            - torch.erf(
+                (zcrit - noncentrality_parameter)
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+            )
         )
     else:
         zcrit = z_of(1 - alpha)
         power = 0.5 * (
-            1 + torch.erf((-zcrit - ncp) / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            + torch.erf(
+                (-zcrit - noncentrality_parameter)
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype))
+            )
         )
 
     out_t = torch.clamp(power, 0.0, 1.0)

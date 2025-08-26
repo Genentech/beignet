@@ -84,14 +84,14 @@ def mcnemars_test_minimum_detectable_effect(
     n0 = torch.as_tensor(sample_size)
     scalar_out = d0.ndim == 0 and n0.ndim == 0
     d = torch.atleast_1d(d0)
-    n = torch.atleast_1d(n0)
+    sample_size = torch.atleast_1d(n0)
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (d, n))
+        if any(t.dtype == torch.float64 for t in (d, sample_size))
         else torch.float32
     )
     d = torch.clamp(d.to(dtype), min=1e-8, max=1.0)
-    n = torch.clamp(n.to(dtype), min=1.0)
+    sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
     sqrt2 = math.sqrt(2.0)
 
@@ -103,10 +103,10 @@ def mcnemars_test_minimum_detectable_effect(
 
     z_alpha = z_of(1 - alpha / 2) if two_sided else z_of(1 - alpha)
     z_beta = z_of(power)
-    # From ncp = sqrt(n/d) * |p01 - p10|
+    # From noncentrality_parameter = sqrt(n/d) * |p01 - p10|
     # Initial guess
     diff0 = (z_alpha + z_beta) * torch.sqrt(
-        torch.clamp(d / n, min=torch.finfo(dtype).eps)
+        torch.clamp(d / sample_size, min=torch.finfo(dtype).eps)
     )
     max_allowed = torch.minimum(d, torch.tensor(1.0, dtype=dtype))
     min_allowed = torch.tensor(1e-8, dtype=dtype)
@@ -120,7 +120,9 @@ def mcnemars_test_minimum_detectable_effect(
     for _ in range(8):
         p01_hi = torch.clamp((d + hi) / 2.0, 0.0, 1.0)
         p10_hi = torch.clamp(d - p01_hi, 0.0, 1.0)
-        p_hi = mcnemars_test_power(p01_hi, p10_hi, n, alpha=alpha, two_sided=two_sided)
+        p_hi = mcnemars_test_power(
+            p01_hi, p10_hi, sample_size, alpha=alpha, two_sided=two_sided
+        )
         need_expand = p_hi < power
         if not torch.any(need_expand):
             break
@@ -132,7 +134,7 @@ def mcnemars_test_minimum_detectable_effect(
         p01_mid = torch.clamp((d + x) / 2.0, 0.0, 1.0)
         p10_mid = torch.clamp(d - p01_mid, 0.0, 1.0)
         p_mid = mcnemars_test_power(
-            p01_mid, p10_mid, n, alpha=alpha, two_sided=two_sided
+            p01_mid, p10_mid, sample_size, alpha=alpha, two_sided=two_sided
         )
         go_right = p_mid < power
         lo = torch.where(go_right, x, lo)

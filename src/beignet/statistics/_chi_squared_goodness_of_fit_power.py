@@ -116,13 +116,13 @@ def chi_square_goodness_of_fit_power(
     # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
-    df = torch.atleast_1d(torch.as_tensor(df))
+    degrees_of_freedom = torch.atleast_1d(torch.as_tensor(df))
 
     # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size.dtype == torch.float64
-        or df.dtype == torch.float64
+        or degrees_of_freedom.dtype == torch.float64
     ):
         dtype = torch.float64
     else:
@@ -130,17 +130,17 @@ def chi_square_goodness_of_fit_power(
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
-    df = df.to(dtype)
+    degrees_of_freedom = degrees_of_freedom.to(dtype)
 
     # Clamp effect size to non-negative values
     effect_size = torch.clamp(effect_size, min=0.0)
 
     # Ensure positive sample size and degrees of freedom
     sample_size = torch.clamp(sample_size, min=1.0)
-    df = torch.clamp(df, min=1.0)
+    degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
     # Noncentrality parameter
-    ncp = sample_size * effect_size**2
+    noncentrality_parameter = sample_size * effect_size**2
 
     # Critical chi-square value using normal approximation
     # For large df, chi-square approaches normal: χ² ≈ N(df, 2*df)
@@ -148,15 +148,15 @@ def chi_square_goodness_of_fit_power(
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
         torch.tensor(2.0, dtype=dtype)
     )
-    chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     # For noncentral chi-square, use normal approximation:
     # χ²(df, λ) ≈ N(df + λ, 2*(df + 2*λ))
-    mean_nc_chi2 = df + ncp
-    var_nc_chi2 = 2 * (df + 2 * ncp)
+    mean_nc_chi2 = degrees_of_freedom + noncentrality_parameter
+    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * noncentrality_parameter)
     std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
-    # Calculate power: P(χ² > χ²_critical | λ = ncp)
+    # Calculate power: P(χ² > χ²_critical | λ = noncentrality_parameter)
     z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
 
     # Power = P(Z > z_score) = 1 - Φ(z_score)

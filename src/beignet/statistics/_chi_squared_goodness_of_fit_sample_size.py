@@ -129,20 +129,20 @@ def chi_square_goodness_of_fit_sample_size(
     """
     # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
-    df = torch.atleast_1d(torch.as_tensor(df))
+    degrees_of_freedom = torch.atleast_1d(torch.as_tensor(df))
 
     # Ensure tensors have the same dtype
-    if effect_size.dtype == torch.float64 or df.dtype == torch.float64:
+    if effect_size.dtype == torch.float64 or degrees_of_freedom.dtype == torch.float64:
         dtype = torch.float64
     else:
         dtype = torch.float32
 
     effect_size = effect_size.to(dtype)
-    df = df.to(dtype)
+    degrees_of_freedom = degrees_of_freedom.to(dtype)
 
     # Clamp effect size to positive values and df to at least 1
     effect_size = torch.clamp(effect_size, min=1e-6)
-    df = torch.clamp(df, min=1.0)
+    degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
     # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
@@ -166,13 +166,15 @@ def chi_square_goodness_of_fit_sample_size(
         ncp_current = n_current * effect_size**2
 
         # Critical chi-square value using normal approximation
-        # χ²_α = df + z_α * √(2*df)
-        chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+        # χ²_α = degrees_of_freedom + z_α * √(2*degrees_of_freedom)
+        chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(
+            2 * degrees_of_freedom
+        )
 
         # For noncentral chi-square, use normal approximation
-        # χ²(df, λ) ≈ N(df + λ, 2*(df + 2*λ))
-        mean_nc_chi2 = df + ncp_current
-        var_nc_chi2 = 2 * (df + 2 * ncp_current)
+        # χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2*(degrees_of_freedom + 2*λ))
+        mean_nc_chi2 = degrees_of_freedom + ncp_current
+        var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp_current)
         std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
         # Calculate current power

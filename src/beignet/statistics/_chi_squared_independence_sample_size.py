@@ -163,7 +163,7 @@ def chi_square_independence_sample_size(
     cols = torch.clamp(cols, min=2.0)
 
     # Calculate degrees of freedom for independence test
-    df = (rows - 1) * (cols - 1)
+    degrees_of_freedom = (rows - 1) * (cols - 1)
 
     # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
@@ -188,13 +188,15 @@ def chi_square_independence_sample_size(
         ncp_current = n_current * effect_size**2
 
         # Critical chi-square value using normal approximation
-        # χ²_α = df + z_α * √(2*df)
-        chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+        # χ²_α = degrees_of_freedom + z_α * √(2*degrees_of_freedom)
+        chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(
+            2 * degrees_of_freedom
+        )
 
         # For noncentral chi-square, use normal approximation
-        # χ²(df, λ) ≈ N(df + λ, 2*(df + 2*λ))
-        mean_nc_chi2 = df + ncp_current
-        var_nc_chi2 = 2 * (df + 2 * ncp_current)
+        # χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2*(degrees_of_freedom + 2*λ))
+        mean_nc_chi2 = degrees_of_freedom + ncp_current
+        var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp_current)
         std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
         # Calculate current power

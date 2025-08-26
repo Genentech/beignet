@@ -76,16 +76,16 @@ def hedges_g(
     cohens_d_value = cohens_d(group1, group2, pooled=True)
 
     # Sample sizes
-    n1 = group1.shape[-1]
-    n2 = group2.shape[-1]
+    sample_size_group_1 = group1.shape[-1]
+    sample_size_group_2 = group2.shape[-1]
 
     # Degrees of freedom
-    df = n1 + n2 - 2
+    degrees_of_freedom = sample_size_group_1 + sample_size_group_2 - 2
 
     # Bias correction factor (Hedges & Olkin, 1985)
-    # J(df) = Gamma((df+1)/2) / (sqrt(df/2) * Gamma(df/2))
-    # Approximation: J(df) ≈ 1 - 3/(4*df - 1)
-    correction_factor = 1.0 - 3.0 / (4.0 * df - 1.0)
+    # J(degrees_of_freedom) = Gamma((degrees_of_freedom+1)/2) / (sqrt(degrees_of_freedom/2) * Gamma(degrees_of_freedom/2))
+    # Approximation: J(degrees_of_freedom) ≈ 1 - 3/(4*degrees_of_freedom - 1)
+    correction_factor = 1.0 - 3.0 / (4.0 * degrees_of_freedom - 1.0)
 
     # Apply correction
     output = cohens_d_value * correction_factor

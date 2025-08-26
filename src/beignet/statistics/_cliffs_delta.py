@@ -112,11 +112,13 @@ def cliffs_delta(
     y_expanded = y.unsqueeze(-2)  # (..., 1, M)
 
     # Count comparisons using smooth approximation for differentiability
-    # Use sigmoid approximation: sigmoid(k*(a-b)) ≈ Heaviside(a > b)
-    k = 100.0  # Steepness parameter for smooth approximation
+    # Use sigmoid approximation: sigmoid(steepness_parameter*(a-b)) ≈ Heaviside(a > b)
+    steepness_parameter = 100.0  # Steepness parameter for smooth approximation
     diff = x_expanded - y_expanded
-    n_xy = torch.sum(torch.sigmoid(k * diff), dim=(-2, -1))  # x > y
-    n_yx = torch.sum(torch.sigmoid(k * (-diff)), dim=(-2, -1))  # x < y
+    n_xy = torch.sum(torch.sigmoid(steepness_parameter * diff), dim=(-2, -1))  # x > y
+    n_yx = torch.sum(
+        torch.sigmoid(steepness_parameter * (-diff)), dim=(-2, -1)
+    )  # x < y
 
     # Total number of comparisons
     n_x = torch.tensor(x.shape[-1], dtype=dtype)

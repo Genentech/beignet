@@ -74,19 +74,19 @@ def chi_square_independence_minimum_detectable_effect(
     - **Higher dimensions require larger samples:** More rows/columns reduce power
     - **Consider practical impact:** Statistical association doesn't guarantee causal relationship
     """
-    n0 = torch.as_tensor(sample_size)
+    sample_size_0 = torch.as_tensor(sample_size)
     r0 = torch.as_tensor(rows)
     c0 = torch.as_tensor(cols)
-    scalar_out = n0.ndim == 0 and r0.ndim == 0 and c0.ndim == 0
-    n = torch.atleast_1d(n0)
+    scalar_out = sample_size_0.ndim == 0 and r0.ndim == 0 and c0.ndim == 0
+    sample_size = torch.atleast_1d(sample_size_0)
     r = torch.atleast_1d(r0)
     c = torch.atleast_1d(c0)
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (n, r, c))
+        if any(t.dtype == torch.float64 for t in (sample_size, r, c))
         else torch.float32
     )
-    n = torch.clamp(n.to(dtype), min=1.0)
+    sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
     r = torch.clamp(r.to(dtype), min=2.0)
     c = torch.clamp(c.to(dtype), min=2.0)
 
@@ -94,13 +94,13 @@ def chi_square_independence_minimum_detectable_effect(
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-    w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(n), min=1e-8)
+    w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
 
     w_lo = torch.zeros_like(w0) + 1e-8
     w_hi = torch.clamp(2.0 * w0 + 1e-6, min=1e-6)
 
     for _ in range(8):
-        p_hi = chi_square_independence_power(w_hi, n, r, c, alpha)
+        p_hi = chi_square_independence_power(w_hi, sample_size, r, c, alpha)
         need_expand = p_hi < power
         if not torch.any(need_expand):
             break
@@ -109,7 +109,7 @@ def chi_square_independence_minimum_detectable_effect(
 
     w = (w_lo + w_hi) * 0.5
     for _ in range(24):
-        p_mid = chi_square_independence_power(w, n, r, c, alpha)
+        p_mid = chi_square_independence_power(w, sample_size, r, c, alpha)
         go_right = p_mid < power
         w_lo = torch.where(go_right, w, w_lo)
         w_hi = torch.where(go_right, w_hi, w)

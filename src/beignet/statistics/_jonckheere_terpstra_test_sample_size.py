@@ -8,7 +8,7 @@ from ._jonckheere_terpstra_test_power import jonckheere_terpstra_test_power
 
 def jonckheere_terpstra_test_sample_size(
     effect_size: Tensor,
-    k: Tensor | int,
+    groups: Tensor | int,
     power: float = 0.8,
     alpha: float = 0.05,
     *,
@@ -24,7 +24,7 @@ def jonckheere_terpstra_test_sample_size(
     ----------
     effect_size : Tensor
         Effect size representing the standardized trend across ordered groups.
-    k : Tensor or int
+    groups : Tensor or int
         Number of ordered groups to compare.
     power : float, default=0.8
         Desired statistical power.
@@ -39,8 +39,8 @@ def jonckheere_terpstra_test_sample_size(
     Examples
     --------
     >>> effect_size = torch.tensor(0.5)
-    >>> k = 4
-    >>> jonckheere_terpstra_test_sample_size(effect_size, k)
+    >>> groups = 4
+    >>> jonckheere_terpstra_test_sample_size(effect_size, groups)
     tensor(15.0)
 
     Notes
@@ -54,20 +54,20 @@ def jonckheere_terpstra_test_sample_size(
     - You want more power than the Kruskal-Wallis test for detecting trends
     """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
-    k = torch.atleast_1d(torch.as_tensor(k))
+    groups = torch.atleast_1d(torch.as_tensor(groups))
 
     # Ensure floating point dtype
     dtype = (
         torch.float64
-        if (effect_size.dtype == torch.float64 or k.dtype == torch.float64)
+        if (effect_size.dtype == torch.float64 or groups.dtype == torch.float64)
         else torch.float32
     )
     effect_size = effect_size.to(dtype)
-    k = k.to(dtype)
+    groups = groups.to(dtype)
 
     # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
-    k = torch.clamp(k, min=3.0)
+    groups = torch.clamp(groups, min=3.0)
 
     # Initial approximation
     sqrt2 = math.sqrt(2.0)
@@ -76,7 +76,7 @@ def jonckheere_terpstra_test_sample_size(
 
     # Initial guess based on normal approximation
     # For trend tests, the required n is typically smaller than for omnibus tests
-    n_init = ((z_alpha + z_beta) / effect_size) ** 2 / k
+    n_init = ((z_alpha + z_beta) / effect_size) ** 2 / groups
     n_init = torch.clamp(n_init, min=5.0)
 
     # Iterative refinement
@@ -84,7 +84,7 @@ def jonckheere_terpstra_test_sample_size(
     for _ in range(12):
         # Create equal sample sizes
         sample_sizes = n_current.unsqueeze(-1).expand(
-            *n_current.shape, int(k.max().item())
+            *n_current.shape, int(groups.max().item())
         )
 
         # Calculate current power

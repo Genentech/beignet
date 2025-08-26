@@ -115,10 +115,10 @@ def mcnemars_test_sample_size(
     else:
         z_alpha = z_of(1 - alpha)
     z_beta = z_of(power)
-    p = torch.where(
+    probability = torch.where(
         (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
     )
-    delta = torch.abs(p - 0.5)
+    delta = torch.abs(probability - 0.5)
     n0 = ((z_alpha + z_beta) / (2 * torch.clamp(delta, min=1e-8))) ** 2 / torch.clamp(
         p01 + p10, min=1e-8
     )

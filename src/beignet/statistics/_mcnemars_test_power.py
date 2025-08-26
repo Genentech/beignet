@@ -98,23 +98,23 @@ def mcnemars_test_power(
     """
     p01 = torch.atleast_1d(torch.as_tensor(p01))
     p10 = torch.atleast_1d(torch.as_tensor(p10))
-    n = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (p01, p10, n))
+        if any(t.dtype == torch.float64 for t in (p01, p10, sample_size))
         else torch.float32
     )
     p01 = torch.clamp(p01.to(dtype), 0.0, 1.0)
     p10 = torch.clamp(p10.to(dtype), 0.0, 1.0)
-    n = torch.clamp(n.to(dtype), min=1.0)
+    sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
     # Approximate using normal test on b - c with D ≈ n*(p01+p10)
-    D = n * (p01 + p10)
-    p = torch.where(
+    D = sample_size * (p01 + p10)
+    probability = torch.where(
         (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
     )
-    # Under H1, E[b - D/2] = D*(p - 0.5); Var ≈ D*0.25
-    mean = D * (p - 0.5)
+    # Under H1, E[b - D/2] = D*(probability - 0.5); Var ≈ D*0.25
+    mean = D * (probability - 0.5)
     std = torch.sqrt(torch.clamp(D * 0.25, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)

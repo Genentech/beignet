@@ -145,23 +145,23 @@ def t_test_sample_size(
     )
 
     # Initial normal approximation: n = ((z_alpha + z_beta) / d)^2
-    n_initial = ((z_alpha + z_beta) / effect_size) ** 2
+    sample_size_initial = ((z_alpha + z_beta) / effect_size) ** 2
 
     # Ensure minimum sample size
-    n_initial = torch.clamp(n_initial, min=2.0)
+    sample_size_initial = torch.clamp(sample_size_initial, min=2.0)
 
     # Iterative refinement to account for finite df effects
-    n_current = n_initial
+    sample_size_current = sample_size_initial
     convergence_tolerance = 1e-6
     max_iterations = 10
 
     for _iteration in range(max_iterations):
         # Calculate current degrees of freedom
-        df_current = n_current - 1
+        df_current = sample_size_current - 1
         df_current = torch.clamp(df_current, min=1.0)
 
         # Current noncentrality parameter
-        ncp_current = effect_size * torch.sqrt(n_current)
+        noncentrality_parameter_current = effect_size * torch.sqrt(sample_size_current)
 
         # Adjust critical value for finite df
         if alternative == "two-sided":
@@ -170,24 +170,34 @@ def t_test_sample_size(
             t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
 
         # Variance of noncentral t-distribution
-        var_nct = (df_current + ncp_current**2) / torch.clamp(df_current - 2, min=0.1)
+        var_nct = (df_current + noncentrality_parameter_current**2) / torch.clamp(
+            df_current - 2, min=0.1
+        )
         # Use more stable approximation for small df
         var_nct = torch.where(
-            df_current > 2, var_nct, 1 + ncp_current**2 / (2 * df_current)
+            df_current > 2,
+            var_nct,
+            1 + noncentrality_parameter_current**2 / (2 * df_current),
         )
         std_nct = torch.sqrt(var_nct)
 
         # Calculate current power
         if alternative == "two-sided":
-            z_upper = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
-            z_lower = (-t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+            z_upper = (t_critical - noncentrality_parameter_current) / torch.clamp(
+                std_nct, min=1e-10
+            )
+            z_lower = (-t_critical - noncentrality_parameter_current) / torch.clamp(
+                std_nct, min=1e-10
+            )
             power_current = 0.5 * (
                 1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             ) + 0.5 * (
                 1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             )
         else:
-            z_score = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+            z_score = (t_critical - noncentrality_parameter_current) / torch.clamp(
+                std_nct, min=1e-10
+            )
             power_current = 0.5 * (
                 1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             )
@@ -199,25 +209,25 @@ def t_test_sample_size(
         power_diff = power - power_current
 
         # Newton-Raphson style adjustment with convergence damping
-        # Approximate derivative: d(power)/d(n) ≈ d(power)/d(ncp) * d(ncp)/d(n)
-        # d(ncp)/d(n) = effect_size / (2 * sqrt(n))
+        # Approximate derivative: d(power)/d(n) ≈ d(power)/d(noncentrality_parameter) * d(noncentrality_parameter)/d(n)
+        # d(noncentrality_parameter)/d(n) = effect_size / (2 * sqrt(n))
         # Adjust sample size based on power difference
         adjustment = (
             power_diff
-            * n_current
+            * sample_size_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
 
         # Dampen adjustment if close to convergence (compile-friendly)
         converged_mask = torch.abs(power_diff) < convergence_tolerance
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
-        n_current = n_current + adjustment
+        sample_size_current = sample_size_current + adjustment
 
         # Ensure minimum constraints
-        n_current = torch.clamp(n_current, min=2.0, max=100000.0)
+        sample_size_current = torch.clamp(sample_size_current, min=2.0, max=100000.0)
 
     # Round up to nearest integer
-    output = torch.ceil(n_current)
+    output = torch.ceil(sample_size_current)
 
     # Final check: ensure we have at least 2 subjects
     output = torch.clamp(output, min=2.0)

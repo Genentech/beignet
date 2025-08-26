@@ -130,7 +130,7 @@ def t_test_power(
     sample_size = torch.clamp(sample_size, min=2.0)
 
     # Calculate degrees of freedom
-    df = sample_size - 1
+    degrees_of_freedom = sample_size - 1
 
     # Noncentrality parameter
     ncp = effect_size * torch.sqrt(sample_size)
@@ -149,11 +149,11 @@ def t_test_power(
     if alt == "two-sided":
         # Two-tailed critical using historical approximation from codebase
         z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
         # One-tailed critical
         z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * df))
+        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
     # For noncentral t-distribution, we approximate using normal distribution
     # when df is large, and adjust for smaller df
@@ -166,7 +166,9 @@ def t_test_power(
     # Variance approximation for noncentral t
     # Use torch.where to avoid data-dependent branching
     var_nct = torch.where(
-        df > 2, (df + ncp**2) / (df - 2), 1 + ncp**2 / (2 * torch.clamp(df, min=2.0))
+        degrees_of_freedom > 2,
+        (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
+        1 + ncp**2 / (2 * torch.clamp(degrees_of_freedom, min=2.0)),
     )
     std_nct = torch.sqrt(var_nct)
 

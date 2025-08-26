@@ -77,31 +77,33 @@ def mann_whitney_u_test_minimum_detectable_effect(
     - **AUC > 0.9:** Very large effect (excellent discrimination)
     - **Consider practical context:** Domain-specific thresholds may differ from statistical conventions
     """
-    n1_0 = torch.as_tensor(nobs1)
-    scalar_out = n1_0.ndim == 0
-    n1 = torch.atleast_1d(n1_0)
+    sample_size_group_1_0 = torch.as_tensor(nobs1)
+    scalar_out = sample_size_group_1_0.ndim == 0
+    sample_size_group_1 = torch.atleast_1d(sample_size_group_1_0)
     if nobs2 is None:
         r = torch.as_tensor(ratio)
-        n2 = torch.ceil(
-            n1
+        sample_size_group_2 = torch.ceil(
+            sample_size_group_1
             * (
-                r.to(n1.dtype)
+                r.to(sample_size_group_1.dtype)
                 if isinstance(r, Tensor)
-                else torch.tensor(float(r), dtype=n1.dtype)
+                else torch.tensor(float(r), dtype=sample_size_group_1.dtype)
             )
         )
     else:
-        n2_0 = torch.as_tensor(nobs2)
-        scalar_out = scalar_out and (n2_0.ndim == 0)
-        n2 = torch.atleast_1d(n2_0)
+        sample_size_group_2_0 = torch.as_tensor(nobs2)
+        scalar_out = scalar_out and (sample_size_group_2_0.ndim == 0)
+        sample_size_group_2 = torch.atleast_1d(sample_size_group_2_0)
 
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (n1, n2))
+        if any(
+            t.dtype == torch.float64 for t in (sample_size_group_1, sample_size_group_2)
+        )
         else torch.float32
     )
-    n1 = torch.clamp(n1.to(dtype), min=2.0)
-    n2 = torch.clamp(n2.to(dtype), min=2.0)
+    sample_size_group_1 = torch.clamp(sample_size_group_1.to(dtype), min=2.0)
+    sample_size_group_2 = torch.clamp(sample_size_group_2.to(dtype), min=2.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -123,7 +125,12 @@ def mann_whitney_u_test_minimum_detectable_effect(
 
     z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
     z_beta = z_of(power)
-    scale = torch.sqrt(12.0 * n1 * n2 / (n1 + n2 + 1.0))
+    scale = torch.sqrt(
+        12.0
+        * sample_size_group_1
+        * sample_size_group_2
+        / (sample_size_group_1 + sample_size_group_2 + 1.0)
+    )
     delta = (z_alpha + z_beta) / torch.clamp(scale, min=1e-12)
 
     if alt == "less":
@@ -132,7 +139,9 @@ def mann_whitney_u_test_minimum_detectable_effect(
         auc = torch.clamp(0.5 + delta, max=1.0)
 
     # One refinement step using the implemented power (optional, keeps differentiability)
-    p_curr = mann_whitney_u_test_power(auc, n1, n2, alpha=alpha, alternative=alt)
+    p_curr = mann_whitney_u_test_power(
+        auc, sample_size_group_1, sample_size_group_2, alpha=alpha, alternative=alt
+    )
     gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
     # Adjust AUC slightly toward target
     step = gap * 0.05

@@ -71,24 +71,27 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     - **Higher df requires larger sample sizes:** More categories reduce power for given effect size
     - **Consider practical impact:** Statistical significance doesn't guarantee business relevance
     """
-    n0 = torch.as_tensor(sample_size)
-    df0 = torch.as_tensor(df)
-    scalar_out = n0.ndim == 0 and df0.ndim == 0
-    n = torch.atleast_1d(n0)
-    df = torch.atleast_1d(df0)
+    sample_size_0 = torch.as_tensor(sample_size)
+    degrees_of_freedom_0 = torch.as_tensor(df)
+    scalar_out = sample_size_0.ndim == 0 and degrees_of_freedom_0.ndim == 0
+    sample_size = torch.atleast_1d(sample_size_0)
+    degrees_of_freedom = torch.atleast_1d(degrees_of_freedom_0)
     dtype = (
         torch.float64
-        if (n.dtype == torch.float64 or df.dtype == torch.float64)
+        if (
+            sample_size.dtype == torch.float64
+            or degrees_of_freedom.dtype == torch.float64
+        )
         else torch.float32
     )
-    n = torch.clamp(n.to(dtype), min=1.0)
-    df = torch.clamp(df.to(dtype), min=1.0)
+    sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
+    degrees_of_freedom = torch.clamp(degrees_of_freedom.to(dtype), min=1.0)
 
     # Initial guess using large-sample approximation: n ≈ ((zα+zβ)/w)^2
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-    w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(n), min=1e-8)
+    w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
 
     # Bounded search via bisection using the implemented power function
     w_lo = torch.zeros_like(w0) + 1e-8
@@ -96,7 +99,9 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
 
     # Ensure upper bound achieves at least the target power; expand as needed
     for _ in range(8):
-        p_hi = chi_square_goodness_of_fit_power(w_hi, n, df, alpha)
+        p_hi = chi_square_goodness_of_fit_power(
+            w_hi, sample_size, degrees_of_freedom, alpha
+        )
         need_expand = p_hi < power
         if not torch.any(need_expand):
             break
@@ -106,7 +111,9 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     # Bisection
     w = (w_lo + w_hi) * 0.5
     for _ in range(24):
-        p_mid = chi_square_goodness_of_fit_power(w, n, df, alpha)
+        p_mid = chi_square_goodness_of_fit_power(
+            w, sample_size, degrees_of_freedom, alpha
+        )
         go_right = p_mid < power
         w_lo = torch.where(go_right, w, w_lo)
         w_hi = torch.where(go_right, w_hi, w)

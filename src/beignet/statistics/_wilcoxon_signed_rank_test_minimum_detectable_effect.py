@@ -71,11 +71,11 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     - **Consider practical significance:** Statistical detectability should align with meaningful differences
     - **Robust to outliers:** Less sensitive to extreme values than parametric tests
     """
-    n0 = torch.as_tensor(nobs)
-    scalar_out = n0.ndim == 0
-    n = torch.atleast_1d(n0)
-    dtype = torch.float64 if n.dtype == torch.float64 else torch.float32
-    n = torch.clamp(n.to(dtype), min=5.0)
+    sample_size_0 = torch.as_tensor(nobs)
+    scalar_out = sample_size_0.ndim == 0
+    sample_size = torch.atleast_1d(sample_size_0)
+    dtype = torch.float64 if sample_size.dtype == torch.float64 else torch.float32
+    sample_size = torch.clamp(sample_size.to(dtype), min=5.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -86,14 +86,14 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     # H0 moments
-    S = n * (n + 1.0) / 2.0
-    var0 = n * (n + 1.0) * (2.0 * n + 1.0) / 24.0
+    S = sample_size * (sample_size + 1.0) / 2.0
+    var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)
 
-    def z_of(p: float) -> Tensor:
-        q = torch.tensor(p, dtype=dtype)
+    def z_of(prob: float) -> Tensor:
+        q = torch.tensor(prob, dtype=dtype)
         eps = torch.finfo(dtype).eps
         q = torch.clamp(q, min=eps, max=1 - eps)
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
@@ -103,27 +103,29 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     delta = (z_alpha + z_beta) * sd0 / torch.clamp(S, min=1e-12)
 
     if alt == "less":
-        p = torch.clamp(0.5 - delta, 0.0, 1.0)
+        probability = torch.clamp(0.5 - delta, 0.0, 1.0)
     else:
-        p = torch.clamp(0.5 + delta, 0.0, 1.0)
+        probability = torch.clamp(0.5 + delta, 0.0, 1.0)
 
     # Optional small refinement
-    p_curr = wilcoxon_signed_rank_test_power(p, n, alpha=alpha, alternative=alt)
+    p_curr = wilcoxon_signed_rank_test_power(
+        probability, sample_size, alpha=alpha, alternative=alt
+    )
     gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
     step = gap * 0.02
     if alt == "less":
-        p = torch.clamp(p - torch.abs(step), 0.0, 1.0)
+        probability = torch.clamp(probability - torch.abs(step), 0.0, 1.0)
     else:
-        p = torch.clamp(p + torch.abs(step), 0.0, 1.0)
+        probability = torch.clamp(probability + torch.abs(step), 0.0, 1.0)
 
     if scalar_out:
-        p_s = p.reshape(())
+        probability_s = probability.reshape(())
         if out is not None:
-            out.copy_(p_s)
+            out.copy_(probability_s)
             return out
-        return p_s
+        return probability_s
     else:
         if out is not None:
-            out.copy_(p)
+            out.copy_(probability)
             return out
-        return p
+        return probability

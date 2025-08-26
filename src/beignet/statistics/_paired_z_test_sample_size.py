@@ -69,9 +69,9 @@ def paired_z_test_sample_size(
     - **Consider practical constraints:** Balance statistical requirements with resource limitations
     - **Account for dropouts:** Inflate sample size for expected attrition in longitudinal studies
     """
-    d = torch.atleast_1d(torch.as_tensor(effect_size))
-    dtype = torch.float64 if d.dtype == torch.float64 else torch.float32
-    d = torch.clamp(d.to(dtype), min=1e-8)
+    effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
+    dtype = torch.float64 if effect_size.dtype == torch.float64 else torch.float32
+    effect_size = torch.clamp(effect_size.to(dtype), min=1e-8)
 
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
@@ -94,10 +94,10 @@ def paired_z_test_sample_size(
         z_alpha = z_of(1 - alpha)
     z_beta = z_of(power)
 
-    n = ((z_alpha + z_beta) / d) ** 2
-    n = torch.clamp(n, min=1.0)
-    n = torch.ceil(n)
+    sample_size = ((z_alpha + z_beta) / effect_size) ** 2
+    sample_size = torch.clamp(sample_size, min=1.0)
+    sample_size = torch.ceil(sample_size)
     if out is not None:
-        out.copy_(n)
+        out.copy_(sample_size)
         return out
-    return n
+    return sample_size

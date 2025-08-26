@@ -82,13 +82,15 @@ def cohens_d(
 
     if pooled:
         # Pooled standard deviation
-        n1 = group1.shape[-1]
-        n2 = group2.shape[-1]
+        sample_size_group_1 = group1.shape[-1]
+        sample_size_group_2 = group2.shape[-1]
 
         var1 = torch.var(group1, dim=-1, unbiased=True)
         var2 = torch.var(group2, dim=-1, unbiased=True)
 
-        pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
+        pooled_var = (
+            (sample_size_group_1 - 1) * var1 + (sample_size_group_2 - 1) * var2
+        ) / (sample_size_group_1 + sample_size_group_2 - 2)
         pooled_std = torch.sqrt(pooled_var)
 
         output = (mean1 - mean2) / pooled_std

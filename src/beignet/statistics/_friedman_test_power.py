@@ -124,7 +124,7 @@ def friedman_test_power(
     n_treatments = torch.clamp(n_treatments, min=3.0)
 
     # Degrees of freedom
-    df = n_treatments - 1
+    degrees_of_freedom = n_treatments - 1
 
     # Noncentrality parameter approximation
     # Based on the variance of treatment ranks under alternative hypothesis
@@ -133,12 +133,12 @@ def friedman_test_power(
     # Critical chi-square value using normal approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-    chi2_critical = df + z_alpha * torch.sqrt(2 * df)
+    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
     # Noncentral chi-square approximation
-    # Under H1: χ²_F ~ χ²(df, λ) ≈ N(df + λ, 2(df + 2λ))
-    mean_nc_chi2 = df + lambda_nc
-    var_nc_chi2 = 2 * (df + 2 * lambda_nc)
+    # Under H1: χ²_F ~ χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2(degrees_of_freedom + 2λ))
+    mean_nc_chi2 = degrees_of_freedom + lambda_nc
+    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * lambda_nc)
     std_nc_chi2 = torch.sqrt(torch.clamp(var_nc_chi2, min=1e-12))
 
     # Standardized test statistic

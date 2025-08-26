@@ -7,7 +7,7 @@ from torch import Tensor
 def anova_power(
     effect_size: Tensor,
     sample_size: Tensor,
-    k: Tensor,
+    groups: Tensor,
     alpha: float = 0.05,
     *,
     out: Tensor | None = None,
@@ -65,7 +65,7 @@ def anova_power(
     sample_size : Tensor
         Total sample size across all groups.
 
-    k : Tensor
+    groups : Tensor
         Number of groups in the ANOVA.
 
     alpha : float, default=0.05
@@ -83,8 +83,8 @@ def anova_power(
     --------
     >>> effect_size = torch.tensor(0.25)
     >>> sample_size = torch.tensor(120)
-    >>> k = torch.tensor(3)
-    >>> anova_power(effect_size, sample_size, k)
+    >>> groups = torch.tensor(3)
+    >>> anova_power(effect_size, sample_size, groups)
     tensor(0.7061)
 
     Notes
@@ -119,13 +119,13 @@ def anova_power(
     # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
-    k = torch.atleast_1d(torch.as_tensor(k))
+    groups = torch.atleast_1d(torch.as_tensor(groups))
 
     # Ensure all tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size.dtype == torch.float64
-        or k.dtype == torch.float64
+        or groups.dtype == torch.float64
     ):
         dtype = torch.float64
     else:
@@ -133,36 +133,38 @@ def anova_power(
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
-    k = k.to(dtype)
+    groups = groups.to(dtype)
 
     # Clamp effect size to non-negative values
     effect_size = torch.clamp(effect_size, min=0.0)
 
     # Calculate degrees of freedom
-    df1 = k - 1  # Between groups
-    df2 = sample_size - k  # Within groups (error)
+    degrees_of_freedom_1 = groups - 1  # Between groups
+    degrees_of_freedom_2 = sample_size - groups  # Within groups (error)
 
     # Ensure we have positive degrees of freedom
-    df1 = torch.clamp(df1, min=1.0)
-    df2 = torch.clamp(df2, min=1.0)
+    degrees_of_freedom_1 = torch.clamp(degrees_of_freedom_1, min=1.0)
+    degrees_of_freedom_2 = torch.clamp(degrees_of_freedom_2, min=1.0)
 
     # Critical F-value for given alpha
-    # For large df2, F_{alpha,df1,df2} ≈ χ²_{alpha,df1} / df1
+    # For large degrees_of_freedom_2, F_{alpha,degrees_of_freedom_1,degrees_of_freedom_2} ≈ χ²_{alpha,degrees_of_freedom_1} / degrees_of_freedom_1
     # We'll use a gamma distribution approximation for the F-distribution critical value
 
-    # Use the relationship: if X ~ F(df1,df2), then (df1*X) ~ scaled version of chi-square
-    # For simplicity, we'll use the chi-square approximation when df2 is large
+    # Use the relationship: if X ~ F(degrees_of_freedom_1,degrees_of_freedom_2), then (degrees_of_freedom_1*X) ~ scaled version of chi-square
+    # For simplicity, we'll use the chi-square approximation when degrees_of_freedom_2 is large
 
     # Calculate critical chi-square value using erfinv
     sqrt_2 = math.sqrt(2.0)
 
     # Use normal approximation for chi-square critical value
-    # χ² ≈ N(df1, 2*df1) for large df1, but works reasonably for smaller df1 too
+    # χ² ≈ N(degrees_of_freedom_1, 2*degrees_of_freedom_1) for large degrees_of_freedom_1, but works reasonably for smaller degrees_of_freedom_1 too
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-    chi2_critical = df1 + z_alpha * torch.sqrt(2 * df1)
+    chi2_critical = degrees_of_freedom_1 + z_alpha * torch.sqrt(
+        2 * degrees_of_freedom_1
+    )
 
     # Convert back to F critical value
-    f_critical = chi2_critical / df1
+    f_critical = chi2_critical / degrees_of_freedom_1
 
     # Noncentrality parameter
     lambda_nc = sample_size * effect_size**2
@@ -171,23 +173,25 @@ def anova_power(
     # For power calculation, we need P(F > f_critical | λ = lambda_nc)
 
     # Use approximation for noncentral F-distribution
-    # The noncentral F can be approximated as: (χ²(df1, λ) / df1) / (χ²(df2) / df2)
+    # The noncentral F can be approximated as: (χ²(degrees_of_freedom_1, λ) / degrees_of_freedom_1) / (χ²(degrees_of_freedom_2) / degrees_of_freedom_2)
 
-    # For large df2, the denominator approaches 1, so we have χ²(df1, λ) / df1
+    # For large degrees_of_freedom_2, the denominator approaches 1, so we have χ²(degrees_of_freedom_1, λ) / degrees_of_freedom_1
     # The noncentral chi-square with noncentrality λ can be approximated as
-    # normal with mean (df1 + λ) and variance 2*(df1 + 2*λ)
+    # normal with mean (degrees_of_freedom_1 + λ) and variance 2*(degrees_of_freedom_1 + 2*λ)
 
-    mean_nc_chi2 = df1 + lambda_nc
-    var_nc_chi2 = 2 * (df1 + 2 * lambda_nc)
+    mean_nc_chi2 = degrees_of_freedom_1 + lambda_nc
+    var_nc_chi2 = 2 * (degrees_of_freedom_1 + 2 * lambda_nc)
 
     # Convert to F-statistic distribution parameters
-    mean_f = mean_nc_chi2 / df1
-    var_f = var_nc_chi2 / (df1**2)
+    mean_f = mean_nc_chi2 / degrees_of_freedom_1
+    var_f = var_nc_chi2 / (degrees_of_freedom_1**2)
 
-    # Approximate adjustment for finite df2
+    # Approximate adjustment for finite degrees_of_freedom_2
     # F-ratio has additional variability from denominator
     # Use a smooth adjustment function instead of hard threshold
-    adjustment_factor = (df2 + 2) / torch.clamp(df2, min=1.0)
+    adjustment_factor = (degrees_of_freedom_2 + 2) / torch.clamp(
+        degrees_of_freedom_2, min=1.0
+    )
     var_f = var_f * adjustment_factor
 
     # Calculate power using normal approximation

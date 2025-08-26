@@ -78,7 +78,7 @@ def analysis_of_covariance_power(
         Cohen's f for the group effect (as in ANOVA, before covariate adjustment).
     sample_size : Tensor
         Total sample size N across groups.
-    k : Tensor
+    groups : Tensor
         Number of groups.
     covariate_r2 : Tensor
         Proportion of outcome variance explained by covariates (R² in [0,1)).
@@ -96,29 +96,32 @@ def analysis_of_covariance_power(
     -----
     Uses a noncentral F approximation similar to ANOVA, with the noncentrality
     parameter inflated by the error variance reduction: λ ≈ N * f² / (1 - R²).
-    Degrees of freedom: df1 = k - 1, df2 = N - k - p, where p = n_covariates.
+    Degrees of freedom: df1 = groups - 1, df2 = N - groups - p, where p = n_covariates.
     """
-    f = torch.atleast_1d(torch.as_tensor(effect_size))
+    effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
     N = torch.atleast_1d(torch.as_tensor(sample_size))
-    k = torch.atleast_1d(torch.as_tensor(k))
+    groups = torch.atleast_1d(torch.as_tensor(k))
     R2 = torch.atleast_1d(torch.as_tensor(covariate_r2))
-    p = torch.atleast_1d(torch.as_tensor(n_covariates))
+    num_covariates = torch.atleast_1d(torch.as_tensor(n_covariates))
 
     # dtype management
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (f, N, k, R2, p))
+        if any(
+            t.dtype == torch.float64
+            for t in (effect_size_f, N, groups, R2, num_covariates)
+        )
         else torch.float32
     )
-    f = torch.clamp(f.to(dtype), min=0.0)
+    effect_size_f = torch.clamp(effect_size_f.to(dtype), min=0.0)
     N = torch.clamp(N.to(dtype), min=3.0)
-    k = torch.clamp(k.to(dtype), min=2.0)
+    groups = torch.clamp(groups.to(dtype), min=2.0)
     R2 = torch.clamp(R2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
-    p = torch.clamp(p.to(dtype), min=0.0)
+    num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
     # Degrees of freedom
-    df1 = torch.clamp(k - 1.0, min=1.0)
-    df2 = torch.clamp(N - k - p, min=1.0)
+    df1 = torch.clamp(groups - 1.0, min=1.0)
+    df2 = torch.clamp(N - groups - num_covariates, min=1.0)
 
     # Critical F via chi-square normal approximation (consistent with ANOVA impl)
     sqrt2 = math.sqrt(2.0)
@@ -127,7 +130,7 @@ def analysis_of_covariance_power(
     f_crit = chi2_crit / df1
 
     # Noncentrality parameter with variance reduction
-    lambda_nc = N * f**2 / torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)
+    lambda_nc = N * effect_size_f**2 / torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)
 
     # Approximate noncentral F via noncentral chi-square moments
     mean_nc_chi2 = df1 + lambda_nc

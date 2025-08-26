@@ -130,19 +130,19 @@ def proportion_two_sample_power(
     # Convert inputs to tensors if needed
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
-    n1 = torch.atleast_1d(torch.as_tensor(n1))
+    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(n1))
 
     if n2 is None:
-        n2 = n1
+        sample_size_group_2 = sample_size_group_1
     else:
-        n2 = torch.atleast_1d(torch.as_tensor(n2))
+        sample_size_group_2 = torch.atleast_1d(torch.as_tensor(n2))
 
     # Ensure all tensors have the same dtype
     if (
         p1.dtype == torch.float64
         or p2.dtype == torch.float64
-        or n1.dtype == torch.float64
-        or n2.dtype == torch.float64
+        or sample_size_group_1.dtype == torch.float64
+        or sample_size_group_2.dtype == torch.float64
     ):
         dtype = torch.float64
     else:
@@ -150,8 +150,8 @@ def proportion_two_sample_power(
 
     p1 = p1.to(dtype)
     p2 = p2.to(dtype)
-    n1 = n1.to(dtype)
-    n2 = n2.to(dtype)
+    sample_size_group_1 = sample_size_group_1.to(dtype)
+    sample_size_group_2 = sample_size_group_2.to(dtype)
 
     # Clamp proportions to valid range (0, 1)
     epsilon = 1e-8
@@ -159,14 +159,20 @@ def proportion_two_sample_power(
     p2 = torch.clamp(p2, epsilon, 1 - epsilon)
 
     # Pooled proportion under null hypothesis (p1 = p2)
-    p_pooled = (n1 * p1 + n2 * p2) / (n1 + n2)
+    p_pooled = (sample_size_group_1 * p1 + sample_size_group_2 * p2) / (
+        sample_size_group_1 + sample_size_group_2
+    )
     p_pooled = torch.clamp(p_pooled, epsilon, 1 - epsilon)
 
     # Standard error under null hypothesis (pooled variance)
-    se_null = torch.sqrt(p_pooled * (1 - p_pooled) * (1 / n1 + 1 / n2))
+    se_null = torch.sqrt(
+        p_pooled * (1 - p_pooled) * (1 / sample_size_group_1 + 1 / sample_size_group_2)
+    )
 
     # Standard error under alternative hypothesis (separate variances)
-    se_alt = torch.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
+    se_alt = torch.sqrt(
+        p1 * (1 - p1) / sample_size_group_1 + p2 * (1 - p2) / sample_size_group_2
+    )
 
     # Effect size (standardized difference)
     effect = (p1 - p2) / se_null

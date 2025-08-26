@@ -8,7 +8,7 @@ from ._kruskal_wallis_test_power import kruskal_wallis_test_power
 
 def kruskal_wallis_test_sample_size(
     effect_size: Tensor,
-    k: Tensor | int,
+    groups: Tensor | int,
     power: float = 0.8,
     alpha: float = 0.05,
     *,
@@ -24,7 +24,7 @@ def kruskal_wallis_test_sample_size(
     ----------
     effect_size : Tensor
         Effect size (variance of group location parameters divided by error variance).
-    k : Tensor or int
+    groups : Tensor or int
         Number of groups to compare.
     power : float, default=0.8
         Desired statistical power.
@@ -39,8 +39,8 @@ def kruskal_wallis_test_sample_size(
     Examples
     --------
     >>> effect_size = torch.tensor(0.3)
-    >>> k = 3
-    >>> kruskal_wallis_test_sample_size(effect_size, k)
+    >>> groups = 3
+    >>> kruskal_wallis_test_sample_size(effect_size, groups)
     tensor(15.0)
 
     Notes
@@ -53,33 +53,33 @@ def kruskal_wallis_test_sample_size(
     sample size vectors to find the optimal allocation.
     """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
-    k = torch.atleast_1d(torch.as_tensor(k))
+    groups = torch.atleast_1d(torch.as_tensor(groups))
 
     # Ensure floating point dtype
-    if effect_size.dtype.is_floating_point and k.dtype.is_floating_point:
-        if effect_size.dtype == torch.float64 or k.dtype == torch.float64:
+    if effect_size.dtype.is_floating_point and groups.dtype.is_floating_point:
+        if effect_size.dtype == torch.float64 or groups.dtype == torch.float64:
             dtype = torch.float64
         else:
             dtype = torch.float32
     else:
         dtype = torch.float32
     effect_size = effect_size.to(dtype)
-    k = k.to(dtype)
+    groups = groups.to(dtype)
 
     # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
-    k = torch.clamp(k, min=3.0)
+    groups = torch.clamp(groups, min=3.0)
 
     # Initial approximation using chi-square power formula
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    df = k - 1
+    degrees_of_freedom = groups - 1
 
     # Initial guess based on simplified formula
-    # For chi-square test: n ≈ (z_α + z_β)² / (effect_size * df)
-    n_init = ((z_alpha + z_beta) ** 2) / (effect_size * df)
+    # For chi-square test: n ≈ (z_α + z_β)² / (effect_size * degrees_of_freedom)
+    n_init = ((z_alpha + z_beta) ** 2) / (effect_size * degrees_of_freedom)
     n_init = torch.clamp(n_init, min=5.0)
 
     # Iterative refinement
@@ -87,7 +87,7 @@ def kruskal_wallis_test_sample_size(
     for _ in range(12):
         # Create sample sizes tensor (equal allocation)
         sample_sizes = n_current.unsqueeze(-1).expand(
-            *n_current.shape, int(k.max().item())
+            *n_current.shape, int(groups.max().item())
         )
 
         # Calculate current power
