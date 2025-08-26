@@ -21,6 +21,36 @@ def correlation_power(
     gradients, differentiability enables integration into machine learning
     workflows where correlation strengths may be learned parameters.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Testing linear relationships between continuous variables
+    - Validating theoretical models predicting correlations
+    - Quality assessment in measurement instruments
+    - Behavioral science studies examining variable relationships
+
+    **Machine Learning Contexts:**
+    - Feature selection: determining if features correlate significantly with targets
+    - Model validation: testing if model predictions correlate with ground truth
+    - Data quality assessment: detecting spurious correlations in datasets
+    - Representation learning: validating that learned embeddings capture expected relationships
+    - A/B testing: measuring correlations between interventions and outcomes
+    - Time series analysis: detecting significant autocorrelations
+    - Recommender systems: validating user-item preference correlations
+    - Causal inference: testing instrument validity through correlation analysis
+    - Hyperparameter optimization: correlation between parameters and performance
+
+    **Choose correlation tests when:**
+    - Both variables are continuous
+    - Relationship is expected to be linear (use rank correlation for non-linear)
+    - Data points are independent
+    - Variables are approximately normally distributed (for parametric inference)
+
+    **Interpretation Guidelines:**
+    - |r| = 0.1: small correlation
+    - |r| = 0.3: medium correlation
+    - |r| = 0.5: large correlation
+
     Parameters
     ----------
     r : Tensor

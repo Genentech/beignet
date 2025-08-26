@@ -14,6 +14,35 @@ def eta_squared(
     Eta-squared represents the proportion of total variance that is attributed
     to the treatment effect. It is analogous to R² in regression analysis.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Reporting effect sizes in ANOVA results
+    - Meta-analyses requiring standardized effect measures
+    - Comparing relative importance of factors in factorial designs
+    - Educational research assessing intervention effectiveness
+
+    **Machine Learning Contexts:**
+    - Feature importance assessment in regression models
+    - Model comparison: variance explained by different feature sets
+    - Hyperparameter analysis: variance explained by different configurations
+    - A/B/C testing: comparing effect sizes across multiple treatments
+    - Ensemble methods: assessing individual model contributions
+    - Cross-validation: variance explained across different folds
+    - Domain adaptation: measuring variance explained by domain factors
+    - Representation learning: variance captured by different embedding dimensions
+
+    **Choose eta-squared when:**
+    - Multiple group comparisons (3+ groups)
+    - Need standardized effect size measure (0-1 scale)
+    - Comparing effects across different studies or contexts
+    - Want to quantify practical significance beyond statistical significance
+
+    **Interpretation (Cohen, 1988):**
+    - η² = 0.01: small effect (1% of variance explained)
+    - η² = 0.06: medium effect (6% of variance explained)
+    - η² = 0.14: large effect (14% of variance explained)
+
     Parameters
     ----------
     ss_between : Tensor

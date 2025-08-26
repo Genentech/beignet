@@ -19,6 +19,39 @@ def mixed_model_power(
     Tests fixed effects in a linear mixed-effects model with random intercepts
     using the Wald test with appropriate degrees of freedom adjustment.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Longitudinal studies with repeated measurements per subject
+    - Cluster randomized trials (schools, hospitals, clinics as clusters)
+    - Multi-site studies with site-level clustering
+    - Family studies with genetic clustering
+    - Hierarchical data structures (students within classrooms)
+
+    **Machine Learning Contexts:**
+    - Federated learning: accounting for client-level clustering effects
+    - Personalized medicine: individual-level random effects in treatment response
+    - Time series ML: repeated observations within subjects over time
+    - Multi-domain adaptation: domain-specific random effects
+    - A/B testing with repeated user interactions
+    - Recommendation systems: user-specific random effects
+    - Natural language processing: author or document-level random effects
+    - Computer vision: image series from same subject/source
+    - Longitudinal biomarker studies with ML prediction models
+
+    **Choose mixed models over fixed effects when:**
+    - Data has clustering or hierarchical structure
+    - Repeated measurements from same subjects/units
+    - Interest in both population-level (fixed) and cluster-level (random) effects
+    - Need to generalize beyond observed clusters
+    - Intraclass correlation (ICC) > 0.05
+
+    **ICC Interpretation:**
+    - ICC = 0: no clustering (use regular regression)
+    - ICC = 0.05: small clustering effect
+    - ICC = 0.10: medium clustering effect
+    - ICC = 0.20+: large clustering effect
+
     Parameters
     ----------
     effect_size : Tensor

@@ -19,6 +19,39 @@ def logistic_regression_power(
     Calculates statistical power for testing a single predictor coefficient
     in logistic regression using the Wald test.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Binary outcome prediction with continuous/categorical predictors
+    - Case-control studies in epidemiology
+    - Clinical trials with binary endpoints (cure/no cure, success/failure)
+    - Survey research with binary response variables
+
+    **Machine Learning Contexts:**
+    - Binary classification model evaluation and comparison
+    - Feature selection: determining significant predictors in classification
+    - A/B testing with binary conversion outcomes
+    - Causal inference: estimating treatment effects on binary outcomes
+    - Fairness assessment: testing for discriminatory effects in binary decisions
+    - Model interpretation: validating significance of individual features
+    - Medical AI: diagnostic test validation with binary outcomes
+    - Marketing analytics: predicting binary customer behaviors
+    - Credit scoring: default/no-default prediction validation
+
+    **Choose logistic regression power when:**
+    - Outcome variable is binary (0/1, yes/no, success/failure)
+    - Linear relationship between predictors and log-odds
+    - Independent observations
+    - Large enough sample size (typically n > 10 events per predictor)
+
+    **Odds Ratio Interpretation:**
+    - OR = 1: no association
+    - OR > 1: positive association (higher odds)
+    - OR < 1: negative association (lower odds)
+    - OR = 1.5: small effect
+    - OR = 2.0: medium effect
+    - OR = 3.0: large effect
+
     Parameters
     ----------
     effect_size : Tensor

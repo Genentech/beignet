@@ -21,6 +21,35 @@ def cohens_d(
     sizes may be computed from learned representations or used in gradient-based
     hyperparameter optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Reporting standardized effect sizes in experimental research
+    - Meta-analyses requiring comparable effect sizes across studies
+    - Clinical trials comparing treatment vs. control groups
+    - Educational research comparing different pedagogical approaches
+
+    **Machine Learning Contexts:**
+    - Evaluating feature importance by comparing distributions across classes
+    - Measuring treatment effects in causal inference ML pipelines
+    - Validation of synthetic data generators (comparing real vs. synthetic distributions)
+    - A/B testing in recommendation systems or ML-driven products
+    - Fairness assessment: comparing model performance across demographic groups
+    - Active learning: selecting data points with largest distributional differences
+    - Domain adaptation: measuring domain shift between training and target data
+    - Representation learning: ensuring learned embeddings capture meaningful group differences
+
+    **Choose Cohen's d over other effect sizes when:**
+    - Both groups are approximately normally distributed
+    - Group variances are roughly equal (homoscedasticity)
+    - You need a standardized metric comparable across different studies/contexts
+    - Sample sizes are moderate to large (n > 20 per group)
+
+    **Interpretation Guidelines:**
+    - |d| = 0.2: small effect
+    - |d| = 0.5: medium effect
+    - |d| = 0.8: large effect
+
     Parameters
     ----------
     group1 : Tensor, shape (..., N1)

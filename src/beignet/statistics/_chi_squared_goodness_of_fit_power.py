@@ -25,6 +25,35 @@ def chi_square_goodness_of_fit_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Testing if observed categorical data follows an expected distribution
+    - Validating theoretical models against empirical data
+    - Quality control in manufacturing (defect rate distributions)
+    - Genetics: testing Hardy-Weinberg equilibrium
+
+    **Machine Learning Contexts:**
+    - Validating synthetic data generators (categorical feature distributions)
+    - Testing if model predictions follow expected class distributions
+    - Fairness auditing: checking if algorithmic decisions match demographic distributions
+    - Feature engineering validation for categorical transformations
+    - A/B testing with categorical outcomes (user behavior patterns)
+    - Natural language processing: validating text generation models
+    - Recommendation systems: testing if item popularity follows expected distributions
+    - Computer vision: validating class balance in generated datasets
+
+    **Choose chi-square goodness-of-fit over other tests when:**
+    - Outcome variable is categorical (nominal or ordinal)
+    - Expected cell frequencies are ≥ 5 in all categories
+    - Testing against a specific theoretical distribution
+    - Need to compare observed vs. expected frequencies across multiple categories
+
+    **Common Effect Sizes (Cohen's w):**
+    - w = 0.1: small effect
+    - w = 0.3: medium effect
+    - w = 0.5: large effect
+
     Parameters
     ----------
     effect_size : Tensor

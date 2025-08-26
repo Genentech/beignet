@@ -20,6 +20,40 @@ def proportional_hazards_model_power(
     in the Cox proportional hazards model using the log-rank test or
     Wald test approximation.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Survival analysis in clinical trials (time to death, disease progression)
+    - Reliability engineering (time to equipment failure)
+    - Customer analytics (time to churn, purchase)
+    - Medical device studies (time to device failure)
+    - Longitudinal studies with censored outcomes
+
+    **Machine Learning Contexts:**
+    - Churn prediction model validation with time-to-event outcomes
+    - Predictive maintenance: validating time-to-failure models
+    - A/B testing with time-to-conversion metrics
+    - Recommendation systems: time until user engagement
+    - Fraud detection: time until fraudulent activity
+    - Clinical AI: survival prediction model validation
+    - Marketing analytics: customer lifetime value modeling
+    - Software reliability: time between software failures
+    - IoT applications: sensor failure time prediction
+
+    **Choose Cox regression power when:**
+    - Outcome is time-to-event (survival time)
+    - Presence of censored observations (incomplete follow-up)
+    - Proportional hazards assumption holds
+    - Interest in hazard ratios rather than absolute survival times
+    - Multiple covariates affecting survival
+
+    **Hazard Ratio Interpretation:**
+    - HR = 1: no effect
+    - HR > 1: increased hazard (worse survival, faster failure)
+    - HR < 1: decreased hazard (better survival, delayed failure)
+    - HR = 0.5: 50% reduction in hazard
+    - HR = 2.0: doubling of hazard
+
     Parameters
     ----------
     hazard_ratio : Tensor

@@ -17,6 +17,38 @@ def cliffs_delta(
     randomly selected value from the other distribution, minus the probability
     of the reverse.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Robust alternative to Cohen's d when normality assumptions are violated
+    - Ordinal data or ranked measurements
+    - Presence of outliers that would distort parametric effect sizes
+    - Small sample sizes where distributional assumptions are questionable
+
+    **Machine Learning Contexts:**
+    - Model comparison with non-normal performance metrics
+    - Feature importance assessment with ordinal or skewed features
+    - A/B testing with non-parametric outcomes (e.g., user rankings, ratings)
+    - Fairness assessment: comparing outcomes across demographic groups
+    - Anomaly detection: measuring separation between normal and anomalous data
+    - Time series: comparing distributions across different time periods
+    - Recommendation systems: comparing user preference distributions
+    - Computer vision: comparing pixel intensity or feature distributions
+    - Natural language processing: comparing text feature distributions
+
+    **Choose Cliff's delta over Cohen's d when:**
+    - Data is ordinal or heavily skewed
+    - Presence of outliers
+    - Non-normal distributions
+    - Small sample sizes (n < 30)
+    - Need assumption-free effect size measure
+
+    **Interpretation Guidelines:**
+    - |δ| < 0.147: negligible effect
+    - 0.147 ≤ |δ| < 0.33: small effect
+    - 0.33 ≤ |δ| < 0.474: medium effect
+    - |δ| ≥ 0.474: large effect
+
     Parameters
     ----------
     x : Tensor, shape=(..., N)

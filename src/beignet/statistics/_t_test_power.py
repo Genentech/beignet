@@ -23,6 +23,41 @@ def t_test_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning sample sizes for experimental studies
+    - Determining if non-significant results indicate lack of power
+    - Reporting statistical power in research publications
+    - Retrospective power analysis to interpret null findings
+
+    **Machine Learning Contexts:**
+    - Validating A/B test designs for ML model deployments
+    - Planning data collection for training set curation
+    - Evaluating statistical significance in model performance comparisons
+    - Hyperparameter optimization: determining sample sizes for cross-validation
+    - Active learning: estimating power to detect performance improvements
+    - Federated learning: power analysis for detecting effects across distributed data
+    - AutoML: automated statistical testing of model configurations
+    - Experimental design for synthetic data generation validation
+
+    **Use one-sample t-test power when:**
+    - Comparing a single group mean to a known population value
+    - Testing if model performance differs from a benchmark threshold
+    - Validating if learned representations achieve target properties
+
+    **Use paired t-test power when:**
+    - Comparing before/after measurements on the same subjects
+    - Cross-validation comparisons of different ML models on same data
+    - Comparing model performance across different data preprocessing approaches
+    - Measuring improvement from model updates or retraining
+
+    **Choose t-test over other tests when:**
+    - Data is approximately normally distributed
+    - Continuous outcome variables
+    - Independent observations (for one-sample) or paired observations
+    - Sample size is moderate (n ≥ 30) or population is normal
+
     Parameters
     ----------
     effect_size : Tensor

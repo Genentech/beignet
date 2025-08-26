@@ -25,6 +25,38 @@ def anova_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Comparing means across 3+ independent groups
+    - Planning sample sizes for multi-group experimental designs
+    - Clinical trials with multiple treatment arms
+    - Agricultural experiments with multiple conditions
+    - Educational research comparing multiple teaching methods
+
+    **Machine Learning Contexts:**
+    - Comparing performance across multiple ML models
+    - Hyperparameter optimization: testing multiple parameter configurations
+    - A/B/C testing for ML-driven products (comparing 3+ variants)
+    - Evaluating model performance across multiple data subsets or domains
+    - Feature selection: comparing model performance with different feature sets
+    - Cross-validation: comparing performance across multiple train/test splits
+    - Ensemble methods: determining if individual models contribute differently
+    - AutoML: comparing multiple automated model configurations
+    - Federated learning: comparing performance across multiple client sites
+
+    **Choose ANOVA over other tests when:**
+    - Comparing 3+ groups (use t-test for 2 groups)
+    - Continuous outcome variable
+    - Groups are independent (use repeated measures ANOVA for dependent groups)
+    - Data is approximately normally distributed within groups
+    - Group variances are roughly equal (homoscedasticity)
+
+    **Common Effect Sizes (Cohen's f):**
+    - f = 0.1: small effect
+    - f = 0.25: medium effect
+    - f = 0.4: large effect
+
     Parameters
     ----------
     effect_size : Tensor

@@ -17,6 +17,37 @@ def mann_whitney_u_test_power(
     """
     Power for Mann–Whitney U test (normal approximation), parameterized by AUC.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Comparing two independent groups when normality assumptions are violated
+    - Ordinal or ranked data comparisons
+    - Small sample sizes where t-test assumptions fail
+    - Robust alternative to independent t-test
+
+    **Machine Learning Contexts:**
+    - Comparing model performance between two algorithms (non-parametric)
+    - A/B testing with non-normal metrics (conversion rates, engagement times)
+    - Fairness assessment: comparing outcomes between demographic groups
+    - Feature importance: comparing feature distributions across outcome classes
+    - Model validation: comparing prediction quality across different data subsets
+    - Anomaly detection: comparing normal vs. anomalous data distributions
+    - Time series: comparing performance across different time periods
+    - Transfer learning: validating domain adaptation effectiveness
+
+    **Choose Mann-Whitney U over t-test when:**
+    - Data is not normally distributed
+    - Outcome variable is ordinal
+    - Presence of outliers that would affect parametric tests
+    - Small sample sizes (n < 30 per group)
+    - Heterogeneous variances between groups
+
+    **AUC Interpretation:**
+    - AUC = 0.5: no difference between groups
+    - AUC = 0.56: small effect (Cohen's d ≈ 0.2)
+    - AUC = 0.64: medium effect (Cohen's d ≈ 0.5)
+    - AUC = 0.71: large effect (Cohen's d ≈ 0.8)
+
     Parameters
     ----------
     auc : Tensor
