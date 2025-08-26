@@ -197,21 +197,84 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
   - ❌ `sampleSize`, `N`, `R2`, `ncp`, `se`, `df`, `noncentrality_parameter`, `effect_size_value`
 
 ### Statement Spacing
-- **Add newlines between statements of different line lengths**: When consecutive assignment statements have different character counts, separate them with blank lines for improved readability
-- **Example**:
+- **Add newlines between statements of different line lengths**: When consecutive statements have different character counts, separate them with blank lines for improved readability
+- **Apply to all statement types**: This rule applies to assignments, control flow, function calls, and any other statements
+- **Examples**:
   ```python
   # Correct - newlines between different length statements
-  n0 = torch.as_tensor(sample_size)
+  sample_size_tensor = torch.as_tensor(sample_size)
 
-  groups0 = torch.as_tensor(groups)
+  groups_tensor = torch.as_tensor(groups)
 
-  r20 = torch.as_tensor(covariate_r2)
+  covariate_r2_tensor = torch.as_tensor(covariate_r2)
 
-  num_covariates0 = torch.as_tensor(n_covariates)
+  num_covariates_tensor = torch.as_tensor(n_covariates)
   
   # Same length statements can be grouped together
   effect_size = effect_size.to(dtype)
   sample_size = sample_size.to(dtype)
+  
+  # Control flow also follows this rule
+  max_iterations = 24
+
+  for _ in range(max_iterations):
+      # loop body
+  
+  result = torch.clamp(effect_size, min=0.0)
+
+  if scalar_output:
+      # if body
+  ```
+
+### Magic Numbers and Constants
+- **Name magic numbers**: Replace unnamed numeric literals with descriptively named variables
+- **Examples**:
+  ```python
+  # Correct - named constants
+  minimum_effect_size = 1e-8
+  maximum_effect_size_epsilon = 1e-6
+  max_expansion_iterations = 8
+  max_bisection_iterations = 24
+  
+  # Incorrect - magic numbers
+  effect_size_lower = torch.zeros_like(initial_effect_size) + 1e-8
+  for _ in range(8):
+  ```
+
+### Complex Expressions
+- **Break down complex calculations**: Split multi-line expressions into intermediate variables with descriptive names
+- **Examples**:
+  ```python
+  # Correct - broken down with intermediate variables
+  sqrt_df_over_n = torch.sqrt(degrees_of_freedom_1 / torch.clamp(sample_size_clamped, min=1.0))
+  sqrt_residual_variance = torch.sqrt(torch.clamp(1.0 - covariate_r2_clamped, min=torch.finfo(dtype).eps))
+  initial_effect_size = torch.clamp(
+      (z_alpha + z_beta) * sqrt_df_over_n * sqrt_residual_variance,
+      min=1e-8,
+  )
+  
+  # Incorrect - complex nested expression
+  effect_size_f0 = torch.clamp(
+      (z_alpha + z_beta)
+      * torch.sqrt(df1 / torch.clamp(n, min=1.0))
+      * torch.sqrt(torch.clamp(1.0 - r2, min=torch.finfo(dtype).eps)),
+      min=1e-8,
+  )
+  ```
+
+### Temporary Variables
+- **Eliminate cryptic temporary variables**: Don't use `var0`, `temp`, `x`, etc. Use descriptive names throughout the transformation process
+- **Examples**:
+  ```python
+  # Correct - descriptive temporary variables
+  sample_size_tensor = torch.as_tensor(sample_size)
+  sample_size_1d = torch.atleast_1d(sample_size_tensor)
+  sample_size_clamped = torch.clamp(sample_size_1d.to(dtype), min=3.0)
+  
+  # Incorrect - cryptic temporary variables
+  n0 = torch.as_tensor(sample_size)
+  n = torch.atleast_1d(n0)
+  n = torch.clamp(n.to(dtype), min=3.0)
   ```
 
 ### Comments and Documentation
