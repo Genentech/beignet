@@ -189,12 +189,22 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
 
 ### Variable Naming
 - **All variables must use lowercase_with_underscores**: Never use PascalCase, camelCase, or UPPER_CASE for variables
-- **Descriptive names, no abbreviations**: Use full, descriptive variable names instead of abbreviations for clarity
+- **Descriptive names, no abbreviations**: Use full, descriptive variable names instead of abbreviations for clarity, including common abbreviations
 - **Avoid unnecessary suffixes/prefixes**: Remove redundant words like `_parameter`, `_value`, `_variable` when the context is clear
 - **Mathematical variables**: Even single-letter mathematical variables should be lowercase (e.g., `n` not `N`, `r2` not `R2`)
+- **Common abbreviations to avoid**:
+  - `max` → `maximum`
+  - `min` → `minimum` 
+  - `std` → `standard_deviation` (except in function names like `torch.std`)
+  - `sqrt` → `square_root`
+  - `init` → `initial`
+  - `curr` → `current`
+  - `prev` → `previous`
+  - `temp` → descriptive name for what it temporarily holds
+  - `num` → `number`
 - **Examples**:
-  - ✅ `sample_size`, `effect_size`, `degrees_of_freedom`, `noncentrality`, `standard_error`
-  - ❌ `sampleSize`, `N`, `R2`, `ncp`, `se`, `df`, `noncentrality_parameter`, `effect_size_value`
+  - ✅ `sample_size`, `effect_size`, `degrees_of_freedom`, `noncentrality`, `standard_error`, `maximum_iterations`, `square_root_two`
+  - ❌ `sampleSize`, `N`, `R2`, `ncp`, `se`, `df`, `max_iterations`, `sqrt_two`, `temp_value`
 
 ### Statement Spacing
 - **Add newlines between statements of different line lengths**: When consecutive statements have different character counts, separate them with blank lines for improved readability
@@ -241,11 +251,19 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
   for _ in range(8):
   ```
 
-### Complex Expressions
-- **Break down complex calculations**: Split multi-line expressions into intermediate variables with descriptive names
+### Expression Inlining vs Breaking Out
+- **Inline simple expressions that fit within line length limits**: If the entire statement fits reasonably on one line (under ~79 characters), inline the expression
+- **Break out complex or multi-line expressions**: Split expressions that would span multiple lines or are conceptually complex
 - **Examples**:
   ```python
-  # Correct - broken down with intermediate variables
+  # Correct - simple expression inlined
+  output = torch.clamp((1 - torch.erf(z_score / sqrt_2)) / 2, 0.0, 1.0)
+  
+  # Incorrect - unnecessary intermediate variable for simple expression
+  power = (1 - torch.erf(z_score / sqrt_2)) / 2
+  output = torch.clamp(power, 0.0, 1.0)
+  
+  # Correct - complex expression broken down with intermediate variables
   sqrt_df_over_n = torch.sqrt(degrees_of_freedom_1 / torch.clamp(sample_size_clamped, min=1.0))
   sqrt_residual_variance = torch.sqrt(torch.clamp(1.0 - covariate_r2_clamped, min=torch.finfo(dtype).eps))
   initial_effect_size = torch.clamp(
@@ -253,7 +271,7 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
       min=1e-8,
   )
   
-  # Incorrect - complex nested expression
+  # Incorrect - complex nested expression that's hard to read
   effect_size_f0 = torch.clamp(
       (z_alpha + z_beta)
       * torch.sqrt(df1 / torch.clamp(n, min=1.0))
