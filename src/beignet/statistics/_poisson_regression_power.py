@@ -20,6 +20,38 @@ def poisson_regression_power(
     Calculates statistical power for testing a single predictor coefficient
     in Poisson regression using the Wald test.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Count data analysis (events, occurrences, frequencies)
+    - Epidemiology: disease incidence rates
+    - Quality control: defect counts per unit
+    - Ecology: species abundance counts
+
+    **Machine Learning Contexts:**
+    - Click-through rate modeling in web analytics
+    - Anomaly detection: count-based features
+    - Time series: event count prediction
+    - Natural language processing: word count modeling
+    - Computer vision: object count prediction
+    - Recommendation systems: interaction count modeling
+    - Social media: post/like/share count analysis
+    - IoT applications: sensor event count analysis
+    - Network analysis: connection count modeling
+
+    **Choose Poisson regression when:**
+    - Outcome variable consists of counts (non-negative integers)
+    - Events occur independently
+    - Mean equals variance (equidispersion) approximately
+    - Count data cannot be negative
+
+    **Incidence Rate Ratio Interpretation:**
+    - IRR = 1: no association
+    - IRR > 1: increased incidence rate
+    - IRR < 1: decreased incidence rate
+    - IRR = 1.5: 50% increase in rate
+    - IRR = 0.7: 30% decrease in rate
+
     Parameters
     ----------
     effect_size : Tensor

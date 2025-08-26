@@ -26,6 +26,31 @@ def proportion_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Testing if population proportion differs from hypothesized value
+    - Quality control: defect rates vs. specifications
+    - Medical studies: treatment success rates vs. baseline
+    - Survey research: opinion proportions vs. expected values
+
+    **Machine Learning Contexts:**
+    - Model evaluation: testing if accuracy differs from benchmark
+    - A/B testing: conversion rates vs. baseline
+    - Classification performance: precision/recall vs. targets
+    - Anomaly detection: detection rates vs. expected
+    - Recommendation systems: click-through rates vs. goals
+    - NLP: classification accuracy vs. chance performance
+    - Computer vision: object detection rates vs. requirements
+    - Fraud detection: detection rates vs. minimum thresholds
+    - User engagement: engagement rates vs. historical baseline
+
+    **Choose proportion test when:**
+    - Binary outcomes or proportions
+    - Large sample (np ≥ 5 and n(1-p) ≥ 5)
+    - Independent observations
+    - Testing against specific hypothesized proportion
+
     Parameters
     ----------
     p0 : Tensor

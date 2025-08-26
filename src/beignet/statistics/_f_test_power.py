@@ -27,6 +27,37 @@ def f_test_power(
     enables integration into machine learning pipelines where effect sizes might
     be learned parameters or part of experimental design optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Regression model comparisons (nested model F-tests)
+    - Testing variance equality between groups
+    - ANOVA omnibus tests
+    - Testing multiple regression coefficients simultaneously
+
+    **Machine Learning Contexts:**
+    - Model comparison: testing if complex model significantly outperforms simple model
+    - Feature selection: testing significance of feature subsets
+    - Hyperparameter optimization: comparing nested parameter configurations
+    - Cross-validation: testing variance differences across folds
+    - Ensemble methods: testing if individual models contribute significantly
+    - Neural networks: testing layer or component significance
+    - Regularization: comparing models with different penalty structures
+    - Transfer learning: testing significance of fine-tuning improvements
+    - AutoML: automated model selection with statistical validation
+
+    **Choose F-test when:**
+    - Comparing nested models or testing multiple parameters simultaneously
+    - Testing variance ratios or equality
+    - Need omnibus test before specific comparisons
+    - Assumptions of normality and homoscedasticity are met
+
+    **Common Applications:**
+    - Regression model selection
+    - ANOVA omnibus tests
+    - Variance equality testing
+    - Multiple parameter significance testing
+
     Parameters
     ----------
     effect_size : Tensor

@@ -19,6 +19,38 @@ def friedman_test_power(
     for comparing three or more related groups when the assumption of normality
     is violated.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Repeated measures with 3+ conditions and non-normal data
+    - Within-subjects designs with ordinal outcomes
+    - Matched groups comparisons (e.g., matched triplets)
+    - Longitudinal studies with non-parametric data
+
+    **Machine Learning Contexts:**
+    - Comparing multiple ML models on same datasets (repeated measures)
+    - Cross-validation: comparing algorithms across multiple folds
+    - Hyperparameter optimization: comparing parameter sets within subjects
+    - Time series: comparing model performance across repeated time periods
+    - A/B/C+ testing with repeated user measurements
+    - Recommendation systems: comparing algorithms for same user cohorts
+    - Multi-task learning: comparing model performance across related tasks
+    - Ensemble methods: comparing individual models within same data splits
+    - Personalized medicine: comparing treatments within patient groups
+
+    **Choose Friedman test over repeated measures ANOVA when:**
+    - Non-normal repeated measures data
+    - Ordinal outcome variables
+    - Presence of outliers in repeated measurements
+    - Small sample sizes where normality cannot be assumed
+    - Robust analysis preferred
+
+    **Choose Friedman over other tests when:**
+    - 3+ related conditions (use Wilcoxon for 2 conditions)
+    - Within-subjects or matched design
+    - Non-parametric analysis required
+    - Data cannot be meaningfully transformed to normality
+
     Parameters
     ----------
     effect_size : Tensor
