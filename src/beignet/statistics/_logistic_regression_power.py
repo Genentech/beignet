@@ -74,7 +74,7 @@ def logistic_regression_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(2.0)  # OR = 2
+    >>> effect_size = torch.tensor(2.0)
     >>> sample_size = torch.tensor(100)
     >>> logistic_regression_power(effect_size, sample_size)
     tensor(0.6234)
@@ -106,7 +106,6 @@ def logistic_regression_power(
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if any(t.dtype == torch.float64 for t in (effect_size, sample_size, p_exposure))
@@ -116,40 +115,31 @@ def logistic_regression_power(
     sample_size = sample_size.to(dtype)
     p_exposure = p_exposure.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
     sample_size = torch.clamp(sample_size, min=10.0)
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    # Convert OR to log-odds (regression coefficient)
     beta = torch.log(effect_size)
 
-    # Estimate outcome probability under alternative
-    # This is a simplified approximation assuming balanced design
-    # For more precise calculation, we'd need baseline risk
     logit_baseline = torch.tensor(
         0.0, dtype=dtype
-    )  # Assumes 50% baseline probability for simplicity
+    )
     logit_exposed = logit_baseline + beta
     logit_unexposed = logit_baseline
 
     p_outcome_exposed = torch.sigmoid(logit_exposed)
     p_outcome_unexposed = torch.sigmoid(logit_unexposed)
 
-    # Overall outcome probability
     p_outcome = p_exposure * p_outcome_exposed + (1 - p_exposure) * p_outcome_unexposed
     p_outcome = torch.clamp(p_outcome, min=0.01, max=0.99)
 
-    # Standard error approximation (Hsieh et al. formula)
     variance_beta = 1.0 / (
         sample_size * p_exposure * (1 - p_exposure) * p_outcome * (1 - p_outcome)
     )
     se_beta = torch.sqrt(torch.clamp(variance_beta, min=1e-12))
 
-    # Noncentrality parameter
     ncp = torch.abs(beta) / se_beta
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -161,20 +151,16 @@ def logistic_regression_power(
 
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        # Two-sided power
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + ncp) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (positive effect)
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
-    else:  # alt == "less"
+    else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (negative effect)
         power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

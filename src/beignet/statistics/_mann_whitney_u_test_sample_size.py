@@ -66,7 +66,6 @@ def mann_whitney_u_test_sample_size(
     auc = auc.to(dtype)
     r = torch.clamp(r.to(dtype), min=0.1, max=10.0)
 
-    # Initial z-approx for sample_size_group_1 using sd0 ≈ sqrt(sample_size_group_1*sample_size_group_2*(sample_size_group_1+sample_size_group_2+1)/12)
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
@@ -78,7 +77,6 @@ def mann_whitney_u_test_sample_size(
     z_alpha = z_of(1 - (alpha / 2 if alternative == "two-sided" else alpha))
     z_beta = z_of(power)
     delta = torch.abs(auc - 0.5)
-    # crude: sample_size_group_1 ≈ ((z_alpha+z_beta) * c / delta)^2, c from variance term
     c = torch.sqrt(1.0 + r) / torch.sqrt(12.0 * r)
     sample_size_group_1 = ((z_alpha + z_beta) * c / torch.clamp(delta, min=1e-8)) ** 2
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=5.0)

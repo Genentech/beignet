@@ -138,13 +138,11 @@ def chi_square_independence_power(
     .. [2] Cramér, H. (1946). Mathematical Methods of Statistics. Princeton
            University Press.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size.dtype == torch.float64
@@ -160,41 +158,29 @@ def chi_square_independence_power(
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
-    # Clamp effect size to non-negative values
     effect_size = torch.clamp(effect_size, min=0.0)
 
-    # Ensure positive sample size and at least 2 categories for each variable
     sample_size = torch.clamp(sample_size, min=1.0)
     rows = torch.clamp(rows, min=2.0)
     cols = torch.clamp(cols, min=2.0)
 
-    # Calculate degrees of freedom for independence test
     degrees_of_freedom = (rows - 1) * (cols - 1)
 
-    # Noncentrality parameter
     ncp = sample_size * effect_size**2
 
-    # Critical chi-square value using normal approximation
     sqrt_2 = math.sqrt(2.0)
 
-    # For large degrees_of_freedom, chi-square approaches normal: χ² ≈ N(degrees_of_freedom, 2*degrees_of_freedom)
-    # Critical value: χ²_α = degrees_of_freedom + z_α * √(2*degrees_of_freedom)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
     chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
-    # For noncentral chi-square, use normal approximation:
-    # χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2*(degrees_of_freedom + 2*λ))
     mean_nc_chi2 = degrees_of_freedom + ncp
     var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp)
     std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
-    # Calculate power: P(χ² > χ²_critical | λ = ncp)
     z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
 
-    # Power = P(Z > z_score) = 1 - Φ(z_score)
     power = (1 - torch.erf(z_score / sqrt_2)) / 2
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

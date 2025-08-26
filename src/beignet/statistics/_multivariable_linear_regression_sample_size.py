@@ -76,7 +76,7 @@ def multivariable_linear_regression_sample_size(
 
     Examples
     --------
-    >>> r_squared = torch.tensor(0.15)  # Medium effect
+    >>> r_squared = torch.tensor(0.15)
     >>> n_predictors = torch.tensor(3)
     >>> multivariable_linear_regression_sample_size(r_squared, n_predictors)
     tensor(77.0)
@@ -94,7 +94,6 @@ def multivariable_linear_regression_sample_size(
     r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
 
-    # Ensure floating point dtype
     if r_squared.dtype == torch.float64 or n_predictors.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -102,31 +101,24 @@ def multivariable_linear_regression_sample_size(
     r_squared = r_squared.to(dtype)
     n_predictors = n_predictors.to(dtype)
 
-    # Validate inputs
     r_squared = torch.clamp(r_squared, min=1e-8, max=0.99)
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
-    # Initial approximation using Cohen's formula
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Effect size f² = R²/(1-R²)
     f_squared = r_squared / (1 - r_squared)
 
-    # Initial approximation: n ≈ (z_α + z_β)²/f² + p + 1
     n_init = ((z_alpha + z_beta) ** 2) / f_squared + n_predictors + 1
     n_init = torch.clamp(n_init, min=n_predictors + 10)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(15):
-        # Calculate current power
         current_power = multivariable_linear_regression_power(
             r_squared, n_current, n_predictors, alpha=alpha
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.1 * power_gap
         n_current = torch.clamp(
@@ -135,7 +127,6 @@ def multivariable_linear_regression_sample_size(
             max=torch.tensor(1e6, dtype=dtype),
         )
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

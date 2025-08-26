@@ -132,11 +132,9 @@ def z_test_power(
            sciences (2nd ed.). Erlbaum.
     .. [2] Cohen, J. (1992). A power primer. Psychological Bulletin, 112(1), 155-159.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -145,13 +143,10 @@ def z_test_power(
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    # Ensure positive sample size
     sample_size = torch.clamp(sample_size, min=1.0)
 
-    # Calculate noncentrality parameter
     ncp = effect_size * torch.sqrt(sample_size)
 
-    # Normalize alternative
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -162,7 +157,6 @@ def z_test_power(
             f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
         )
 
-    # Standard normal critical values
     sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
 
     def z_of(p):
@@ -173,8 +167,6 @@ def z_test_power(
 
     if alt == "two-sided":
         z_alpha_half = z_of(1 - alpha / 2)
-        # Power = P(Z > z_{α/2} - δ) + P(Z < -z_{α/2} - δ)
-        # where δ = d√n is the noncentrality parameter
         power_upper = 0.5 * (
             1 - torch.erf((z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
         )
@@ -184,14 +176,11 @@ def z_test_power(
         power = power_upper + power_lower
     elif alt == "greater":
         z_alpha = z_of(1 - alpha)
-        # Power = P(Z > z_α - δ)
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
-    else:  # alt == 'less'
+    else:
         z_alpha = z_of(1 - alpha)
-        # Power = P(Z < -z_α - δ) = Φ(-z_α - ncp)
         power = 0.5 * (1 + torch.erf((-z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

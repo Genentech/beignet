@@ -79,8 +79,8 @@ def repeated_measures_analysis_of_variance_sample_size(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.25)  # Medium effect
-    >>> n_timepoints = torch.tensor(4)    # 4 time points
+    >>> effect_size = torch.tensor(0.25)
+    >>> n_timepoints = torch.tensor(4)
     >>> repeated_measures_analysis_of_variance_sample_size(effect_size, n_timepoints)
     tensor(18.0)
 
@@ -103,7 +103,6 @@ def repeated_measures_analysis_of_variance_sample_size(
     n_timepoints = torch.atleast_1d(torch.as_tensor(n_timepoints))
     epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
 
-    # Ensure floating point dtype
     dtypes = [effect_size.dtype, n_timepoints.dtype, epsilon.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -114,43 +113,32 @@ def repeated_measures_analysis_of_variance_sample_size(
     n_timepoints = n_timepoints.to(dtype)
     epsilon = epsilon.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
     n_timepoints = torch.clamp(n_timepoints, min=2.0)
 
-    # Sphericity correction bounds
     epsilon_min = 1.0 / (n_timepoints - 1.0)
     epsilon = torch.maximum(epsilon, epsilon_min)
     epsilon = torch.clamp(epsilon, max=1.0)
 
-    # Initial approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial guess based on F-test power
-    # For repeated measures, the efficiency gain is approximately k-fold
-    # where k is the number of time points
     efficiency_factor = n_timepoints * epsilon
 
-    # Initial sample size approximation
     n_init = ((z_alpha + z_beta) / effect_size) ** 2 / efficiency_factor
     n_init = torch.clamp(n_init, min=5.0)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(12):
-        # Calculate current power
         current_power = repeated_measures_analysis_of_variance_power(
             effect_size, n_current, n_timepoints, epsilon, alpha=alpha
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.2 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e5)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

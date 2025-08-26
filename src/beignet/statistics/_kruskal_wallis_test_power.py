@@ -97,7 +97,6 @@ def kruskal_wallis_test_power(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
 
-    # Ensure floating point dtype
     if effect_size.dtype.is_floating_point and sample_sizes.dtype.is_floating_point:
         if effect_size.dtype == torch.float64 or sample_sizes.dtype == torch.float64:
             dtype = torch.float64
@@ -108,40 +107,28 @@ def kruskal_wallis_test_power(
     effect_size = effect_size.to(dtype)
     sample_sizes = sample_sizes.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
-    # Number of groups and total sample size
-    # Note: sample_sizes.shape[-1] should be >= 3 for meaningful Kruskal-Wallis test
     groups = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
     N = torch.sum(sample_sizes, dim=-1)
 
-    # Degrees of freedom
     degrees_of_freedom = groups - 1
 
-    # Approximate noncentrality parameter
-    # This is a simplified approximation based on the effect size
     lambda_nc = 12 * N * effect_size / (N + 1)
 
-    # Critical chi-square value using normal approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
-    # Noncentral chi-square approximation using normal distribution
-    # Under H1: H ~ χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2(degrees_of_freedom + 2λ))
     mean_nc_chi2 = degrees_of_freedom + lambda_nc
     var_nc_chi2 = 2 * (degrees_of_freedom + 2 * lambda_nc)
     std_nc_chi2 = torch.sqrt(torch.clamp(var_nc_chi2, min=1e-12))
 
-    # Standardized test statistic
     z_score = (chi2_critical - mean_nc_chi2) / std_nc_chi2
 
-    # Power = P(H > χ²_critical | H1) = P(Z > z_score)
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

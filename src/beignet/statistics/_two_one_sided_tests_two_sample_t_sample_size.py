@@ -40,13 +40,11 @@ def two_one_sided_tests_two_sample_t_sample_size(
     r = r.to(dtype) if isinstance(r, Tensor) else torch.tensor(float(r), dtype=dtype)
     r = torch.clamp(r, min=0.1, max=10.0)
 
-    # Initial guess (z-approx with pooled SE factor)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
     margin = torch.minimum(true_effect_size - low, high - true_effect_size)
     margin = torch.clamp(margin, min=1e-8)
-    # se_factor ≈ sqrt(1/sample_size_group_1 + 1/(sample_size_group_1*ratio)) => sqrt((1+1/ratio)/sample_size_group_1)
     c = torch.sqrt(1.0 + 1.0 / r)
     sample_size_group_1 = ((z_alpha + z_beta) * c / margin) ** 2
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)

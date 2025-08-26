@@ -138,12 +138,10 @@ def chi_square_independence_sample_size(
     .. [2] Cramér, H. (1946). Mathematical Methods of Statistics. Princeton
            University Press.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or rows.dtype == torch.float64
@@ -157,79 +155,58 @@ def chi_square_independence_sample_size(
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
-    # Clamp effect size to positive values and ensure at least 2 categories
     effect_size = torch.clamp(effect_size, min=1e-6)
     rows = torch.clamp(rows, min=2.0)
     cols = torch.clamp(cols, min=2.0)
 
-    # Calculate degrees of freedom for independence test
     degrees_of_freedom = (rows - 1) * (cols - 1)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
-    # Initial normal approximation for chi-square test
-    # For large sample sizes, the approximation is: n ≈ ((z_α + z_β) / w)²
     n_initial = ((z_alpha + z_beta) / effect_size) ** 2
 
-    # Ensure minimum sample size (rule of thumb: at least 5 expected in each cell)
     min_sample_size = 5.0 * rows * cols
     n_initial = torch.clamp(n_initial, min=min_sample_size)
 
-    # Iterative refinement with convergence detection
     n_current = n_initial
     convergence_tolerance = 1e-6
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        # Current noncentrality parameter
         ncp_current = n_current * effect_size**2
 
-        # Critical chi-square value using normal approximation
-        # χ²_α = degrees_of_freedom + z_α * √(2*degrees_of_freedom)
         chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(
             2 * degrees_of_freedom
         )
 
-        # For noncentral chi-square, use normal approximation
-        # χ²(degrees_of_freedom, λ) ≈ N(degrees_of_freedom + λ, 2*(degrees_of_freedom + 2*λ))
         mean_nc_chi2 = degrees_of_freedom + ncp_current
         var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp_current)
         std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
-        # Calculate current power
         z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
         power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
 
-        # Clamp power to valid range
         power_current = torch.clamp(power_current, 0.01, 0.99)
 
-        # Calculate power difference
         power_diff = power - power_current
 
-        # Newton-Raphson style adjustment with convergence damping
-        # Approximate derivative: d(power)/d(n) ≈ d(power)/d(λ) * w²
         adjustment = (
             power_diff
             * n_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
 
-        # Dampen adjustment if close to convergence (compile-friendly)
         converged_mask = torch.abs(power_diff) < convergence_tolerance
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         n_current = n_current + adjustment
 
-        # Ensure minimum constraints
         n_current = torch.clamp(n_current, min=min_sample_size)
         n_current = torch.clamp(n_current, max=1000000.0)
 
-    # Round up to nearest integer
     output = torch.ceil(n_current)
 
-    # Final check: ensure we meet minimum sample size requirements
     output = torch.clamp(output, min=min_sample_size)
 
     if out is not None:

@@ -108,7 +108,6 @@ def welch_t_test_power(
     sample_size_group_2 = torch.atleast_1d(torch.as_tensor(nobs2))
     vr = torch.as_tensor(var_ratio)
 
-    # Dtype
     if any(
         t.dtype == torch.float64
         for t in (
@@ -129,13 +128,11 @@ def welch_t_test_power(
     else:
         vr = torch.tensor(float(vr), dtype=dtype)
 
-    # Clamp
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
     sample_size_group_2 = torch.clamp(sample_size_group_2, min=2.0)
     vr = torch.clamp(vr, min=1e-6, max=1e6)
 
-    # Welch SE and df
     a = 1.0 / sample_size_group_1
     b = vr / sample_size_group_2
     se2 = a + b
@@ -145,10 +142,8 @@ def welch_t_test_power(
         + b**2 / torch.clamp(sample_size_group_2 - 1, min=1.0)
     )
 
-    # Noncentrality parameter
     ncp = effect_size / torch.clamp(se, min=1e-12)
 
-    # Alternative normalization
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -157,7 +152,6 @@ def welch_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Critical value approx (normal with degrees_of_freedom adjustment)
     sqrt2 = math.sqrt(2.0)
     if alt == "two-sided":
         z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
@@ -166,7 +160,6 @@ def welch_t_test_power(
         z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
         tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    # Approximate noncentral t by normal with mean=ncp and var=(degrees_of_freedom+ncp^2)/(degrees_of_freedom-2)
     var_nct = torch.where(
         degrees_of_freedom > 2,
         (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
@@ -185,7 +178,7 @@ def welch_t_test_power(
         power = 0.5 * (
             1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )
-    else:  # less
+    else:
         zscore = (-tcrit - ncp) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))

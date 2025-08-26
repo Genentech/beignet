@@ -48,8 +48,8 @@ def proportional_hazards_model_sample_size(
 
     Examples
     --------
-    >>> hazard_ratio = torch.tensor(0.7)   # 30% reduction in hazard
-    >>> event_rate = torch.tensor(0.6)     # 60% will have event
+    >>> hazard_ratio = torch.tensor(0.7)
+    >>> event_rate = torch.tensor(0.6)
     >>> proportional_hazards_model_sample_size(hazard_ratio, event_rate)
     tensor(278.0)
 
@@ -77,7 +77,6 @@ def proportional_hazards_model_sample_size(
     event_rate = torch.atleast_1d(torch.as_tensor(event_rate))
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
 
-    # Ensure floating point dtype
     dtypes = [hazard_ratio.dtype, event_rate.dtype, p_exposed.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -88,15 +87,12 @@ def proportional_hazards_model_sample_size(
     event_rate = event_rate.to(dtype)
     p_exposed = p_exposed.to(dtype)
 
-    # Validate inputs
     hazard_ratio = torch.clamp(hazard_ratio, min=0.01, max=100.0)
     event_rate = torch.clamp(event_rate, min=0.01, max=0.99)
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
-    # Initial approximation for number of events needed
     log_hr = torch.log(hazard_ratio)
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -113,24 +109,18 @@ def proportional_hazards_model_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Schoenfeld formula for number of events
-    # n_events = (z_α + z_β)² / [p(1-p) × ln²(HR)]
     n_events_needed = ((z_alpha + z_beta) ** 2) / (
         p_exposed * (1.0 - p_exposed) * (log_hr**2)
     )
     n_events_needed = torch.clamp(n_events_needed, min=10.0)
 
-    # Convert to total sample size
     n_total_init = n_events_needed / event_rate
     n_total_init = torch.clamp(n_total_init, min=20.0)
 
-    # Iterative refinement using the exact power function
     n_current = n_total_init
     for _ in range(10):
-        # Calculate expected number of events with current sample size
         expected_events = n_current * event_rate
 
-        # Calculate current power
         current_power = proportional_hazards_model_power(
             hazard_ratio,
             expected_events,
@@ -139,12 +129,10 @@ def proportional_hazards_model_sample_size(
             alternative=alternative,
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.1 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

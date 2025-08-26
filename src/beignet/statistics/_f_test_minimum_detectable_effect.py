@@ -82,8 +82,6 @@ def f_test_minimum_detectable_effect(
     df1 = torch.clamp(df1.to(dtype), min=1.0)
     df2 = torch.clamp(df2.to(dtype), min=1.0)
 
-    # Initial guess based on inverse of sample size approximation in _f_test_sample_size
-    # base_n ≈ ((zα+zβ)/sqrt(f²))²; with N ≈ df1+df2+1 => f² ≈ ((zα+zβ)/sqrt(N))²
     N = df1 + df2 + 1.0
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
         torch.tensor(2.0, dtype=dtype)
@@ -96,7 +94,6 @@ def f_test_minimum_detectable_effect(
     f2_lo = torch.zeros_like(f2_0) + 1e-8
     f2_hi = torch.clamp(2.0 * f2_0 + 1e-6, min=1e-6)
 
-    # Ensure upper bound is sufficient
     for _ in range(8):
         p_hi = f_test_power(f2_hi, df1, df2, alpha)
         need_expand = p_hi < power
@@ -105,7 +102,6 @@ def f_test_minimum_detectable_effect(
         f2_hi = torch.where(need_expand, f2_hi * 2.0, f2_hi)
         f2_hi = torch.clamp(f2_hi, max=torch.tensor(10.0, dtype=dtype))
 
-    # Bisection
     x = (f2_lo + f2_hi) * 0.5
     for _ in range(24):
         p_mid = f_test_power(x, df1, df2, alpha)

@@ -96,7 +96,6 @@ def cliffs_delta(
     x = torch.atleast_1d(torch.as_tensor(x))
     y = torch.atleast_1d(torch.as_tensor(y))
 
-    # Ensure common dtype
     if x.dtype.is_floating_point and y.dtype.is_floating_point:
         if x.dtype == torch.float64 or y.dtype == torch.float64:
             dtype = torch.float64
@@ -107,25 +106,20 @@ def cliffs_delta(
     x = x.to(dtype)
     y = y.to(dtype)
 
-    # Handle batch dimensions - assume last dimension is the sample dimension
-    x_expanded = x.unsqueeze(-1)  # (..., N, 1)
-    y_expanded = y.unsqueeze(-2)  # (..., 1, M)
+    x_expanded = x.unsqueeze(-1)
+    y_expanded = y.unsqueeze(-2)
 
-    # Count comparisons using smooth approximation for differentiability
-    # Use sigmoid approximation: sigmoid(steepness_parameter*(a-b)) ≈ Heaviside(a > b)
-    steepness_parameter = 100.0  # Steepness parameter for smooth approximation
+    steepness_parameter = 100.0
     diff = x_expanded - y_expanded
-    n_xy = torch.sum(torch.sigmoid(steepness_parameter * diff), dim=(-2, -1))  # x > y
+    n_xy = torch.sum(torch.sigmoid(steepness_parameter * diff), dim=(-2, -1))
     n_yx = torch.sum(
         torch.sigmoid(steepness_parameter * (-diff)), dim=(-2, -1)
-    )  # x < y
+    )
 
-    # Total number of comparisons
     n_x = torch.tensor(x.shape[-1], dtype=dtype)
     n_y = torch.tensor(y.shape[-1], dtype=dtype)
     total_comparisons = n_x * n_y
 
-    # Cliff's delta
     delta = (n_xy - n_yx) / total_comparisons
 
     if out is not None:

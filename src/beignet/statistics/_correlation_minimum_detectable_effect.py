@@ -74,7 +74,7 @@ def correlation_minimum_detectable_effect(
     scalar_out = sample_size_0.ndim == 0
     sample_size = torch.atleast_1d(sample_size_0)
     dtype = torch.float64 if sample_size.dtype == torch.float64 else torch.float32
-    sample_size = torch.clamp(sample_size.to(dtype), min=4.0)  # need n>3 for Fisher z
+    sample_size = torch.clamp(sample_size.to(dtype), min=4.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -91,15 +91,12 @@ def correlation_minimum_detectable_effect(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Fisher z: SE = 1/sqrt(n-3); required |z_r| = (z_alpha+z_beta)*SE
     z_required = (z_alpha + z_beta) / torch.sqrt(
         torch.clamp(sample_size - 3.0, min=1.0)
     )
-    # Inverse Fisher transform: r = tanh(z)
     r_mag = torch.tanh(torch.abs(z_required))
 
     if alt == "less":
-        # return magnitude; user can apply sign if desired
         out_t = r_mag
     else:
         out_t = r_mag

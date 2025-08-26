@@ -76,7 +76,7 @@ def cramers_v(
     --------
     >>> chi_sq = torch.tensor(10.5)
     >>> n = torch.tensor(100)
-    >>> min_dim = torch.tensor(1)  # 2x2 table: min(2-1, 2-1) = 1
+    >>> min_dim = torch.tensor(1)
     >>> cramers_v(chi_sq, n, min_dim)
     tensor(0.3240)
 
@@ -91,12 +91,10 @@ def cramers_v(
     - Medium effect: V = 0.30
     - Large effect: V = 0.50
     """
-    # Convert inputs to tensors if needed
     chi_square = torch.atleast_1d(torch.as_tensor(chi_square))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     min_dim = torch.atleast_1d(torch.as_tensor(min_dim))
 
-    # Ensure all have the same dtype
     dtype = chi_square.dtype
     if sample_size.dtype != dtype:
         if sample_size.dtype == torch.float64 or dtype == torch.float64:
@@ -109,11 +107,8 @@ def cramers_v(
     sample_size = sample_size.to(dtype)
     min_dim = min_dim.to(dtype)
 
-    # Cramer's V formula: V = sqrt(χ² / (n * min_dim))
-    # where min_dim = min(r-1, c-1) for r rows and c columns
     output = torch.sqrt(chi_square / (sample_size * min_dim))
 
-    # Clamp to [0, 1] range to handle numerical errors
     output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:

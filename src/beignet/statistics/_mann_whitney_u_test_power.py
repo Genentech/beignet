@@ -101,8 +101,6 @@ def mann_whitney_u_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Normal approx for U: under H0, mean0 = sample_size_group_1*sample_size_group_2/2, var0 = sample_size_group_1*sample_size_group_2*(sample_size_group_1+sample_size_group_2+1)/12
-    # Under H1, mean1 = sample_size_group_1*sample_size_group_2*auc, use var0 as approximation
     mean0 = sample_size_group_1 * sample_size_group_2 / 2.0
     var0 = (
         sample_size_group_1
@@ -112,7 +110,6 @@ def mann_whitney_u_test_power(
     )
     mean1 = sample_size_group_1 * sample_size_group_2 * auc
 
-    # Z = (U - mean0)/sd0; under H1, Z ~ N((mean1-mean0)/sd0, 1)
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
     noncentrality_parameter = (mean1 - mean0) / sd0
 
@@ -126,7 +123,6 @@ def mann_whitney_u_test_power(
 
     if alt == "two-sided":
         zcrit = z_of(1 - alpha / 2)
-        # Power: P(|Z|>zcrit) with Z~N(noncentrality_parameter,1)
         upper = 0.5 * (
             1 - torch.erf((zcrit - noncentrality_parameter) / math.sqrt(2.0))
         )

@@ -56,7 +56,6 @@ def jonckheere_terpstra_test_sample_size(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if (effect_size.dtype == torch.float64 or groups.dtype == torch.float64)
@@ -65,39 +64,30 @@ def jonckheere_terpstra_test_sample_size(
     effect_size = effect_size.to(dtype)
     groups = groups.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
     groups = torch.clamp(groups, min=3.0)
 
-    # Initial approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial guess based on normal approximation
-    # For trend tests, the required n is typically smaller than for omnibus tests
     n_init = ((z_alpha + z_beta) / effect_size) ** 2 / groups
     n_init = torch.clamp(n_init, min=5.0)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(12):
-        # Create equal sample sizes
         sample_sizes = n_current.unsqueeze(-1).expand(
             *n_current.shape, int(groups.max().item())
         )
 
-        # Calculate current power
         current_power = jonckheere_terpstra_test_power(
             effect_size, sample_sizes, alpha=alpha
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.3 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e6)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

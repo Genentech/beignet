@@ -129,14 +129,12 @@ def independent_t_test_sample_size(
     .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
            sciences. Routledge.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     if ratio is None:
         ratio = torch.tensor(1.0)
     else:
         ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
-    # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or ratio.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -145,11 +143,9 @@ def independent_t_test_sample_size(
     effect_size = effect_size.to(dtype)
     ratio = ratio.to(dtype)
 
-    # Ensure positive values and reasonable constraints
     effect_size = torch.clamp(effect_size, min=1e-6)
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
 
     if alternative == "two-sided":
@@ -159,44 +155,34 @@ def independent_t_test_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
-    # Initial normal approximation
-    # For independent samples: sample_size_group_1 = ((z_alpha + z_beta) / d)^2 * (1 + 1/r) / 2
-    # Where d is effect size and r is ratio
     variance_factor = (1 + 1 / ratio) / 2
     sample_size_group_1_initial = (
         (z_alpha + z_beta) / effect_size
     ) ** 2 * variance_factor
 
-    # Ensure minimum sample size
     sample_size_group_1_initial = torch.clamp(sample_size_group_1_initial, min=2.0)
 
-    # Iterative refinement to account for finite df effects
     sample_size_group_1_current = sample_size_group_1_initial
     convergence_tolerance = 1e-6
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        # Calculate current sample sizes and degrees of freedom
         sample_size_group_2_current = sample_size_group_1_current * ratio
         total_n = sample_size_group_1_current + sample_size_group_2_current
         df_current = total_n - 2
         df_current = torch.clamp(df_current, min=1.0)
 
-        # Standard error factor
         se_factor = torch.sqrt(
             1 / sample_size_group_1_current + 1 / sample_size_group_2_current
         )
 
-        # Current noncentrality parameter
         ncp_current = effect_size / se_factor
 
-        # Adjust critical value for finite df
         if alternative == "two-sided":
             t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
         else:
             t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
 
-        # Variance of noncentral t-distribution
         var_nct = torch.where(
             df_current > 2,
             (df_current + ncp_current**2) / (df_current - 2),
@@ -204,7 +190,6 @@ def independent_t_test_sample_size(
         )
         std_nct = torch.sqrt(var_nct)
 
-        # Calculate current power
         if alternative == "two-sided":
             z_upper = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
             z_lower = (-t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
@@ -214,40 +199,30 @@ def independent_t_test_sample_size(
         elif alternative == "larger":
             z_score = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
             power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
-        else:  # alternative == "smaller"
-            # For smaller alternative, we expect negative effect, so flip ncp
+        else:
             z_score = (-t_critical - (-ncp_current)) / torch.clamp(std_nct, min=1e-10)
             power_current = (1 - torch.erf(-z_score / sqrt_2)) / 2
 
-        # Clamp power to valid range
         power_current = torch.clamp(power_current, 0.01, 0.99)
 
-        # Calculate power difference
         power_diff = power - power_current
 
-        # Newton-Raphson style adjustment with convergence damping
-        # Approximate derivative: d(power)/d(sample_size_group_1) through chain rule
-        # The adjustment considers how changing sample_size_group_1 affects the noncentrality parameter
         adjustment = (
             power_diff
             * sample_size_group_1_current
             / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
         )
 
-        # Dampen adjustment if close to convergence (compile-friendly)
         converged_mask = torch.abs(power_diff) < convergence_tolerance
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
         sample_size_group_1_current = sample_size_group_1_current + adjustment
 
-        # Ensure minimum constraints
         sample_size_group_1_current = torch.clamp(
             sample_size_group_1_current, min=2.0, max=100000.0
         )
 
-    # Round up to nearest integer
     output = torch.ceil(sample_size_group_1_current)
 
-    # Final check: ensure we have at least 2 subjects
     output = torch.clamp(output, min=2.0)
 
     if out is not None:

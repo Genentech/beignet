@@ -79,7 +79,7 @@ def cohens_kappa_power(
 
     Examples
     --------
-    >>> kappa = torch.tensor(0.6)  # Substantial agreement
+    >>> kappa = torch.tensor(0.6)
     >>> sample_size = torch.tensor(50)
     >>> cohens_kappa_power(kappa, sample_size)
     tensor(0.9234)
@@ -120,7 +120,6 @@ def cohens_kappa_power(
     kappa = torch.atleast_1d(torch.as_tensor(kappa))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if (kappa.dtype == torch.float64 or sample_size.dtype == torch.float64)
@@ -129,20 +128,14 @@ def cohens_kappa_power(
     kappa = kappa.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    # Validate inputs
     kappa = torch.clamp(kappa, min=-0.99, max=0.99)
     sample_size = torch.clamp(sample_size, min=10.0)
 
-    # Approximate standard error under null hypothesis
-    # This assumes p_e ≈ 0.5 for simplicity (balanced marginals)
-    # In practice, p_e depends on the marginal distributions
     p_e_approx = torch.tensor(0.5, dtype=dtype)
     se_kappa = torch.sqrt(p_e_approx / (sample_size * (1 - p_e_approx)))
 
-    # Noncentrality parameter
     ncp = torch.abs(kappa) / se_kappa
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -154,20 +147,16 @@ def cohens_kappa_power(
 
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        # Two-sided power
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + ncp) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (positive kappa)
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
-    else:  # alt == "less"
+    else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (negative kappa)
         power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

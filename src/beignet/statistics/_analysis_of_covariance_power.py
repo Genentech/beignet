@@ -104,7 +104,6 @@ def analysis_of_covariance_power(
     R2 = torch.atleast_1d(torch.as_tensor(covariate_r2))
     num_covariates = torch.atleast_1d(torch.as_tensor(n_covariates))
 
-    # dtype management
     dtype = (
         torch.float64
         if any(
@@ -119,26 +118,21 @@ def analysis_of_covariance_power(
     R2 = torch.clamp(R2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
-    # Degrees of freedom
     df1 = torch.clamp(groups - 1.0, min=1.0)
     df2 = torch.clamp(N - groups - num_covariates, min=1.0)
 
-    # Critical F via chi-square normal approximation (consistent with ANOVA impl)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     chi2_crit = df1 + z_alpha * torch.sqrt(2 * df1)
     f_crit = chi2_crit / df1
 
-    # Noncentrality parameter with variance reduction
     lambda_nc = N * effect_size_f**2 / torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)
 
-    # Approximate noncentral F via noncentral chi-square moments
     mean_nc_chi2 = df1 + lambda_nc
     var_nc_chi2 = 2 * (df1 + 2 * lambda_nc)
     mean_f = mean_nc_chi2 / df1
     var_f = var_nc_chi2 / (df1**2)
 
-    # Finite df2 adjustment (smooth)
     var_f = var_f * ((df2 + 2.0) / torch.clamp(df2, min=1.0))
 
     std_f = torch.sqrt(var_f)

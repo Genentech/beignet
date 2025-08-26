@@ -79,7 +79,7 @@ def two_way_analysis_of_variance_sample_size(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.25)  # Medium effect
+    >>> effect_size = torch.tensor(0.25)
     >>> levels_factor_a = torch.tensor(2)
     >>> levels_factor_b = torch.tensor(3)
     >>> two_way_analysis_of_variance_sample_size(effect_size, levels_factor_a, levels_factor_b)
@@ -96,7 +96,6 @@ def two_way_analysis_of_variance_sample_size(
     levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
-    # Ensure floating point dtype
     dtypes = [effect_size.dtype, levels_factor_a.dtype, levels_factor_b.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -107,17 +106,14 @@ def two_way_analysis_of_variance_sample_size(
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)
 
-    # Initial approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Degrees of freedom for the effect
     if effect_type == "main_a":
         df_effect = levels_factor_a - 1
     elif effect_type == "main_b":
@@ -127,18 +123,14 @@ def two_way_analysis_of_variance_sample_size(
     else:
         raise ValueError("effect_type must be 'main_a', 'main_b', or 'interaction'")
 
-    # Initial guess based on chi-square approximation
-    # λ = N * f²  and  (z_α + z_β)² ≈ λ / df_effect
     lambda_approx = ((z_alpha + z_beta) * torch.sqrt(df_effect)) ** 2
     n_per_cell_init = lambda_approx / (
         effect_size**2 * levels_factor_a * levels_factor_b
     )
     n_per_cell_init = torch.clamp(n_per_cell_init, min=5.0)
 
-    # Iterative refinement
     n_current = n_per_cell_init
     for _ in range(12):
-        # Calculate current power
         current_power = two_way_analysis_of_variance_power(
             effect_size,
             n_current,
@@ -148,12 +140,10 @@ def two_way_analysis_of_variance_sample_size(
             effect_type=effect_type,
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.1 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e5)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

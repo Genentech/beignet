@@ -103,8 +103,6 @@ def mcnemars_test_minimum_detectable_effect(
 
     z_alpha = z_of(1 - alpha / 2) if two_sided else z_of(1 - alpha)
     z_beta = z_of(power)
-    # From noncentrality_parameter = sqrt(n/d) * |p01 - p10|
-    # Initial guess
     diff0 = (z_alpha + z_beta) * torch.sqrt(
         torch.clamp(d / sample_size, min=torch.finfo(dtype).eps)
     )
@@ -112,11 +110,9 @@ def mcnemars_test_minimum_detectable_effect(
     min_allowed = torch.tensor(1e-8, dtype=dtype)
     diff0 = torch.clamp(diff0, min_allowed, max_allowed)
 
-    # Bounded search via bisection using power function; constrain diff in [0, min(d,1)]
     lo = torch.maximum(torch.zeros_like(diff0) + 1e-8, min_allowed)
     hi = torch.clamp(2.0 * diff0, min_allowed, max_allowed)
 
-    # Ensure upper bound achieves the target power
     for _ in range(8):
         p01_hi = torch.clamp((d + hi) / 2.0, 0.0, 1.0)
         p10_hi = torch.clamp(d - p01_hi, 0.0, 1.0)
@@ -128,7 +124,6 @@ def mcnemars_test_minimum_detectable_effect(
             break
         hi = torch.where(need_expand, torch.clamp(hi * 2.0, max=max_allowed), hi)
 
-    # Bisection refinement
     x = (lo + hi) * 0.5
     for _ in range(24):
         p01_mid = torch.clamp((d + x) / 2.0, 0.0, 1.0)

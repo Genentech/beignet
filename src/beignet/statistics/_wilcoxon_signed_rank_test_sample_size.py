@@ -60,8 +60,6 @@ def wilcoxon_signed_rank_test_sample_size(
     z_beta = z_of(power)
     delta = torch.abs(probability - 0.5)
 
-    # Asymptotic initial guess: noncentrality_parameter ≈ sqrt(3) * sqrt(n) * (p - 0.5)
-    # Solve for n with target (z_alpha + z_beta)
     n0 = ((z_alpha + z_beta) / (sqrt3 * torch.clamp(delta, min=1e-8))) ** 2
     n0 = torch.clamp(n0, min=5.0)
 

@@ -63,8 +63,6 @@ def analysis_of_covariance_sample_size(
     chi2_crit = df1 + z_alpha * torch.sqrt(2 * df1)
     fcrit_over_df1 = chi2_crit / df1
 
-    # Initial guess using large-λ approximation: λ ≈ ((z_alpha + z_beta) * sqrt(2))^2
-    # Here λ = N * f² / (1 - R²) => N ≈ λ * (1 - R²) / f²
     lam0 = ((z_alpha + z_beta) * math.sqrt(2.0)) ** 2
     N0 = lam0 * torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps) / (effect_size_f**2)
     N0 = torch.clamp(N0, min=groups + num_covariates + 2.0)

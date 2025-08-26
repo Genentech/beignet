@@ -113,8 +113,6 @@ def mann_whitney_u_test_minimum_detectable_effect(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Closed-form from normal approximation of U statistic
-    # ncp = (auc - 0.5) * sqrt(12 n1 n2 / (n1 + n2 + 1))
     sqrt2 = math.sqrt(2.0)
 
     def z_of(p: float) -> Tensor:
@@ -138,12 +136,10 @@ def mann_whitney_u_test_minimum_detectable_effect(
     else:
         auc = torch.clamp(0.5 + delta, max=1.0)
 
-    # One refinement step using the implemented power (optional, keeps differentiability)
     p_curr = mann_whitney_u_test_power(
         auc, sample_size_group_1, sample_size_group_2, alpha=alpha, alternative=alt
     )
     gap = torch.clamp(power - p_curr, min=-0.45, max=0.45)
-    # Adjust AUC slightly toward target
     step = gap * 0.05
     if alt == "less":
         auc = torch.clamp(auc - torch.abs(step), 0.0, 1.0)

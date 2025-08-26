@@ -74,8 +74,8 @@ def mcnemars_test_sample_size(
 
     Examples
     --------
-    >>> p01 = torch.tensor(0.2)  # 20% change from negative to positive
-    >>> p10 = torch.tensor(0.1)  # 10% change from positive to negative
+    >>> p01 = torch.tensor(0.2)
+    >>> p10 = torch.tensor(0.1)
     >>> mcnemars_test_sample_size(p01, p10, power=0.8)
     tensor(64.0)
 
@@ -101,7 +101,6 @@ def mcnemars_test_sample_size(
     p01 = p01.to(dtype)
     p10 = p10.to(dtype)
 
-    # Initial guess using z-approx with D ≈ n*(p01+p10)
     sqrt2 = math.sqrt(2.0)
 
     def z_of(prob: float) -> Tensor:

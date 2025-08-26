@@ -81,10 +81,10 @@ def multivariate_analysis_of_variance_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.3)  # Medium multivariate effect
+    >>> effect_size = torch.tensor(0.3)
     >>> sample_size = torch.tensor(120)
-    >>> n_variables = torch.tensor(3)  # 3 dependent variables
-    >>> n_groups = torch.tensor(4)     # 4 groups
+    >>> n_variables = torch.tensor(3)
+    >>> n_groups = torch.tensor(4)
     >>> multivariate_analysis_of_variance_power(effect_size, sample_size, n_variables, n_groups)
     tensor(0.7845)
 
@@ -121,7 +121,6 @@ def multivariate_analysis_of_variance_power(
     n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
-    # Ensure floating point dtype
     dtypes = [effect_size.dtype, sample_size.dtype, n_variables.dtype, n_groups.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -133,47 +132,37 @@ def multivariate_analysis_of_variance_power(
     n_variables = n_variables.to(dtype)
     n_groups = n_groups.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_size = torch.clamp(sample_size, min=n_groups + n_variables + 5)
     n_variables = torch.clamp(n_variables, min=1.0)
     n_groups = torch.clamp(n_groups, min=2.0)
 
-    # Degrees of freedom
-    df_hypothesis = n_groups - 1  # Between groups
-    df_error = sample_size - n_groups  # Within groups
+    df_hypothesis = n_groups - 1
+    df_error = sample_size - n_groups
 
-    # Calculate intermediate values for F-approximation
     df1 = df_hypothesis * n_variables
     df2 = df_error * n_variables - (n_variables - df_hypothesis + 1) / 2
     df2 = torch.clamp(df2, min=1.0)
 
-    # Convert effect size to noncentrality parameter
     effect_size_f_squared = effect_size**2
 
-    # Noncentrality parameter for noncentral F
     lambda_nc = sample_size * effect_size_f_squared
 
-    # Critical F-value using chi-square approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     chi2_critical = df1 + z_alpha * torch.sqrt(2 * df1)
     f_critical = chi2_critical / df1
 
-    # Noncentral F approximation
     mean_nc_f = (1.0 + lambda_nc / df1) * (df2 / (df2 - 2.0))
     var_nc_f = (
         2.0 * (df2 / (df2 - 2.0)) ** 2 * ((df1 + lambda_nc) / df1 + (df2 - 2.0) / df2)
     )
     std_nc_f = torch.sqrt(torch.clamp(var_nc_f, min=1e-12))
 
-    # Standardized test statistic
     z_score = (f_critical - mean_nc_f) / std_nc_f
 
-    # Power = P(F > F_critical | H₁)
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

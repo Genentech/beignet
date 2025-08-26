@@ -98,8 +98,8 @@ def f_test_sample_size(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.15)  # Cohen's f² = 0.15 (medium effect)
-    >>> df1 = torch.tensor(3)  # 3 predictors
+    >>> effect_size = torch.tensor(0.15)
+    >>> df1 = torch.tensor(3)
     >>> f_test_sample_size(effect_size, df1, power=0.8)
     tensor(100)
 
@@ -139,17 +139,14 @@ def f_test_sample_size(
            multiple regression/correlation analysis for the behavioral sciences.
            Erlbaum.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     power = torch.atleast_1d(torch.as_tensor(power))
     df1 = torch.atleast_1d(torch.as_tensor(df1))
 
-    # Input validation (only when not compiled)
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():
         if torch.any(power <= 0) or torch.any(power >= 1):
             raise ValueError("Power must be between 0 and 1 (exclusive)")
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or df1.dtype == torch.float64
@@ -163,36 +160,24 @@ def f_test_sample_size(
     power = power.to(dtype)
     df1 = df1.to(dtype)
 
-    # Clamp values for numerical stability
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
     effect_size = torch.clamp(effect_size, min=1e-6)
     df1 = torch.clamp(df1, min=1.0)
 
-    # Simple and reliable F-test sample size calculation
-    # Based on matching the corrected power calculation approach
 
     sqrt_2 = math.sqrt(2.0)
 
-    # Standard normal quantiles
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
     z_beta = torch.erfinv(power) * sqrt_2
 
-    # Simple approximation for F-test sample size
-    # Based on the relationship: N ≈ ((z_α + z_β) / √f²)²
-    # with adjustment for F-test specifics
 
-    # Initial estimate based on normal approximation
     base_n = ((z_alpha + z_beta) / torch.sqrt(effect_size)) ** 2
 
-    # Adjust for F-test characteristics
-    # For F-tests, we need additional adjustment for df1
-    n_estimate = base_n / df1 * (df1 + 2)  # Empirical adjustment
+    n_estimate = base_n / df1 * (df1 + 2)
 
-    # Ensure reasonable bounds
-    min_n = df1 + 10  # Minimum meaningful sample size
-    max_n = torch.tensor(10000.0, dtype=dtype)  # Maximum reasonable sample size
+    min_n = df1 + 10
+    max_n = torch.tensor(10000.0, dtype=dtype)
 
-    # Round up to nearest integer
     output = torch.ceil(torch.clamp(n_estimate, min=min_n, max=max_n))
 
     if out is not None:

@@ -78,7 +78,7 @@ def multivariate_analysis_of_variance_sample_size(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.3)  # Medium multivariate effect
+    >>> effect_size = torch.tensor(0.3)
     >>> n_variables = torch.tensor(3)
     >>> n_groups = torch.tensor(4)
     >>> multivariate_analysis_of_variance_sample_size(effect_size, n_variables, n_groups)
@@ -99,7 +99,6 @@ def multivariate_analysis_of_variance_sample_size(
     n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
     n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
 
-    # Ensure floating point dtype
     dtypes = [effect_size.dtype, n_variables.dtype, n_groups.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -110,39 +109,31 @@ def multivariate_analysis_of_variance_sample_size(
     n_variables = n_variables.to(dtype)
     n_groups = n_groups.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=1e-8)
     n_variables = torch.clamp(n_variables, min=1.0)
     n_groups = torch.clamp(n_groups, min=2.0)
 
-    # Initial approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial guess based on univariate ANOVA, adjusted for multivariate context
-    # Multiple by n_variables as a rough adjustment for multivariate case
     n_init = (
         ((z_alpha + z_beta) / effect_size) ** 2 * n_variables + n_groups + n_variables
     )
     n_init = torch.clamp(n_init, min=n_groups + n_variables + 10)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(15):
-        # Calculate current power
         current_power = multivariate_analysis_of_variance_power(
             effect_size, n_current, n_variables, n_groups, alpha=alpha
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.2 * power_gap
         n_current = torch.clamp(
             n_current * adjustment, min=n_groups + n_variables + 10, max=1e6
         )
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

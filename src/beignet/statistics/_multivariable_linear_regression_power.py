@@ -76,7 +76,7 @@ def multivariable_linear_regression_power(
 
     Examples
     --------
-    >>> r_squared = torch.tensor(0.15)  # Medium effect
+    >>> r_squared = torch.tensor(0.15)
     >>> sample_size = torch.tensor(100)
     >>> n_predictors = torch.tensor(3)
     >>> multivariable_linear_regression_power(r_squared, sample_size, n_predictors)
@@ -108,7 +108,6 @@ def multivariable_linear_regression_power(
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
 
-    # Ensure floating point dtype
     dtypes = [r_squared.dtype, sample_size.dtype, n_predictors.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -119,28 +118,21 @@ def multivariable_linear_regression_power(
     sample_size = sample_size.to(dtype)
     n_predictors = n_predictors.to(dtype)
 
-    # Validate inputs
     r_squared = torch.clamp(r_squared, min=0.0, max=0.99)
     sample_size = torch.clamp(sample_size, min=n_predictors + 10)
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
-    # Degrees of freedom
-    df_num = n_predictors  # Between groups
-    df_den = sample_size - n_predictors - 1  # Within groups
+    df_num = n_predictors
+    df_den = sample_size - n_predictors - 1
     df_den = torch.clamp(df_den, min=1.0)
 
-    # Critical F-value using chi-square approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    # For F(df1,df2), approximate critical value
     f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df_num)
 
-    # Noncentrality parameter for noncentral F
     lambda_nc = sample_size * r_squared / (1 - r_squared)
 
-    # Noncentral F approximation using normal distribution
-    # F ~ F(df1, df2, λ) ≈ N(μ, σ²) for large df
     mean_nf = (1 + lambda_nc / df_num) * (df_den / (df_den - 2))
     var_nf = (
         2
@@ -149,13 +141,10 @@ def multivariable_linear_regression_power(
     )
     std_nf = torch.sqrt(torch.clamp(var_nf, min=1e-12))
 
-    # Standardized test statistic
     z_score = (f_critical - mean_nf) / std_nf
 
-    # Power = P(F > F_critical | H₁)
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

@@ -109,7 +109,6 @@ def paired_t_test_power(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     sqrt2 = math.sqrt(2.0)
-    # Critical value (normal-based with finite-degrees_of_freedom adjustment)
     if alt == "two-sided":
         z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
         tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
@@ -117,7 +116,6 @@ def paired_t_test_power(
         z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
         tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    # Approximate noncentral t by normal with mean=noncentrality_parameter and var=(degrees_of_freedom+noncentrality_parameter^2)/(degrees_of_freedom-2)
     var_nct = torch.where(
         degrees_of_freedom > 2,
         (degrees_of_freedom + noncentrality_parameter**2) / (degrees_of_freedom - 2),

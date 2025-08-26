@@ -115,7 +115,6 @@ def two_one_sided_tests_one_sample_t_power(
     z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    # Approximate noncentral t by normal
     def power_greater(ncp: Tensor) -> Tensor:
         var = torch.where(
             degrees_of_freedom > 2,

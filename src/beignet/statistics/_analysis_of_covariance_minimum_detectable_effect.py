@@ -117,12 +117,10 @@ def analysis_of_covariance_minimum_detectable_effect(
     R2 = torch.clamp(R2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
-    # Initial guess using df1 = groups-1 and variance reduction 1-R2
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
     df1 = torch.clamp(groups - 1.0, min=1.0)
-    # Effective N for noncentrality: λ = N f^2/(1-R2)
     effect_size_f0 = torch.clamp(
         (z_alpha + z_beta)
         * torch.sqrt(df1 / torch.clamp(N, min=1.0))

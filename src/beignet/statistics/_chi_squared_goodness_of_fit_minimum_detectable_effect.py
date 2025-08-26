@@ -87,17 +87,14 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
     degrees_of_freedom = torch.clamp(degrees_of_freedom.to(dtype), min=1.0)
 
-    # Initial guess using large-sample approximation: n ≈ ((zα+zβ)/w)^2
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
     w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
 
-    # Bounded search via bisection using the implemented power function
     w_lo = torch.zeros_like(w0) + 1e-8
     w_hi = torch.clamp(2.0 * w0 + 1e-6, min=1e-6)
 
-    # Ensure upper bound achieves at least the target power; expand as needed
     for _ in range(8):
         p_hi = chi_square_goodness_of_fit_power(
             w_hi, sample_size, degrees_of_freedom, alpha
@@ -108,7 +105,6 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
         w_hi = torch.where(need_expand, w_hi * 2.0, w_hi)
         w_hi = torch.clamp(w_hi, max=torch.tensor(10.0, dtype=dtype))
 
-    # Bisection
     w = (w_lo + w_hi) * 0.5
     for _ in range(24):
         p_mid = chi_square_goodness_of_fit_power(

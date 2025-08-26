@@ -81,7 +81,7 @@ def interrupted_time_series_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.8)  # Large effect
+    >>> effect_size = torch.tensor(0.8)
     >>> n_time_points = torch.tensor(50)
     >>> n_pre_intervention = torch.tensor(25)
     >>> interrupted_time_series_power(effect_size, n_time_points, n_pre_intervention)
@@ -120,7 +120,6 @@ def interrupted_time_series_power(
     n_pre_intervention = torch.atleast_1d(torch.as_tensor(n_pre_intervention))
     autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
 
-    # Ensure floating point dtype
     dtypes = [
         effect_size.dtype,
         n_time_points.dtype,
@@ -137,7 +136,6 @@ def interrupted_time_series_power(
     n_pre_intervention = n_pre_intervention.to(dtype)
     autocorrelation = autocorrelation.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     n_time_points = torch.clamp(n_time_points, min=6.0)
     n_pre_intervention = torch.clamp(
@@ -147,44 +145,30 @@ def interrupted_time_series_power(
 
     n_post_intervention = n_time_points - n_pre_intervention
 
-    # Effective sample size adjustment for autocorrelation
-    # Approximate variance inflation factor
     if torch.any(torch.abs(autocorrelation) > 1e-6):
-        # AR(1) adjustment: effective n ≈ n * (1-ρ²) / (1+ρ²) for balanced design
         ar_adjustment = (1.0 - autocorrelation**2) / (1.0 + autocorrelation**2)
     else:
         ar_adjustment = torch.ones_like(autocorrelation)
 
     effective_n = n_time_points * ar_adjustment
 
-    # Design matrix considerations for segmented regression
-    # The intervention indicator has variance prob_post*(1-prob_post) where prob_post = n_post/n_total
     prob_post = n_post_intervention / n_time_points
     design_variance = prob_post * (1.0 - prob_post)
 
-    # Standard error for the intervention effect
-    # SE(β₂) ≈ σ / √(n * Var(I_t))
     se_intervention = 1.0 / torch.sqrt(effective_n * design_variance)
 
-    # Noncentrality parameter
     noncentrality_parameter = effect_size / se_intervention
 
-    # Degrees of freedom (approximate)
-    # df = n - p_parameters, where p_parameters ≈ 4 for basic ITS model
     degrees_of_freedom_approx = torch.clamp(effective_n - 4.0, min=1.0)
 
-    # Critical value (two-sided test)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
-    # Adjust for finite degrees of freedom
     t_critical = z_alpha * torch.sqrt(1.0 + 2.0 / degrees_of_freedom_approx)
 
-    # Power calculation
     z_score = t_critical - noncentrality_parameter
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

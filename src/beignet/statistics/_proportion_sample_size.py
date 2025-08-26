@@ -120,11 +120,9 @@ def proportion_sample_size(
     .. [2] Chow, S. C., Shao, J., & Wang, H. (2008). Sample size calculations
            in clinical research. CRC press.
     """
-    # Convert inputs to tensors if needed
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
 
-    # Ensure tensors have the same dtype
     if p0.dtype == torch.float64 or p1.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -133,12 +131,10 @@ def proportion_sample_size(
     p0 = p0.to(dtype)
     p1 = p1.to(dtype)
 
-    # Clamp proportions to valid range (0, 1)
     epsilon = 1e-8
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
 
     if alternative == "two-sided":
@@ -150,17 +146,13 @@ def proportion_sample_size(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Standard errors under null and alternative hypotheses
     se_null = torch.sqrt(p0 * (1 - p0))
     se_alt = torch.sqrt(p1 * (1 - p1))
 
-    # Effect size (difference in proportions)
     effect = torch.abs(p1 - p0)
 
-    # Avoid division by very small effect sizes
     effect_safe = torch.where(effect < 1e-6, torch.tensor(1e-6, dtype=dtype), effect)
 
-    # Sample size formula
     sample_size = ((z_alpha * se_null + z_beta * se_alt) / effect_safe) ** 2
 
     output = torch.clamp(torch.ceil(sample_size), min=1.0)

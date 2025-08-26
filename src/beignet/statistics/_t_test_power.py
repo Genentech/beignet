@@ -113,11 +113,9 @@ def t_test_power(
     .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
            sciences. Routledge.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure tensors have the same dtype
     if effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -126,16 +124,12 @@ def t_test_power(
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    # Ensure positive sample size and clamp to reasonable range
     sample_size = torch.clamp(sample_size, min=2.0)
 
-    # Calculate degrees of freedom
     degrees_of_freedom = sample_size - 1
 
-    # Noncentrality parameter
     ncp = effect_size * torch.sqrt(sample_size)
 
-    # Normalize alternative names
     alt = alternative.lower()
     if alt in {"larger", "greater", ">", "one-sided", "one_sided"}:
         alt = "greater"
@@ -144,27 +138,17 @@ def t_test_power(
     elif alt not in {"two-sided", "one-sided", "greater", "less"}:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Critical t-value using normal approximation
     sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
-        # Two-tailed critical using historical approximation from codebase
         z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
     else:
-        # One-tailed critical
         z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    # For noncentral t-distribution, we approximate using normal distribution
-    # when df is large, and adjust for smaller df
 
-    # Under alternative hypothesis, test statistic is approximately:
-    # t ~ N(ncp, 1 + ncp²/(2*df)) for large df
-    # We use a better approximation that accounts for finite df
 
     mean_nct = ncp
-    # Variance approximation for noncentral t
-    # Use torch.where to avoid data-dependent branching
     var_nct = torch.where(
         degrees_of_freedom > 2,
         (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
@@ -173,24 +157,19 @@ def t_test_power(
     std_nct = torch.sqrt(var_nct)
 
     if alt == "two-sided":
-        # P(|T| > t_critical) = P(T > t_critical) + P(T < -t_critical)
         z_upper = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         z_lower = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
 
-        # 1 - Phi(z_upper) + Phi(-t_critical - mean)
         power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
             1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
         )
     elif alt == "greater":
-        # One-tailed: P(T > t_critical)
         z_score = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
     else:
-        # alt == "less": P(T < -t_critical)
         z_score = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

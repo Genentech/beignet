@@ -73,8 +73,8 @@ def mcnemars_test_power(
 
     Examples
     --------
-    >>> p01 = torch.tensor(0.2)  # 20% change from negative to positive
-    >>> p10 = torch.tensor(0.1)  # 10% change from positive to negative
+    >>> p01 = torch.tensor(0.2)
+    >>> p10 = torch.tensor(0.1)
     >>> sample_size = torch.tensor(100)
     >>> mcnemars_test_power(p01, p10, sample_size)
     tensor(0.6234)
@@ -108,12 +108,10 @@ def mcnemars_test_power(
     p10 = torch.clamp(p10.to(dtype), 0.0, 1.0)
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    # Approximate using normal test on b - c with D ≈ n*(p01+p10)
     D = sample_size * (p01 + p10)
     probability = torch.where(
         (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
     )
-    # Under H1, E[b - D/2] = D*(probability - 0.5); Var ≈ D*0.25
     mean = D * (probability - 0.5)
     std = torch.sqrt(torch.clamp(D * 0.25, min=1e-12))
 
@@ -127,7 +125,6 @@ def mcnemars_test_power(
 
     if two_sided:
         zcrit = z_of(1 - alpha / 2)
-        # Power ≈ P(|Z| > zcrit) where Z ~ N(mean/std, 1)
         z_upper = zcrit - mean / torch.clamp(std, min=1e-12)
         z_lower = -zcrit - mean / torch.clamp(std, min=1e-12)
         power = 0.5 * (1 - torch.erf(z_upper / math.sqrt(2.0))) + 0.5 * (

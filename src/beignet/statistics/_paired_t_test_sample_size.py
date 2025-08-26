@@ -107,11 +107,9 @@ def paired_t_test_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial normal approximation: n = ((z_alpha + z_beta)/d)^2
     sample_size = ((z_alpha + z_beta) / effect_size) ** 2
     sample_size = torch.clamp(sample_size, min=2.0)
 
-    # Iterative df correction similar to t_test_sample_size
     sample_size_curr = sample_size
     for _ in range(10):
         degrees_of_freedom = torch.clamp(sample_size_curr - 1, min=1.0)

@@ -134,7 +134,6 @@ def independent_z_test_power(
     .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
            sciences. Routledge.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size1 = torch.atleast_1d(torch.as_tensor(sample_size1))
 
@@ -143,7 +142,6 @@ def independent_z_test_power(
     else:
         sample_size2 = torch.atleast_1d(torch.as_tensor(sample_size2))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size1.dtype == torch.float64
@@ -157,24 +155,17 @@ def independent_z_test_power(
     sample_size1 = sample_size1.to(dtype)
     sample_size2 = sample_size2.to(dtype)
 
-    # Ensure positive sample sizes
     sample_size1 = torch.clamp(sample_size1, min=1.0)
     sample_size2 = torch.clamp(sample_size2, min=1.0)
 
-    # Calculate effective sample size (harmonic mean scaled)
-    # For two-sample z-test: n_eff = n₁n₂/(n₁+n₂)
     n_eff = (sample_size1 * sample_size2) / (sample_size1 + sample_size2)
 
-    # Calculate noncentrality parameter
     noncentrality_parameter = effect_size * torch.sqrt(n_eff)
 
-    # Standard normal critical values using erfinv
     sqrt_2 = math.sqrt(2.0)
 
     if alternative == "two-sided":
         z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
-        # Power = P(Z > z_{α/2} - δ) + P(Z < -z_{α/2} - δ)
-        # where δ = d√(n₁n₂/(n₁+n₂)) is the noncentrality parameter
         power_upper = (
             1 - torch.erf((z_alpha_half - noncentrality_parameter) / sqrt_2)
         ) / 2
@@ -182,18 +173,15 @@ def independent_z_test_power(
         power = power_upper + power_lower
     elif alternative == "larger":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-        # Power = P(Z > z_α - δ)
         power = (1 - torch.erf((z_alpha - noncentrality_parameter) / sqrt_2)) / 2
     elif alternative == "smaller":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-        # Power = P(Z < -z_α + δ)
         power = torch.erf((-z_alpha + noncentrality_parameter) / sqrt_2) / 2
     else:
         raise ValueError(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
         )
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

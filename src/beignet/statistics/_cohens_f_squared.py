@@ -21,14 +21,12 @@ def cohens_f_squared(
 
     sigma_means = torch.std(group_means, dim=-1, unbiased=False)
 
-    # Avoid division by zero
     pooled_std_safe = torch.where(
         torch.abs(pooled_std) < 1e-10,
         torch.tensor(1e-10, dtype=dtype, device=pooled_std.device),
         pooled_std,
     )
 
-    # Cohen's f² = (σ_means / σ_pooled)²
     cohens_f_value = sigma_means / pooled_std_safe
     output = cohens_f_value**2
 

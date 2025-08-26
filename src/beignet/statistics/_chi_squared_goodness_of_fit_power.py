@@ -113,12 +113,10 @@ def chi_square_goodness_of_fit_power(
     .. [2] Cramér, H. (1946). Mathematical Methods of Statistics. Princeton
            University Press.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
     degrees_of_freedom = torch.atleast_1d(torch.as_tensor(df))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size.dtype == torch.float64
@@ -132,37 +130,26 @@ def chi_square_goodness_of_fit_power(
     sample_size = sample_size.to(dtype)
     degrees_of_freedom = degrees_of_freedom.to(dtype)
 
-    # Clamp effect size to non-negative values
     effect_size = torch.clamp(effect_size, min=0.0)
 
-    # Ensure positive sample size and degrees of freedom
     sample_size = torch.clamp(sample_size, min=1.0)
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
-    # Noncentrality parameter
     noncentrality_parameter = sample_size * effect_size**2
 
-    # Critical chi-square value using normal approximation
-    # For large df, chi-square approaches normal: χ² ≈ N(df, 2*df)
-    # Critical value: χ²_α = df + z_α * √(2*df)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
         torch.tensor(2.0, dtype=dtype)
     )
     chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
 
-    # For noncentral chi-square, use normal approximation:
-    # χ²(df, λ) ≈ N(df + λ, 2*(df + 2*λ))
     mean_nc_chi2 = degrees_of_freedom + noncentrality_parameter
     var_nc_chi2 = 2 * (degrees_of_freedom + 2 * noncentrality_parameter)
     std_nc_chi2 = torch.sqrt(var_nc_chi2)
 
-    # Calculate power: P(χ² > χ²_critical | λ = noncentrality_parameter)
     z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
 
-    # Power = P(Z > z_score) = 1 - Φ(z_score)
     power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

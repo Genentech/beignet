@@ -84,9 +84,9 @@ def f_test_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.15)  # Cohen's f² = 0.15 (medium effect)
-    >>> df1 = torch.tensor(3)  # 3 predictors
-    >>> df2 = torch.tensor(96)  # N - k - 1 = 100 - 3 - 1
+    >>> effect_size = torch.tensor(0.15)
+    >>> df1 = torch.tensor(3)
+    >>> df2 = torch.tensor(96)
     >>> f_test_power(effect_size, df1, df2)
     tensor(0.8743)
 
@@ -122,12 +122,10 @@ def f_test_power(
            multiple regression/correlation analysis for the behavioral sciences.
            Erlbaum.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     df1 = torch.atleast_1d(torch.as_tensor(df1))
     df2 = torch.atleast_1d(torch.as_tensor(df2))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or df1.dtype == torch.float64
@@ -141,46 +139,29 @@ def f_test_power(
     df1 = df1.to(dtype)
     df2 = df2.to(dtype)
 
-    # Clamp effect size to non-negative values
     effect_size = torch.clamp(effect_size, min=0.0)
 
-    # Ensure positive degrees of freedom
     df1 = torch.clamp(df1, min=1.0)
     df2 = torch.clamp(df2, min=1.0)
 
-    # Simple and reliable F-test power calculation
-    # Based on Cohen's approach with normal approximations
 
     sqrt_2 = math.sqrt(2.0)
 
-    # For F-test power, we need the noncentrality parameter
-    # λ = N * f² where N is the total sample size
-    total_sample_size = df1 + df2 + 1  # Standard assumption
+    total_sample_size = df1 + df2 + 1
     lambda_param = total_sample_size * effect_size
 
-    # F critical value using simple approximation
-    # For F(df1, df2), critical value ≈ 1 + 2.5/df1 for α = 0.05
-    # More accurate: use normal approximation
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-    # Simple F critical approximation for moderate df
     f_crit = 1.0 + z_alpha * torch.sqrt(2.0 / df1)
 
-    # Under H1, the F statistic has mean approximately:
-    # E[F] ≈ 1 + λ/df1 (for large df2)
     mean_f_alt = 1.0 + lambda_param / df1
 
-    # Standard deviation approximation
-    # SD[F] ≈ sqrt(2/df1) * sqrt(1 + 2*λ/df1)
     std_f_alt = torch.sqrt(2.0 / df1) * torch.sqrt(1.0 + 2.0 * lambda_param / df1)
 
-    # Power calculation using normal approximation
     z_score = (f_crit - mean_f_alt) / torch.clamp(std_f_alt, min=1e-10)
 
-    # Power = P(F > F_crit | H1) = P(Z > z_score)
     power = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

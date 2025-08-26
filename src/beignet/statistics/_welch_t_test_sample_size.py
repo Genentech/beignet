@@ -122,7 +122,6 @@ def welch_t_test_sample_size(
     r = torch.clamp(r, min=0.1, max=10.0)
     vr = torch.clamp(vr, min=1e-6, max=1e6)
 
-    # Alternative normalization
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -131,7 +130,6 @@ def welch_t_test_sample_size(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Initial normal-based guess, treating df as large
     sqrt2 = math.sqrt(2.0)
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
@@ -139,7 +137,6 @@ def welch_t_test_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Welch SE with sample_size_group_1 unknown: se = sqrt(1/sample_size_group_1 + vr/(sample_size_group_1*ratio)) = sqrt((1 + vr/ratio)/sample_size_group_1)
     variance_scaling_factor = 1.0 + vr / r
     sample_size_group_1_guess = (
         (z_alpha + z_beta) * torch.sqrt(variance_scaling_factor) / effect_size
@@ -152,7 +149,6 @@ def welch_t_test_sample_size(
         sample_size_group_2_current = torch.clamp(
             torch.ceil(sample_size_group_1_current * r), min=2.0
         )
-        # Welch SE and df
         a = 1.0 / sample_size_group_1_current
         b = vr / sample_size_group_2_current
         se2 = a + b
@@ -161,14 +157,11 @@ def welch_t_test_sample_size(
             a**2 / torch.clamp(sample_size_group_1_current - 1, min=1.0)
             + b**2 / torch.clamp(sample_size_group_2_current - 1, min=1.0)
         )
-        # Critical value with degrees_of_freedom adjustment
         if alt == "two-sided":
             tcrit = z_alpha * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
         else:
             tcrit = z_alpha * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-        # Noncentrality
         noncentrality_parameter = effect_size / torch.clamp(se, min=1e-12)
-        # Approx noncentral t variance
         var_nct = torch.where(
             degrees_of_freedom > 2,
             (degrees_of_freedom + noncentrality_parameter**2)
@@ -197,7 +190,6 @@ def welch_t_test_sample_size(
                 1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             )
 
-        # Update sample_size_group_1 heuristically based on power gap
         gap = torch.clamp(power - p_curr, min=-0.49, max=0.49)
         sample_size_group_1_current = torch.clamp(
             sample_size_group_1_current * (1.0 + 1.25 * gap), min=2.0, max=1e7

@@ -135,7 +135,6 @@ def independent_z_test_sample_size(
     .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
            sciences. Routledge.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     power = torch.atleast_1d(torch.as_tensor(power))
     if ratio is None:
@@ -143,12 +142,10 @@ def independent_z_test_sample_size(
     else:
         ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
-    # Input validation (only when not compiled)
     if not torch.jit.is_scripting() and not torch.compiler.is_compiling():
         if torch.any(power <= 0) or torch.any(power >= 1):
             raise ValueError("Power must be between 0 and 1 (exclusive)")
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or ratio.dtype == torch.float64
@@ -162,12 +159,10 @@ def independent_z_test_sample_size(
     ratio = ratio.to(dtype)
     power = power.to(dtype)
 
-    # Clamp values for numerical stability during compilation
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
     abs_effect_size = torch.clamp(torch.abs(effect_size), min=1e-6)
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
     z_beta = torch.erfinv(power) * sqrt_2
 
@@ -180,17 +175,12 @@ def independent_z_test_sample_size(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
         )
 
-    # Calculate variance factor for two-sample design
-    # For independent samples: variance_factor = (1 + 1/r)
     variance_factor = 1 + 1 / ratio
 
-    # Calculate required sample size: n₁ = ((z_α + z_β) / d)² * (1 + 1/r)
     sample_size1 = ((z_alpha + z_beta) / abs_effect_size) ** 2 * variance_factor
 
-    # Round up to nearest integer
     output = torch.ceil(sample_size1)
 
-    # Ensure minimum sample size of 1
     output = torch.clamp(output, min=1.0)
 
     if out is not None:

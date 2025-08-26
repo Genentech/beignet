@@ -77,9 +77,9 @@ def poisson_regression_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(1.5)  # IRR = 1.5
+    >>> effect_size = torch.tensor(1.5)
     >>> sample_size = torch.tensor(200)
-    >>> mean_rate = torch.tensor(2.0)  # 2 events per observation period
+    >>> mean_rate = torch.tensor(2.0)
     >>> poisson_regression_power(effect_size, sample_size, mean_rate)
     tensor(0.7123)
 
@@ -110,7 +110,6 @@ def poisson_regression_power(
     mean_rate = torch.atleast_1d(torch.as_tensor(mean_rate))
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
-    # Ensure floating point dtype
     dtypes = [effect_size.dtype, sample_size.dtype, mean_rate.dtype, p_exposure.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -122,30 +121,23 @@ def poisson_regression_power(
     mean_rate = mean_rate.to(dtype)
     p_exposure = p_exposure.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
     sample_size = torch.clamp(sample_size, min=10.0)
     mean_rate = torch.clamp(mean_rate, min=0.01)
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    # Convert IRR to log coefficient
     beta = torch.log(effect_size)
 
-    # Expected mean counts
     mean_unexposed = mean_rate
     mean_exposed = mean_rate * effect_size
 
-    # Overall expected count
     expected_count = p_exposure * mean_exposed + (1 - p_exposure) * mean_unexposed
 
-    # Standard error approximation for Poisson regression
     variance_beta = 1.0 / (sample_size * p_exposure * (1 - p_exposure) * expected_count)
     se_beta = torch.sqrt(torch.clamp(variance_beta, min=1e-12))
 
-    # Noncentrality parameter
     ncp = torch.abs(beta) / se_beta
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -157,20 +149,16 @@ def poisson_regression_power(
 
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        # Two-sided power
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + ncp) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (positive effect)
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
-    else:  # alt == "less"
+    else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power (negative effect)
         power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

@@ -74,7 +74,7 @@ def cohens_kappa_sample_size(
 
     Examples
     --------
-    >>> kappa = torch.tensor(0.6)  # Substantial agreement
+    >>> kappa = torch.tensor(0.6)
     >>> cohens_kappa_sample_size(kappa)
     tensor(25.0)
 
@@ -91,16 +91,13 @@ def cohens_kappa_sample_size(
     """
     kappa = torch.atleast_1d(torch.as_tensor(kappa))
 
-    # Ensure floating point dtype
     dtype = kappa.dtype
     if not dtype.is_floating_point:
         dtype = torch.float32
     kappa = kappa.to(dtype)
 
-    # Validate inputs
     kappa = torch.clamp(kappa, min=-0.99, max=0.99)
 
-    # Initial approximation
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -117,26 +114,20 @@ def cohens_kappa_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial guess based on simplified formula
-    # Using p_e ≈ 0.5 approximation
     p_e_approx = torch.tensor(0.5, dtype=dtype)
     n_init = ((z_alpha + z_beta) ** 2) * p_e_approx / ((kappa**2) * (1 - p_e_approx))
     n_init = torch.clamp(n_init, min=15.0)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(12):
-        # Calculate current power
         current_power = cohens_kappa_power(
             kappa, n_current, alpha=alpha, alternative=alternative
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.3 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=15.0, max=1e5)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

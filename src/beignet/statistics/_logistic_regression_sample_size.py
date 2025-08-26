@@ -43,7 +43,7 @@ def logistic_regression_sample_size(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(2.0)  # OR = 2
+    >>> effect_size = torch.tensor(2.0)
     >>> logistic_regression_sample_size(effect_size)
     tensor(194.0)
 
@@ -64,7 +64,6 @@ def logistic_regression_sample_size(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if (effect_size.dtype == torch.float64 or p_exposure.dtype == torch.float64)
@@ -73,14 +72,11 @@ def logistic_regression_sample_size(
     effect_size = effect_size.to(dtype)
     p_exposure = p_exposure.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.01, max=100.0)
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    # Initial approximation using simplified formula
     beta = torch.log(effect_size)
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -97,31 +93,24 @@ def logistic_regression_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    # Initial guess using simplified variance formula
-    # Assumes p_outcome ≈ 0.5 for initial approximation
     p_outcome_approx = torch.tensor(0.5, dtype=dtype)
     variance_approx = 1.0 / (
         p_exposure * (1 - p_exposure) * p_outcome_approx * (1 - p_outcome_approx)
     )
 
-    # Sample size approximation
     n_init = ((z_alpha + z_beta) ** 2) * variance_approx / (beta**2)
     n_init = torch.clamp(n_init, min=20.0)
 
-    # Iterative refinement
     n_current = n_init
     for _ in range(15):
-        # Calculate current power
         current_power = logistic_regression_power(
             effect_size, n_current, p_exposure, alpha=alpha, alternative=alternative
         )
 
-        # Adjust sample size based on power gap
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
         adjustment = 1.0 + 1.2 * power_gap
         n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
 
-    # Round up to nearest integer
     n_out = torch.ceil(n_current)
 
     if out is not None:

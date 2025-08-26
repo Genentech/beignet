@@ -19,7 +19,6 @@ from ._chi_squared_independence_minimum_detectable_effect import (
 from ._chi_squared_independence_power import chi_square_independence_power
 from ._chi_squared_independence_sample_size import chi_square_independence_sample_size
 
-# New operators
 from ._cliffs_delta import cliffs_delta
 from ._cohens_d import cohens_d
 from ._cohens_f import cohens_f
@@ -187,7 +186,6 @@ __all__ = [
     "analysis_of_covariance_minimum_detectable_effect",
     "mann_whitney_u_test_minimum_detectable_effect",
     "mcnemars_test_minimum_detectable_effect",
-    # New operators
     "cliffs_delta",
     "cohens_kappa_power",
     "cohens_kappa_sample_size",

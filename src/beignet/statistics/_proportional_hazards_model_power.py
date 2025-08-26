@@ -77,8 +77,8 @@ def proportional_hazards_model_power(
 
     Examples
     --------
-    >>> hazard_ratio = torch.tensor(0.7)  # 30% reduction in hazard
-    >>> n_events = torch.tensor(100)      # 100 events expected
+    >>> hazard_ratio = torch.tensor(0.7)
+    >>> n_events = torch.tensor(100)
     >>> proportional_hazards_model_power(hazard_ratio, n_events)
     tensor(0.7234)
 
@@ -117,7 +117,6 @@ def proportional_hazards_model_power(
     n_events = torch.atleast_1d(torch.as_tensor(n_events))
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
 
-    # Ensure floating point dtype
     dtypes = [hazard_ratio.dtype, n_events.dtype, p_exposed.dtype]
     if any(dt == torch.float64 for dt in dtypes):
         dtype = torch.float64
@@ -128,23 +127,16 @@ def proportional_hazards_model_power(
     n_events = n_events.to(dtype)
     p_exposed = p_exposed.to(dtype)
 
-    # Validate inputs
     hazard_ratio = torch.clamp(hazard_ratio, min=0.01, max=100.0)
     n_events = torch.clamp(n_events, min=5.0)
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
-    # Convert HR to log coefficient
     log_hr = torch.log(hazard_ratio)
 
-    # Variance of log-rank test statistic under null hypothesis
-    # V = n_events × p_exposed × (1 - p_exposed)
     variance_null = n_events * p_exposed * (1.0 - p_exposed)
 
-    # Noncentrality parameter (expected Z under alternative)
-    # δ = √(V) × ln(HR) = √(n_events × p × (1-p)) × ln(HR)
     ncp = torch.sqrt(variance_null) * torch.abs(log_hr)
 
-    # Critical values
     sqrt2 = math.sqrt(2.0)
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -156,34 +148,26 @@ def proportional_hazards_model_power(
 
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-        # Two-sided power: P(|Z| > z_α/2 | H₁)
         power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + ncp) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power: P(Z > z_α | H₁)
-        # For HR > 1 (increased hazard)
         if torch.all(hazard_ratio >= 1.0):
             power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
         else:
-            # Mixed case: use two-sided approximation
             power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
                 1 - torch.erf((z_alpha + ncp) / sqrt2)
             )
-    else:  # alt == "less"
+    else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-        # One-sided power: P(Z < -z_α | H₁)
-        # For HR < 1 (decreased hazard)
         if torch.all(hazard_ratio <= 1.0):
             power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
         else:
-            # Mixed case: use two-sided approximation
             power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
                 1 - torch.erf((z_alpha + ncp) / sqrt2)
             )
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

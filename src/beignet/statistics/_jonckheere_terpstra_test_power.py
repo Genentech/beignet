@@ -117,7 +117,6 @@ def jonckheere_terpstra_test_power(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if (effect_size.dtype == torch.float64 or sample_sizes.dtype == torch.float64)
@@ -126,7 +125,6 @@ def jonckheere_terpstra_test_power(
     effect_size = effect_size.to(dtype)
     sample_sizes = sample_sizes.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
@@ -136,29 +134,20 @@ def jonckheere_terpstra_test_power(
 
     N = torch.sum(sample_sizes, dim=-1)
 
-    # Variance under null hypothesis (simplified formula)
-    # Full formula involves more complex combinations, this is an approximation
     var_null = N * (N - 1) * (2 * N + 5) / 72
     std_null = torch.sqrt(torch.clamp(var_null, min=1e-12))
 
-    # Mean under null
     mean_null = N * N / 4
 
-    # Effect on mean under alternative (approximation)
-    # The effect size represents the standardized trend
     mean_alt = mean_null + effect_size * std_null
 
-    # Critical value (one-tailed test)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     critical_value = mean_null + z_alpha * std_null
 
-    # Power calculation
-    # P(J > critical_value | H₁) where J ~ N(mean_alt, std_null²)
     z_score = (critical_value - mean_alt) / std_null
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

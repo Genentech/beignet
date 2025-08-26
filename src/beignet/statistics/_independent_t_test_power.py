@@ -108,7 +108,6 @@ def independent_t_test_power(
     .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
            sciences. Routledge.
     """
-    # Convert inputs to tensors if needed
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     if ratio is None:
@@ -116,7 +115,6 @@ def independent_t_test_power(
     else:
         ratio = torch.atleast_1d(torch.as_tensor(ratio))
 
-    # Ensure tensors have the same dtype
     if (
         effect_size.dtype == torch.float64
         or sample_size_group_1.dtype == torch.float64
@@ -130,26 +128,20 @@ def independent_t_test_power(
     sample_size_group_1 = sample_size_group_1.to(dtype)
     ratio = ratio.to(dtype)
 
-    # Ensure positive values and reasonable constraints
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
-    ratio = torch.clamp(ratio, min=0.1, max=10.0)  # Reasonable ratio range
+    ratio = torch.clamp(ratio, min=0.1, max=10.0)
 
-    # Calculate sample sizes
     sample_size_group_2 = sample_size_group_1 * ratio
     total_sample_size = sample_size_group_1 + sample_size_group_2
 
-    # Degrees of freedom
     degrees_of_freedom = total_sample_size - 2
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
-    # Standard error factor: sqrt(1/n1 + 1/n2)
     se_factor = torch.sqrt(1 / sample_size_group_1 + 1 / sample_size_group_2)
 
-    # Noncentrality parameter: effect_size / se_factor
     noncentrality_parameter = effect_size / se_factor
 
-    # Normalize alternative
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -158,7 +150,6 @@ def independent_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Critical t-value using normal approximation adjusted for finite df
     sqrt2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
     if alt == "two-sided":
         z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
@@ -167,11 +158,8 @@ def independent_t_test_power(
         z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    # Noncentral t-distribution approximation
-    # For large df, noncentral t approaches normal with mean=noncentrality_parameter and adjusted variance
     mean_nct = noncentrality_parameter
 
-    # Variance approximation for noncentral t
     var_nct = torch.where(
         degrees_of_freedom > 2,
         (degrees_of_freedom + noncentrality_parameter**2) / (degrees_of_freedom - 2),
@@ -179,23 +167,19 @@ def independent_t_test_power(
     )
     std_nct = torch.sqrt(var_nct)
 
-    # Calculate power based on alternative hypothesis
     if alt == "two-sided":
-        # P(|T| > t_critical)
         z_upper = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         z_lower = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
             1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
         )
     elif alt == "greater":
-        # P(T > t_critical)
         z_score = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
-    else:  # alt == "less"
+    else:
         z_score = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
         power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

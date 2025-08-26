@@ -119,7 +119,6 @@ def kolmogorov_smirnov_test_power(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure floating point dtype
     dtype = (
         torch.float64
         if (effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64)
@@ -128,11 +127,9 @@ def kolmogorov_smirnov_test_power(
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0, max=1.0)
     sample_size = torch.clamp(sample_size, min=3.0)
 
-    # Normalize alternative
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -141,57 +138,40 @@ def kolmogorov_smirnov_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Critical value approximation for Kolmogorov-Smirnov distribution
     sqrt_n = torch.sqrt(sample_size)
 
     if alt == "two-sided":
-        # Two-sided critical value (approximate)
         if alpha == 0.05:
-            c_alpha = 1.36  # Approximate critical value for α=0.05
+            c_alpha = 1.36
         elif alpha == 0.01:
-            c_alpha = 1.63  # Approximate critical value for α=0.01
+            c_alpha = 1.63
         else:
-            # General approximation: c_α ≈ sqrt(-0.5 * ln(α/2))
             c_alpha = torch.sqrt(-0.5 * torch.log(torch.tensor(alpha / 2, dtype=dtype)))
     else:
-        # One-sided critical value (approximate)
         if alpha == 0.05:
-            c_alpha = 1.22  # Approximate critical value for α=0.05
+            c_alpha = 1.22
         elif alpha == 0.01:
-            c_alpha = 1.52  # Approximate critical value for α=0.01
+            c_alpha = 1.52
         else:
-            # General approximation: c_α ≈ sqrt(-0.5 * ln(α))
             c_alpha = torch.sqrt(-0.5 * torch.log(torch.tensor(alpha, dtype=dtype)))
 
     d_critical = c_alpha / sqrt_n
 
-    # Power approximation
-    # Under H₁, the test statistic has approximately normal distribution
-    # This is a simplified approximation for moderate effect sizes
 
-    # Expected value under alternative (simplified)
     expected_d = effect_size
 
-    # Approximate standard error under alternative
-    # This is a rough approximation; exact formula is complex
     se_d = torch.sqrt(1.0 / (2 * sample_size))
 
-    # Standardized difference
     z_score = (d_critical - expected_d) / torch.clamp(se_d, min=1e-12)
 
-    # Power calculation
     sqrt2 = math.sqrt(2.0)
     if alt == "two-sided":
-        # P(|D| > d_critical | H₁)
         power = 1 - torch.erf(torch.abs(z_score) / sqrt2)
     elif alt == "greater":
-        # P(D > d_critical | H₁)
         power = 0.5 * (1 - torch.erf(z_score / sqrt2))
-    else:  # alt == "less"
-        # P(D < -d_critical | H₁) = P(-D > d_critical | H₁)
+    else:
         power = 0.5 * (1 + torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

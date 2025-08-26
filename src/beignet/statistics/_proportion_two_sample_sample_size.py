@@ -80,11 +80,9 @@ def proportion_two_sample_sample_size(
     .. [2] Chow, S. C., Shao, J., & Wang, H. (2008). Sample size calculations
            in clinical research. CRC press.
     """
-    # Convert inputs to tensors if needed
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
 
-    # Ensure tensors have the same dtype
     if p1.dtype == torch.float64 or p2.dtype == torch.float64:
         dtype = torch.float64
     else:
@@ -94,12 +92,10 @@ def proportion_two_sample_sample_size(
     p2 = p2.to(dtype)
     ratio = torch.tensor(ratio, dtype=dtype)
 
-    # Clamp proportions to valid range (0, 1)
     epsilon = 1e-8
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
     p2 = torch.clamp(p2, epsilon, 1 - epsilon)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
 
     if alternative == "two-sided":
@@ -111,31 +107,22 @@ def proportion_two_sample_sample_size(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Pooled proportion estimate for null hypothesis
     p_pooled = (p1 + p2 * ratio) / (1 + ratio)
     p_pooled = torch.clamp(p_pooled, epsilon, 1 - epsilon)
 
-    # Effect size (absolute difference in proportions)
     effect = torch.abs(p1 - p2)
 
-    # Avoid division by very small effect sizes
     effect_safe = torch.where(effect < 1e-6, torch.tensor(1e-6, dtype=dtype), effect)
 
-    # Variance components
-    # Under null hypothesis (pooled variance)
     var_null = p_pooled * (1 - p_pooled) * (1 + 1 / ratio)
 
-    # Under alternative hypothesis (separate variances)
     var_alt = p1 * (1 - p1) + p2 * (1 - p2) / ratio
 
-    # Sample size formula
     numerator = z_alpha * torch.sqrt(var_null) + z_beta * torch.sqrt(var_alt)
     sample_size = (numerator / effect_safe) ** 2
 
-    # Round up to nearest integer
     output = torch.ceil(sample_size)
 
-    # Ensure minimum sample size of 1
     output = torch.clamp(output, min=1.0)
 
     if out is not None:

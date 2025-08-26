@@ -35,11 +35,9 @@ def two_one_sided_tests_one_sample_t_sample_size(
     low = low.to(dtype)
     high = high.to(dtype)
 
-    # Initial guess using z-approx
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-    # Use worst-case margin distance for conservative start
     margin = torch.minimum(true_effect_size - low, high - true_effect_size)
     margin = torch.clamp(margin, min=1e-8)
     n0 = ((z_alpha + z_beta) / margin) ** 2

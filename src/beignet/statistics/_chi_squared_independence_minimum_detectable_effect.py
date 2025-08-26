@@ -90,7 +90,6 @@ def chi_square_independence_minimum_detectable_effect(
     r = torch.clamp(r.to(dtype), min=2.0)
     c = torch.clamp(c.to(dtype), min=2.0)
 
-    # Initial guess
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2

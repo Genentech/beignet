@@ -73,10 +73,10 @@ def mixed_model_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.5)  # Medium effect
+    >>> effect_size = torch.tensor(0.5)
     >>> n_subjects = torch.tensor(30)
     >>> n_observations_per_subject = torch.tensor(4)
-    >>> icc = torch.tensor(0.1)  # 10% clustering
+    >>> icc = torch.tensor(0.1)
     >>> mixed_model_power(effect_size, n_subjects, n_observations_per_subject, icc)
     tensor(0.8234)
 
@@ -113,7 +113,6 @@ def mixed_model_power(
     )
     icc = torch.atleast_1d(torch.as_tensor(icc))
 
-    # Ensure floating point dtype
     dtypes = [
         effect_size.dtype,
         n_subjects.dtype,
@@ -130,39 +129,29 @@ def mixed_model_power(
     n_observations_per_subject = n_observations_per_subject.to(dtype)
     icc = icc.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     n_subjects = torch.clamp(n_subjects, min=3.0)
     n_observations_per_subject = torch.clamp(n_observations_per_subject, min=1.0)
     icc = torch.clamp(icc, min=0.0, max=0.99)
 
-    # Design effect due to clustering
     design_effect = 1.0 + (n_observations_per_subject - 1.0) * icc
 
-    # Effective sample size
     total_observations = n_subjects * n_observations_per_subject
     effective_n = total_observations / design_effect
 
-    # Noncentrality parameter (adjusted for clustering)
-    ncp = effect_size * torch.sqrt(effective_n / 4.0)  # Assuming balanced groups
+    ncp = effect_size * torch.sqrt(effective_n / 4.0)
 
-    # Degrees of freedom approximation (Satterthwaite-like)
-    # Simplified approximation for random intercept model
     df_approx = n_subjects - 2.0
     df_approx = torch.clamp(df_approx, min=1.0)
 
-    # Critical value using normal approximation (for large df)
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
-    # Adjust for finite degrees of freedom
     t_critical = z_alpha * torch.sqrt(1.0 + 1.0 / (2.0 * df_approx))
 
-    # Power calculation using normal approximation
     z_score = t_critical - ncp
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

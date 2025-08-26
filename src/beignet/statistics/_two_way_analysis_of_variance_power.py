@@ -83,7 +83,7 @@ def two_way_analysis_of_variance_power(
 
     Examples
     --------
-    >>> effect_size = torch.tensor(0.25)  # Medium effect
+    >>> effect_size = torch.tensor(0.25)
     >>> sample_size_per_cell = torch.tensor(20)
     >>> levels_factor_a = torch.tensor(2)
     >>> levels_factor_b = torch.tensor(3)
@@ -121,7 +121,6 @@ def two_way_analysis_of_variance_power(
     levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
     levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
 
-    # Ensure floating point dtype
     dtypes = [
         effect_size.dtype,
         sample_size_per_cell.dtype,
@@ -138,16 +137,13 @@ def two_way_analysis_of_variance_power(
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
-    # Validate inputs
     effect_size = torch.clamp(effect_size, min=0.0)
     sample_size_per_cell = torch.clamp(sample_size_per_cell, min=2.0)
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)
 
-    # Total sample size
     total_n = sample_size_per_cell * levels_factor_a * levels_factor_b
 
-    # Degrees of freedom based on effect type
     if effect_type == "main_a":
         df_num = levels_factor_a - 1
     elif effect_type == "main_b":
@@ -160,35 +156,26 @@ def two_way_analysis_of_variance_power(
     df_den = levels_factor_a * levels_factor_b * (sample_size_per_cell - 1)
     df_den = torch.clamp(df_den, min=1.0)
 
-    # Noncentrality parameter
     lambda_nc = total_n * effect_size**2
 
-    # Critical F-value using chi-square approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     chi2_critical = df_num + z_alpha * torch.sqrt(2 * df_num)
     f_critical = chi2_critical / df_num
 
-    # Noncentral F approximation
-    # Under H₁: F ~ F(df_num, df_den, λ)
-    # Approximate using noncentral chi-square moments
     mean_nc_chi2 = df_num + lambda_nc
     var_nc_chi2 = 2 * (df_num + 2 * lambda_nc)
     mean_f = mean_nc_chi2 / df_num
     var_f = var_nc_chi2 / (df_num**2)
 
-    # Finite sample adjustment for denominator df
     var_f = var_f * ((df_den + 2) / torch.clamp(df_den, min=1.0))
 
     std_f = torch.sqrt(torch.clamp(var_f, min=1e-12))
 
-    # Standardized test statistic
     z_score = (f_critical - mean_f) / std_f
 
-    # Power = P(F > F_critical | H₁)
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 
-    # Clamp to valid range
     power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

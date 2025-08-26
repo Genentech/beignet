@@ -84,18 +84,15 @@ def anova_minimum_detectable_effect(
     N = torch.clamp(N.to(dtype), min=3.0)
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    # Initial guess using rough normal approximation
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-    # df1 = groups-1; f ≈ (zα+zβ) * sqrt(df1/N)
     df1 = torch.clamp(groups - 1.0, min=1.0)
     effect_size_f0 = torch.clamp((z_alpha + z_beta) * torch.sqrt(df1 / N), min=1e-8)
 
     effect_size_f_lo = torch.zeros_like(effect_size_f0) + 1e-8
     effect_size_f_hi = torch.clamp(2.0 * effect_size_f0 + 1e-6, min=1e-6)
 
-    # Ensure upper bound meets target power
     for _ in range(8):
         p_hi = anova_power(effect_size_f_hi, N, groups, alpha)
         need_expand = p_hi < power

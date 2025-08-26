@@ -127,7 +127,6 @@ def proportion_two_sample_power(
            for rates and proportions. John Wiley & Sons.
     .. [2] Agresti, A. (2013). Categorical data analysis. John Wiley & Sons.
     """
-    # Convert inputs to tensors if needed
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     p2 = torch.atleast_1d(torch.as_tensor(p2))
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(n1))
@@ -137,7 +136,6 @@ def proportion_two_sample_power(
     else:
         sample_size_group_2 = torch.atleast_1d(torch.as_tensor(n2))
 
-    # Ensure all tensors have the same dtype
     if (
         p1.dtype == torch.float64
         or p2.dtype == torch.float64
@@ -153,41 +151,32 @@ def proportion_two_sample_power(
     sample_size_group_1 = sample_size_group_1.to(dtype)
     sample_size_group_2 = sample_size_group_2.to(dtype)
 
-    # Clamp proportions to valid range (0, 1)
     epsilon = 1e-8
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
     p2 = torch.clamp(p2, epsilon, 1 - epsilon)
 
-    # Pooled proportion under null hypothesis (p1 = p2)
     p_pooled = (sample_size_group_1 * p1 + sample_size_group_2 * p2) / (
         sample_size_group_1 + sample_size_group_2
     )
     p_pooled = torch.clamp(p_pooled, epsilon, 1 - epsilon)
 
-    # Standard error under null hypothesis (pooled variance)
     se_null = torch.sqrt(
         p_pooled * (1 - p_pooled) * (1 / sample_size_group_1 + 1 / sample_size_group_2)
     )
 
-    # Standard error under alternative hypothesis (separate variances)
     se_alt = torch.sqrt(
         p1 * (1 - p1) / sample_size_group_1 + p2 * (1 - p2) / sample_size_group_2
     )
 
-    # Effect size (standardized difference)
     effect = (p1 - p2) / se_null
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
 
-    # Effect size (difference in proportions)
     effect = p1 - p2
 
     if alternative == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
 
-        # Test statistic under alternative: (p̂1 - p̂2) / se_alt
-        # Power = P(|Z| > z_alpha - |effect|/se_alt) where Z ~ N(0,1)
         standardized_effect = torch.abs(effect) / se_alt
 
         power = (1 - torch.erf((z_alpha - standardized_effect) / sqrt_2)) / 2 + (
@@ -195,29 +184,22 @@ def proportion_two_sample_power(
         ) / 2
 
     elif alternative == "greater":
-        # H1: p1 > p2
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-        # Test statistic under alternative
         standardized_effect = effect / se_alt
 
-        # Power = P(Z > z_alpha - effect/se_alt) where Z ~ N(0,1)
         power = (1 - torch.erf((z_alpha - standardized_effect) / sqrt_2)) / 2
 
     elif alternative == "less":
-        # H1: p1 < p2
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-        # Test statistic under alternative
         standardized_effect = effect / se_alt
 
-        # Power = P(Z < -z_alpha - effect/se_alt) where Z ~ N(0,1)
         power = (1 + torch.erf((-z_alpha - standardized_effect) / sqrt_2)) / 2
 
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

@@ -80,11 +80,9 @@ def correlation_power(
     >>> correlation_power(r, n)
     tensor(0.5704)
     """
-    # Convert inputs to tensors if needed
     r = torch.atleast_1d(torch.as_tensor(r))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure both have the same dtype
     if r.dtype != sample_size.dtype:
         if r.dtype == torch.float64 or sample_size.dtype == torch.float64:
             r = r.to(torch.float64)
@@ -93,22 +91,14 @@ def correlation_power(
             r = r.to(torch.float32)
             sample_size = sample_size.to(torch.float32)
 
-    # Fisher z-transformation of the correlation
-    # z_r = 0.5 * ln((1 + r) / (1 - r))
-    epsilon = 1e-7  # Small value to avoid division by zero
+    epsilon = 1e-7
     r_clamped = torch.clamp(r, -1 + epsilon, 1 - epsilon)
     z_r = 0.5 * torch.log((1 + r_clamped) / (1 - r_clamped))
 
-    # Standard error of Fisher z-transform
-    # SE = 1 / sqrt(n - 3)
     se_z = 1.0 / torch.sqrt(sample_size - 3)
 
-    # Test statistic under alternative hypothesis
-    # z = z_r / SE
     z_stat = z_r / se_z
 
-    # Critical values using standard normal approximation
-    # Normalize alternative
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -118,14 +108,10 @@ def correlation_power(
         raise ValueError(f"Unknown alternative: {alternative}")
 
     if alt == "two-sided":
-        # Two-sided critical value
         z_alpha_2 = torch.erfinv(
             torch.tensor(1 - alpha / 2, dtype=r.dtype)
         ) * torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
 
-        # Power = P(|Z| > z_alpha/2 | H1) where Z ~ N(z_stat, 1)
-        # This is 1 - P(-z_alpha/2 < Z < z_alpha/2 | H1)
-        # = 1 - [Φ(z_alpha/2 - z_stat) - Φ(-z_alpha/2 - z_stat)]
         cdf_upper = 0.5 * (
             1
             + torch.erf(
@@ -145,7 +131,6 @@ def correlation_power(
             torch.tensor(2.0, dtype=r.dtype)
         )
 
-        # Power = P(Z > z_alpha | H1) = 1 - Φ(z_alpha - z_stat)
         power = 1 - 0.5 * (
             1
             + torch.erf(
@@ -158,7 +143,6 @@ def correlation_power(
             torch.tensor(2.0, dtype=r.dtype)
         )
 
-        # Power = P(Z < z_alpha | H1) = Φ(z_alpha - z_stat)
         power = 0.5 * (
             1
             + torch.erf(
@@ -168,7 +152,6 @@ def correlation_power(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:

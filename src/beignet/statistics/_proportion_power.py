@@ -100,12 +100,10 @@ def proportion_power(
     .. [1] Fleiss, J. L., Levin, B., & Paik, M. C. (2003). Statistical methods
            for rates and proportions. John Wiley & Sons.
     """
-    # Convert inputs to tensors if needed
     p0 = torch.atleast_1d(torch.as_tensor(p0))
     p1 = torch.atleast_1d(torch.as_tensor(p1))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    # Ensure all tensors have the same dtype
     if (
         p0.dtype == torch.float64
         or p1.dtype == torch.float64
@@ -119,31 +117,24 @@ def proportion_power(
     p1 = p1.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    # Clamp proportions to valid range (0, 1)
     epsilon = 1e-8
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
-    # Standard normal quantiles using erfinv
     sqrt_2 = math.sqrt(2.0)
 
-    # Standard error under null hypothesis (pooled)
     se_null = torch.sqrt(p0 * (1 - p0) / sample_size)
 
-    # Standard error under alternative hypothesis
     se_alt = torch.sqrt(p1 * (1 - p1) / sample_size)
 
-    # Effect size (difference in proportions divided by null SE)
     effect = (p1 - p0) / se_null
 
     if alternative == "two-sided":
         z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
 
-        # Adjust for different variance under alternative
         variance_ratio = se_alt / se_null
         adjusted_effect = effect / variance_ratio
 
-        # Power = P(|Z| > z_alpha/2 - adjusted_effect) where Z ~ N(0,1) under alternative
         power = (1 - torch.erf((z_alpha_half - adjusted_effect) / sqrt_2)) / 2 + (
             1 - torch.erf((z_alpha_half + adjusted_effect) / sqrt_2)
         ) / 2
@@ -151,27 +142,22 @@ def proportion_power(
     elif alternative == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-        # Adjust for different variance under alternative
         variance_ratio = se_alt / se_null
         adjusted_effect = effect / variance_ratio
 
-        # Power = P(Z > z_alpha - adjusted_effect) where Z ~ N(0,1) under alternative
         power = (1 - torch.erf((z_alpha - adjusted_effect) / sqrt_2)) / 2
 
     elif alternative == "less":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-        # Adjust for different variance under alternative
         variance_ratio = se_alt / se_null
         adjusted_effect = effect / variance_ratio
 
-        # Power = P(Z < -z_alpha - adjusted_effect) where Z ~ N(0,1) under alternative
         power = (1 + torch.erf((-z_alpha - adjusted_effect) / sqrt_2)) / 2
 
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    # Clamp power to [0, 1] range
     output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
