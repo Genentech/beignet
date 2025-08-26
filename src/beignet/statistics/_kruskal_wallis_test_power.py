@@ -18,6 +18,37 @@ def kruskal_wallis_test_power(
     for comparing three or more independent groups when the assumption of
     normality is violated.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Comparing 3+ independent groups with non-normal distributions
+    - Ordinal outcome variables across multiple groups
+    - Robust alternative to ANOVA when assumptions are violated
+    - Small sample sizes where normality cannot be assumed
+
+    **Machine Learning Contexts:**
+    - Comparing performance across multiple ML algorithms (3+)
+    - Hyperparameter optimization: comparing multiple parameter configurations
+    - A/B/C+ testing with non-normal metrics (rankings, scores)
+    - Model evaluation across multiple datasets or domains
+    - Feature selection: comparing performance across feature sets
+    - Ensemble evaluation: comparing individual model contributions
+    - Cross-validation: comparing performance across multiple folds
+    - Robustness testing: comparing model performance under different conditions
+    - Fairness assessment: comparing outcomes across multiple demographic groups
+
+    **Choose Kruskal-Wallis over ANOVA when:**
+    - Non-normal distributions within groups
+    - Ordinal data or ranked outcomes
+    - Presence of outliers
+    - Unequal group variances
+    - Small sample sizes (especially n < 30 per group)
+
+    **Choose Kruskal-Wallis over other tests when:**
+    - Comparing 3+ independent groups (use Mann-Whitney for 2 groups)
+    - Need robust, assumption-free comparison
+    - Data cannot be meaningfully transformed to normality
+
     Parameters
     ----------
     effect_size : Tensor

@@ -15,6 +15,34 @@ def glass_delta(
     of the control group (typically y) as the standardizer, making it more
     appropriate when one group is a control condition and variances are unequal.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Treatment vs. control comparisons with unequal variances
+    - Clinical trials where control group variance is known/stable
+    - Educational interventions compared to standard curriculum
+    - Pre-post designs where baseline variability is the reference
+
+    **Machine Learning Contexts:**
+    - A/B testing: comparing new model vs. baseline with stable baseline performance
+    - Model improvement: measuring gains relative to production model variance
+    - Transfer learning: comparing adapted model to source domain performance
+    - Hyperparameter tuning: measuring improvement relative to default configuration
+    - Ablation studies: comparing modified model to control architecture
+    - Benchmark comparisons: measuring improvement relative to established baseline
+    - Data augmentation: comparing enhanced vs. original training data
+    - Feature engineering: comparing new features vs. baseline feature set
+
+    **Choose Glass's delta over Cohen's d when:**
+    - Unequal group variances (heteroscedasticity)
+    - Clear control/treatment distinction
+    - Control group variance is more stable/meaningful
+    - Want to standardize by control group variability specifically
+
+    **Interpretation Guidelines:**
+    - Same general scale as Cohen's d: |Δ| = 0.2 (small), 0.5 (medium), 0.8 (large)
+    - Interpretation relative to control group variability
+
     Parameters
     ----------
     x : Tensor, shape=(..., N)

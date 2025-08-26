@@ -24,6 +24,37 @@ def independent_t_test_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning sample sizes for experimental studies with two independent groups
+    - Clinical trials comparing treatment vs. control groups
+    - Educational research comparing different teaching methods
+    - A/B testing in traditional experimental designs
+
+    **Machine Learning Contexts:**
+    - A/B testing for ML model performance comparisons
+    - Comparing two different algorithms on independent datasets
+    - Model validation: comparing performance across different data splits
+    - Hyperparameter optimization: comparing two parameter configurations
+    - Feature importance: comparing model performance with/without features
+    - Domain adaptation: comparing performance across independent domains
+    - Fairness assessment: comparing outcomes between demographic groups
+    - Active learning: power to detect improvement from additional data
+    - Transfer learning: comparing source vs. target domain performance
+
+    **Choose independent t-test over paired t-test when:**
+    - Samples are from different subjects/units (not paired)
+    - Two distinct groups being compared
+    - No natural pairing or matching between observations
+    - Independent group assignment (randomization)
+
+    **Choose independent t-test over other tests when:**
+    - Continuous outcome variables
+    - Approximately normal distributions
+    - Independent observations within and between groups
+    - Homogeneous variances (or use Welch's t-test)
+
     Parameters
     ----------
     effect_size : Tensor

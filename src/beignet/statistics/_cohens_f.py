@@ -21,6 +21,35 @@ def cohens_f(
     differentiability enables integration into machine learning pipelines
     where group statistics might be computed from learned representations.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Reporting standardized effect sizes in ANOVA results
+    - Meta-analyses requiring comparable effect measures across studies
+    - Planning studies with multiple group comparisons
+    - Converting between different effect size measures (f = d/2 for two groups)
+
+    **Machine Learning Contexts:**
+    - Multi-model performance comparisons (3+ models)
+    - Hyperparameter optimization: comparing effect sizes across configurations
+    - Feature selection: comparing importance across multiple feature sets
+    - A/B/C+ testing: standardized effect sizes for multi-variant experiments
+    - Ensemble model evaluation: measuring relative contributions
+    - Cross-validation: effect sizes across multiple validation folds
+    - Multi-domain learning: comparing performance across domains
+    - Clustering evaluation: comparing separation across different algorithms
+
+    **Choose Cohen's f when:**
+    - Comparing 3+ groups (use Cohen's d for 2 groups)
+    - Need ANOVA-specific effect size measure
+    - Converting to/from other effect size measures
+    - Planning sample sizes for multi-group studies
+
+    **Interpretation Guidelines:**
+    - f = 0.1: small effect
+    - f = 0.25: medium effect
+    - f = 0.4: large effect
+
     Parameters
     ----------
     group_means : Tensor, shape (..., k)

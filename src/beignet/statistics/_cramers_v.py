@@ -21,6 +21,38 @@ def cramers_v(
     it enables integration into machine learning pipelines where chi-square
     statistics may be computed from learned representations.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Measuring association strength between categorical variables
+    - Reporting effect sizes for chi-square independence tests
+    - Social science research with nominal outcomes
+    - Market research analyzing consumer behavior categories
+
+    **Machine Learning Contexts:**
+    - Feature selection: measuring association between categorical features
+    - Model evaluation: association between predicted and true categories
+    - Fairness assessment: measuring association between outcomes and demographics
+    - Data quality: detecting unwanted associations in categorical data
+    - A/B testing: measuring association between treatments and categorical outcomes
+    - Natural language processing: association between text categories and outcomes
+    - Recommendation systems: user-item category associations
+    - Computer vision: association between image categories and labels
+    - Customer segmentation: association strength between segment variables
+
+    **Choose Cramer's V when:**
+    - Both variables are categorical (nominal or ordinal)
+    - Contingency tables larger than 2×2 (use phi coefficient for 2×2)
+    - Need standardized association measure (0-1 scale)
+    - Comparing association strength across different table sizes
+
+    **Interpretation Guidelines:**
+    - V = 0: no association
+    - V = 0.1: weak association
+    - V = 0.3: moderate association
+    - V = 0.5: strong association
+    - V = 1.0: perfect association
+
     Parameters
     ----------
     chi_square : Tensor

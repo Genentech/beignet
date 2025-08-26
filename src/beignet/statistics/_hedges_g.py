@@ -21,6 +21,34 @@ def hedges_g(
     are computed from learned features or used in differentiable experimental
     design optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Small sample sizes (n < 20 per group) where bias correction matters
+    - Meta-analyses requiring most accurate effect size estimates
+    - Clinical trials with limited participants
+    - Pilot studies with small samples
+
+    **Machine Learning Contexts:**
+    - A/B testing with small user samples
+    - Few-shot learning: comparing performance with limited data
+    - Medical AI: small patient cohorts in rare disease studies
+    - Early-stage model development with limited training data
+    - Cross-validation with small validation sets
+    - Transfer learning: small target domain samples
+    - Active learning: effect sizes with incrementally growing datasets
+    - Federated learning: local client effects with small data
+
+    **Choose Hedges' g over Cohen's d when:**
+    - Small sample sizes (especially n < 20 per group)
+    - Need most unbiased effect size estimate
+    - Meta-analysis combining studies with varying sample sizes
+    - Reporting in publications emphasizing methodological rigor
+
+    **Interpretation Guidelines:**
+    - Same as Cohen's d: |g| = 0.2 (small), 0.5 (medium), 0.8 (large)
+    - More accurate than Cohen's d for small samples
+
     Parameters
     ----------
     group1 : Tensor, shape (..., N1)
