@@ -45,7 +45,7 @@ def anova_power(
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
     chi_squared_critical = degrees_of_freedom_1 + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom_1
+        2 * degrees_of_freedom_1,
     )
 
     f_critical = chi_squared_critical / degrees_of_freedom_1
@@ -69,10 +69,9 @@ def anova_power(
 
     power = (1 - torch.erf(z_score / sqrt_2)) / 2
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output

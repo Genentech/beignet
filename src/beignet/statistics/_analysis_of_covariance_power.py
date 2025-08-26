@@ -20,25 +20,20 @@ def analysis_of_covariance_power(
 
     groups = torch.atleast_1d(torch.as_tensor(k))
 
-    r2 = torch.atleast_1d(torch.as_tensor(covariate_r2))
+    covariate_r_squared = torch.atleast_1d(torch.as_tensor(covariate_r2))
 
     num_covariates = torch.atleast_1d(torch.as_tensor(n_covariates))
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64
-            for t in (effect_size_f, n, groups, r2, num_covariates)
-        )
-        else torch.float32
-    )
+    dtype = torch.float32
+    for tensor in (effect_size_f, n, groups, covariate_r_squared, num_covariates):
+        dtype = torch.promote_types(dtype, tensor.dtype)
     effect_size_f = torch.clamp(effect_size_f.to(dtype), min=0.0)
 
     n = torch.clamp(n.to(dtype), min=3.0)
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    r2 = torch.clamp(r2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
+    covariate_r_squared = torch.clamp(covariate_r_squared.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
 
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
@@ -46,15 +41,15 @@ def analysis_of_covariance_power(
 
     df2 = torch.clamp(n - groups - num_covariates, min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
     f_critical = chi_squared_critical / df1
 
-    lambda_nc = n * effect_size_f**2 / torch.clamp(1.0 - r2, min=torch.finfo(dtype).eps)
+    lambda_nc = n * effect_size_f**2 / torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
 
     mean_nc_chi2 = df1 + lambda_nc
 
@@ -70,7 +65,7 @@ def analysis_of_covariance_power(
 
     z = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
 
-    power = 0.5 * (1 - torch.erf(z / sqrt2))
+    power = 0.5 * (1 - torch.erf(z / square_root_two))
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

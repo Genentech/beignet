@@ -23,20 +23,18 @@ def anova_minimum_detectable_effect(
 
     groups = torch.atleast_1d(groups0)
 
-    dtype = (
-        torch.float64
-        if (n.dtype == torch.float64 or groups.dtype == torch.float64)
-        else torch.float32
-    )
+    dtype = torch.float32
+    for tensor in (n, groups):
+        dtype = torch.promote_types(dtype, tensor.dtype)
     n = torch.clamp(n.to(dtype), min=3.0)
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     df1 = torch.clamp(groups - 1.0, min=1.0)
 
@@ -53,10 +51,13 @@ def anova_minimum_detectable_effect(
         if not torch.any(need_expand):
             break
         effect_size_f_hi = torch.where(
-            need_expand, effect_size_f_hi * 2.0, effect_size_f_hi
+            need_expand,
+            effect_size_f_hi * 2.0,
+            effect_size_f_hi,
         )
         effect_size_f_hi = torch.clamp(
-            effect_size_f_hi, max=torch.tensor(10.0, dtype=dtype)
+            effect_size_f_hi,
+            max=torch.tensor(10.0, dtype=dtype),
         )
 
     effect_size_f = (effect_size_f_lo + effect_size_f_hi) * 0.5

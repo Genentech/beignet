@@ -18,31 +18,26 @@ def analysis_of_covariance_sample_size(
 
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
-    r2 = torch.atleast_1d(torch.as_tensor(covariate_r2))
+    covariate_r_squared = torch.atleast_1d(torch.as_tensor(covariate_r2))
 
     num_covariates = torch.atleast_1d(torch.as_tensor(n_covariates))
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64
-            for t in (effect_size_f, groups, r2, num_covariates)
-        )
-        else torch.float32
-    )
+    dtype = torch.float32
+    for tensor in (effect_size_f, groups, covariate_r_squared, num_covariates):
+        dtype = torch.promote_types(dtype, tensor.dtype)
     effect_size_f = torch.clamp(effect_size_f.to(dtype), min=1e-8)
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 
-    r2 = torch.clamp(r2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
+    covariate_r_squared = torch.clamp(covariate_r_squared.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
 
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
-    sqrt2 = math.sqrt(2.0)
+    square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     df1 = groups - 1.0
 
@@ -52,7 +47,7 @@ def analysis_of_covariance_sample_size(
 
     lam0 = ((z_alpha + z_beta) * math.sqrt(2.0)) ** 2
 
-    n0 = lam0 * torch.clamp(1.0 - r2, min=torch.finfo(dtype).eps) / (effect_size_f**2)
+    n0 = lam0 * torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps) / (effect_size_f**2)
 
     n0 = torch.clamp(n0, min=groups + num_covariates + 2.0)
 
@@ -63,7 +58,7 @@ def analysis_of_covariance_sample_size(
         lambda_nc = (
             n_curr
             * effect_size_f**2
-            / torch.clamp(1.0 - r2, min=torch.finfo(dtype).eps)
+            / torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
         )
 
         mean_nc_chi2 = df1 + lambda_nc
@@ -79,7 +74,8 @@ def analysis_of_covariance_sample_size(
         standard_deviation_f = torch.sqrt(variance_f)
 
         z = (fcrit_over_df1 - mean_f + 0.0) / torch.clamp(
-            standard_deviation_f, min=1e-10
+            standard_deviation_f,
+            min=1e-10,
         )
 
         power_curr = 0.5 * (1 - torch.erf(z / math.sqrt(2.0)))

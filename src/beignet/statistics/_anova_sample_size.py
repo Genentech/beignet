@@ -16,10 +16,9 @@ def anova_sample_size(
 
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
-    if effect_size.dtype == torch.float64 or groups.dtype == torch.float64:
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, groups):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -79,7 +78,8 @@ def anova_sample_size(
         standard_deviation_f = torch.sqrt(variance_f)
 
         z_iteration = (f_critical - mean_f) / torch.clamp(
-            standard_deviation_f, min=1e-10
+            standard_deviation_f,
+            min=1e-10,
         )
 
         power_iteration = (1 - torch.erf(z_iteration / sqrt_2)) / 2
@@ -98,12 +98,11 @@ def anova_sample_size(
 
         n_iteration = torch.clamp(n_iteration, max=100000.0)
 
-    output = torch.ceil(n_iteration)
+    result = torch.ceil(n_iteration)
 
-    output = torch.clamp(output, min=groups + 1)
+    result = torch.clamp(result, min=groups + 1)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
