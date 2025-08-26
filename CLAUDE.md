@@ -189,10 +189,11 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
 
 ### Variable Naming
 - **All variables must use lowercase_with_underscores**: Never use PascalCase, camelCase, or UPPER_CASE for variables
+- **Descriptive names, no abbreviations**: Use full, descriptive variable names instead of abbreviations for clarity
 - **Mathematical variables**: Even single-letter mathematical variables should be lowercase (e.g., `n` not `N`, `r2` not `R2`)
 - **Examples**:
-  - ✅ `sample_size`, `effect_size`, `degrees_of_freedom`, `n`, `r2`
-  - ❌ `sampleSize`, `N`, `R2`, `DegreesOfFreedom`
+  - ✅ `sample_size`, `effect_size`, `degrees_of_freedom`, `noncentrality_parameter`, `standard_error`
+  - ❌ `sampleSize`, `N`, `R2`, `ncp`, `se`, `df`, `std_err`
 
 ### Statement Spacing
 - **Add newlines between statements of different line lengths**: When consecutive assignment statements have different character counts, separate them with blank lines for improved readability
