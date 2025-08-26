@@ -16,9 +16,9 @@ def hedges_g(
 
     degrees_of_freedom = sample_size_group_1 + sample_size_group_2 - 2
 
-    correction_factor = 1.0 - 3.0 / (4.0 * degrees_of_freedom - 1.0)
+    correction = 1.0 - 3.0 / (4.0 * degrees_of_freedom - 1.0)
 
-    output = cohens_d_value * correction_factor
+    output = cohens_d_value * correction
 
     if out is not None:
         out.copy_(output)

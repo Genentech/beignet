@@ -5,7 +5,7 @@ from torch import Tensor
 def chi_square_goodness_of_fit_power(
     effect_size: Tensor,
     sample_size: Tensor,
-    df: Tensor,
+    degrees_of_freedom: Tensor,
     alpha: float = 0.05,
     *,
     out: Tensor | None = None,
@@ -13,7 +13,7 @@ def chi_square_goodness_of_fit_power(
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
-    degrees_of_freedom = torch.atleast_1d(torch.as_tensor(df))
+    degrees_of_freedom = torch.atleast_1d(torch.as_tensor(degrees_of_freedom))
 
     if (
         effect_size.dtype == torch.float64
@@ -35,20 +35,24 @@ def chi_square_goodness_of_fit_power(
 
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
-    noncentrality_parameter = sample_size * effect_size**2
+    noncentrality = sample_size * effect_size**2
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
         torch.tensor(2.0, dtype=dtype)
     )
-    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
+    chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
+        2 * degrees_of_freedom
+    )
 
-    mean_nc_chi2 = degrees_of_freedom + noncentrality_parameter
+    mean_nc_chi2 = degrees_of_freedom + noncentrality
 
-    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * noncentrality_parameter)
+    variance_nc_chi_squared = 2 * (degrees_of_freedom + 2 * noncentrality)
 
-    std_nc_chi2 = torch.sqrt(var_nc_chi2)
+    std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
 
-    z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
+    z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
+        std_nc_chi2, min=1e-10
+    )
 
     power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
 

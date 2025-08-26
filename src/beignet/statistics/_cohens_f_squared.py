@@ -29,9 +29,9 @@ def cohens_f_squared(
         pooled_std,
     )
 
-    cohens_f_value = sigma_means / pooled_std_safe
+    cohens_f = sigma_means / pooled_std_safe
 
-    output = cohens_f_value**2
+    output = cohens_f**2
 
     if out is not None:
         out.copy_(output)

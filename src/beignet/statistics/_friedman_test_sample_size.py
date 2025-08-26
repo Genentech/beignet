@@ -37,27 +37,27 @@ def friedman_test_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    n_init = (
+    n_initial = (
         ((z_alpha + z_beta) ** 2)
         * n_treatments
         * (n_treatments + 1)
         / (12 * effect_size)
     )
-    n_init = torch.clamp(n_init, min=5.0)
+    n_initial = torch.clamp(n_initial, min=5.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(12):
         current_power = friedman_test_power(
-            effect_size, n_current, n_treatments, alpha=alpha
+            effect_size, n_iteration, n_treatments, alpha=alpha
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.2 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

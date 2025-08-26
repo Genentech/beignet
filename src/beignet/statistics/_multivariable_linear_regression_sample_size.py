@@ -41,27 +41,27 @@ def multivariable_linear_regression_sample_size(
 
     f_squared = r_squared / (1 - r_squared)
 
-    n_init = ((z_alpha + z_beta) ** 2) / f_squared + n_predictors + 1
+    n_initial = ((z_alpha + z_beta) ** 2) / f_squared + n_predictors + 1
 
-    n_init = torch.clamp(n_init, min=n_predictors + 10)
+    n_initial = torch.clamp(n_initial, min=n_predictors + 10)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(15):
         current_power = multivariable_linear_regression_power(
-            r_squared, n_current, n_predictors, alpha=alpha
+            r_squared, n_iteration, n_predictors, alpha=alpha
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.1 * power_gap
 
-        n_current = torch.clamp(
-            n_current * adjustment,
+        n_iteration = torch.clamp(
+            n_iteration * adjustment,
             min=n_predictors + 10,
             max=torch.tensor(1e6, dtype=dtype),
         )
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

@@ -64,13 +64,13 @@ def proportional_hazards_model_sample_size(
     )
     n_events_needed = torch.clamp(n_events_needed, min=10.0)
 
-    n_total_init = n_events_needed / event_rate
+    n_total_initial = n_events_needed / event_rate
 
-    n_total_init = torch.clamp(n_total_init, min=20.0)
+    n_total_initial = torch.clamp(n_total_initial, min=20.0)
 
-    n_current = n_total_init
+    n_iteration = n_total_initial
     for _ in range(10):
-        expected_events = n_current * event_rate
+        expected_events = n_iteration * event_rate
 
         current_power = proportional_hazards_model_power(
             hazard_ratio,
@@ -84,9 +84,9 @@ def proportional_hazards_model_sample_size(
 
         adjustment = 1.0 + 1.1 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=20.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

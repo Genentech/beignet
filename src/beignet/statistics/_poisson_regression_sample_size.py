@@ -63,16 +63,16 @@ def poisson_regression_sample_size(
 
     expected_count = p_exposure * mean_exposed + (1 - p_exposure) * mean_rate
 
-    n_init = ((z_alpha + z_beta) ** 2) / (
+    n_initial = ((z_alpha + z_beta) ** 2) / (
         (beta**2) * p_exposure * (1 - p_exposure) * expected_count
     )
-    n_init = torch.clamp(n_init, min=20.0)
+    n_initial = torch.clamp(n_initial, min=20.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(15):
         current_power = poisson_regression_power(
             effect_size,
-            n_current,
+            n_iteration,
             mean_rate,
             p_exposure,
             alpha=alpha,
@@ -83,9 +83,9 @@ def poisson_regression_sample_size(
 
         adjustment = 1.0 + 1.2 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=20.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

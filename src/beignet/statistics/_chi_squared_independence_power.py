@@ -44,21 +44,25 @@ def chi_square_independence_power(
 
     degrees_of_freedom = (rows - 1) * (cols - 1)
 
-    ncp = sample_size * effect_size**2
+    noncentrality = sample_size * effect_size**2
 
     sqrt_2 = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-    chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(2 * degrees_of_freedom)
+    chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
+        2 * degrees_of_freedom
+    )
 
-    mean_nc_chi2 = degrees_of_freedom + ncp
+    mean_nc_chi2 = degrees_of_freedom + noncentrality
 
-    var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp)
+    variance_nc_chi_squared = 2 * (degrees_of_freedom + 2 * noncentrality)
 
-    std_nc_chi2 = torch.sqrt(var_nc_chi2)
+    std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
 
-    z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
+    z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
+        std_nc_chi2, min=1e-10
+    )
 
     power = (1 - torch.erf(z_score / sqrt_2)) / 2
 

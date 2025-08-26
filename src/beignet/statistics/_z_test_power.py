@@ -23,7 +23,7 @@ def z_test_power(
 
     sample_size = torch.clamp(sample_size, min=1.0)
 
-    ncp = effect_size * torch.sqrt(sample_size)
+    noncentrality = effect_size * torch.sqrt(sample_size)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -49,20 +49,26 @@ def z_test_power(
         z_alpha_half = z_of(1 - alpha / 2)
 
         power_upper = 0.5 * (
-            1 - torch.erf((z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
+            1
+            - torch.erf((z_alpha_half - noncentrality) / torch.sqrt(torch.tensor(2.0)))
         )
         power_lower = 0.5 * (
-            1 + torch.erf((-z_alpha_half - ncp) / torch.sqrt(torch.tensor(2.0)))
+            1
+            + torch.erf((-z_alpha_half - noncentrality) / torch.sqrt(torch.tensor(2.0)))
         )
         power = power_upper + power_lower
     elif alt == "greater":
         z_alpha = z_of(1 - alpha)
 
-        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
+        power = 0.5 * (
+            1 - torch.erf((z_alpha - noncentrality) / torch.sqrt(torch.tensor(2.0)))
+        )
     else:
         z_alpha = z_of(1 - alpha)
 
-        power = 0.5 * (1 + torch.erf((-z_alpha - ncp) / torch.sqrt(torch.tensor(2.0))))
+        power = 0.5 * (
+            1 + torch.erf((-z_alpha - noncentrality) / torch.sqrt(torch.tensor(2.0)))
+        )
 
     output = torch.clamp(power, 0.0, 1.0)
 

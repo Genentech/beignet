@@ -48,11 +48,11 @@ def intraclass_correlation_power(
 
     mean_f = f_expected
 
-    var_f = 2 * f_expected * f_expected / df_between
+    variance_f = 2 * f_expected * f_expected / df_between
 
-    std_f = torch.sqrt(torch.clamp(var_f, min=1e-12))
+    standard_deviation_f = torch.sqrt(torch.clamp(variance_f, min=1e-12))
 
-    z_score = (f_critical - mean_f) / std_f
+    z_score = (f_critical - mean_f) / standard_deviation_f
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

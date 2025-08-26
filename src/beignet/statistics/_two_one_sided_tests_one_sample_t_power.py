@@ -48,30 +48,34 @@ def two_one_sided_tests_one_sample_t_power(
 
     z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    tcrit = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
+    t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    def power_greater(ncp: Tensor) -> Tensor:
-        var = torch.where(
+    def power_greater(noncentrality: Tensor) -> Tensor:
+        variance = torch.where(
             degrees_of_freedom > 2,
-            (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
-            1 + ncp**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
+            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
+            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
         )
-        std = torch.sqrt(var)
+        standard_deviation = torch.sqrt(variance)
 
-        zscore = (tcrit - ncp) / torch.clamp(std, min=1e-10)
+        zscore = (t_critical - noncentrality) / torch.clamp(
+            standard_deviation, min=1e-10
+        )
         return 0.5 * (
             1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )
 
-    def power_less(ncp: Tensor) -> Tensor:
-        var = torch.where(
+    def power_less(noncentrality: Tensor) -> Tensor:
+        variance = torch.where(
             degrees_of_freedom > 2,
-            (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
-            1 + ncp**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
+            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
+            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
         )
-        std = torch.sqrt(var)
+        standard_deviation = torch.sqrt(variance)
 
-        zscore = (-tcrit - ncp) / torch.clamp(std, min=1e-10)
+        zscore = (-t_critical - noncentrality) / torch.clamp(
+            standard_deviation, min=1e-10
+        )
         return 0.5 * (
             1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
         )

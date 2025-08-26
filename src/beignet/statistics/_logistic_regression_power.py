@@ -55,7 +55,7 @@ def logistic_regression_power(
     )
     se_beta = torch.sqrt(torch.clamp(variance_beta, min=1e-12))
 
-    ncp = torch.abs(beta) / se_beta
+    noncentrality = torch.abs(beta) / se_beta
 
     sqrt2 = math.sqrt(2.0)
 
@@ -70,17 +70,17 @@ def logistic_regression_power(
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
-            1 - torch.erf((z_alpha + ncp) / sqrt2)
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
+            1 - torch.erf((z_alpha + noncentrality) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_alpha + noncentrality) / sqrt2))
 
     power = torch.clamp(power, 0.0, 1.0)
 

@@ -44,13 +44,13 @@ def f_test_power(
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-    f_crit = 1.0 + z_alpha * torch.sqrt(2.0 / df1)
+    f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df1)
 
     mean_f_alt = 1.0 + lambda_param / df1
 
     std_f_alt = torch.sqrt(2.0 / df1) * torch.sqrt(1.0 + 2.0 * lambda_param / df1)
 
-    z_score = (f_crit - mean_f_alt) / torch.clamp(std_f_alt, min=1e-10)
+    z_score = (f_critical - mean_f_alt) / torch.clamp(std_f_alt, min=1e-10)
 
     power = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
 

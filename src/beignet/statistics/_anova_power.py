@@ -44,30 +44,28 @@ def anova_power(
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
 
-    chi2_critical = degrees_of_freedom_1 + z_alpha * torch.sqrt(
+    chi_squared_critical = degrees_of_freedom_1 + z_alpha * torch.sqrt(
         2 * degrees_of_freedom_1
     )
 
-    f_critical = chi2_critical / degrees_of_freedom_1
+    f_critical = chi_squared_critical / degrees_of_freedom_1
 
     lambda_nc = sample_size * effect_size**2
 
     mean_nc_chi2 = degrees_of_freedom_1 + lambda_nc
 
-    var_nc_chi2 = 2 * (degrees_of_freedom_1 + 2 * lambda_nc)
+    variance_nc_chi_squared = 2 * (degrees_of_freedom_1 + 2 * lambda_nc)
 
     mean_f = mean_nc_chi2 / degrees_of_freedom_1
 
-    var_f = var_nc_chi2 / (degrees_of_freedom_1**2)
+    variance_f = variance_nc_chi_squared / (degrees_of_freedom_1**2)
 
-    adjustment_factor = (degrees_of_freedom_2 + 2) / torch.clamp(
-        degrees_of_freedom_2, min=1.0
-    )
-    var_f = var_f * adjustment_factor
+    adjustment = (degrees_of_freedom_2 + 2) / torch.clamp(degrees_of_freedom_2, min=1.0)
+    variance_f = variance_f * adjustment
 
-    std_f = torch.sqrt(var_f)
+    standard_deviation_f = torch.sqrt(variance_f)
 
-    z_score = (f_critical - mean_f) / torch.clamp(std_f, min=1e-10)
+    z_score = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
 
     power = (1 - torch.erf(z_score / sqrt_2)) / 2
 

@@ -55,19 +55,19 @@ def mixed_model_power(
 
     effective_n = total_observations / design_effect
 
-    ncp = effect_size * torch.sqrt(effective_n / 4.0)
+    noncentrality = effect_size * torch.sqrt(effective_n / 4.0)
 
-    df_approx = n_subjects - 2.0
+    df_approximate = n_subjects - 2.0
 
-    df_approx = torch.clamp(df_approx, min=1.0)
+    df_approximate = torch.clamp(df_approximate, min=1.0)
 
     sqrt2 = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
-    t_critical = z_alpha * torch.sqrt(1.0 + 1.0 / (2.0 * df_approx))
+    t_critical = z_alpha * torch.sqrt(1.0 + 1.0 / (2.0 * df_approximate))
 
-    z_score = t_critical - ncp
+    z_score = t_critical - noncentrality
 
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 

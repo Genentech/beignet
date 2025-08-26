@@ -51,29 +51,32 @@ def logistic_regression_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    p_outcome_approx = torch.tensor(0.5, dtype=dtype)
+    p_outcome_approximate = torch.tensor(0.5, dtype=dtype)
 
-    variance_approx = 1.0 / (
-        p_exposure * (1 - p_exposure) * p_outcome_approx * (1 - p_outcome_approx)
+    variance_approximate = 1.0 / (
+        p_exposure
+        * (1 - p_exposure)
+        * p_outcome_approximate
+        * (1 - p_outcome_approximate)
     )
 
-    n_init = ((z_alpha + z_beta) ** 2) * variance_approx / (beta**2)
+    n_initial = ((z_alpha + z_beta) ** 2) * variance_approximate / (beta**2)
 
-    n_init = torch.clamp(n_init, min=20.0)
+    n_initial = torch.clamp(n_initial, min=20.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(15):
         current_power = logistic_regression_power(
-            effect_size, n_current, p_exposure, alpha=alpha, alternative=alternative
+            effect_size, n_iteration, p_exposure, alpha=alpha, alternative=alternative
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.2 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=20.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=20.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

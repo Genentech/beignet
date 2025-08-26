@@ -41,84 +41,99 @@ def independent_t_test_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
-    variance_factor = (1 + 1 / ratio) / 2
+    variance_scaling = (1 + 1 / ratio) / 2
 
     sample_size_group_1_initial = (
         (z_alpha + z_beta) / effect_size
-    ) ** 2 * variance_factor
+    ) ** 2 * variance_scaling
 
     sample_size_group_1_initial = torch.clamp(sample_size_group_1_initial, min=2.0)
 
-    sample_size_group_1_current = sample_size_group_1_initial
+    sample_size_group_1_iteration = sample_size_group_1_initial
 
     convergence_tolerance = 1e-6
 
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        sample_size_group_2_current = sample_size_group_1_current * ratio
+        sample_size_group_2_iteration = sample_size_group_1_iteration * ratio
 
-        total_n = sample_size_group_1_current + sample_size_group_2_current
+        total_n = sample_size_group_1_iteration + sample_size_group_2_iteration
 
-        df_current = total_n - 2
+        degrees_of_freedom_iteration = total_n - 2
 
-        df_current = torch.clamp(df_current, min=1.0)
+        degrees_of_freedom_iteration = torch.clamp(
+            degrees_of_freedom_iteration, min=1.0
+        )
 
         se_factor = torch.sqrt(
-            1 / sample_size_group_1_current + 1 / sample_size_group_2_current
+            1 / sample_size_group_1_iteration + 1 / sample_size_group_2_iteration
         )
 
-        ncp_current = effect_size / se_factor
+        ncp_iteration = effect_size / se_factor
 
         if alternative == "two-sided":
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
+            t_critical = z_alpha * torch.sqrt(
+                1 + 1 / (2 * degrees_of_freedom_iteration)
+            )
         else:
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
+            t_critical = z_alpha * torch.sqrt(
+                1 + 1 / (2 * degrees_of_freedom_iteration)
+            )
 
-        var_nct = torch.where(
-            df_current > 2,
-            (df_current + ncp_current**2) / (df_current - 2),
-            1 + ncp_current**2 / (2 * df_current),
+        variance_nct = torch.where(
+            degrees_of_freedom_iteration > 2,
+            (degrees_of_freedom_iteration + ncp_iteration**2)
+            / (degrees_of_freedom_iteration - 2),
+            1 + ncp_iteration**2 / (2 * degrees_of_freedom_iteration),
         )
-        std_nct = torch.sqrt(var_nct)
+        standard_deviation_nct = torch.sqrt(variance_nct)
 
         if alternative == "two-sided":
-            z_upper = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+            z_upper = (t_critical - ncp_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
+            )
 
-            z_lower = (-t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+            z_lower = (-t_critical - ncp_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
+            )
 
-            power_current = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
+            power_iteration = (1 - torch.erf(z_upper / sqrt_2)) / 2 + (
                 1 - torch.erf(-z_lower / sqrt_2)
             ) / 2
         elif alternative == "larger":
-            z_score = (t_critical - ncp_current) / torch.clamp(std_nct, min=1e-10)
+            z_score = (t_critical - ncp_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
+            )
 
-            power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
+            power_iteration = (1 - torch.erf(z_score / sqrt_2)) / 2
         else:
-            z_score = (-t_critical - (-ncp_current)) / torch.clamp(std_nct, min=1e-10)
+            z_score = (-t_critical - (-ncp_iteration)) / torch.clamp(
+                standard_deviation_nct, min=1e-10
+            )
 
-            power_current = (1 - torch.erf(-z_score / sqrt_2)) / 2
+            power_iteration = (1 - torch.erf(-z_score / sqrt_2)) / 2
 
-        power_current = torch.clamp(power_current, 0.01, 0.99)
+        power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
 
-        power_diff = power - power_current
+        power_diff = power - power_iteration
 
         adjustment = (
             power_diff
-            * sample_size_group_1_current
-            / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
+            * sample_size_group_1_iteration
+            / (2 * torch.clamp(power_iteration * (1 - power_iteration), min=0.01))
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
 
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
-        sample_size_group_1_current = sample_size_group_1_current + adjustment
+        sample_size_group_1_iteration = sample_size_group_1_iteration + adjustment
 
-        sample_size_group_1_current = torch.clamp(
-            sample_size_group_1_current, min=2.0, max=100000.0
+        sample_size_group_1_iteration = torch.clamp(
+            sample_size_group_1_iteration, min=2.0, max=100000.0
         )
 
-    output = torch.ceil(sample_size_group_1_current)
+    output = torch.ceil(sample_size_group_1_iteration)
 
     output = torch.clamp(output, min=2.0)
 

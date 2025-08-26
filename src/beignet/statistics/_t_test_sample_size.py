@@ -43,73 +43,81 @@ def t_test_sample_size(
 
     sample_size_initial = torch.clamp(sample_size_initial, min=2.0)
 
-    sample_size_current = sample_size_initial
+    sample_size_iteration = sample_size_initial
 
     convergence_tolerance = 1e-6
 
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        df_current = sample_size_current - 1
+        degrees_of_freedom_iteration = sample_size_iteration - 1
 
-        df_current = torch.clamp(df_current, min=1.0)
+        degrees_of_freedom_iteration = torch.clamp(
+            degrees_of_freedom_iteration, min=1.0
+        )
 
-        noncentrality_parameter_current = effect_size * torch.sqrt(sample_size_current)
+        noncentrality_iteration = effect_size * torch.sqrt(sample_size_iteration)
 
         if alternative == "two-sided":
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
+            t_critical = z_alpha * torch.sqrt(
+                1 + 1 / (2 * degrees_of_freedom_iteration)
+            )
         else:
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * df_current))
+            t_critical = z_alpha * torch.sqrt(
+                1 + 1 / (2 * degrees_of_freedom_iteration)
+            )
 
-        var_nct = (df_current + noncentrality_parameter_current**2) / torch.clamp(
-            df_current - 2, min=0.1
+        variance_nct = (
+            degrees_of_freedom_iteration + noncentrality_iteration**2
+        ) / torch.clamp(degrees_of_freedom_iteration - 2, min=0.1)
+        variance_nct = torch.where(
+            degrees_of_freedom_iteration > 2,
+            variance_nct,
+            1 + noncentrality_iteration**2 / (2 * degrees_of_freedom_iteration),
         )
-        var_nct = torch.where(
-            df_current > 2,
-            var_nct,
-            1 + noncentrality_parameter_current**2 / (2 * df_current),
-        )
-        std_nct = torch.sqrt(var_nct)
+        standard_deviation_nct = torch.sqrt(variance_nct)
 
         if alternative == "two-sided":
-            z_upper = (t_critical - noncentrality_parameter_current) / torch.clamp(
-                std_nct, min=1e-10
+            z_upper = (t_critical - noncentrality_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
             )
-            z_lower = (-t_critical - noncentrality_parameter_current) / torch.clamp(
-                std_nct, min=1e-10
+            z_lower = (-t_critical - noncentrality_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
             )
-            power_current = 0.5 * (
+            power_iteration = 0.5 * (
                 1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             ) + 0.5 * (
                 1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             )
         else:
-            z_score = (t_critical - noncentrality_parameter_current) / torch.clamp(
-                std_nct, min=1e-10
+            z_score = (t_critical - noncentrality_iteration) / torch.clamp(
+                standard_deviation_nct, min=1e-10
             )
-            power_current = 0.5 * (
+            power_iteration = 0.5 * (
                 1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
             )
 
-        power_current = torch.clamp(power_current, 0.01, 0.99)
+        power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
 
-        power_diff = power - power_current
+        power_diff = power - power_iteration
 
         adjustment = (
             power_diff
-            * sample_size_current
-            / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
+            * sample_size_iteration
+            / (2 * torch.clamp(power_iteration * (1 - power_iteration), min=0.01))
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
 
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
 
-        sample_size_current = sample_size_current + adjustment
+        sample_size_iteration = sample_size_iteration + adjustment
 
-        sample_size_current = torch.clamp(sample_size_current, min=2.0, max=100000.0)
+        sample_size_iteration = torch.clamp(
+            sample_size_iteration, min=2.0, max=100000.0
+        )
 
-    output = torch.ceil(sample_size_current)
+    output = torch.ceil(sample_size_iteration)
 
     output = torch.clamp(output, min=2.0)
 

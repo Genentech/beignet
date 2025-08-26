@@ -57,11 +57,11 @@ def two_one_sided_tests_two_sample_t_sample_size(
 
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
 
-    sample_size_group_1_current = sample_size_group_1
+    sample_size_group_1_iteration = sample_size_group_1
     for _ in range(12):
         current_power = two_one_sided_tests_two_sample_t_power(
             true_effect_size,
-            sample_size_group_1_current,
+            sample_size_group_1_iteration,
             ratio=r,
             low=low,
             high=high,
@@ -69,11 +69,11 @@ def two_one_sided_tests_two_sample_t_sample_size(
         )
         gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
 
-        sample_size_group_1_current = torch.clamp(
-            sample_size_group_1_current * (1.0 + 1.25 * gap), min=2.0, max=1e7
+        sample_size_group_1_iteration = torch.clamp(
+            sample_size_group_1_iteration * (1.0 + 1.25 * gap), min=2.0, max=1e7
         )
 
-    sample_size_group_1_output = torch.ceil(sample_size_group_1_current)
+    sample_size_group_1_output = torch.ceil(sample_size_group_1_iteration)
     if out is not None:
         out.copy_(sample_size_group_1_output)
         return out

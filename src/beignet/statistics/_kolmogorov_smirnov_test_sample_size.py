@@ -51,27 +51,27 @@ def kolmogorov_smirnov_test_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    n_init = (c_alpha / effect_size) ** 2
+    n_initial = (c_alpha / effect_size) ** 2
 
-    n_init = torch.clamp(n_init, min=10.0)
+    n_initial = torch.clamp(n_initial, min=10.0)
 
     adjustment = 1.0 + 0.5 * (z_beta / c_alpha) ** 2
 
-    n_init = n_init * adjustment
+    n_initial = n_initial * adjustment
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(12):
         current_power = kolmogorov_smirnov_test_power(
-            effect_size, n_current, alpha=alpha, alternative=alternative
+            effect_size, n_iteration, alpha=alpha, alternative=alternative
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.5 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=10.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=10.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

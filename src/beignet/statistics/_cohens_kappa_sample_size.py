@@ -41,25 +41,29 @@ def cohens_kappa_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
 
-    p_e_approx = torch.tensor(0.5, dtype=dtype)
+    p_e_approximate = torch.tensor(0.5, dtype=dtype)
 
-    n_init = ((z_alpha + z_beta) ** 2) * p_e_approx / ((kappa**2) * (1 - p_e_approx))
+    n_initial = (
+        ((z_alpha + z_beta) ** 2)
+        * p_e_approximate
+        / ((kappa**2) * (1 - p_e_approximate))
+    )
 
-    n_init = torch.clamp(n_init, min=15.0)
+    n_initial = torch.clamp(n_initial, min=15.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(12):
         current_power = cohens_kappa_power(
-            kappa, n_current, alpha=alpha, alternative=alternative
+            kappa, n_iteration, alpha=alpha, alternative=alternative
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.3 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=15.0, max=1e5)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=15.0, max=1e5)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

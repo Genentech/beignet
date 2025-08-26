@@ -8,7 +8,7 @@ from ._chi_squared_goodness_of_fit_power import chi_square_goodness_of_fit_power
 
 def chi_square_goodness_of_fit_minimum_detectable_effect(
     sample_size: Tensor,
-    df: Tensor,
+    degrees_of_freedom: Tensor,
     power: float = 0.8,
     alpha: float = 0.05,
     *,
@@ -16,7 +16,7 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
 ) -> Tensor:
     sample_size_0 = torch.as_tensor(sample_size)
 
-    degrees_of_freedom_0 = torch.as_tensor(df)
+    degrees_of_freedom_0 = torch.as_tensor(degrees_of_freedom)
 
     scalar_out = sample_size_0.ndim == 0 and degrees_of_freedom_0.ndim == 0
 

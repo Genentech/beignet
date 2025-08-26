@@ -43,7 +43,7 @@ def wilcoxon_signed_rank_test_power(
 
     mean1 = s * probability
 
-    noncentrality_parameter = (mean1 - mean0) / sd0
+    noncentrality = (mean1 - mean0) / sd0
 
     sqrt2 = math.sqrt(2.0)
 
@@ -56,21 +56,21 @@ def wilcoxon_signed_rank_test_power(
         return sqrt2 * torch.erfinv(2.0 * q - 1.0)
 
     if alt == "two-sided":
-        zcrit = z_of(1 - alpha / 2)
+        z_critical = z_of(1 - alpha / 2)
 
-        upper = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
+        upper = 0.5 * (1 - torch.erf((z_critical - noncentrality) / sqrt2))
 
-        lower = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
+        lower = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / sqrt2))
 
         power = upper + lower
     elif alt == "greater":
-        zcrit = z_of(1 - alpha)
+        z_critical = z_of(1 - alpha)
 
-        power = 0.5 * (1 - torch.erf((zcrit - noncentrality_parameter) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_critical - noncentrality) / sqrt2))
     else:
-        zcrit = z_of(1 - alpha)
+        z_critical = z_of(1 - alpha)
 
-        power = 0.5 * (1 + torch.erf((-zcrit - noncentrality_parameter) / sqrt2))
+        power = 0.5 * (1 + torch.erf((-z_critical - noncentrality) / sqrt2))
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

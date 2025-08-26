@@ -51,50 +51,52 @@ def chi_square_independence_sample_size(
 
     n_initial = torch.clamp(n_initial, min=min_sample_size)
 
-    n_current = n_initial
+    n_iteration = n_initial
 
     convergence_tolerance = 1e-6
 
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        ncp_current = n_current * effect_size**2
+        ncp_iteration = n_iteration * effect_size**2
 
-        chi2_critical = degrees_of_freedom + z_alpha * torch.sqrt(
+        chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
             2 * degrees_of_freedom
         )
 
-        mean_nc_chi2 = degrees_of_freedom + ncp_current
+        mean_nc_chi2 = degrees_of_freedom + ncp_iteration
 
-        var_nc_chi2 = 2 * (degrees_of_freedom + 2 * ncp_current)
+        variance_nc_chi_squared = 2 * (degrees_of_freedom + 2 * ncp_iteration)
 
-        std_nc_chi2 = torch.sqrt(var_nc_chi2)
+        std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
 
-        z_score = (chi2_critical - mean_nc_chi2) / torch.clamp(std_nc_chi2, min=1e-10)
+        z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
+            std_nc_chi2, min=1e-10
+        )
 
-        power_current = (1 - torch.erf(z_score / sqrt_2)) / 2
+        power_iteration = (1 - torch.erf(z_score / sqrt_2)) / 2
 
-        power_current = torch.clamp(power_current, 0.01, 0.99)
+        power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
 
-        power_diff = power - power_current
+        power_diff = power - power_iteration
 
         adjustment = (
             power_diff
-            * n_current
-            / (2 * torch.clamp(power_current * (1 - power_current), min=0.01))
+            * n_iteration
+            / (2 * torch.clamp(power_iteration * (1 - power_iteration), min=0.01))
         )
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
 
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
 
-        n_current = n_current + adjustment
+        n_iteration = n_iteration + adjustment
 
-        n_current = torch.clamp(n_current, min=min_sample_size)
+        n_iteration = torch.clamp(n_iteration, min=min_sample_size)
 
-        n_current = torch.clamp(n_current, max=1000000.0)
+        n_iteration = torch.clamp(n_iteration, max=1000000.0)
 
-    output = torch.ceil(n_current)
+    output = torch.ceil(n_iteration)
 
     output = torch.clamp(output, min=min_sample_size)
 

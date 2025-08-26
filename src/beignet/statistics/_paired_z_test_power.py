@@ -24,7 +24,7 @@ def paired_z_test_power(
 
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    noncentrality_parameter = effect_size * torch.sqrt(sample_size)
+    noncentrality = effect_size * torch.sqrt(sample_size)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -45,40 +45,40 @@ def paired_z_test_power(
         return sqrt2 * torch.erfinv(2.0 * probability - 1.0)
 
     if alt == "two-sided":
-        zcrit = z_of(1 - alpha / 2)
+        z_critical = z_of(1 - alpha / 2)
 
         upper = 0.5 * (
             1
             - torch.erf(
-                (zcrit - noncentrality_parameter)
+                (z_critical - noncentrality)
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype))
             )
         )
         lower = 0.5 * (
             1
             + torch.erf(
-                (-zcrit - noncentrality_parameter)
+                (-z_critical - noncentrality)
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype))
             )
         )
         power = upper + lower
     elif alt == "greater":
-        zcrit = z_of(1 - alpha)
+        z_critical = z_of(1 - alpha)
 
         power = 0.5 * (
             1
             - torch.erf(
-                (zcrit - noncentrality_parameter)
+                (z_critical - noncentrality)
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype))
             )
         )
     else:
-        zcrit = z_of(1 - alpha)
+        z_critical = z_of(1 - alpha)
 
         power = 0.5 * (
             1
             + torch.erf(
-                (-zcrit - noncentrality_parameter)
+                (-z_critical - noncentrality)
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype))
             )
         )

@@ -53,23 +53,23 @@ def intraclass_correlation_sample_size(
 
     effect_size = torch.log(f_expected)
 
-    n_init = ((z_alpha + z_beta) / effect_size) ** 2
+    n_initial = ((z_alpha + z_beta) / effect_size) ** 2
 
-    n_init = torch.clamp(n_init, min=10.0)
+    n_initial = torch.clamp(n_initial, min=10.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(15):
         current_power = intraclass_correlation_power(
-            icc, n_current, n_raters, alpha=alpha, alternative=alternative
+            icc, n_iteration, n_raters, alpha=alpha, alternative=alternative
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.4 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=10.0, max=1e5)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=10.0, max=1e5)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

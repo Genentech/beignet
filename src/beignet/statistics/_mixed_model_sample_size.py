@@ -50,23 +50,23 @@ def mixed_model_sample_size(
 
     n_eff_needed = 4 * ((z_alpha + z_beta) / effect_size) ** 2
 
-    n_subjects_init = n_eff_needed * design_effect / n_observations_per_subject
+    n_subjects_initial = n_eff_needed * design_effect / n_observations_per_subject
 
-    n_subjects_init = torch.clamp(n_subjects_init, min=10.0)
+    n_subjects_initial = torch.clamp(n_subjects_initial, min=10.0)
 
-    n_current = n_subjects_init
+    n_iteration = n_subjects_initial
     for _ in range(15):
         current_power = mixed_model_power(
-            effect_size, n_current, n_observations_per_subject, icc, alpha=alpha
+            effect_size, n_iteration, n_observations_per_subject, icc, alpha=alpha
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.3 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=10.0, max=1e5)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=10.0, max=1e5)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

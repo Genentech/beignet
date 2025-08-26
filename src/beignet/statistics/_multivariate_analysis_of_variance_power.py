@@ -57,9 +57,9 @@ def multivariate_analysis_of_variance_power(
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    chi2_critical = df1 + z_alpha * torch.sqrt(2 * df1)
+    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
-    f_critical = chi2_critical / df1
+    f_critical = chi_squared_critical / df1
 
     mean_nc_f = (1.0 + lambda_nc / df1) * (df2 / (df2 - 2.0))
 

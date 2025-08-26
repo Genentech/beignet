@@ -54,36 +54,44 @@ def interrupted_time_series_sample_size(
 
     design_variance = p_post * (1.0 - p_post)
 
-    n_init = ((z_alpha + z_beta) / effect_size) ** 2
+    n_initial = ((z_alpha + z_beta) / effect_size) ** 2
 
-    n_init = n_init / (ar_adjustment * design_variance)
+    n_initial = n_initial / (ar_adjustment * design_variance)
 
-    n_init = torch.clamp(n_init, min=10.0)
+    n_initial = torch.clamp(n_initial, min=10.0)
 
-    n_pre_init = torch.ceil(n_init * pre_post_ratio / (1.0 + pre_post_ratio))
+    n_pre_initial = torch.ceil(n_initial * pre_post_ratio / (1.0 + pre_post_ratio))
 
-    n_pre_init = torch.clamp(n_pre_init, min=3.0)
+    n_pre_initial = torch.clamp(n_pre_initial, min=3.0)
 
-    n_total_current = n_init
+    n_total_iteration = n_initial
     for _ in range(15):
-        n_pre_current = torch.ceil(
-            n_total_current * pre_post_ratio / (1.0 + pre_post_ratio)
+        n_pre_iteration = torch.ceil(
+            n_total_iteration * pre_post_ratio / (1.0 + pre_post_ratio)
         )
-        n_pre_current = torch.clamp(
-            n_pre_current, min=torch.tensor(3.0, dtype=dtype), max=n_total_current - 3.0
+        n_pre_iteration = torch.clamp(
+            n_pre_iteration,
+            min=torch.tensor(3.0, dtype=dtype),
+            max=n_total_iteration - 3.0,
         )
 
         current_power = interrupted_time_series_power(
-            effect_size, n_total_current, n_pre_current, autocorrelation, alpha=alpha
+            effect_size,
+            n_total_iteration,
+            n_pre_iteration,
+            autocorrelation,
+            alpha=alpha,
         )
 
         power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
 
         adjustment = 1.0 + 1.4 * power_gap
 
-        n_total_current = torch.clamp(n_total_current * adjustment, min=10.0, max=1e4)
+        n_total_iteration = torch.clamp(
+            n_total_iteration * adjustment, min=10.0, max=1e4
+        )
 
-    n_out = torch.ceil(n_total_current)
+    n_out = torch.ceil(n_total_iteration)
 
     if out is not None:
         out.copy_(n_out)

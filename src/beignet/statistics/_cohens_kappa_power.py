@@ -29,11 +29,11 @@ def cohens_kappa_power(
 
     sample_size = torch.clamp(sample_size, min=10.0)
 
-    p_e_approx = torch.tensor(0.5, dtype=dtype)
+    p_e_approximate = torch.tensor(0.5, dtype=dtype)
 
-    se_kappa = torch.sqrt(p_e_approx / (sample_size * (1 - p_e_approx)))
+    se_kappa = torch.sqrt(p_e_approximate / (sample_size * (1 - p_e_approximate)))
 
-    ncp = torch.abs(kappa) / se_kappa
+    noncentrality = torch.abs(kappa) / se_kappa
 
     sqrt2 = math.sqrt(2.0)
 
@@ -48,17 +48,17 @@ def cohens_kappa_power(
     if alt == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2)) + 0.5 * (
-            1 - torch.erf((z_alpha + ncp) / sqrt2)
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
+            1 - torch.erf((z_alpha + noncentrality) / sqrt2)
         )
     elif alt == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha - ncp) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-        power = 0.5 * (1 - torch.erf((z_alpha + ncp) / sqrt2))
+        power = 0.5 * (1 - torch.erf((z_alpha + noncentrality) / sqrt2))
 
     power = torch.clamp(power, 0.0, 1.0)
 

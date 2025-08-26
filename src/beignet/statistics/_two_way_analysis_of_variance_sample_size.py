@@ -52,18 +52,18 @@ def two_way_analysis_of_variance_sample_size(
     else:
         raise ValueError("effect_type must be 'main_a', 'main_b', or 'interaction'")
 
-    lambda_approx = ((z_alpha + z_beta) * torch.sqrt(df_effect)) ** 2
+    lambda_approximate = ((z_alpha + z_beta) * torch.sqrt(df_effect)) ** 2
 
-    n_per_cell_init = lambda_approx / (
+    n_per_cell_initial = lambda_approximate / (
         effect_size**2 * levels_factor_a * levels_factor_b
     )
-    n_per_cell_init = torch.clamp(n_per_cell_init, min=5.0)
+    n_per_cell_initial = torch.clamp(n_per_cell_initial, min=5.0)
 
-    n_current = n_per_cell_init
+    n_iteration = n_per_cell_initial
     for _ in range(12):
         current_power = two_way_analysis_of_variance_power(
             effect_size,
-            n_current,
+            n_iteration,
             levels_factor_a,
             levels_factor_b,
             alpha=alpha,
@@ -74,9 +74,9 @@ def two_way_analysis_of_variance_sample_size(
 
         adjustment = 1.0 + 1.1 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e5)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e5)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

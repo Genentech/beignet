@@ -35,7 +35,7 @@ def mcnemars_test_power(
     )
     mean = d * (probability - 0.5)
 
-    std = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
+    standard_deviation = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)
 
@@ -48,19 +48,19 @@ def mcnemars_test_power(
         return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
 
     if two_sided:
-        zcrit = z_of(1 - alpha / 2)
+        z_critical = z_of(1 - alpha / 2)
 
-        z_upper = zcrit - mean / torch.clamp(std, min=1e-12)
+        z_upper = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
-        z_lower = -zcrit - mean / torch.clamp(std, min=1e-12)
+        z_lower = -z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
         power = 0.5 * (1 - torch.erf(z_upper / math.sqrt(2.0))) + 0.5 * (
             1 + torch.erf(z_lower / math.sqrt(2.0))
         )
     else:
-        zcrit = z_of(1 - alpha)
+        z_critical = z_of(1 - alpha)
 
-        zscore = zcrit - mean / torch.clamp(std, min=1e-12)
+        zscore = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
         power = 0.5 * (1 - torch.erf(zscore / math.sqrt(2.0)))
 

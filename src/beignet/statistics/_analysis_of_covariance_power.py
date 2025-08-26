@@ -50,25 +50,25 @@ def analysis_of_covariance_power(
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    chi2_crit = df1 + z_alpha * torch.sqrt(2 * df1)
+    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
-    f_crit = chi2_crit / df1
+    f_critical = chi_squared_critical / df1
 
     lambda_nc = n * effect_size_f**2 / torch.clamp(1.0 - r2, min=torch.finfo(dtype).eps)
 
     mean_nc_chi2 = df1 + lambda_nc
 
-    var_nc_chi2 = 2 * (df1 + 2 * lambda_nc)
+    variance_nc_chi_squared = 2 * (df1 + 2 * lambda_nc)
 
     mean_f = mean_nc_chi2 / df1
 
-    var_f = var_nc_chi2 / (df1**2)
+    variance_f = variance_nc_chi_squared / (df1**2)
 
-    var_f = var_f * ((df2 + 2.0) / torch.clamp(df2, min=1.0))
+    variance_f = variance_f * ((df2 + 2.0) / torch.clamp(df2, min=1.0))
 
-    std_f = torch.sqrt(var_f)
+    standard_deviation_f = torch.sqrt(variance_f)
 
-    z = (f_crit - mean_f) / torch.clamp(std_f, min=1e-10)
+    z = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
 
     power = 0.5 * (1 - torch.erf(z / sqrt2))
 

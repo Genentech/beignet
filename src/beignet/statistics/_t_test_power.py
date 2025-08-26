@@ -25,7 +25,7 @@ def t_test_power(
 
     degrees_of_freedom = sample_size - 1
 
-    ncp = effect_size * torch.sqrt(sample_size)
+    noncentrality = effect_size * torch.sqrt(sample_size)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">", "one-sided", "one_sided"}:
@@ -45,29 +45,37 @@ def t_test_power(
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    mean_nct = ncp
+    mean_nct = noncentrality
 
-    var_nct = torch.where(
+    variance_nct = torch.where(
         degrees_of_freedom > 2,
-        (degrees_of_freedom + ncp**2) / (degrees_of_freedom - 2),
-        1 + ncp**2 / (2 * torch.clamp(degrees_of_freedom, min=2.0)),
+        (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
+        1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=2.0)),
     )
-    std_nct = torch.sqrt(var_nct)
+    standard_deviation_nct = torch.sqrt(variance_nct)
 
     if alt == "two-sided":
-        z_upper = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_upper = (t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
-        z_lower = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_lower = (-t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
             1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
         )
     elif alt == "greater":
-        z_score = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_score = (t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
     else:
-        z_score = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_score = (-t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
 

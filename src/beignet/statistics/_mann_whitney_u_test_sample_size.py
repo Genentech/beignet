@@ -50,22 +50,22 @@ def mann_whitney_u_test_sample_size(
 
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=5.0)
 
-    sample_size_group_1_current = sample_size_group_1
+    sample_size_group_1_iteration = sample_size_group_1
     for _ in range(12):
         pwr = mann_whitney_u_test_power(
             auc,
-            torch.ceil(sample_size_group_1_current),
+            torch.ceil(sample_size_group_1_iteration),
             ratio=r,
             alpha=alpha,
             alternative=alternative,
         )
         gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
 
-        sample_size_group_1_current = torch.clamp(
-            sample_size_group_1_current * (1.0 + 1.25 * gap), min=5.0, max=1e7
+        sample_size_group_1_iteration = torch.clamp(
+            sample_size_group_1_iteration * (1.0 + 1.25 * gap), min=5.0, max=1e7
         )
 
-    sample_size_group_1_output = torch.ceil(sample_size_group_1_current)
+    sample_size_group_1_output = torch.ceil(sample_size_group_1_iteration)
     if out is not None:
         out.copy_(sample_size_group_1_output)
         return out

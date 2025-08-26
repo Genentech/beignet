@@ -50,7 +50,7 @@ def independent_t_test_power(
 
     se_factor = torch.sqrt(1 / sample_size_group_1 + 1 / sample_size_group_2)
 
-    noncentrality_parameter = effect_size / se_factor
+    noncentrality = effect_size / se_factor
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
@@ -70,29 +70,37 @@ def independent_t_test_power(
 
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
 
-    mean_nct = noncentrality_parameter
+    mean_nct = noncentrality
 
-    var_nct = torch.where(
+    variance_nct = torch.where(
         degrees_of_freedom > 2,
-        (degrees_of_freedom + noncentrality_parameter**2) / (degrees_of_freedom - 2),
-        1 + noncentrality_parameter**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
+        (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
+        1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
     )
-    std_nct = torch.sqrt(var_nct)
+    standard_deviation_nct = torch.sqrt(variance_nct)
 
     if alt == "two-sided":
-        z_upper = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_upper = (t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
-        z_lower = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_lower = (-t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0)))) + 0.5 * (
             1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0)))
         )
     elif alt == "greater":
-        z_score = (t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_score = (t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
     else:
-        z_score = (-t_critical - mean_nct) / torch.clamp(std_nct, min=1e-10)
+        z_score = (-t_critical - mean_nct) / torch.clamp(
+            standard_deviation_nct, min=1e-10
+        )
 
         power = 0.5 * (1 + torch.erf(z_score / torch.sqrt(torch.tensor(2.0))))
 

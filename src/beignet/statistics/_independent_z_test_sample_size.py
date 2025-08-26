@@ -58,9 +58,9 @@ def independent_z_test_sample_size(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}"
         )
 
-    variance_factor = 1 + 1 / ratio
+    variance_scaling = 1 + 1 / ratio
 
-    sample_size1 = ((z_alpha + z_beta) / abs_effect_size) ** 2 * variance_factor
+    sample_size1 = ((z_alpha + z_beta) / abs_effect_size) ** 2 * variance_scaling
 
     output = torch.ceil(sample_size1)
 

@@ -42,14 +42,14 @@ def kruskal_wallis_test_sample_size(
 
     degrees_of_freedom = groups - 1
 
-    n_init = ((z_alpha + z_beta) ** 2) / (effect_size * degrees_of_freedom)
+    n_initial = ((z_alpha + z_beta) ** 2) / (effect_size * degrees_of_freedom)
 
-    n_init = torch.clamp(n_init, min=5.0)
+    n_initial = torch.clamp(n_initial, min=5.0)
 
-    n_current = n_init
+    n_iteration = n_initial
     for _ in range(12):
-        sample_sizes = n_current.unsqueeze(-1).expand(
-            *n_current.shape, int(groups.max().item())
+        sample_sizes = n_iteration.unsqueeze(-1).expand(
+            *n_iteration.shape, int(groups.max().item())
         )
 
         current_power = kruskal_wallis_test_power(
@@ -60,9 +60,9 @@ def kruskal_wallis_test_sample_size(
 
         adjustment = 1.0 + 1.2 * power_gap
 
-        n_current = torch.clamp(n_current * adjustment, min=5.0, max=1e6)
+        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e6)
 
-    n_out = torch.ceil(n_current)
+    n_out = torch.ceil(n_iteration)
 
     if out is not None:
         out.copy_(n_out)

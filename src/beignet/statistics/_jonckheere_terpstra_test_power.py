@@ -46,9 +46,9 @@ def jonckheere_terpstra_test_power(
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    critical_value = mean_null + z_alpha * std_null
+    critical = mean_null + z_alpha * std_null
 
-    z_score = (critical_value - mean_alt) / std_null
+    z_score = (critical - mean_alt) / std_null
 
     power = 0.5 * (1 - torch.erf(z_score / sqrt2))
 

@@ -37,7 +37,7 @@ def anova_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
 
-    chi2_critical = df1 + z_alpha * torch.sqrt(2 * df1)
+    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
     lambda_initial = ((z_alpha + z_beta) * sqrt_2) ** 2
 
@@ -45,58 +45,60 @@ def anova_sample_size(
 
     n_initial = torch.clamp(n_initial, min=groups + 1)
 
-    n_current = n_initial
+    n_iteration = n_initial
 
     convergence_tolerance = 1e-6
 
     max_iterations = 8
 
     for _iteration in range(max_iterations):
-        df2_current = n_current - groups
+        df2_iteration = n_iteration - groups
 
-        df2_current = torch.clamp(df2_current, min=1.0)
+        df2_iteration = torch.clamp(df2_iteration, min=1.0)
 
-        lambda_current = n_current * effect_size**2
+        lambda_iteration = n_iteration * effect_size**2
 
-        f_critical = chi2_critical / df1
+        f_critical = chi_squared_critical / df1
 
-        adjustment = 1 + 2 / torch.clamp(df2_current, min=1.0)
+        adjustment = 1 + 2 / torch.clamp(df2_iteration, min=1.0)
 
         f_critical = f_critical * adjustment
 
-        mean_nc_chi2 = df1 + lambda_current
+        mean_nc_chi2 = df1 + lambda_iteration
 
-        var_nc_chi2 = 2 * (df1 + 2 * lambda_current)
+        variance_nc_chi_squared = 2 * (df1 + 2 * lambda_iteration)
 
         mean_f = mean_nc_chi2 / df1
 
-        var_f = var_nc_chi2 / (df1**2)
+        variance_f = variance_nc_chi_squared / (df1**2)
 
-        var_adjustment = (df2_current + 2) / torch.clamp(df2_current, min=1.0)
+        var_adjustment = (df2_iteration + 2) / torch.clamp(df2_iteration, min=1.0)
 
-        var_f = var_f * var_adjustment
+        variance_f = variance_f * var_adjustment
 
-        std_f = torch.sqrt(var_f)
+        standard_deviation_f = torch.sqrt(variance_f)
 
-        z_current = (f_critical - mean_f) / torch.clamp(std_f, min=1e-10)
+        z_iteration = (f_critical - mean_f) / torch.clamp(
+            standard_deviation_f, min=1e-10
+        )
 
-        power_current = (1 - torch.erf(z_current / sqrt_2)) / 2
+        power_iteration = (1 - torch.erf(z_iteration / sqrt_2)) / 2
 
-        power_diff = power - power_current
+        power_diff = power - power_iteration
 
-        adjustment = power_diff * n_current * 0.5
+        adjustment = power_diff * n_iteration * 0.5
 
         converged_mask = torch.abs(power_diff) < convergence_tolerance
 
         adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
 
-        n_current = n_current + adjustment
+        n_iteration = n_iteration + adjustment
 
-        n_current = torch.clamp(n_current, min=groups + 1)
+        n_iteration = torch.clamp(n_iteration, min=groups + 1)
 
-        n_current = torch.clamp(n_current, max=100000.0)
+        n_iteration = torch.clamp(n_iteration, max=100000.0)
 
-    output = torch.ceil(n_current)
+    output = torch.ceil(n_iteration)
 
     output = torch.clamp(output, min=groups + 1)
 
