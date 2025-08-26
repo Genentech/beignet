@@ -15,14 +15,9 @@ def chi_square_goodness_of_fit_power(
 
     degrees_of_freedom = torch.atleast_1d(torch.as_tensor(degrees_of_freedom))
 
-    if (
-        effect_size.dtype == torch.float64
-        or sample_size.dtype == torch.float64
-        or degrees_of_freedom.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, sample_size, degrees_of_freedom):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
     sample_size = sample_size.to(dtype)
@@ -38,10 +33,10 @@ def chi_square_goodness_of_fit_power(
     noncentrality = sample_size * effect_size**2
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
-        torch.tensor(2.0, dtype=dtype)
+        torch.tensor(2.0, dtype=dtype),
     )
     chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom
+        2 * degrees_of_freedom,
     )
 
     mean_nc_chi2 = degrees_of_freedom + noncentrality
@@ -51,15 +46,16 @@ def chi_square_goodness_of_fit_power(
     std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
 
     z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
-        std_nc_chi2, min=1e-10
+        std_nc_chi2,
+        min=1e-10,
     )
 
     power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
 
-    output = torch.clamp(power, 0.0, 1.0)
+    result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result

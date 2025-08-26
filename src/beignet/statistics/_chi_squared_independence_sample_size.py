@@ -18,14 +18,9 @@ def chi_square_independence_sample_size(
     rows = torch.atleast_1d(torch.as_tensor(rows))
     cols = torch.atleast_1d(torch.as_tensor(cols))
 
-    if (
-        effect_size.dtype == torch.float64
-        or rows.dtype == torch.float64
-        or cols.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.float32
+    for tensor in (effect_size, rows, cols):
+        dtype = torch.promote_types(dtype, tensor.dtype)
 
     effect_size = effect_size.to(dtype)
 
@@ -39,11 +34,11 @@ def chi_square_independence_sample_size(
 
     degrees_of_freedom = (rows - 1) * (cols - 1)
 
-    sqrt_2 = math.sqrt(2.0)
+    square_root_2 = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_2
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_2
 
     n_initial = ((z_alpha + z_beta) / effect_size) ** 2
 
@@ -55,13 +50,13 @@ def chi_square_independence_sample_size(
 
     convergence_tolerance = 1e-6
 
-    max_iterations = 10
+    maximum_iterations = 10
 
-    for _iteration in range(max_iterations):
+    for _iteration in range(maximum_iterations):
         ncp_iteration = n_iteration * effect_size**2
 
         chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-            2 * degrees_of_freedom
+            2 * degrees_of_freedom,
         )
 
         mean_nc_chi2 = degrees_of_freedom + ncp_iteration
@@ -71,10 +66,11 @@ def chi_square_independence_sample_size(
         std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
 
         z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
-            std_nc_chi2, min=1e-10
+            std_nc_chi2,
+            min=1e-10,
         )
 
-        power_iteration = (1 - torch.erf(z_score / sqrt_2)) / 2
+        power_iteration = (1 - torch.erf(z_score / square_root_2)) / 2
 
         power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
 
@@ -96,12 +92,12 @@ def chi_square_independence_sample_size(
 
         n_iteration = torch.clamp(n_iteration, max=1000000.0)
 
-    output = torch.ceil(n_iteration)
+    result = torch.ceil(n_iteration)
 
-    output = torch.clamp(output, min=min_sample_size)
+    result = torch.clamp(result, min=min_sample_size)
 
     if out is not None:
-        out.copy_(output)
+        out.copy_(result)
         return out
 
-    return output
+    return result
