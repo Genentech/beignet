@@ -14,44 +14,6 @@ def kolmogorov_smirnov_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size for Kolmogorov-Smirnov test.
-
-    Calculates the sample size needed to achieve desired power for detecting
-    a specified effect size in a Kolmogorov-Smirnov test.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size (maximum difference between distributions) in range [0, 1].
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}, default="two-sided"
-        Alternative hypothesis direction.
-
-    Returns
-    -------
-    output : Tensor
-        Required sample size (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.3)
-    >>> kolmogorov_smirnov_test_sample_size(effect_size)
-    tensor(50.0)
-
-    Notes
-    -----
-    This function uses an iterative approach to find the sample size that
-    achieves the desired power. The calculation is based on the asymptotic
-    distribution of the Kolmogorov-Smirnov test statistic.
-
-    For two-sample tests, the returned value represents the harmonic mean
-    sample size. For equal group sizes n₁ = n₂ = n, use n = result.
-    For unequal sizes, solve: 2*n₁*n₂/(n₁+n₂) = result.
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
 
     dtype = effect_size.dtype

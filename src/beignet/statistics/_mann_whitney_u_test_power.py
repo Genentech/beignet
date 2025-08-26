@@ -14,58 +14,6 @@ def mann_whitney_u_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Power for Mann–Whitney U test (normal approximation), parameterized by AUC.
-
-    When to Use
-    -----------
-    **Traditional Statistics:**
-    - Comparing two independent groups when normality assumptions are violated
-    - Ordinal or ranked data comparisons
-    - Small sample sizes where t-test assumptions fail
-    - Robust alternative to independent t-test
-
-    **Machine Learning Contexts:**
-    - Comparing model performance between two algorithms (non-parametric)
-    - A/B testing with non-normal metrics (conversion rates, engagement times)
-    - Fairness assessment: comparing outcomes between demographic groups
-    - Feature importance: comparing feature distributions across outcome classes
-    - Model validation: comparing prediction quality across different data subsets
-    - Anomaly detection: comparing normal vs. anomalous data distributions
-    - Time series: comparing performance across different time periods
-    - Transfer learning: validating domain adaptation effectiveness
-
-    **Choose Mann-Whitney U over t-test when:**
-    - Data is not normally distributed
-    - Outcome variable is ordinal
-    - Presence of outliers that would affect parametric tests
-    - Small sample sizes (n < 30 per group)
-    - Heterogeneous variances between groups
-
-    **AUC Interpretation:**
-    - AUC = 0.5: no difference between groups
-    - AUC = 0.56: small effect (Cohen's d ≈ 0.2)
-    - AUC = 0.64: medium effect (Cohen's d ≈ 0.5)
-    - AUC = 0.71: large effect (Cohen's d ≈ 0.8)
-
-    Parameters
-    ----------
-    auc : Tensor
-        P(X > Y) + 0.5 P(X=Y). Null is 0.5.
-    nobs1 : Tensor
-        Sample size group 1.
-    nobs2 : Tensor, optional
-        Sample size group 2. If None, uses ratio * nobs1.
-    ratio : Tensor or float, default=1.0
-        nobs2/nobs1 when nobs2 is None.
-    alpha : float, default=0.05
-    alternative : {"two-sided", "greater", "less"}
-
-    Returns
-    -------
-    Tensor
-        Statistical power.
-    """
     auc = torch.atleast_1d(torch.as_tensor(auc))
     sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
     if nobs2 is None:

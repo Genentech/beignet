@@ -18,7 +18,6 @@ from ._chi_squared_independence_minimum_detectable_effect import (
 )
 from ._chi_squared_independence_power import chi_square_independence_power
 from ._chi_squared_independence_sample_size import chi_square_independence_sample_size
-
 from ._cliffs_delta import cliffs_delta
 from ._cohens_d import cohens_d
 from ._cohens_f import cohens_f

@@ -14,29 +14,6 @@ def analysis_of_covariance_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required total sample size for fixed-effects ANCOVA (one-way).
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Cohen's f for the group effect (pre-adjustment).
-    groups : Tensor
-        Number of groups.
-    covariate_r2 : Tensor
-        Proportion of variance explained by covariates (R² in [0,1)).
-    n_covariates : Tensor or int, default=1
-        Number of covariates.
-    power : float, default=0.8
-        Target power.
-    alpha : float, default=0.05
-        Significance level.
-
-    Returns
-    -------
-    Tensor
-        Required total N (rounded up).
-    """
     effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
     groups = torch.atleast_1d(torch.as_tensor(groups))
     R2 = torch.atleast_1d(torch.as_tensor(covariate_r2))

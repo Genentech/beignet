@@ -16,52 +16,6 @@ def poisson_regression_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size for Poisson regression.
-
-    Calculates the total sample size needed to achieve desired power for
-    testing a single predictor coefficient in Poisson regression.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size as incidence rate ratio (IRR). IRR = exp(β) where β is
-        the regression coefficient. IRR = 1 indicates no effect.
-    mean_rate : Tensor
-        Expected mean count rate in the reference group.
-        Must be positive.
-    p_exposure : Tensor, default=0.5
-        Proportion of subjects with the exposure/predictor = 1.
-        Should be in range (0, 1).
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}, default="two-sided"
-        Alternative hypothesis direction.
-
-    Returns
-    -------
-    output : Tensor
-        Required total sample size (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(1.5)
-    >>> mean_rate = torch.tensor(2.0)
-    >>> poisson_regression_sample_size(effect_size, mean_rate)
-    tensor(286.0)
-
-    Notes
-    -----
-    This function uses an iterative approach to find the sample size that
-    achieves the desired power for the Wald test in Poisson regression.
-
-    Sample size considerations:
-    - Larger effect sizes (IRR farther from 1) require smaller sample sizes
-    - Higher mean rates require smaller sample sizes
-    - Balanced exposure (p_exposure ≈ 0.5) is optimal for power
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     mean_rate = torch.atleast_1d(torch.as_tensor(mean_rate))
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))

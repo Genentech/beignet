@@ -10,109 +10,6 @@ def t_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Compute statistical power for one-sample and paired t-tests.
-
-    This function calculates the probability of correctly rejecting the null
-    hypothesis when the alternative hypothesis is true for a one-sample t-test
-    or a paired-samples t-test.
-
-    This function is differentiable with respect to all tensor parameters.
-    While traditional power analysis doesn't require gradients, differentiability
-    enables integration into machine learning pipelines where effect sizes or
-    sample sizes might be learned parameters or part of experimental design
-    optimization.
-
-    When to Use
-    -----------
-    **Traditional Statistics:**
-    - Planning sample sizes for experimental studies
-    - Determining if non-significant results indicate lack of power
-    - Reporting statistical power in research publications
-    - Retrospective power analysis to interpret null findings
-
-    **Machine Learning Contexts:**
-    - Validating A/B test designs for ML model deployments
-    - Planning data collection for training set curation
-    - Evaluating statistical significance in model performance comparisons
-    - Hyperparameter optimization: determining sample sizes for cross-validation
-    - Active learning: estimating power to detect performance improvements
-    - Federated learning: power analysis for detecting effects across distributed data
-    - AutoML: automated statistical testing of model configurations
-    - Experimental design for synthetic data generation validation
-
-    **Use one-sample t-test power when:**
-    - Comparing a single group mean to a known population value
-    - Testing if model performance differs from a benchmark threshold
-    - Validating if learned representations achieve target properties
-
-    **Use paired t-test power when:**
-    - Comparing before/after measurements on the same subjects
-    - Cross-validation comparisons of different ML models on same data
-    - Comparing model performance across different data preprocessing approaches
-    - Measuring improvement from model updates or retraining
-
-    **Choose t-test over other tests when:**
-    - Data is approximately normally distributed
-    - Continuous outcome variables
-    - Independent observations (for one-sample) or paired observations
-    - Sample size is moderate (n ≥ 30) or population is normal
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Standardized effect size (Cohen's d). For one-sample tests, this is
-        (μ - μ₀) / σ where μ is the true mean, μ₀ is the null hypothesis mean,
-        and σ is the population standard deviation. For paired tests, this is
-        the mean difference divided by the standard deviation of differences.
-
-    sample_size : Tensor
-        Sample size (number of observations). For paired tests, this is the
-        number of pairs.
-
-    alpha : float, default=0.05
-        Significance level (Type I error rate).
-
-    alternative : str, default="two-sided"
-        Type of alternative hypothesis. Either "two-sided" or "one-sided".
-
-    out : Tensor, optional
-        Output tensor. Default, `None`.
-
-    Returns
-    -------
-    output : Tensor
-        Statistical power (probability of correctly rejecting false null hypothesis).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.5)
-    >>> sample_size = torch.tensor(30)
-    >>> t_test_power(effect_size, sample_size)
-    tensor(0.6947)
-
-    Notes
-    -----
-    The power calculation uses the noncentral t-distribution. Under the null
-    hypothesis, the test statistic follows t(df) where df = n - 1. Under the
-    alternative hypothesis, it follows a noncentral t-distribution with
-    noncentrality parameter:
-
-    δ = d * √n
-
-    Where d is Cohen's d effect size and n is the sample size.
-
-    For computational efficiency, we use normal approximations for large
-    sample sizes and accurate noncentral t-distribution calculations for
-    smaller samples.
-
-    References
-    ----------
-    .. [1] Cohen, J. (1988). Statistical power analysis for the behavioral
-           sciences (2nd ed.). Erlbaum.
-    .. [2] Aberson, C. L. (2010). Applied power analysis for the behavioral
-           sciences. Routledge.
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
 
@@ -145,8 +42,6 @@ def t_test_power(
     else:
         z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
         t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-
-
 
     mean_nct = ncp
     var_nct = torch.where(

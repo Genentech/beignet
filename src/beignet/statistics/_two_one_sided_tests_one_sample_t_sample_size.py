@@ -17,12 +17,6 @@ def two_one_sided_tests_one_sample_t_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Required sample size for one-sample Two One-Sided Tests (equivalence).
-
-    Solves for n such that min(P((d−low)>crit), P((d−high)<−crit)) ≥ power.
-    Uses iterative refinement and the same approximations as the power function.
-    """
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
     low = torch.atleast_1d(torch.as_tensor(low))
     high = torch.atleast_1d(torch.as_tensor(high))

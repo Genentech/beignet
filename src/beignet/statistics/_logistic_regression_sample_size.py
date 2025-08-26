@@ -15,52 +15,6 @@ def logistic_regression_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size for logistic regression.
-
-    Calculates the total sample size needed to achieve desired power for
-    testing a single predictor coefficient in logistic regression.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size as odds ratio (OR). OR = exp(β) where β is the regression
-        coefficient. OR = 1 indicates no effect.
-    p_exposure : Tensor, default=0.5
-        Proportion of subjects with the exposure/predictor = 1.
-        Should be in range (0, 1).
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}, default="two-sided"
-        Alternative hypothesis direction.
-
-    Returns
-    -------
-    output : Tensor
-        Required total sample size (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(2.0)
-    >>> logistic_regression_sample_size(effect_size)
-    tensor(194.0)
-
-    Notes
-    -----
-    This function uses the Hsieh et al. (1998) approximation for the variance
-    of the logistic regression coefficient, combined with an iterative approach
-    to find the sample size that achieves the desired power.
-
-    The sample size depends on:
-    - Effect size (odds ratio)
-    - Exposure prevalence (p_exposure)
-    - Outcome prevalence (estimated from effect size)
-    - Desired power and significance level
-
-    For optimal power, p_exposure should be close to 0.5 (balanced design).
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 

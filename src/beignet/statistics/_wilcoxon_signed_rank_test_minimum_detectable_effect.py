@@ -14,63 +14,6 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Minimum detectable prob_positive = P(D>0) + 0.5 P(D=0) for Wilcoxon signed-rank test.
-
-    Parameters
-    ----------
-    nobs : Tensor
-        Number of non-zero paired differences.
-    power : float, default=0.8
-        Target power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}
-        Direction; returns ≥0.5 for "greater"/"two-sided" and ≤0.5 for "less".
-
-    Returns
-    -------
-    Tensor
-        Minimal detectable prob_positive value.
-
-    When to Use
-    -----------
-    **Traditional Statistics:**
-
-    - **Paired non-parametric analysis:** When paired differences are non-normal or ordinal
-    - **Median-based comparisons:** Testing shifts in paired data medians
-    - **Robust paired testing:** Alternative to paired t-test when outliers are expected
-    - **Small sample paired studies:** When sample sizes are too small for normality
-    - **Skewed difference distributions:** When paired differences are heavily skewed
-    - **Ordinal paired data:** Analyzing paired ratings, scores, or ranked measurements
-
-    **Machine Learning Applications:**
-
-    - **Model performance comparison (paired):** Minimum detectable improvements using same test sets
-    - **Algorithm robustness testing:** Paired comparison of performance under different conditions
-    - **Cross-validation stability:** Testing consistency of model performance across paired CV folds
-    - **Hyperparameter impact assessment:** Paired evaluation of parameter changes on same data
-    - **Feature engineering validation:** Before/after comparison of feature modifications
-    - **Data augmentation evaluation:** Paired testing of augmentation effects on model performance
-    - **Transfer learning assessment:** Comparing performance on paired source/target domain samples
-    - **Ensemble component analysis:** Paired evaluation of individual ensemble member contributions
-    - **Active learning effectiveness:** Paired comparison of learning progress with/without active selection
-    - **Regularization impact testing:** Paired evaluation of regularization effects on same datasets
-    - **Preprocessing pipeline comparison:** Paired testing of different data preprocessing approaches
-    - **Model interpretability validation:** Paired comparison of explanation quality metrics
-    - **Fairness testing:** Paired evaluation of model performance across demographic groups
-    - **Temporal model stability:** Paired comparison of model performance across time periods
-    - **Multi-task learning evaluation:** Paired assessment of shared vs. separate task components
-
-    **Interpretation Guidelines:**
-
-    - **prob_positive = 0.5:** No difference (random pairing)
-    - **prob_positive = 0.6:** Small effect (60% positive differences)
-    - **prob_positive = 0.7:** Medium effect (70% positive differences)
-    - **prob_positive = 0.8:** Large effect (80% positive differences)
-    - **Consider practical significance:** Statistical detectability should align with meaningful differences
-    - **Robust to outliers:** Less sensitive to extreme values than parametric tests
-    """
     sample_size_0 = torch.as_tensor(nobs)
     scalar_out = sample_size_0.ndim == 0
     sample_size = torch.atleast_1d(sample_size_0)

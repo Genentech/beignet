@@ -1,5 +1,3 @@
-"""Z-test sample size (one-sample z-test with known variance)."""
-
 import math
 
 import torch

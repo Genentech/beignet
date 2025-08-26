@@ -14,45 +14,6 @@ def jonckheere_terpstra_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size per group for Jonckheere-Terpstra test.
-
-    Calculates the sample size needed per group to achieve desired power
-    for detecting a specified ordered trend effect in a Jonckheere-Terpstra test.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size representing the standardized trend across ordered groups.
-    groups : Tensor or int
-        Number of ordered groups to compare.
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level (one-tailed).
-
-    Returns
-    -------
-    output : Tensor
-        Required sample size per group (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.5)
-    >>> groups = 4
-    >>> jonckheere_terpstra_test_sample_size(effect_size, groups)
-    tensor(15.0)
-
-    Notes
-    -----
-    This function assumes equal group sizes and uses an iterative approach
-    to find the sample size that achieves the desired power.
-
-    The Jonckheere-Terpstra test is particularly useful when:
-    - You have a priori expectations about the ordering of groups
-    - The groups represent ordered categories (e.g., dose levels)
-    - You want more power than the Kruskal-Wallis test for detecting trends
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     groups = torch.atleast_1d(torch.as_tensor(groups))
 

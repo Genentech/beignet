@@ -14,46 +14,6 @@ def friedman_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required number of subjects for Friedman test.
-
-    Calculates the number of subjects (blocks) needed to achieve desired power
-    for detecting a specified effect size in a Friedman test.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size (variance of treatment effects relative to error variance).
-    n_treatments : Tensor
-        Number of treatments (repeated conditions) being compared.
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-
-    Returns
-    -------
-    output : Tensor
-        Required number of subjects (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.4)
-    >>> n_treatments = torch.tensor(3)
-    >>> friedman_test_sample_size(effect_size, n_treatments)
-    tensor(20.0)
-
-    Notes
-    -----
-    This function uses an iterative approach to find the number of subjects
-    that achieves the desired power. The calculation is based on the chi-square
-    approximation to the Friedman test statistic.
-
-    The Friedman test is particularly useful for:
-    - Repeated measures designs with non-normal data
-    - Small sample sizes where normality assumptions are questionable
-    - Ordinal outcome measures
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     n_treatments = torch.atleast_1d(torch.as_tensor(n_treatments))
 

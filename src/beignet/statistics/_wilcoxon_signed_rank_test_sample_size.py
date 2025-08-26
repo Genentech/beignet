@@ -14,26 +14,6 @@ def wilcoxon_signed_rank_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Required sample size (pairs) for Wilcoxon signed-rank test (normal approximation).
-
-    Parameters
-    ----------
-    prob_positive : Tensor
-        Probability that a paired difference is positive, i.e., P(D > 0) + 0.5 P(D = 0).
-        Null is 0.5. Values farther from 0.5 indicate stronger effects.
-    power : float, default=0.8
-        Desired power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}
-        Test direction.
-
-    Returns
-    -------
-    Tensor
-        Required number of non-zero pairs (rounded up).
-    """
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
     dtype = torch.float64 if probability.dtype == torch.float64 else torch.float32
     probability = probability.to(dtype)

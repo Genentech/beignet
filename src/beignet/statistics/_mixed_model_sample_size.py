@@ -15,48 +15,6 @@ def mixed_model_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required number of subjects for mixed-effects models.
-
-    Calculates the number of subjects (clusters) needed to achieve desired power
-    for testing fixed effects in a linear mixed-effects model.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Standardized effect size (Cohen's d) for the fixed effect.
-    n_observations_per_subject : Tensor
-        Average number of observations per subject.
-    icc : Tensor
-        Intraclass correlation coefficient. Range [0, 1).
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-
-    Returns
-    -------
-    output : Tensor
-        Required number of subjects (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.5)
-    >>> n_observations_per_subject = torch.tensor(4)
-    >>> icc = torch.tensor(0.1)
-    >>> mixed_model_sample_size(effect_size, n_observations_per_subject, icc)
-    tensor(28.0)
-
-    Notes
-    -----
-    This function uses an iterative approach to find the number of subjects
-    that achieves the desired power for the mixed-effects model.
-
-    Sample size considerations:
-    - Higher ICC requires more subjects (less efficient)
-    - More observations per subject can partially compensate for clustering
-    - Design effect = 1 + (m-1) × ICC reduces effective sample size
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     n_observations_per_subject = torch.atleast_1d(
         torch.as_tensor(n_observations_per_subject)

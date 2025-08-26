@@ -12,67 +12,6 @@ def wilcoxon_signed_rank_test_power(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Power for Wilcoxon signed-rank test (normal approximation).
-
-    When to Use
-    -----------
-    **Traditional Statistics:**
-    - Paired data comparisons when normality assumptions are violated
-    - Pre-post treatment comparisons with non-normal outcomes
-    - Matched pairs design with ordinal or skewed continuous data
-    - Small sample sizes where parametric assumptions fail
-
-    **Machine Learning Contexts:**
-    - Paired model comparison: before/after model updates on same data
-    - Cross-validation: comparing model performance across paired folds
-    - A/B testing with paired users (before/after treatment)
-    - Feature engineering: comparing model performance with/without features on same data
-    - Hyperparameter tuning: paired comparisons of parameter settings
-    - Transfer learning: comparing pre-trained vs. fine-tuned models
-    - Time series: comparing model performance across paired time periods
-    - Recommendation systems: paired user preference comparisons
-    - Medical AI: paired diagnostic comparisons (human vs. AI on same cases)
-
-    **Choose Wilcoxon signed-rank over paired t-test when:**
-    - Non-normal paired differences
-    - Ordinal outcome data
-    - Presence of outliers in differences
-    - Small sample sizes (n < 30)
-    - Robust analysis desired
-
-    **Probability Interpretation:**
-    - prob_positive = 0.5: no difference (null hypothesis)
-    - prob_positive > 0.5: positive treatment effect
-    - prob_positive < 0.5: negative treatment effect
-    - prob_positive = 0.6: small effect
-    - prob_positive = 0.7: medium effect
-    - prob_positive = 0.8: large effect
-
-    Parameters
-    ----------
-    prob_positive : Tensor
-        Probability that a paired difference is positive, i.e., P(D > 0) + 0.5 P(D = 0).
-        Under the null, this equals 0.5.
-    nobs : Tensor
-        Number of paired observations (after removing zero differences).
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}
-        Test direction. "greater" tests for median(D) > 0, "less" for < 0.
-
-    Returns
-    -------
-    Tensor
-        Statistical power.
-
-    Notes
-    -----
-    Uses the large-sample normal approximation for the sum of positive ranks W⁺.
-    Under H0: E[W⁺] = S/2, Var[W⁺] = n(n+1)(2n+1)/24, where S = n(n+1)/2.
-    We approximate E[W⁺|H1] ≈ S * prob_positive and use Var[W⁺] from H0.
-    This parallels the Mann–Whitney implementation parameterized by AUC.
-    """
     probability = torch.atleast_1d(torch.as_tensor(prob_positive))
     sample_size = torch.atleast_1d(torch.as_tensor(nobs))
 

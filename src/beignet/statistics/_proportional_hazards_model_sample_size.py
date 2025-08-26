@@ -16,63 +16,6 @@ def proportional_hazards_model_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size for Cox proportional hazards model.
-
-    Calculates the total sample size needed to achieve desired power
-    for detecting a hazard ratio in survival analysis. The calculation
-    accounts for the expected event rate.
-
-    Parameters
-    ----------
-    hazard_ratio : Tensor
-        Expected hazard ratio (HR) under the alternative hypothesis.
-        HR = exp(β) where β is the regression coefficient.
-    event_rate : Tensor
-        Expected proportion of subjects who will experience the event
-        during the study period. Should be in range (0, 1).
-    p_exposed : Tensor, default=0.5
-        Proportion of subjects in the exposed/treatment group.
-        Should be in range (0, 1).
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-    alternative : {"two-sided", "greater", "less"}, default="two-sided"
-        Alternative hypothesis direction.
-
-    Returns
-    -------
-    output : Tensor
-        Required total sample size (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> hazard_ratio = torch.tensor(0.7)
-    >>> event_rate = torch.tensor(0.6)
-    >>> proportional_hazards_model_sample_size(hazard_ratio, event_rate)
-    tensor(278.0)
-
-    Notes
-    -----
-    This function calculates the total sample size needed, accounting for
-    the fact that power depends on the number of events, not the total
-    sample size directly.
-
-    The relationship is:
-    n_total = n_events / event_rate
-
-    Sample size considerations:
-    - Higher event rates require smaller total sample sizes
-    - Balanced allocation (p_exposed ≈ 0.5) is optimal for power
-    - The hazard ratio closer to 1 requires larger sample sizes
-    - Longer follow-up increases event rate, reducing required sample size
-
-    This assumes:
-    - Proportional hazards assumption holds
-    - No competing risks
-    - Exponential or Weibull survival distribution
-    """
     hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
     event_rate = torch.atleast_1d(torch.as_tensor(event_rate))
     p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))

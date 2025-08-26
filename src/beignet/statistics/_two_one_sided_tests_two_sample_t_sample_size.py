@@ -18,12 +18,6 @@ def two_one_sided_tests_two_sample_t_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    """
-    Required group-1 sample size for two-sample Two One-Sided Tests (equivalence).
-
-    Solves for n1; n2 = ceil(n1 * ratio). Uses iterative refinement with the
-    same approximations as the power function.
-    """
     true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
     r = torch.as_tensor(ratio)
     low = torch.atleast_1d(torch.as_tensor(low))

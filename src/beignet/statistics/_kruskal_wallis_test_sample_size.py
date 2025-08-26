@@ -14,44 +14,6 @@ def kruskal_wallis_test_sample_size(
     *,
     out: Tensor | None = None,
 ) -> Tensor:
-    r"""
-    Required sample size per group for Kruskal-Wallis H test.
-
-    Calculates the sample size needed per group to achieve desired power
-    for detecting a specified effect size in a Kruskal-Wallis test.
-
-    Parameters
-    ----------
-    effect_size : Tensor
-        Effect size (variance of group location parameters divided by error variance).
-    groups : Tensor or int
-        Number of groups to compare.
-    power : float, default=0.8
-        Desired statistical power.
-    alpha : float, default=0.05
-        Significance level.
-
-    Returns
-    -------
-    output : Tensor
-        Required sample size per group (rounded up to nearest integer).
-
-    Examples
-    --------
-    >>> effect_size = torch.tensor(0.3)
-    >>> groups = 3
-    >>> kruskal_wallis_test_sample_size(effect_size, groups)
-    tensor(15.0)
-
-    Notes
-    -----
-    This function assumes equal group sizes and uses an iterative approach
-    to find the sample size that achieves the desired power. The calculation
-    is based on the chi-square approximation to the Kruskal-Wallis H statistic.
-
-    For unequal group sizes, use the power function directly with different
-    sample size vectors to find the optimal allocation.
-    """
     effect_size = torch.atleast_1d(torch.as_tensor(effect_size))
     groups = torch.atleast_1d(torch.as_tensor(groups))
 
