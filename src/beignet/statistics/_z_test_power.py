@@ -25,6 +25,52 @@ def z_test_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Quality control testing with known process variance
+    - Large-sample hypothesis testing where central limit theorem applies
+    - Testing population means when historical variance data is available
+    - Standardized testing and educational assessments
+    - Industrial quality control with established measurement precision
+
+    **Machine Learning Contexts:**
+    - Model performance testing with known benchmark variance
+    - A/B testing with large sample sizes and established baseline metrics
+    - Validation testing for ML models with known prediction uncertainties
+    - Hyperparameter optimization with established performance baselines
+    - Cross-validation analysis with known fold-to-fold variability
+    - Transfer learning: testing performance against known source domain metrics
+    - Ensemble methods: testing individual model performance against known ensemble variance
+    - Active learning: testing sample efficiency with established learning curves
+    - Federated learning: testing client performance with known global variance
+    - Time series analysis: testing forecast accuracy with known historical variance
+    - Computer vision: testing model accuracy with established dataset benchmarks
+    - NLP: testing language model performance against known corpus statistics
+    - Recommendation systems: testing recommendation quality with known user behavior variance
+    - Anomaly detection: testing detection rates with established false positive rates
+    - Causal inference: testing treatment effects with known population variance
+
+    **Choose z-test power over t-test power when:**
+    - Population variance is known (not estimated from sample)
+    - Sample size is very large (n > 100) and central limit theorem applies
+    - Computational efficiency is important (z-test is simpler)
+    - Working with standardized effect sizes from meta-analyses
+    - Historical data provides reliable variance estimates
+
+    **Choose z-test over other tests when:**
+    - Testing means of continuous variables with known variance
+    - Data is approximately normally distributed or large sample sizes
+    - Maximum statistical power is desired for known variance scenarios
+    - Comparing against established population parameters
+
+    **Interpretation Guidelines:**
+    - Effect size is Cohen's d: (μ₁ - μ₀) / σ where σ is known
+    - Z-test assumes population variance is exactly known (rarely true in practice)
+    - Power increases with larger effect sizes and sample sizes
+    - Consider practical significance alongside statistical power
+    - In ML contexts, "known variance" often means established from prior studies
+
     Parameters
     ----------
     effect_size : Tensor

@@ -25,6 +25,54 @@ def anova_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning randomized controlled trials comparing multiple treatment groups
+    - Sample size planning for clinical studies with multiple intervention arms
+    - Educational research comparing different teaching methods across classes
+    - Agricultural experiments testing multiple fertilizer or treatment conditions
+    - Quality control studies comparing multiple manufacturing processes
+
+    **Machine Learning Contexts:**
+    - Planning model comparison studies across multiple algorithms or architectures
+    - A/B testing with multiple treatment conditions for ML system optimization
+    - Hyperparameter optimization: planning studies comparing multiple configurations
+    - Cross-validation: planning comparisons across different modeling approaches
+    - Transfer learning: planning studies comparing multiple source domains
+    - Ensemble methods: planning evaluations across different ensemble configurations
+    - Active learning: planning comparisons of multiple sample selection strategies
+    - Federated learning: planning performance comparisons across multiple client groups
+    - Domain adaptation: planning studies across multiple target domains
+    - Computer vision: planning model comparisons across different architectures
+    - NLP: planning language model comparisons across multiple model families
+    - Recommendation systems: planning algorithm comparisons across different approaches
+    - Anomaly detection: planning method comparisons across multiple detection algorithms
+    - Time series forecasting: planning model comparisons across different forecasting methods
+    - Causal inference: planning studies with multiple treatment groups or interventions
+
+    **Choose ANOVA sample size over t-test sample size when:**
+    - Comparing 3 or more groups simultaneously
+    - Want to control family-wise error rate across multiple comparisons
+    - Testing overall effect before specific pairwise comparisons
+    - Experimental design includes multiple treatment conditions
+    - Need to assess variance between groups relative to within-group variance
+
+    **Choose one-way ANOVA over other ANOVA designs when:**
+    - Single factor with multiple levels is being tested
+    - No additional blocking or factorial structure in design
+    - Groups are independent with no repeated measures
+    - Primary interest is in overall group differences
+    - Simplest design structure is appropriate
+
+    **Interpretation Guidelines:**
+    - Effect size is Cohen's f: measures standardized between-group variance
+    - Total sample size is distributed equally across k groups by default
+    - Cohen's f = 0.10 (small), 0.25 (medium), 0.40 (large) effect sizes
+    - Power increases with larger effect sizes and more subjects per group
+    - Consider practical constraints including recruitment and cost per additional group
+    - Account for potential dropouts and unequal group sizes in planning
+
     Parameters
     ----------
     effect_size : Tensor

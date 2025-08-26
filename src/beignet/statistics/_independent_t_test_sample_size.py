@@ -26,6 +26,54 @@ def independent_t_test_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning randomized controlled trials with two independent groups
+    - Designing case-control studies comparing different populations
+    - Sample size planning for clinical trials with treatment and control groups
+    - A/B testing in marketing research with independent user groups
+    - Survey research comparing different demographic groups
+
+    **Machine Learning Contexts:**
+    - Planning model comparison studies with independent test sets
+    - A/B testing ML models with different user populations
+    - Experimental design for comparing algorithms on different datasets
+    - Planning studies to compare model performance across different domains
+    - Transfer learning: comparing performance between source and target domains
+    - Hyperparameter optimization: comparing configurations with independent data
+    - Ensemble methods: comparing performance across different training sets
+    - Active learning: comparing selection strategies with separate data pools
+    - Federated learning: comparing performance across different client populations
+    - Domain adaptation: planning studies for cross-domain model performance
+    - Computer vision: comparing models on independent image datasets
+    - NLP: comparing text classification models on different corpora
+    - Recommendation systems: comparing algorithms across different user groups
+    - Anomaly detection: comparing detection methods on independent datasets
+    - Causal inference: planning studies with treatment and control groups
+
+    **Choose independent t-test sample size over paired t-test when:**
+    - Groups are naturally independent (different subjects/datasets)
+    - No meaningful pairing or matching is possible
+    - Between-group comparisons are of primary interest
+    - Groups have different characteristics that can't be matched
+    - Randomized assignment to groups is used
+
+    **Choose independent t-test over other tests when:**
+    - Comparing means of two continuous variables
+    - Data is approximately normally distributed within groups
+    - Independent observations within and between groups
+    - Equal variances assumed (use Welch's t-test if unequal)
+    - Sample sizes are moderate to large (n ≥ 30 per group)
+
+    **Interpretation Guidelines:**
+    - Effect size is Cohen's d: (μ₁ - μ₂) / σ_pooled
+    - Sample size ratio allows unequal group sizes (n₂ = ratio × n₁)
+    - Power increases with larger effect sizes and sample sizes
+    - Consider practical constraints (cost, time, recruitment feasibility)
+    - Account for potential dropout rates in planning
+    - Small effect sizes require substantially larger samples
+
     Parameters
     ----------
     effect_size : Tensor

@@ -27,6 +27,52 @@ def z_test_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning quality control studies with known process variance
+    - Sample size planning for large-scale surveys with established population parameters
+    - Clinical trials where historical data provides reliable variance estimates
+    - Educational assessment planning with standardized test metrics
+    - Industrial process monitoring with known measurement precision
+
+    **Machine Learning Contexts:**
+    - Planning model validation studies with known benchmark performance variance
+    - A/B testing design for ML systems with established baseline metrics
+    - Sample size planning for hyperparameter optimization with known performance distributions
+    - Cross-validation planning with established fold-to-fold variability
+    - Transfer learning studies: planning sample sizes for source-target domain comparisons
+    - Ensemble method evaluation: planning individual model assessment with known ensemble variance
+    - Active learning: planning sample efficiency studies with established learning curves
+    - Federated learning: planning client evaluation with known global performance variance
+    - Time series forecasting: planning validation with known historical forecast variance
+    - Computer vision: planning model evaluation on datasets with established benchmark variance
+    - NLP: planning language model evaluation with known corpus performance statistics
+    - Recommendation systems: planning evaluation with known user behavior variance
+    - Anomaly detection: planning detection evaluation with established false positive rates
+    - Causal inference: planning treatment effect studies with known population variance
+
+    **Choose z-test sample size over t-test sample size when:**
+    - Population variance is precisely known (not estimated)
+    - Large sample sizes are feasible and central limit theorem applies
+    - Computational efficiency is important (z-test calculations are simpler)
+    - Working with standardized effect sizes from meta-analyses
+    - Historical data provides highly reliable variance estimates
+
+    **Choose z-test over other sample size calculations when:**
+    - Testing means of continuous variables with known variance
+    - Maximum statistical power is desired for known variance scenarios
+    - Comparing against well-established population parameters
+    - Large-scale studies where variance can be considered fixed
+
+    **Interpretation Guidelines:**
+    - Effect size is Cohen's d: (μ₁ - μ₀) / σ where σ is precisely known
+    - Z-test assumes exact knowledge of population variance (rare in practice)
+    - Required sample size decreases quadratically with larger effect sizes
+    - Consider practical constraints including cost, time, and feasibility
+    - In ML contexts, "known variance" typically means well-established from extensive prior studies
+    - Account for potential dropout or missing data in planning
+
     Parameters
     ----------
     effect_size : Tensor

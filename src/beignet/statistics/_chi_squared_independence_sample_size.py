@@ -26,6 +26,55 @@ def chi_square_independence_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning survey research to test independence between categorical variables
+    - Sample size planning for clinical trials examining categorical outcome associations
+    - Market research planning to analyze demographic-preference relationships
+    - Educational research planning to test teaching method-outcome associations
+    - Quality control planning to examine process-defect relationships
+
+    **Machine Learning Contexts:**
+    - Feature selection planning: sample sizes for testing categorical feature independence
+    - Model evaluation planning: sample sizes for testing prediction-outcome associations
+    - A/B testing design: planning sample sizes for categorical treatment-response relationships
+    - Bias detection planning: sample sizes for testing model-protected attribute independence
+    - Data preprocessing planning: sample sizes for validating feature independence assumptions
+    - Cross-validation planning: sample sizes for testing fold assignment independence
+    - Hyperparameter optimization: planning sample sizes for configuration-performance associations
+    - Ensemble method evaluation: planning sample sizes for individual model prediction independence
+    - Active learning: planning sample sizes for testing selection strategy-label associations
+    - Federated learning: planning sample sizes for client characteristic-performance independence
+    - Domain adaptation: sample size planning for source/target domain-outcome associations
+    - Computer vision: planning sample sizes for image category-performance relationships
+    - NLP: planning sample sizes for text category-prediction associations
+    - Recommendation systems: planning sample sizes for user category-recommendation independence
+    - Anomaly detection: sample size planning for anomaly type-detection method associations
+    - Causal inference: sample size planning for independence assumption testing
+
+    **Choose chi-square independence sample size over other methods when:**
+    - Both variables are categorical (nominal or ordinal)
+    - Testing association rather than goodness-of-fit to specific distributions
+    - Data will be organized in contingency tables (cross-tabulations)
+    - Chi-square assumptions will be met (expected frequencies ≥ 5 per cell)
+    - Independence of observations can be ensured
+
+    **Choose independence over goodness-of-fit sample size when:**
+    - Testing relationships between two categorical variables
+    - No specific expected distribution is being tested
+    - Focus is on association strength rather than distribution conformity
+    - Contingency table structure fits the research question naturally
+
+    **Interpretation Guidelines:**
+    - Effect size w measures strength of association between categorical variables
+    - Cohen's w = 0.10 (small), 0.30 (medium), 0.50 (large) associations
+    - Sample size increases dramatically for detecting smaller effect sizes
+    - More table cells (higher rows × cols) require larger sample sizes
+    - Rule of thumb: at least 5 expected observations per cell (5 × rows × cols)
+    - Consider practical constraints including cost and data collection feasibility
+    - Account for potential missing data or incomplete responses in planning
+
     Parameters
     ----------
     effect_size : Tensor

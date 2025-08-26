@@ -17,7 +17,62 @@ def welch_t_test_power(
     r"""
     Compute statistical power for Welch's two-sample t-test.
 
-    Welch's t-test allows unequal variances and sample sizes.
+    Welch's t-test allows unequal variances and sample sizes, making it more
+    robust than the standard independent samples t-test when the assumption
+    of equal variances is violated. This function calculates the probability
+    of correctly rejecting the null hypothesis when the alternative is true.
+
+    This function is differentiable with respect to all tensor parameters.
+    While traditional power analysis doesn't require gradients, differentiability
+    enables integration into machine learning pipelines where effect sizes or
+    sample sizes might be learned parameters or part of experimental design
+    optimization.
+
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Comparing groups with potentially unequal variances
+    - Clinical trials where treatment and control groups have different variability
+    - Educational research comparing diverse student populations
+    - Quality control comparing measurements from different instruments
+    - Survey research with groups of different sizes and variability
+
+    **Machine Learning Contexts:**
+    - Comparing ML models with different prediction uncertainty patterns
+    - A/B testing where groups have unequal variance in outcomes
+    - Model performance comparison across heterogeneous datasets
+    - Transfer learning: comparing performance with different domain variability
+    - Ensemble methods: comparing individual models with varying consistency
+    - Cross-validation: accounting for different fold performance variability
+    - Hyperparameter optimization: comparing configurations with unequal variance
+    - Active learning: comparing selection strategies with different uncertainty
+    - Federated learning: comparing clients with heterogeneous data distributions
+    - Domain adaptation: power analysis for models across different data sources
+    - Computer vision: comparing models on datasets with varying image complexity
+    - NLP: comparing text models on corpora with different linguistic diversity
+    - Recommendation systems: comparing algorithms across user groups with different engagement patterns
+    - Anomaly detection: comparing methods on datasets with varying anomaly rates
+    - Time series forecasting: comparing models with different prediction stability
+
+    **Choose Welch's t-test power over standard t-test power when:**
+    - Group variances are expected to be unequal (variance ratio > 2 or < 0.5)
+    - Sample sizes are unequal between groups
+    - Robustness to variance assumption violations is important
+    - Groups represent different populations with inherent variability differences
+    - Uncertainty about meeting equal variance assumptions
+
+    **Choose Welch's t-test over non-parametric alternatives when:**
+    - Data is approximately normally distributed within groups
+    - Sample sizes are moderate to large (n ≥ 15 per group)
+    - Effect size estimation and confidence intervals are needed
+    - Maximum statistical power is desired despite unequal variances
+
+    **Interpretation Guidelines:**
+    - Effect size uses group 1 standard deviation as reference
+    - Variance ratio σ₂²/σ₁² = 1.0 reduces to standard t-test
+    - Welch's test adjusts degrees of freedom for unequal variances
+    - Power decreases with larger variance ratios (further from 1.0)
+    - Consider practical significance alongside statistical power
 
     Parameters
     ----------

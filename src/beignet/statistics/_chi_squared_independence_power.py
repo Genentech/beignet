@@ -26,6 +26,54 @@ def chi_square_independence_power(
     sample sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Testing independence between categorical variables in survey research
+    - Clinical trials examining associations between treatment and categorical outcomes
+    - Market research analyzing relationships between demographics and preferences
+    - Educational research testing associations between teaching methods and student outcomes
+    - Quality control examining relationships between process variables and defect categories
+
+    **Machine Learning Contexts:**
+    - Feature selection: testing independence between categorical features and target variables
+    - Model evaluation: testing associations between model predictions and categorical outcomes
+    - A/B testing: examining relationships between treatment groups and categorical responses
+    - Bias detection: testing independence between model predictions and protected attributes
+    - Data preprocessing: validating assumptions about feature independence
+    - Cross-validation: testing independence of fold assignments and categorical variables
+    - Hyperparameter optimization: analyzing relationships between configurations and performance categories
+    - Ensemble methods: testing independence between individual model predictions
+    - Active learning: examining relationships between sample selection and categorical labels
+    - Federated learning: testing independence between client characteristics and performance
+    - Domain adaptation: analyzing associations between source/target domains and outcomes
+    - Computer vision: testing independence between image categories and model performance
+    - NLP: analyzing relationships between text categories and model predictions
+    - Recommendation systems: testing independence between user categories and recommendation types
+    - Anomaly detection: examining associations between anomaly types and detection methods
+    - Causal inference: testing independence assumptions in observational studies
+
+    **Choose chi-square independence power over other tests when:**
+    - Both variables are categorical (nominal or ordinal)
+    - Testing association rather than goodness-of-fit to a specific distribution
+    - Data is organized in contingency tables (cross-tabulations)
+    - Sample sizes are adequate for chi-square assumptions (expected frequencies ≥ 5)
+    - Independence assumption can be verified for observations
+
+    **Choose independence test over goodness-of-fit test when:**
+    - Testing relationship between two categorical variables
+    - No specific expected distribution is being tested
+    - Focus is on association strength rather than distribution fit
+    - Contingency table structure is natural for the research question
+
+    **Interpretation Guidelines:**
+    - Effect size w measures strength of association between categorical variables
+    - Cohen's w = 0.10 (small), 0.30 (medium), 0.50 (large) associations
+    - Degrees of freedom = (rows - 1) × (columns - 1)
+    - Power increases with larger effect sizes, sample sizes, and fewer categories
+    - Consider practical significance of associations alongside statistical power
+    - Cramer's V can be used as an alternative effect size measure
+
     Parameters
     ----------
     effect_size : Tensor

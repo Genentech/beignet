@@ -23,6 +23,34 @@ def t_test_sample_size(
     effect sizes might be learned parameters or part of experimental design
     optimization.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning experiments to detect meaningful differences
+    - Grant applications requiring power calculations
+    - Determining adequate sample sizes for clinical trials
+    - Pilot studies to plan full-scale experiments
+
+    **Machine Learning Contexts:**
+    - A/B testing: determining user sample sizes for reliable comparisons
+    - Model validation: planning data collection for performance evaluation
+    - Cross-validation: determining fold sizes for stable estimates
+    - Hyperparameter tuning: sample sizes for parameter comparison studies
+    - Active learning: determining query batch sizes
+    - Transfer learning: planning target domain sample sizes
+    - Federated learning: determining client data requirements
+    - Benchmarking: planning dataset sizes for model comparisons
+
+    **Use for one-sample t-test sample size when:**
+    - Testing if model performance differs from known benchmark
+    - Comparing single group mean to population value
+    - Validating if learned representations meet target properties
+
+    **Use for paired t-test sample size when:**
+    - Before/after model comparisons (paired observations)
+    - Cross-validation fold-wise comparisons
+    - Paired algorithm evaluations on same datasets
+
     Parameters
     ----------
     effect_size : Tensor
