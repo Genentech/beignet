@@ -277,6 +277,100 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
   n = torch.clamp(n.to(dtype), min=3.0)
   ```
 
+### Boolean Variable Naming
+- **Use predicate names**: Boolean variables should clearly indicate true/false conditions without unnecessary prefixes
+- **Examples**:
+  ```python
+  # Correct - clear predicates
+  needs_expansion = power_high < power
+  power_too_low = power_mid < power
+  scalar_output = tensor.ndim == 0
+  converged = torch.abs(power_diff) < tolerance
+  
+  # Incorrect - unclear or verbose
+  flag = power_high < power
+  check = power_mid < power
+  is_scalar = tensor.ndim == 0
+  condition = power_mid < target_power
+  ```
+
+### Tensor Transformation Chains
+- **Name each transformation step**: Each step in tensor processing should have a descriptive name showing the transformation
+- **Don't reuse variable names**: Avoid obscuring the transformation pipeline by reusing the same variable name
+- **Examples**:
+  ```python
+  # Correct - transformation pipeline is clear
+  sample_size_tensor = torch.as_tensor(sample_size)
+  sample_size_1d = torch.atleast_1d(sample_size_tensor)
+  sample_size_clamped = torch.clamp(sample_size_1d.to(dtype), min=3.0)
+  
+  # Incorrect - reusing variable names obscures the pipeline
+  sample_size = torch.as_tensor(sample_size)
+  sample_size = torch.atleast_1d(sample_size)
+  sample_size = torch.clamp(sample_size.to(dtype), min=3.0)
+  ```
+
+### Mathematical Formula Variables
+- **Break formulas into named components**: Complex formulas should be split into intermediate variables that reflect mathematical meaning
+- **Examples**:
+  ```python
+  # Correct - mathematical components are clear
+  degrees_of_freedom_1 = torch.clamp(groups_clamped - 1.0, min=1.0)
+  sqrt_df_over_n = torch.sqrt(degrees_of_freedom_1 / torch.clamp(sample_size_clamped, min=1.0))
+  sqrt_residual_variance = torch.sqrt(torch.clamp(1.0 - covariate_r2_clamped, min=torch.finfo(dtype).eps))
+  initial_effect_size = (z_alpha + z_beta) * sqrt_df_over_n * sqrt_residual_variance
+  
+  # Incorrect - formula is opaque
+  result = (z_alpha + z_beta) * torch.sqrt(df1 / torch.clamp(n, min=1.0)) * torch.sqrt(torch.clamp(1.0 - r2, min=eps))
+  ```
+
+### Algorithm Phase Naming
+- **Variables should indicate algorithm phases**: Names should show which phase of the algorithm they belong to
+- **Examples**:
+  ```python
+  # Correct - algorithm phases are clear
+  initial_effect_size = calculate_initial_estimate(...)
+  effect_size_lower = torch.zeros_like(initial_effect_size) + minimum_effect_size
+  power_high = analysis_of_covariance_power(effect_size_upper, ...)
+  effect_size_mid = (effect_size_lower + effect_size_upper) * 0.5
+  
+  # Incorrect - no indication of algorithm structure
+  val1 = calculate_initial(...)
+  val2 = torch.zeros_like(val1) + min_val
+  val3 = test_function(upper_val, ...)
+  val4 = (lower + upper) * 0.5
+  ```
+
+### Iteration and Loop Variables
+- **Use descriptive names when context matters**: Loop variables should be descriptive when the iteration has specific meaning
+- **Examples**:
+  ```python
+  # Correct - when iterations have specific algorithmic meaning
+  for expansion_step in range(max_expansion_iterations):
+  for bisection_step in range(max_bisection_iterations):
+  
+  # Acceptable - when it's truly just counting
+  for _ in range(max_iterations):
+  
+  # Incorrect - generic names when context matters
+  for i in range(max_expansion_iterations):
+  for j in range(max_bisection_iterations):
+  ```
+
+### Return Value Preparation
+- **Final processing should be obvious**: Variables for output preparation should clearly indicate their purpose
+- **Examples**:
+  ```python
+  # Correct - output preparation is obvious
+  result = torch.clamp(effect_size_mid, min=0.0)
+  result_scalar = result.reshape(())
+  
+  # Incorrect - unclear what these represent
+  output = torch.clamp(x, min=0.0)
+  out = output.reshape(())
+  temp = result.reshape(())
+  ```
+
 ### Comments and Documentation
 - **No inline comments**: Remove all `#` comments from function implementations
 - **No docstrings in implementations**: Function implementations should not contain triple-quoted docstrings
