@@ -20,6 +20,44 @@ def two_way_analysis_of_variance_power(
     Tests main effects and interaction in a two-way factorial design using
     the F-test.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Factorial experiments with two independent variables
+    - Clinical trials with treatment and demographic factors
+    - Educational research with teaching method and student characteristics
+    - Marketing studies with product features and customer segments
+    - Agricultural experiments with fertilizer type and plant variety
+
+    **Machine Learning Contexts:**
+    - A/B testing with multiple factors: testing algorithm versions and user segments
+    - Hyperparameter optimization: comparing parameter combinations across different conditions
+    - Model comparison studies: evaluating architectures across different datasets and tasks
+    - Feature engineering: testing feature sets across different data preprocessing methods
+    - Cross-validation analysis: comparing models across different validation strategies and metrics
+    - Fairness assessment: evaluating model performance across demographic groups and contexts
+    - Domain adaptation: testing transfer methods across source and target domain combinations
+    - Ensemble evaluation: comparing ensemble strategies across different base learner types
+    - Multi-task learning: evaluating task-specific vs shared parameters across task pairs
+    - Active learning: comparing query strategies across different dataset characteristics
+
+    **Choose two-way ANOVA over one-way ANOVA when:**
+    - Two factors are of theoretical interest
+    - Interaction between factors is possible and important
+    - Need to control for second factor while testing first
+    - More efficient use of data compared to separate one-way ANOVAs
+
+    **Choose two-way ANOVA over multiple regression when:**
+    - Factors are categorical rather than continuous
+    - Interest is in main effects and interactions specifically
+    - Traditional ANOVA assumptions are met
+    - Factorial design structure is appropriate
+
+    **Effect types:**
+    - Main effect A: Effect of Factor A averaged across levels of Factor B
+    - Main effect B: Effect of Factor B averaged across levels of Factor A
+    - Interaction: Whether the effect of one factor depends on the level of the other
+
     Parameters
     ----------
     effect_size : Tensor

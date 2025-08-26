@@ -19,6 +19,51 @@ def intraclass_correlation_power(
     Tests whether the ICC differs significantly from zero, indicating
     reliability or agreement among raters/measurements.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Test-retest reliability studies for continuous measurements
+    - Inter-rater reliability assessment with multiple raters
+    - Instrument validation studies measuring measurement consistency
+    - Clinical research evaluating assessment tool reliability
+    - Survey research validating scale reliability across raters
+
+    **Machine Learning Contexts:**
+    - Annotation reliability: assessing consistency across multiple human annotators
+    - Model ensemble evaluation: measuring agreement between multiple model predictions
+    - Cross-validation reliability: assessing model performance consistency across folds
+    - Feature reliability: evaluating consistency of engineered features across datasets
+    - Active learning: measuring annotation quality consistency across query strategies
+    - Multi-task learning: assessing consistency of shared representations across tasks
+    - Federated learning: evaluating model consistency across participating institutions
+    - Domain adaptation: measuring feature consistency across source and target domains
+    - Hyperparameter optimization: assessing performance consistency across parameter settings
+    - Time series validation: measuring model consistency across different time periods
+
+    **Choose ICC over other reliability measures when:**
+    - Continuous or ordinal ratings (not categorical classifications)
+    - Multiple raters or repeated measurements (not just two raters)
+    - Interest is in absolute agreement or consistency
+    - Data has natural clustering structure (subjects with repeated measures)
+    - Need to decompose variance into between-subject and within-subject components
+
+    **Choose ICC over Cohen's kappa when:**
+    - Ratings are continuous rather than categorical
+    - More than two raters are involved
+    - Interest is in consistency rather than exact agreement
+    - Data represents measurements on a continuous scale
+
+    **Choose ICC over Cronbach's alpha when:**
+    - Raters are not interchangeable (e.g., different measurement occasions)
+    - Interest is in test-retest reliability rather than internal consistency
+    - Multiple measurement occasions rather than multiple items
+
+    **Interpretation Guidelines:**
+    - ICC < 0.50: Poor reliability (measurements not dependable)
+    - ICC 0.50-0.74: Moderate reliability (acceptable for research)
+    - ICC 0.75-0.89: Good reliability (suitable for clinical decisions)
+    - ICC ≥ 0.90: Excellent reliability (gold standard for clinical use)
+
     Parameters
     ----------
     icc : Tensor

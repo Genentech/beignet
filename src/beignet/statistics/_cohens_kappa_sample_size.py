@@ -20,6 +20,41 @@ def cohens_kappa_sample_size(
     Calculates the number of items/subjects needed to achieve desired power
     for testing whether Cohen's kappa differs significantly from zero.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning inter-rater reliability studies with adequate power
+    - Designing content analysis studies for sufficient coder agreement assessment
+    - Clinical trial planning for diagnostic agreement validation
+    - Survey research design ensuring reliable categorization measurement
+    - Educational assessment planning for grader reliability studies
+
+    **Machine Learning Contexts:**
+    - Annotation study design: determining sample sizes for labeler agreement evaluation
+    - Active learning planning: ensuring adequate power for annotation quality assessment
+    - Model evaluation planning: determining required samples for human-AI agreement testing
+    - Fairness audit design: planning sample sizes for demographic agreement studies
+    - Cross-validation design: ensuring adequate power for label consistency measurement
+    - Ensemble evaluation planning: determining samples needed for model agreement assessment
+    - Domain adaptation studies: planning sample sizes for cross-domain label consistency
+    - Multi-task learning: determining adequate samples for annotation agreement testing
+    - Federated learning design: planning sample sizes for institution annotation consistency
+    - Crowdsourcing studies: determining required items for worker reliability assessment
+
+    **Use this function when:**
+    - Planning studies where kappa will be the primary agreement measure
+    - Expected kappa value can be reasonably estimated from pilot data
+    - Two-rater design is planned (not multiple raters)
+    - Categorical outcomes with known or estimable category distributions
+    - Adequate resources exist to collect the calculated sample size
+
+    **Sample size considerations:**
+    - Higher expected kappa values require smaller sample sizes
+    - Two-sided tests require larger sample sizes than one-sided
+    - Balanced category distributions generally require larger sample sizes
+    - Lower alpha levels and higher power requirements increase needed sample size
+    - Marginal distributions affect sample size (balanced is often worst case)
+
     Parameters
     ----------
     kappa : Tensor

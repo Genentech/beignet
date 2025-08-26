@@ -19,6 +19,45 @@ def repeated_measures_analysis_of_variance_power(
     Tests the within-subjects (time) effect in a repeated measures design
     using the F-test with sphericity correction.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Longitudinal studies with repeated measurements over time
+    - Within-subject experimental designs with multiple conditions
+    - Pre-post intervention studies with multiple time points
+    - Clinical trials with repeated efficacy assessments
+    - Learning studies measuring performance across sessions
+
+    **Machine Learning Contexts:**
+    - Model performance tracking: evaluating performance changes across training epochs
+    - Online learning evaluation: assessing algorithm performance over time
+    - Cross-validation with temporal dependency: accounting for time-series structure
+    - Active learning: evaluating query strategy effectiveness across iterations
+    - Hyperparameter optimization: comparing parameter settings across time periods
+    - Ensemble method evaluation: tracking ensemble performance across updates
+    - Domain adaptation: measuring model performance across temporal domains
+    - Transfer learning: evaluating knowledge retention across sequential tasks
+    - Federated learning: assessing model consistency across communication rounds
+    - Time series forecasting: comparing model performance across forecast horizons
+
+    **Choose repeated measures ANOVA over independent ANOVA when:**
+    - Same subjects measured at multiple time points or conditions
+    - Within-subject correlation is expected and should be accounted for
+    - Higher power is needed (repeated measures increases power)
+    - Individual differences should be controlled statistically
+
+    **Choose repeated measures ANOVA over mixed-effects models when:**
+    - Balanced design with no missing data
+    - Simple repeated measures structure (no complex nesting)
+    - Traditional ANOVA assumptions are met
+    - Sphericity assumption is reasonable or correctable
+
+    **Design considerations:**
+    - Power increases with number of repeated measures
+    - Power depends on within-subject correlation (higher correlation = higher power)
+    - Sphericity violations reduce power and require corrections
+    - Compound symmetry assumption may be violated
+
     Parameters
     ----------
     effect_size : Tensor

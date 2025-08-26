@@ -18,6 +18,45 @@ def multivariable_linear_regression_power(
     Tests the overall model significance (F-test) or individual coefficient
     significance in multiple linear regression.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Research planning for multiple predictor studies
+    - Clinical trial design with multiple covariates
+    - Observational study planning with confounding variables
+    - Economic analysis with multiple explanatory variables
+    - Survey research with multiple demographic predictors
+
+    **Machine Learning Contexts:**
+    - Feature selection validation: assessing power to detect feature importance
+    - Model interpretability: testing significance of linear model coefficients
+    - Baseline model evaluation: establishing statistical significance of linear relationships
+    - Causal inference: testing treatment effects while controlling for confounders
+    - Cross-validation planning: ensuring adequate power for regression model validation
+    - A/B testing with covariates: accounting for user characteristics in experiment design
+    - Fairness assessment: testing for significant bias in linear prediction models
+    - Transfer learning: evaluating feature importance consistency across domains
+    - Multi-task learning: assessing shared feature significance across tasks
+    - Hyperparameter optimization: determining statistical significance of parameter choices
+
+    **Choose multiple regression over simple regression when:**
+    - Multiple predictors are theoretically important
+    - Need to control for confounding variables
+    - Interest is in partial effects of predictors
+    - Model complexity is justified by research questions
+
+    **Choose multiple regression over other methods when:**
+    - Relationship between predictors and outcome is approximately linear
+    - Predictors are continuous or properly coded categorical variables
+    - Residuals meet normality and homoscedasticity assumptions
+    - Interpretability of coefficients is important
+
+    **Power considerations:**
+    - Power decreases as number of predictors increases (degrees of freedom)
+    - Multicollinearity among predictors reduces power
+    - Larger R² values indicate higher power
+    - Sample size should be at least 10-20 times the number of predictors
+
     Parameters
     ----------
     r_squared : Tensor

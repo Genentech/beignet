@@ -23,6 +23,41 @@ def repeated_measures_analysis_of_variance_sample_size(
     Calculates the number of subjects needed to achieve desired power
     for detecting within-subjects effects in repeated measures designs.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning longitudinal studies with repeated measurements
+    - Designing within-subject experiments with adequate statistical power
+    - Clinical trial planning for repeated efficacy assessments
+    - Learning studies with multiple measurement sessions
+    - Treatment evaluation with pre-post-follow-up design
+
+    **Machine Learning Contexts:**
+    - Model training studies: planning adequate subjects for performance tracking across epochs
+    - Online learning experiments: determining required participants for algorithm evaluation over time
+    - Active learning design: planning adequate subjects for iterative query strategy evaluation
+    - Hyperparameter optimization: determining required subjects for parameter comparison across time
+    - Ensemble evaluation: planning adequate subjects for tracking ensemble performance updates
+    - Domain adaptation studies: determining subjects needed for temporal domain comparison
+    - Transfer learning: planning adequate subjects for sequential task knowledge retention evaluation
+    - Federated learning: determining participants needed for consistency evaluation across rounds
+    - Time series forecasting: planning adequate subjects for multi-horizon model comparison
+    - Cross-validation design: accounting for temporal dependencies in power calculations
+
+    **Use this function when:**
+    - Planning repeated measures designs with within-subject comparisons
+    - Expected effect size for within-subject differences is estimable
+    - Number of time points or conditions is predetermined
+    - Primary constraint is on recruiting subjects (not measurements per subject)
+    - Sphericity violations can be estimated or assumed
+
+    **Sample size considerations:**
+    - Fewer subjects needed compared to independent groups design
+    - Power increases with number of repeated measures
+    - Sphericity violations (epsilon < 1.0) increase required sample size
+    - Higher within-subject correlation increases power
+    - Effect size should reflect within-subject differences
+
     Parameters
     ----------
     effect_size : Tensor

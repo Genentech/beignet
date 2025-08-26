@@ -21,6 +21,41 @@ def interrupted_time_series_sample_size(
     Calculates the total number of time points needed to achieve desired power
     for detecting an intervention effect in interrupted time series analysis.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning policy evaluation studies with adequate temporal resolution
+    - Designing clinical intervention studies with time series outcomes
+    - Public health program evaluation planning with population-level metrics
+    - Educational intervention planning with longitudinal assessment data
+    - Economic policy analysis planning with sufficient temporal coverage
+
+    **Machine Learning Contexts:**
+    - A/B testing planning: determining required observation periods for temporal experiments
+    - Model deployment studies: planning sufficient time points for performance impact assessment
+    - Feature engineering experiments: determining temporal coverage for feature impact evaluation
+    - Concept drift studies: planning adequate time points for distribution change detection
+    - Online learning evaluation: determining required observation periods for algorithm assessment
+    - Recommendation system experiments: planning adequate time for user behavior change detection
+    - Anomaly detection validation: determining required time points for system effectiveness evaluation
+    - Causal inference planning: ensuring adequate temporal coverage for treatment effect detection
+    - Reinforcement learning studies: planning adequate episodes for policy change evaluation
+    - Time series forecasting: planning sufficient pre/post observations for model comparison
+
+    **Use this function when:**
+    - Planning time series experiments with clear intervention points
+    - Expected effect size can be reasonably estimated from pilot studies
+    - Data collection frequency and duration are controllable
+    - Interest is in detecting immediate level changes (not gradual trends)
+    - Temporal autocorrelation can be estimated or assumed
+
+    **Sample size considerations:**
+    - Larger effect sizes require fewer time points
+    - Higher autocorrelation generally requires more time points
+    - Balanced pre/post periods (ratio = 1.0) typically provide optimal power
+    - Seasonal data may require specific ratios to capture full cycles
+    - Cost-effectiveness may favor shorter pre-intervention periods
+
     Parameters
     ----------
     effect_size : Tensor

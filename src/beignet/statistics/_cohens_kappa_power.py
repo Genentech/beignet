@@ -19,6 +19,47 @@ def cohens_kappa_power(
     This function calculates the power for testing whether kappa differs
     significantly from zero (no agreement beyond chance).
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Inter-rater reliability studies for diagnostic assessments
+    - Content analysis research measuring coder agreement
+    - Survey research validating response categorization consistency
+    - Clinical research evaluating diagnostic agreement between experts
+    - Educational assessment measuring grader reliability
+
+    **Machine Learning Contexts:**
+    - Annotation quality assessment: evaluating human labeler agreement
+    - Active learning: measuring annotation consistency for query strategies
+    - Model validation: comparing automated predictions with human judgments
+    - Fairness auditing: assessing agreement between different demographic groups
+    - Cross-validation: measuring label consistency across data splits
+    - Ensemble methods: evaluating agreement between different model predictions
+    - Domain adaptation: assessing label consistency across domains
+    - Multi-task learning: measuring agreement between task-specific annotations
+    - Federated learning: evaluating annotation consistency across institutions
+    - Crowdsourcing: determining annotation quality and worker reliability
+
+    **Choose Cohen's kappa over other agreement measures when:**
+    - Data consists of categorical classifications (not continuous ratings)
+    - Need to account for chance agreement (unlike simple percent agreement)
+    - Two raters making independent judgments
+    - Categories are nominal or ordinal (for weighted kappa)
+    - Sample size is adequate for reliable kappa estimation
+
+    **Choose Cohen's kappa over ICC when:**
+    - Classifications are categorical rather than continuous ratings
+    - Exactly two raters (ICC handles multiple raters better)
+    - Interest is in agreement rather than consistency
+    - Categories have no meaningful ordering (nominal data)
+
+    **Interpretation Guidelines:**
+    - κ < 0.20: Poor agreement (little better than chance)
+    - κ 0.21-0.40: Fair agreement (better than chance but concerns remain)
+    - κ 0.41-0.60: Moderate agreement (acceptable for some applications)
+    - κ 0.61-0.80: Substantial agreement (good reliability)
+    - κ 0.81-1.00: Almost perfect agreement (excellent reliability)
+
     Parameters
     ----------
     kappa : Tensor

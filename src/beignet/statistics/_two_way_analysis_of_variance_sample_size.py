@@ -22,6 +22,41 @@ def two_way_analysis_of_variance_sample_size(
     Calculates the sample size needed per cell to achieve desired power
     for testing main effects or interaction in two-way ANOVA.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning factorial experiments with adequate power for main effects and interactions
+    - Clinical trial design with treatment and demographic factor considerations
+    - Educational intervention planning with multiple factors
+    - Marketing research design with product and customer segment factors
+    - Quality control studies with multiple process variables
+
+    **Machine Learning Contexts:**
+    - A/B testing design: planning adequate sample sizes for multi-factor experiments
+    - Hyperparameter optimization: determining required sample sizes for parameter combination testing
+    - Model comparison planning: ensuring adequate power for architecture evaluation across conditions
+    - Feature engineering studies: planning sample sizes for feature set evaluation across methods
+    - Cross-validation design: determining adequate samples for model comparison across strategies
+    - Fairness assessment planning: ensuring adequate power for bias detection across groups and contexts
+    - Domain adaptation studies: planning sample sizes for transfer method evaluation across domains
+    - Ensemble evaluation planning: determining adequate samples for ensemble strategy comparison
+    - Multi-task learning studies: planning adequate samples for parameter sharing evaluation
+    - Active learning design: ensuring adequate power for query strategy comparison across datasets
+
+    **Use this function when:**
+    - Planning two-factor experiments with specific effect testing in mind
+    - Expected effect sizes can be estimated for main effects and interactions
+    - Factorial design structure is appropriate for research questions
+    - Sample size per cell is the limiting resource (not total sample size)
+    - Interest is in detecting specific effects (main or interaction)
+
+    **Sample size considerations:**
+    - Sample size per cell must be multiplied by total cells (levels_a × levels_b)
+    - Interaction effects typically require larger sample sizes than main effects
+    - Unbalanced designs may require larger sample sizes
+    - Effect size should correspond to the specific effect being tested
+    - Consider multiple testing corrections if testing all effects
+
     Parameters
     ----------
     effect_size : Tensor

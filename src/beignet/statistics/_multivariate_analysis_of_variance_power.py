@@ -19,6 +19,47 @@ def multivariate_analysis_of_variance_power(
     Tests the overall group differences across multiple dependent variables
     using Wilks' Lambda or Pillai's trace statistics.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Comparing multiple groups on several related outcome variables simultaneously
+    - Clinical trials with multiple efficacy endpoints
+    - Educational research comparing interventions on multiple achievement measures
+    - Psychological studies with multiple behavioral or cognitive outcomes
+    - Marketing research comparing products on multiple attribute ratings
+
+    **Machine Learning Contexts:**
+    - Multi-task learning evaluation: comparing model performance across multiple tasks simultaneously
+    - Feature evaluation: testing group differences across multiple engineered features
+    - Ensemble method comparison: evaluating multiple model outputs across different conditions
+    - Multi-label classification evaluation: comparing classifiers on multiple label dimensions
+    - Cross-validation analysis: comparing models across multiple performance metrics simultaneously
+    - A/B testing with multiple metrics: testing intervention effects on multiple KPIs
+    - Fairness assessment: evaluating model performance across multiple demographic groups and metrics
+    - Domain adaptation: comparing model performance across multiple domains and metrics
+    - Transfer learning evaluation: assessing knowledge transfer across multiple target tasks
+    - Hyperparameter optimization: comparing parameter settings across multiple evaluation criteria
+
+    **Choose MANOVA over multiple ANOVAs when:**
+    - Multiple dependent variables are conceptually related
+    - Need to control family-wise error rate across variables
+    - Interested in overall multivariate group differences
+    - Variables are correlated (MANOVA accounts for correlation structure)
+    - Want to identify discriminating patterns across variables
+
+    **Choose MANOVA over other methods when:**
+    - Multiple continuous dependent variables (not single composite score)
+    - Groups are independent (not repeated measures)
+    - Multivariate normality assumption is reasonable
+    - Sample size is adequate relative to number of variables
+    - Homogeneity of covariance matrices is plausible
+
+    **Design considerations:**
+    - Minimum sample size: n ≥ p + k (where p = variables, k = groups)
+    - Power decreases as number of variables increases
+    - Balanced groups provide optimal power
+    - Effect size interpretation is complex in multivariate context
+
     Parameters
     ----------
     effect_size : Tensor

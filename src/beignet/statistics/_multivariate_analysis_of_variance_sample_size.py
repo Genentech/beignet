@@ -23,6 +23,41 @@ def multivariate_analysis_of_variance_sample_size(
     Calculates the total sample size needed to achieve desired power
     for detecting multivariate group differences in MANOVA.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning multi-endpoint clinical trials with adequate power
+    - Educational intervention studies with multiple achievement measures
+    - Psychological research design with multiple behavioral outcomes
+    - Marketing studies comparing products on multiple attributes
+    - Quality control studies with multiple measurement criteria
+
+    **Machine Learning Contexts:**
+    - Multi-task learning experiments: planning adequate samples for performance comparison across tasks
+    - Feature evaluation studies: determining sample sizes for group comparison across multiple features
+    - Ensemble method evaluation: planning adequate samples for multi-output model comparison
+    - Multi-label classification studies: determining sample sizes for classifier comparison across labels
+    - Cross-validation design: planning adequate samples for multi-metric model evaluation
+    - A/B testing with multiple KPIs: determining required sample sizes for multivariate effect detection
+    - Fairness assessment planning: ensuring adequate power for bias detection across multiple metrics
+    - Domain adaptation studies: planning sample sizes for multi-domain, multi-metric comparison
+    - Transfer learning evaluation: determining adequate samples for multi-task knowledge transfer assessment
+    - Hyperparameter optimization: planning sample sizes for multi-criteria parameter comparison
+
+    **Use this function when:**
+    - Planning studies with multiple related dependent variables
+    - Expected multivariate effect size can be estimated
+    - Multiple groups will be compared simultaneously
+    - Sample size is the primary resource constraint
+    - Interest is in overall multivariate group differences
+
+    **Sample size considerations:**
+    - Required sample size increases with number of variables
+    - Required sample size increases with number of groups
+    - Larger multivariate effect sizes require smaller sample sizes
+    - Balanced group allocation is generally optimal
+    - Consider correlation structure among dependent variables
+
     Parameters
     ----------
     effect_size : Tensor

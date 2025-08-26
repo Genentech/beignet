@@ -19,6 +19,46 @@ def interrupted_time_series_power(
     Tests for a change in level or slope at an intervention point in a
     time series using segmented regression.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Evaluating policy interventions with time series outcome data
+    - Clinical research assessing treatment effects over time
+    - Public health studies analyzing intervention impacts on population metrics
+    - Educational research measuring program effectiveness over time
+    - Economic analysis of regulatory changes on market outcomes
+
+    **Machine Learning Contexts:**
+    - A/B testing with temporal dependencies: measuring intervention effects in time series
+    - Model deployment impact: assessing performance changes after model updates
+    - Feature engineering evaluation: measuring impact of new features over time
+    - Concept drift detection: identifying significant changes in data distributions
+    - Online learning evaluation: assessing algorithm performance changes over time
+    - Recommendation system analysis: measuring impact of algorithm changes on user behavior
+    - Anomaly detection validation: evaluating detection system effectiveness over time
+    - Causal inference in ML: identifying treatment effects in observational time series data
+    - Reinforcement learning: measuring policy change effects in sequential decision making
+    - Time series forecasting: evaluating model performance before/after structural changes
+
+    **Choose interrupted time series over other methods when:**
+    - Data has natural temporal ordering with clear intervention point
+    - Randomized controlled trial is not feasible or ethical
+    - Need to control for secular trends and seasonal patterns
+    - Multiple time points available before and after intervention
+    - Interest is in both immediate and gradual effects of intervention
+
+    **Choose ITS over simple before-after comparison when:**
+    - Secular trends exist that could confound results
+    - Need to separate immediate level changes from slope changes
+    - Multiple time points available (not just single pre/post measurements)
+    - Temporal autocorrelation is present in the data
+
+    **Design considerations:**
+    - Minimum 8-10 observations recommended (preferably 50+)
+    - Balanced pre/post periods generally provide better power
+    - Consider seasonal patterns and adjust design accordingly
+    - Account for autocorrelation in power calculations
+
     Parameters
     ----------
     effect_size : Tensor

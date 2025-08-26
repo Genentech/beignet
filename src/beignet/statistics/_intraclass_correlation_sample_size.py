@@ -21,6 +21,41 @@ def intraclass_correlation_sample_size(
     Calculates the number of subjects needed to achieve desired power
     for testing whether the ICC differs significantly from zero.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning test-retest reliability studies with adequate statistical power
+    - Designing inter-rater reliability studies for instrument validation
+    - Clinical research planning for assessment tool reliability evaluation
+    - Survey research design ensuring reliable measurement across raters
+    - Educational assessment planning for scoring consistency studies
+
+    **Machine Learning Contexts:**
+    - Annotation study planning: determining subjects needed for multi-annotator reliability
+    - Model ensemble design: planning sample sizes for ensemble agreement evaluation
+    - Cross-validation planning: ensuring adequate power for model consistency assessment
+    - Feature engineering studies: planning samples for feature reliability testing
+    - Active learning design: determining samples needed for annotation quality evaluation
+    - Multi-task learning: planning sample sizes for shared representation consistency
+    - Federated learning design: determining adequate samples for institution consistency
+    - Domain adaptation planning: ensuring adequate power for cross-domain reliability
+    - Hyperparameter optimization: planning samples for performance consistency evaluation
+    - Time series studies: determining subjects needed for temporal consistency assessment
+
+    **Use this function when:**
+    - Planning studies where ICC will be the primary reliability measure
+    - Expected ICC value can be reasonably estimated from pilot data
+    - Multiple raters or measurement occasions are planned
+    - Continuous or ordinal outcome measures are used
+    - Primary constraint is on number of subjects (not raters)
+
+    **Sample size considerations:**
+    - Higher expected ICC values require fewer subjects
+    - More raters per subject reduce the required number of subjects
+    - Greater statistical power requirements increase needed subjects
+    - One-sided tests (common for ICC) require fewer subjects than two-sided
+    - Lower alpha levels increase required number of subjects
+
     Parameters
     ----------
     icc : Tensor

@@ -22,6 +22,41 @@ def multivariable_linear_regression_sample_size(
     Calculates the sample size needed to achieve desired power for testing
     the overall model significance in multiple linear regression.
 
+    When to Use
+    -----------
+    **Traditional Statistics:**
+    - Planning research studies with multiple predictors
+    - Clinical trial design with multiple covariates and adequate power
+    - Observational study planning with confounding variable control
+    - Economic analysis planning with multiple explanatory variables
+    - Survey research design with multiple demographic predictors
+
+    **Machine Learning Contexts:**
+    - Feature selection experiments: planning adequate sample sizes for significance testing
+    - Model interpretability studies: ensuring sufficient power for coefficient testing
+    - Baseline model validation: determining adequate samples for linear model evaluation
+    - Causal inference studies: planning sample sizes for treatment effect detection with confounders
+    - Cross-validation design: ensuring adequate samples for reliable regression model evaluation
+    - A/B testing with covariates: determining required sample sizes for user characteristic adjustment
+    - Fairness assessment planning: ensuring adequate power for bias detection in linear models
+    - Transfer learning studies: planning sample sizes for feature consistency evaluation across domains
+    - Multi-task learning: determining adequate samples for shared feature significance testing
+    - Hyperparameter optimization: planning sample sizes for statistical significance of parameter effects
+
+    **Use this function when:**
+    - Planning studies where multiple regression will be the primary analysis
+    - Expected R² can be estimated from pilot data or literature
+    - Number of predictors is determined by theoretical considerations
+    - Interest is in overall model significance rather than individual coefficients
+    - Linear relationships are expected between predictors and outcome
+
+    **Sample size considerations:**
+    - Higher expected R² values require smaller sample sizes
+    - Each additional predictor increases required sample size
+    - Multicollinearity among predictors may require larger sample sizes
+    - Common guidelines: minimum 10-20 observations per predictor
+    - Consider effect size guidelines: R² = 0.02 (small), 0.13 (medium), 0.26 (large)
+
     Parameters
     ----------
     r_squared : Tensor
