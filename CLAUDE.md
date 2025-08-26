@@ -105,6 +105,7 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
 - **Compilation**: Operators must be compatible with `torch.compile(foo, fullgraph=True)`. Avoid Python control flow that depends on tensor values
 - **Batch operations**: Design operators to work on batched inputs, following PyTorch conventions. The first dimension should typically be the batch dimension
 - **Functional compatibility**: Ensure compatibility with `torch.func` transformations (vmap, grad, etc.) by using pure functional implementations without side effects
+- **Type promotion**: Use `torch.promote_types` for proper dtype handling across multiple input tensors, following PyTorch's type promotion rules
 
 ### 3. Testing
 - **Test file**: Create `tests/beignet/test__foo.py` (note the double underscore to match the source file)
@@ -189,15 +190,21 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
 
 ### Variable Naming
 - **All variables must use lowercase_with_underscores**: Never use PascalCase, camelCase, or UPPER_CASE for variables
-- **Descriptive names, no abbreviations**: Use full, descriptive variable names instead of abbreviations for clarity, including common abbreviations
+- **Descriptive names, no abbreviations**: Use full, descriptive variable names instead of abbreviations for clarity, including common abbreviations. Exception: PyTorch conventions like `out` parameter should be preserved
 - **Avoid unnecessary suffixes/prefixes**: Remove redundant words like `_parameter`, `_value`, `_variable` when the context is clear
 - **Mathematical variables**: Even single-letter mathematical variables should be lowercase (e.g., `n` not `N`, `r2` not `R2`)
+- **Typographically pleasing names**: Variable names should be visually balanced and aesthetically pleasing. Prefer words with balanced letter shapes and avoid words that are visually top-heavy, bottom-heavy, or have awkward proportions:
+  - **Good patterns**: Words with balanced mix of ascending/descending letters (g, j, p, q, y) and neutral letters, creating visual harmony
+  - **Avoid**: Words dominated by tall letters (b, d, f, h, k, l, t) or short letters without visual interest
+  - **Examples**:
+    - ✅ Good: `maximum`, `minimum`, `beginning`, `current`, `degrees_of_freedom`, `sample_size`, `chi_squared`
+    - ❌ Bad: `initial`, `first`, `final`, `height`, `length`, `width`, `critical_value`, `total`, `significance_level`, `confidence_interval`
 - **Common abbreviations to avoid**:
   - `max` → `maximum`
   - `min` → `minimum` 
   - `std` → `standard_deviation` (except in function names like `torch.std`)
   - `sqrt` → `square_root`
-  - `init` → `initial`
+  - `init` → avoid (use `starting`, `beginning` instead)
   - `curr` → `current`
   - `prev` → `previous`
   - `temp` → descriptive name for what it temporarily holds
@@ -389,10 +396,117 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
   temp = result.reshape(())
   ```
 
+### Typography and Visual Balance
+- **Consistent indentation alignment**: Align continuation lines and multi-line expressions for visual clarity
+- **Balanced parentheses and brackets**: When breaking expressions across lines, align opening and closing delimiters
+- **Symmetric spacing around operators**: Maintain consistent spacing around mathematical and logical operators
+- **Visual grouping through whitespace**: Use blank lines to create visual separation between logical code blocks
+- **Examples**:
+  ```python
+  # Correct - well-aligned multi-line expressions
+  initial_effect_size = torch.clamp(
+      (z_alpha + z_beta) * sqrt_df_over_n * sqrt_residual_variance,
+      min=minimum_effect_size,
+  )
+  
+  scalar_output = (
+      sample_size_tensor.ndim == 0
+      and groups_tensor.ndim == 0
+      and covariate_r2_tensor.ndim == 0
+      and num_covariates_tensor.ndim == 0
+  )
+  
+  # Correct - consistent spacing around operators
+  power_too_low = power_mid < target_power
+  effect_size_mid = (effect_size_lower + effect_size_upper) * 0.5
+  adjustment_factor = (degrees_of_freedom + 2.0) / torch.clamp(degrees_of_freedom, min=1.0)
+  
+  # Incorrect - poor alignment and inconsistent spacing
+  initial_effect_size = torch.clamp(
+  (z_alpha + z_beta) * sqrt_df_over_n * sqrt_residual_variance,
+  min=minimum_effect_size,
+  )
+  
+  scalar_output = (sample_size_tensor.ndim == 0 and
+                   groups_tensor.ndim == 0 and
+                   covariate_r2_tensor.ndim == 0)
+  
+  power_too_low=power_mid<target_power
+  effect_size_mid=(effect_size_lower+effect_size_upper)*0.5
+  ```
+
+### Function Call Formatting
+- **Break long function calls consistently**: When function calls exceed line length, break at logical parameter boundaries
+- **Align parameters vertically**: Parameters should align for readability when broken across lines
+- **Trailing commas on multi-line calls**: Use trailing commas for multi-line function calls to minimize diff noise
+- **Examples**:
+  ```python
+  # Correct - clean parameter alignment
+  power_mid = analysis_of_covariance_power(
+      effect_size_mid,
+      sample_size_clamped,
+      groups_clamped,
+      covariate_r2_clamped,
+      num_covariates_clamped,
+      alpha,
+  )
+  
+  # Correct - short calls can stay inline
+  result = torch.clamp(effect_size_mid, min=0.0)
+  
+  # Incorrect - poor alignment
+  power_mid = analysis_of_covariance_power(effect_size_mid,
+                                         sample_size_clamped,
+                                         groups_clamped,
+                                         covariate_r2_clamped,
+                                         num_covariates_clamped,
+                                         alpha)
+  ```
+
+### Line Length and Visual Density
+- **Target line length around 79-88 characters**: Aim for readability without excessive wrapping
+- **Avoid overly dense lines**: Break up lines that pack too much information
+- **Balance vertical and horizontal space**: Use both line breaks and spacing to create readable code
+- **Examples**:
+  ```python
+  # Correct - appropriate information density
+  covariate_r2_clamped = torch.clamp(
+      covariate_r2_1d.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps
+  )
+  
+  maximum_expansion_iterations = 8
+  
+  for _ in range(maximum_expansion_iterations):
+      # loop body with appropriate spacing
+  
+  # Incorrect - too dense, hard to parse
+  covariate_r2_clamped = torch.clamp(covariate_r2_1d.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
+  maximum_expansion_iterations = 8
+  for _ in range(maximum_expansion_iterations):
+  ```
+
 ### Comments and Documentation
 - **No inline comments**: Remove all `#` comments from function implementations
 - **No docstrings in implementations**: Function implementations should not contain triple-quoted docstrings
 - **Clean, minimal code**: Focus on clear, self-documenting code without explanatory comments
+
+### Type Promotion
+- **Use torch.promote_types**: Always use `torch.promote_types` for dtype determination across multiple input tensors
+- **Start with float32**: Begin type promotion from `torch.float32` as the base dtype for statistical computations
+- **Avoid manual dtype checking**: Do not use manual `if tensor.dtype == torch.float64` patterns
+- **Examples**:
+  ```python
+  # Correct - using torch.promote_types
+  dtype = torch.float32
+  for tensor in (effect_size, sample_size, groups):
+      dtype = torch.promote_types(dtype, tensor.dtype)
+  
+  # Incorrect - manual dtype checking
+  if effect_size.dtype == torch.float64 or sample_size.dtype == torch.float64:
+      dtype = torch.float64
+  else:
+      dtype = torch.float32
+  ```
 
 ### Example Operator Implementation Checklist
 - [ ] Create `src/beignet/_foo.py` with the operator implementation

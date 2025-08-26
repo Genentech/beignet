@@ -75,6 +75,7 @@ select = [
     "I",  # ISORT
     "W",  # PYCODESTYLE WARNINGS
     "UP006", # non-pep585-annotation
+    "COM",  # flake8-commas (trailing commas)
 ]
 
 ignore = [
