@@ -28,7 +28,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    S = sample_size * (sample_size + 1.0) / 2.0
+    s = sample_size * (sample_size + 1.0) / 2.0
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
@@ -42,7 +42,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
     z_beta = z_of(power)
-    delta = (z_alpha + z_beta) * sd0 / torch.clamp(S, min=1e-12)
+    delta = (z_alpha + z_beta) * sd0 / torch.clamp(s, min=1e-12)
 
     if alt == "less":
         prob_initial = torch.clamp(0.5 - delta, 0.0, 1.0)

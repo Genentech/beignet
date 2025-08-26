@@ -15,7 +15,7 @@ def analysis_of_covariance_power(
     out: Tensor | None = None,
 ) -> Tensor:
     effect_size_f = torch.atleast_1d(torch.as_tensor(effect_size))
-    N = torch.atleast_1d(torch.as_tensor(sample_size))
+    n = torch.atleast_1d(torch.as_tensor(sample_size))
     groups = torch.atleast_1d(torch.as_tensor(k))
     R2 = torch.atleast_1d(torch.as_tensor(covariate_r2))
     num_covariates = torch.atleast_1d(torch.as_tensor(n_covariates))
@@ -24,25 +24,25 @@ def analysis_of_covariance_power(
         torch.float64
         if any(
             t.dtype == torch.float64
-            for t in (effect_size_f, N, groups, R2, num_covariates)
+            for t in (effect_size_f, n, groups, R2, num_covariates)
         )
         else torch.float32
     )
     effect_size_f = torch.clamp(effect_size_f.to(dtype), min=0.0)
-    N = torch.clamp(N.to(dtype), min=3.0)
+    n = torch.clamp(n.to(dtype), min=3.0)
     groups = torch.clamp(groups.to(dtype), min=2.0)
     R2 = torch.clamp(R2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
 
     df1 = torch.clamp(groups - 1.0, min=1.0)
-    df2 = torch.clamp(N - groups - num_covariates, min=1.0)
+    df2 = torch.clamp(n - groups - num_covariates, min=1.0)
 
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
     chi2_crit = df1 + z_alpha * torch.sqrt(2 * df1)
     f_crit = chi2_crit / df1
 
-    lambda_nc = N * effect_size_f**2 / torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)
+    lambda_nc = n * effect_size_f**2 / torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)
 
     mean_nc_chi2 = df1 + lambda_nc
     var_nc_chi2 = 2 * (df1 + 2 * lambda_nc)

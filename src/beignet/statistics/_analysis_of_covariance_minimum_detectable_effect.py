@@ -26,17 +26,17 @@ def analysis_of_covariance_minimum_detectable_effect(
         and R20.ndim == 0
         and num_covariates0.ndim == 0
     )
-    N = torch.atleast_1d(N0)
+    n = torch.atleast_1d(N0)
     groups = torch.atleast_1d(groups0)
     R2 = torch.atleast_1d(R20)
     num_covariates = torch.atleast_1d(num_covariates0)
 
     dtype = (
         torch.float64
-        if any(t.dtype == torch.float64 for t in (N, groups, R2, num_covariates))
+        if any(t.dtype == torch.float64 for t in (n, groups, R2, num_covariates))
         else torch.float32
     )
-    N = torch.clamp(N.to(dtype), min=3.0)
+    n = torch.clamp(n.to(dtype), min=3.0)
     groups = torch.clamp(groups.to(dtype), min=2.0)
     R2 = torch.clamp(R2.to(dtype), min=0.0, max=1 - torch.finfo(dtype).eps)
     num_covariates = torch.clamp(num_covariates.to(dtype), min=0.0)
@@ -47,7 +47,7 @@ def analysis_of_covariance_minimum_detectable_effect(
     df1 = torch.clamp(groups - 1.0, min=1.0)
     effect_size_f0 = torch.clamp(
         (z_alpha + z_beta)
-        * torch.sqrt(df1 / torch.clamp(N, min=1.0))
+        * torch.sqrt(df1 / torch.clamp(n, min=1.0))
         * torch.sqrt(torch.clamp(1.0 - R2, min=torch.finfo(dtype).eps)),
         min=1e-8,
     )
@@ -57,7 +57,7 @@ def analysis_of_covariance_minimum_detectable_effect(
 
     for _ in range(8):
         p_hi = analysis_of_covariance_power(
-            effect_size_f_hi, N, groups, R2, num_covariates, alpha
+            effect_size_f_hi, n, groups, R2, num_covariates, alpha
         )
         need_expand = p_hi < power
         if not torch.any(need_expand):
@@ -72,7 +72,7 @@ def analysis_of_covariance_minimum_detectable_effect(
     effect_size_f = (effect_size_f_lo + effect_size_f_hi) * 0.5
     for _ in range(24):
         p_mid = analysis_of_covariance_power(
-            effect_size_f, N, groups, R2, num_covariates, alpha
+            effect_size_f, n, groups, R2, num_covariates, alpha
         )
         go_right = p_mid < power
         effect_size_f_lo = torch.where(go_right, effect_size_f, effect_size_f_lo)

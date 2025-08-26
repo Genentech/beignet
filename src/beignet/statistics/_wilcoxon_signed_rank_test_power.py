@@ -31,12 +31,12 @@ def wilcoxon_signed_rank_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    S = sample_size * (sample_size + 1.0) / 2.0
-    mean0 = S / 2.0
+    s = sample_size * (sample_size + 1.0) / 2.0
+    mean0 = s / 2.0
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
-    mean1 = S * probability
+    mean1 = s * probability
     noncentrality_parameter = (mean1 - mean0) / sd0
 
     sqrt2 = math.sqrt(2.0)

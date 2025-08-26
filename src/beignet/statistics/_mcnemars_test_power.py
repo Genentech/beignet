@@ -25,12 +25,12 @@ def mcnemars_test_power(
     p10 = torch.clamp(p10.to(dtype), 0.0, 1.0)
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    D = sample_size * (p01 + p10)
+    d = sample_size * (p01 + p10)
     probability = torch.where(
         (p01 + p10) > 0, p01 / torch.clamp(p01 + p10, min=1e-12), torch.zeros_like(p01)
     )
-    mean = D * (probability - 0.5)
-    std = torch.sqrt(torch.clamp(D * 0.25, min=1e-12))
+    mean = d * (probability - 0.5)
+    std = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)
 

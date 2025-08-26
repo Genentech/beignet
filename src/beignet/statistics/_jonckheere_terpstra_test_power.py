@@ -29,12 +29,12 @@ def jonckheere_terpstra_test_power(
     if groups < 3:
         raise ValueError("Jonckheere-Terpstra test requires at least 3 groups")
 
-    N = torch.sum(sample_sizes, dim=-1)
+    n = torch.sum(sample_sizes, dim=-1)
 
-    var_null = N * (N - 1) * (2 * N + 5) / 72
+    var_null = n * (n - 1) * (2 * n + 5) / 72
     std_null = torch.sqrt(torch.clamp(var_null, min=1e-12))
 
-    mean_null = N * N / 4
+    mean_null = n * n / 4
 
     mean_alt = mean_null + effect_size * std_null
 

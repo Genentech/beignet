@@ -28,11 +28,11 @@ def kruskal_wallis_test_power(
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
     groups = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
-    N = torch.sum(sample_sizes, dim=-1)
+    n = torch.sum(sample_sizes, dim=-1)
 
     degrees_of_freedom = groups - 1
 
-    lambda_nc = 12 * N * effect_size / (N + 1)
+    lambda_nc = 12 * n * effect_size / (n + 1)
 
     sqrt2 = math.sqrt(2.0)
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
