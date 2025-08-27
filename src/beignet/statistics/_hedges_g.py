@@ -4,8 +4,8 @@ from beignet.statistics._cohens_d import cohens_d
 
 
 def hedges_g(
-    group1: Tensor,
-    group2: Tensor,
+    input: Tensor,
+    other: Tensor,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
@@ -13,23 +13,21 @@ def hedges_g(
 
     Parameters
     ----------
-    group1 : Tensor
-        Group1 parameter.
-    group2 : Tensor
-        Group2 parameter.
+    input : Tensor
+
+    other : Tensor
+
     out : Tensor | None
-        Output tensor.
 
     Returns
     -------
     Tensor
-        Computed statistic.
     """
 
-    cohens_d_value = cohens_d(group1, group2, pooled=True)
+    cohens_d_value = cohens_d(input, other, pooled=True)
 
-    sample_size_group_1 = group1.shape[-1]
-    sample_size_group_2 = group2.shape[-1]
+    sample_size_group_1 = input.shape[-1]
+    sample_size_group_2 = other.shape[-1]
 
     degrees_of_freedom = sample_size_group_1 + sample_size_group_2 - 2
 
