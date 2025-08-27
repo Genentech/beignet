@@ -217,19 +217,15 @@ class NonCentralT(Distribution):
         # P(T_ν ≤ t) = 0.5 + (t/√(ν)) * F(0.5, (ν+1)/2; 1.5; -t²/ν) where F is hypergeometric
         # For numerical stability, use the relationship with incomplete beta function
 
-        # Standard t-distribution CDF using beta function relationship
-        # P(T ≤ t) = 0.5 + 0.5 * sign(t) * I_x(1/2, ν/2) where x = t²/(t²+ν)
-        t_squared = value**2
-        x_beta = t_squared / (t_squared + df_clamped)
-        sign_t = torch.sign(value)
+        # Standard t-distribution CDF using error function approximation
 
-        # Handle the beta function computation
-        half_one = torch.tensor(0.5, dtype=value.dtype, device=value.device)
-        half_df = df_clamped / 2.0
-
-        # Use regularized incomplete beta function
-        beta_cdf = torch.special.betainc(half_one, half_df, x_beta)
-        central_cdf = 0.5 + 0.5 * sign_t * beta_cdf
+        # Use a simple error function approximation for t-distribution CDF
+        # P(T ≤ t) ≈ 0.5 * (1 + erf(t * sqrt(π/(2*df))))
+        sqrt_pi_2df = torch.sqrt(
+            torch.tensor(torch.pi, dtype=value.dtype, device=value.device)
+            / (2.0 * df_clamped),
+        )
+        central_cdf = 0.5 * (1.0 + torch.erf(value * sqrt_pi_2df))
         central_cdf = torch.clamp(central_cdf, min=0.0, max=1.0)
 
         # Method 2: Large degrees of freedom (approximately normal)
