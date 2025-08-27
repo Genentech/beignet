@@ -3,8 +3,8 @@ from torch import Tensor
 
 
 def cohens_d(
-    group1: Tensor,
-    group2: Tensor,
+    input: Tensor,
+    other: Tensor,
     pooled: bool = True,
     *,
     out: Tensor | None = None,
@@ -13,39 +13,40 @@ def cohens_d(
 
     Parameters
     ----------
-    group1 : Tensor
-        Group1 parameter.
-    group2 : Tensor
-        Group2 parameter.
+    input : Tensor
+
+    other : Tensor
+
     pooled : bool, default True
-        Pooled parameter.
+
     out : Tensor | None
-        Output tensor.
 
     Returns
     -------
     Tensor
-        Computed statistic.
     """
 
+    input_mean = torch.mean(input, dim=-1)
+    other_mean = torch.mean(other, dim=-1)
+
     if pooled:
-        result = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.sqrt(
-            (
-                (group1.shape[-1] - 1) * torch.var(group1, dim=-1, unbiased=True)
-                + (group2.shape[-1] - 1) * torch.var(group2, dim=-1, unbiased=True)
-            )
-            / (group1.shape[-1] + group2.shape[-1] - 2),
-        )
+        input_variance = torch.var(input, dim=-1)
+        other_variance = torch.var(other, dim=-1)
+
+        input_variance = (input.shape[-1] - 1) * input_variance
+        other_variance = (other.shape[-1] - 1) * other_variance
+
+        variance = input_variance + other_variance
+
+        output = torch.sqrt(variance / (input.shape[-1] + other.shape[-1] - 2))
     else:
-        result = (torch.mean(group1, dim=-1) - torch.mean(group2, dim=-1)) / torch.std(
-            group1,
-            dim=-1,
-            unbiased=True,
-        )
+        output = torch.std(input, dim=-1, unbiased=True)
+
+    output = (input_mean - other_mean) / output
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output

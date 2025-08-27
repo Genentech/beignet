@@ -3,8 +3,8 @@ from torch import Tensor
 
 
 def cohens_f(
-    group_means: Tensor,
-    pooled_std: Tensor,
+    input: Tensor,
+    other: Tensor,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
@@ -12,40 +12,33 @@ def cohens_f(
 
     Parameters
     ----------
-    group_means : Tensor
-        Group Means parameter.
-    pooled_std : Tensor
-        Pooled Std parameter.
+    input : Tensor
+
+    other : Tensor
+
     out : Tensor | None
-        Output tensor.
 
     Returns
     -------
     Tensor
-        Computed statistic.
     """
+    input = torch.atleast_1d(input)
+    other = torch.atleast_1d(other)
 
-    group_means = torch.atleast_1d(torch.as_tensor(group_means))
+    dtype = torch.promote_types(input.dtype, other.dtype)
 
-    pooled_std = torch.atleast_1d(torch.as_tensor(pooled_std))
+    input = input.to(dtype)
+    other = other.to(dtype)
 
-    dtype = torch.float32
-    for tensor in (group_means, pooled_std):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    epsilon = torch.finfo(dtype).eps
 
-    group_means = group_means.to(dtype)
-
-    pooled_std = pooled_std.to(dtype)
-
-    result = torch.std(group_means, dim=-1, unbiased=False) / torch.where(
-        torch.abs(pooled_std) < 1e-10,
-        torch.tensor(1e-10, dtype=dtype, device=pooled_std.device),
-        pooled_std,
-    )
+    output = torch.abs(other) < epsilon
+    output = torch.where(output, epsilon, other)
+    output = torch.std(input, dim=-1, correction=0) / output
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output

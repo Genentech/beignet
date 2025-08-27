@@ -50,34 +50,29 @@ def z_test_sample_size(
 
     power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
 
-    normal_dist = Normal(
+    distribution = Normal(
         torch.tensor(0.0, dtype=dtype),
         torch.tensor(1.0, dtype=dtype),
     )
 
-    if alternative == "two-sided":
-        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
-    elif alternative in ["larger", "smaller"]:
-        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-    else:
-        raise ValueError(
-            f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
-        )
+    match alternative:
+        case "two-side":
+            output = torch.tensor(1 - alpha / 2, dtype=dtype)
+        case "larger" | "smaller":
+            output = torch.tensor(1 - alpha / 1, dtype=dtype)
+        case _:
+            raise ValueError
 
-    result = torch.clamp(
-        torch.ceil(
-            (
-                (z_alpha + normal_dist.icdf(power))
-                / torch.clamp(torch.abs(input), min=1e-6)
-            )
-            ** 2,
-        ),
-        min=1.0,
-    )
+    output = distribution.icdf(output)
+    output = output + distribution.icdf(power)
+    output = output / torch.clamp(torch.abs(input), min=1e-6)
+    output = output**2
+    output = torch.ceil(output)
+    output = torch.clamp(output, min=1.0)
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output
