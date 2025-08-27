@@ -12,8 +12,8 @@ import beignet.statistics
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
-def test_anova_power(batch_size, dtype):
-    """Test ANOVA power calculation."""
+def test_analysis_of_variance_power(batch_size, dtype):
+    """Test Analysis of Variance power calculation."""
     # Generate test parameters
     effect_sizes = (
         torch.tensor([0.1, 0.25, 0.4], dtype=dtype).repeat(batch_size, 1).flatten()
@@ -24,8 +24,11 @@ def test_anova_power(batch_size, dtype):
     k_values = torch.tensor([3, 4, 5], dtype=dtype).repeat(batch_size, 1).flatten()
 
     # Test basic functionality
-    result = beignet.statistics.anova_power(
-        effect_sizes, sample_sizes, k_values, alpha=0.05
+    result = beignet.statistics.analysis_of_variance_power(
+        effect_sizes,
+        sample_sizes,
+        k_values,
+        alpha=0.05,
     )
     assert result.shape == effect_sizes.shape
     assert result.dtype == dtype
@@ -34,19 +37,23 @@ def test_anova_power(batch_size, dtype):
 
     # Test with out parameter
     out = torch.empty_like(effect_sizes)
-    result_out = beignet.statistics.anova_power(
-        effect_sizes, sample_sizes, k_values, alpha=0.05, out=out
+    result_out = beignet.statistics.analysis_of_variance_power(
+        effect_sizes,
+        sample_sizes,
+        k_values,
+        alpha=0.05,
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
 
     # Test that power increases with effect size
-    small_effect = beignet.statistics.anova_power(
+    small_effect = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.1, dtype=dtype),
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
     )
-    large_effect = beignet.statistics.anova_power(
+    large_effect = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.4, dtype=dtype),
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
@@ -55,12 +62,12 @@ def test_anova_power(batch_size, dtype):
     assert large_effect > small_effect
 
     # Test that power increases with sample size
-    small_n = beignet.statistics.anova_power(
+    small_n = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.25, dtype=dtype),
         torch.tensor(60.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
     )
-    large_n = beignet.statistics.anova_power(
+    large_n = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.25, dtype=dtype),
         torch.tensor(200.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
@@ -69,12 +76,12 @@ def test_anova_power(batch_size, dtype):
     assert large_n > small_n
 
     # Test that power decreases with more groups (for fixed total N)
-    few_groups = beignet.statistics.anova_power(
+    few_groups = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.25, dtype=dtype),
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
     )
-    many_groups = beignet.statistics.anova_power(
+    many_groups = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.25, dtype=dtype),
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(6.0, dtype=dtype),
@@ -89,7 +96,11 @@ def test_anova_power(batch_size, dtype):
     effect_grad = effect_sizes.clone().requires_grad_(True)
     sample_grad = sample_sizes.clone().requires_grad_(True)
     k_grad = k_values.clone().requires_grad_(True)
-    result_grad = beignet.statistics.anova_power(effect_grad, sample_grad, k_grad)
+    result_grad = beignet.statistics.analysis_of_variance_power(
+        effect_grad,
+        sample_grad,
+        k_grad,
+    )
 
     # Compute gradients
     loss = result_grad.sum()
@@ -100,12 +111,15 @@ def test_anova_power(batch_size, dtype):
     assert k_grad.grad is not None
 
     # Test torch.compile compatibility
-    compiled_anova_power = torch.compile(beignet.statistics.anova_power, fullgraph=True)
+    compiled_anova_power = torch.compile(
+        beignet.statistics.analysis_of_variance_power,
+        fullgraph=True,
+    )
     result_compiled = compiled_anova_power(effect_sizes, sample_sizes, k_values)
     assert torch.allclose(result, result_compiled, atol=1e-5)
 
     # Test zero effect size (should give power ≈ alpha)
-    zero_effect = beignet.statistics.anova_power(
+    zero_effect = beignet.statistics.analysis_of_variance_power(
         torch.tensor(0.0, dtype=dtype),
         torch.tensor(120.0, dtype=dtype),
         torch.tensor(3.0, dtype=dtype),
@@ -113,12 +127,17 @@ def test_anova_power(batch_size, dtype):
     )
     assert torch.abs(zero_effect - 0.05) < 0.03
 
-    # Test ANOVA power against known theoretical values
+    # Test Analysis of Variance power against known theoretical values
     # For moderate effect (f=0.25) with n=120, k=3, power should be reasonable
     effect_size = torch.tensor(0.25, dtype=dtype)
     sample_size = torch.tensor(120.0, dtype=dtype)
     k = torch.tensor(3.0, dtype=dtype)
-    power = beignet.statistics.anova_power(effect_size, sample_size, k, alpha=0.05)
+    power = beignet.statistics.analysis_of_variance_power(
+        effect_size,
+        sample_size,
+        k,
+        alpha=0.05,
+    )
 
     # Should be somewhere between 0.5 and 0.9 for these parameters
     assert 0.5 < power < 0.9
@@ -126,14 +145,17 @@ def test_anova_power(batch_size, dtype):
     # For large effect (f=0.4) with n=90, k=3, power should be high
     large_effect_val = torch.tensor(0.4, dtype=dtype)
     n_large = torch.tensor(90.0, dtype=dtype)
-    power_large = beignet.statistics.anova_power(
-        large_effect_val, n_large, k, alpha=0.05
+    power_large = beignet.statistics.analysis_of_variance_power(
+        large_effect_val,
+        n_large,
+        k,
+        alpha=0.05,
     )
 
     # Should have high power for large effect
     assert power_large > 0.8
 
-    # Test ANOVA power against statsmodels reference implementation
+    # Test Analysis of Variance power against statsmodels reference implementation
     test_cases = [
         (0.1, 60, 3, 0.05),
         (0.25, 120, 3, 0.05),
@@ -146,8 +168,11 @@ def test_anova_power(batch_size, dtype):
         effect_size_test = torch.tensor(f_val, dtype=dtype)
         sample_size_test = torch.tensor(float(n_val), dtype=dtype)
         k_test = torch.tensor(float(k_val), dtype=dtype)
-        beignet_result = beignet.statistics.anova_power(
-            effect_size_test, sample_size_test, k_test, alpha=alpha_val
+        beignet_result = beignet.statistics.analysis_of_variance_power(
+            effect_size_test,
+            sample_size_test,
+            k_test,
+            alpha=alpha_val,
         )
 
         try:
@@ -206,12 +231,15 @@ def test_anova_power(batch_size, dtype):
     # Test edge cases for ANOVA power calculation
     # Test with minimum groups (k=2, equivalent to t-test)
     effect_size_edge = torch.tensor(
-        0.5, dtype=dtype
+        0.5,
+        dtype=dtype,
     )  # f = 0.5 corresponds to d = 1.0 for two groups
     sample_size_edge = torch.tensor(40.0, dtype=dtype)
     k_edge = torch.tensor(2.0, dtype=dtype)
-    power_two_groups = beignet.statistics.anova_power(
-        effect_size_edge, sample_size_edge, k_edge
+    power_two_groups = beignet.statistics.analysis_of_variance_power(
+        effect_size_edge,
+        sample_size_edge,
+        k_edge,
     )
 
     # Should give reasonable power for medium-large effect
@@ -220,8 +248,10 @@ def test_anova_power(batch_size, dtype):
     # Test with very large sample size
     large_n_edge = torch.tensor(1000.0, dtype=dtype)
     small_effect_edge = torch.tensor(0.1, dtype=dtype)
-    power_large_n_edge = beignet.statistics.anova_power(
-        small_effect_edge, large_n_edge, torch.tensor(3.0, dtype=dtype)
+    power_large_n_edge = beignet.statistics.analysis_of_variance_power(
+        small_effect_edge,
+        large_n_edge,
+        torch.tensor(3.0, dtype=dtype),
     )
 
     # Should have high power with large N even for small effect
@@ -229,7 +259,11 @@ def test_anova_power(batch_size, dtype):
 
     # Test with very small sample size
     tiny_n = torch.tensor(10.0, dtype=dtype)
-    power_tiny_n = beignet.statistics.anova_power(effect_size_edge, tiny_n, k_edge)
+    power_tiny_n = beignet.statistics.analysis_of_variance_power(
+        effect_size_edge,
+        tiny_n,
+        k_edge,
+    )
 
     # Should have low power with very small N
     assert power_tiny_n < 0.5
@@ -248,8 +282,10 @@ def test_anova_power(batch_size, dtype):
         k_dof = torch.tensor(float(k_val), dtype=dtype)
 
         # Should work without errors and give reasonable power
-        power_dof = beignet.statistics.anova_power(
-            effect_size_dof, sample_size_dof, k_dof
+        power_dof = beignet.statistics.analysis_of_variance_power(
+            effect_size_dof,
+            sample_size_dof,
+            k_dof,
         )
         assert 0.0 <= power_dof <= 1.0
         assert torch.isfinite(power_dof)

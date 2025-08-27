@@ -1,5 +1,5 @@
-from ._anova_power import ANOVAPower
-from ._anova_sample_size import ANOVASampleSize
+from ._analysis_of_variance_power import AnalysisOfVariancePower
+from ._analysis_of_variance_sample_size import AnalysisOfVarianceSampleSize
 from ._chi_squared_goodness_of_fit_power import ChiSquareGoodnessOfFitPower
 from ._chi_squared_goodness_of_fit_sample_size import ChiSquareGoodnessOfFitSampleSize
 from ._chi_squared_independence_power import ChiSquareIndependencePower
@@ -28,8 +28,8 @@ from ._z_test_power import ZTestPower
 from ._z_test_sample_size import ZTestSampleSize
 
 __all__ = [
-    "ANOVAPower",
-    "ANOVASampleSize",
+    "AnalysisOfVariancePower",
+    "AnalysisOfVarianceSampleSize",
     "ChiSquareGoodnessOfFitPower",
     "ChiSquareGoodnessOfFitSampleSize",
     "ChiSquareIndependencePower",

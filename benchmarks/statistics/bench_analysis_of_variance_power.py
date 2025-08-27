@@ -5,7 +5,7 @@ import beignet
 from ._set_seed import set_seed
 
 
-class BenchAnovaPower:
+class BenchAnalysisOfVariancePower:
     params = [
         [1, 10, 100],
         [torch.float32, torch.float64],
@@ -15,7 +15,7 @@ class BenchAnovaPower:
 
     def __init__(self):
         self.func = torch.compile(
-            beignet.statistics.anova_power,
+            beignet.statistics.analysis_of_variance_power,
             fullgraph=True,
         )
 
@@ -32,17 +32,26 @@ class BenchAnovaPower:
             torch.tensor([3, 4, 5], dtype=dtype).repeat(batch_size, 1).flatten()
         )
 
-    def time_anova_power_alpha_005(self, batch_size, dtype):
+    def time_analysis_of_variance_power_alpha_005(self, batch_size, dtype):
         return self.func(
-            self.effect_sizes, self.sample_sizes, self.k_values, alpha=0.05
+            self.effect_sizes,
+            self.sample_sizes,
+            self.k_values,
+            alpha=0.05,
         )
 
-    def time_anova_power_alpha_001(self, batch_size, dtype):
+    def time_analysis_of_variance_power_alpha_001(self, batch_size, dtype):
         return self.func(
-            self.effect_sizes, self.sample_sizes, self.k_values, alpha=0.01
+            self.effect_sizes,
+            self.sample_sizes,
+            self.k_values,
+            alpha=0.01,
         )
 
-    def peakmem_anova_power(self, batch_size, dtype):
-        return beignet.statistics.anova_power(
-            self.effect_sizes, self.sample_sizes, self.k_values, alpha=0.05
+    def peakmem_analysis_of_variance_power(self, batch_size, dtype):
+        return beignet.statistics.analysis_of_variance_power(
+            self.effect_sizes,
+            self.sample_sizes,
+            self.k_values,
+            alpha=0.05,
         )

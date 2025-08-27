@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -34,13 +36,10 @@ def cramers_v(
 
     min_dim = torch.atleast_1d(torch.as_tensor(min_dim))
 
-    dtype = chi_square.dtype
-    if sample_size.dtype != dtype:
-        if sample_size.dtype == torch.float64 or dtype == torch.float64:
-            dtype = torch.float64
-    if min_dim.dtype != dtype:
-        if min_dim.dtype == torch.float64 or dtype == torch.float64:
-            dtype = torch.float64
+    dtype = functools.reduce(
+        torch.promote_types,
+        [chi_square.dtype, sample_size.dtype, min_dim.dtype],
+    )
 
     chi_square = chi_square.to(dtype)
 
@@ -48,13 +47,13 @@ def cramers_v(
 
     min_dim = min_dim.to(dtype)
 
-    result = torch.sqrt(chi_square / (sample_size * min_dim))
-
-    result = torch.clamp(result, 0.0, 1.0)
+    output = chi_square / (sample_size * min_dim)
+    output = torch.sqrt(output)
+    output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output

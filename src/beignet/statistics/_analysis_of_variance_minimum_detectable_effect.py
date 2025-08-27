@@ -3,10 +3,10 @@ import math
 import torch
 from torch import Tensor
 
-from ._anova_power import anova_power
+from ._analysis_of_variance_power import analysis_of_variance_power
 
 
-def anova_minimum_detectable_effect(
+def analysis_of_variance_minimum_detectable_effect(
     sample_size: Tensor,
     groups: Tensor,
     power: float = 0.8,
@@ -64,7 +64,7 @@ def anova_minimum_detectable_effect(
     effect_size_f_hi = torch.clamp(2.0 * effect_size_f0 + 1e-6, min=1e-6)
 
     for _ in range(8):
-        p_hi = anova_power(effect_size_f_hi, n, groups, alpha)
+        p_hi = analysis_of_variance_power(effect_size_f_hi, n, groups, alpha)
 
         need_expand = p_hi < power
         if not torch.any(need_expand):
@@ -81,7 +81,7 @@ def anova_minimum_detectable_effect(
 
     effect_size_f = (effect_size_f_lo + effect_size_f_hi) * 0.5
     for _ in range(24):
-        p_mid = anova_power(effect_size_f, n, groups, alpha)
+        p_mid = analysis_of_variance_power(effect_size_f, n, groups, alpha)
 
         go_right = p_mid < power
 

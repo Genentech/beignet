@@ -31,9 +31,13 @@ def glass_delta(
     input = input.to(dtype)
     other = other.to(dtype)
 
-    output = (torch.mean(input, dim=-1) - torch.mean(other, dim=-1)) / torch.sqrt(
-        torch.clamp(torch.var(other, dim=-1, correction=1), min=torch.finfo(dtype).eps),
-    )
+    input_mean = torch.mean(input, dim=-1)
+    other_mean = torch.mean(other, dim=-1)
+
+    other_variance = torch.var(other, dim=-1, correction=1)
+
+    output = torch.clamp(other_variance, min=torch.finfo(dtype).eps)
+    output = (input_mean - other_mean) / torch.sqrt(output)
 
     if out is not None:
         out.copy_(output)

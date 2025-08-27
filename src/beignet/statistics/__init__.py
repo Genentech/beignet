@@ -3,9 +3,11 @@ from ._analysis_of_covariance_minimum_detectable_effect import (
 )
 from ._analysis_of_covariance_power import analysis_of_covariance_power
 from ._analysis_of_covariance_sample_size import analysis_of_covariance_sample_size
-from ._anova_minimum_detectable_effect import anova_minimum_detectable_effect
-from ._anova_power import anova_power
-from ._anova_sample_size import anova_sample_size
+from ._analysis_of_variance_minimum_detectable_effect import (
+    analysis_of_variance_minimum_detectable_effect,
+)
+from ._analysis_of_variance_power import analysis_of_variance_power
+from ._analysis_of_variance_sample_size import analysis_of_variance_sample_size
 from ._chi_squared_goodness_of_fit_minimum_detectable_effect import (
     chi_square_goodness_of_fit_minimum_detectable_effect,
 )
@@ -134,9 +136,9 @@ __all__ = [
     "analysis_of_covariance_minimum_detectable_effect",
     "analysis_of_covariance_power",
     "analysis_of_covariance_sample_size",
-    "anova_minimum_detectable_effect",
-    "anova_power",
-    "anova_sample_size",
+    "analysis_of_variance_minimum_detectable_effect",
+    "analysis_of_variance_power",
+    "analysis_of_variance_sample_size",
     "chi_square_goodness_of_fit_minimum_detectable_effect",
     "chi_square_goodness_of_fit_power",
     "chi_square_goodness_of_fit_sample_size",

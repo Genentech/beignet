@@ -3,10 +3,10 @@ import math
 import torch
 from torch import Tensor
 
-from ._anova_power import anova_power
+from ._analysis_of_variance_power import analysis_of_variance_power
 
 
-def anova_sample_size(
+def analysis_of_variance_sample_size(
     input: Tensor,
     groups: Tensor,
     power: float = 0.8,
@@ -70,7 +70,7 @@ def anova_sample_size(
     max_iterations = 8
 
     for _iteration in range(max_iterations):
-        power_iteration = anova_power(
+        power_iteration = analysis_of_variance_power(
             input,
             n_iteration,
             groups,

@@ -2,9 +2,10 @@ import torch
 from torch import Tensor
 
 import beignet.distributions
+from beignet.distributions import StandardNormal
 
 
-def anova_power(
+def analysis_of_variance_power(
     input: Tensor,
     sample_size: Tensor,
     groups: Tensor,
@@ -85,16 +86,19 @@ def anova_power(
 
     standard_deviation_f = torch.sqrt(variance_f)
 
-    z_score = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
+    output = torch.clamp(standard_deviation_f, torch.finfo(dtype).eps)
 
-    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
-    power = 1 - normal_dist.cdf(z_score)
+    z_score = (f_critical - mean_f) / output
 
-    result = torch.clamp(power, 0.0, 1.0)
+    output = StandardNormal.from_dtype(dtype).cdf(z_score)
+
+    output = 1 - output
+
+    output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output
