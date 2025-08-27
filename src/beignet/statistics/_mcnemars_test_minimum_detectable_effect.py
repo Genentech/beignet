@@ -78,21 +78,31 @@ def mcnemars_test_minimum_detectable_effect(
 
     x = (lo + hi) * 0.5
     for _ in range(24):
-        p01_mid = torch.clamp((d + x) / 2.0, 0.0, 1.0)
-
-        p10_mid = torch.clamp(d - p01_mid, 0.0, 1.0)
-
-        p_mid = mcnemars_test_power(
-            p01_mid,
-            p10_mid,
-            sample_size,
-            alpha=alpha,
-            two_sided=two_sided,
+        lo = torch.where(
+            mcnemars_test_power(
+                torch.clamp((d + x) / 2.0, 0.0, 1.0),
+                torch.clamp(d - torch.clamp((d + x) / 2.0, 0.0, 1.0), 0.0, 1.0),
+                sample_size,
+                alpha=alpha,
+                two_sided=two_sided,
+            )
+            < power,
+            x,
+            lo,
         )
-        go_right = p_mid < power
 
-        lo = torch.where(go_right, x, lo)
-        hi = torch.where(go_right, hi, x)
+        hi = torch.where(
+            mcnemars_test_power(
+                torch.clamp((d + x) / 2.0, 0.0, 1.0),
+                torch.clamp(d - torch.clamp((d + x) / 2.0, 0.0, 1.0), 0.0, 1.0),
+                sample_size,
+                alpha=alpha,
+                two_sided=two_sided,
+            )
+            < power,
+            hi,
+            x,
+        )
 
         x = (lo + hi) * 0.5
 

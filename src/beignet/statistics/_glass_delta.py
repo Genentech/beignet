@@ -39,14 +39,9 @@ def glass_delta(
     x = x.to(dtype)
     y = y.to(dtype)
 
-    mean_x = torch.mean(x, dim=-1)
-    mean_y = torch.mean(y, dim=-1)
-
-    var_y = torch.var(y, dim=-1, correction=1)
-
-    std_y = torch.sqrt(torch.clamp(var_y, min=torch.finfo(dtype).eps))
-
-    delta = (mean_x - mean_y) / std_y
+    delta = (torch.mean(x, dim=-1) - torch.mean(y, dim=-1)) / torch.sqrt(
+        torch.clamp(torch.var(y, dim=-1, correction=1), min=torch.finfo(dtype).eps),
+    )
 
     if out is not None:
         out.copy_(delta)

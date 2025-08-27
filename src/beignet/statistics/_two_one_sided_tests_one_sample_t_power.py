@@ -41,48 +41,66 @@ def two_one_sided_tests_one_sample_t_power(
 
     degrees_of_freedom = sample_size - 1
 
-    ncp_low = (true_effect_size - low) * torch.sqrt(sample_size)
-
-    ncp_high = (true_effect_size - high) * torch.sqrt(sample_size)
-
-    t_dist = beignet.distributions.StudentT(degrees_of_freedom)
-    t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
+    t_critical = beignet.distributions.StudentT(degrees_of_freedom).icdf(
+        torch.tensor(1 - alpha, dtype=dtype),
+    )
 
     def power_greater(noncentrality: Tensor) -> Tensor:
-        nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
-        mean_nct = nc_t_dist.mean
-        variance_nct = nc_t_dist.variance
-        standard_deviation = torch.sqrt(variance_nct)
-
-        zscore = (t_critical - mean_nct) / torch.clamp(
-            standard_deviation,
-            min=1e-10,
-        )
         return 0.5 * (
-            1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            - torch.erf(
+                (
+                    t_critical
+                    - beignet.distributions.NonCentralT(
+                        degrees_of_freedom,
+                        noncentrality,
+                    ).mean
+                )
+                / torch.clamp(
+                    torch.sqrt(
+                        beignet.distributions.NonCentralT(
+                            degrees_of_freedom,
+                            noncentrality,
+                        ).variance,
+                    ),
+                    min=1e-10,
+                )
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
+            )
         )
 
     def power_less(noncentrality: Tensor) -> Tensor:
-        nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
-        mean_nct = nc_t_dist.mean
-        variance_nct = nc_t_dist.variance
-        standard_deviation = torch.sqrt(variance_nct)
-
-        zscore = (-t_critical - mean_nct) / torch.clamp(
-            standard_deviation,
-            min=1e-10,
-        )
         return 0.5 * (
-            1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            + torch.erf(
+                (
+                    -t_critical
+                    - beignet.distributions.NonCentralT(
+                        degrees_of_freedom,
+                        noncentrality,
+                    ).mean
+                )
+                / torch.clamp(
+                    torch.sqrt(
+                        beignet.distributions.NonCentralT(
+                            degrees_of_freedom,
+                            noncentrality,
+                        ).variance,
+                    ),
+                    min=1e-10,
+                )
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
+            )
         )
 
-    p_lower = power_greater(ncp_low)
-
-    p_upper = power_less(ncp_high)
-
-    power = torch.minimum(p_lower, p_upper)
-
-    power = torch.clamp(power, 0.0, 1.0)
+    power = torch.clamp(
+        torch.minimum(
+            power_greater((true_effect_size - low) * torch.sqrt(sample_size)),
+            power_less((true_effect_size - high) * torch.sqrt(sample_size)),
+        ),
+        0.0,
+        1.0,
+    )
 
     if out is not None:
         out.copy_(power)

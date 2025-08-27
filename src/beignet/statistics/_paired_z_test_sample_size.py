@@ -53,13 +53,13 @@ def paired_z_test_sample_size(
     else:
         z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-    z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
-
-    sample_size = ((z_alpha + z_beta) / input) ** 2
-
-    sample_size = torch.clamp(sample_size, min=1.0)
-
-    sample_size = torch.ceil(sample_size)
+    sample_size = torch.ceil(
+        torch.clamp(
+            ((z_alpha + normal_dist.icdf(torch.tensor(power, dtype=dtype))) / input)
+            ** 2,
+            min=1.0,
+        ),
+    )
 
     if out is not None:
         out.copy_(sample_size)

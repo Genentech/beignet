@@ -61,17 +61,19 @@ def z_test_power(
     if alt == "two-sided":
         z_alpha_half = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
-        power_upper = 1 - normal_dist.cdf(z_alpha_half - noncentrality)
-        power_lower = normal_dist.cdf(-z_alpha_half - noncentrality)
-        power = power_upper + power_lower
+        power = (
+            1
+            - normal_dist.cdf(z_alpha_half - noncentrality)
+            + normal_dist.cdf(-z_alpha_half - noncentrality)
+        )
     elif alt == "greater":
-        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = 1 - normal_dist.cdf(z_alpha - noncentrality)
+        power = 1 - normal_dist.cdf(
+            normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
     else:
-        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = normal_dist.cdf(-z_alpha - noncentrality)
+        power = normal_dist.cdf(
+            -normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
 
     result = torch.clamp(power, 0.0, 1.0)
 

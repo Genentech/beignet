@@ -37,33 +37,54 @@ def mcnemars_test_sample_size(
     else:
         z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-    z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
-
-    probability = torch.where(
-        (p01 + p10) > 0,
-        p01 / torch.clamp(p01 + p10, min=1e-12),
-        torch.zeros_like(p01),
-    )
-    delta = torch.abs(probability - 0.5)
-
-    n0 = ((z_alpha + z_beta) / (2 * torch.clamp(delta, min=1e-8))) ** 2 / torch.clamp(
-        p01 + p10,
-        min=1e-8,
-    )
-    n0 = torch.clamp(n0, min=4.0)
-
-    n_curr = n0
-    for _ in range(12):
-        pwr = mcnemars_test_power(
-            p01,
-            p10,
-            torch.ceil(n_curr),
-            alpha=alpha,
-            two_sided=two_sided,
+    n_curr = torch.clamp(
+        (
+            (z_alpha + normal_dist.icdf(torch.tensor(power, dtype=dtype)))
+            / (
+                2
+                * torch.clamp(
+                    torch.abs(
+                        torch.where(
+                            (p01 + p10) > 0,
+                            p01 / torch.clamp(p01 + p10, min=1e-12),
+                            torch.zeros_like(p01),
+                        )
+                        - 0.5,
+                    ),
+                    min=1e-8,
+                )
+            )
         )
-        gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
+        ** 2
+        / torch.clamp(
+            p01 + p10,
+            min=1e-8,
+        ),
+        min=4.0,
+    )
 
-        n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=4.0, max=1e7)
+    for _ in range(12):
+        n_curr = torch.clamp(
+            n_curr
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - mcnemars_test_power(
+                        p01,
+                        p10,
+                        torch.ceil(n_curr),
+                        alpha=alpha,
+                        two_sided=two_sided,
+                    ),
+                    min=-0.45,
+                    max=0.45,
+                )
+            ),
+            min=4.0,
+            max=1e7,
+        )
 
     n_out = torch.ceil(n_curr)
 

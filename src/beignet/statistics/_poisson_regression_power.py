@@ -67,21 +67,8 @@ def poisson_regression_power(
 
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    beta = torch.log(input)
-
-    mean_unexposed = mean_rate
-
-    mean_exposed = mean_rate * input
-
-    expected_count = p_exposure * mean_exposed + (1 - p_exposure) * mean_unexposed
-
-    variance_beta = 1.0 / (sample_size * p_exposure * (1 - p_exposure) * expected_count)
-
-    se_beta = torch.sqrt(torch.clamp(variance_beta, min=1e-12))
-
-    noncentrality = torch.abs(beta) / se_beta
-
     alt = alternative.lower()
+
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
     elif alt in {"smaller", "less", "<"}:
@@ -89,26 +76,91 @@ def poisson_regression_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    # Use standard normal distribution for critical values
     standard_normal = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
-        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
-
-        zu = z_alpha - noncentrality
-        zl = -z_alpha - noncentrality
-
-        power = (1 - standard_normal.cdf(zu)) + standard_normal.cdf(zl)
+        power = (
+            1
+            - standard_normal.cdf(
+                standard_normal.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
+                - torch.abs(torch.log(input))
+                / torch.sqrt(
+                    torch.clamp(
+                        1.0
+                        / (
+                            sample_size
+                            * p_exposure
+                            * (1 - p_exposure)
+                            * (
+                                p_exposure * mean_rate * input
+                                + (1 - p_exposure) * mean_rate
+                            )
+                        ),
+                        min=1e-12,
+                    ),
+                ),
+            )
+        ) + standard_normal.cdf(
+            -standard_normal.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
+            - torch.abs(torch.log(input))
+            / torch.sqrt(
+                torch.clamp(
+                    1.0
+                    / (
+                        sample_size
+                        * p_exposure
+                        * (1 - p_exposure)
+                        * (
+                            p_exposure * mean_rate * input
+                            + (1 - p_exposure) * mean_rate
+                        )
+                    ),
+                    min=1e-12,
+                ),
+            ),
+        )
     elif alt == "greater":
-        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        z_score = z_alpha - noncentrality
-        power = 1 - standard_normal.cdf(z_score)
+        power = 1 - standard_normal.cdf(
+            (
+                standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
+                - torch.abs(torch.log(input))
+                / torch.sqrt(
+                    torch.clamp(
+                        1.0
+                        / (
+                            sample_size
+                            * p_exposure
+                            * (1 - p_exposure)
+                            * (
+                                p_exposure * mean_rate * input
+                                + (1 - p_exposure) * mean_rate
+                            )
+                        ),
+                        min=1e-12,
+                    ),
+                )
+            ),
+        )
     else:
-        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        z_score = -z_alpha - noncentrality
-        power = standard_normal.cdf(z_score)
+        power = standard_normal.cdf(
+            -standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
+            - torch.abs(torch.log(input))
+            / torch.sqrt(
+                torch.clamp(
+                    1.0
+                    / (
+                        sample_size
+                        * p_exposure
+                        * (1 - p_exposure)
+                        * (
+                            p_exposure * mean_rate * input
+                            + (1 - p_exposure) * mean_rate
+                        )
+                    ),
+                    min=1e-12,
+                ),
+            ),
+        )
 
     power = torch.clamp(power, 0.0, 1.0)
 

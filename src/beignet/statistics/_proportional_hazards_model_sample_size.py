@@ -65,10 +65,6 @@ def proportional_hazards_model_sample_size(
 
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
-    log_hr = torch.log(hazard_ratio)
-
-    sqrt2 = math.sqrt(2.0)
-
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -78,38 +74,44 @@ def proportional_hazards_model_sample_size(
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-    else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    n_events_needed = ((z_alpha + z_beta) ** 2) / (
-        p_exposed * (1.0 - p_exposed) * (log_hr**2)
-    )
-    n_events_needed = torch.clamp(n_events_needed, min=10.0)
-
-    n_total_initial = n_events_needed / event_rate
-
-    n_total_initial = torch.clamp(n_total_initial, min=20.0)
-
-    n_iteration = n_total_initial
-    for _ in range(10):
-        expected_events = n_iteration * event_rate
-
-        current_power = proportional_hazards_model_power(
-            hazard_ratio,
-            expected_events,
-            p_exposed,
-            alpha=alpha,
-            alternative=alternative,
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * math.sqrt(
+            2.0,
         )
+    else:
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
 
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
+    n_events_needed = torch.clamp(
+        (
+            (z_alpha + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0))
+            ** 2
+        )
+        / (p_exposed * (1.0 - p_exposed) * (torch.log(hazard_ratio) ** 2)),
+        min=10.0,
+    )
 
-        adjustment = 1.0 + 1.1 * power_gap
-
-        n_iteration = torch.clamp(n_iteration * adjustment, min=20.0, max=1e6)
+    n_iteration = torch.clamp(n_events_needed / event_rate, min=20.0)
+    for _ in range(10):
+        n_iteration = torch.clamp(
+            n_iteration
+            * (
+                1.0
+                + 1.1
+                * torch.clamp(
+                    power
+                    - proportional_hazards_model_power(
+                        hazard_ratio,
+                        n_iteration * event_rate,
+                        p_exposed,
+                        alpha=alpha,
+                        alternative=alternative,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
+            min=20.0,
+            max=1e6,
+        )
 
     n_out = torch.ceil(n_iteration)
 

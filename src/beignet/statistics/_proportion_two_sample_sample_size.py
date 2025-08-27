@@ -51,42 +51,50 @@ def proportion_two_sample_sample_size(
 
     ratio = torch.tensor(ratio, dtype=dtype)
 
-    epsilon = 1e-8
-
-    p1 = torch.clamp(p1, epsilon, 1 - epsilon)
-    p2 = torch.clamp(p2, epsilon, 1 - epsilon)
-
-    sqrt_2 = math.sqrt(2.0)
+    p1 = torch.clamp(p1, 1e-8, 1 - 1e-8)
+    p2 = torch.clamp(p2, 1e-8, 1 - 1e-8)
 
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * math.sqrt(
+            2.0,
+        )
 
-        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
     elif alternative in ["greater", "less"]:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
 
-        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    p_pooled = (p1 + p2 * ratio) / (1 + ratio)
-
-    p_pooled = torch.clamp(p_pooled, epsilon, 1 - epsilon)
-
-    effect = torch.abs(p1 - p2)
-
-    effect_safe = torch.where(effect < 1e-6, torch.tensor(1e-6, dtype=dtype), effect)
-
-    var_null = p_pooled * (1 - p_pooled) * (1 + 1 / ratio)
-
-    var_alt = p1 * (1 - p1) + p2 * (1 - p2) / ratio
-
-    numerator = z_alpha * torch.sqrt(var_null) + z_beta * torch.sqrt(var_alt)
-
-    sample_size = (numerator / effect_safe) ** 2
-
-    result = torch.ceil(sample_size)
-
-    result = torch.clamp(result, min=1.0)
+    result = torch.clamp(
+        torch.ceil(
+            (
+                (
+                    z_alpha
+                    * torch.sqrt(
+                        torch.clamp((p1 + p2 * ratio) / (1 + ratio), 1e-8, 1 - 1e-8)
+                        * (
+                            1
+                            - torch.clamp(
+                                (p1 + p2 * ratio) / (1 + ratio),
+                                1e-8,
+                                1 - 1e-8,
+                            )
+                        )
+                        * (1 + 1 / ratio),
+                    )
+                    + z_beta * torch.sqrt(p1 * (1 - p1) + p2 * (1 - p2) / ratio)
+                )
+                / torch.where(
+                    torch.abs(p1 - p2) < 1e-6,
+                    torch.tensor(1e-6, dtype=dtype),
+                    torch.abs(p1 - p2),
+                )
+            )
+            ** 2,
+        ),
+        min=1.0,
+    )
 
     if out is not None:
         out.copy_(result)

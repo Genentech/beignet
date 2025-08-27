@@ -68,13 +68,10 @@ def t_test_power(
     nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
 
     if alt == "two-sided":
-        # P(|T| > t_critical) = P(T > t_critical) + P(T < -t_critical)
         power = (1 - nc_t_dist.cdf(t_critical)) + nc_t_dist.cdf(-t_critical)
     elif alt == "greater":
-        # P(T > t_critical)
         power = 1 - nc_t_dist.cdf(t_critical)
     else:
-        # P(T < -t_critical)
         power = nc_t_dist.cdf(-t_critical)
 
     result = torch.clamp(power, 0.0, 1.0)

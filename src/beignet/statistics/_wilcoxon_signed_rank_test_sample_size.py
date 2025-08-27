@@ -40,26 +40,36 @@ def wilcoxon_signed_rank_test_sample_size(
     else:
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
-
-    delta = torch.abs(probability - 0.5)
-
-    n0 = ((z_alpha + z_beta) / (sqrt3 * torch.clamp(delta, min=1e-8))) ** 2
-
-    n0 = torch.clamp(n0, min=5.0)
-
-    n_curr = n0
+    n_curr = torch.clamp(
+        (
+            (z_alpha + normal_dist.icdf(torch.tensor(power, dtype=dtype)))
+            / (sqrt3 * torch.clamp(torch.abs(probability - 0.5), min=1e-8))
+        )
+        ** 2,
+        min=5.0,
+    )
 
     for _ in range(12):
-        pwr = wilcoxon_signed_rank_test_power(
-            probability,
-            torch.ceil(n_curr),
-            alpha=alpha,
-            alternative=alt,
+        n_curr = torch.clamp(
+            n_curr
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - wilcoxon_signed_rank_test_power(
+                        probability,
+                        torch.ceil(n_curr),
+                        alpha=alpha,
+                        alternative=alt,
+                    ),
+                    min=-0.45,
+                    max=0.45,
+                )
+            ),
+            min=5.0,
+            max=1e7,
         )
-        gap = torch.clamp(power - pwr, min=-0.45, max=0.45)
-
-        n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=5.0, max=1e7)
 
     n_out = torch.ceil(n_curr)
 

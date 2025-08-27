@@ -53,33 +53,39 @@ def multivariable_linear_regression_sample_size(
 
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    f_squared = r_squared / (1 - r_squared)
-
-    n_initial = ((z_alpha + z_beta) ** 2) / f_squared + n_predictors + 1
-
-    n_initial = torch.clamp(n_initial, min=n_predictors + 10)
+    n_initial = torch.clamp(
+        (
+            (
+                torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            ** 2
+        )
+        / (r_squared / (1 - r_squared))
+        + n_predictors
+        + 1,
+        min=n_predictors + 10,
+    )
 
     n_iteration = n_initial
     for _ in range(15):
-        current_power = multivariable_linear_regression_power(
-            r_squared,
-            n_iteration,
-            n_predictors,
-            alpha=alpha,
-        )
-
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
-
-        adjustment = 1.0 + 1.1 * power_gap
-
         n_iteration = torch.clamp(
-            n_iteration * adjustment,
+            n_iteration
+            * (
+                1.0
+                + 1.1
+                * torch.clamp(
+                    power
+                    - multivariable_linear_regression_power(
+                        r_squared,
+                        n_iteration,
+                        n_predictors,
+                        alpha=alpha,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
             min=n_predictors + 10,
             max=torch.tensor(1e6, dtype=dtype),
         )

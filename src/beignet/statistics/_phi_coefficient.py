@@ -39,9 +39,7 @@ def phi_coefficient(
 
             sample_size = sample_size.to(torch.float32)
 
-    output = torch.sqrt(chi_square / sample_size)
-
-    output = torch.clamp(output, 0.0, 1.0)
+    output = torch.clamp(torch.sqrt(chi_square / sample_size), 0.0, 1.0)
 
     if out is not None:
         out.copy_(output)

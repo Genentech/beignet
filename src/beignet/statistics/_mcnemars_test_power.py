@@ -29,32 +29,69 @@ def mcnemars_test_power(
 
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    d = sample_size * (p01 + p10)
-
-    probability = torch.where(
-        (p01 + p10) > 0,
-        p01 / torch.clamp(p01 + p10, min=1e-12),
-        torch.zeros_like(p01),
-    )
-    mean = d * (probability - 0.5)
-
-    standard_deviation = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
-    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
-
     if two_sided:
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
-
-        z_upper = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
-
-        z_lower = -z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
-
-        power = (1 - normal_dist.cdf(z_upper)) + normal_dist.cdf(z_lower)
+        power = (
+            1
+            - beignet.distributions.StandardNormal.from_dtype(dtype).cdf(
+                beignet.distributions.StandardNormal.from_dtype(dtype).icdf(
+                    torch.tensor(1 - alpha / 2, dtype=dtype),
+                )
+                - sample_size
+                * (p01 + p10)
+                * (
+                    torch.where(
+                        (p01 + p10) > 0,
+                        p01 / torch.clamp(p01 + p10, min=1e-12),
+                        torch.zeros_like(p01),
+                    )
+                    - 0.5
+                )
+                / torch.clamp(
+                    torch.sqrt(
+                        torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12),
+                    ),
+                    min=1e-12,
+                ),
+            )
+        ) + beignet.distributions.StandardNormal.from_dtype(dtype).cdf(
+            -beignet.distributions.StandardNormal.from_dtype(dtype).icdf(
+                torch.tensor(1 - alpha / 2, dtype=dtype),
+            )
+            - sample_size
+            * (p01 + p10)
+            * (
+                torch.where(
+                    (p01 + p10) > 0,
+                    p01 / torch.clamp(p01 + p10, min=1e-12),
+                    torch.zeros_like(p01),
+                )
+                - 0.5
+            )
+            / torch.clamp(
+                torch.sqrt(torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12)),
+                min=1e-12,
+            ),
+        )
     else:
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        zscore = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
-
-        power = 1 - normal_dist.cdf(zscore)
+        power = 1 - beignet.distributions.StandardNormal.from_dtype(dtype).cdf(
+            beignet.distributions.StandardNormal.from_dtype(dtype).icdf(
+                torch.tensor(1 - alpha, dtype=dtype),
+            )
+            - sample_size
+            * (p01 + p10)
+            * (
+                torch.where(
+                    (p01 + p10) > 0,
+                    p01 / torch.clamp(p01 + p10, min=1e-12),
+                    torch.zeros_like(p01),
+                )
+                - 0.5
+            )
+            / torch.clamp(
+                torch.sqrt(torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12)),
+                min=1e-12,
+            ),
+        )
 
     out_t = torch.clamp(power, 0.0, 1.0)
 

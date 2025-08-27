@@ -72,39 +72,50 @@ def two_one_sided_tests_two_sample_t_power(
 
     def power_greater(noncentrality: Tensor) -> Tensor:
         nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
-        mean_nct = nc_t_dist.mean
-        variance_nct = nc_t_dist.variance
-        standard_deviation = torch.sqrt(variance_nct)
-
-        zscore = (t_critical - mean_nct) / torch.clamp(
-            standard_deviation,
-            min=1e-10,
-        )
         return 0.5 * (
-            1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            - torch.erf(
+                (t_critical - nc_t_dist.mean)
+                / torch.clamp(
+                    torch.sqrt(nc_t_dist.variance),
+                    min=1e-10,
+                )
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
+            )
         )
 
     def power_less(noncentrality: Tensor) -> Tensor:
-        nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
-        mean_nct = nc_t_dist.mean
-        variance_nct = nc_t_dist.variance
-        standard_deviation = torch.sqrt(variance_nct)
-
-        zscore = (-t_critical - mean_nct) / torch.clamp(
-            standard_deviation,
-            min=1e-10,
-        )
         return 0.5 * (
-            1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
+            1
+            + torch.erf(
+                (
+                    -t_critical
+                    - beignet.distributions.NonCentralT(
+                        degrees_of_freedom,
+                        noncentrality,
+                    ).mean
+                )
+                / torch.clamp(
+                    torch.sqrt(
+                        beignet.distributions.NonCentralT(
+                            degrees_of_freedom,
+                            noncentrality,
+                        ).variance,
+                    ),
+                    min=1e-10,
+                )
+                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
+            )
         )
 
-    p_lower = power_greater(noncentrality_parameter_low)
-
-    p_upper = power_less(noncentrality_parameter_high)
-
-    power = torch.minimum(p_lower, p_upper)
-
-    power = torch.clamp(power, 0.0, 1.0)
+    power = torch.clamp(
+        torch.minimum(
+            power_greater(noncentrality_parameter_low),
+            power_less(noncentrality_parameter_high),
+        ),
+        0.0,
+        1.0,
+    )
 
     if out is not None:
         out.copy_(power)

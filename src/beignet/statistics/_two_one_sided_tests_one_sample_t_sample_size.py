@@ -57,32 +57,43 @@ def two_one_sided_tests_one_sample_t_sample_size(
 
     high = high.to(dtype)
 
-    square_root_two = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
-
-    margin = torch.minimum(true_effect_size - low, high - true_effect_size)
-
-    margin = torch.clamp(margin, min=1e-8)
-
-    n0 = ((z_alpha + z_beta) / margin) ** 2
-
-    n0 = torch.clamp(n0, min=2.0)
-
-    n_curr = n0
-    for _ in range(12):
-        current_power = two_one_sided_tests_one_sample_t_power(
-            true_effect_size,
-            n_curr,
-            low,
-            high,
-            alpha=alpha,
+    n_curr = torch.clamp(
+        (
+            (
+                torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            / torch.clamp(
+                torch.minimum(true_effect_size - low, high - true_effect_size),
+                min=1e-8,
+            )
         )
-        gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
+        ** 2,
+        min=2.0,
+    )
 
-        n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=2.0, max=1e7)
+    for _ in range(12):
+        n_curr = torch.clamp(
+            n_curr
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - two_one_sided_tests_one_sample_t_power(
+                        true_effect_size,
+                        n_curr,
+                        low,
+                        high,
+                        alpha=alpha,
+                    ),
+                    min=-0.45,
+                    max=0.45,
+                )
+            ),
+            min=2.0,
+            max=1e7,
+        )
 
     n_out = torch.ceil(n_curr)
 

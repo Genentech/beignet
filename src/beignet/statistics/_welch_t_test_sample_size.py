@@ -80,44 +80,45 @@ def welch_t_test_sample_size(
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
-
-    variance_scaling_factor = 1.0 + vr / r
-
-    sample_size_group_1_guess = (
-        (z_alpha + z_beta) * torch.sqrt(variance_scaling_factor) / input
-    ) ** 2
-    sample_size_group_1_guess = torch.clamp(sample_size_group_1_guess, min=2.0)
-
-    sample_size_group_1_iteration = sample_size_group_1_guess
+    sample_size_group_1_iteration = torch.clamp(
+        (
+            (z_alpha + torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two)
+            * torch.sqrt(1.0 + vr / r)
+            / input
+        )
+        ** 2,
+        min=2.0,
+    )
 
     max_iter = 12
     for _ in range(max_iter):
-        sample_size_group_2_iteration = torch.clamp(
-            torch.ceil(sample_size_group_1_iteration * r),
-            min=2.0,
-        )
-
-        p_curr = welch_t_test_power(
-            input,
-            sample_size_group_1_iteration,
-            sample_size_group_2_iteration,
-            vr,
-            alpha,
-            alternative,
-        )
-
-        gap = torch.clamp(power - p_curr, min=-0.49, max=0.49)
-
         sample_size_group_1_iteration = torch.clamp(
-            sample_size_group_1_iteration * (1.0 + 1.25 * gap),
+            sample_size_group_1_iteration
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - welch_t_test_power(
+                        input,
+                        sample_size_group_1_iteration,
+                        torch.clamp(
+                            torch.ceil(sample_size_group_1_iteration * r),
+                            min=2.0,
+                        ),
+                        vr,
+                        alpha,
+                        alternative,
+                    ),
+                    min=-0.49,
+                    max=0.49,
+                )
+            ),
             min=2.0,
             max=1e7,
         )
 
-    result = torch.ceil(sample_size_group_1_iteration)
-
-    result = torch.clamp(result, min=2.0)
+    result = torch.clamp(torch.ceil(sample_size_group_1_iteration), min=2.0)
 
     if out is not None:
         out.copy_(result)

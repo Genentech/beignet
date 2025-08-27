@@ -67,17 +67,19 @@ def friedman_test_power(
     # Use non-central chi-squared distribution for power calculation
     nc_chi2_dist = beignet.distributions.NonCentralChi2(degrees_of_freedom, lambda_nc)
 
-    # Get mean and variance from the distribution
-    mean_nc_chi2 = nc_chi2_dist.mean
-    variance_nc_chi2 = nc_chi2_dist.variance
-    std_nc_chi2 = torch.sqrt(torch.clamp(variance_nc_chi2, min=1e-12))
-
-    z_score = (chi_squared_critical - mean_nc_chi2) / std_nc_chi2
-
-    square_root_two = math.sqrt(2.0)
-    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
-
-    power = torch.clamp(power, 0.0, 1.0)
+    power = torch.clamp(
+        0.5
+        * (
+            1
+            - torch.erf(
+                (chi_squared_critical - nc_chi2_dist.mean)
+                / torch.sqrt(torch.clamp(nc_chi2_dist.variance, min=1e-12))
+                / math.sqrt(2.0),
+            )
+        ),
+        0.0,
+        1.0,
+    )
 
     if out is not None:
         out.copy_(power)

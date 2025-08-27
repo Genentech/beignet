@@ -65,17 +65,23 @@ def proportion_sample_size(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    se_null = torch.sqrt(p0 * (1 - p0))
-
-    se_alt = torch.sqrt(p1 * (1 - p1))
-
-    effect = torch.abs(p1 - p0)
-
-    effect_safe = torch.where(effect < 1e-6, torch.tensor(1e-6, dtype=dtype), effect)
-
-    sample_size = ((z_alpha * se_null + z_beta * se_alt) / effect_safe) ** 2
-
-    result = torch.clamp(torch.ceil(sample_size), min=1.0)
+    result = torch.clamp(
+        torch.ceil(
+            (
+                (
+                    z_alpha * torch.sqrt(p0 * (1 - p0))
+                    + z_beta * torch.sqrt(p1 * (1 - p1))
+                )
+                / torch.where(
+                    torch.abs(p1 - p0) < 1e-6,
+                    torch.tensor(1e-6, dtype=dtype),
+                    torch.abs(p1 - p0),
+                )
+            )
+            ** 2,
+        ),
+        min=1.0,
+    )
 
     if out is not None:
         out.copy_(result)

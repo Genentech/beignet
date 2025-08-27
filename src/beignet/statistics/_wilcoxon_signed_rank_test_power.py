@@ -36,34 +36,31 @@ def wilcoxon_signed_rank_test_power(
 
     s = sample_size * (sample_size + 1.0) / 2.0
 
-    mean0 = s / 2.0
-
-    var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
-
-    sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
-
-    mean1 = s * probability
-
-    noncentrality = (mean1 - mean0) / sd0
+    noncentrality = (s * probability - s / 2.0) / torch.sqrt(
+        torch.clamp(
+            sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0,
+            min=1e-12,
+        ),
+    )
 
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
         z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
-        upper = 1 - normal_dist.cdf(z_critical - noncentrality)
-
-        lower = normal_dist.cdf(-z_critical - noncentrality)
-
-        power = upper + lower
+        power = (
+            1
+            - normal_dist.cdf(z_critical - noncentrality)
+            + normal_dist.cdf(-z_critical - noncentrality)
+        )
     elif alt == "greater":
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = 1 - normal_dist.cdf(z_critical - noncentrality)
+        power = 1 - normal_dist.cdf(
+            normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
     else:
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = normal_dist.cdf(-z_critical - noncentrality)
+        power = normal_dist.cdf(
+            -normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
 
     out_t = torch.clamp(power, 0.0, 1.0)
 

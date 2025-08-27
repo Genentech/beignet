@@ -57,34 +57,56 @@ def multivariable_linear_regression_power(
 
     n_predictors = torch.clamp(n_predictors, min=1.0)
 
-    df_num = n_predictors
-
-    df_den = sample_size - n_predictors - 1
-
-    df_den = torch.clamp(df_den, min=1.0)
-
-    square_root_two = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df_num)
-
-    lambda_nc = sample_size * r_squared / (1 - r_squared)
-
-    mean_nf = (1 + lambda_nc / df_num) * (df_den / (df_den - 2))
-
-    var_nf = (
-        2
-        * (df_den / (df_den - 2)) ** 2
-        * ((df_num + lambda_nc) / df_num + (df_den - 2) / df_den)
+    power = torch.clamp(
+        0.5
+        * (
+            1
+            - torch.erf(
+                (
+                    1.0
+                    + torch.erfinv(torch.tensor(1 - alpha, dtype=dtype))
+                    * math.sqrt(2.0)
+                    * torch.sqrt(2.0 / n_predictors)
+                    - (1 + sample_size * r_squared / (1 - r_squared) / n_predictors)
+                    * (
+                        torch.clamp(sample_size - n_predictors - 1, min=1.0)
+                        / (torch.clamp(sample_size - n_predictors - 1, min=1.0) - 2)
+                    )
+                )
+                / torch.sqrt(
+                    torch.clamp(
+                        (
+                            2
+                            * (
+                                torch.clamp(sample_size - n_predictors - 1, min=1.0)
+                                / (
+                                    torch.clamp(sample_size - n_predictors - 1, min=1.0)
+                                    - 2
+                                )
+                            )
+                            ** 2
+                            * (
+                                (
+                                    n_predictors
+                                    + sample_size * r_squared / (1 - r_squared)
+                                )
+                                / n_predictors
+                                + (
+                                    torch.clamp(sample_size - n_predictors - 1, min=1.0)
+                                    - 2
+                                )
+                                / torch.clamp(sample_size - n_predictors - 1, min=1.0)
+                            )
+                        ),
+                        min=1e-12,
+                    ),
+                )
+                / math.sqrt(2.0),
+            )
+        ),
+        0.0,
+        1.0,
     )
-    std_nf = torch.sqrt(torch.clamp(var_nf, min=1e-12))
-
-    z_score = (f_critical - mean_nf) / std_nf
-
-    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
-
-    power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
         out.copy_(power)

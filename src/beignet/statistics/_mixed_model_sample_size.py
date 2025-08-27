@@ -63,35 +63,42 @@ def mixed_model_sample_size(
 
     icc = torch.clamp(icc, min=0.0, max=0.99)
 
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    design_effect = 1.0 + (n_observations_per_subject - 1.0) * icc
-
-    n_eff_needed = 4 * ((z_alpha + z_beta) / input) ** 2
-
-    n_subjects_initial = n_eff_needed * design_effect / n_observations_per_subject
-
-    n_subjects_initial = torch.clamp(n_subjects_initial, min=10.0)
-
-    n_iteration = n_subjects_initial
-    for _ in range(15):
-        current_power = mixed_model_power(
-            input,
-            n_iteration,
-            n_observations_per_subject,
-            icc,
-            alpha=alpha,
+    n_iteration = torch.clamp(
+        4
+        * (
+            (
+                torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            / input
         )
-
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
-
-        adjustment = 1.0 + 1.3 * power_gap
-
-        n_iteration = torch.clamp(n_iteration * adjustment, min=10.0, max=1e5)
+        ** 2
+        * (1.0 + (n_observations_per_subject - 1.0) * icc)
+        / n_observations_per_subject,
+        min=10.0,
+    )
+    for _ in range(15):
+        n_iteration = torch.clamp(
+            n_iteration
+            * (
+                1.0
+                + 1.3
+                * torch.clamp(
+                    power
+                    - mixed_model_power(
+                        input,
+                        n_iteration,
+                        n_observations_per_subject,
+                        icc,
+                        alpha=alpha,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
+            min=10.0,
+            max=1e5,
+        )
 
     n_out = torch.ceil(n_iteration)
 

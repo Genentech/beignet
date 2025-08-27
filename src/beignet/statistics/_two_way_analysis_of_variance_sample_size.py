@@ -62,12 +62,6 @@ def two_way_analysis_of_variance_sample_size(
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)
 
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
     if effect_type == "main_a":
         df_effect = levels_factor_a - 1
     elif effect_type == "main_b":
@@ -77,29 +71,41 @@ def two_way_analysis_of_variance_sample_size(
     else:
         raise ValueError("effect_type must be 'main_a', 'main_b', or 'interaction'")
 
-    lambda_approximate = ((z_alpha + z_beta) * torch.sqrt(df_effect)) ** 2
-
-    n_per_cell_initial = lambda_approximate / (
-        input**2 * levels_factor_a * levels_factor_b
-    )
-    n_per_cell_initial = torch.clamp(n_per_cell_initial, min=5.0)
-
-    n_iteration = n_per_cell_initial
-    for _ in range(12):
-        current_power = two_way_analysis_of_variance_power(
-            input,
-            n_iteration,
-            levels_factor_a,
-            levels_factor_b,
-            alpha=alpha,
-            effect_type=effect_type,
+    n_iteration = torch.clamp(
+        (
+            (
+                torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            * torch.sqrt(df_effect)
         )
-
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
-
-        adjustment = 1.0 + 1.1 * power_gap
-
-        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e5)
+        ** 2
+        / (input**2 * levels_factor_a * levels_factor_b),
+        min=5.0,
+    )
+    for _ in range(12):
+        n_iteration = torch.clamp(
+            n_iteration
+            * (
+                1.0
+                + 1.1
+                * torch.clamp(
+                    power
+                    - two_way_analysis_of_variance_power(
+                        input,
+                        n_iteration,
+                        levels_factor_a,
+                        levels_factor_b,
+                        alpha=alpha,
+                        effect_type=effect_type,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
+            min=5.0,
+            max=1e5,
+        )
 
     n_out = torch.ceil(n_iteration)
 

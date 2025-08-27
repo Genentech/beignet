@@ -72,29 +72,31 @@ def mixed_model_power(
 
     icc = torch.clamp(icc, min=0.0, max=0.99)
 
-    design_effect = 1.0 + (n_observations_per_subject - 1.0) * icc
-
-    total_observations = n_subjects * n_observations_per_subject
-
-    effective_n = total_observations / design_effect
-
-    noncentrality = input * torch.sqrt(effective_n / 4.0)
-
-    df_approximate = n_subjects - 2.0
-
-    df_approximate = torch.clamp(df_approximate, min=1.0)
-
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
-
-    t_critical = z_alpha * torch.sqrt(1.0 + 1.0 / (2.0 * df_approximate))
-
-    z_score = t_critical - noncentrality
-
-    power = 0.5 * (1 - torch.erf(z_score / sqrt2))
-
-    power = torch.clamp(power, 0.0, 1.0)
+    power = torch.clamp(
+        0.5
+        * (
+            1
+            - torch.erf(
+                (
+                    torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype))
+                    * math.sqrt(2.0)
+                    * torch.sqrt(
+                        1.0 + 1.0 / (2.0 * torch.clamp(n_subjects - 2.0, min=1.0)),
+                    )
+                    - input
+                    * torch.sqrt(
+                        n_subjects
+                        * n_observations_per_subject
+                        / (1.0 + (n_observations_per_subject - 1.0) * icc)
+                        / 4.0,
+                    )
+                )
+                / math.sqrt(2.0),
+            )
+        ),
+        0.0,
+        1.0,
+    )
 
     if out is not None:
         out.copy_(power)

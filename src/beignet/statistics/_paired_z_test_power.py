@@ -57,19 +57,21 @@ def paired_z_test_power(
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
-
-        upper = 1 - normal_dist.cdf(z_critical - noncentrality)
-        lower = normal_dist.cdf(-z_critical - noncentrality)
+        upper = 1 - normal_dist.cdf(
+            normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype)) - noncentrality,
+        )
+        lower = normal_dist.cdf(
+            -normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype)) - noncentrality,
+        )
         power = upper + lower
     elif alt == "greater":
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = 1 - normal_dist.cdf(z_critical - noncentrality)
+        power = 1 - normal_dist.cdf(
+            normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
     else:
-        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-        power = normal_dist.cdf(-z_critical - noncentrality)
+        power = normal_dist.cdf(
+            -normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
+        )
 
     out_t = torch.clamp(power, 0.0, 1.0)
 

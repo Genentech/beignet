@@ -77,34 +77,36 @@ def two_way_analysis_of_variance_power(
     else:
         raise ValueError("effect_type must be 'main_a', 'main_b', or 'interaction'")
 
-    df_den = levels_factor_a * levels_factor_b * (sample_size_per_cell - 1)
+    df_den = torch.clamp(
+        levels_factor_a * levels_factor_b * (sample_size_per_cell - 1),
+        min=1.0,
+    )
 
-    df_den = torch.clamp(df_den, min=1.0)
+    variance_f = (
+        2
+        * (df_num + 2 * total_n * input**2)
+        / (df_num**2)
+        * ((df_den + 2) / torch.clamp(df_den, min=1.0))
+    )
 
-    lambda_nc = total_n * input**2
-
-    square_root_two = math.sqrt(2.0)
-
-    f_dist = beignet.distributions.FisherSnedecor(df_num, df_den)
-    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-    mean_nc_chi2 = df_num + lambda_nc
-
-    variance_nc_chi_squared = 2 * (df_num + 2 * lambda_nc)
-
-    mean_f = mean_nc_chi2 / df_num
-
-    variance_f = variance_nc_chi_squared / (df_num**2)
-
-    variance_f = variance_f * ((df_den + 2) / torch.clamp(df_den, min=1.0))
-
-    standard_deviation_f = torch.sqrt(torch.clamp(variance_f, min=1e-12))
-
-    z_score = (f_critical - mean_f) / standard_deviation_f
-
-    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
-
-    power = torch.clamp(power, 0.0, 1.0)
+    power = torch.clamp(
+        0.5
+        * (
+            1
+            - torch.erf(
+                (
+                    beignet.distributions.FisherSnedecor(df_num, df_den).icdf(
+                        torch.tensor(1 - alpha, dtype=dtype),
+                    )
+                    - (df_num + total_n * input**2) / df_num
+                )
+                / torch.sqrt(torch.clamp(variance_f, min=1e-12))
+                / math.sqrt(2.0),
+            )
+        ),
+        0.0,
+        1.0,
+    )
 
     if out is not None:
         out.copy_(power)

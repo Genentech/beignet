@@ -60,53 +60,60 @@ def t_test_sample_size(
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
-    z_beta = torch.sqrt(torch.tensor(2.0, dtype=dtype)) * torch.erfinv(
-        2.0 * torch.as_tensor(power, dtype=dtype) - 1.0,
+    sample_size_iteration = torch.clamp(
+        (
+            (
+                z_alpha
+                + torch.sqrt(torch.tensor(2.0, dtype=dtype))
+                * torch.erfinv(
+                    2.0 * torch.as_tensor(power, dtype=dtype) - 1.0,
+                )
+            )
+            / input
+        )
+        ** 2,
+        min=2.0,
     )
 
-    sample_size_initial = ((z_alpha + z_beta) / input) ** 2
-
-    sample_size_initial = torch.clamp(sample_size_initial, min=2.0)
-
-    sample_size_iteration = sample_size_initial
-
-    convergence_tolerance = 1e-6
-
-    max_iterations = 10
-
-    for _iteration in range(max_iterations):
-        power_iteration = t_test_power(
-            input,
-            sample_size_iteration,
-            alpha,
-            alternative,
+    for _iteration in range(10):
+        power_iteration = torch.clamp(
+            t_test_power(
+                input,
+                sample_size_iteration,
+                alpha,
+                alternative,
+            ),
+            0.01,
+            0.99,
         )
-
-        power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
-
-        power_diff = power - power_iteration
-
-        adjustment = (
-            power_diff
-            * sample_size_iteration
-            / (2 * torch.clamp(power_iteration * (1 - power_iteration), min=0.01))
-        )
-
-        converged_mask = torch.abs(power_diff) < convergence_tolerance
-
-        adjustment = torch.where(converged_mask, adjustment * 0.1, adjustment)
-
-        sample_size_iteration = sample_size_iteration + adjustment
 
         sample_size_iteration = torch.clamp(
-            sample_size_iteration,
+            sample_size_iteration
+            + torch.where(
+                torch.abs(power - power_iteration) < 1e-6,
+                (
+                    (power - power_iteration)
+                    * sample_size_iteration
+                    / (
+                        2
+                        * torch.clamp(power_iteration * (1 - power_iteration), min=0.01)
+                    )
+                )
+                * 0.1,
+                (
+                    (power - power_iteration)
+                    * sample_size_iteration
+                    / (
+                        2
+                        * torch.clamp(power_iteration * (1 - power_iteration), min=0.01)
+                    )
+                ),
+            ),
             min=2.0,
             max=100000.0,
         )
 
-    result = torch.ceil(sample_size_iteration)
-
-    result = torch.clamp(result, min=2.0)
+    result = torch.clamp(torch.ceil(sample_size_iteration), min=2.0)
 
     if out is not None:
         out.copy_(result)

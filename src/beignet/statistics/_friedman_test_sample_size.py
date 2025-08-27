@@ -52,31 +52,45 @@ def friedman_test_sample_size(
 
     n_treatments = torch.clamp(n_treatments, min=3.0)
 
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    n_initial = (
-        ((z_alpha + z_beta) ** 2) * n_treatments * (n_treatments + 1) / (12 * input)
+    n_initial = torch.clamp(
+        (
+            (
+                (
+                    torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                    + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+                )
+                ** 2
+            )
+            * n_treatments
+            * (n_treatments + 1)
+            / (12 * input)
+        ),
+        min=5.0,
     )
-    n_initial = torch.clamp(n_initial, min=5.0)
 
     n_iteration = n_initial
+
     for _ in range(12):
-        current_power = friedman_test_power(
-            input,
-            n_iteration,
-            n_treatments,
-            alpha=alpha,
+        n_iteration = torch.clamp(
+            n_iteration
+            * (
+                1.0
+                + 1.2
+                * torch.clamp(
+                    power
+                    - friedman_test_power(
+                        input,
+                        n_iteration,
+                        n_treatments,
+                        alpha=alpha,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
+            min=5.0,
+            max=1e6,
         )
-
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
-
-        adjustment = 1.0 + 1.2 * power_gap
-
-        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e6)
 
     n_out = torch.ceil(n_iteration)
 

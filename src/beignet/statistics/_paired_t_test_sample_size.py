@@ -56,24 +56,29 @@ def paired_t_test_sample_size(
     else:
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    sample_size = ((z_alpha + z_beta) / input) ** 2
-
-    sample_size = torch.clamp(sample_size, min=2.0)
-
-    sample_size_curr = sample_size
+    sample_size_curr = torch.clamp(
+        ((z_alpha + torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2) / input)
+        ** 2,
+        min=2.0,
+    )
     for _ in range(10):
-        current_power = paired_t_test_power(
-            input,
-            sample_size_curr,
-            alpha,
-            alternative,
-        )
-        gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
-
         sample_size_curr = torch.clamp(
-            sample_size_curr * (1.0 + 1.25 * gap),
+            sample_size_curr
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - paired_t_test_power(
+                        input,
+                        sample_size_curr,
+                        alpha,
+                        alternative,
+                    ),
+                    min=-0.45,
+                    max=0.45,
+                )
+            ),
             min=2.0,
             max=1e7,
         )

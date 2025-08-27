@@ -60,39 +60,45 @@ def repeated_measures_analysis_of_variance_sample_size(
 
     n_timepoints = torch.clamp(n_timepoints, min=2.0)
 
-    epsilon_min = 1.0 / (n_timepoints - 1.0)
-
-    epsilon = torch.maximum(epsilon, epsilon_min)
+    epsilon = torch.maximum(epsilon, 1.0 / (n_timepoints - 1.0))
 
     epsilon = torch.clamp(epsilon, max=1.0)
 
-    square_root_two = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
-
-    efficiency = n_timepoints * epsilon
-
-    n_initial = ((z_alpha + z_beta) / input) ** 2 / efficiency
-
-    n_initial = torch.clamp(n_initial, min=5.0)
-
-    n_iteration = n_initial
-    for _ in range(12):
-        current_power = repeated_measures_analysis_of_variance_power(
-            input,
-            n_iteration,
-            n_timepoints,
-            epsilon,
-            alpha=alpha,
+    n_iteration = torch.clamp(
+        (
+            (
+                torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            / input
         )
+        ** 2
+        / (n_timepoints * epsilon),
+        min=5.0,
+    )
 
-        power_gap = torch.clamp(power - current_power, min=-0.4, max=0.4)
-
-        adjustment = 1.0 + 1.2 * power_gap
-
-        n_iteration = torch.clamp(n_iteration * adjustment, min=5.0, max=1e5)
+    for _ in range(12):
+        n_iteration = torch.clamp(
+            n_iteration
+            * (
+                1.0
+                + 1.2
+                * torch.clamp(
+                    power
+                    - repeated_measures_analysis_of_variance_power(
+                        input,
+                        n_iteration,
+                        n_timepoints,
+                        epsilon,
+                        alpha=alpha,
+                    ),
+                    min=-0.4,
+                    max=0.4,
+                )
+            ),
+            min=5.0,
+            max=1e5,
+        )
 
     n_out = torch.ceil(n_iteration)
 

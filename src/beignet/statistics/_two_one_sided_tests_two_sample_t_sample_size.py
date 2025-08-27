@@ -66,36 +66,42 @@ def two_one_sided_tests_two_sample_t_sample_size(
 
     r = torch.clamp(r, min=0.1, max=10.0)
 
-    sqrt2 = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt2
-
-    margin = torch.minimum(true_effect_size - low, high - true_effect_size)
-
-    margin = torch.clamp(margin, min=1e-8)
-
-    c = torch.sqrt(1.0 + 1.0 / r)
-
-    sample_size_group_1 = ((z_alpha + z_beta) * c / margin) ** 2
-
-    sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
-
-    sample_size_group_1_iteration = sample_size_group_1
-    for _ in range(12):
-        current_power = two_one_sided_tests_two_sample_t_power(
-            true_effect_size,
-            sample_size_group_1_iteration,
-            ratio=r,
-            low=low,
-            high=high,
-            alpha=alpha,
+    sample_size_group_1_iteration = torch.clamp(
+        (
+            (
+                torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
+                + torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+            )
+            * torch.sqrt(1.0 + 1.0 / r)
+            / torch.clamp(
+                torch.minimum(true_effect_size - low, high - true_effect_size),
+                min=1e-8,
+            )
         )
-        gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
+        ** 2,
+        min=2.0,
+    )
 
+    for _ in range(12):
         sample_size_group_1_iteration = torch.clamp(
-            sample_size_group_1_iteration * (1.0 + 1.25 * gap),
+            sample_size_group_1_iteration
+            * (
+                1.0
+                + 1.25
+                * torch.clamp(
+                    power
+                    - two_one_sided_tests_two_sample_t_power(
+                        true_effect_size,
+                        sample_size_group_1_iteration,
+                        ratio=r,
+                        low=low,
+                        high=high,
+                        alpha=alpha,
+                    ),
+                    min=-0.45,
+                    max=0.45,
+                )
+            ),
             min=2.0,
             max=1e7,
         )

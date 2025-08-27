@@ -62,37 +62,86 @@ def multivariate_analysis_of_variance_power(
 
     n_groups = torch.clamp(n_groups, min=2.0)
 
-    df_hypothesis = n_groups - 1
-
-    df_error = sample_size - n_groups
-
-    df1 = df_hypothesis * n_variables
-
-    df2 = df_error * n_variables - (n_variables - df_hypothesis + 1) / 2
-
-    df2 = torch.clamp(df2, min=1.0)
-
-    effect_size_f_squared = input**2
-
-    lambda_nc = sample_size * effect_size_f_squared
-
-    square_root_two = math.sqrt(2.0)
-
-    f_dist = beignet.distributions.FisherSnedecor(df1, df2)
-    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
-
-    mean_nc_f = (1.0 + lambda_nc / df1) * (df2 / (df2 - 2.0))
-
-    var_nc_f = (
-        2.0 * (df2 / (df2 - 2.0)) ** 2 * ((df1 + lambda_nc) / df1 + (df2 - 2.0) / df2)
+    power = torch.clamp(
+        0.5
+        * (
+            1
+            - torch.erf(
+                (
+                    beignet.distributions.FisherSnedecor(
+                        (n_groups - 1) * n_variables,
+                        torch.clamp(
+                            (sample_size - n_groups) * n_variables
+                            - (n_variables - (n_groups - 1) + 1) / 2,
+                            min=1.0,
+                        ),
+                    ).icdf(
+                        torch.tensor(1 - alpha, dtype=dtype),
+                    )
+                    - (1.0 + sample_size * input**2 / ((n_groups - 1) * n_variables))
+                    * (
+                        torch.clamp(
+                            (sample_size - n_groups) * n_variables
+                            - (n_variables - (n_groups - 1) + 1) / 2,
+                            min=1.0,
+                        )
+                        / (
+                            torch.clamp(
+                                (sample_size - n_groups) * n_variables
+                                - (n_variables - (n_groups - 1) + 1) / 2,
+                                min=1.0,
+                            )
+                            - 2.0
+                        )
+                    )
+                )
+                / torch.sqrt(
+                    torch.clamp(
+                        (
+                            2.0
+                            * (
+                                torch.clamp(
+                                    (sample_size - n_groups) * n_variables
+                                    - (n_variables - (n_groups - 1) + 1) / 2,
+                                    min=1.0,
+                                )
+                                / (
+                                    torch.clamp(
+                                        (sample_size - n_groups) * n_variables
+                                        - (n_variables - (n_groups - 1) + 1) / 2,
+                                        min=1.0,
+                                    )
+                                    - 2.0
+                                )
+                            )
+                            ** 2
+                            * (
+                                ((n_groups - 1) * n_variables + sample_size * input**2)
+                                / ((n_groups - 1) * n_variables)
+                                + (
+                                    torch.clamp(
+                                        (sample_size - n_groups) * n_variables
+                                        - (n_variables - (n_groups - 1) + 1) / 2,
+                                        min=1.0,
+                                    )
+                                    - 2.0
+                                )
+                                / torch.clamp(
+                                    (sample_size - n_groups) * n_variables
+                                    - (n_variables - (n_groups - 1) + 1) / 2,
+                                    min=1.0,
+                                )
+                            )
+                        ),
+                        min=1e-12,
+                    ),
+                )
+                / math.sqrt(2.0),
+            )
+        ),
+        0.0,
+        1.0,
     )
-    std_nc_f = torch.sqrt(torch.clamp(var_nc_f, min=1e-12))
-
-    z_score = (f_critical - mean_nc_f) / std_nc_f
-
-    power = 0.5 * (1 - torch.erf(z_score / square_root_two))
-
-    power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
         out.copy_(power)
