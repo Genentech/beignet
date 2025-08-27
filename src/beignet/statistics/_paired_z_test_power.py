@@ -72,7 +72,10 @@ def paired_z_test_power(
         power = normal_dist.cdf(-z_critical - noncentrality)
 
     out_t = torch.clamp(power, 0.0, 1.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

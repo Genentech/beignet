@@ -55,6 +55,7 @@ def chi_square_goodness_of_fit_sample_size(
 
     chi2_dist = beignet.distributions.Chi2(degrees_of_freedom)
 
+    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
     n_initial = ((z_alpha + z_beta) / input) ** 2
@@ -111,5 +112,7 @@ def chi_square_goodness_of_fit_sample_size(
 
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

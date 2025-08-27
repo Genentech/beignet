@@ -97,8 +97,10 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
         w = (w_lo + w_hi) * 0.5
 
     out_t = torch.clamp(w, min=0.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
-    return result
+
     return out_t

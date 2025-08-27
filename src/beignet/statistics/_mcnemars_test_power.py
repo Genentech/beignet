@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -41,8 +39,6 @@ def mcnemars_test_power(
     mean = d * (probability - 0.5)
 
     standard_deviation = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
-
-    sqrt2 = math.sqrt(2.0)
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if two_sided:
@@ -61,7 +57,10 @@ def mcnemars_test_power(
         power = 1 - normal_dist.cdf(zscore)
 
     out_t = torch.clamp(power, 0.0, 1.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

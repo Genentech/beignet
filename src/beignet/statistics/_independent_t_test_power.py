@@ -133,5 +133,7 @@ def independent_t_test_power(
 
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

@@ -91,7 +91,10 @@ def anova_minimum_detectable_effect(
         effect_size_f = (effect_size_f_lo + effect_size_f_hi) * 0.5
 
     out_t = torch.clamp(effect_size_f, min=0.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

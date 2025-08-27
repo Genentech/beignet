@@ -103,5 +103,7 @@ def partial_eta_squared(
 
     if out is not None:
         out.copy_(partial_eta_sq)
+
         return out
+
     return partial_eta_sq

@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -62,8 +60,6 @@ def proportion_power(
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
-    sqrt_2 = math.sqrt(2.0)
-
     se_null = torch.sqrt(p0 * (1 - p0) / sample_size)
 
     se_alt = torch.sqrt(p1 * (1 - p1) / sample_size)
@@ -108,6 +104,7 @@ def proportion_power(
 
     if out is not None:
         out.copy_(result)
+
         return out
 
     return result

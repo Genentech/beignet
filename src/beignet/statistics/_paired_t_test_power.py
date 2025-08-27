@@ -78,7 +78,10 @@ def paired_t_test_power(
         power = nc_t_dist.cdf(-t_critical)
 
     out_t = torch.clamp(power, 0.0, 1.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

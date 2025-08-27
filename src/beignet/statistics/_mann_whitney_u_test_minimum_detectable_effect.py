@@ -96,5 +96,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
 
     if out is not None:
         out.copy_(auc)
+
         return out
+
     return auc

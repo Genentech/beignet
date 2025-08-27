@@ -58,5 +58,7 @@ def cliffs_delta(
 
     if out is not None:
         out.copy_(delta)
+
         return out
+
     return delta

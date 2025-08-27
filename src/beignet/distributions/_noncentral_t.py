@@ -1,8 +1,9 @@
 import torch
 from torch import Tensor
+from torch.distributions import Distribution
 
 
-class NonCentralT(torch.distributions.Distribution):
+class NonCentralT(Distribution):
     r"""
     Non-central t-distribution with inverse cumulative distribution function.
 

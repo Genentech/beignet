@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -48,8 +46,6 @@ def wilcoxon_signed_rank_test_power(
 
     noncentrality = (mean1 - mean0) / sd0
 
-    square_root_two = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
@@ -70,7 +66,10 @@ def wilcoxon_signed_rank_test_power(
         power = normal_dist.cdf(-z_critical - noncentrality)
 
     out_t = torch.clamp(power, 0.0, 1.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

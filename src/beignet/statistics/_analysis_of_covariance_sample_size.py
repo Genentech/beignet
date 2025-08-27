@@ -70,12 +70,6 @@ def analysis_of_covariance_sample_size(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
-    df1 = groups - 1.0
-
-    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
-
-    fcrit_over_df1 = chi_squared_critical / df1
-
     lam0 = ((z_alpha + z_beta) * math.sqrt(2.0)) ** 2
 
     n0 = (
@@ -88,8 +82,6 @@ def analysis_of_covariance_sample_size(
 
     n_curr = n0
     for _ in range(8):
-        df2 = torch.clamp(n_curr - groups - num_covariates, min=1.0)
-
         power_curr = analysis_of_covariance_power(
             effect_size_f,
             n_curr,
@@ -108,6 +100,7 @@ def analysis_of_covariance_sample_size(
         )
 
     n_out = torch.ceil(n_curr)
+
     if out is not None:
         out.copy_(n_out)
 

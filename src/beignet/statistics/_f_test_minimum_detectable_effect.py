@@ -83,7 +83,10 @@ def f_test_minimum_detectable_effect(
         x = (f2_lo + f2_hi) * 0.5
 
     out_t = torch.clamp(x, min=0.0)
+
     if out is not None:
         out.copy_(out_t)
+
         return out
+
     return out_t

@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -40,8 +38,6 @@ def paired_z_test_sample_size(
 
     input = torch.clamp(input.to(dtype), min=1e-8)
 
-    square_root_two = math.sqrt(2.0)
-
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -64,7 +60,10 @@ def paired_z_test_sample_size(
     sample_size = torch.clamp(sample_size, min=1.0)
 
     sample_size = torch.ceil(sample_size)
+
     if out is not None:
         out.copy_(sample_size)
+
         return out
+
     return sample_size

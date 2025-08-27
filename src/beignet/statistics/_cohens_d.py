@@ -45,6 +45,7 @@ def cohens_d(
 
     if out is not None:
         out.copy_(result)
+
         return out
 
     return result

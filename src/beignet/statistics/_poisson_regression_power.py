@@ -114,5 +114,7 @@ def poisson_regression_power(
 
     if out is not None:
         out.copy_(power)
+
         return out
+
     return power

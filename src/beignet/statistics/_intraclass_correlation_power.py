@@ -96,5 +96,7 @@ def intraclass_correlation_power(
 
     if out is not None:
         out.copy_(power)
+
         return out
+
     return power

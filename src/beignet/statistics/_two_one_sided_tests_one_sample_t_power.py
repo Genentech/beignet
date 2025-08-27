@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -47,8 +45,6 @@ def two_one_sided_tests_one_sample_t_power(
 
     ncp_high = (true_effect_size - high) * torch.sqrt(sample_size)
 
-    sqrt2 = math.sqrt(2.0)
-
     t_dist = beignet.distributions.StudentT(degrees_of_freedom)
     t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
@@ -90,5 +86,7 @@ def two_one_sided_tests_one_sample_t_power(
 
     if out is not None:
         out.copy_(power)
+
         return out
+
     return power

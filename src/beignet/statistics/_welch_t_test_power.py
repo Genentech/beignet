@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -115,8 +113,6 @@ def welch_t_test_power(
     variance_nct = nc_t_dist.variance
     standard_deviation_nct = torch.sqrt(variance_nct)
 
-    sqrt2 = math.sqrt(2.0)
-
     if alt == "two-sided":
         zu = (t_critical - mean_nct) / torch.clamp(
             standard_deviation_nct,
@@ -151,7 +147,10 @@ def welch_t_test_power(
         )
 
     result = torch.clamp(power, 0.0, 1.0)
+
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

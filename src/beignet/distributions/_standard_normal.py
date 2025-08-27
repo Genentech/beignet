@@ -1,8 +1,9 @@
 import torch
 from torch import Tensor
+from torch.distributions import Normal
 
 
-class StandardNormal(torch.distributions.Normal):
+class StandardNormal(Normal):
     r"""
     Standard normal distribution N(0, 1) with inverse cumulative distribution function.
 

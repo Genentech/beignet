@@ -103,5 +103,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     if out is not None:
         out.copy_(probability)
+
         return out
+
     return probability

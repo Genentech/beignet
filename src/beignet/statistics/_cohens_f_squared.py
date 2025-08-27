@@ -51,6 +51,7 @@ def cohens_f_squared(
 
     if out is not None:
         out.copy_(result)
+
         return out
 
     return result

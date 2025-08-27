@@ -79,7 +79,10 @@ def paired_t_test_sample_size(
         )
 
     sample_size_out = torch.ceil(sample_size_curr)
+
     if out is not None:
         out.copy_(sample_size_out)
+
         return out
+
     return sample_size_out

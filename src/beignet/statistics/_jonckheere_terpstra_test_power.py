@@ -75,5 +75,7 @@ def jonckheere_terpstra_test_power(
 
     if out is not None:
         out.copy_(power)
+
         return out
+
     return power

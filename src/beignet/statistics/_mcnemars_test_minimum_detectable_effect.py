@@ -100,5 +100,7 @@ def mcnemars_test_minimum_detectable_effect(
 
     if out is not None:
         out.copy_(abs_diff)
+
         return out
+
     return abs_diff

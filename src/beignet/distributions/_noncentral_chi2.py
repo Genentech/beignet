@@ -1,8 +1,9 @@
 import torch
 from torch import Tensor
+from torch.distributions import Distribution
 
 
-class NonCentralChi2(torch.distributions.Distribution):
+class NonCentralChi2(Distribution):
     r"""
     Non-central chi-squared distribution with inverse cumulative distribution function.
 

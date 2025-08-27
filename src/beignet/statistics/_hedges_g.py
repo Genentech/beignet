@@ -39,6 +39,7 @@ def hedges_g(
 
     if out is not None:
         out.copy_(output)
+
         return out
 
     return output

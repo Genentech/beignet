@@ -101,7 +101,10 @@ def two_one_sided_tests_two_sample_t_sample_size(
         )
 
     sample_size_group_1_output = torch.ceil(sample_size_group_1_iteration)
+
     if out is not None:
         out.copy_(sample_size_group_1_output)
+
         return out
+
     return sample_size_group_1_output

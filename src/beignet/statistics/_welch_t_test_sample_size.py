@@ -118,7 +118,10 @@ def welch_t_test_sample_size(
     result = torch.ceil(sample_size_group_1_iteration)
 
     result = torch.clamp(result, min=2.0)
+
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

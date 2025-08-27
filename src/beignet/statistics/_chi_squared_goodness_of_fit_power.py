@@ -73,5 +73,7 @@ def chi_square_goodness_of_fit_power(
 
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

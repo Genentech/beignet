@@ -66,6 +66,7 @@ def mcnemars_test_sample_size(
         n_curr = torch.clamp(n_curr * (1.0 + 1.25 * gap), min=4.0, max=1e7)
 
     n_out = torch.ceil(n_curr)
+
     if out is not None:
         out.copy_(n_out)
 

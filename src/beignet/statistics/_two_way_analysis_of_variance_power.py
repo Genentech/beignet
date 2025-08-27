@@ -108,5 +108,7 @@ def two_way_analysis_of_variance_power(
 
     if out is not None:
         out.copy_(power)
+
         return out
+
     return power

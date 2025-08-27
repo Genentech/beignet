@@ -69,7 +69,10 @@ def mann_whitney_u_test_sample_size(
         )
 
     sample_size_group_1_result = torch.ceil(sample_size_group_1_iteration)
+
     if out is not None:
         out.copy_(sample_size_group_1_result)
+
         return out
+
     return sample_size_group_1_result

@@ -51,15 +51,11 @@ def anova_sample_size(
 
     groups = torch.clamp(groups, min=2.0)
 
-    df1 = groups - 1
-
     square_root_two = math.sqrt(2.0)
 
     z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
 
     lambda_initial = ((z_alpha + z_beta) * square_root_two) ** 2
 
@@ -101,5 +97,7 @@ def anova_sample_size(
 
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

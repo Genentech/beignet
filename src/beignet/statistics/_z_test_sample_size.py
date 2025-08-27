@@ -1,7 +1,6 @@
 import torch
 from torch import Tensor
-
-import beignet.distributions
+from torch.distributions import Normal
 
 
 def z_test_sample_size(
@@ -53,7 +52,7 @@ def z_test_sample_size(
 
     abs_effect_size = torch.clamp(torch.abs(input), min=1e-6)
 
-    normal_dist = beignet.distributions.Normal(
+    normal_dist = Normal(
         torch.tensor(0.0, dtype=dtype),
         torch.tensor(1.0, dtype=dtype),
     )
@@ -71,11 +70,11 @@ def z_test_sample_size(
 
     sample_size = ((z_alpha + z_beta) / abs_effect_size) ** 2
 
-    result = torch.ceil(sample_size)
-
-    result = torch.clamp(result, min=1.0)
+    result = torch.clamp(torch.ceil(sample_size), min=1.0)
 
     if out is not None:
         out.copy_(result)
+
         return out
+
     return result

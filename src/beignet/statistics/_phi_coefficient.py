@@ -45,6 +45,7 @@ def phi_coefficient(
 
     if out is not None:
         out.copy_(output)
+
         return out
 
     return output
