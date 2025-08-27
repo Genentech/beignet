@@ -3,8 +3,8 @@ from torch import Tensor
 
 
 def glass_delta(
-    x: Tensor,
-    y: Tensor,
+    input: Tensor,
+    other: Tensor,
     *,
     out: Tensor | None = None,
 ) -> Tensor:
@@ -12,40 +12,32 @@ def glass_delta(
 
     Parameters
     ----------
-    x : Tensor
-        X parameter.
-    y : Tensor
-        Y parameter.
+    input : Tensor
+
+    other : Tensor
+
     out : Tensor | None
-        Output tensor.
 
     Returns
     -------
     Tensor
-        Computed statistic.
     """
 
-    x = torch.atleast_1d(torch.as_tensor(x))
-    y = torch.atleast_1d(torch.as_tensor(y))
+    input = torch.atleast_1d(input)
+    other = torch.atleast_1d(other)
 
-    if x.dtype.is_floating_point and y.dtype.is_floating_point:
-        if x.dtype == torch.float64 or y.dtype == torch.float64:
-            dtype = torch.float64
-        else:
-            dtype = torch.float32
-    else:
-        dtype = torch.float32
+    dtype = torch.promote_types(input.dtype, other.dtype)
 
-    x = x.to(dtype)
-    y = y.to(dtype)
+    input = input.to(dtype)
+    other = other.to(dtype)
 
-    delta = (torch.mean(x, dim=-1) - torch.mean(y, dim=-1)) / torch.sqrt(
-        torch.clamp(torch.var(y, dim=-1, correction=1), min=torch.finfo(dtype).eps),
+    output = (torch.mean(input, dim=-1) - torch.mean(other, dim=-1)) / torch.sqrt(
+        torch.clamp(torch.var(other, dim=-1, correction=1), min=torch.finfo(dtype).eps),
     )
 
     if out is not None:
-        out.copy_(delta)
+        out.copy_(output)
 
         return out
 
-    return delta
+    return output

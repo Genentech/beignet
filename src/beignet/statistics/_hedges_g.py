@@ -23,17 +23,9 @@ def hedges_g(
     -------
     Tensor
     """
+    correction = 1.0 - 3.0 / (4.0 * (input.shape[-1] + other.shape[-1] - 2) - 1.0)
 
-    cohens_d_value = cohens_d(input, other, pooled=True)
-
-    sample_size_group_1 = input.shape[-1]
-    sample_size_group_2 = other.shape[-1]
-
-    degrees_of_freedom = sample_size_group_1 + sample_size_group_2 - 2
-
-    correction = 1.0 - 3.0 / (4.0 * degrees_of_freedom - 1.0)
-
-    output = cohens_d_value * correction
+    output = cohens_d(input, other, pooled=True) * correction
 
     if out is not None:
         out.copy_(output)
