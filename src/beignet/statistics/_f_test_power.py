@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def f_test_power(
     input: Tensor,
@@ -63,9 +65,8 @@ def f_test_power(
 
     lambda_param = total_sample_size * input
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-
-    f_critical = 1.0 + z_alpha * torch.sqrt(2.0 / df1)
+    f_dist = beignet.distributions.FisherSnedecor(df1, df2)
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     mean_f_alt = 1.0 + lambda_param / df1
 

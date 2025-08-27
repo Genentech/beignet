@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def proportion_sample_size(
@@ -51,16 +51,18 @@ def proportion_sample_size(
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
 
-    sqrt_2 = math.sqrt(2.0)
+    normal_dist = beignet.distributions.Normal(
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
+    )
 
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
-
-        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
+        z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
     elif alternative in ["greater", "less"]:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
-
-        z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
+        z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
+    else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
     se_null = torch.sqrt(p0 * (1 - p0))

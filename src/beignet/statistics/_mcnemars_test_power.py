@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def mcnemars_test_power(
     p01: Tensor,
@@ -41,31 +43,22 @@ def mcnemars_test_power(
     standard_deviation = torch.sqrt(torch.clamp(d * 0.25, min=1e-12))
 
     sqrt2 = math.sqrt(2.0)
-
-    def z_of(prob: float) -> Tensor:
-        pt = torch.tensor(prob, dtype=dtype)
-
-        eps = torch.finfo(dtype).eps
-
-        pt = torch.clamp(pt, min=eps, max=1 - eps)
-        return sqrt2 * torch.erfinv(2.0 * pt - 1.0)
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if two_sided:
-        z_critical = z_of(1 - alpha / 2)
+        z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
         z_upper = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
         z_lower = -z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
-        power = 0.5 * (1 - torch.erf(z_upper / math.sqrt(2.0))) + 0.5 * (
-            1 + torch.erf(z_lower / math.sqrt(2.0))
-        )
+        power = (1 - normal_dist.cdf(z_upper)) + normal_dist.cdf(z_lower)
     else:
-        z_critical = z_of(1 - alpha)
+        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         zscore = z_critical - mean / torch.clamp(standard_deviation, min=1e-12)
 
-        power = 0.5 * (1 - torch.erf(zscore / math.sqrt(2.0)))
+        power = 1 - normal_dist.cdf(zscore)
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

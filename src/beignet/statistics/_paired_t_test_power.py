@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def paired_t_test_power(
@@ -57,55 +57,25 @@ def paired_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    square_root_two = math.sqrt(2.0)
+    # Get critical values from central t-distribution
+    t_dist = beignet.distributions.StudentT(degrees_of_freedom)
     if alt == "two-sided":
-        z = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
-
-        t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
+        t_critical = t_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
     else:
-        z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+        t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-
-    variance_nct = torch.where(
-        degrees_of_freedom > 2,
-        (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-        1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
-    )
-    standard_deviation_nct = torch.sqrt(variance_nct)
+    # Use non-central t-distribution for power calculation
+    nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
 
     if alt == "two-sided":
-        zu = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct,
-            min=1e-10,
-        )
-
-        zl = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct,
-            min=1e-10,
-        )
-
-        power = 0.5 * (
-            1 - torch.erf(zu / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-        ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
+        # P(|T| > t_critical) = P(T > t_critical) + P(T < -t_critical)
+        power = (1 - nc_t_dist.cdf(t_critical)) + nc_t_dist.cdf(-t_critical)
     elif alt == "greater":
-        zscore = (t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct,
-            min=1e-10,
-        )
-
-        power = 0.5 * (
-            1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-        )
+        # P(T > t_critical)
+        power = 1 - nc_t_dist.cdf(t_critical)
     else:
-        zscore = (-t_critical - noncentrality) / torch.clamp(
-            standard_deviation_nct,
-            min=1e-10,
-        )
-
-        power = 0.5 * (
-            1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-        )
+        # P(T < -t_critical)
+        power = nc_t_dist.cdf(-t_critical)
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def paired_z_test_power(
@@ -54,54 +54,22 @@ def paired_z_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    square_root_two = math.sqrt(2.0)
-
-    def z_of(p: float) -> torch.Tensor:
-        probability = torch.tensor(p, dtype=dtype)
-
-        eps = torch.finfo(dtype).eps
-
-        probability = torch.clamp(probability, min=eps, max=1 - eps)
-        return square_root_two * torch.erfinv(2.0 * probability - 1.0)
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
-        z_critical = z_of(1 - alpha / 2)
+        z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
-        upper = 0.5 * (
-            1
-            - torch.erf(
-                (z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
-        lower = 0.5 * (
-            1
-            + torch.erf(
-                (-z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
+        upper = 1 - normal_dist.cdf(z_critical - noncentrality)
+        lower = normal_dist.cdf(-z_critical - noncentrality)
         power = upper + lower
     elif alt == "greater":
-        z_critical = z_of(1 - alpha)
+        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = 0.5 * (
-            1
-            - torch.erf(
-                (z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
+        power = 1 - normal_dist.cdf(z_critical - noncentrality)
     else:
-        z_critical = z_of(1 - alpha)
+        z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = 0.5 * (
-            1
-            + torch.erf(
-                (-z_critical - noncentrality)
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
+        power = normal_dist.cdf(-z_critical - noncentrality)
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

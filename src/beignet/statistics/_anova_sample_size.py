@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+from ._anova_power import anova_power
+
 
 def anova_sample_size(
     input: Tensor,
@@ -72,38 +74,12 @@ def anova_sample_size(
     max_iterations = 8
 
     for _iteration in range(max_iterations):
-        df2_iteration = n_iteration - groups
-
-        df2_iteration = torch.clamp(df2_iteration, min=1.0)
-
-        lambda_iteration = n_iteration * input**2
-
-        f_critical = chi_squared_critical / df1
-
-        adjustment = 1 + 2 / torch.clamp(df2_iteration, min=1.0)
-
-        f_critical = f_critical * adjustment
-
-        mean_nc_chi2 = df1 + lambda_iteration
-
-        variance_nc_chi_squared = 2 * (df1 + 2 * lambda_iteration)
-
-        mean_f = mean_nc_chi2 / df1
-
-        variance_f = variance_nc_chi_squared / (df1**2)
-
-        var_adjustment = (df2_iteration + 2) / torch.clamp(df2_iteration, min=1.0)
-
-        variance_f = variance_f * var_adjustment
-
-        standard_deviation_f = torch.sqrt(variance_f)
-
-        z_iteration = (f_critical - mean_f) / torch.clamp(
-            standard_deviation_f,
-            min=1e-10,
+        power_iteration = anova_power(
+            input,
+            n_iteration,
+            groups,
+            alpha,
         )
-
-        power_iteration = (1 - torch.erf(z_iteration / square_root_two)) / 2
 
         power_diff = power - power_iteration
 
@@ -126,3 +102,4 @@ def anova_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

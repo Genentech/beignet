@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def independent_t_test_power(
     input: Tensor,
@@ -83,23 +85,19 @@ def independent_t_test_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    square_root_two = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    # Get critical values from central t-distribution
+    t_dist = beignet.distributions.StudentT(degrees_of_freedom)
     if alt == "two-sided":
-        z_eff = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
-
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
+        t_critical = t_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
     else:
-        z_eff = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+        t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        t_critical = z_eff * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
+    # Use non-central t-distribution for power calculation
+    nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
 
-    mean_nct = noncentrality
-
-    variance_nct = torch.where(
-        degrees_of_freedom > 2,
-        (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-        1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
-    )
+    # Get mean and variance from the distribution
+    mean_nct = nc_t_dist.mean
+    variance_nct = nc_t_dist.variance
     standard_deviation_nct = torch.sqrt(variance_nct)
 
     if alt == "two-sided":
@@ -136,3 +134,4 @@ def independent_t_test_power(
     if out is not None:
         out.copy_(result)
         return out
+    return result

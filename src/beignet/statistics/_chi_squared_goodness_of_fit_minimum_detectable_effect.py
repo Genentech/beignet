@@ -100,4 +100,5 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
     if out is not None:
         out.copy_(out_t)
         return out
+    return result
     return out_t

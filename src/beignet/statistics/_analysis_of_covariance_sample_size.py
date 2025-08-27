@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+from ._analysis_of_covariance_power import analysis_of_covariance_power
+
 
 def analysis_of_covariance_sample_size(
     input: Tensor,
@@ -88,30 +90,14 @@ def analysis_of_covariance_sample_size(
     for _ in range(8):
         df2 = torch.clamp(n_curr - groups - num_covariates, min=1.0)
 
-        lambda_nc = (
-            n_curr
-            * effect_size_f**2
-            / torch.clamp(1.0 - covariate_r_squared, min=torch.finfo(dtype).eps)
+        power_curr = analysis_of_covariance_power(
+            effect_size_f,
+            n_curr,
+            groups,
+            covariate_r_squared,
+            num_covariates,
+            alpha,
         )
-
-        mean_nc_chi2 = df1 + lambda_nc
-
-        variance_nc_chi_squared = 2 * (df1 + 2 * lambda_nc)
-
-        mean_f = mean_nc_chi2 / df1
-
-        variance_f = variance_nc_chi_squared / (df1**2)
-
-        variance_f = variance_f * ((df2 + 2.0) / torch.clamp(df2, min=1.0))
-
-        standard_deviation_f = torch.sqrt(variance_f)
-
-        z = (fcrit_over_df1 - mean_f + 0.0) / torch.clamp(
-            standard_deviation_f,
-            min=1e-10,
-        )
-
-        power_curr = 0.5 * (1 - torch.erf(z / math.sqrt(2.0)))
 
         gap = torch.clamp(power - power_curr, min=-0.45, max=0.45)
 
@@ -124,5 +110,7 @@ def analysis_of_covariance_sample_size(
     n_out = torch.ceil(n_curr)
     if out is not None:
         out.copy_(n_out)
+
         return out
+
     return n_out

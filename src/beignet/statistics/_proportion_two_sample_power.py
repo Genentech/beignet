@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def proportion_two_sample_power(
@@ -85,32 +85,32 @@ def proportion_two_sample_power(
 
     effect = (p1 - p2) / se_null
 
-    sqrt_2 = math.sqrt(2.0)
-
     effect = p1 - p2
 
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
+
     if alternative == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
         standardized_effect = torch.abs(effect) / se_alt
 
-        power = (1 - torch.erf((z_alpha - standardized_effect) / sqrt_2)) / 2 + (
-            1 - torch.erf((z_alpha + standardized_effect) / sqrt_2)
-        ) / 2
+        power = (1 - normal_dist.cdf(z_alpha - standardized_effect)) + (
+            1 - normal_dist.cdf(z_alpha + standardized_effect)
+        )
 
     elif alternative == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         standardized_effect = effect / se_alt
 
-        power = (1 - torch.erf((z_alpha - standardized_effect) / sqrt_2)) / 2
+        power = 1 - normal_dist.cdf(z_alpha - standardized_effect)
 
     elif alternative == "less":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         standardized_effect = effect / se_alt
 
-        power = (1 + torch.erf((-z_alpha - standardized_effect) / sqrt_2)) / 2
+        power = normal_dist.cdf(-z_alpha - standardized_effect)
 
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
@@ -120,3 +120,4 @@ def proportion_two_sample_power(
     if out is not None:
         out.copy_(result)
         return out
+    return result

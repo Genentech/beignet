@@ -120,5 +120,7 @@ def interrupted_time_series_sample_size(
 
     if out is not None:
         out.copy_(n_out)
+
         return out
+
     return n_out

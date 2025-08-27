@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+from ._welch_t_test_power import welch_t_test_power
+
 
 def welch_t_test_sample_size(
     input: Tensor,
@@ -95,62 +97,15 @@ def welch_t_test_sample_size(
             torch.ceil(sample_size_group_1_iteration * r),
             min=2.0,
         )
-        a = 1.0 / sample_size_group_1_iteration
 
-        b = vr / sample_size_group_2_iteration
-
-        se2 = a + b
-
-        standard_error = torch.sqrt(se2)
-
-        degrees_of_freedom = (se2**2) / (
-            a**2 / torch.clamp(sample_size_group_1_iteration - 1, min=1.0)
-            + b**2 / torch.clamp(sample_size_group_2_iteration - 1, min=1.0)
+        p_curr = welch_t_test_power(
+            input,
+            sample_size_group_1_iteration,
+            sample_size_group_2_iteration,
+            vr,
+            alpha,
+            alternative,
         )
-        if alt == "two-sided":
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-        else:
-            t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-
-        noncentrality = input / torch.clamp(standard_error, min=1e-12)
-
-        variance_nct = torch.where(
-            degrees_of_freedom > 2,
-            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
-        )
-        standard_deviation_nct = torch.sqrt(variance_nct)
-        if alt == "two-sided":
-            zu = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            zl = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            p_curr = 0.5 * (
-                1 - torch.erf(zu / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
-        elif alt == "greater":
-            zscore = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            p_curr = 0.5 * (
-                1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
-        else:
-            zscore = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-            p_curr = 0.5 * (
-                1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
 
         gap = torch.clamp(power - p_curr, min=-0.49, max=0.49)
 
@@ -166,3 +121,4 @@ def welch_t_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

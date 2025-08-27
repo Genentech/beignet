@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def analysis_of_covariance_power(
@@ -70,13 +70,8 @@ def analysis_of_covariance_power(
 
     df2 = torch.clamp(n - groups - num_covariates, min=1.0)
 
-    square_root_two = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
-
-    f_critical = chi_squared_critical / df1
+    f_dist = beignet.distributions.FisherSnedecor(df1, df2)
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     lambda_nc = (
         n
@@ -98,7 +93,8 @@ def analysis_of_covariance_power(
 
     z = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
 
-    power = 0.5 * (1 - torch.erf(z / square_root_two))
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
+    power = 1 - normal_dist.cdf(z)
 
     out_t = torch.clamp(power, 0.0, 1.0)
     if out is not None:

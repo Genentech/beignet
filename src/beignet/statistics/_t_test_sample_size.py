@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+from ._t_test_power import t_test_power
+
 
 def t_test_sample_size(
     input: Tensor,
@@ -73,56 +75,12 @@ def t_test_sample_size(
     max_iterations = 10
 
     for _iteration in range(max_iterations):
-        degrees_of_freedom_iteration = sample_size_iteration - 1
-
-        degrees_of_freedom_iteration = torch.clamp(
-            degrees_of_freedom_iteration,
-            min=1.0,
+        power_iteration = t_test_power(
+            input,
+            sample_size_iteration,
+            alpha,
+            alternative,
         )
-
-        noncentrality_iteration = input * torch.sqrt(sample_size_iteration)
-
-        if alternative == "two-sided":
-            t_critical = z_alpha * torch.sqrt(
-                1 + 1 / (2 * degrees_of_freedom_iteration),
-            )
-        else:
-            t_critical = z_alpha * torch.sqrt(
-                1 + 1 / (2 * degrees_of_freedom_iteration),
-            )
-
-        variance_nct = (
-            degrees_of_freedom_iteration + noncentrality_iteration**2
-        ) / torch.clamp(degrees_of_freedom_iteration - 2, min=0.1)
-        variance_nct = torch.where(
-            degrees_of_freedom_iteration > 2,
-            variance_nct,
-            1 + noncentrality_iteration**2 / (2 * degrees_of_freedom_iteration),
-        )
-        standard_deviation_nct = torch.sqrt(variance_nct)
-
-        if alternative == "two-sided":
-            z_upper = (t_critical - noncentrality_iteration) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-            z_lower = (-t_critical - noncentrality_iteration) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-            power_iteration = 0.5 * (
-                1 - torch.erf(z_upper / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            ) + 0.5 * (
-                1 + torch.erf(z_lower / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
-        else:
-            z_score = (t_critical - noncentrality_iteration) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-            power_iteration = 0.5 * (
-                1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
 
         power_iteration = torch.clamp(power_iteration, 0.01, 0.99)
 
@@ -153,3 +111,4 @@ def t_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

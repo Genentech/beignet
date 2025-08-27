@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 from ._wilcoxon_signed_rank_test_power import wilcoxon_signed_rank_test_power
 
 
@@ -39,17 +41,17 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     square_root_two = math.sqrt(2.0)
 
-    def z_of(prob: float) -> Tensor:
-        q = torch.tensor(prob, dtype=dtype)
+    normal_dist = beignet.distributions.Normal(
+        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+    )
 
-        eps = torch.finfo(dtype).eps
+    z_alpha = (
+        normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
+        if alt == "two-sided"
+        else normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
+    )
 
-        q = torch.clamp(q, min=eps, max=1 - eps)
-        return square_root_two * torch.erfinv(2.0 * q - 1.0)
-
-    z_alpha = z_of(1 - alpha / 2) if alt == "two-sided" else z_of(1 - alpha)
-
-    z_beta = z_of(power)
+    z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
 
     delta = (z_alpha + z_beta) * sd0 / torch.clamp(s, min=1e-12)
 

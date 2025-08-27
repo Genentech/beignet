@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def multivariate_analysis_of_variance_power(
     input: Tensor,
@@ -76,11 +78,8 @@ def multivariate_analysis_of_variance_power(
 
     square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = df1 + z_alpha * torch.sqrt(2 * df1)
-
-    f_critical = chi_squared_critical / df1
+    f_dist = beignet.distributions.FisherSnedecor(df1, df2)
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     mean_nc_f = (1.0 + lambda_nc / df1) * (df2 / (df2 - 2.0))
 

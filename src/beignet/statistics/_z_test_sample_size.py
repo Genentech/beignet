@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def z_test_sample_size(
@@ -53,16 +53,18 @@ def z_test_sample_size(
 
     abs_effect_size = torch.clamp(torch.abs(input), min=1e-6)
 
-    square_root_two = math.sqrt(2.0)
+    normal_dist = beignet.distributions.Normal(
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
+    )
 
-    z_beta = torch.erfinv(power) * square_root_two
+    z_beta = normal_dist.icdf(power)
 
     if alternative == "two-sided":
-        z_alpha = (
-            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
-        )
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
     elif alternative in ["larger", "smaller"]:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
+    else:
         raise ValueError(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
         )
@@ -76,3 +78,4 @@ def z_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def chi_square_goodness_of_fit_power(
     input: Tensor,
@@ -53,28 +55,22 @@ def chi_square_goodness_of_fit_power(
 
     noncentrality = sample_size * input**2
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * torch.sqrt(
-        torch.tensor(2.0, dtype=dtype),
-    )
-    chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom,
-    )
+    # Get critical value from central chi-squared distribution
+    chi2_dist = beignet.distributions.Chi2(degrees_of_freedom)
+    chi_squared_critical = chi2_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-    mean_nc_chi2 = degrees_of_freedom + noncentrality
-
-    variance_nc_chi_squared = 2 * (degrees_of_freedom + 2 * noncentrality)
-
-    std_nc_chi2 = torch.sqrt(variance_nc_chi_squared)
-
-    z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
-        std_nc_chi2,
-        min=1e-10,
+    # Use non-central chi-squared distribution for power calculation
+    nc_chi2_dist = beignet.distributions.NonCentralChi2(
+        degrees_of_freedom, noncentrality
     )
 
-    power = 0.5 * (1 - torch.erf(z_score / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
+    # Power is the probability that non-central chi-squared exceeds the critical value
+    # P(X > critical) = 1 - CDF(critical) where X ~ NonCentralChi2(df, nc)
+    power = 1 - nc_chi2_dist.cdf(chi_squared_critical)
 
     result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
         out.copy_(result)
         return out
+    return result

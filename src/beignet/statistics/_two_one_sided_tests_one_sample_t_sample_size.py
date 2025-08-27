@@ -87,5 +87,7 @@ def two_one_sided_tests_one_sample_t_sample_size(
     n_out = torch.ceil(n_curr)
     if out is not None:
         out.copy_(n_out)
+
         return out
+
     return n_out

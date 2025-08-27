@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def correlation_power(
     r: Tensor,
@@ -63,48 +65,24 @@ def correlation_power(
     elif alt != "two-sided":
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    if alt == "two-sided":
-        z_alpha_2 = torch.erfinv(
-            torch.tensor(1 - alpha / 2, dtype=r.dtype),
-        ) * torch.sqrt(torch.tensor(2.0, dtype=r.dtype))
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(r.dtype)
 
-        cdf_upper = 0.5 * (
-            1
-            + torch.erf(
-                (z_alpha_2 - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype)),
-            )
-        )
-        cdf_lower = 0.5 * (
-            1
-            + torch.erf(
-                (-z_alpha_2 - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype)),
-            )
-        )
+    if alt == "two-sided":
+        z_alpha_2 = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=r.dtype))
+
+        cdf_upper = normal_dist.cdf(z_alpha_2 - z_stat)
+        cdf_lower = normal_dist.cdf(-z_alpha_2 - z_stat)
         power = 1 - (cdf_upper - cdf_lower)
 
     elif alt == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=r.dtype)) * torch.sqrt(
-            torch.tensor(2.0, dtype=r.dtype),
-        )
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=r.dtype))
 
-        power = 1 - 0.5 * (
-            1
-            + torch.erf(
-                (z_alpha - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype)),
-            )
-        )
+        power = 1 - normal_dist.cdf(z_alpha - z_stat)
 
     elif alt == "less":
-        z_alpha = torch.erfinv(torch.tensor(alpha, dtype=r.dtype)) * torch.sqrt(
-            torch.tensor(2.0, dtype=r.dtype),
-        )
+        z_alpha = normal_dist.icdf(torch.tensor(alpha, dtype=r.dtype))
 
-        power = 0.5 * (
-            1
-            + torch.erf(
-                (z_alpha - z_stat) / torch.sqrt(torch.tensor(2.0, dtype=r.dtype)),
-            )
-        )
+        power = normal_dist.cdf(z_alpha - z_stat)
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 

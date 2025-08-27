@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def anova_power(
@@ -61,25 +61,23 @@ def anova_power(
     degrees_of_freedom_1 = torch.clamp(degrees_of_freedom_1, min=1.0)
     degrees_of_freedom_2 = torch.clamp(degrees_of_freedom_2, min=1.0)
 
-    square_root_two = math.sqrt(2.0)
-
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = degrees_of_freedom_1 + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom_1,
+    f_dist = beignet.distributions.FisherSnedecor(
+        degrees_of_freedom_1, degrees_of_freedom_2
     )
-
-    f_critical = chi_squared_critical / degrees_of_freedom_1
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     lambda_nc = sample_size * input**2
 
-    mean_nc_chi2 = degrees_of_freedom_1 + lambda_nc
+    # Use non-central chi-squared distribution for the non-central F approximation
+    nc_chi2_dist = beignet.distributions.NonCentralChi2(degrees_of_freedom_1, lambda_nc)
 
-    variance_nc_chi_squared = 2 * (degrees_of_freedom_1 + 2 * lambda_nc)
+    # Get mean and variance from the distribution
+    mean_nc_chi2 = nc_chi2_dist.mean
+    variance_nc_chi2 = nc_chi2_dist.variance
 
+    # Convert to F-distribution parameters
     mean_f = mean_nc_chi2 / degrees_of_freedom_1
-
-    variance_f = variance_nc_chi_squared / (degrees_of_freedom_1**2)
+    variance_f = variance_nc_chi2 / (degrees_of_freedom_1**2)
 
     adjustment = (degrees_of_freedom_2 + 2) / torch.clamp(degrees_of_freedom_2, min=1.0)
     variance_f = variance_f * adjustment
@@ -88,10 +86,12 @@ def anova_power(
 
     z_score = (f_critical - mean_f) / torch.clamp(standard_deviation_f, min=1e-10)
 
-    power = (1 - torch.erf(z_score / square_root_two)) / 2
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
+    power = 1 - normal_dist.cdf(z_score)
 
     result = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
         out.copy_(result)
         return out
+    return result

@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def two_one_sided_tests_one_sample_t_power(
     true_effect: Tensor,
@@ -47,19 +49,16 @@ def two_one_sided_tests_one_sample_t_power(
 
     sqrt2 = math.sqrt(2.0)
 
-    z = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
-
-    t_critical = z * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
+    t_dist = beignet.distributions.StudentT(degrees_of_freedom)
+    t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     def power_greater(noncentrality: Tensor) -> Tensor:
-        variance = torch.where(
-            degrees_of_freedom > 2,
-            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
-        )
-        standard_deviation = torch.sqrt(variance)
+        nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
+        mean_nct = nc_t_dist.mean
+        variance_nct = nc_t_dist.variance
+        standard_deviation = torch.sqrt(variance_nct)
 
-        zscore = (t_critical - noncentrality) / torch.clamp(
+        zscore = (t_critical - mean_nct) / torch.clamp(
             standard_deviation,
             min=1e-10,
         )
@@ -68,14 +67,12 @@ def two_one_sided_tests_one_sample_t_power(
         )
 
     def power_less(noncentrality: Tensor) -> Tensor:
-        variance = torch.where(
-            degrees_of_freedom > 2,
-            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
-        )
-        standard_deviation = torch.sqrt(variance)
+        nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
+        mean_nct = nc_t_dist.mean
+        variance_nct = nc_t_dist.variance
+        standard_deviation = torch.sqrt(variance_nct)
 
-        zscore = (-t_critical - noncentrality) / torch.clamp(
+        zscore = (-t_critical - mean_nct) / torch.clamp(
             standard_deviation,
             min=1e-10,
         )

@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def repeated_measures_analysis_of_variance_power(
     input: Tensor,
@@ -82,13 +84,8 @@ def repeated_measures_analysis_of_variance_power(
 
     square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = df_time_corrected + z_alpha * torch.sqrt(
-        2 * df_time_corrected,
-    )
-
-    f_critical = chi_squared_critical / df_time_corrected
+    f_dist = beignet.distributions.FisherSnedecor(df_time_corrected, df_error)
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     mean_nc_chi2 = df_time_corrected + lambda_nc
 

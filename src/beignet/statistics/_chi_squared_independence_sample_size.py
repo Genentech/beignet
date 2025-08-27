@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def chi_square_independence_sample_size(
     input: Tensor,
@@ -59,7 +61,7 @@ def chi_square_independence_sample_size(
 
     square_root_2 = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_2
+    chi2_dist = beignet.distributions.Chi2(degrees_of_freedom)
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_2
 
@@ -78,9 +80,7 @@ def chi_square_independence_sample_size(
     for _iteration in range(maximum_iterations):
         ncp_iteration = n_iteration * input**2
 
-        chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-            2 * degrees_of_freedom,
-        )
+        chi_squared_critical = chi2_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         mean_nc_chi2 = degrees_of_freedom + ncp_iteration
 

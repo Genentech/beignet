@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def two_way_analysis_of_variance_power(
     input: Tensor,
@@ -83,11 +85,8 @@ def two_way_analysis_of_variance_power(
 
     square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
-
-    chi_squared_critical = df_num + z_alpha * torch.sqrt(2 * df_num)
-
-    f_critical = chi_squared_critical / df_num
+    f_dist = beignet.distributions.FisherSnedecor(df_num, df_den)
+    f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     mean_nc_chi2 = df_num + lambda_nc
 

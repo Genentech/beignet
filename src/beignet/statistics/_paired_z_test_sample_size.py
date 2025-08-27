@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def paired_z_test_sample_size(
     input: Tensor,
@@ -48,20 +50,14 @@ def paired_z_test_sample_size(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    def z_of(p: float) -> torch.Tensor:
-        pt = torch.tensor(p, dtype=dtype)
-
-        eps = torch.finfo(dtype).eps
-
-        pt = torch.clamp(pt, min=eps, max=1 - eps)
-        return square_root_two * torch.erfinv(2.0 * pt - 1.0)
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alt == "two-sided":
-        z_alpha = z_of(1 - alpha / 2)
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
     else:
-        z_alpha = z_of(1 - alpha)
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-    z_beta = z_of(power)
+    z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
 
     sample_size = ((z_alpha + z_beta) / input) ** 2
 

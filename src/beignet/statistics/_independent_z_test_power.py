@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def independent_z_test_power(
@@ -66,27 +66,23 @@ def independent_z_test_power(
 
     noncentrality = input * torch.sqrt(n_eff)
 
-    square_root_two = math.sqrt(2.0)
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
     if alternative == "two-sided":
-        z_alpha_half = (
-            torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * square_root_two
-        )
+        z_alpha_half = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
-        power_upper = (
-            1 - torch.erf((z_alpha_half - noncentrality) / square_root_two)
-        ) / 2
-        power_lower = torch.erf((-z_alpha_half - noncentrality) / square_root_two) / 2
+        power_upper = 1 - normal_dist.cdf(z_alpha_half - noncentrality)
+        power_lower = normal_dist.cdf(-z_alpha_half - noncentrality)
 
         power = power_upper + power_lower
     elif alternative == "larger":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = (1 - torch.erf((z_alpha - noncentrality) / square_root_two)) / 2
+        power = 1 - normal_dist.cdf(z_alpha - noncentrality)
     elif alternative == "smaller":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = torch.erf((-z_alpha + noncentrality) / square_root_two) / 2
+        power = normal_dist.cdf(-z_alpha + noncentrality)
     else:
         raise ValueError(
             f"alternative must be 'two-sided', 'larger', or 'smaller', got {alternative}",
@@ -97,3 +93,4 @@ def independent_z_test_power(
     if out is not None:
         out.copy_(result)
         return out
+    return result

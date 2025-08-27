@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def kruskal_wallis_test_power(
     input: Tensor,
@@ -58,22 +60,21 @@ def kruskal_wallis_test_power(
 
     lambda_nc = 12 * n * input / (n + 1)
 
-    square_root_two = math.sqrt(2.0)
+    # Get critical value from central chi-squared distribution
+    chi2_dist = beignet.distributions.Chi2(degrees_of_freedom)
+    chi_squared_critical = chi2_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+    # Use non-central chi-squared distribution for power calculation
+    nc_chi2_dist = beignet.distributions.NonCentralChi2(degrees_of_freedom, lambda_nc)
 
-    chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-        2 * degrees_of_freedom,
-    )
-
-    mean_nc_chi2 = degrees_of_freedom + lambda_nc
-
-    variance_nc_chi_squared = 2 * (degrees_of_freedom + 2 * lambda_nc)
-
-    std_nc_chi2 = torch.sqrt(torch.clamp(variance_nc_chi_squared, min=1e-12))
+    # Get mean and variance from the distribution
+    mean_nc_chi2 = nc_chi2_dist.mean
+    variance_nc_chi2 = nc_chi2_dist.variance
+    std_nc_chi2 = torch.sqrt(torch.clamp(variance_nc_chi2, min=1e-12))
 
     z_score = (chi_squared_critical - mean_nc_chi2) / std_nc_chi2
 
+    square_root_two = math.sqrt(2.0)
     power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
     power = torch.clamp(power, 0.0, 1.0)

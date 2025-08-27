@@ -94,3 +94,4 @@ def independent_z_test_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

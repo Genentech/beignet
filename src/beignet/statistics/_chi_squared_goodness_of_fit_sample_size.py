@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def chi_square_goodness_of_fit_sample_size(
     input: Tensor,
@@ -51,7 +53,7 @@ def chi_square_goodness_of_fit_sample_size(
 
     square_root_two = math.sqrt(2.0)
 
-    z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * square_root_two
+    chi2_dist = beignet.distributions.Chi2(degrees_of_freedom)
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
@@ -68,9 +70,7 @@ def chi_square_goodness_of_fit_sample_size(
     for _iteration in range(max_iterations):
         ncp_iteration = n_iteration * input**2
 
-        chi_squared_critical = degrees_of_freedom + z_alpha * torch.sqrt(
-            2 * degrees_of_freedom,
-        )
+        chi_squared_critical = chi2_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         mean_nc_chi2 = degrees_of_freedom + ncp_iteration
 
@@ -112,3 +112,4 @@ def chi_square_goodness_of_fit_sample_size(
     if out is not None:
         out.copy_(result)
         return out
+    return result

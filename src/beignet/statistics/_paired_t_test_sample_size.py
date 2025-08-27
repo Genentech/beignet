@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+from ._paired_t_test_power import paired_t_test_power
+
 
 def paired_t_test_sample_size(
     input: Tensor,
@@ -62,49 +64,12 @@ def paired_t_test_sample_size(
 
     sample_size_curr = sample_size
     for _ in range(10):
-        degrees_of_freedom = torch.clamp(sample_size_curr - 1, min=1.0)
-
-        t_critical = z_alpha * torch.sqrt(1 + 1 / (2 * degrees_of_freedom))
-
-        noncentrality = input * torch.sqrt(sample_size_curr)
-
-        variance_nct = torch.where(
-            degrees_of_freedom > 2,
-            (degrees_of_freedom + noncentrality**2) / (degrees_of_freedom - 2),
-            1 + noncentrality**2 / (2 * torch.clamp(degrees_of_freedom, min=1.0)),
+        current_power = paired_t_test_power(
+            input,
+            sample_size_curr,
+            alpha,
+            alternative,
         )
-        standard_deviation_nct = torch.sqrt(variance_nct)
-        if alt == "two-sided":
-            zu = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            zl = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            current_power = 0.5 * (
-                1 - torch.erf(zu / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            ) + 0.5 * (1 + torch.erf(zl / torch.sqrt(torch.tensor(2.0, dtype=dtype))))
-        elif alt == "greater":
-            zscore = (t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-
-            current_power = 0.5 * (
-                1 - torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
-        else:
-            zscore = (-t_critical - noncentrality) / torch.clamp(
-                standard_deviation_nct,
-                min=1e-10,
-            )
-            current_power = 0.5 * (
-                1 + torch.erf(zscore / torch.sqrt(torch.tensor(2.0, dtype=dtype)))
-            )
         gap = torch.clamp(power - current_power, min=-0.45, max=0.45)
 
         sample_size_curr = torch.clamp(

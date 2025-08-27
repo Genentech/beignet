@@ -55,3 +55,4 @@ def cramers_v(
     if out is not None:
         out.copy_(result)
         return out
+    return result

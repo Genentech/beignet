@@ -3,6 +3,8 @@ import math
 import torch
 from torch import Tensor
 
+import beignet.distributions
+
 
 def proportion_power(
     p0: Tensor,
@@ -68,34 +70,36 @@ def proportion_power(
 
     effect = (p1 - p0) / se_null
 
+    normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
+
     if alternative == "two-sided":
-        z_alpha_half = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt_2
+        z_alpha_half = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
         variance_ratio = se_alt / se_null
 
         adjusted_effect = effect / variance_ratio
 
-        power = (1 - torch.erf((z_alpha_half - adjusted_effect) / sqrt_2)) / 2 + (
-            1 - torch.erf((z_alpha_half + adjusted_effect) / sqrt_2)
-        ) / 2
+        power = (1 - normal_dist.cdf(z_alpha_half - adjusted_effect)) + (
+            1 - normal_dist.cdf(z_alpha_half + adjusted_effect)
+        )
 
     elif alternative == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         variance_ratio = se_alt / se_null
 
         adjusted_effect = effect / variance_ratio
 
-        power = (1 - torch.erf((z_alpha - adjusted_effect) / sqrt_2)) / 2
+        power = 1 - normal_dist.cdf(z_alpha - adjusted_effect)
 
     elif alternative == "less":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt_2
+        z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         variance_ratio = se_alt / se_null
 
         adjusted_effect = effect / variance_ratio
 
-        power = (1 + torch.erf((-z_alpha - adjusted_effect) / sqrt_2)) / 2
+        power = normal_dist.cdf(-z_alpha - adjusted_effect)
 
     else:
         raise ValueError(f"Unknown alternative: {alternative}")

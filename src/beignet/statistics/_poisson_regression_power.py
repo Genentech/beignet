@@ -1,7 +1,7 @@
-import math
-
 import torch
 from torch import Tensor
+
+import beignet.distributions
 
 
 def poisson_regression_power(
@@ -81,8 +81,6 @@ def poisson_regression_power(
 
     noncentrality = torch.abs(beta) / se_beta
 
-    sqrt2 = math.sqrt(2.0)
-
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
         alt = "greater"
@@ -91,20 +89,26 @@ def poisson_regression_power(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
+    # Use standard normal distribution for critical values
+    standard_normal = beignet.distributions.StandardNormal.from_dtype(dtype)
+
     if alt == "two-sided":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
+        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
-        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
-            1 - torch.erf((z_alpha + noncentrality) / sqrt2)
-        )
+        zu = z_alpha - noncentrality
+        zl = -z_alpha - noncentrality
+
+        power = (1 - standard_normal.cdf(zu)) + standard_normal.cdf(zl)
     elif alt == "greater":
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))
+        z_score = z_alpha - noncentrality
+        power = 1 - standard_normal.cdf(z_score)
     else:
-        z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
+        z_alpha = standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
-        power = 0.5 * (1 - torch.erf((z_alpha + noncentrality) / sqrt2))
+        z_score = -z_alpha - noncentrality
+        power = standard_normal.cdf(z_score)
 
     power = torch.clamp(power, 0.0, 1.0)
 
