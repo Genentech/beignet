@@ -125,7 +125,9 @@ def test_noncentral_t_non_centrality_effect():
 
     # Should be approximately symmetric
     assert torch.allclose(
-        central_median - neg_median, pos_median - central_median, rtol=0.3
+        central_median - neg_median,
+        pos_median - central_median,
+        rtol=0.3,
     )
 
 

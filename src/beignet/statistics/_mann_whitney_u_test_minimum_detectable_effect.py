@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -55,10 +53,9 @@ def mann_whitney_u_test_minimum_detectable_effect(
     elif alt != "two-sided":
         raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
 
-    sqrt2 = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.Normal(
-        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
     )
 
     z_alpha = (

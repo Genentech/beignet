@@ -31,7 +31,8 @@ class TestPoisson:
 
         # Test log_prob with integer values (Poisson requires integers)
         test_values = torch.tensor(
-            [0, 1, 2, int(rate), int(rate * 2)], dtype=torch.float32
+            [0, 1, 2, int(rate), int(rate * 2)],
+            dtype=torch.float32,
         )
         log_probs = dist.log_prob(test_values)
         assert log_probs.shape == test_values.shape
@@ -62,7 +63,7 @@ class TestPoisson:
         # Quantiles should be reasonable for the given rate
         if rate < 50:  # For reasonable rates
             assert quantile <= rate + 6 * torch.sqrt(
-                rate_tensor
+                rate_tensor,
             )  # Within 6 standard deviations
 
     def test_icdf_edge_cases(self):

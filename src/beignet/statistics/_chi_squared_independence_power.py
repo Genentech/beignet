@@ -69,7 +69,8 @@ def chi_square_independence_power(
 
     # Use non-central chi-squared distribution for power calculation
     nc_chi2_dist = beignet.distributions.NonCentralChi2(
-        degrees_of_freedom, noncentrality
+        degrees_of_freedom,
+        noncentrality,
     )
 
     # Power is the probability that non-central chi-squared exceeds the critical value

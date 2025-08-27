@@ -23,7 +23,8 @@ class TimeNonCentralChi2:
 
         # Compiled version
         self.compiled_dist = beignet.distributions.NonCentralChi2(
-            self.df[:1], self.nc[:1]
+            self.df[:1],
+            self.nc[:1],
         )
         self.compiled_icdf = torch.compile(self.compiled_dist.icdf, fullgraph=True)
 

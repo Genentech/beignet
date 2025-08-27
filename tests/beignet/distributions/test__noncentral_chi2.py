@@ -91,7 +91,8 @@ def test_noncentral_chi2_parameter_validation():
 
     # Test that negative nc raises error
     with pytest.raises(
-        ValueError, match="Non-centrality parameter must be non-negative"
+        ValueError,
+        match="Non-centrality parameter must be non-negative",
     ):
         beignet.distributions.NonCentralChi2(
             torch.tensor(1.0, dtype=dtype),

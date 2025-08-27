@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -31,16 +29,16 @@ def mann_whitney_u_test_sample_size(
 
     r = torch.clamp(r.to(dtype), min=0.1, max=10.0)
 
-    sqrt2 = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.Normal(
-        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
     )
 
     z_alpha = normal_dist.icdf(
         torch.tensor(
-            1 - (alpha / 2 if alternative == "two-sided" else alpha), dtype=dtype
-        )
+            1 - (alpha / 2 if alternative == "two-sided" else alpha),
+            dtype=dtype,
+        ),
     )
 
     z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))

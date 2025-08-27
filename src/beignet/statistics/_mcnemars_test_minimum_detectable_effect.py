@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -35,10 +33,9 @@ def mcnemars_test_minimum_detectable_effect(
 
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 
-    sqrt2 = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.Normal(
-        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
     )
 
     z_alpha = (

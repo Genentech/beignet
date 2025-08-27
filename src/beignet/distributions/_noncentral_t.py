@@ -127,7 +127,7 @@ class NonCentralT(torch.distributions.Distribution):
 
         # Variance inflation due to non-centrality (with numerical stability)
         variance_inflation = torch.sqrt(
-            1.0 + nc_clamped**2 / torch.clamp(df_clamped, min=2.0)
+            1.0 + nc_clamped**2 / torch.clamp(df_clamped, min=2.0),
         )
 
         # Approximate non-central t quantile
@@ -142,13 +142,16 @@ class NonCentralT(torch.distributions.Distribution):
         # Uses a shifted and scaled t-distribution
         shift = nc_clamped
         df_safe = torch.clamp(
-            df_clamped, min=3.0
+            df_clamped,
+            min=3.0,
         )  # Ensure df > 2 for variance to exist
         scale_factor = torch.sqrt(
-            df_safe / torch.clamp(df_safe - 2.0 + nc_clamped**2, min=1.0)
+            df_safe / torch.clamp(df_safe - 2.0 + nc_clamped**2, min=1.0),
         )
         scale_factor = torch.clamp(
-            scale_factor, min=0.5, max=2.0
+            scale_factor,
+            min=0.5,
+            max=2.0,
         )  # Prevent extreme scaling
 
         t_moderate = shift + scale_factor * t_central
@@ -207,7 +210,6 @@ class NonCentralT(torch.distributions.Distribution):
         # Method selection based on parameters
         central_mask = torch.abs(nc_clamped) < eps
         large_df_mask = df_clamped > 30.0
-        small_nc_mask = torch.abs(nc_clamped) <= 5.0
 
         # Method 1: Central t-distribution (nc ≈ 0)
         # Use the standard t-distribution CDF

@@ -58,11 +58,11 @@ class StandardNormal(torch.distributions.Normal):
         """Move distribution to specified dtype or device."""
         if isinstance(dtype_or_device, torch.dtype):
             # Handle dtype conversion
-            new_loc = self.loc.to(dtype_or_device)
-            new_scale = self.scale.to(dtype_or_device)
             return StandardNormal.__new__(
                 StandardNormal,
-            ).__init__(validate_args=self._validate_args)
+                torch.zeros((), dtype=dtype_or_device),
+                torch.ones((), dtype=dtype_or_device),
+            )
         else:
             # Handle device conversion
             return super().to(dtype_or_device)
@@ -88,7 +88,9 @@ class StandardNormal(torch.distributions.Normal):
         loc = torch.tensor(0.0, dtype=dtype)
         scale = torch.tensor(1.0, dtype=dtype)
         super(StandardNormal, instance).__init__(
-            loc, scale, validate_args=validate_args
+            loc,
+            scale,
+            validate_args=validate_args,
         )
         return instance
 

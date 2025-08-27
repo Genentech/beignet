@@ -156,7 +156,10 @@ class FisherSnedecor(torch.distributions.FisherSnedecor):
         return f_quantile
 
     def _compute_wilson_hilferty_method(
-        self, value: Tensor, df1: Tensor, df2: Tensor
+        self,
+        value: Tensor,
+        df1: Tensor,
+        df2: Tensor,
     ) -> Tensor:
         """Compute F quantiles using Wilson-Hilferty chi-squared approximation."""
         sqrt_two = torch.sqrt(torch.tensor(2.0, dtype=value.dtype, device=value.device))

@@ -62,7 +62,8 @@ def anova_power(
     degrees_of_freedom_2 = torch.clamp(degrees_of_freedom_2, min=1.0)
 
     f_dist = beignet.distributions.FisherSnedecor(
-        degrees_of_freedom_1, degrees_of_freedom_2
+        degrees_of_freedom_1,
+        degrees_of_freedom_2,
     )
     f_critical = f_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 

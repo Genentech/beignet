@@ -112,7 +112,8 @@ class NonCentralChi2(torch.distributions.Distribution):
         sqrt_h_central = torch.sqrt(h_central)
         transformed_central = 1.0 - h_central + z * sqrt_h_central
         chi2_central = df_clamped * torch.pow(
-            torch.clamp(transformed_central, min=eps), 3
+            torch.clamp(transformed_central, min=eps),
+            3,
         )
 
         # For non-central case, use normal approximation
@@ -196,7 +197,6 @@ class NonCentralChi2(torch.distributions.Distribution):
 
         # For non-central case, use different approximations based on parameters
         small_nc_mask = (nc_clamped > eps) & (nc_clamped <= 10.0)
-        large_nc_mask = nc_clamped > 10.0
 
         # Small non-centrality: use truncated series expansion
         # Sum first few terms of the Poisson-weighted central chi-squared series

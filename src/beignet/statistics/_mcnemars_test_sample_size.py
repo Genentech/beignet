@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -29,10 +27,9 @@ def mcnemars_test_sample_size(
     p01 = p01.to(dtype)
     p10 = p10.to(dtype)
 
-    sqrt2 = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.Normal(
-        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
     )
 
     if two_sided:

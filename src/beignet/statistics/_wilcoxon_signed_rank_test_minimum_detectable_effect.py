@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import Tensor
 
@@ -39,10 +37,9 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
 
-    square_root_two = math.sqrt(2.0)
-
     normal_dist = beignet.distributions.Normal(
-        torch.tensor(0.0, dtype=dtype), torch.tensor(1.0, dtype=dtype)
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
     )
 
     z_alpha = (
