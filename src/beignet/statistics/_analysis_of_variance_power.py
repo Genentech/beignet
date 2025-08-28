@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -34,19 +36,15 @@ def analysis_of_variance_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
 
-    groups = torch.atleast_1d(torch.as_tensor(groups))
+    groups = torch.atleast_1d(groups)
 
-    if (
-        input.dtype == torch.float64
-        or sample_size.dtype == torch.float64
-        or groups.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, sample_size.dtype, groups.dtype],
+    )
 
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)

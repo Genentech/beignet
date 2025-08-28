@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -33,14 +34,10 @@ def kolmogorov_smirnov_test_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
 
-    dtype = (
-        torch.float64
-        if (input.dtype == torch.float64 or sample_size.dtype == torch.float64)
-        else torch.float32
-    )
+    dtype = functools.reduce(torch.promote_types, [input.dtype, sample_size.dtype])
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)
 
@@ -48,17 +45,14 @@ def kolmogorov_smirnov_test_power(
 
     sample_size = torch.clamp(sample_size, min=3.0)
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
     sqrt_n = torch.sqrt(sample_size)
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         if alpha == 0.05:
             c_alpha = 1.36
         elif alpha == 0.01:
@@ -82,9 +76,9 @@ def kolmogorov_smirnov_test_power(
     z_score = (d_critical - expected_d) / torch.clamp(se_d, min=1e-12)
 
     square_root_two = math.sqrt(2.0)
-    if alt == "two-sided":
+    if alternative == "two-sided":
         power = 1 - torch.erf(torch.abs(z_score) / square_root_two)
-    elif alt == "greater":
+    elif alternative == "greater":
         power = 0.5 * (1 - torch.erf(z_score / square_root_two))
     else:
         power = 0.5 * (1 + torch.erf(z_score / square_root_two))

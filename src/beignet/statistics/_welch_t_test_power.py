@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -19,142 +21,76 @@ def welch_t_test_power(
     Parameters
     ----------
     input : Tensor
-        Input tensor.
+
     nobs1 : Tensor
-        Sample size.
+
     nobs2 : Tensor
-        Sample size.
+
     var_ratio : Tensor | float, default 1.0
-        Sample size ratio.
+
     alpha : float, default 0.05
-        Type I error rate.
+
     alternative : str, default 'two-sided'
-        Alternative hypothesis ("two-sided", "greater", "less").
+
     out : Tensor | None
-        Output tensor.
 
     Returns
     -------
     Tensor
-        Statistical power.
     """
+    input = torch.atleast_1d(input)
+    nobs1 = torch.atleast_1d(nobs1)
+    nobs2 = torch.atleast_1d(nobs2)
+    var_ratio = torch.atleast_1d(torch.as_tensor(var_ratio))
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-
-    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
-    sample_size_group_2 = torch.atleast_1d(torch.as_tensor(nobs2))
-
-    vr = torch.as_tensor(var_ratio)
-
-    if any(
-        t.dtype == torch.float64
-        for t in (
-            input,
-            sample_size_group_1,
-            sample_size_group_2,
-            vr if isinstance(vr, Tensor) else torch.tensor(0.0),
-        )
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
-
-    input = input.to(dtype)
-
-    sample_size_group_1 = sample_size_group_1.to(dtype)
-    sample_size_group_2 = sample_size_group_2.to(dtype)
-    if isinstance(vr, Tensor):
-        vr = vr.to(dtype)
-    else:
-        vr = torch.tensor(float(vr), dtype=dtype)
-
-    input = torch.clamp(input, min=0.0)
-
-    sample_size_group_1 = torch.clamp(sample_size_group_1, min=2.0)
-    sample_size_group_2 = torch.clamp(sample_size_group_2, min=2.0)
-
-    vr = torch.clamp(vr, min=1e-6, max=1e6)
-
-    a = 1.0 / sample_size_group_1
-
-    b = vr / sample_size_group_2
-
-    degrees_of_freedom = ((a + b) ** 2) / (
-        a**2 / torch.clamp(sample_size_group_1 - 1, min=1.0)
-        + b**2 / torch.clamp(sample_size_group_2 - 1, min=1.0)
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, nobs1.dtype, nobs2.dtype, var_ratio.dtype],
     )
 
+    input = input.to(dtype)
+    nobs1 = nobs1.to(dtype)
+    nobs2 = nobs2.to(dtype)
+    var_ratio = var_ratio.to(dtype)
+
+    input = torch.clamp(input, min=0.0)
+    nobs1 = torch.clamp(nobs1, min=2.0)
+    nobs2 = torch.clamp(nobs2, min=2.0)
+    var_ratio = torch.clamp(var_ratio, min=1e-6, max=1e6)
+
+    a = 1.0 / nobs1
+    b = var_ratio / nobs2
+
+    degrees_of_freedom = ((a + b) ** 2) / (
+        a**2 / torch.clamp(nobs1 - 1, min=1.0) + b**2 / torch.clamp(nobs2 - 1, min=1.0)
+    )
     noncentrality = input / torch.clamp(torch.sqrt(a + b), min=1e-12)
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
-
-    # Get critical values from central t-distribution
     t_dist = beignet.distributions.StudentT(degrees_of_freedom)
-    if alt == "two-sided":
+    if alternative == "two-sided":
         t_critical = t_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
     else:
         t_critical = t_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
     nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
 
-    if alt == "two-sided":
-        power = 0.5 * (
-            1
-            - torch.erf(
-                (t_critical - nc_t_dist.mean)
-                / torch.clamp(
-                    torch.sqrt(nc_t_dist.variance),
-                    min=1e-10,
-                )
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        ) + 0.5 * (
-            1
-            + torch.erf(
-                (-t_critical - nc_t_dist.mean)
-                / torch.clamp(
-                    torch.sqrt(nc_t_dist.variance),
-                    min=1e-10,
-                )
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
-    elif alt == "greater":
-        power = 0.5 * (
-            1
-            - torch.erf(
-                (t_critical - nc_t_dist.mean)
-                / torch.clamp(
-                    torch.sqrt(nc_t_dist.variance),
-                    min=1e-10,
-                )
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
-    else:
-        power = 0.5 * (
-            1
-            + torch.erf(
-                (-t_critical - nc_t_dist.mean)
-                / torch.clamp(
-                    torch.sqrt(nc_t_dist.variance),
-                    min=1e-10,
-                )
-                / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
-            )
-        )
+    sqrt_2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
+    std_dev = torch.clamp(torch.sqrt(nc_t_dist.variance), min=1e-10)
 
-    result = torch.clamp(power, 0.0, 1.0)
+    if alternative == "two-sided":
+        power = 0.5 * (
+            1 - torch.erf((t_critical - nc_t_dist.mean) / std_dev / sqrt_2)
+        ) + 0.5 * (1 + torch.erf((-t_critical - nc_t_dist.mean) / std_dev / sqrt_2))
+    elif alternative == "greater":
+        power = 0.5 * (1 - torch.erf((t_critical - nc_t_dist.mean) / std_dev / sqrt_2))
+    else:
+        power = 0.5 * (1 + torch.erf((-t_critical - nc_t_dist.mean) / std_dev / sqrt_2))
+
+    output = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
-        out.copy_(result)
+        out.copy_(output)
 
         return out
 
-    return result
+    return output

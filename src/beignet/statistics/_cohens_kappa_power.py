@@ -33,15 +33,11 @@ def cohens_kappa_power(
         Statistical power.
     """
 
-    kappa = torch.atleast_1d(torch.as_tensor(kappa))
+    kappa = torch.atleast_1d(kappa)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    dtype = (
-        torch.float64
-        if (kappa.dtype == torch.float64 or sample_size.dtype == torch.float64)
-        else torch.float32
-    )
+    dtype = torch.promote_types(kappa.dtype, sample_size.dtype)
     kappa = kappa.to(dtype)
 
     sample_size = sample_size.to(dtype)
@@ -58,21 +54,18 @@ def cohens_kappa_power(
 
     sqrt2 = math.sqrt(2.0)
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
         power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + noncentrality) / sqrt2)
         )
-    elif alt == "greater":
+    elif alternative == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
         power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))

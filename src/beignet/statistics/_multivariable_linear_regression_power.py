@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -33,17 +34,16 @@ def multivariable_linear_regression_power(
         Statistical power.
     """
 
-    r_squared = torch.atleast_1d(torch.as_tensor(r_squared))
+    r_squared = torch.atleast_1d(r_squared)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    n_predictors = torch.atleast_1d(torch.as_tensor(n_predictors))
+    n_predictors = torch.atleast_1d(n_predictors)
 
-    dtypes = [r_squared.dtype, sample_size.dtype, n_predictors.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(
+        torch.promote_types,
+        [r_squared.dtype, sample_size.dtype, n_predictors.dtype],
+    )
 
     r_squared = r_squared.to(dtype)
 

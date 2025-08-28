@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -35,19 +36,12 @@ def f_test_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    df1 = torch.atleast_1d(torch.as_tensor(df1))
-    df2 = torch.atleast_1d(torch.as_tensor(df2))
+    df1 = torch.atleast_1d(df1)
+    df2 = torch.atleast_1d(df2)
 
-    if (
-        input.dtype == torch.float64
-        or df1.dtype == torch.float64
-        or df2.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(torch.promote_types, [input.dtype, df1.dtype, df2.dtype])
 
     input = input.to(dtype)
 

@@ -36,19 +36,13 @@ def proportion_power(
         Statistical power.
     """
 
-    p0 = torch.atleast_1d(torch.as_tensor(p0))
-    p1 = torch.atleast_1d(torch.as_tensor(p1))
+    p0 = torch.atleast_1d(p0)
+    p1 = torch.atleast_1d(p1)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    if (
-        p0.dtype == torch.float64
-        or p1.dtype == torch.float64
-        or sample_size.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.promote_types(p0.dtype, p1.dtype)
+    dtype = torch.promote_types(dtype, sample_size.dtype)
 
     p0 = p0.to(dtype)
     p1 = p1.to(dtype)

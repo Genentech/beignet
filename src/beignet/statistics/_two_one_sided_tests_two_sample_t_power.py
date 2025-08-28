@@ -15,26 +15,22 @@ def two_one_sided_tests_two_sample_t_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r""" """
-    true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
+    true_effect_size = torch.atleast_1d(true_effect)
 
-    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
+    sample_size_group_1 = torch.atleast_1d(nobs1)
     if ratio is None:
         ratio_t = torch.tensor(1.0)
     else:
         ratio_t = torch.atleast_1d(torch.as_tensor(ratio))
 
-    low = torch.atleast_1d(torch.as_tensor(low))
+    low = torch.atleast_1d(low)
 
-    high = torch.atleast_1d(torch.as_tensor(high))
+    high = torch.atleast_1d(high)
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64
-            for t in (true_effect_size, sample_size_group_1, ratio_t, low, high)
-        )
-        else torch.float32
-    )
+    dtype = torch.promote_types(true_effect_size.dtype, sample_size_group_1.dtype)
+    dtype = torch.promote_types(dtype, ratio_t.dtype)
+    dtype = torch.promote_types(dtype, low.dtype)
+    dtype = torch.promote_types(dtype, high.dtype)
     true_effect_size = true_effect_size.to(dtype)
 
     sample_size_group_1 = sample_size_group_1.to(dtype)

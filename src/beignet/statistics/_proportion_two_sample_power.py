@@ -39,25 +39,19 @@ def proportion_two_sample_power(
         Statistical power.
     """
 
-    p1 = torch.atleast_1d(torch.as_tensor(p1))
-    p2 = torch.atleast_1d(torch.as_tensor(p2))
+    p1 = torch.atleast_1d(p1)
+    p2 = torch.atleast_1d(p2)
 
-    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(n1))
+    sample_size_group_1 = torch.atleast_1d(n1)
 
     if n2 is None:
         sample_size_group_2 = sample_size_group_1
     else:
-        sample_size_group_2 = torch.atleast_1d(torch.as_tensor(n2))
+        sample_size_group_2 = torch.atleast_1d(n2)
 
-    if (
-        p1.dtype == torch.float64
-        or p2.dtype == torch.float64
-        or sample_size_group_1.dtype == torch.float64
-        or sample_size_group_2.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.promote_types(p1.dtype, p2.dtype)
+    dtype = torch.promote_types(dtype, sample_size_group_1.dtype)
+    dtype = torch.promote_types(dtype, sample_size_group_2.dtype)
 
     p1 = p1.to(dtype)
     p2 = p2.to(dtype)

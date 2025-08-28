@@ -30,8 +30,8 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     assert torch.all(power <= 1.0)
 
     # Test different alternatives
-    power_larger = z_test_power(effect_size, sample_size, alternative="larger")
-    power_smaller = z_test_power(effect_size, sample_size, alternative="smaller")
+    power_larger = z_test_power(effect_size, sample_size, alternative="greater")
+    power_smaller = z_test_power(effect_size, sample_size, alternative="less")
     power_two_sided = z_test_power(effect_size, sample_size, alternative="two-sided")
 
     # One-sided tests should generally have higher power than two-sided
@@ -42,22 +42,22 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     # Test monotonicity: larger effect size should increase power
     small_effect = effect_size * 0.5
     large_effect = effect_size * 1.5
-    power_small = z_test_power(small_effect, sample_size, alternative="larger")
-    power_large = z_test_power(large_effect, sample_size, alternative="larger")
+    power_small = z_test_power(small_effect, sample_size, alternative="greater")
+    power_large = z_test_power(large_effect, sample_size, alternative="greater")
     assert torch.all(power_large >= power_small)
 
     # Test monotonicity: larger sample size should increase power
     small_sample = sample_size * 0.7
     large_sample = sample_size * 1.5
-    power_small = z_test_power(effect_size, small_sample, alternative="larger")
-    power_large = z_test_power(effect_size, large_sample, alternative="larger")
+    power_small = z_test_power(effect_size, small_sample, alternative="greater")
+    power_large = z_test_power(effect_size, large_sample, alternative="greater")
     assert torch.all(power_large >= power_small)
 
     # Test gradients
     effect_size.requires_grad_(True)
     sample_size.requires_grad_(True)
 
-    power = z_test_power(effect_size, sample_size, alternative="larger")
+    power = z_test_power(effect_size, sample_size, alternative="greater")
     loss = power.sum()
     loss.backward()
 
@@ -70,10 +70,16 @@ def test_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     # Test torch.compile compatibility
     compiled_func = torch.compile(z_test_power, fullgraph=True)
     power_compiled = compiled_func(
-        effect_size.detach(), sample_size.detach(), alpha=0.05, alternative="larger"
+        effect_size.detach(),
+        sample_size.detach(),
+        alpha=0.05,
+        alternative="greater",
     )
     power_regular = z_test_power(
-        effect_size.detach(), sample_size.detach(), alpha=0.05, alternative="larger"
+        effect_size.detach(),
+        sample_size.detach(),
+        alpha=0.05,
+        alternative="greater",
     )
     assert torch.allclose(power_compiled, power_regular, rtol=1e-5)
 
@@ -114,7 +120,10 @@ def test_z_test_power_broadcasting_out_and_directionality():
     sample_size_known = torch.tensor(16, dtype=dtype)
 
     power_one_sided = z_test_power(
-        effect_size_known, sample_size_known, alpha=0.05, alternative="larger"
+        effect_size_known,
+        sample_size_known,
+        alpha=0.05,
+        alternative="greater",
     )
 
     # Should be reasonable power, not too high or too low
@@ -153,7 +162,7 @@ def test_z_test_power_cross_validation_grid():
                         zcrit = stats.norm.ppf(1 - alpha / 2)
                         # P(Z > zcrit - ncp) + P(Z < -zcrit - ncp)
                         ref = (1 - stats.norm.cdf(zcrit - ncp)) + stats.norm.cdf(
-                            -zcrit - ncp
+                            -zcrit - ncp,
                         )
                     elif alt == "greater":
                         zcrit = stats.norm.ppf(1 - alpha)

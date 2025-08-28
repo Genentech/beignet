@@ -508,6 +508,44 @@ When adding new operators to Beignet, follow these guidelines to ensure consiste
       dtype = torch.float32
   ```
 
+### Beautiful Code Principles
+Functions like `_glass_delta` exemplify genuinely beautiful code through these principles:
+
+- **Perfect Minimalism**: Use simple `torch.promote_types(input.dtype, other.dtype)` for two tensors instead of `functools.reduce` when unnecessary. Import only what's essential.
+- **Natural Visual Rhythm**: Group related operations with logical blank lines. Create natural blocks for input processing, dtype handling, conversions, and calculations.
+- **Elegant Variable Reuse**: Transform variables in place when it creates cleaner code:
+  ```python
+  output = torch.clamp(other_variance, min=torch.finfo(dtype).eps)
+  output = (input_mean - other_mean) / torch.sqrt(output)
+  ```
+- **Mathematical Elegance**: Write direct computations without overly verbose statistical terminology. Use essential safety measures (like single strategic clamps) only where truly needed.
+- **Perfect Proportions**: Maintain balanced line lengths and natural flow from simple to complex operations. Let the mathematics speak through clean, unforced structure.
+- **Principle of Least Complexity**: Follow the path of natural beauty - don't try to be fancy, just be elegant through simplicity and logical clarity.
+
+**Examples of beautiful patterns**:
+```python
+# Beautiful - natural grouping and flow
+input = torch.atleast_1d(input)
+other = torch.atleast_1d(other)
+
+dtype = torch.promote_types(input.dtype, other.dtype)
+
+input = input.to(dtype)
+other = other.to(dtype)
+
+input_mean = torch.mean(input, dim=-1)
+other_mean = torch.mean(other, dim=-1)
+
+# Beautiful - elegant variable transformation
+output = torch.clamp(variance, min=torch.finfo(dtype).eps)  
+output = (mean_diff) / torch.sqrt(output)
+
+# Avoid - artificial complexity
+effect_size_numerator_component = torch.mean(input_tensor_values, dim=-1)
+effect_size_denominator_component = torch.mean(other_tensor_values, dim=-1)  
+standardized_effect_size_computation = compute_effect_size_with_pooled_variance(...)
+```
+
 ### Example Operator Implementation Checklist
 - [ ] Create `src/beignet/_foo.py` with the operator implementation
 - [ ] Add import and export in `src/beignet/__init__.py`

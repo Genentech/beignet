@@ -36,16 +36,13 @@ def logistic_regression_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
 
-    p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
+    p_exposure = torch.atleast_1d(p_exposure)
 
-    dtype = (
-        torch.float64
-        if any(t.dtype == torch.float64 for t in (input, sample_size, p_exposure))
-        else torch.float32
-    )
+    dtype = torch.promote_types(input.dtype, sample_size.dtype)
+    dtype = torch.promote_types(dtype, p_exposure.dtype)
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)
 
@@ -82,21 +79,18 @@ def logistic_regression_power(
 
     sqrt2 = math.sqrt(2.0)
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha / 2, dtype=dtype)) * sqrt2
 
         power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2)) + 0.5 * (
             1 - torch.erf((z_alpha + noncentrality) / sqrt2)
         )
-    elif alt == "greater":
+    elif alternative == "greater":
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * sqrt2
 
         power = 0.5 * (1 - torch.erf((z_alpha - noncentrality) / sqrt2))

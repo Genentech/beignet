@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -36,25 +37,19 @@ def mixed_model_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
+    n_subjects = torch.atleast_1d(n_subjects)
 
     n_observations_per_subject = torch.atleast_1d(
         torch.as_tensor(n_observations_per_subject),
     )
-    icc = torch.atleast_1d(torch.as_tensor(icc))
+    icc = torch.atleast_1d(icc)
 
-    dtypes = [
-        input.dtype,
-        n_subjects.dtype,
-        n_observations_per_subject.dtype,
-        icc.dtype,
-    ]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, n_subjects.dtype, n_observations_per_subject.dtype, icc.dtype],
+    )
 
     input = input.to(dtype)
 

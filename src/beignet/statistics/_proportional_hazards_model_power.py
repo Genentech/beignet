@@ -36,15 +36,14 @@ def proportional_hazards_model_power(
         Statistical power.
     """
 
-    hazard_ratio = torch.atleast_1d(torch.as_tensor(hazard_ratio))
+    hazard_ratio = torch.atleast_1d(hazard_ratio)
 
-    n_events = torch.atleast_1d(torch.as_tensor(n_events))
+    n_events = torch.atleast_1d(n_events)
 
-    p_exposed = torch.atleast_1d(torch.as_tensor(p_exposed))
+    p_exposed = torch.atleast_1d(p_exposed)
 
-    dtype = torch.float32
-    for tensor in (hazard_ratio, n_events, p_exposed):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    dtype = torch.promote_types(hazard_ratio.dtype, n_events.dtype)
+    dtype = torch.promote_types(dtype, p_exposed.dtype)
 
     hazard_ratio = hazard_ratio.to(dtype)
 
@@ -58,16 +57,12 @@ def proportional_hazards_model_power(
 
     p_exposed = torch.clamp(p_exposed, min=0.01, max=0.99)
 
-    alt = alternative.lower()
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
-
-    if alt == "two-sided":
+    if alternative == "two-sided":
         power = 0.5 * (
             1
             - torch.erf(
@@ -95,7 +90,7 @@ def proportional_hazards_model_power(
                 / math.sqrt(2.0),
             )
         )
-    elif alt == "greater":
+    elif alternative == "greater":
         if torch.all(hazard_ratio >= 1.0):
             power = 0.5 * (
                 1

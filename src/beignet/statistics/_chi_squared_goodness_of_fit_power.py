@@ -33,14 +33,13 @@ def chi_square_goodness_of_fit_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
 
-    degrees_of_freedom = torch.atleast_1d(torch.as_tensor(degrees_of_freedom))
+    degrees_of_freedom = torch.atleast_1d(degrees_of_freedom)
 
-    dtype = torch.float32
-    for tensor in (input, sample_size, degrees_of_freedom):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    dtype = torch.promote_types(input.dtype, sample_size.dtype)
+    dtype = torch.promote_types(dtype, degrees_of_freedom.dtype)
 
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)

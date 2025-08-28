@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -39,18 +41,17 @@ def poisson_regression_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
 
-    mean_rate = torch.atleast_1d(torch.as_tensor(mean_rate))
+    mean_rate = torch.atleast_1d(mean_rate)
 
-    p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
+    p_exposure = torch.atleast_1d(p_exposure)
 
-    dtypes = [input.dtype, sample_size.dtype, mean_rate.dtype, p_exposure.dtype]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, sample_size.dtype, mean_rate.dtype, p_exposure.dtype],
+    )
 
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)
@@ -67,18 +68,14 @@ def poisson_regression_power(
 
     p_exposure = torch.clamp(p_exposure, min=0.01, max=0.99)
 
-    alt = alternative.lower()
-
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
     standard_normal = beignet.distributions.StandardNormal.from_dtype(dtype)
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         power = (
             1
             - standard_normal.cdf(
@@ -119,7 +116,7 @@ def poisson_regression_power(
                 ),
             ),
         )
-    elif alt == "greater":
+    elif alternative == "greater":
         power = 1 - standard_normal.cdf(
             (
                 standard_normal.icdf(torch.tensor(1 - alpha, dtype=dtype))

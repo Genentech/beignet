@@ -38,15 +38,15 @@ def multivariate_analysis_of_variance_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
-    n_variables = torch.atleast_1d(torch.as_tensor(n_variables))
+    input = torch.atleast_1d(input)
+    sample_size = torch.atleast_1d(sample_size)
+    n_variables = torch.atleast_1d(n_variables)
 
-    n_groups = torch.atleast_1d(torch.as_tensor(n_groups))
+    n_groups = torch.atleast_1d(n_groups)
 
-    dtype = torch.float32
-    for tensor in (input, sample_size, n_variables, n_groups):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    dtype = torch.promote_types(input.dtype, sample_size.dtype)
+    dtype = torch.promote_types(dtype, n_variables.dtype)
+    dtype = torch.promote_types(dtype, n_groups.dtype)
 
     input = input.to(dtype)
     sample_size = sample_size.to(dtype)

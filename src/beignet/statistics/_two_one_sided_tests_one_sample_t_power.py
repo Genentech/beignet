@@ -14,27 +14,21 @@ def two_one_sided_tests_one_sample_t_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r""" """
-    true_effect_size = torch.atleast_1d(torch.as_tensor(true_effect))
+    true_effect_size = torch.atleast_1d(true_effect)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    low = torch.atleast_1d(torch.as_tensor(low))
+    low = torch.atleast_1d(low)
 
-    high = torch.atleast_1d(torch.as_tensor(high))
+    high = torch.atleast_1d(high)
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64 for t in (true_effect_size, sample_size, low, high)
-        )
-        else torch.float32
-    )
+    dtype = torch.promote_types(true_effect_size.dtype, sample_size.dtype)
+    dtype = torch.promote_types(dtype, low.dtype)
+    dtype = torch.promote_types(dtype, high.dtype)
+
     true_effect_size = true_effect_size.to(dtype)
-
     sample_size = sample_size.to(dtype)
-
     low = low.to(dtype)
-
     high = high.to(dtype)
 
     sample_size = torch.clamp(sample_size, min=2.0)

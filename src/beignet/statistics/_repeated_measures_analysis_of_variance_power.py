@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -38,17 +39,18 @@ def repeated_measures_analysis_of_variance_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
+    n_subjects = torch.atleast_1d(n_subjects)
 
-    n_timepoints = torch.atleast_1d(torch.as_tensor(n_timepoints))
+    n_timepoints = torch.atleast_1d(n_timepoints)
 
-    epsilon = torch.atleast_1d(torch.as_tensor(epsilon))
+    epsilon = torch.atleast_1d(epsilon)
 
-    dtype = torch.float32
-    for tensor in (input, n_subjects, n_timepoints, epsilon):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, n_subjects.dtype, n_timepoints.dtype, epsilon.dtype],
+    )
 
     input = input.to(dtype)
 

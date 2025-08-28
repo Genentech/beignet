@@ -38,24 +38,17 @@ def interrupted_time_series_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    n_time_points = torch.atleast_1d(torch.as_tensor(n_time_points))
+    n_time_points = torch.atleast_1d(n_time_points)
 
-    n_pre_intervention = torch.atleast_1d(torch.as_tensor(n_pre_intervention))
+    n_pre_intervention = torch.atleast_1d(n_pre_intervention)
 
-    autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
+    autocorrelation = torch.atleast_1d(autocorrelation)
 
-    dtypes = [
-        input.dtype,
-        n_time_points.dtype,
-        n_pre_intervention.dtype,
-        autocorrelation.dtype,
-    ]
-    if any(dt == torch.float64 for dt in dtypes):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = torch.promote_types(input.dtype, n_time_points.dtype)
+    dtype = torch.promote_types(dtype, n_pre_intervention.dtype)
+    dtype = torch.promote_types(dtype, autocorrelation.dtype)
 
     input = input.to(dtype)
 

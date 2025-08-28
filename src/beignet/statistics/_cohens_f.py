@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -25,7 +27,7 @@ def cohens_f(
     input = torch.atleast_1d(input)
     other = torch.atleast_1d(other)
 
-    dtype = torch.promote_types(input.dtype, other.dtype)
+    dtype = functools.reduce(torch.promote_types, [input.dtype, other.dtype])
 
     input = input.to(dtype)
     other = other.to(dtype)

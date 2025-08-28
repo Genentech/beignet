@@ -14,16 +14,13 @@ def mcnemars_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r""" """
-    p01 = torch.atleast_1d(torch.as_tensor(p01))
-    p10 = torch.atleast_1d(torch.as_tensor(p10))
+    p01 = torch.atleast_1d(p01)
+    p10 = torch.atleast_1d(p10)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    dtype = (
-        torch.float64
-        if any(t.dtype == torch.float64 for t in (p01, p10, sample_size))
-        else torch.float32
-    )
+    dtype = torch.promote_types(p01.dtype, p10.dtype)
+    dtype = torch.promote_types(dtype, sample_size.dtype)
     p01 = torch.clamp(p01.to(dtype), 0.0, 1.0)
     p10 = torch.clamp(p10.to(dtype), 0.0, 1.0)
 

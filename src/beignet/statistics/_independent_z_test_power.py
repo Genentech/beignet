@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -36,23 +38,19 @@ def independent_z_test_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    sample_size1 = torch.atleast_1d(torch.as_tensor(sample_size1))
+    sample_size1 = torch.atleast_1d(sample_size1)
 
     if sample_size2 is None:
         sample_size2 = sample_size1
     else:
-        sample_size2 = torch.atleast_1d(torch.as_tensor(sample_size2))
+        sample_size2 = torch.atleast_1d(sample_size2)
 
-    if (
-        input.dtype == torch.float64
-        or sample_size1.dtype == torch.float64
-        or sample_size2.dtype == torch.float64
-    ):
-        dtype = torch.float64
-    else:
-        dtype = torch.float32
+    dtype = functools.reduce(
+        torch.promote_types,
+        [input.dtype, sample_size1.dtype, sample_size2.dtype],
+    )
 
     input = input.to(dtype)
 

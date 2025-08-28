@@ -36,17 +36,14 @@ def intraclass_correlation_power(
         Statistical power.
     """
 
-    icc = torch.atleast_1d(torch.as_tensor(icc))
+    icc = torch.atleast_1d(icc)
 
-    n_subjects = torch.atleast_1d(torch.as_tensor(n_subjects))
+    n_subjects = torch.atleast_1d(n_subjects)
 
-    n_raters = torch.atleast_1d(torch.as_tensor(n_raters))
+    n_raters = torch.atleast_1d(n_raters)
 
-    dtype = (
-        torch.float64
-        if any(t.dtype == torch.float64 for t in (icc, n_subjects, n_raters))
-        else torch.float32
-    )
+    dtype = torch.promote_types(icc.dtype, n_subjects.dtype)
+    dtype = torch.promote_types(dtype, n_raters.dtype)
     icc = icc.to(dtype)
 
     n_subjects = n_subjects.to(dtype)
@@ -77,17 +74,14 @@ def intraclass_correlation_power(
 
     z_score = (f_critical - mean_f) / standard_deviation_f
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         power = 0.5 * (1 - torch.erf(torch.abs(z_score) / sqrt2))
-    elif alt == "greater":
+    elif alternative == "greater":
         power = 0.5 * (1 - torch.erf(z_score / sqrt2))
     else:
         power = 0.5 * (1 + torch.erf(z_score / sqrt2))

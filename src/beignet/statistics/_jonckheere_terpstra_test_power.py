@@ -1,3 +1,4 @@
+import functools
 import math
 
 import torch
@@ -30,15 +31,11 @@ def jonckheere_terpstra_test_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    sample_sizes = torch.atleast_1d(torch.as_tensor(sample_sizes))
+    sample_sizes = torch.atleast_1d(sample_sizes)
 
-    dtype = (
-        torch.float64
-        if (input.dtype == torch.float64 or sample_sizes.dtype == torch.float64)
-        else torch.float32
-    )
+    dtype = functools.reduce(torch.promote_types, [input.dtype, sample_sizes.dtype])
     input = input.to(dtype)
 
     sample_sizes = sample_sizes.to(dtype)

@@ -15,9 +15,9 @@ def mann_whitney_u_test_power(
     out: Tensor | None = None,
 ) -> Tensor:
     r""" """
-    auc = torch.atleast_1d(torch.as_tensor(auc))
+    auc = torch.atleast_1d(auc)
 
-    sample_size_group_1 = torch.atleast_1d(torch.as_tensor(nobs1))
+    sample_size_group_1 = torch.atleast_1d(nobs1)
     if nobs2 is None:
         r = torch.as_tensor(ratio)
 
@@ -30,28 +30,19 @@ def mann_whitney_u_test_power(
             ),
         )
     else:
-        sample_size_group_2 = torch.atleast_1d(torch.as_tensor(nobs2))
+        sample_size_group_2 = torch.atleast_1d(nobs2)
 
-    dtype = (
-        torch.float64
-        if any(
-            t.dtype == torch.float64
-            for t in (auc, sample_size_group_1, sample_size_group_2)
-        )
-        else torch.float32
-    )
+    dtype = torch.promote_types(auc.dtype, sample_size_group_1.dtype)
+    dtype = torch.promote_types(dtype, sample_size_group_2.dtype)
     auc = auc.to(dtype)
 
     sample_size_group_1 = torch.clamp(sample_size_group_1.to(dtype), min=2.0)
     sample_size_group_2 = torch.clamp(sample_size_group_2.to(dtype), min=2.0)
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError("alternative must be 'two-sided', 'greater', or 'less'")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
     mean0 = sample_size_group_1 * sample_size_group_2 / 2.0
 
@@ -68,13 +59,13 @@ def mann_whitney_u_test_power(
     noncentrality = (mean1 - mean0) / sd0
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         z_critical = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=dtype))
 
         upper = 1 - normal_dist.cdf(z_critical - noncentrality)
         lower = normal_dist.cdf(-z_critical - noncentrality)
         power = upper + lower
-    elif alt == "greater":
+    elif alternative == "greater":
         z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 
         power = 1 - normal_dist.cdf(z_critical - noncentrality)

@@ -41,16 +41,16 @@ def two_way_analysis_of_variance_power(
         Statistical power.
     """
 
-    input = torch.atleast_1d(torch.as_tensor(input))
+    input = torch.atleast_1d(input)
 
-    sample_size_per_cell = torch.atleast_1d(torch.as_tensor(sample_size_per_cell))
+    sample_size_per_cell = torch.atleast_1d(sample_size_per_cell)
 
-    levels_factor_a = torch.atleast_1d(torch.as_tensor(levels_factor_a))
-    levels_factor_b = torch.atleast_1d(torch.as_tensor(levels_factor_b))
+    levels_factor_a = torch.atleast_1d(levels_factor_a)
+    levels_factor_b = torch.atleast_1d(levels_factor_b)
 
-    dtype = torch.float32
-    for tensor in (input, sample_size_per_cell, levels_factor_a, levels_factor_b):
-        dtype = torch.promote_types(dtype, tensor.dtype)
+    dtype = torch.promote_types(input.dtype, sample_size_per_cell.dtype)
+    dtype = torch.promote_types(dtype, levels_factor_a.dtype)
+    dtype = torch.promote_types(dtype, levels_factor_b.dtype)
 
     input = input.to(dtype)
 

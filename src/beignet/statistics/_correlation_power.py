@@ -1,3 +1,5 @@
+import functools
+
 import torch
 from torch import Tensor
 
@@ -33,19 +35,13 @@ def correlation_power(
         Statistical power.
     """
 
-    r = torch.atleast_1d(torch.as_tensor(r))
+    r = torch.atleast_1d(r)
 
-    sample_size = torch.atleast_1d(torch.as_tensor(sample_size))
+    sample_size = torch.atleast_1d(sample_size)
 
-    if r.dtype != sample_size.dtype:
-        if r.dtype == torch.float64 or sample_size.dtype == torch.float64:
-            r = r.to(torch.float64)
-
-            sample_size = sample_size.to(torch.float64)
-        else:
-            r = r.to(torch.float32)
-
-            sample_size = sample_size.to(torch.float32)
+    dtype = functools.reduce(torch.promote_types, [r.dtype, sample_size.dtype])
+    r = r.to(dtype)
+    sample_size = sample_size.to(dtype)
 
     epsilon = 1e-7
 
@@ -57,34 +53,29 @@ def correlation_power(
 
     z_stat = z_r / se_z
 
-    alt = alternative.lower()
-    if alt in {"larger", "greater", ">"}:
-        alt = "greater"
-    elif alt in {"smaller", "less", "<"}:
-        alt = "less"
-    elif alt != "two-sided":
-        raise ValueError(f"Unknown alternative: {alternative}")
+    if alternative not in {"two-sided", "greater", "less"}:
+        raise ValueError(
+            f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
+        )
 
     normal_dist = beignet.distributions.StandardNormal.from_dtype(r.dtype)
 
-    if alt == "two-sided":
+    if alternative == "two-sided":
         z_alpha_2 = normal_dist.icdf(torch.tensor(1 - alpha / 2, dtype=r.dtype))
 
         cdf_upper = normal_dist.cdf(z_alpha_2 - z_stat)
         cdf_lower = normal_dist.cdf(-z_alpha_2 - z_stat)
         power = 1 - (cdf_upper - cdf_lower)
 
-    elif alt == "greater":
+    elif alternative == "greater":
         z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=r.dtype))
 
         power = 1 - normal_dist.cdf(z_alpha - z_stat)
 
-    elif alt == "less":
+    else:
         z_alpha = normal_dist.icdf(torch.tensor(alpha, dtype=r.dtype))
 
         power = normal_dist.cdf(z_alpha - z_stat)
-    else:
-        raise ValueError(f"Unknown alternative: {alternative}")
 
     output = torch.clamp(power, 0.0, 1.0)
 
