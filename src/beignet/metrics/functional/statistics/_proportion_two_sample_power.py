@@ -1,0 +1,14 @@
+"""proportion two sample power functional metric."""
+
+import beignet.statistics
+
+
+def proportion_two_sample_power(*args, **kwargs):
+    """
+    Compute proportion two sample power.
+
+    This is a functional wrapper around the beignet.statistics implementation.
+
+    Parameters and return values match the underlying statistics function.
+    """
+    return beignet.statistics.proportion_two_sample_power(*args, **kwargs)
