@@ -7,7 +7,7 @@ from torch import Tensor
 def logistic_regression_power(
     input: Tensor,
     sample_size: Tensor,
-    p_exposure: Tensor = 0.5,
+    p_exposure: Tensor | float = 0.5,
     alpha: float = 0.05,
     alternative: str = "two-sided",
     *,
@@ -39,7 +39,7 @@ def logistic_regression_power(
     input = torch.atleast_1d(input)
     sample_size = torch.atleast_1d(sample_size)
 
-    p_exposure = torch.atleast_1d(p_exposure)
+    p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     dtype = torch.promote_types(input.dtype, sample_size.dtype)
     dtype = torch.promote_types(dtype, p_exposure.dtype)
