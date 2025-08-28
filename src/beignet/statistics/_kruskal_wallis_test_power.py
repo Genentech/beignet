@@ -61,6 +61,7 @@ def kruskal_wallis_test_power(
 
     if out is not None:
         out.copy_(output)
+
         return out
 
     return output
