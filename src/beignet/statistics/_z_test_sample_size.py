@@ -56,9 +56,9 @@ def z_test_sample_size(
     )
 
     match alternative:
-        case "two-side":
+        case "two-sided":
             output = torch.tensor(1 - alpha / 2, dtype=dtype)
-        case "larger" | "smaller":
+        case "greater" | "less":
             output = torch.tensor(1 - alpha / 1, dtype=dtype)
         case _:
             raise ValueError

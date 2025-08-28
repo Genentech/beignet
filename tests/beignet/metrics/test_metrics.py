@@ -34,7 +34,9 @@ def test_cohens_d_metric(n1, n2, dtype):
 
     # Compare with direct calculation
     direct_result = beignet.statistics.cohens_d(
-        group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=True,
     )
     assert torch.allclose(result_pooled, direct_result.squeeze(), atol=1e-6)
 
@@ -44,7 +46,9 @@ def test_cohens_d_metric(n1, n2, dtype):
     result_nonpooled = metric_nonpooled.compute()
 
     direct_nonpooled = beignet.statistics.cohens_d(
-        group1.unsqueeze(0), group2.unsqueeze(0), pooled=False
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=False,
     )
     assert torch.allclose(result_nonpooled, direct_nonpooled.squeeze(), atol=1e-6)
 
@@ -95,7 +99,8 @@ def test_hedges_g_metric(n1, n2, dtype):
 
     # Compare with direct calculation
     direct_result = beignet.statistics.hedges_g(
-        group1.unsqueeze(0), group2.unsqueeze(0)
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
     )
     assert torch.allclose(result, direct_result.squeeze(), atol=1e-6)
 
@@ -310,7 +315,9 @@ def test_metric_consistency():
     metric_result = cohens_d_metric.compute()
 
     direct_result = beignet.statistics.cohens_d(
-        group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=True,
     )
     assert torch.allclose(metric_result, direct_result.squeeze(), atol=1e-6)
 
@@ -320,7 +327,8 @@ def test_metric_consistency():
     metric_hedges = hedges_g_metric.compute()
 
     direct_hedges = beignet.statistics.hedges_g(
-        group1.unsqueeze(0), group2.unsqueeze(0)
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
     )
     assert torch.allclose(metric_hedges, direct_hedges.squeeze(), atol=1e-6)
 
@@ -331,11 +339,16 @@ def test_metric_consistency():
 
     # Manual calculation
     effect_size = beignet.statistics.cohens_d(
-        group1.unsqueeze(0), group2.unsqueeze(0), pooled=True
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=True,
     )
     sample_size = torch.tensor(25.0, dtype=torch.float32)
     direct_power = beignet.statistics.t_test_power(
-        effect_size.squeeze(), sample_size, alpha=0.05, alternative="two-sided"
+        effect_size.squeeze(),
+        sample_size,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert torch.allclose(metric_power, direct_power, atol=1e-6)
 
@@ -346,6 +359,9 @@ def test_metric_consistency():
 
     # Manual calculation
     direct_n = beignet.statistics.t_test_sample_size(
-        effect_size.squeeze(), power=0.8, alpha=0.05, alternative="two-sided"
+        effect_size.squeeze(),
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert torch.allclose(metric_n, direct_n, atol=1e-6)

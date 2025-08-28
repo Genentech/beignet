@@ -11,4 +11,4 @@ def chi_squared_goodness_of_fit_power(*args, **kwargs):
 
     Parameters and return values match the underlying statistics function.
     """
-    return beignet.statistics.chi_squared_goodness_of_fit_power(*args, **kwargs)
+    return beignet.statistics.chi_square_goodness_of_fit_power(*args, **kwargs)

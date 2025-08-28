@@ -11,4 +11,4 @@ def chi_squared_independence_sample_size(*args, **kwargs):
 
     Parameters and return values match the underlying statistics function.
     """
-    return beignet.statistics.chi_squared_independence_sample_size(*args, **kwargs)
+    return beignet.statistics.chi_square_independence_sample_size(*args, **kwargs)

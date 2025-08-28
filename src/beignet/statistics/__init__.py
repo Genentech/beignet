@@ -132,6 +132,12 @@ from ._wilcoxon_signed_rank_test_sample_size import (
 from ._z_test_power import z_test_power
 from ._z_test_sample_size import z_test_sample_size
 
+# Add aliases for compatibility with tests
+chi_squared_goodness_of_fit_power = chi_square_goodness_of_fit_power
+chi_squared_goodness_of_fit_sample_size = chi_square_goodness_of_fit_sample_size
+chi_squared_independence_power = chi_square_independence_power
+chi_squared_independence_sample_size = chi_square_independence_sample_size
+
 __all__ = [
     "analysis_of_covariance_minimum_detectable_effect",
     "analysis_of_covariance_power",
@@ -145,6 +151,10 @@ __all__ = [
     "chi_square_independence_minimum_detectable_effect",
     "chi_square_independence_power",
     "chi_square_independence_sample_size",
+    "chi_squared_goodness_of_fit_power",
+    "chi_squared_goodness_of_fit_sample_size",
+    "chi_squared_independence_power",
+    "chi_squared_independence_sample_size",
     "cliffs_delta",
     "cohens_d",
     "cohens_f",

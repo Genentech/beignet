@@ -2,29 +2,36 @@
 
 from torch import Tensor
 
-from ._cohens_f import cohens_f
+import beignet.metrics.functional.statistics
 
 
-def cohens_f_squared(groups: list[Tensor]) -> Tensor:
+def cohens_f_squared(
+    groups: list[Tensor],
+    *,
+    out: Tensor | None = None,
+) -> Tensor:
     """
-    Compute Cohen's f² effect size for ANOVA.
+    Compute Cohen's f² effect size from multiple sample groups.
+
+    Cohen's f² is simply the square of Cohen's f.
 
     Parameters
     ----------
-    groups : list of Tensor
-        List of sample tensors for each group.
+    groups : list[Tensor]
+        List of sample groups, each of shape (..., N_i) where N_i is the sample size for group i.
+    out : Tensor | None
+        Output tensor.
 
     Returns
     -------
     Tensor
-        Cohen's f² effect size.
-
-    Examples
-    --------
-    >>> import torch
-    >>> from beignet.metrics.functional.statistics import cohens_f_squared
-    >>> groups = [torch.randn(20), torch.randn(20) + 0.5, torch.randn(20) + 1.0]
-    >>> effect_size = cohens_f_squared(groups)
+        The Cohen's f² values.
     """
-    f_value = cohens_f(groups)
-    return f_value**2
+    cohens_f_value = beignet.metrics.functional.statistics.cohens_f(groups)
+    result = cohens_f_value**2
+
+    if out is not None:
+        out.copy_(result)
+        return out
+
+    return result
