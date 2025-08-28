@@ -41,8 +41,10 @@ def kruskal_wallis_test_power(
     sample_sizes = torch.clamp(sample_sizes, min=2.0)
 
     groups = torch.tensor(sample_sizes.shape[-1], dtype=dtype)
+    if groups < 3:
+        raise ValueError("Kruskal-Wallis test requires at least 3 groups")
     n = torch.sum(sample_sizes, dim=-1)
-    df = groups - 1
+    df = torch.clamp(groups - 1, min=1.0)
 
     lambda_nc = 12 * n * input / (n + 1)
 
