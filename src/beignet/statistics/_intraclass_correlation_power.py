@@ -70,7 +70,9 @@ def intraclass_correlation_power(
 
     variance_f = 2 * f_expected * f_expected / df_between
 
-    standard_deviation_f = torch.sqrt(torch.clamp(variance_f, min=1e-12))
+    standard_deviation_f = torch.sqrt(
+        torch.clamp(variance_f, min=torch.finfo(dtype).eps),
+    )
 
     z_score = (f_critical - mean_f) / standard_deviation_f
 

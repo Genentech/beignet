@@ -61,11 +61,14 @@ def chi_square_goodness_of_fit_minimum_detectable_effect(
 
     z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * square_root_two
 
-    w0 = torch.clamp((z_alpha + z_beta) / torch.sqrt(sample_size), min=1e-8)
+    w0 = torch.clamp(
+        (z_alpha + z_beta) / torch.sqrt(sample_size),
+        min=torch.finfo(dtype).eps,
+    )
 
     w_lo = torch.zeros_like(w0) + 1e-8
 
-    w_hi = torch.clamp(2.0 * w0 + 1e-6, min=1e-6)
+    w_hi = torch.clamp(2.0 * w0 + 1e-6, min=torch.finfo(dtype).eps)
 
     for _ in range(8):
         p_hi = chi_square_goodness_of_fit_power(

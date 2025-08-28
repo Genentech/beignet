@@ -48,7 +48,7 @@ def z_test_sample_size(
 
     power = power.to(dtype)
 
-    power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
+    power = torch.clamp(power, min=torch.finfo(dtype).eps, max=1.0 - 1e-6)
 
     distribution = Normal(
         torch.tensor(0.0, dtype=dtype),
@@ -65,7 +65,7 @@ def z_test_sample_size(
 
     output = distribution.icdf(output)
     output = output + distribution.icdf(power)
-    output = output / torch.clamp(torch.abs(input), min=1e-6)
+    output = output / torch.clamp(torch.abs(input), min=torch.finfo(dtype).eps)
     output = output**2
     output = torch.ceil(output)
     output = torch.clamp(output, min=1.0)

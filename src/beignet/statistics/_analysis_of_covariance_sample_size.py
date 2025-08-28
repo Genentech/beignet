@@ -52,7 +52,7 @@ def analysis_of_covariance_sample_size(
     dtype = torch.float32
     for tensor in (effect_size_f, groups, covariate_r_squared, num_covariates):
         dtype = torch.promote_types(dtype, tensor.dtype)
-    effect_size_f = torch.clamp(effect_size_f.to(dtype), min=1e-8)
+    effect_size_f = torch.clamp(effect_size_f.to(dtype), min=torch.finfo(dtype).eps)
 
     groups = torch.clamp(groups.to(dtype), min=2.0)
 

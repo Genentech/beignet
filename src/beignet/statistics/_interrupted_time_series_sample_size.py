@@ -56,7 +56,7 @@ def interrupted_time_series_sample_size(
 
     autocorrelation = autocorrelation.to(dtype)
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     pre_post_ratio = torch.clamp(pre_post_ratio, min=0.1, max=10.0)
 

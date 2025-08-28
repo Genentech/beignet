@@ -43,7 +43,7 @@ def correlation_power(
     r = r.to(dtype)
     sample_size = sample_size.to(dtype)
 
-    epsilon = 1e-7
+    epsilon = torch.finfo(dtype).eps
 
     r_clamped = torch.clamp(r, -1 + epsilon, 1 - epsilon)
 

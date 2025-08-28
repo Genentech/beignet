@@ -53,7 +53,7 @@ def kruskal_wallis_test_power(
 
     z = (chi2_critical - nc_chi2_dist.mean) / torch.clamp(
         torch.sqrt(nc_chi2_dist.variance),
-        min=1e-12,
+        min=torch.finfo(dtype).eps,
     )
 
     output = 0.5 * (1 - torch.erf(z / math.sqrt(2.0)))

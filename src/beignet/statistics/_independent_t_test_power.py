@@ -84,11 +84,11 @@ def independent_t_test_power(
     if alternative == "two-sided":
         z_upper = (t_critical - mean_nct) / torch.clamp(
             standard_deviation_nct,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
         z_lower = (-t_critical - mean_nct) / torch.clamp(
             standard_deviation_nct,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
 
         power = 0.5 * (1 - torch.erf(z_upper / sqrt_2)) + 0.5 * (
@@ -97,13 +97,13 @@ def independent_t_test_power(
     elif alternative == "greater":
         z_score = (t_critical - mean_nct) / torch.clamp(
             standard_deviation_nct,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
         power = 0.5 * (1 - torch.erf(z_score / sqrt_2))
     else:
         z_score = (-t_critical - mean_nct) / torch.clamp(
             standard_deviation_nct,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
         power = 0.5 * (1 + torch.erf(z_score / sqrt_2))
 

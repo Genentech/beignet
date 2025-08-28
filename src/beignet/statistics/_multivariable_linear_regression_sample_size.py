@@ -49,7 +49,7 @@ def multivariable_linear_regression_sample_size(
 
     n_predictors = n_predictors.to(dtype)
 
-    r_squared = torch.clamp(r_squared, min=1e-8, max=0.99)
+    r_squared = torch.clamp(r_squared, min=torch.finfo(dtype).eps, max=0.99)
 
     n_predictors = torch.clamp(n_predictors, min=1.0)
 

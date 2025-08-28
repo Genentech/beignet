@@ -47,7 +47,7 @@ def chi_square_goodness_of_fit_sample_size(
 
     degrees_of_freedom = degrees_of_freedom.to(dtype)
 
-    input = torch.clamp(input, min=1e-6)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 
@@ -81,7 +81,7 @@ def chi_square_goodness_of_fit_sample_size(
 
         z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
             std_nc_chi2,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
 
         power_iteration = (1 - torch.erf(z_score / square_root_two)) / 2

@@ -54,7 +54,7 @@ def mann_whitney_u_test_power(
     )
     mean1 = sample_size_group_1 * sample_size_group_2 * auc
 
-    sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
+    sd0 = torch.sqrt(torch.clamp(var0, min=torch.finfo(dtype).eps))
 
     noncentrality = (mean1 - mean0) / sd0
     normal_dist = beignet.distributions.StandardNormal.from_dtype(dtype)

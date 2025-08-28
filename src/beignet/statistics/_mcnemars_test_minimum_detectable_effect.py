@@ -29,7 +29,7 @@ def mcnemars_test_minimum_detectable_effect(
         if any(t.dtype == torch.float64 for t in (d, sample_size))
         else torch.float32
     )
-    d = torch.clamp(d.to(dtype), min=1e-8, max=1.0)
+    d = torch.clamp(d.to(dtype), min=torch.finfo(dtype).eps, max=1.0)
 
     sample_size = torch.clamp(sample_size.to(dtype), min=1.0)
 

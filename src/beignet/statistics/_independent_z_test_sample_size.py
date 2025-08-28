@@ -62,9 +62,9 @@ def independent_z_test_sample_size(
     ratio = ratio.to(dtype)
     power = power.to(dtype)
 
-    power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
+    power = torch.clamp(power, min=torch.finfo(dtype).eps, max=1.0 - 1e-6)
 
-    abs_effect_size = torch.clamp(torch.abs(input), min=1e-6)
+    abs_effect_size = torch.clamp(torch.abs(input), min=torch.finfo(dtype).eps)
 
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 

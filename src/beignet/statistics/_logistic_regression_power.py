@@ -73,7 +73,7 @@ def logistic_regression_power(
     variance_beta = 1.0 / (
         sample_size * p_exposure * (1 - p_exposure) * p_outcome * (1 - p_outcome)
     )
-    se_beta = torch.sqrt(torch.clamp(variance_beta, min=1e-12))
+    se_beta = torch.sqrt(torch.clamp(variance_beta, min=torch.finfo(dtype).eps))
 
     noncentrality = torch.abs(beta) / se_beta
 

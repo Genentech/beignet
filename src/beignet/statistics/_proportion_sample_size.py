@@ -46,7 +46,7 @@ def proportion_sample_size(
     p0 = p0.to(dtype)
     p1 = p1.to(dtype)
 
-    epsilon = 1e-8
+    epsilon = torch.finfo(dtype).eps
 
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)

@@ -52,7 +52,7 @@ def independent_t_test_sample_size(
 
     ratio = ratio.to(dtype)
 
-    input = torch.clamp(input, min=1e-6)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     ratio = torch.clamp(ratio, min=0.1, max=10.0)
 

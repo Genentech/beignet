@@ -35,7 +35,7 @@ def correlation_sample_size(
 
     r = torch.atleast_1d(torch.as_tensor(r))
 
-    epsilon = 1e-7
+    epsilon = torch.finfo(r.dtype).eps
 
     r_clamped = torch.clamp(r, -1 + epsilon, 1 - epsilon)
 

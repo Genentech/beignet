@@ -93,7 +93,7 @@ def poisson_regression_power(
                                 + (1 - p_exposure) * mean_rate
                             )
                         ),
-                        min=1e-12,
+                        min=torch.finfo(dtype).eps,
                     ),
                 ),
             )
@@ -112,7 +112,7 @@ def poisson_regression_power(
                             + (1 - p_exposure) * mean_rate
                         )
                     ),
-                    min=1e-12,
+                    min=torch.finfo(dtype).eps,
                 ),
             ),
         )
@@ -133,7 +133,7 @@ def poisson_regression_power(
                                 + (1 - p_exposure) * mean_rate
                             )
                         ),
-                        min=1e-12,
+                        min=torch.finfo(dtype).eps,
                     ),
                 )
             ),
@@ -154,7 +154,7 @@ def poisson_regression_power(
                             + (1 - p_exposure) * mean_rate
                         )
                     ),
-                    min=1e-12,
+                    min=torch.finfo(dtype).eps,
                 ),
             ),
         )

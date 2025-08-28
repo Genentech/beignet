@@ -58,11 +58,11 @@ def welch_t_test_sample_size(
         vr.to(dtype) if isinstance(vr, Tensor) else torch.tensor(float(vr), dtype=dtype)
     )
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     r = torch.clamp(r, min=0.1, max=10.0)
 
-    vr = torch.clamp(vr, min=1e-6, max=1e6)
+    vr = torch.clamp(vr, min=torch.finfo(dtype).eps, max=1e6)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

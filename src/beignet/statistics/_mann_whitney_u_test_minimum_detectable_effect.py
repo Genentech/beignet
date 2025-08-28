@@ -72,7 +72,7 @@ def mann_whitney_u_test_minimum_detectable_effect(
         * sample_size_group_2
         / (sample_size_group_1 + sample_size_group_2 + 1.0),
     )
-    delta = (z_alpha + z_beta) / torch.clamp(scale, min=1e-12)
+    delta = (z_alpha + z_beta) / torch.clamp(scale, min=torch.finfo(dtype).eps)
 
     if alt == "less":
         auc = torch.clamp(0.5 - delta, min=0.0)

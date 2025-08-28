@@ -59,7 +59,7 @@ def proportion_two_sample_power(
     sample_size_group_1 = sample_size_group_1.to(dtype)
     sample_size_group_2 = sample_size_group_2.to(dtype)
 
-    epsilon = 1e-8
+    epsilon = torch.finfo(dtype).eps
 
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)
     p2 = torch.clamp(p2, epsilon, 1 - epsilon)

@@ -43,7 +43,10 @@ def wilcoxon_signed_rank_test_sample_size(
     n_curr = torch.clamp(
         (
             (z_alpha + normal_dist.icdf(torch.tensor(power, dtype=dtype)))
-            / (sqrt3 * torch.clamp(torch.abs(probability - 0.5), min=1e-8))
+            / (
+                sqrt3
+                * torch.clamp(torch.abs(probability - 0.5), min=torch.finfo(dtype).eps)
+            )
         )
         ** 2,
         min=5.0,

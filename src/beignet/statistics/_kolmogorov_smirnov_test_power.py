@@ -73,7 +73,7 @@ def kolmogorov_smirnov_test_power(
 
     se_d = torch.sqrt(1.0 / (2 * sample_size))
 
-    z_score = (d_critical - expected_d) / torch.clamp(se_d, min=1e-12)
+    z_score = (d_critical - expected_d) / torch.clamp(se_d, min=torch.finfo(dtype).eps)
 
     square_root_two = math.sqrt(2.0)
     if alternative == "two-sided":

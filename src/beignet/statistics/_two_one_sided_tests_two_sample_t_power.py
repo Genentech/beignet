@@ -56,11 +56,11 @@ def two_one_sided_tests_two_sample_t_power(
 
     noncentrality_parameter_low = (true_effect_size - low) / torch.clamp(
         se_factor,
-        min=1e-12,
+        min=torch.finfo(dtype).eps,
     )
     noncentrality_parameter_high = (true_effect_size - high) / torch.clamp(
         se_factor,
-        min=1e-12,
+        min=torch.finfo(dtype).eps,
     )
 
     t_dist = beignet.distributions.StudentT(degrees_of_freedom)
@@ -74,7 +74,7 @@ def two_one_sided_tests_two_sample_t_power(
                 (t_critical - nc_t_dist.mean)
                 / torch.clamp(
                     torch.sqrt(nc_t_dist.variance),
-                    min=1e-10,
+                    min=torch.finfo(dtype).eps,
                 )
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
@@ -98,7 +98,7 @@ def two_one_sided_tests_two_sample_t_power(
                             noncentrality,
                         ).variance,
                     ),
-                    min=1e-10,
+                    min=torch.finfo(dtype).eps,
                 )
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )

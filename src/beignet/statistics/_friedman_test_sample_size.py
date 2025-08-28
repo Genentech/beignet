@@ -48,7 +48,7 @@ def friedman_test_sample_size(
 
     n_treatments = n_treatments.to(dtype)
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     n_treatments = torch.clamp(n_treatments, min=3.0)
 

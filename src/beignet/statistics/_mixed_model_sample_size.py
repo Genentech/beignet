@@ -57,7 +57,7 @@ def mixed_model_sample_size(
 
     icc = icc.to(dtype)
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     n_observations_per_subject = torch.clamp(n_observations_per_subject, min=1.0)
 

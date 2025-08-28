@@ -56,7 +56,7 @@ def repeated_measures_analysis_of_variance_sample_size(
 
     epsilon = epsilon.to(dtype)
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     n_timepoints = torch.clamp(n_timepoints, min=2.0)
 

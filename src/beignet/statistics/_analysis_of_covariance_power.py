@@ -83,7 +83,10 @@ def analysis_of_covariance_power(
     variance_f = 2 * (df1 + 2 * lambda_nc) / (df1**2)
     variance_f = variance_f * (df2 + 2.0) / torch.clamp(df2, min=1.0)
 
-    z = (f_critical - mean_f) / torch.clamp(torch.sqrt(variance_f), min=1e-10)
+    z = (f_critical - mean_f) / torch.clamp(
+        torch.sqrt(variance_f),
+        min=torch.finfo(dtype).eps,
+    )
 
     output = beignet.distributions.StandardNormal.from_dtype(dtype).cdf(z)
     output = torch.clamp(1 - output, 0.0, 1.0)

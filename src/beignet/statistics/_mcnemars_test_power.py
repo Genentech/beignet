@@ -38,16 +38,19 @@ def mcnemars_test_power(
                 * (
                     torch.where(
                         (p01 + p10) > 0,
-                        p01 / torch.clamp(p01 + p10, min=1e-12),
+                        p01 / torch.clamp(p01 + p10, min=torch.finfo(dtype).eps),
                         torch.zeros_like(p01),
                     )
                     - 0.5
                 )
                 / torch.clamp(
                     torch.sqrt(
-                        torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12),
+                        torch.clamp(
+                            sample_size * (p01 + p10) * 0.25,
+                            min=torch.finfo(dtype).eps,
+                        ),
                     ),
-                    min=1e-12,
+                    min=torch.finfo(dtype).eps,
                 ),
             )
         ) + beignet.distributions.StandardNormal.from_dtype(dtype).cdf(
@@ -59,14 +62,19 @@ def mcnemars_test_power(
             * (
                 torch.where(
                     (p01 + p10) > 0,
-                    p01 / torch.clamp(p01 + p10, min=1e-12),
+                    p01 / torch.clamp(p01 + p10, min=torch.finfo(dtype).eps),
                     torch.zeros_like(p01),
                 )
                 - 0.5
             )
             / torch.clamp(
-                torch.sqrt(torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12)),
-                min=1e-12,
+                torch.sqrt(
+                    torch.clamp(
+                        sample_size * (p01 + p10) * 0.25,
+                        min=torch.finfo(dtype).eps,
+                    ),
+                ),
+                min=torch.finfo(dtype).eps,
             ),
         )
     else:
@@ -79,14 +87,19 @@ def mcnemars_test_power(
             * (
                 torch.where(
                     (p01 + p10) > 0,
-                    p01 / torch.clamp(p01 + p10, min=1e-12),
+                    p01 / torch.clamp(p01 + p10, min=torch.finfo(dtype).eps),
                     torch.zeros_like(p01),
                 )
                 - 0.5
             )
             / torch.clamp(
-                torch.sqrt(torch.clamp(sample_size * (p01 + p10) * 0.25, min=1e-12)),
-                min=1e-12,
+                torch.sqrt(
+                    torch.clamp(
+                        sample_size * (p01 + p10) * 0.25,
+                        min=torch.finfo(dtype).eps,
+                    ),
+                ),
+                min=torch.finfo(dtype).eps,
             ),
         )
 

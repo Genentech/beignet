@@ -36,7 +36,7 @@ def paired_z_test_sample_size(
 
     dtype = torch.float64 if input.dtype == torch.float64 else torch.float32
 
-    input = torch.clamp(input.to(dtype), min=1e-8)
+    input = torch.clamp(input.to(dtype), min=torch.finfo(dtype).eps)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

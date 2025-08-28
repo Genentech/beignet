@@ -57,11 +57,17 @@ def analysis_of_variance_minimum_detectable_effect(
 
     df1 = torch.clamp(groups - 1.0, min=1.0)
 
-    effect_size_f0 = torch.clamp((z_alpha + z_beta) * torch.sqrt(df1 / n), min=1e-8)
+    effect_size_f0 = torch.clamp(
+        (z_alpha + z_beta) * torch.sqrt(df1 / n),
+        min=torch.finfo(dtype).eps,
+    )
 
     effect_size_f_lo = torch.zeros_like(effect_size_f0) + 1e-8
 
-    effect_size_f_hi = torch.clamp(2.0 * effect_size_f0 + 1e-6, min=1e-6)
+    effect_size_f_hi = torch.clamp(
+        2.0 * effect_size_f0 + 1e-6,
+        min=torch.finfo(dtype).eps,
+    )
 
     for _ in range(8):
         p_hi = analysis_of_variance_power(effect_size_f_hi, n, groups, alpha)

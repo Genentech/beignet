@@ -133,7 +133,7 @@ def multivariate_analysis_of_variance_power(
                                 )
                             )
                         ),
-                        min=1e-12,
+                        min=torch.finfo(dtype).eps,
                     ),
                 )
                 / math.sqrt(2.0),

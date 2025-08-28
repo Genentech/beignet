@@ -35,7 +35,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     var0 = sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0
 
-    sd0 = torch.sqrt(torch.clamp(var0, min=1e-12))
+    sd0 = torch.sqrt(torch.clamp(var0, min=torch.finfo(dtype).eps))
 
     normal_dist = beignet.distributions.Normal(
         torch.tensor(0.0, dtype=dtype),
@@ -50,7 +50,7 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(
 
     z_beta = normal_dist.icdf(torch.tensor(power, dtype=dtype))
 
-    delta = (z_alpha + z_beta) * sd0 / torch.clamp(s, min=1e-12)
+    delta = (z_alpha + z_beta) * sd0 / torch.clamp(s, min=torch.finfo(dtype).eps)
 
     if alt == "less":
         prob_initial = torch.clamp(0.5 - delta, 0.0, 1.0)

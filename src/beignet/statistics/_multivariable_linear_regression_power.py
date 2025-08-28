@@ -98,7 +98,7 @@ def multivariable_linear_regression_power(
                                 / torch.clamp(sample_size - n_predictors - 1, min=1.0)
                             )
                         ),
-                        min=1e-12,
+                        min=torch.finfo(dtype).eps,
                     ),
                 )
                 / math.sqrt(2.0),

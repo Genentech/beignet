@@ -36,7 +36,7 @@ def wilcoxon_signed_rank_test_power(
     noncentrality = (s * probability - s / 2.0) / torch.sqrt(
         torch.clamp(
             sample_size * (sample_size + 1.0) * (2.0 * sample_size + 1.0) / 24.0,
-            min=1e-12,
+            min=torch.finfo(dtype).eps,
         ),
     )
 

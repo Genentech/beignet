@@ -52,7 +52,7 @@ def chi_square_independence_sample_size(
     rows = rows.to(dtype)
     cols = cols.to(dtype)
 
-    input = torch.clamp(input, min=1e-6)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     rows = torch.clamp(rows, min=2.0)
     cols = torch.clamp(cols, min=2.0)
@@ -91,7 +91,7 @@ def chi_square_independence_sample_size(
 
         z_score = (chi_squared_critical - mean_nc_chi2) / torch.clamp(
             std_nc_chi2,
-            min=1e-10,
+            min=torch.finfo(dtype).eps,
         )
 
         power_iteration = (1 - torch.erf(z_score / square_root_2)) / 2

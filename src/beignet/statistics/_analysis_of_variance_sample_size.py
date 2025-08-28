@@ -47,7 +47,7 @@ def analysis_of_variance_sample_size(
 
     groups = groups.to(dtype)
 
-    input = torch.clamp(input, min=1e-6)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     groups = torch.clamp(groups, min=2.0)
 

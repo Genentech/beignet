@@ -66,7 +66,10 @@ def f_test_power(
 
     std_f_alt = torch.sqrt(2.0 / df1) * torch.sqrt(1.0 + 2.0 * lambda_param / df1)
 
-    z_score = (f_critical - mean_f_alt) / torch.clamp(std_f_alt, min=1e-10)
+    z_score = (f_critical - mean_f_alt) / torch.clamp(
+        std_f_alt,
+        min=torch.finfo(dtype).eps,
+    )
 
     power = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
 

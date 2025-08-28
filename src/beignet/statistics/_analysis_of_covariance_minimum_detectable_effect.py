@@ -98,12 +98,12 @@ def analysis_of_covariance_minimum_detectable_effect(
         (z_alpha + z_beta)
         * square_root_degrees_freedom_over_sample_size
         * square_root_residual_variance,
-        min=1e-8,
+        min=torch.finfo(dtype).eps,
     )
 
     minimum_effect_size = 1e-8
 
-    maximum_effect_size_epsilon = 1e-6
+    maximum_effect_size_epsilon = torch.finfo(dtype).eps
 
     effect_size_bottom = torch.zeros_like(starting_effect_size) + minimum_effect_size
 
@@ -112,9 +112,7 @@ def analysis_of_covariance_minimum_detectable_effect(
         min=maximum_effect_size_epsilon,
     )
 
-    maximum_expansion_iterations = 8
-
-    for _ in range(maximum_expansion_iterations):
+    for _ in range(8):
         power_target = analysis_of_covariance_power(
             effect_size_top,
             sample_size_clamped,
@@ -140,11 +138,9 @@ def analysis_of_covariance_minimum_detectable_effect(
             max=torch.tensor(10.0, dtype=dtype),
         )
 
-    maximum_bisection_iterations = 24
-
     effect_size_center = (effect_size_bottom + effect_size_top) * 0.5
 
-    for _ in range(maximum_bisection_iterations):
+    for _ in range(24):
         power_center = analysis_of_covariance_power(
             effect_size_center,
             sample_size_clamped,

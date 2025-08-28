@@ -39,7 +39,7 @@ def paired_t_test_sample_size(
 
     dtype = torch.float64 if input.dtype == torch.float64 else torch.float32
 
-    input = torch.clamp(input.to(dtype), min=1e-8)
+    input = torch.clamp(input.to(dtype), min=torch.finfo(dtype).eps)
 
     sqrt2 = math.sqrt(2.0)
 

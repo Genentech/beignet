@@ -100,7 +100,7 @@ def two_way_analysis_of_variance_power(
                     )
                     - (df_num + total_n * input**2) / df_num
                 )
-                / torch.sqrt(torch.clamp(variance_f, min=1e-12))
+                / torch.sqrt(torch.clamp(variance_f, min=torch.finfo(dtype).eps))
                 / math.sqrt(2.0),
             )
         ),

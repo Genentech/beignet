@@ -57,7 +57,7 @@ def two_way_analysis_of_variance_sample_size(
     levels_factor_a = levels_factor_a.to(dtype)
     levels_factor_b = levels_factor_b.to(dtype)
 
-    input = torch.clamp(input, min=1e-8)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     levels_factor_a = torch.clamp(levels_factor_a, min=2.0)
     levels_factor_b = torch.clamp(levels_factor_b, min=2.0)

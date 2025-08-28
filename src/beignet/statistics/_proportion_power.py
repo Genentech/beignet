@@ -49,7 +49,7 @@ def proportion_power(
 
     sample_size = sample_size.to(dtype)
 
-    epsilon = 1e-8
+    epsilon = torch.finfo(dtype).eps
 
     p0 = torch.clamp(p0, epsilon, 1 - epsilon)
     p1 = torch.clamp(p1, epsilon, 1 - epsilon)

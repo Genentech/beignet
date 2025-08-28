@@ -46,19 +46,19 @@ def mcnemars_test_sample_size(
                     torch.abs(
                         torch.where(
                             (p01 + p10) > 0,
-                            p01 / torch.clamp(p01 + p10, min=1e-12),
+                            p01 / torch.clamp(p01 + p10, min=torch.finfo(dtype).eps),
                             torch.zeros_like(p01),
                         )
                         - 0.5,
                     ),
-                    min=1e-8,
+                    min=torch.finfo(dtype).eps,
                 )
             )
         )
         ** 2
         / torch.clamp(
             p01 + p10,
-            min=1e-8,
+            min=torch.finfo(dtype).eps,
         ),
         min=4.0,
     )

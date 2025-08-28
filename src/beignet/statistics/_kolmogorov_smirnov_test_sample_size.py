@@ -43,7 +43,7 @@ def kolmogorov_smirnov_test_sample_size(
 
     input = input.to(dtype)
 
-    input = torch.clamp(input, min=1e-8, max=1.0)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps, max=1.0)
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:

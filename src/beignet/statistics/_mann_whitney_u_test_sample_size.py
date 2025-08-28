@@ -47,7 +47,9 @@ def mann_whitney_u_test_sample_size(
 
     c = torch.sqrt(1.0 + r) / torch.sqrt(12.0 * r)
 
-    sample_size_group_1 = ((z_alpha + z_beta) * c / torch.clamp(delta, min=1e-8)) ** 2
+    sample_size_group_1 = (
+        (z_alpha + z_beta) * c / torch.clamp(delta, min=torch.finfo(dtype).eps)
+    ) ** 2
 
     sample_size_group_1 = torch.clamp(sample_size_group_1, min=5.0)
 

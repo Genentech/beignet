@@ -65,7 +65,7 @@ def two_one_sided_tests_one_sample_t_sample_size(
             )
             / torch.clamp(
                 torch.minimum(true_effect_size - low, high - true_effect_size),
-                min=1e-8,
+                min=torch.finfo(dtype).eps,
             )
         )
         ** 2,

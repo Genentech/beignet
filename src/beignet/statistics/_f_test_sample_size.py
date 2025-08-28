@@ -58,9 +58,9 @@ def f_test_sample_size(
 
     df1 = df1.to(dtype)
 
-    power = torch.clamp(power, min=1e-6, max=1.0 - 1e-6)
+    power = torch.clamp(power, min=torch.finfo(dtype).eps, max=1.0 - 1e-6)
 
-    input = torch.clamp(input, min=1e-6)
+    input = torch.clamp(input, min=torch.finfo(dtype).eps)
 
     df1 = torch.clamp(df1, min=1.0)
 

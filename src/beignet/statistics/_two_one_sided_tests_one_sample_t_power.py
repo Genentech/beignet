@@ -57,7 +57,7 @@ def two_one_sided_tests_one_sample_t_power(
                             noncentrality,
                         ).variance,
                     ),
-                    min=1e-10,
+                    min=torch.finfo(dtype).eps,
                 )
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
@@ -81,7 +81,7 @@ def two_one_sided_tests_one_sample_t_power(
                             noncentrality,
                         ).variance,
                     ),
-                    min=1e-10,
+                    min=torch.finfo(dtype).eps,
                 )
                 / torch.sqrt(torch.tensor(2.0, dtype=dtype)),
             )
