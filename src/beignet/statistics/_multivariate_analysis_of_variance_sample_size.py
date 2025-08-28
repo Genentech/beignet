@@ -54,7 +54,7 @@ def multivariate_analysis_of_variance_sample_size(
 
     n_groups = n_groups.to(dtype)
 
-    input = torch.maximum(input, torch.finfo(dtype).eps)
+    input = torch.maximum(input, torch.tensor(torch.finfo(dtype).eps, dtype=dtype))
 
     n_variables = torch.clamp(n_variables, min=1.0)
 

@@ -47,7 +47,7 @@ def chi_square_goodness_of_fit_sample_size(
 
     degrees_of_freedom = degrees_of_freedom.to(dtype)
 
-    input = torch.maximum(input, torch.finfo(dtype).eps)
+    input = torch.maximum(input, torch.tensor(torch.finfo(dtype).eps, dtype=dtype))
 
     degrees_of_freedom = torch.clamp(degrees_of_freedom, min=1.0)
 

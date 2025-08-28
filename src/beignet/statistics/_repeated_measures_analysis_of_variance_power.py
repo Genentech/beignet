@@ -108,7 +108,12 @@ def repeated_measures_analysis_of_variance_power(
                     )
                     / ((n_timepoints - 1.0) * epsilon)
                 )
-                / torch.sqrt(torch.maximum(variance_f, torch.finfo(dtype).eps))
+                / torch.sqrt(
+                    torch.maximum(
+                        variance_f,
+                        torch.tensor(torch.finfo(dtype).eps, dtype=dtype),
+                    ),
+                )
                 / math.sqrt(2.0),
             )
         ),

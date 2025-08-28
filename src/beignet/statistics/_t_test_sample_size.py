@@ -42,7 +42,7 @@ def t_test_sample_size(
 
     input = input.to(dtype)
 
-    input = torch.maximum(input, torch.finfo(dtype).eps)
+    input = torch.maximum(input, torch.tensor(torch.finfo(dtype).eps, dtype=dtype))
 
     alt = alternative.lower()
     if alt in {"larger", "greater", ">"}:
