@@ -4,6 +4,8 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
+from ..functional.statistics import cohens_d
+
 
 class CohensD(Metric):
     r"""
@@ -73,22 +75,8 @@ class CohensD(Metric):
         group1_all = torch.cat(self.group1_samples, dim=-1)
         group2_all = torch.cat(self.group2_samples, dim=-1)
 
-        # Compute Cohen's d manually to avoid circular import
-        mean1 = torch.mean(group1_all, dim=-1, keepdim=True)
-        mean2 = torch.mean(group2_all, dim=-1, keepdim=True)
-
-        if self.pooled:
-            # Use pooled standard deviation
-            var1 = torch.var(group1_all, dim=-1, unbiased=True, keepdim=True)
-            var2 = torch.var(group2_all, dim=-1, unbiased=True, keepdim=True)
-            n1 = group1_all.shape[-1]
-            n2 = group2_all.shape[-1]
-            pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-            return (mean1 - mean2).squeeze(-1) / pooled_std.squeeze(-1)
-        else:
-            # Use standard deviation of group1 only
-            std1 = torch.std(group1_all, dim=-1, unbiased=True, keepdim=True)
-            return (mean1 - mean2).squeeze(-1) / std1.squeeze(-1)
+        # Use functional implementation
+        return cohens_d(group1_all, group2_all, pooled=self.pooled)
 
     def reset(self) -> None:
         """Reset the metric to its initial state."""
@@ -138,12 +126,12 @@ class CohensD(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         if not self.group1_samples or not self.group2_samples:
             raise RuntimeError(
-                "No samples have been added to the metric. Call update() first."
+                "No samples have been added to the metric. Call update() first.",
             )
 
         # Get the accumulated data
@@ -216,13 +204,25 @@ class CohensD(Metric):
 
             # Add reference lines for effect size thresholds
             ax.axhline(
-                y=0.2, color="gray", linestyle=":", alpha=0.5, label="Small (0.2)"
+                y=0.2,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Small (0.2)",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle="--", alpha=0.5, label="Medium (0.5)"
+                y=0.5,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium (0.5)",
             )
             ax.axhline(
-                y=0.8, color="gray", linestyle="-", alpha=0.5, label="Large (0.8)"
+                y=0.8,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (0.8)",
             )
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.3)
 
@@ -233,7 +233,7 @@ class CohensD(Metric):
                 title = f"Effect Size: Cohen's d = {float(effect_size):.3f}"
         else:
             raise ValueError(
-                f"plot_type must be 'distribution' or 'effect_size', got {plot_type}"
+                f"plot_type must be 'distribution' or 'effect_size', got {plot_type}",
             )
 
         ax.set_title(title)

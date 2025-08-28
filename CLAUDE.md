@@ -557,3 +557,169 @@ standardized_effect_size_computation = compute_effect_size_with_pooled_variance(
 - [ ] Test gradient computation with `torch.autograd.gradcheck`
 - [ ] Ensure batch dimension handling is correct
 - [ ] Run linting and formatting tools
+
+## Metrics
+
+Beignet provides comprehensive metrics for evaluating machine learning models and statistical tests, following TorchMetrics conventions and patterns. The metrics system includes both functional and class-based implementations.
+
+### Architecture Overview
+
+The metrics module follows TorchMetrics best practices with a dual implementation pattern:
+
+```
+beignet.metrics/
+├── functional/          # Functional metric implementations
+│   └── statistics/      # Statistical metrics (power, effect size, etc.)
+└── statistics/          # Class-based TorchMetrics implementations
+```
+
+### Functional vs Class-Based Metrics
+
+#### **Functional Metrics** (`beignet.metrics.functional.statistics`)
+- **Purpose**: Direct computation without state management
+- **Usage**: One-shot calculations from data
+- **Pattern**: `metric_func(preds, target, **kwargs) -> Tensor`
+- **Benefits**: Stateless, lightweight, composable
+
+```python
+import torch
+from beignet.metrics.functional.statistics import cohens_d, t_test_power
+
+# Direct computation from data
+group1 = torch.randn(20)
+group2 = torch.randn(20) + 0.5
+effect_size = cohens_d(group1, group2)
+power = t_test_power(group1, group2, alpha=0.05)
+```
+
+#### **Class-Based Metrics** (`beignet.metrics.statistics`)
+- **Purpose**: Stateful computation for streaming/batched data
+- **Usage**: Accumulate samples across multiple updates
+- **Pattern**: TorchMetrics-compatible with `update()` and `compute()`
+- **Benefits**: Distributed training support, automatic device handling, plotting
+
+```python
+import torch
+from beignet.metrics.statistics import CohensD, TTestPower
+
+# Stateful computation
+metric = CohensD(pooled=True)
+metric.update(group1_batch, group2_batch)
+metric.update(group1_batch2, group2_batch2)  # Accumulates
+effect_size = metric.compute()
+
+# With visualization
+fig = metric.plot(plot_type="distribution")
+```
+
+### Coverage and Correspondence
+
+**Complete functional + class-based coverage (28 metrics):**
+- **Effect Size**: Cohen's d, Hedges' g, Cohen's f/f², Cramer's V, Phi coefficient
+- **Power Analysis**: t-test, z-test, ANOVA, correlation, proportion tests, chi-square, F-test
+- **Sample Size**: All corresponding sample size calculations for power metrics
+
+**Key principle**: Every class-based metric has a corresponding functional implementation that it uses internally.
+
+### Implementation Patterns
+
+#### **Functional Metrics**
+```python
+def cohens_d(group1: Tensor, group2: Tensor, pooled: bool = True) -> Tensor:
+    """
+    Compute Cohen's d effect size between two groups.
+    
+    Parameters
+    ----------
+    group1 : Tensor
+        Samples from the first group.
+    group2 : Tensor  
+        Samples from the second group.
+    pooled : bool, default True
+        Whether to use pooled standard deviation.
+        
+    Returns
+    -------
+    Tensor
+        Cohen's d effect size.
+    """
+    # Direct computation implementation
+    pass
+```
+
+#### **Class-Based Metrics**
+```python
+class CohensD(Metric):
+    def __init__(self, pooled: bool = True, **kwargs):
+        super().__init__(**kwargs)
+        self.pooled = pooled
+        self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
+        self.add_state("group2_samples", default=[], dist_reduce_fx="cat")
+
+    def update(self, group1: Tensor, group2: Tensor) -> None:
+        """Update metric state with new samples."""
+        self.group1_samples.append(group1)
+        self.group2_samples.append(group2)
+
+    def compute(self) -> Tensor:
+        """Compute Cohen's d from accumulated samples."""
+        group1_all = torch.cat(self.group1_samples, dim=-1)
+        group2_all = torch.cat(self.group2_samples, dim=-1)
+        
+        # Use functional implementation
+        return cohens_d(group1_all, group2_all, pooled=self.pooled)
+
+    def plot(self, **kwargs) -> Any:
+        """Create visualization of effect size."""
+        pass
+```
+
+### Adding New Metrics
+
+When adding new metrics, implement both functional and class-based versions:
+
+#### **1. Functional Implementation**
+```python
+# src/beignet/metrics/functional/statistics/_new_metric.py
+def new_metric(preds: Tensor, target: Tensor, **kwargs) -> Tensor:
+    """Functional implementation."""
+    pass
+```
+
+#### **2. Class-Based Implementation**
+```python  
+# src/beignet/metrics/statistics/_new_metric.py
+class NewMetric(Metric):
+    def compute(self) -> Tensor:
+        # Process accumulated state
+        return new_metric(processed_preds, processed_target, **self.kwargs)
+```
+
+#### **3. Export Both**
+```python
+# Update __init__.py files to export both versions
+```
+
+### Integration with Operators
+
+**Relationship to `beignet.statistics`**: 
+- **Operators**: Pure mathematical functions for statistical calculations (power, sample size, effect size)
+- **Metrics**: TorchMetrics-compatible wrappers that compute these from actual data samples
+
+```python
+# Operator: Direct calculation with known parameters
+power = beignet.statistics.t_test_power(effect_size=0.5, sample_size=20)
+
+# Metric: Calculate from actual sample data  
+metric = beignet.metrics.statistics.TTestPower()
+metric.update(group1_samples, group2_samples)
+power = metric.compute()  # Internally computes effect size from samples
+```
+
+### Best Practices
+
+1. **Always implement functional first**: Class-based metrics should call functional versions
+2. **Follow TorchMetrics patterns**: Use `add_state()`, proper `update()`/`compute()` cycle
+3. **Provide visualization**: Implement meaningful `plot()` methods for insights  
+4. **Comprehensive documentation**: Include examples for both functional and class usage
+5. **Test both versions**: Ensure functional and class implementations give identical results

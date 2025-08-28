@@ -6,6 +6,8 @@ from torchmetrics import Metric
 
 import beignet.statistics
 
+from ..functional.statistics import t_test_power
+
 
 class TTestPower(Metric):
     """TorchMetrics wrapper for one-sample and paired t-test power calculation.
@@ -50,7 +52,7 @@ class TTestPower(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
         if alternative not in ["two-sided", "greater", "less"]:
             raise ValueError(
-                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
+                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
             )
 
         self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
@@ -79,24 +81,10 @@ class TTestPower(Metric):
         group1_all = torch.cat(self.group1_samples, dim=0)
         group2_all = torch.cat(self.group2_samples, dim=0)
 
-        # Compute Cohen's d effect size
-        mean1 = torch.mean(group1_all, dim=0)
-        mean2 = torch.mean(group2_all, dim=0)
-
-        # Use pooled standard deviation
-        var1 = torch.var(group1_all, dim=0, unbiased=True)
-        var2 = torch.var(group2_all, dim=0, unbiased=True)
-        n1 = group1_all.shape[0]
-        n2 = group2_all.shape[0]
-        pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-        effect_size = (mean1 - mean2) / pooled_std
-
-        # Use smaller sample size for power calculation (conservative)
-        sample_size = torch.tensor(min(n1, n2), dtype=group1_all.dtype)
-
-        return beignet.statistics.t_test_power(
-            effect_size,
-            sample_size,
+        # Use functional implementation
+        return t_test_power(
+            group1_all,
+            group2_all,
             alpha=self.alpha,
             alternative=self.alternative,
         )
@@ -145,7 +133,7 @@ class TTestPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -203,7 +191,7 @@ class TTestPower(Metric):
             x_label = "Significance Level (α)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'sample_size', or 'alpha', got {dep_var}"
+                f"dep_var must be 'effect_size', 'sample_size', or 'alpha', got {dep_var}",
             )
 
         # Plot power curves for different parameter values
@@ -212,21 +200,21 @@ class TTestPower(Metric):
 
             for x_val in x_values:
                 if dep_var == "effect_size":
-                    power_val = beignet.t_test_power(
+                    power_val = beignet.statistics.t_test_power(
                         effect_size=torch.tensor(float(x_val)),
                         sample_size=torch.tensor(float(param_val)),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "sample_size":
-                    power_val = beignet.t_test_power(
+                    power_val = beignet.statistics.t_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(x_val)),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "alpha":
-                    power_val = beignet.t_test_power(
+                    power_val = beignet.statistics.t_test_power(
                         effect_size=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(default_sample_size)),
                         alpha=float(x_val),
