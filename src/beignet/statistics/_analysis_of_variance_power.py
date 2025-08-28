@@ -92,8 +92,6 @@ def analysis_of_variance_power(
 
     output = 1 - output
 
-    output = torch.clamp(output, 0.0, 1.0)
-
     if out is not None:
         out.copy_(output)
 

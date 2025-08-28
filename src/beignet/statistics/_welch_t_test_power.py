@@ -65,7 +65,7 @@ def welch_t_test_power(
         a**2 / (nobs1 - 1)
         + b**2 / (nobs2 - 1)  # nobs1,nobs2 >= 2, so denominators >= 1
     )
-    noncentrality = input / torch.clamp(torch.sqrt(a + b), min=torch.finfo(dtype).eps)
+    noncentrality = input / torch.sqrt(a + b)
 
     t_dist = beignet.distributions.StudentT(degrees_of_freedom)
     if alternative == "two-sided":

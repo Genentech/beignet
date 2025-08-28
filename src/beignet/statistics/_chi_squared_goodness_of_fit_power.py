@@ -68,11 +68,9 @@ def chi_square_goodness_of_fit_power(
     # P(X > critical) = 1 - CDF(critical) where X ~ NonCentralChi2(df, nc)
     power = 1 - nc_chi2_dist.cdf(chi_squared_critical)
 
-    result = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
-        out.copy_(result)
+        out.copy_(power)
 
         return out
 
-    return result
+    return power

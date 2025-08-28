@@ -48,8 +48,6 @@ def mcnemars_test_power(
         z_critical = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
         power = 1 - normal_dist.cdf(z_critical - z_stat)
 
-    # Power is already bounded [0,1] from normal CDF operations
-    if out is not None:
         out.copy_(power)
         return out
 

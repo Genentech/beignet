@@ -68,8 +68,6 @@ def jonckheere_terpstra_test_power(
 
     power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
-    power = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
         out.copy_(power)
 

@@ -35,7 +35,6 @@ def partial_eta_squared(
     other = torch.clamp(other, min=torch.finfo(dtype).eps)
 
     output = input / (input + other)
-    output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:
         out.copy_(output)

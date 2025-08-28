@@ -10,7 +10,7 @@ def poisson_regression_power(
     input: Tensor,
     sample_size: Tensor,
     mean_rate: Tensor,
-    p_exposure: Tensor = 0.5,
+    p_exposure: Tensor | float = 0.5,
     alpha: float = 0.05,
     alternative: str = "two-sided",
     *,
@@ -46,7 +46,7 @@ def poisson_regression_power(
 
     mean_rate = torch.atleast_1d(mean_rate)
 
-    p_exposure = torch.atleast_1d(p_exposure)
+    p_exposure = torch.atleast_1d(torch.as_tensor(p_exposure))
 
     dtype = functools.reduce(
         torch.promote_types,
@@ -158,8 +158,6 @@ def poisson_regression_power(
                 ),
             ),
         )
-
-    power = torch.clamp(power, 0.0, 1.0)
 
     if out is not None:
         out.copy_(power)

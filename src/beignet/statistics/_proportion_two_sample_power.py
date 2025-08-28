@@ -109,11 +109,9 @@ def proportion_two_sample_power(
     else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
-    result = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
-        out.copy_(result)
+        out.copy_(power)
 
         return out
 
-    return result
+    return power

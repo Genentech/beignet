@@ -95,8 +95,6 @@ def interrupted_time_series_power(
     z_score = t_critical - noncentrality
     power = 0.5 * (1 - torch.erf(z_score / square_root_two))
 
-    power = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
         out.copy_(power)
 

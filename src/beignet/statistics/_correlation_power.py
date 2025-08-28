@@ -77,11 +77,9 @@ def correlation_power(
 
         power = normal_dist.cdf(z_alpha - z_stat)
 
-    output = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
-        out.copy_(output)
+        out.copy_(power)
 
         return out
 
-    return output
+    return power

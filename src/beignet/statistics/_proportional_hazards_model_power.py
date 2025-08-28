@@ -167,8 +167,6 @@ def proportional_hazards_model_power(
                 )
             )
 
-    power = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
         out.copy_(power)
 

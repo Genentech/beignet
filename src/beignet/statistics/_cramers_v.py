@@ -49,7 +49,6 @@ def cramers_v(
 
     output = chi_square / (sample_size * min_dim)
     output = torch.sqrt(output)
-    output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:
         out.copy_(output)

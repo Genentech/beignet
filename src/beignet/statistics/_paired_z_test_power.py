@@ -60,11 +60,9 @@ def paired_z_test_power(
             -normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype)) - noncentrality,
         )
 
-    output = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
-        out.copy_(output)
+        out.copy_(power)
 
         return out
 
-    return output
+    return power

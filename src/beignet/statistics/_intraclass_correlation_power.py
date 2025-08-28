@@ -88,8 +88,6 @@ def intraclass_correlation_power(
     else:
         power = 0.5 * (1 + torch.erf(z_score / sqrt2))
 
-    power = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
         out.copy_(power)
 

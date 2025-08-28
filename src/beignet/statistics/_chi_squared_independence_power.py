@@ -76,11 +76,9 @@ def chi_square_independence_power(
     # Power is the probability that non-central chi-squared exceeds the critical value
     power = 1 - nc_chi2_dist.cdf(chi_squared_critical)
 
-    result = torch.clamp(power, 0.0, 1.0)
-
     if out is not None:
-        out.copy_(result)
+        out.copy_(power)
 
         return out
 
-    return result
+    return power

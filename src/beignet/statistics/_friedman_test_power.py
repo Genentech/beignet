@@ -69,8 +69,6 @@ def friedman_test_power(
     output = 1.0 - output
     output = 0.5 * output
 
-    output = torch.clamp(output, 0.0, 1.0)
-
     if out is not None:
         out.copy_(output)
 
