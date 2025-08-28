@@ -48,7 +48,7 @@ def jonckheere_terpstra_test_sample_size(
 
     groups = groups.to(dtype)
 
-    input = torch.clamp(input, min=torch.finfo(dtype).eps)
+    input = torch.maximum(input, torch.finfo(dtype).eps)
 
     groups = torch.clamp(groups, min=3.0)
 

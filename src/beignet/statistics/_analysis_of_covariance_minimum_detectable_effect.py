@@ -87,7 +87,7 @@ def analysis_of_covariance_minimum_detectable_effect(
     degrees_of_freedom_1 = torch.clamp(groups_clamped - 1.0, min=1.0)
 
     square_root_degrees_freedom_over_sample_size = torch.sqrt(
-        degrees_of_freedom_1 / torch.clamp(sample_size_clamped, min=1.0),
+        degrees_of_freedom_1 / sample_size_clamped,
     )
 
     square_root_residual_variance = torch.sqrt(
@@ -166,7 +166,7 @@ def analysis_of_covariance_minimum_detectable_effect(
 
         effect_size_center = (effect_size_bottom + effect_size_top) * 0.5
 
-    output = torch.clamp(effect_size_center, min=0.0)
+    output = effect_size_center
 
     if out is not None:
         out.copy_(output)

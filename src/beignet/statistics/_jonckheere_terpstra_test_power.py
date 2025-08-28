@@ -52,7 +52,7 @@ def jonckheere_terpstra_test_power(
 
     var_null = n * (n - 1) * (2 * n + 5) / 72
 
-    std_null = torch.sqrt(torch.clamp(var_null, min=torch.finfo(dtype).eps))
+    std_null = torch.sqrt(torch.maximum(var_null, torch.finfo(dtype).eps))
 
     mean_null = n * n / 4
 
