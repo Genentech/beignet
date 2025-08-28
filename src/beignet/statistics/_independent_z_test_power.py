@@ -72,7 +72,7 @@ def independent_z_test_power(
         power_upper = 1 - normal_dist.cdf(z_alpha_half - noncentrality)
         power_lower = normal_dist.cdf(-z_alpha_half - noncentrality)
 
-        power = power_upper + power_lower
+        power = torch.clamp(power_upper + power_lower, 0.0, 1.0)
     elif alternative == "larger":
         z_alpha = normal_dist.icdf(torch.tensor(1 - alpha, dtype=dtype))
 

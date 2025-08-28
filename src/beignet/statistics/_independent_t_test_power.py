@@ -91,8 +91,11 @@ def independent_t_test_power(
             min=torch.finfo(dtype).eps,
         )
 
-        power = 0.5 * (1 - torch.erf(z_upper / sqrt_2)) + 0.5 * (
-            1 + torch.erf(z_lower / sqrt_2)
+        power = torch.clamp(
+            0.5 * (1 - torch.erf(z_upper / sqrt_2))
+            + 0.5 * (1 + torch.erf(z_lower / sqrt_2)),
+            0.0,
+            1.0,
         )
     elif alternative == "greater":
         z_score = (t_critical - mean_nct) / torch.clamp(
