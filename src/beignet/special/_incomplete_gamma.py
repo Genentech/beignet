@@ -3,7 +3,7 @@ from torch import Tensor
 from torch.autograd import Function
 
 
-class IGammaFunction(Function):
+class IncompleteGammaFunction(Function):
     """Custom autograd function for regularized incomplete gamma function."""
 
     @staticmethod
@@ -40,7 +40,7 @@ class IGammaFunction(Function):
         return grad_a, grad_x
 
 
-def igamma(a: Tensor, x: Tensor, *, out: Tensor | None = None) -> Tensor:
+def incomplete_gamma(a: Tensor, x: Tensor, *, out: Tensor | None = None) -> Tensor:
     r"""
     Regularized lower incomplete gamma function.
 
@@ -76,7 +76,7 @@ def igamma(a: Tensor, x: Tensor, *, out: Tensor | None = None) -> Tensor:
     x = torch.clamp(x, min=0.0)
 
     # Use custom autograd function
-    result = IGammaFunction.apply(a, x)
+    result = IncompleteGammaFunction.apply(a, x)
 
     if out is not None:
         out.copy_(result)

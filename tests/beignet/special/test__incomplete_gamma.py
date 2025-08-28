@@ -10,7 +10,7 @@ import beignet.special
     dtype=st.sampled_from([torch.float32, torch.float64]),
 )
 @settings(deadline=None)
-def test_igamma(batch_size, dtype):
+def test_incomplete_gamma(batch_size, dtype):
     """Test regularized incomplete gamma function."""
 
     # Generate test parameters
@@ -26,7 +26,7 @@ def test_igamma(batch_size, dtype):
     )
 
     # Test basic functionality
-    result = beignet.special.igamma(a_values, x_values)
+    result = beignet.special.incomplete_gamma(a_values, x_values)
     assert result.shape == a_values.shape
     assert result.dtype == dtype
     assert torch.all(result >= 0.0)

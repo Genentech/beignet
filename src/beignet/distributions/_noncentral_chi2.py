@@ -196,7 +196,7 @@ class NonCentralChi2(Distribution):
         # P(X ≤ x) = γ(df/2, x/2) / Γ(df/2) where γ is lower incomplete gamma
         half_df = df_clamped / 2.0
         half_value = value / 2.0
-        central_cdf = beignet.special.igamma(half_df, half_value)
+        central_cdf = beignet.special.incomplete_gamma(half_df, half_value)
 
         # For non-central case, use different approximations based on parameters
         small_nc_mask = (nc_clamped > eps) & (nc_clamped <= 10.0)
@@ -214,7 +214,7 @@ class NonCentralChi2(Distribution):
             # Central chi-squared CDF with df + 2*j degrees of freedom
             df_j = df_clamped + 2.0 * j
             half_df_j = df_j / 2.0
-            chi2_cdf_j = beignet.special.igamma(half_df_j, half_value)
+            chi2_cdf_j = beignet.special.incomplete_gamma(half_df_j, half_value)
 
             series_sum = series_sum + poisson_term * chi2_cdf_j
 
