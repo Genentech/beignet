@@ -62,7 +62,8 @@ def welch_t_test_power(
     b = var_ratio / nobs2
 
     degrees_of_freedom = ((a + b) ** 2) / (
-        a**2 / torch.clamp(nobs1 - 1, min=1.0) + b**2 / torch.clamp(nobs2 - 1, min=1.0)
+        a**2 / (nobs1 - 1)
+        + b**2 / (nobs2 - 1)  # nobs1,nobs2 >= 2, so denominators >= 1
     )
     noncentrality = input / torch.clamp(torch.sqrt(a + b), min=torch.finfo(dtype).eps)
 
@@ -75,7 +76,7 @@ def welch_t_test_power(
     nc_t_dist = beignet.distributions.NonCentralT(degrees_of_freedom, noncentrality)
 
     sqrt_2 = torch.sqrt(torch.tensor(2.0, dtype=dtype))
-    std_dev = torch.clamp(torch.sqrt(nc_t_dist.variance), min=torch.finfo(dtype).eps)
+    std_dev = torch.sqrt(nc_t_dist.variance)  # sqrt is always positive
 
     if alternative == "two-sided":
         power = 0.5 * (
@@ -86,7 +87,8 @@ def welch_t_test_power(
     else:
         power = 0.5 * (1 + torch.erf((-t_critical - nc_t_dist.mean) / std_dev / sqrt_2))
 
-    output = torch.clamp(power, 0.0, 1.0)
+    # Power from erf operations is already bounded [0,1]
+    output = power
 
     if out is not None:
         out.copy_(output)

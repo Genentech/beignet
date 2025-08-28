@@ -71,9 +71,8 @@ def f_test_power(
         min=torch.finfo(dtype).eps,
     )
 
-    power = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
-
-    result = torch.clamp(power, 0.0, 1.0)
+    # Power from complementary error function - already bounded [0,1]
+    result = 0.5 * (1.0 - torch.erf(z_score / sqrt_2))
 
     if out is not None:
         out.copy_(result)

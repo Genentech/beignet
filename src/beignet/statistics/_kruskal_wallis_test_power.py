@@ -56,8 +56,8 @@ def kruskal_wallis_test_power(
         min=torch.finfo(dtype).eps,
     )
 
+    # Power from complementary error function - already bounded [0,1]
     output = 0.5 * (1 - torch.erf(z / math.sqrt(2.0)))
-    output = torch.clamp(output, 0.0, 1.0)
 
     if out is not None:
         out.copy_(output)
