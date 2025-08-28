@@ -20,18 +20,27 @@ def test_ancova_mde(n, k, p, r2, power, dtype):
     P = torch.tensor(p, dtype=dtype)
     R2 = torch.tensor(r2, dtype=dtype)
     f = S.analysis_of_covariance_minimum_detectable_effect(N, K, R2, P, power=power)
-    assert f.shape == N.shape and f.dtype == dtype
+    assert f.shape == torch.Size([1]) and f.dtype == dtype
     pr = S.analysis_of_covariance_power(f, N, K, R2, P)
     assert torch.all(pr >= torch.tensor(power, dtype=dtype) - 0.1)
 
     f2 = S.analysis_of_covariance_minimum_detectable_effect(
-        N * 2, K, R2, P, power=power
+        N * 2,
+        K,
+        R2,
+        P,
+        power=power,
     )
     assert torch.all(f2 <= f + 1e-6)
 
-    out = torch.empty_like(N)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.analysis_of_covariance_minimum_detectable_effect(
-        N, K, R2, P, power=power, out=out
+        N,
+        K,
+        R2,
+        P,
+        power=power,
+        out=out,
     )
     assert torch.allclose(out, out_r)
 

@@ -16,7 +16,7 @@ def test_chi_square_gof_mde_shape_power(n, df, power, dtype):
     n = torch.tensor(n, dtype=dtype)
     df_t = torch.tensor(df, dtype=dtype)
     w = S.chi_square_goodness_of_fit_minimum_detectable_effect(n, df_t, power=power)
-    assert w.shape == n.shape
+    assert w.shape == torch.Size([1])
     assert w.dtype == dtype
     # Power check (within tolerance)
     p = S.chi_square_goodness_of_fit_power(w, n, df_t)
@@ -28,9 +28,12 @@ def test_chi_square_gof_mde_shape_power(n, df, power, dtype):
     assert torch.all(w2 <= w + 1e-5)
 
     # out parameter
-    out = torch.empty_like(n)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.chi_square_goodness_of_fit_minimum_detectable_effect(
-        n, df_t, power=power, out=out
+        n,
+        df_t,
+        power=power,
+        out=out,
     )
     assert torch.allclose(out, out_r)
 

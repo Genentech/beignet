@@ -16,14 +16,14 @@ def test_analysis_of_variance_mde(n, k, power, dtype):
     N = torch.tensor(n, dtype=dtype)
     K = torch.tensor(k, dtype=dtype)
     f = S.analysis_of_variance_minimum_detectable_effect(N, K, power=power)
-    assert f.shape == N.shape and f.dtype == dtype
+    assert f.shape == torch.Size([1]) and f.dtype == dtype
     p = S.analysis_of_variance_power(f, N, K)
     assert torch.all(p >= torch.tensor(power, dtype=dtype) - 0.1)
 
     f2 = S.analysis_of_variance_minimum_detectable_effect(N * 2, K, power=power)
     assert torch.all(f2 <= f + 1e-6)
 
-    out = torch.empty_like(N)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.analysis_of_variance_minimum_detectable_effect(N, K, power=power, out=out)
     assert torch.allclose(out, out_r)
 

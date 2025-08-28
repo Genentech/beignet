@@ -18,7 +18,7 @@ def test_chi_square_independence_mde(n, rows, cols, power, dtype):
     r = torch.tensor(rows, dtype=dtype)
     c = torch.tensor(cols, dtype=dtype)
     w = S.chi_square_independence_minimum_detectable_effect(n, r, c, power=power)
-    assert w.shape == n.shape and w.dtype == dtype
+    assert w.shape == torch.Size([1]) and w.dtype == dtype
     p = S.chi_square_independence_power(w, n, r, c)
     assert torch.all(p >= torch.tensor(power, dtype=dtype) - 0.1)
 
@@ -26,9 +26,13 @@ def test_chi_square_independence_mde(n, rows, cols, power, dtype):
     w2 = S.chi_square_independence_minimum_detectable_effect(n2, r, c, power=power)
     assert torch.all(w2 <= w + 1e-5)
 
-    out = torch.empty_like(n)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.chi_square_independence_minimum_detectable_effect(
-        n, r, c, power=power, out=out
+        n,
+        r,
+        c,
+        power=power,
+        out=out,
     )
     assert torch.allclose(out, out_r)
 

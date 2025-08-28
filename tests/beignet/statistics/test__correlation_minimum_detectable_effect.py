@@ -14,9 +14,12 @@ import beignet.statistics as S
 def test_correlation_mde(n, power, dtype):
     n = torch.tensor(n, dtype=dtype)
     r = S.correlation_minimum_detectable_effect(
-        n, power=power, alpha=0.05, alternative="two-sided"
+        n,
+        power=power,
+        alpha=0.05,
+        alternative="two-sided",
     )
-    assert r.shape == n.shape and r.dtype == dtype
+    assert r.shape == torch.Size([1]) and r.dtype == dtype
     # Plug back to power
     p = S.correlation_power(r, n, alpha=0.05, alternative="two-sided")
     assert torch.all(p >= torch.tensor(power, dtype=dtype) - 0.05)
@@ -25,7 +28,7 @@ def test_correlation_mde(n, power, dtype):
     r2 = S.correlation_minimum_detectable_effect(n * 2, power=power)
     assert torch.all(r2 <= r + 1e-6)
 
-    out = torch.empty_like(n)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.correlation_minimum_detectable_effect(n, power=power, out=out)
     assert torch.allclose(out, out_r)
 

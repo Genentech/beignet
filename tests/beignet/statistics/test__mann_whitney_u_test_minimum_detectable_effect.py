@@ -16,22 +16,32 @@ import beignet.statistics as S
 def test_mann_whitney_mde(n1, ratio, power, alt, dtype):
     n1_t = torch.tensor(n1, dtype=dtype)
     auc = S.mann_whitney_u_test_minimum_detectable_effect(
-        n1_t, ratio=ratio, power=power, alternative=alt
+        n1_t,
+        ratio=ratio,
+        power=power,
+        alternative=alt,
     )
-    assert auc.shape == n1_t.shape and auc.dtype == dtype
+    assert auc.shape == torch.Size([1]) and auc.dtype == dtype
     n2_t = torch.ceil(n1_t * torch.tensor(ratio, dtype=dtype))
     p = S.mann_whitney_u_test_power(auc, n1_t, n2_t, alpha=0.05, alternative=alt)
     assert torch.all(p >= torch.tensor(power, dtype=dtype) - 0.1)
 
     auc2 = S.mann_whitney_u_test_minimum_detectable_effect(
-        n1_t * 2, ratio=ratio, power=power, alternative=alt
+        n1_t * 2,
+        ratio=ratio,
+        power=power,
+        alternative=alt,
     )
     # For two-sided and greater, auc decreases toward 0.5 as n increases; for less it also approaches 0.5
     assert torch.all(torch.abs(auc2 - 0.5) <= torch.abs(auc - 0.5) + 1e-6)
 
-    out = torch.empty_like(n1_t)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.mann_whitney_u_test_minimum_detectable_effect(
-        n1_t, ratio=ratio, power=power, alternative=alt, out=out
+        n1_t,
+        ratio=ratio,
+        power=power,
+        alternative=alt,
+        out=out,
     )
     assert torch.allclose(out, out_r)
 

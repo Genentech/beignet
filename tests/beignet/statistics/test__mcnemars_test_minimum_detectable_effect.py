@@ -17,9 +17,12 @@ def test_mcnemar_mde(n, d, power, two_sided, dtype):
     n = torch.tensor(n, dtype=dtype)
     d = torch.tensor(d, dtype=dtype)
     delta = S.mcnemars_test_minimum_detectable_effect(
-        d, n, power=power, two_sided=two_sided
+        d,
+        n,
+        power=power,
+        two_sided=two_sided,
     )
-    assert delta.shape == n.shape and delta.dtype == dtype
+    assert delta.shape == torch.Size([1]) and delta.dtype == dtype
     # Construct p01, p10 achieving |p01-p10| = delta with total = d
     p01 = torch.clamp((d + delta) / 2.0, 0.0, 1.0)
     p10 = torch.clamp(d - p01, 0.0, 1.0)
@@ -33,13 +36,20 @@ def test_mcnemar_mde(n, d, power, two_sided, dtype):
 
     # Monotonic: larger n -> smaller delta
     delta2 = S.mcnemars_test_minimum_detectable_effect(
-        d, n * 2, power=power, two_sided=two_sided
+        d,
+        n * 2,
+        power=power,
+        two_sided=two_sided,
     )
     assert torch.all(delta2 <= delta + 1e-6)
 
-    out = torch.empty_like(n)
+    out = torch.empty(1, dtype=dtype)
     out_r = S.mcnemars_test_minimum_detectable_effect(
-        d, n, power=power, two_sided=two_sided, out=out
+        d,
+        n,
+        power=power,
+        two_sided=two_sided,
+        out=out,
     )
     assert torch.allclose(out, out_r)
 
