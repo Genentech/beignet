@@ -12,5 +12,6 @@ def multivariate_analysis_of_variance_sample_size(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.multivariate_analysis_of_variance_sample_size(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

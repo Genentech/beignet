@@ -12,5 +12,6 @@ def mann_whitney_u_test_minimum_detectable_effect(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.mann_whitney_u_test_minimum_detectable_effect(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

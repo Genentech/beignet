@@ -12,5 +12,6 @@ def analysis_of_variance_minimum_detectable_effect(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.analysis_of_variance_minimum_detectable_effect(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

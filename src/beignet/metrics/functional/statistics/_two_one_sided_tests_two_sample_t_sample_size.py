@@ -12,5 +12,6 @@ def two_one_sided_tests_two_sample_t_sample_size(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.two_one_sided_tests_two_sample_t_sample_size(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

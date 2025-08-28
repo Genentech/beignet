@@ -12,5 +12,6 @@ def repeated_measures_analysis_of_variance_power(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.repeated_measures_analysis_of_variance_power(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

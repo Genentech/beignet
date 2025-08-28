@@ -12,5 +12,6 @@ def wilcoxon_signed_rank_test_minimum_detectable_effect(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.wilcoxon_signed_rank_test_minimum_detectable_effect(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

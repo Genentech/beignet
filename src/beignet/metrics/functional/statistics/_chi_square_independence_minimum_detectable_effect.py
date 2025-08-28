@@ -12,5 +12,6 @@ def chi_square_independence_minimum_detectable_effect(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.chi_square_independence_minimum_detectable_effect(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )

@@ -12,5 +12,6 @@ def multivariable_linear_regression_sample_size(*args, **kwargs):
     Parameters and return values match the underlying statistics function.
     """
     return beignet.statistics.multivariable_linear_regression_sample_size(
-        *args, **kwargs
+        *args,
+        **kwargs,
     )
