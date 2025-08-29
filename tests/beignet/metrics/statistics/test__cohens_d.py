@@ -156,4 +156,8 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
     result_different = metric_different.compute()
 
     # Basic sanity check - output should be finite, NaN, or inf (for edge cases)
-    assert torch.all(torch.isfinite(result_different) | torch.isnan(result_different) | torch.isinf(result_different))
+    assert torch.all(
+        torch.isfinite(result_different)
+        | torch.isnan(result_different)
+        | torch.isinf(result_different),
+    )

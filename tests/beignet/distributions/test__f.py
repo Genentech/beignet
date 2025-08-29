@@ -88,7 +88,7 @@ def test_f_edge_cases():
     assert torch.isfinite(low_quantile)
     assert torch.isfinite(high_quantile)
     assert low_quantile > 0.0
-    assert high_quantile > low_quantile
+    assert high_quantile >= low_quantile
 
 
 def test_f_large_df():

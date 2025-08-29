@@ -16,10 +16,20 @@ import beignet.metrics.statistics
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
-def test_independent_t_test_sample_size(batch_size, effect_size, power, alpha, ratio, dtype):
+def test_independent_t_test_sample_size(
+    batch_size,
+    effect_size,
+    power,
+    alpha,
+    ratio,
+    dtype,
+):
     """Test IndependentTTestSampleSize TorchMetrics class."""
     # IndependentTTestSampleSize constructor accepts power parameter
-    metric = beignet.metrics.statistics.IndependentTTestSampleSize(power=power, alpha=alpha)
+    metric = beignet.metrics.statistics.IndependentTTestSampleSize(
+        power=power,
+        alpha=alpha,
+    )
     assert isinstance(metric, Metric)
 
     # IndependentTTestSampleSize.update expects (effect_size, ratio) optionally
@@ -38,12 +48,18 @@ def test_independent_t_test_sample_size(batch_size, effect_size, power, alpha, r
 
     # Small effect should require larger sample size
     small_effect = torch.full((batch_size,), 0.1, dtype=dtype)
-    metric_small = beignet.metrics.statistics.IndependentTTestSampleSize(power=power, alpha=alpha)
+    metric_small = beignet.metrics.statistics.IndependentTTestSampleSize(
+        power=power,
+        alpha=alpha,
+    )
     metric_small.update(small_effect, ratio_tensor)
     size_small = metric_small.compute()
 
     large_effect = torch.full((batch_size,), 1.5, dtype=dtype)
-    metric_large = beignet.metrics.statistics.IndependentTTestSampleSize(power=power, alpha=alpha)
+    metric_large = beignet.metrics.statistics.IndependentTTestSampleSize(
+        power=power,
+        alpha=alpha,
+    )
     metric_large.update(large_effect, ratio_tensor)
     size_large = metric_large.compute()
 

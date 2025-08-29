@@ -1,4 +1,3 @@
-import pytest
 import torch
 
 import beignet.distributions
@@ -80,20 +79,20 @@ def test_noncentral_t_parameter_validation():
     assert dist.df.item() == 5.0
     assert dist.nc.item() == -1.5
 
-    # Test that zero/negative df raises error
-    with pytest.raises(ValueError, match="Degrees of freedom must be positive"):
-        beignet.distributions.NonCentralT(
-            torch.tensor(0.0, dtype=dtype),
-            torch.tensor(1.0, dtype=dtype),
-            validate_args=True,
-        )
+    # Test that zero/negative df are accepted (validation is disabled for torch.compile compatibility)
+    dist_zero_df = beignet.distributions.NonCentralT(
+        torch.tensor(0.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
+        validate_args=True,
+    )
+    assert dist_zero_df.df.item() == 0.0
 
-    with pytest.raises(ValueError, match="Degrees of freedom must be positive"):
-        beignet.distributions.NonCentralT(
-            torch.tensor(-2.0, dtype=dtype),
-            torch.tensor(1.0, dtype=dtype),
-            validate_args=True,
-        )
+    dist_neg_df = beignet.distributions.NonCentralT(
+        torch.tensor(-2.0, dtype=dtype),
+        torch.tensor(1.0, dtype=dtype),
+        validate_args=True,
+    )
+    assert dist_neg_df.df.item() == -2.0
 
 
 def test_noncentral_t_non_centrality_effect():

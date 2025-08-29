@@ -18,8 +18,15 @@ def test_phi_coefficient(batch_size, dtype):
     assert isinstance(metric, Metric)
 
     # Create chi-square values and sample sizes (PhiCoefficient expects these directly)
-    chi_square = torch.rand(batch_size, dtype=dtype) * 10.0  # Random chi-square values 0-10
-    sample_size = torch.randint(50, 200, (batch_size,), dtype=dtype)  # Random sample sizes 50-200
+    chi_square = (
+        torch.rand(batch_size, dtype=dtype) * 10.0
+    )  # Random chi-square values 0-10
+    sample_size = torch.randint(
+        50,
+        200,
+        (batch_size,),
+        dtype=dtype,
+    )  # Random sample sizes 50-200
 
     metric.update(chi_square, sample_size)
     output = metric.compute()

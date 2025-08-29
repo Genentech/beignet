@@ -139,9 +139,20 @@ def test_t_test_power_metric(n1, n2, dtype):
     group1 = torch.randn(n1, dtype=dtype)
     group2 = torch.randn(n2, dtype=dtype) + 0.5  # Medium effect size
 
+    # Compute effect size and sample size from groups
+    effect_size = beignet.statistics.cohens_d(
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=True,
+    ).squeeze()
+    sample_size = torch.tensor(
+        2 * len(group1) * len(group2) / (len(group1) + len(group2)),
+        dtype=dtype,
+    )
+
     # Test basic functionality
     metric = TTestPower(alpha=0.05, alternative="two-sided")
-    metric.update(group1, group2)
+    metric.update(effect_size, sample_size)
     result = metric.compute()
 
     assert isinstance(result, torch.Tensor)
@@ -150,11 +161,11 @@ def test_t_test_power_metric(n1, n2, dtype):
 
     # Test different alternatives
     metric_greater = TTestPower(alternative="greater")
-    metric_greater.update(group1, group2)
+    metric_greater.update(effect_size, sample_size)
     power_greater = metric_greater.compute()
 
     metric_less = TTestPower(alternative="less")
-    metric_less.update(group1, group2)
+    metric_less.update(effect_size, sample_size)
     power_less = metric_less.compute()
 
     assert 0 <= power_greater <= 1
@@ -162,7 +173,7 @@ def test_t_test_power_metric(n1, n2, dtype):
 
     # Test different alpha levels
     metric_strict = TTestPower(alpha=0.01)
-    metric_strict.update(group1, group2)
+    metric_strict.update(effect_size, sample_size)
     power_strict = metric_strict.compute()
 
     # Stricter alpha should generally give lower power
@@ -210,9 +221,17 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
         torch.randn(n2, dtype=dtype) + 0.6
     )  # Add moderate effect for stable results
 
+    # Compute effect size from groups
+    effect_size = beignet.statistics.cohens_d(
+        group1.unsqueeze(0),
+        group2.unsqueeze(0),
+        pooled=True,
+    ).squeeze()
+    power = torch.tensor(0.8, dtype=dtype)
+
     # Test basic functionality
     metric = TTestSampleSize(power=0.8, alpha=0.05, alternative="two-sided")
-    metric.update(group1, group2)
+    metric.update(effect_size, power)
     result = metric.compute()
 
     assert isinstance(result, torch.Tensor)
@@ -222,8 +241,9 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
     assert result == torch.ceil(result)  # Should be integer
 
     # Test different power levels
+    power_high = torch.tensor(0.9, dtype=dtype)
     metric_high_power = TTestSampleSize(power=0.9)
-    metric_high_power.update(group1, group2)
+    metric_high_power.update(effect_size, power_high)
     result_high_power = metric_high_power.compute()
 
     # Higher power should require larger sample size
@@ -231,7 +251,7 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
 
     # Test different alpha levels
     metric_strict = TTestSampleSize(alpha=0.01)
-    metric_strict.update(group1, group2)
+    metric_strict.update(effect_size, power)
     result_strict = metric_strict.compute()
 
     # Stricter alpha should require larger sample size
@@ -239,11 +259,11 @@ def test_t_test_sample_size_metric(n1, n2, dtype):
 
     # Test one-sided test
     metric_one_sided = TTestSampleSize(alternative="greater")
-    metric_one_sided.update(group1, group2)
+    metric_one_sided.update(effect_size, power)
     result_one_sided = metric_one_sided.compute()
 
     # One-sided test should require smaller or equal sample size
-    assert result_one_sided <= result + 5  # Allow some tolerance
+    assert result_one_sided.item() <= result.item() + 5  # Allow some tolerance
 
     # Test reset functionality
     metric.reset()
@@ -333,17 +353,18 @@ def test_metric_consistency():
     assert torch.allclose(metric_hedges, direct_hedges.squeeze(), atol=1e-6)
 
     # Test power calculation consistency
-    power_metric = TTestPower(alpha=0.05, alternative="two-sided")
-    power_metric.update(group1, group2)
-    metric_power = power_metric.compute()
-
-    # Manual calculation
     effect_size = beignet.statistics.cohens_d(
         group1.unsqueeze(0),
         group2.unsqueeze(0),
         pooled=True,
     )
     sample_size = torch.tensor(25.0, dtype=torch.float32)
+
+    power_metric = TTestPower(alpha=0.05, alternative="two-sided")
+    power_metric.update(effect_size.squeeze(), sample_size)
+    metric_power = power_metric.compute()
+
+    # Manual calculation
     direct_power = beignet.statistics.t_test_power(
         effect_size.squeeze(),
         sample_size,
@@ -353,8 +374,9 @@ def test_metric_consistency():
     assert torch.allclose(metric_power, direct_power, atol=1e-6)
 
     # Test sample size calculation consistency
+    power_value = torch.tensor(0.8, dtype=torch.float32)
     sample_size_metric = TTestSampleSize(power=0.8, alpha=0.05, alternative="two-sided")
-    sample_size_metric.update(group1, group2)
+    sample_size_metric.update(effect_size.squeeze(), power_value)
     metric_n = sample_size_metric.compute()
 
     # Manual calculation
