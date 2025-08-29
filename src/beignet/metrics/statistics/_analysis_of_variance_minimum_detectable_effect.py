@@ -157,7 +157,11 @@ class AnalysisOfVarianceMinimumDetectableEffect(Metric):
 
             # Add reference lines for effect sizes
             ax.axhline(
-                y=0.25, color="gray", linestyle="--", alpha=0.5, label="f = 0.25"
+                y=0.25,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="f = 0.25",
             )
             ax.axhline(y=0.40, color="gray", linestyle=":", alpha=0.5, label="f = 0.40")
 

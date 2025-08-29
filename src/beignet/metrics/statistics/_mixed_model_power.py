@@ -52,7 +52,9 @@ class MixedModelPower(Metric):
         self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
         self.add_state("cluster_size_values", default=[], dist_reduce_fx="cat")
         self.add_state(
-            "intraclass_correlation_values", default=[], dist_reduce_fx="cat"
+            "intraclass_correlation_values",
+            default=[],
+            dist_reduce_fx="cat",
         )
 
     def update(
@@ -187,10 +189,18 @@ class MixedModelPower(Metric):
 
             # Add reference lines
             ax.axhline(
-                y=0.8, color="gray", linestyle="--", alpha=0.5, label="Power = 0.8"
+                y=0.8,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Power = 0.8",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle=":", alpha=0.5, label="Power = 0.5"
+                y=0.5,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Power = 0.5",
             )
 
             ax.set_xlabel("Effect Size")

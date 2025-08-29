@@ -189,10 +189,18 @@ class LogisticRegressionPower(Metric):
 
             # Add reference lines
             ax.axhline(
-                y=0.8, color="gray", linestyle="--", alpha=0.5, label="Power = 0.8"
+                y=0.8,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Power = 0.8",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle=":", alpha=0.5, label="Power = 0.5"
+                y=0.5,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Power = 0.5",
             )
 
             ax.set_xlabel("Odds Ratio")

@@ -157,10 +157,18 @@ class McnemarsTestMinimumDetectableEffect(Metric):
 
             # Add reference lines
             ax.axhline(
-                y=0.1, color="gray", linestyle="--", alpha=0.5, label="Effect = 0.1"
+                y=0.1,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Effect = 0.1",
             )
             ax.axhline(
-                y=0.05, color="gray", linestyle=":", alpha=0.5, label="Effect = 0.05"
+                y=0.05,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Effect = 0.05",
             )
 
             ax.set_xlabel("Sample Size")

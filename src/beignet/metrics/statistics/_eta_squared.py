@@ -35,7 +35,9 @@ class EtaSquared(Metric):
         self.add_state("ss_total_values", default=[], dist_reduce_fx="cat")
 
     def update(
-        self, sum_of_squares_between: Tensor, sum_of_squares_total: Tensor
+        self,
+        sum_of_squares_between: Tensor,
+        sum_of_squares_total: Tensor,
     ) -> None:
         """
         Update the metric state with sum of squares values.

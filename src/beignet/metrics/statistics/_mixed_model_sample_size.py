@@ -56,7 +56,9 @@ class MixedModelSampleSize(Metric):
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
         self.add_state("cluster_size_values", default=[], dist_reduce_fx="cat")
         self.add_state(
-            "intraclass_correlation_values", default=[], dist_reduce_fx="cat"
+            "intraclass_correlation_values",
+            default=[],
+            dist_reduce_fx="cat",
         )
 
     def update(

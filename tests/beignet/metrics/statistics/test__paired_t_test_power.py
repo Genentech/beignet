@@ -41,7 +41,7 @@ def test_paired_t_test_power_metric(batch_size, dtype):
 
     # Verify results are close (TorchMetrics may squeeze single-element tensors to scalars)
     if result_functional.shape == torch.Size([1]) and result_metric.shape == torch.Size(
-        []
+        [],
     ):
         assert torch.allclose(result_metric, result_functional.squeeze(), atol=1e-6)
     else:

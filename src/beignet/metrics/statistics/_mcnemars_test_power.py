@@ -171,7 +171,11 @@ class McnemarsTestPower(Metric):
             )
 
             ax.axhline(
-                y=0.8, color="gray", linestyle="--", alpha=0.5, label="Power = 0.8"
+                y=0.8,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Power = 0.8",
             )
             ax.set_xlabel("Odds Ratio")
             ax.set_ylabel("Statistical Power")

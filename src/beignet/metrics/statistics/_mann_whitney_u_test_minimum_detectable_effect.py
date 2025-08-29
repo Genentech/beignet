@@ -185,10 +185,18 @@ class MannWhitneyUTestMinimumDetectableEffect(Metric):
 
             # Add reference lines
             ax.axhline(
-                y=0.5, color="gray", linestyle="--", alpha=0.5, label="Medium Effect"
+                y=0.5,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium Effect",
             )
             ax.axhline(
-                y=0.8, color="gray", linestyle=":", alpha=0.5, label="Large Effect"
+                y=0.8,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Large Effect",
             )
 
             ax.set_xlabel("Sample Size (per group)")

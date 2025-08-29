@@ -157,13 +157,25 @@ class CorrelationMinimumDetectableEffect(Metric):
 
             # Add reference lines for correlation effect sizes
             ax.axhline(
-                y=0.1, color="gray", linestyle="--", alpha=0.5, label="Small (r = 0.1)"
+                y=0.1,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Small (r = 0.1)",
             )
             ax.axhline(
-                y=0.3, color="gray", linestyle=":", alpha=0.5, label="Medium (r = 0.3)"
+                y=0.3,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Medium (r = 0.3)",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle="-", alpha=0.5, label="Large (r = 0.5)"
+                y=0.5,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (r = 0.5)",
             )
 
             ax.set_xlabel("Sample Size")

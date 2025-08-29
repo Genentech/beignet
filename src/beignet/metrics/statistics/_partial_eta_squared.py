@@ -35,7 +35,9 @@ class PartialEtaSquared(Metric):
         self.add_state("ss_error_values", default=[], dist_reduce_fx="cat")
 
     def update(
-        self, sum_of_squares_effect: Tensor, sum_of_squares_error: Tensor
+        self,
+        sum_of_squares_effect: Tensor,
+        sum_of_squares_error: Tensor,
     ) -> None:
         """
         Update the metric state with sum of squares values.
