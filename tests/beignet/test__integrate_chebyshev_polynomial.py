@@ -90,7 +90,7 @@ def test_integrate_chebyshev_polynomial():
                         order=1,
                         k=[i],
                         scale=2,
-                    )
+                    ),
                 ),
                 tol=0.000001,
             ),

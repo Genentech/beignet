@@ -112,12 +112,12 @@ class CohensF(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         if not self.group_means_list or not self.pooled_std_list:
             raise RuntimeError(
-                "No samples have been added to the metric. Call update() first."
+                "No samples have been added to the metric. Call update() first.",
             )
 
         # Get the accumulated data
@@ -182,13 +182,25 @@ class CohensF(Metric):
 
             # Add reference lines for effect size thresholds
             ax.axhline(
-                y=0.1, color="gray", linestyle=":", alpha=0.5, label="Small (0.1)"
+                y=0.1,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Small (0.1)",
             )
             ax.axhline(
-                y=0.25, color="gray", linestyle="--", alpha=0.5, label="Medium (0.25)"
+                y=0.25,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium (0.25)",
             )
             ax.axhline(
-                y=0.4, color="gray", linestyle="-", alpha=0.5, label="Large (0.4)"
+                y=0.4,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (0.4)",
             )
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.3)
 
@@ -199,7 +211,7 @@ class CohensF(Metric):
                 title = f"Effect Size: Cohen's f = {float(effect_size):.3f}"
         else:
             raise ValueError(
-                f"plot_type must be 'means' or 'effect_size', got {plot_type}"
+                f"plot_type must be 'means' or 'effect_size', got {plot_type}",
             )
 
         ax.set_title(title)

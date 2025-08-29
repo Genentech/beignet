@@ -49,7 +49,7 @@ def chebyshev_polynomial_from_roots(input: Tensor) -> Tensor:
                         b.shape[0] - a.shape[0],
                         dtype=a.dtype,
                     ),
-                ]
+                ],
             )
 
             y = b + y

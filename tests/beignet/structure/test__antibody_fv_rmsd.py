@@ -18,7 +18,9 @@ def test_antibody_fv_rmsd(structure_7k7r_pdb):
     p_T = dataclasses.replace(
         p,
         atom_thin_xyz=swap_symmetric_atom_thin_atoms(
-            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
+            p.residue_type,
+            T(p.atom_thin_xyz),
+            p.atom_thin_mask,
         )[0],
     )
 

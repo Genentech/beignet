@@ -51,7 +51,7 @@ def radius(
             torch.chunk(batch_y, n_chunks),
             torch.chunk(torch.arange(M, device=x.device), n_chunks),
             strict=False,
-        )
+        ),
     ):
         # [M_chunk, N]
         pdist = (y_chunk[:, None] - x[None]).pow(2).sum(dim=-1)
@@ -81,5 +81,11 @@ def radius_graph(
     loop: bool = False,
 ) -> Tensor:
     return radius(
-        x, x, r, batch, batch, ignore_same_index=not loop, chunk_size=chunk_size
+        x,
+        x,
+        r,
+        batch,
+        batch,
+        ignore_same_index=not loop,
+        chunk_size=chunk_size,
     )

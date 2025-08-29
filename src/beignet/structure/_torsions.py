@@ -18,18 +18,18 @@ from beignet.constants import (
 CHI_ANGLES_ATOMS = {
     "ALA": [],
     # Chi5 in arginine is always 0 +- 5 degrees, so ignore it.
-    "ARG": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "NE"], ["CG", "CD", "NE", "CZ"], ],
+    "ARG": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "NE"], ["CG", "CD", "NE", "CZ"] ],
     "ASN": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "OD1"]],
     "ASP": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "OD1"]],
     "CYS": [["N", "CA", "CB", "SG"]], # skip chi2: ["CA", "CB", "SG", "HG"]
-    "GLN": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "OE1"], ],
-    "GLU": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "OE1"], ],
+    "GLN": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "OE1"] ],
+    "GLU": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "OE1"] ],
     "GLY": [],
     "HIS": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "ND1"]],
     "ILE": [["N", "CA", "CB", "CG1"], ["CA", "CB", "CG1", "CD1"]],
     "LEU": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD1"]],
-    "LYS": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "CE"], ["CG", "CD", "CE", "NZ"], ],
-    "MET": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "SD"], ["CB", "CG", "SD", "CE"], ],
+    "LYS": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"], ["CB", "CG", "CD", "CE"], ["CG", "CD", "CE", "NZ"] ],
+    "MET": [ ["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "SD"], ["CB", "CG", "SD", "CE"] ],
     "PHE": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD1"]],
     "PRO": [["N", "CA", "CB", "CG"], ["CA", "CB", "CG", "CD"]],
     "SER": [["N", "CA", "CB", "OG"], ["CA", "CB", "OG", "HG"]],
@@ -126,14 +126,18 @@ def atom_thin_to_oxygen_torsion(
 
 
 def atom_thin_to_chi_torsion(
-    atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor, chi_index: int
+    atom_thin_xyz: Tensor,
+    atom_thin_mask: Tensor,
+    residue_type: Tensor,
+    chi_index: int,
 ) -> tuple[Tensor, Tensor]:
     if not 0 <= chi_index < 4:
         raise ValueError(f"{chi_index=} must be between 0 and 3")
     device = residue_type.device
 
     chi_angles_mask = (torch.as_tensor(CHI_ANGLES_MASK, device=device) == 1.0)[
-        residue_type, chi_index
+        residue_type,
+        chi_index,
     ]
 
     chi_angles_atom_indices = make_chi_angle_atom_indices_tensor().to(device)
@@ -153,25 +157,40 @@ def atom_thin_to_chi_torsion(
 
 
 def atom_thin_to_torsions(
-    atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor
+    atom_thin_xyz: Tensor,
+    atom_thin_mask: Tensor,
+    residue_type: Tensor,
 ) -> tuple[Tensor, Tensor]:
     psi_o, psi_o_mask = atom_thin_to_oxygen_torsion(atom_thin_xyz, atom_thin_mask)
     chi1, chi1_mask = atom_thin_to_chi_torsion(
-        atom_thin_xyz, atom_thin_mask, residue_type, 0
+        atom_thin_xyz,
+        atom_thin_mask,
+        residue_type,
+        0,
     )
     chi2, chi2_mask = atom_thin_to_chi_torsion(
-        atom_thin_xyz, atom_thin_mask, residue_type, 1
+        atom_thin_xyz,
+        atom_thin_mask,
+        residue_type,
+        1,
     )
     chi3, chi3_mask = atom_thin_to_chi_torsion(
-        atom_thin_xyz, atom_thin_mask, residue_type, 2
+        atom_thin_xyz,
+        atom_thin_mask,
+        residue_type,
+        2,
     )
     chi4, chi4_mask = atom_thin_to_chi_torsion(
-        atom_thin_xyz, atom_thin_mask, residue_type, 3
+        atom_thin_xyz,
+        atom_thin_mask,
+        residue_type,
+        3,
     )
 
     torsion = torch.stack([psi_o, chi1, chi2, chi3, chi4], dim=-1)
     torsion_mask = torch.stack(
-        [psi_o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask], dim=-1
+        [psi_o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask],
+        dim=-1,
     )
 
     return torsion, torsion_mask

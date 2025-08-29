@@ -141,12 +141,12 @@ class HedgesG(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         if not self.group1_samples or not self.group2_samples:
             raise RuntimeError(
-                "No samples have been added to the metric. Call update() first."
+                "No samples have been added to the metric. Call update() first.",
             )
 
         # Get the accumulated data
@@ -219,13 +219,25 @@ class HedgesG(Metric):
 
             # Add reference lines for effect size thresholds
             ax.axhline(
-                y=0.2, color="gray", linestyle=":", alpha=0.5, label="Small (0.2)"
+                y=0.2,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Small (0.2)",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle="--", alpha=0.5, label="Medium (0.5)"
+                y=0.5,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium (0.5)",
             )
             ax.axhline(
-                y=0.8, color="gray", linestyle="-", alpha=0.5, label="Large (0.8)"
+                y=0.8,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (0.8)",
             )
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.3)
 
@@ -236,7 +248,7 @@ class HedgesG(Metric):
                 title = f"Effect Size: Hedges' g = {float(effect_size):.3f}"
         else:
             raise ValueError(
-                f"plot_type must be 'distribution' or 'effect_size', got {plot_type}"
+                f"plot_type must be 'distribution' or 'effect_size', got {plot_type}",
             )
 
         ax.set_title(title)

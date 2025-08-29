@@ -24,7 +24,11 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Test basic functionality - two-sided test
     result = beignet.statistics.proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8, alpha=0.05, alternative="two-sided"
+        p1_values,
+        p2_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert result.shape == p1_values.shape
     assert result.dtype == dtype
@@ -33,10 +37,18 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Test one-sided tests
     result_greater = beignet.statistics.proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8, alpha=0.05, alternative="greater"
+        p1_values,
+        p2_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="greater",
     )
     result_less = beignet.statistics.proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8, alpha=0.05, alternative="less"
+        p1_values,
+        p2_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="less",
     )
 
     assert torch.all(result_greater >= 1.0)
@@ -48,34 +60,51 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Test with different ratios
     result_ratio_2 = beignet.statistics.proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8, alpha=0.05, ratio=2.0
+        p1_values,
+        p2_values,
+        power=0.8,
+        alpha=0.05,
+        ratio=2.0,
     )
     assert torch.all(result_ratio_2 >= 1.0)
 
     # Test with out parameter
     out = torch.empty_like(p1_values)
     result_out = beignet.statistics.proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8, alpha=0.05, alternative="two-sided", out=out
+        p1_values,
+        p2_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
 
     # Test sample size decreases with effect size
     small_effect = beignet.statistics.proportion_two_sample_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.51, dtype=dtype), power=0.8
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.51, dtype=dtype),
+        power=0.8,
     )
     large_effect = beignet.statistics.proportion_two_sample_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.8
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.8,
     )
 
     assert large_effect < small_effect
 
     # Test sample size increases with power
     low_power = beignet.statistics.proportion_two_sample_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.5
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.5,
     )
     high_power = beignet.statistics.proportion_two_sample_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.9
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.9,
     )
 
     assert high_power > low_power
@@ -84,7 +113,9 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
     p1_grad = p1_values.clone().requires_grad_(True)
     p2_grad = p2_values.clone().requires_grad_(True)
     result_grad = beignet.statistics.proportion_two_sample_sample_size(
-        p1_grad, p2_grad, power=0.8
+        p1_grad,
+        p2_grad,
+        power=0.8,
     )
 
     # Compute gradients
@@ -96,10 +127,13 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_proportion_two_sample_sample_size = torch.compile(
-        beignet.statistics.proportion_two_sample_sample_size, fullgraph=True
+        beignet.statistics.proportion_two_sample_sample_size,
+        fullgraph=True,
     )
     result_compiled = compiled_proportion_two_sample_sample_size(
-        p1_values, p2_values, power=0.8
+        p1_values,
+        p2_values,
+        power=0.8,
     )
     assert torch.allclose(result, result_compiled, atol=1e-5)
 
@@ -119,7 +153,11 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
     p1_known = torch.tensor(0.5, dtype=dtype)
     p2_known = torch.tensor(0.6, dtype=dtype)
     n = beignet.statistics.proportion_two_sample_sample_size(
-        p1_known, p2_known, power=0.8, alpha=0.05, alternative="two-sided"
+        p1_known,
+        p2_known,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should be somewhere between 200 and 800 for these parameters
@@ -127,7 +165,9 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # For large effect (0.5 vs 0.8), sample size should be smaller
     large_effect_n = beignet.statistics.proportion_two_sample_sample_size(
-        p1_known, torch.tensor(0.8, dtype=dtype), power=0.8
+        p1_known,
+        torch.tensor(0.8, dtype=dtype),
+        power=0.8,
     )
     assert large_effect_n < n
 
@@ -140,13 +180,20 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Calculate required sample size
     n1 = beignet.statistics.proportion_two_sample_sample_size(
-        p1_consistent, p2_consistent, power=target_power, alpha=alpha
+        p1_consistent,
+        p2_consistent,
+        power=target_power,
+        alpha=alpha,
     )
     n2 = n1  # Equal sample sizes
 
     # Calculate power with that sample size
     actual_power = beignet.statistics.proportion_two_sample_power(
-        p1_consistent, p2_consistent, n1, n2, alpha=alpha
+        p1_consistent,
+        p2_consistent,
+        n1,
+        n2,
+        alpha=alpha,
     )
 
     # Should be close to target power (within tolerance for rounding)
@@ -158,12 +205,18 @@ def test_proportion_two_sample_sample_size(batch_size, dtype):
 
     # Equal sample sizes (ratio = 1.0)
     n1_equal = beignet.statistics.proportion_two_sample_sample_size(
-        p1_ratio, p2_ratio, power=0.8, ratio=1.0
+        p1_ratio,
+        p2_ratio,
+        power=0.8,
+        ratio=1.0,
     )
 
     # Unequal sample sizes (ratio = 2.0, so n2 = 2*n1)
     n1_unequal = beignet.statistics.proportion_two_sample_sample_size(
-        p1_ratio, p2_ratio, power=0.8, ratio=2.0
+        p1_ratio,
+        p2_ratio,
+        power=0.8,
+        ratio=2.0,
     )
 
     # With more subjects in group 2, we should need fewer in group 1

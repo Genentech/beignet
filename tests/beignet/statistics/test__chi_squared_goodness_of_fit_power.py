@@ -33,10 +33,16 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
 
     # Test with different alpha levels
     power_01 = chi_square_goodness_of_fit_power(
-        effect_size, sample_size, df, alpha=0.01
+        effect_size,
+        sample_size,
+        df,
+        alpha=0.01,
     )
     power_05 = chi_square_goodness_of_fit_power(
-        effect_size, sample_size, df, alpha=0.05
+        effect_size,
+        sample_size,
+        df,
+        alpha=0.05,
     )
 
     # Lower alpha should give lower power (stricter test)
@@ -46,7 +52,10 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     # Zero effect size should give power close to alpha
     zero_effect = torch.zeros_like(effect_size)
     power_zero = chi_square_goodness_of_fit_power(
-        zero_effect, sample_size, df, alpha=0.05
+        zero_effect,
+        sample_size,
+        df,
+        alpha=0.05,
     )
     assert torch.all(power_zero <= 0.1)  # Should be close to alpha
 
@@ -54,7 +63,10 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     large_effect = torch.ones_like(effect_size)
     large_sample = torch.ones_like(sample_size) * 1000
     power_large = chi_square_goodness_of_fit_power(
-        large_effect, large_sample, df, alpha=0.05
+        large_effect,
+        large_sample,
+        df,
+        alpha=0.05,
     )
     assert torch.all(power_large >= 0.9)
 
@@ -62,10 +74,16 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     small_effect = effect_size * 0.5
     large_effect = effect_size * 2.0
     power_small = chi_square_goodness_of_fit_power(
-        small_effect, sample_size, df, alpha=0.05
+        small_effect,
+        sample_size,
+        df,
+        alpha=0.05,
     )
     power_large = chi_square_goodness_of_fit_power(
-        large_effect, sample_size, df, alpha=0.05
+        large_effect,
+        sample_size,
+        df,
+        alpha=0.05,
     )
     assert torch.all(power_large >= power_small)
 
@@ -73,10 +91,16 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     small_sample = sample_size * 0.5
     large_sample = sample_size * 2.0
     power_small = chi_square_goodness_of_fit_power(
-        effect_size, small_sample, df, alpha=0.05
+        effect_size,
+        small_sample,
+        df,
+        alpha=0.05,
     )
     power_large = chi_square_goodness_of_fit_power(
-        effect_size, large_sample, df, alpha=0.05
+        effect_size,
+        large_sample,
+        df,
+        alpha=0.05,
     )
     assert torch.all(power_large >= power_small)
 
@@ -106,17 +130,27 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     # Test torch.compile compatibility
     compiled_func = torch.compile(chi_square_goodness_of_fit_power, fullgraph=True)
     power_compiled = compiled_func(
-        effect_size.detach(), sample_size.detach(), df.detach(), alpha=0.05
+        effect_size.detach(),
+        sample_size.detach(),
+        df.detach(),
+        alpha=0.05,
     )
     power_regular = chi_square_goodness_of_fit_power(
-        effect_size.detach(), sample_size.detach(), df.detach(), alpha=0.05
+        effect_size.detach(),
+        sample_size.detach(),
+        df.detach(),
+        alpha=0.05,
     )
     assert torch.allclose(power_compiled, power_regular, rtol=1e-5)
 
     # Test with out parameter
     out = torch.empty_like(power)
     result = chi_square_goodness_of_fit_power(
-        effect_size.detach(), sample_size.detach(), df.detach(), alpha=0.05, out=out
+        effect_size.detach(),
+        sample_size.detach(),
+        df.detach(),
+        alpha=0.05,
+        out=out,
     )
     assert torch.allclose(out, power_regular, rtol=1e-5)
     assert result is out
@@ -153,7 +187,10 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
     # Statsmodels GofChisquarePower reference if available
     try:
         sm_power = statsmodels.stats.power.GofChisquarePower().solve_power(
-            effect_size=effect_size, nobs=sample_size, alpha=alpha, power=None
+            effect_size=effect_size,
+            nobs=sample_size,
+            alpha=alpha,
+            power=None,
         )
         assert abs(float(power_beignet) - sm_power) < 0.12
     except Exception:
@@ -168,7 +205,10 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
 
     for effect, n, df_val, alpha_val in test_cases:
         power_beignet = chi_square_goodness_of_fit_power(
-            torch.tensor(effect), torch.tensor(n), torch.tensor(df_val), alpha=alpha_val
+            torch.tensor(effect),
+            torch.tensor(n),
+            torch.tensor(df_val),
+            alpha=alpha_val,
         )
 
         ncp = n * effect**2
@@ -178,7 +218,10 @@ def test_chi_square_goodness_of_fit_power(batch_size: int, dtype: torch.dtype) -
         assert abs(float(power_beignet) - power_scipy) < 0.08
         try:
             sm_power = statsmodels.stats.power.GofChisquarePower().solve_power(
-                effect_size=effect, nobs=n, alpha=alpha_val, power=None
+                effect_size=effect,
+                nobs=n,
+                alpha=alpha_val,
+                power=None,
             )
             assert abs(float(power_beignet) - sm_power) < 0.12
         except Exception:

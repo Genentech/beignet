@@ -3,7 +3,10 @@ from torch import Tensor
 
 
 def identity_matrix(
-    d: int, size: tuple[int, ...] = (), dtype=None, device=None
+    d: int,
+    size: tuple[int, ...] = (),
+    dtype=None,
+    device=None,
 ) -> Tensor:
     """Return identity matrix.
 

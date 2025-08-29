@@ -31,5 +31,8 @@ def test_random_rotation_matrix(data):
 
     determinants = torch.det(rotation_matrices)
     torch.testing.assert_close(
-        determinants, torch.ones_like(determinants), atol=1e-5, rtol=1e-5
+        determinants,
+        torch.ones_like(determinants),
+        atol=1e-5,
+        rtol=1e-5,
     )

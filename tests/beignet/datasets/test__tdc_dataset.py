@@ -14,7 +14,7 @@ class TestTDCDataset:
             {
                 "x": [None, "A", "B"],
                 "y": [0, None, 2],
-            }
+            },
         )
 
         dataset = TDCDataset(
@@ -35,7 +35,8 @@ class TestTDCDataset:
             progressbar=True,
         )
         mock_read_csv.assert_called_once_with(
-            Path("./foo/bar") / "TDCDataset" / "TDCDataset.csv", sep=None
+            Path("./foo/bar") / "TDCDataset" / "TDCDataset.csv",
+            sep=None,
         )
         assert dataset._x_keys == ["x"]
         assert dataset._y_keys == ["y"]

@@ -36,7 +36,7 @@ def add_polynomial(input: Tensor, other: Tensor) -> Tensor:
 
     if input.ndim > 1 or other.ndim > 1:
         raise ValueError(
-            f"Inputs may not be more than 1D. Got inputs of shape {tuple(input.shape)} and {tuple(other.shape)}."
+            f"Inputs may not be more than 1D. Got inputs of shape {tuple(input.shape)} and {tuple(other.shape)}.",
         )
 
     dtype = torch.promote_types(input.dtype, other.dtype)
@@ -64,7 +64,7 @@ def add_polynomial(input: Tensor, other: Tensor) -> Tensor:
                     other.shape[0] - input.shape[0],
                     dtype=input.dtype,
                 ),
-            ]
+            ],
         )
 
         output = other + output

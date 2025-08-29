@@ -28,7 +28,7 @@ def _strategy(function):
                 "YZX",
                 "ZXY",
                 "ZYX",
-            ]
+            ],
         ),
     )
 

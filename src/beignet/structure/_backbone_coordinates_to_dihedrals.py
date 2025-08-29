@@ -15,12 +15,14 @@ def backbone_coordinates_to_dihedrals(
 
     if residue_index is None:
         residue_index = torch.arange(L).expand(
-            *backbone_coordinates.shape[:-3], -1
+            *backbone_coordinates.shape[:-3],
+            -1,
         )  # [..., L]
 
     if chain_id is None:
         chain_id = torch.zeros_like(
-            backbone_coordinates[..., :, 0, 0], dtype=torch.int64
+            backbone_coordinates[..., :, 0, 0],
+            dtype=torch.int64,
         )  # [..., L]
 
     chain_boundary_mask = torch.diff(chain_id, n=1, dim=-1) == 0
@@ -43,7 +45,7 @@ def backbone_coordinates_to_dihedrals(
                 bb_c_xyz[..., 1:, :],
             ],
             dim=-2,
-        )
+        ),
     )
     phi_mask = torch.stack(
         [
@@ -74,7 +76,7 @@ def backbone_coordinates_to_dihedrals(
                 bb_n_xyz[..., 1:, :],
             ],
             dim=-2,
-        )
+        ),
     )
 
     psi_mask = torch.stack(
@@ -103,7 +105,7 @@ def backbone_coordinates_to_dihedrals(
                 bb_ca_xyz[..., 1:, :],
             ],
             dim=-2,
-        )
+        ),
     )
 
     omega_mask = torch.stack(

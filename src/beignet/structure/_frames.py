@@ -68,10 +68,16 @@ def make_frame_to_xyz_tensors() -> tuple[Tensor, Tensor, Tensor]:
     MAX_N_ATOMS_PER_FRAME = max(v[1].shape[0] for _, v in frame_to_xyz.items())
     xyz = torch.zeros(N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, 3)
     mask = torch.zeros(
-        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.bool
+        N_RESIDUE_TYPES,
+        N_FRAMES,
+        MAX_N_ATOMS_PER_FRAME,
+        dtype=torch.bool,
     )
     atom_thin_index = torch.zeros(
-        N_RESIDUE_TYPES, N_FRAMES, MAX_N_ATOMS_PER_FRAME, dtype=torch.int64
+        N_RESIDUE_TYPES,
+        N_FRAMES,
+        MAX_N_ATOMS_PER_FRAME,
+        dtype=torch.int64,
     )
     for (i, j), (
         atom_names,
@@ -82,14 +88,16 @@ def make_frame_to_xyz_tensors() -> tuple[Tensor, Tensor, Tensor]:
         xyz[i, j, :n_atoms, :] = default_xyz
         mask[i, j, :n_atoms] = True
         atom_thin_index[i, j, :n_atoms] = torch.tensor(
-            [ATOM_THIN_ATOMS[resname].index(n) for n in atom_names]
+            [ATOM_THIN_ATOMS[resname].index(n) for n in atom_names],
         )
 
     return xyz, mask, atom_thin_index
 
 
 def atom_thin_to_backbone_frames(
-    atom_thin_xyz: Tensor, atom_thin_mask: Tensor, residue_type: Tensor
+    atom_thin_xyz: Tensor,
+    atom_thin_mask: Tensor,
+    residue_type: Tensor,
 ):
     # [20, 6, 8]
     default_xyz, default_mask, atom_thin_index = make_frame_to_xyz_tensors()
@@ -98,7 +106,9 @@ def atom_thin_to_backbone_frames(
     bb_atom_thin_index = atom_thin_index.to(residue_type.device)[residue_type, 0, :4]
 
     bb_xyz = torch.gather(
-        atom_thin_xyz, dim=-2, index=einops.repeat(bb_atom_thin_index, "... -> ... 3")
+        atom_thin_xyz,
+        dim=-2,
+        index=einops.repeat(bb_atom_thin_index, "... -> ... 3"),
     )
     mask = torch.gather(atom_thin_mask, dim=-1, index=bb_atom_thin_index)
 
@@ -151,13 +161,14 @@ def bbt_to_global_frames(
 ) -> tuple[Rigid, Tensor]:
     if default_frames is None:
         default_frames = make_bbt_rigid_group_default_frame().to(
-            dtype=bb_frames.t.dtype, device=bb_frames.t.device
+            dtype=bb_frames.t.dtype,
+            device=bb_frames.t.device,
         )
         default_frames = default_frames[residue_type]
 
     psi_o, chi1, chi2, chi3, chi4 = torsions.unbind(dim=-1)
     psi_o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask = torsions_mask.unbind(
-        dim=-1
+        dim=-1,
     )
 
     T_o_local = _rigid_rotation_x(psi_o)
@@ -173,7 +184,8 @@ def bbt_to_global_frames(
     chi4_mask = chi3_mask & chi4_mask
 
     otobb, chi1tobb, chi2tochi1, chi3tochi2, chi4tochi3 = torch.unbind(
-        default_frames, dim=-1
+        default_frames,
+        dim=-1,
     )
 
     T_o = bb_frames.compose(otobb).compose(T_o_local)
@@ -183,10 +195,12 @@ def bbt_to_global_frames(
     T_chi4 = T_chi3.compose(chi4tochi3).compose(T_chi4_local)
 
     global_frames = torch.stack(
-        [bb_frames, T_o, T_chi1, T_chi2, T_chi3, T_chi4], dim=-1
+        [bb_frames, T_o, T_chi1, T_chi2, T_chi3, T_chi4],
+        dim=-1,
     )
     global_frames_mask = torch.stack(
-        [bb_mask, o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask], dim=-1
+        [bb_mask, o_mask, chi1_mask, chi2_mask, chi3_mask, chi4_mask],
+        dim=-1,
     )
 
     return global_frames, global_frames_mask
@@ -231,17 +245,25 @@ def bbt_to_atom_thin(
     n_atom_thin = len(ATOM_THIN_ATOMS["ALA"])
 
     atom_thin_xyz = torch.zeros(
-        *residue_type.shape, n_atom_thin, 3, device=residue_type.device
+        *residue_type.shape,
+        n_atom_thin,
+        3,
+        device=residue_type.device,
     )
 
     atom_thin_mask = torch.zeros(
-        *residue_type.shape, n_atom_thin, device=residue_type.device, dtype=torch.bool
+        *residue_type.shape,
+        n_atom_thin,
+        device=residue_type.device,
+        dtype=torch.bool,
     )
 
     indices = torch.nonzero(xyz_mask, as_tuple=True)
 
     atom_thin_xyz = torch.index_put(
-        atom_thin_xyz, (*indices[:-2], atom_thin_index), xyz
+        atom_thin_xyz,
+        (*indices[:-2], atom_thin_index),
+        xyz,
     )
     atom_thin_mask = torch.index_put(
         atom_thin_mask,

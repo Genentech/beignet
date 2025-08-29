@@ -146,7 +146,7 @@ class CramersV(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         if (
@@ -155,7 +155,7 @@ class CramersV(Metric):
             or not self.min_dim_values
         ):
             raise RuntimeError(
-                "No values have been added to the metric. Call update() first."
+                "No values have been added to the metric. Call update() first.",
             )
 
         # Compute Cramer's V
@@ -187,13 +187,25 @@ class CramersV(Metric):
 
             # Add reference lines for effect size thresholds
             ax.axhline(
-                y=0.1, color="gray", linestyle=":", alpha=0.5, label="Small (0.1)"
+                y=0.1,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Small (0.1)",
             )
             ax.axhline(
-                y=0.3, color="gray", linestyle="--", alpha=0.5, label="Medium (0.3)"
+                y=0.3,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium (0.3)",
             )
             ax.axhline(
-                y=0.5, color="gray", linestyle="-", alpha=0.5, label="Large (0.5)"
+                y=0.5,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (0.5)",
             )
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.3)
 

@@ -38,10 +38,20 @@ class BenchIntegrateLegendrePolynomial:
 
     def time_integrate_legendre_polynomial(self, batch_size, dtype):
         self.func(
-            self.input, self.order, self.k, self.lower_bound, self.scale, self.axis
+            self.input,
+            self.order,
+            self.k,
+            self.lower_bound,
+            self.scale,
+            self.axis,
         )
 
     def peak_memory_integrate_legendre_polynomial(self, batch_size, dtype):
         self.func(
-            self.input, self.order, self.k, self.lower_bound, self.scale, self.axis
+            self.input,
+            self.order,
+            self.k,
+            self.lower_bound,
+            self.scale,
+            self.axis,
         )

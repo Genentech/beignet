@@ -99,14 +99,15 @@ def atom_array_to_atom_thin(
 
     # residue index of chain start for every residue
     chain_starts = biotite.structure.get_residue_positions(
-        array, biotite.structure.get_chain_starts_for(array, residue_starts)
+        array,
+        biotite.structure.get_chain_starts_for(array, residue_starts),
     )
 
     if use_label_seq_id:
         if "label_seq_id" not in array.get_annotation_categories():
             raise KeyError("label_seq_id not in annotations")
         label_seq_id = torch.from_numpy(
-            array.label_seq_id.astype(int)[residue_starts]
+            array.label_seq_id.astype(int)[residue_starts],
         ).to(device=device)
         residue_index = label_seq_id - 1  # adjust to zero based indexing
     else:
@@ -118,7 +119,8 @@ def atom_array_to_atom_thin(
         )
 
     chain_index = torch.tensor(
-        biotite.structure.get_chain_positions(array, residue_starts), device=device
+        biotite.structure.get_chain_positions(array, residue_starts),
+        device=device,
     )
 
     chain_id = chains[chain_index]
@@ -153,7 +155,7 @@ def atom_array_to_atom_thin(
             [
                 numpy.isin(array.atom_name, v) & (array.res_name == k)
                 for k, v in ATOM_THIN_ATOMS.items()
-            ]
+            ],
         ),
         axis=0,
     )
@@ -178,7 +180,8 @@ def atom_array_to_atom_thin(
 
     atom_thin_mask = torch.zeros(L, n_atom_thin, dtype=bool, device=device)
     atom_thin_mask.index_put_(
-        (residue_positions, atom_thin_idx), torch.tensor(True, device=device)
+        (residue_positions, atom_thin_idx),
+        torch.tensor(True, device=device),
     )
 
     if "b_factor" in array.get_annotation_categories():

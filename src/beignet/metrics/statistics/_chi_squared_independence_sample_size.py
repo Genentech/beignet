@@ -77,7 +77,7 @@ class ChiSquareIndependenceSampleSize(Metric):
         """Compute the required sample size."""
         if self.total == 0:
             raise RuntimeError("No values have been added to the metric.")
-            
+
         return chi_square_independence_sample_size(
             input=self.effect_size,
             rows=self.rows,

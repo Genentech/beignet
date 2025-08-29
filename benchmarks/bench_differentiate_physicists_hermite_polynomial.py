@@ -36,6 +36,8 @@ class BenchDifferentiatePhysicistsHermitePolynomial:
         self.func(self.input, self.order, self.scale, self.axis)
 
     def peak_memory_differentiate_physicists_hermite_polynomial(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.input, self.order, self.scale, self.axis)

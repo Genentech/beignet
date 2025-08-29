@@ -5,7 +5,8 @@ from torch import Tensor
 
 
 def multiply_legendre_polynomial_by_x(
-    input: Tensor, mode: Literal["full", "same"] = "full"
+    input: Tensor,
+    mode: Literal["full", "same"] = "full",
 ) -> Tensor:
     input = torch.atleast_1d(input)
 

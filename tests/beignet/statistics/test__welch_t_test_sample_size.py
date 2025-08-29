@@ -17,7 +17,11 @@ def test_welch_t_test_sample_size(batch_size, dtype):
     vr = torch.tensor(1.3, dtype=dtype)
 
     n1 = beignet.statistics.welch_t_test_sample_size(
-        d_vals, ratio=ratios, var_ratio=vr, power=0.8, alpha=0.05
+        d_vals,
+        ratio=ratios,
+        var_ratio=vr,
+        power=0.8,
+        alpha=0.05,
     )
     assert n1.shape == d_vals.shape
     assert n1.dtype == dtype
@@ -41,7 +45,10 @@ def test_welch_t_test_sample_size(batch_size, dtype):
             )
             n2_est = torch.ceil(n1_est * r)
             p_est = beignet.statistics.welch_t_test_power(
-                d0, n1_est, n2_est, var_ratio=vr
+                d0,
+                n1_est,
+                n2_est,
+                var_ratio=vr,
             )
             # Fallback to SciPy normal approx for reference
             import scipy.stats as stats

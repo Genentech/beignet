@@ -29,12 +29,15 @@ def quaternion_to_rotation_vector(
     a, b, c, d = torch.unbind(input, dim=-1)
 
     y = 2 * torch.atan2(
-        torch.sqrt(torch.square(a) + torch.square(b) + torch.square(c)), d
+        torch.sqrt(torch.square(a) + torch.square(b) + torch.square(c)),
+        d,
     )
     y2 = torch.square(y)
 
     scale = torch.where(
-        y < 0.001, 2.0 + y2 / 12 + 7 * y2 * y2 / 2880, y / torch.sin(y / 2.0)
+        y < 0.001,
+        2.0 + y2 / 12 + 7 * y2 * y2 / 2880,
+        y / torch.sin(y / 2.0),
     )
 
     if degrees:

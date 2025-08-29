@@ -37,5 +37,8 @@ class BenchCorrelationSampleSize:
 
     def peakmem_correlation_sample_size(self, batch_size, dtype):
         return beignet.statistics.correlation_sample_size(
-            self.r_values, power=0.8, alpha=0.05, alternative="two-sided"
+            self.r_values,
+            power=0.8,
+            alpha=0.05,
+            alternative="two-sided",
         )

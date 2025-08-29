@@ -35,7 +35,9 @@ def superimpose_atom_thin(
     x = T(x)
 
     aligned_atom_thin_xyz = einops.rearrange(
-        x, "... (l n) d -> ... l n d", n=n_atom_thin
+        x,
+        "... (l n) d -> ... l n d",
+        n=n_atom_thin,
     )
 
     return aligned_atom_thin_xyz, T

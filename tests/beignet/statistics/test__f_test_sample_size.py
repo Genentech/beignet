@@ -66,17 +66,27 @@ def test_f_test_sample_size(batch_size: int, dtype: torch.dtype) -> None:
     # Test torch.compile compatibility
     compiled_func = torch.compile(f_test_sample_size, fullgraph=True)
     sample_compiled = compiled_func(
-        effect_size.detach(), df1.detach(), power.detach(), alpha=0.05
+        effect_size.detach(),
+        df1.detach(),
+        power.detach(),
+        alpha=0.05,
     )
     sample_regular = f_test_sample_size(
-        effect_size.detach(), df1.detach(), power.detach(), alpha=0.05
+        effect_size.detach(),
+        df1.detach(),
+        power.detach(),
+        alpha=0.05,
     )
     assert torch.allclose(sample_compiled, sample_regular, rtol=1e-5)
 
     # Test with out parameter
     out = torch.empty_like(sample_size)
     result = f_test_sample_size(
-        effect_size.detach(), df1.detach(), power.detach(), alpha=0.05, out=out
+        effect_size.detach(),
+        df1.detach(),
+        power.detach(),
+        alpha=0.05,
+        out=out,
     )
     assert torch.allclose(out, sample_regular, rtol=1e-5)
     assert result is out
@@ -84,13 +94,17 @@ def test_f_test_sample_size(batch_size: int, dtype: torch.dtype) -> None:
     # Test known values
     # Test case: medium effect size, power = 0.8
     effect_size_known = torch.tensor(
-        0.15, dtype=dtype
+        0.15,
+        dtype=dtype,
     )  # Cohen's f² = 0.15 (medium effect)
     df1_known = torch.tensor(3, dtype=dtype)
     power_known = torch.tensor(0.8, dtype=dtype)
 
     sample_size_known = f_test_sample_size(
-        effect_size_known, df1_known, power_known, alpha=0.05
+        effect_size_known,
+        df1_known,
+        power_known,
+        alpha=0.05,
     )
 
     # Should be reasonable sample size (around 100 for this configuration)
@@ -99,12 +113,18 @@ def test_f_test_sample_size(batch_size: int, dtype: torch.dtype) -> None:
     # Test extreme values
     with pytest.raises(ValueError):
         f_test_sample_size(
-            effect_size_known, df1_known, torch.tensor(1.5, dtype=dtype), alpha=0.05
+            effect_size_known,
+            df1_known,
+            torch.tensor(1.5, dtype=dtype),
+            alpha=0.05,
         )  # Power > 1
 
     with pytest.raises(ValueError):
         f_test_sample_size(
-            effect_size_known, df1_known, torch.tensor(-0.1, dtype=dtype), alpha=0.05
+            effect_size_known,
+            df1_known,
+            torch.tensor(-0.1, dtype=dtype),
+            alpha=0.05,
         )  # Power < 0
 
     # Test against statsmodels for verification

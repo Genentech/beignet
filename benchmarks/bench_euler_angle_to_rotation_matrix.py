@@ -34,7 +34,7 @@ class BenchEulerAngleToRotationMatrix:
                 "yzx",
                 "zxy",
                 "zyx",
-            ]
+            ],
         )
 
         self.degrees = random.choice([True, False])

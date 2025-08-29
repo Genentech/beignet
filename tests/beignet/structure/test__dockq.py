@@ -17,24 +17,26 @@ def dockq_test_data_path():
 
 def test_dockq(dockq_test_data_path):
     native = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
+        dockq_test_data_path / "1A2K_r_l_b.pdb",
+        dtype=torch.float64,
     )
     native = torch.cat(
         [
             native[ChainSelector(["B"])],
             native[ChainSelector(["C"])],
-        ]
+        ],
     )
 
     # reorder chains to match
     model = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
+        dockq_test_data_path / "1A2K_r_l_b.model.pdb",
+        dtype=torch.float64,
     )
     model = torch.cat(
         [
             model[ChainSelector(["A"])].rename_chains({"A": "B"}),
             model[ChainSelector(["C"])],
-        ]
+        ],
     )
 
     with open(dockq_test_data_path / "dockq_ref.json", "r") as f:
@@ -61,40 +63,45 @@ def test_dockq(dockq_test_data_path):
     )
 
     assert results["interface_rmsd"].item() == pytest.approx(
-        ref["best_result"]["BC"]["iRMSD"], abs=1e-3
+        ref["best_result"]["BC"]["iRMSD"],
+        abs=1e-3,
     )
 
     assert results["ligand_rmsd"].item() == pytest.approx(
-        ref["best_result"]["BC"]["LRMSD"], abs=1e-3
+        ref["best_result"]["BC"]["LRMSD"],
+        abs=1e-3,
     )
 
     assert results["DockQ"].item() == pytest.approx(
-        ref["best_result"]["BC"]["DockQ"], abs=1e-3
+        ref["best_result"]["BC"]["DockQ"],
+        abs=1e-3,
     )
 
 
 def test_dockq_batched(dockq_test_data_path):
     native = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.pdb", dtype=torch.float64
+        dockq_test_data_path / "1A2K_r_l_b.pdb",
+        dtype=torch.float64,
     )
     native = torch.cat(
         [
             native[ChainSelector(["B"])],
             native[ChainSelector(["C"])],
-        ]
+        ],
     )
 
     native = torch.stack([native, native], dim=0)
 
     # reorder chains to match
     model = ResidueArray.from_pdb(
-        dockq_test_data_path / "1A2K_r_l_b.model.pdb", dtype=torch.float64
+        dockq_test_data_path / "1A2K_r_l_b.model.pdb",
+        dtype=torch.float64,
     )
     model = torch.cat(
         [
             model[ChainSelector(["A"])].rename_chains({"A": "B"}),
             model[ChainSelector(["C"])],
-        ]
+        ],
     )
 
     model = torch.stack([model, model], dim=0)
@@ -112,11 +119,14 @@ def test_dockq_batched(dockq_test_data_path):
     pprint(results)
 
     results1, results2 = optree.tree_transpose_map(
-        lambda x: torch.unbind(x, dim=0), results
+        lambda x: torch.unbind(x, dim=0),
+        results,
     )
 
     assert optree.tree_map(lambda x: x.item(), results1) == pytest.approx(
-        optree.tree_map(lambda x: x.item(), results2), abs=1e-6, rel=1e-6
+        optree.tree_map(lambda x: x.item(), results2),
+        abs=1e-6,
+        rel=1e-6,
     )
     assert results1["model_contacts"].item() == ref["best_result"]["BC"]["model_total"]
     assert results1["native_contacts"].item() == ref["best_result"]["BC"]["nat_total"]
@@ -127,13 +137,16 @@ def test_dockq_batched(dockq_test_data_path):
     )
 
     assert results1["interface_rmsd"].item() == pytest.approx(
-        ref["best_result"]["BC"]["iRMSD"], abs=1e-3
+        ref["best_result"]["BC"]["iRMSD"],
+        abs=1e-3,
     )
 
     assert results1["ligand_rmsd"].item() == pytest.approx(
-        ref["best_result"]["BC"]["LRMSD"], abs=1e-3
+        ref["best_result"]["BC"]["LRMSD"],
+        abs=1e-3,
     )
 
     assert results1["DockQ"].item() == pytest.approx(
-        ref["best_result"]["BC"]["DockQ"], abs=1e-3
+        ref["best_result"]["BC"]["DockQ"],
+        abs=1e-3,
     )

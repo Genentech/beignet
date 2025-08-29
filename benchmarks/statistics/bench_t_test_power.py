@@ -31,20 +31,32 @@ class BenchTTestPower:
 
     def time_t_test_power_two_sided(self, batch_size, dtype):
         return self.func(
-            self.effect_sizes, self.sample_sizes, alpha=0.05, alternative="two-sided"
+            self.effect_sizes,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="two-sided",
         )
 
     def time_t_test_power_greater(self, batch_size, dtype):
         return self.func(
-            self.effect_sizes, self.sample_sizes, alpha=0.05, alternative="greater"
+            self.effect_sizes,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="greater",
         )
 
     def time_t_test_power_less(self, batch_size, dtype):
         return self.func(
-            self.effect_sizes, self.sample_sizes, alpha=0.05, alternative="less"
+            self.effect_sizes,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="less",
         )
 
     def peakmem_t_test_power(self, batch_size, dtype):
         return beignet.statistics.t_test_power(
-            self.effect_sizes, self.sample_sizes, alpha=0.05, alternative="two-sided"
+            self.effect_sizes,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="two-sided",
         )

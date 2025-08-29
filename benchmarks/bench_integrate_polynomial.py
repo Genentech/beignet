@@ -38,10 +38,20 @@ class BenchIntegratePolynomial:
 
     def time_integrate_polynomial(self, batch_size, dtype):
         self.func(
-            self.input, self.order, self.k, self.lower_bound, self.scale, self.dim
+            self.input,
+            self.order,
+            self.k,
+            self.lower_bound,
+            self.scale,
+            self.dim,
         )
 
     def peak_memory_integrate_polynomial(self, batch_size, dtype):
         self.func(
-            self.input, self.order, self.k, self.lower_bound, self.scale, self.dim
+            self.input,
+            self.order,
+            self.k,
+            self.lower_bound,
+            self.scale,
+            self.dim,
         )

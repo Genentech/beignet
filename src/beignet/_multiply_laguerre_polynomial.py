@@ -73,7 +73,8 @@ def multiply_laguerre_polynomial(
                 )
 
     output = add_laguerre_polynomial(
-        a, subtract_laguerre_polynomial(b, multiply_laguerre_polynomial_by_x(b, "same"))
+        a,
+        subtract_laguerre_polynomial(b, multiply_laguerre_polynomial_by_x(b, "same")),
     )
 
     if mode == "same":

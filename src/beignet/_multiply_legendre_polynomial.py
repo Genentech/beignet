@@ -63,7 +63,8 @@ def multiply_legendre_polynomial(
                 size = size - 1
 
                 a = subtract_legendre_polynomial(
-                    x[-index] * y, (b * (size - 1.0)) / size
+                    x[-index] * y,
+                    (b * (size - 1.0)) / size,
                 )
 
                 b = add_legendre_polynomial(

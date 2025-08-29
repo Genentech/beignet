@@ -51,7 +51,10 @@ def test_cdr_residue_selector(structure_7k7r_cif, gapped_aho_7k7r):
     for cdr in [f"H{i}" for i in (1, 2, 3, 4)]:
         expected = gapped_aho_7k7r["B"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
         selector = CDRResidueSelector(
-            which_cdrs=[cdr], heavy_chain="B", light_chain="A", scheme="aho"
+            which_cdrs=[cdr],
+            heavy_chain="B",
+            light_chain="A",
+            scheme="aho",
         )
         selected = p[selector]
         assert selected.sequence[selector.heavy_chain] == expected
@@ -59,7 +62,10 @@ def test_cdr_residue_selector(structure_7k7r_cif, gapped_aho_7k7r):
     for cdr in [f"L{i}" for i in (1, 2, 3, 4)]:
         expected = gapped_aho_7k7r["A"][slice(*CDR_RANGES_AHO[cdr])].replace("-", "")
         selector = CDRResidueSelector(
-            which_cdrs=[cdr], heavy_chain="B", light_chain="A", scheme="aho"
+            which_cdrs=[cdr],
+            heavy_chain="B",
+            light_chain="A",
+            scheme="aho",
         )
         selected = p[selector]
         assert selected.sequence[selector.light_chain] == expected

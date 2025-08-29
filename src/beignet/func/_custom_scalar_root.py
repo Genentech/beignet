@@ -45,7 +45,8 @@ def custom_scalar_root(func: Callable[..., Tensor]):
 
                 # because f is applied elementwise just compute diagonal of jacobian
                 a, *b = torch.vmap(
-                    torch.func.grad(f, argnums=argnums), in_dims=(0,) * (nargs + 1)
+                    torch.func.grad(f, argnums=argnums),
+                    in_dims=(0,) * (nargs + 1),
                 )(xstar, *args)
 
                 output = tuple(

@@ -68,7 +68,9 @@ def _atom_thin_to_contact_matrix(
         contact_matrix,
         (batch_B[row], residue_B[row], residue_A[col]),
         torch.ones(
-            row.shape[0], dtype=contact_matrix.dtype, device=contact_matrix.device
+            row.shape[0],
+            dtype=contact_matrix.dtype,
+            device=contact_matrix.device,
         ),
         accumulate=True,
     )

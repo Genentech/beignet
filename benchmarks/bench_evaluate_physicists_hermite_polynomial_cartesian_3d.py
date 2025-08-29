@@ -31,11 +31,15 @@ class BenchEvaluatePhysicistsHermitePolynomialCartesian3D:
         self.c = torch.randn(batch_size, dtype=dtype)
 
     def time_evaluate_physicists_hermite_polynomial_cartesian_3d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.c, self.x, self.y, self.z)
 
     def peak_memory_evaluate_physicists_hermite_polynomial_cartesian_3d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.c, self.x, self.y, self.z)

@@ -20,21 +20,30 @@ def test_correlation_sample_size(batch_size, dtype):
 
     # Test basic functionality - two-sided test
     result = beignet.statistics.correlation_sample_size(
-        r_values, power=0.8, alpha=0.05, alternative="two-sided"
+        r_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert result.shape == r_values.shape
     assert result.dtype == dtype
     assert torch.all(
-        result >= 3.0
+        result >= 3.0,
     )  # Minimum sample size should be > 3 for Fisher z-transform
     assert torch.all(result < 10000)  # Should be reasonable
 
     # Test one-sided tests
     result_greater = beignet.statistics.correlation_sample_size(
-        r_values, power=0.8, alpha=0.05, alternative="greater"
+        r_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="greater",
     )
     result_less = beignet.statistics.correlation_sample_size(
-        r_values, power=0.8, alpha=0.05, alternative="less"
+        r_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="less",
     )
 
     assert torch.all(result_greater >= 3.0)
@@ -48,7 +57,11 @@ def test_correlation_sample_size(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(r_values)
     result_out = beignet.statistics.correlation_sample_size(
-        r_values, power=0.8, alpha=0.05, alternative="two-sided", out=out
+        r_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
@@ -64,10 +77,12 @@ def test_correlation_sample_size(batch_size, dtype):
 
     # Test sample size increases with power
     low_power = beignet.statistics.correlation_sample_size(
-        torch.tensor(0.3, dtype=dtype), power=0.5
+        torch.tensor(0.3, dtype=dtype),
+        power=0.5,
     )
     high_power = beignet.statistics.correlation_sample_size(
-        torch.tensor(0.3, dtype=dtype), power=0.9
+        torch.tensor(0.3, dtype=dtype),
+        power=0.9,
     )
 
     assert high_power > low_power
@@ -85,7 +100,8 @@ def test_correlation_sample_size(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_correlation_sample_size = torch.compile(
-        beignet.statistics.correlation_sample_size, fullgraph=True
+        beignet.statistics.correlation_sample_size,
+        fullgraph=True,
     )
     result_compiled = compiled_correlation_sample_size(r_values, power=0.8)
     assert torch.allclose(result, result_compiled, atol=1e-5)
@@ -93,7 +109,8 @@ def test_correlation_sample_size(batch_size, dtype):
     # Test invalid alternative
     try:
         beignet.statistics.correlation_sample_size(
-            torch.tensor(0.3, dtype=dtype), alternative="invalid"
+            torch.tensor(0.3, dtype=dtype),
+            alternative="invalid",
         )
         raise AssertionError("Should have raised ValueError")
     except ValueError:
@@ -103,7 +120,10 @@ def test_correlation_sample_size(batch_size, dtype):
     # For medium correlation (r=0.3) with power=0.8, sample size should be reasonable
     r = torch.tensor(0.3, dtype=dtype)
     n = beignet.statistics.correlation_sample_size(
-        r, power=0.8, alpha=0.05, alternative="two-sided"
+        r,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should be somewhere between 50 and 150 for these parameters
@@ -112,7 +132,10 @@ def test_correlation_sample_size(batch_size, dtype):
     # For strong correlation (r=0.7), sample size should be smaller
     strong_r = torch.tensor(0.7, dtype=dtype)
     n_strong = beignet.statistics.correlation_sample_size(
-        strong_r, power=0.8, alpha=0.05, alternative="two-sided"
+        strong_r,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should require smaller sample size for strong correlation
@@ -139,7 +162,10 @@ def test_correlation_sample_size(batch_size, dtype):
         # Our implementation
         r = torch.tensor(r_val, dtype=dtype)
         beignet_result = beignet.statistics.correlation_sample_size(
-            r, power=power_val, alpha=alpha_val, alternative=alternative
+            r,
+            power=power_val,
+            alpha=alpha_val,
+            alternative=alternative,
         )
 
         # Convert alternative to statsmodels format
@@ -163,7 +189,8 @@ def test_correlation_sample_size(batch_size, dtype):
 
             # Compare results with reasonable tolerance (sample sizes can vary by rounding)
             tolerance = max(
-                60, 0.4 * sm_result
+                60,
+                0.4 * sm_result,
             )  # Allow 40% difference or 60 subjects, whichever is larger
             diff = abs(float(beignet_result) - sm_result)
             assert diff < tolerance, (

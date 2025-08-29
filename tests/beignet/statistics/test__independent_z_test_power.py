@@ -24,7 +24,11 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
 
     # Test basic computation
     power = independent_z_test_power(
-        effect_size, sample_size1, sample_size2, alpha=0.05, alternative="two-sided"
+        effect_size,
+        sample_size1,
+        sample_size2,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Check output properties
@@ -35,13 +39,22 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
 
     # Test different alternatives
     power_larger = independent_z_test_power(
-        effect_size, sample_size1, sample_size2, alternative="larger"
+        effect_size,
+        sample_size1,
+        sample_size2,
+        alternative="larger",
     )
     power_smaller = independent_z_test_power(
-        effect_size, sample_size1, sample_size2, alternative="smaller"
+        effect_size,
+        sample_size1,
+        sample_size2,
+        alternative="smaller",
     )
     power_two_sided = independent_z_test_power(
-        effect_size, sample_size1, sample_size2, alternative="two-sided"
+        effect_size,
+        sample_size1,
+        sample_size2,
+        alternative="two-sided",
     )
 
     # One-sided tests should generally have higher power than two-sided
@@ -53,10 +66,16 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     small_effect = effect_size * 0.5
     large_effect = effect_size * 1.5
     power_small = independent_z_test_power(
-        small_effect, sample_size1, sample_size2, alternative="larger"
+        small_effect,
+        sample_size1,
+        sample_size2,
+        alternative="larger",
     )
     power_large = independent_z_test_power(
-        large_effect, sample_size1, sample_size2, alternative="larger"
+        large_effect,
+        sample_size1,
+        sample_size2,
+        alternative="larger",
     )
     assert torch.all(power_large >= power_small)
 
@@ -64,10 +83,16 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     small_sample1 = sample_size1 * 0.7
     large_sample1 = sample_size1 * 1.5
     power_small = independent_z_test_power(
-        effect_size, small_sample1, sample_size2, alternative="larger"
+        effect_size,
+        small_sample1,
+        sample_size2,
+        alternative="larger",
     )
     power_large = independent_z_test_power(
-        effect_size, large_sample1, sample_size2, alternative="larger"
+        effect_size,
+        large_sample1,
+        sample_size2,
+        alternative="larger",
     )
     assert torch.all(power_large >= power_small)
 
@@ -77,7 +102,10 @@ def test_independent_z_test_power(batch_size: int, dtype: torch.dtype) -> None:
     sample_size2.requires_grad_(True)
 
     power = independent_z_test_power(
-        effect_size, sample_size1, sample_size2, alternative="larger"
+        effect_size,
+        sample_size1,
+        sample_size2,
+        alternative="larger",
     )
     loss = power.sum()
     loss.backward()

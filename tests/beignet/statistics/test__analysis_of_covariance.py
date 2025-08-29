@@ -18,10 +18,18 @@ def test_ancova_power_and_sample_size(dtype):
     assert 0.0 <= pw <= 1.0
 
     small = stats.analysis_of_covariance_power(
-        f, torch.tensor(80.0, dtype=dtype), k, r2, p
+        f,
+        torch.tensor(80.0, dtype=dtype),
+        k,
+        r2,
+        p,
     )
     large = stats.analysis_of_covariance_power(
-        f, torch.tensor(200.0, dtype=dtype), k, r2, p
+        f,
+        torch.tensor(200.0, dtype=dtype),
+        k,
+        r2,
+        p,
     )
     assert large > small
 

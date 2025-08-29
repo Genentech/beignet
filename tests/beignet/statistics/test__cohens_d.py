@@ -34,10 +34,14 @@ def test_cohens_d(batch_size, n1, n2, dtype):
     # Test with identical groups (should be close to zero)
     identical_group = torch.randn(batch_size, n1, dtype=dtype)
     result_identical = beignet.statistics.cohens_d(
-        identical_group, identical_group, pooled=True
+        identical_group,
+        identical_group,
+        pooled=True,
     )
     assert torch.allclose(
-        result_identical, torch.zeros_like(result_identical), atol=1e-6
+        result_identical,
+        torch.zeros_like(result_identical),
+        atol=1e-6,
     )
 
     # Test symmetry property: Cohen's d(A, B) = -Cohen's d(B, A)
@@ -76,7 +80,9 @@ def test_cohens_d(batch_size, n1, n2, dtype):
     large_effect_group2 = torch.ones(batch_size, n2, dtype=dtype) * 2.0
 
     result_large = beignet.statistics.cohens_d(
-        large_effect_group1, large_effect_group2, pooled=True
+        large_effect_group1,
+        large_effect_group2,
+        pooled=True,
     )
     # Should be approximately -2.0 (negative because group2 > group1)
     assert torch.all(result_large < 0)
@@ -86,7 +92,10 @@ def test_cohens_d(batch_size, n1, n2, dtype):
     torch.manual_seed(42)
     normal1 = torch.normal(0.0, 1.0, size=(1, 100), dtype=dtype)
     normal2 = torch.normal(
-        1.0, 1.0, size=(1, 100), dtype=dtype
+        1.0,
+        1.0,
+        size=(1, 100),
+        dtype=dtype,
     )  # Effect size should be ~1.0
 
     result_known = beignet.statistics.cohens_d(normal1, normal2, pooled=True)

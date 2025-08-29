@@ -22,7 +22,12 @@ def test_two_one_sided_tests_two_sample_t_power(batch_size, dtype):
 
     # Basic shape / dtype / range
     p = beignet.statistics.two_one_sided_tests_two_sample_t_power(
-        d_vals, n1_vals, ratio=ratio, low=low, high=high, alpha=0.05
+        d_vals,
+        n1_vals,
+        ratio=ratio,
+        low=low,
+        high=high,
+        alpha=0.05,
     )
     assert p.shape == d_vals.shape
     assert p.dtype == dtype
@@ -30,10 +35,18 @@ def test_two_one_sided_tests_two_sample_t_power(batch_size, dtype):
 
     # Monotonic in n1 for true effects within margins
     p_small = beignet.statistics.two_one_sided_tests_two_sample_t_power(
-        d_vals, torch.full_like(d_vals, 20.0), ratio=ratio, low=low, high=high
+        d_vals,
+        torch.full_like(d_vals, 20.0),
+        ratio=ratio,
+        low=low,
+        high=high,
     )
     p_large = beignet.statistics.two_one_sided_tests_two_sample_t_power(
-        d_vals, torch.full_like(d_vals, 100.0), ratio=ratio, low=low, high=high
+        d_vals,
+        torch.full_like(d_vals, 100.0),
+        ratio=ratio,
+        low=low,
+        high=high,
     )
     mask_within = (d_vals > low) & (d_vals < high)
     if torch.any(mask_within):
@@ -43,14 +56,19 @@ def test_two_one_sided_tests_two_sample_t_power(batch_size, dtype):
     d_grad = d_vals.clone().requires_grad_(True)
     n1_grad = n1_vals.clone().requires_grad_(True)
     res = beignet.statistics.two_one_sided_tests_two_sample_t_power(
-        d_grad, n1_grad, ratio=ratio, low=low, high=high
+        d_grad,
+        n1_grad,
+        ratio=ratio,
+        low=low,
+        high=high,
     )
     res.sum().backward()
     assert d_grad.grad is not None
     assert n1_grad.grad is not None
 
     compiled = torch.compile(
-        beignet.statistics.two_one_sided_tests_two_sample_t_power, fullgraph=True
+        beignet.statistics.two_one_sided_tests_two_sample_t_power,
+        fullgraph=True,
     )
     res_comp = compiled(d_vals, n1_vals, ratio=ratio, low=low, high=high)
     assert torch.allclose(res, res_comp, atol=1e-5)

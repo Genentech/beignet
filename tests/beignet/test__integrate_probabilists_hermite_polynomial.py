@@ -226,7 +226,7 @@ def test_integrate_probabilists_hermite_polynomial():
             axis=0,
         ),
         torch.vstack(
-            [beignet.integrate_probabilists_hermite_polynomial(c) for c in c2d.T]
+            [beignet.integrate_probabilists_hermite_polynomial(c) for c in c2d.T],
         ).T,
     )
 
@@ -236,7 +236,7 @@ def test_integrate_probabilists_hermite_polynomial():
             axis=1,
         ),
         torch.vstack(
-            [beignet.integrate_probabilists_hermite_polynomial(c) for c in c2d]
+            [beignet.integrate_probabilists_hermite_polynomial(c) for c in c2d],
         ),
     )
 
@@ -247,6 +247,6 @@ def test_integrate_probabilists_hermite_polynomial():
             axis=1,
         ),
         torch.vstack(
-            [beignet.integrate_probabilists_hermite_polynomial(c, k=3) for c in c2d]
+            [beignet.integrate_probabilists_hermite_polynomial(c, k=3) for c in c2d],
         ),
     )

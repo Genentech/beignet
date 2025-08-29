@@ -21,7 +21,8 @@ def test_cohens_f(batch_size, dtype):
     # Generate test parameters - create group means for 3 groups
     group_means = (
         torch.tensor(
-            [[10.0, 12.0, 14.0], [5.0, 7.0, 9.0], [20.0, 22.0, 24.0]], dtype=dtype
+            [[10.0, 12.0, 14.0], [5.0, 7.0, 9.0], [20.0, 22.0, 24.0]],
+            dtype=dtype,
         )
         .repeat(batch_size, 1, 1)
         .view(-1, 3)

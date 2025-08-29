@@ -79,7 +79,7 @@ def test_differentiate_chebyshev_polynomial():
             axis=0,
         ),
         torch.vstack(
-            [beignet.differentiate_chebyshev_polynomial(c) for c in input.T]
+            [beignet.differentiate_chebyshev_polynomial(c) for c in input.T],
         ).T,
     )
 

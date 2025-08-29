@@ -138,7 +138,7 @@ class IndependentTTestSampleSize(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -194,7 +194,7 @@ class IndependentTTestSampleSize(Metric):
             x_label = "Sample Size Ratio (n2/n1)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'ratio', or 'power', got {dep_var}"
+                f"dep_var must be 'effect_size', 'ratio', or 'power', got {dep_var}",
             )
 
         # Plot sample size curves for different parameter values

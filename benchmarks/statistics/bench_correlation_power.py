@@ -31,20 +31,32 @@ class BenchCorrelationPower:
 
     def time_correlation_power_two_sided(self, batch_size, dtype):
         return self.func(
-            self.r_values, self.sample_sizes, alpha=0.05, alternative="two-sided"
+            self.r_values,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="two-sided",
         )
 
     def time_correlation_power_greater(self, batch_size, dtype):
         return self.func(
-            self.r_values, self.sample_sizes, alpha=0.05, alternative="greater"
+            self.r_values,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="greater",
         )
 
     def time_correlation_power_less(self, batch_size, dtype):
         return self.func(
-            self.r_values, self.sample_sizes, alpha=0.05, alternative="less"
+            self.r_values,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="less",
         )
 
     def peakmem_correlation_power(self, batch_size, dtype):
         return beignet.statistics.correlation_power(
-            self.r_values, self.sample_sizes, alpha=0.05, alternative="two-sided"
+            self.r_values,
+            self.sample_sizes,
+            alpha=0.05,
+            alternative="two-sided",
         )

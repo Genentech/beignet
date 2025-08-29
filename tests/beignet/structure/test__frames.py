@@ -18,13 +18,19 @@ def test_bbt_rmsd(structure_7k7r_pdb):
     torsions, torsions_mask = p.torsions
 
     atom_thin_xyz, atom_thin_mask = bbt_to_atom_thin(
-        bb_frames, bb_mask, torsions, torsions_mask, p.residue_type
+        bb_frames,
+        bb_mask,
+        torsions,
+        torsions_mask,
+        p.residue_type,
     )
 
     assert torch.equal(atom_thin_mask, p.atom_thin_mask)
 
     p_ideal = dataclasses.replace(
-        p, atom_thin_xyz=atom_thin_xyz, atom_thin_mask=atom_thin_mask
+        p,
+        atom_thin_xyz=atom_thin_xyz,
+        atom_thin_mask=atom_thin_mask,
     )
 
     bb_rmsd_val = rmsd(p, p_ideal, selector=PeptideBackboneSelector()).item()
@@ -44,13 +50,19 @@ def test_bbt_roundtrip_rmsd(structure_7k7r_pdb):
     torsions, torsions_mask = p.torsions
 
     atom_thin_xyz, atom_thin_mask = bbt_to_atom_thin(
-        bb_frames, bb_mask, torsions, torsions_mask, p.residue_type
+        bb_frames,
+        bb_mask,
+        torsions,
+        torsions_mask,
+        p.residue_type,
     )
 
     assert torch.equal(atom_thin_mask, p.atom_thin_mask)
 
     p_ideal = dataclasses.replace(
-        p, atom_thin_xyz=atom_thin_xyz, atom_thin_mask=atom_thin_mask
+        p,
+        atom_thin_xyz=atom_thin_xyz,
+        atom_thin_mask=atom_thin_mask,
     )
 
     bb_frames_ideal, bb_mask_ideal = p_ideal.backbone_frames
@@ -96,11 +108,17 @@ def test_chi_mask(structure_7k7r_pdb, chi_index):
     torsions_mask[:, chi_index] = False
 
     atom_thin_xyz, atom_thin_mask = bbt_to_atom_thin(
-        bb_frames, bb_mask, torsions, torsions_mask, p.residue_type
+        bb_frames,
+        bb_mask,
+        torsions,
+        torsions_mask,
+        p.residue_type,
     )
 
     p_masked = dataclasses.replace(
-        p, atom_thin_xyz=atom_thin_xyz, atom_thin_mask=atom_thin_mask
+        p,
+        atom_thin_xyz=atom_thin_xyz,
+        atom_thin_mask=atom_thin_mask,
     )
     for i in (1, 2, 3, 4):
         if i >= chi_index:

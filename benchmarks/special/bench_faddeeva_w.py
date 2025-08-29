@@ -38,7 +38,7 @@ class BenchFaddeevaW:
                     if dtype == torch.float32
                     else torch.complex128,
                 ),
-            ]
+            ],
         )
 
     def time_faddeeva_w(self, batch_size, dtype):

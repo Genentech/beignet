@@ -16,7 +16,7 @@ def _strategy(function):
                 ),
             ),
             3,
-        ]
+        ],
     )
 
     transform = torch.randn([3, 3])
@@ -32,7 +32,7 @@ def _strategy(function):
 
 @hypothesis.given(_strategy())
 @hypothesis.settings(
-    suppress_health_check=[hypothesis.HealthCheck.function_scoped_fixture]
+    suppress_health_check=[hypothesis.HealthCheck.function_scoped_fixture],
 )
 def test_invert_transform(float64, data):
     (input, transform), expected = data

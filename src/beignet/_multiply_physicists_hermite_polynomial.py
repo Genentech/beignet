@@ -67,7 +67,8 @@ def multiply_physicists_hermite_polynomial(
                 size = size - 1
 
                 a = subtract_physicists_hermite_polynomial(
-                    x[-i] * y, b * (2 * (size - 1.0))
+                    x[-i] * y,
+                    b * (2 * (size - 1.0)),
                 )
 
                 b = add_physicists_hermite_polynomial(
@@ -76,7 +77,8 @@ def multiply_physicists_hermite_polynomial(
                 )
 
     output = add_physicists_hermite_polynomial(
-        a, multiply_physicists_hermite_polynomial_by_x(b, "same") * 2
+        a,
+        multiply_physicists_hermite_polynomial_by_x(b, "same") * 2,
     )
 
     if mode == "same":

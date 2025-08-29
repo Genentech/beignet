@@ -17,13 +17,14 @@ def _atom_name_mask(atom_name: str, device=None) -> Tensor:
         [
             (
                 torch.nn.functional.one_hot(
-                    torch.as_tensor(v.index(atom_name), device=device), n_atom_thin
+                    torch.as_tensor(v.index(atom_name), device=device),
+                    n_atom_thin,
                 ).bool()
                 if atom_name in v
                 else torch.zeros(n_atom_thin, device=device, dtype=torch.bool)
             )
             for v in ATOM_THIN_ATOMS.values()
-        ]
+        ],
     )
 
 

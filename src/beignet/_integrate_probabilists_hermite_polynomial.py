@@ -54,7 +54,7 @@ def integrate_probabilists_hermite_polynomial(
         tmp[j + 1] = (input[j].T / (j + 1)).T
 
         hermeval_value = torch.tensor(
-            evaluate_probabilists_hermite_polynomial(lower_bound, tmp)
+            evaluate_probabilists_hermite_polynomial(lower_bound, tmp),
         )
         tmp[0] += k[i] - hermeval_value
 

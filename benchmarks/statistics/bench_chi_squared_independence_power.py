@@ -29,10 +29,18 @@ class BenchChiSquareIndependencePower:
 
     def time_chi_square_independence_power(self, batch_size, dtype):
         return self.func(
-            self.effect_size, self.sample_size, self.rows, self.cols, alpha=0.05
+            self.effect_size,
+            self.sample_size,
+            self.rows,
+            self.cols,
+            alpha=0.05,
         )
 
     def peakmem_chi_square_independence_power(self, batch_size, dtype):
         return beignet.statistics.chi_square_independence_power(
-            self.effect_size, self.sample_size, self.rows, self.cols, alpha=0.05
+            self.effect_size,
+            self.sample_size,
+            self.rows,
+            self.cols,
+            alpha=0.05,
         )

@@ -240,7 +240,7 @@ def test_batch_operations():
     powers = bs.kruskal_wallis_test_power(effect_sizes, sample_sizes)
     assert powers.shape == (batch_size,)
     assert torch.all(
-        powers[2] >= powers[1]
+        powers[2] >= powers[1],
     )  # Higher effect size should give higher power
     assert torch.all(powers[1] >= powers[0])
 

@@ -51,7 +51,11 @@ class ChiSquareIndependencePower(Metric):
         self.add_state("total", default=torch.tensor(0), dist_reduce_fx="sum")
 
     def update(
-        self, effect_size: Tensor, sample_size: Tensor, rows: Tensor, cols: Tensor
+        self,
+        effect_size: Tensor,
+        sample_size: Tensor,
+        rows: Tensor,
+        cols: Tensor,
     ) -> None:
         """Update the metric state.
 
@@ -86,7 +90,7 @@ class ChiSquareIndependencePower(Metric):
         """Compute the statistical power."""
         if self.total == 0:
             raise RuntimeError("No values have been added to the metric.")
-            
+
         return chi_square_independence_power(
             input=self.effect_size,
             sample_size=self.sample_size,

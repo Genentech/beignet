@@ -55,23 +55,25 @@ def atom_thin_to_atom_array(
 
     residue_type_flat = residue_type[L]
     res_name_flat = numpy.array(
-        [AMINO_ACID_1_TO_3[r] for r in STANDARD_RESIDUES] + ["UNK"]
+        [AMINO_ACID_1_TO_3[r] for r in STANDARD_RESIDUES] + ["UNK"],
     )[residue_type_flat.cpu().numpy()]
 
     chain_id_flat = numpy.frombuffer(
-        chain_id[L].cpu().numpy().tobytes(), dtype="|S8"
+        chain_id[L].cpu().numpy().tobytes(),
+        dtype="|S8",
     ).astype(numpy.dtypes.StringDType())
 
     author_seq_id_flat = author_seq_id[L].cpu().numpy()
     author_ins_code_flat = numpy.frombuffer(
-        author_ins_code[L].cpu().numpy().tobytes(), dtype="|S8"
+        author_ins_code[L].cpu().numpy().tobytes(),
+        dtype="|S8",
     ).astype(numpy.dtypes.StringDType())
 
     atom_pos_flat = atom_thin_xyz[L, W].cpu().numpy()
 
     atom_name = numpy.array(
         [ATOM_THIN_ATOMS[AMINO_ACID_1_TO_3[r]] for r in STANDARD_RESIDUES]
-        + [ATOM_THIN_ATOMS["UNK"]]
+        + [ATOM_THIN_ATOMS["UNK"]],
     )[residue_type[L], W]
 
     if b_factor is not None:

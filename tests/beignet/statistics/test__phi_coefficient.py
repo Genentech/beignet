@@ -38,7 +38,9 @@ def test_phi_coefficient(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(chi_square_values)
     result_out = beignet.statistics.phi_coefficient(
-        chi_square_values, sample_sizes, out=out
+        chi_square_values,
+        sample_sizes,
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
@@ -79,7 +81,8 @@ def test_phi_coefficient(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_phi_coefficient = torch.compile(
-        beignet.statistics.phi_coefficient, fullgraph=True
+        beignet.statistics.phi_coefficient,
+        fullgraph=True,
     )
     result_compiled = compiled_phi_coefficient(chi_square_values, sample_sizes)
     assert torch.allclose(result, result_compiled, atol=1e-6)
@@ -138,7 +141,8 @@ def test_phi_coefficient(batch_size, dtype):
             chi_sq_scipy = torch.tensor(chi2_stat, dtype=dtype)
             sample_size_scipy = torch.tensor(float(n), dtype=dtype)
             beignet_result = beignet.statistics.phi_coefficient(
-                chi_sq_scipy, sample_size_scipy
+                chi_sq_scipy,
+                sample_size_scipy,
             )
 
             # Manual phi calculation using standard definition: phi = sqrt(chi²/n)
@@ -169,7 +173,7 @@ def test_phi_coefficient(batch_size, dtype):
     # Manual phi calculation
     numerator = a * d - b * c  # 15*20 - 5*10 = 300 - 50 = 250
     denominator = np.sqrt(
-        (a + b) * (c + d) * (a + c) * (b + d)
+        (a + b) * (c + d) * (a + c) * (b + d),
     )  # sqrt(20*30*25*25) = sqrt(375000) ≈ 612.37
     phi_manual = numerator / denominator  # 250 / 612.37 ≈ 0.408
 
@@ -181,7 +185,8 @@ def test_phi_coefficient(batch_size, dtype):
     chi_sq_manual = torch.tensor(chi2_manual, dtype=dtype)
     sample_size_manual = torch.tensor(float(n), dtype=dtype)
     beignet_result_manual = beignet.statistics.phi_coefficient(
-        chi_sq_manual, sample_size_manual
+        chi_sq_manual,
+        sample_size_manual,
     )
 
     # Should match the absolute value of manual calculation

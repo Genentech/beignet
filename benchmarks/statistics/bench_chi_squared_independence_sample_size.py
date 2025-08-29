@@ -31,5 +31,9 @@ class BenchChiSquareIndependenceSampleSize:
 
     def peakmem_chisquare_independence_sample_size(self, batch_size, dtype):
         return beignet.statistics.chi_squared_independence_sample_size(
-            self.effect_size, self.rows, self.cols, power=0.8, alpha=0.05
+            self.effect_size,
+            self.rows,
+            self.cols,
+            power=0.8,
+            alpha=0.05,
         )

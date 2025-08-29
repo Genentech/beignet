@@ -51,7 +51,7 @@ def laguerre_polynomial_power(
                             input.shape[0] - output.shape[0],
                             dtype=output.dtype,
                         ),
-                    ]
+                    ],
                 )
 
                 output = input + output

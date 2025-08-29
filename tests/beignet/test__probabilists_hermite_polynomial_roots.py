@@ -26,7 +26,7 @@ def test_probabilists_hermite_polynomial_roots():
                 beignet.probabilists_hermite_polynomial_roots(
                     beignet.probabilists_hermite_polynomial_from_roots(
                         input,
-                    )
+                    ),
                 ),
                 tol=0.000001,
             ),

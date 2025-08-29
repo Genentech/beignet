@@ -66,17 +66,27 @@ def test_f_test_power(batch_size: int, dtype: torch.dtype) -> None:
     # Test torch.compile compatibility
     compiled_func = torch.compile(f_test_power, fullgraph=True)
     power_compiled = compiled_func(
-        effect_size.detach(), df1.detach(), df2.detach(), alpha=0.05
+        effect_size.detach(),
+        df1.detach(),
+        df2.detach(),
+        alpha=0.05,
     )
     power_regular = f_test_power(
-        effect_size.detach(), df1.detach(), df2.detach(), alpha=0.05
+        effect_size.detach(),
+        df1.detach(),
+        df2.detach(),
+        alpha=0.05,
     )
     assert torch.allclose(power_compiled, power_regular, rtol=1e-5)
 
     # Test with out parameter
     out = torch.empty_like(power)
     result = f_test_power(
-        effect_size.detach(), df1.detach(), df2.detach(), alpha=0.05, out=out
+        effect_size.detach(),
+        df1.detach(),
+        df2.detach(),
+        alpha=0.05,
+        out=out,
     )
     assert torch.allclose(out, power_regular, rtol=1e-5)
     assert result is out
@@ -84,7 +94,8 @@ def test_f_test_power(batch_size: int, dtype: torch.dtype) -> None:
     # Test known values
     # Test case: medium effect size, moderate df
     effect_size_known = torch.tensor(
-        0.15, dtype=dtype
+        0.15,
+        dtype=dtype,
     )  # Cohen's f² = 0.15 (medium effect)
     df1_known = torch.tensor(3, dtype=dtype)
     df2_known = torch.tensor(96, dtype=dtype)

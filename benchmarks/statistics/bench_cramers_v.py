@@ -37,5 +37,7 @@ class BenchCramersV:
 
     def peakmem_cramers_v(self, batch_size, dtype):
         return beignet.statistics.cramers_v(
-            self.chi_square_values, self.sample_sizes, self.min_dims
+            self.chi_square_values,
+            self.sample_sizes,
+            self.min_dims,
         )

@@ -76,7 +76,7 @@ class ResidueArray:
     def chain_id_list(self) -> list[str]:
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.chain_id_list only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.chain_id_list only supported for ndim == 1 {self.ndim=}",
             )
 
         return (
@@ -95,7 +95,7 @@ class ResidueArray:
     def sequence(self) -> dict[str, str]:
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.chain_sequences only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.chain_sequences only supported for ndim == 1 {self.ndim=}",
             )
 
         return {
@@ -128,13 +128,17 @@ class ResidueArray:
     @property
     def backbone_frames(self) -> tuple[Rigid, Tensor]:
         return atom_thin_to_backbone_frames(
-            self.atom_thin_xyz, self.atom_thin_mask, self.residue_type
+            self.atom_thin_xyz,
+            self.atom_thin_mask,
+            self.residue_type,
         )
 
     @property
     def torsions(self) -> tuple[Tensor, Tensor]:
         return atom_thin_to_torsions(
-            self.atom_thin_xyz, self.atom_thin_mask, self.residue_type
+            self.atom_thin_xyz,
+            self.atom_thin_mask,
+            self.residue_type,
         )
 
     @classmethod
@@ -149,7 +153,8 @@ class ResidueArray:
         shape = (L,)
 
         residue_type = torch.tensor(
-            [restype_order_with_x[aa] for aa in sequence], device=device
+            [restype_order_with_x[aa] for aa in sequence],
+            device=device,
         )
         residue_index = torch.arange(L, device=device)
 
@@ -165,7 +170,9 @@ class ResidueArray:
         padding_mask = torch.ones(shape, device=device, dtype=bool)
 
         atom_thin_xyz = torch.zeros(
-            (*shape, n_atom_thin, 3), device=device, dtype=dtype
+            (*shape, n_atom_thin, 3),
+            device=device,
+            dtype=dtype,
         )
         atom_thin_mask = torch.zeros((*shape, n_atom_thin), device=device, dtype=bool)
 
@@ -190,7 +197,10 @@ class ResidueArray:
 
     @classmethod
     def from_chain_sequences(
-        cls, chain_sequences: dict[str, str], device=None, dtype=None
+        cls,
+        chain_sequences: dict[str, str],
+        device=None,
+        dtype=None,
     ):
         chains = [
             cls.from_sequence(seq, chain_id=c, device=device, dtype=dtype)
@@ -220,7 +230,7 @@ class ResidueArray:
     def to_atom_array(self) -> AtomArray:
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}",
             )
 
         return atom_thin_to_atom_array(
@@ -330,7 +340,7 @@ class ResidueArray:
                     c: str(sequences[c])
                     for c in chain_ids
                     if isinstance(sequences[c], ProteinSequence)
-                }
+                },
             )
 
             index_mapping = {
@@ -340,14 +350,16 @@ class ResidueArray:
                         p_seqres.chain_id.tolist(),
                         p_seqres.residue_index.tolist(),
                         strict=True,
-                    )
+                    ),
                 )
             }
             indices = torch.tensor(
                 [
                     index_mapping[(c, i)]
                     for c, i in zip(
-                        p.chain_id.tolist(), p.residue_index.tolist(), strict=True
+                        p.chain_id.tolist(),
+                        p.residue_index.tolist(),
+                        strict=True,
                     )
                 ],
                 device=device,
@@ -356,7 +368,8 @@ class ResidueArray:
             # check index consistency
             for field in ["residue_type", "residue_index", "chain_id"]:
                 if not torch.equal(
-                    getattr(p_seqres, field)[indices], getattr(p, field)
+                    getattr(p_seqres, field)[indices],
+                    getattr(p, field),
                 ):
                     raise RuntimeError(f"seqres indices not consistent for {field}")
 
@@ -388,13 +401,15 @@ class ResidueArray:
             residue_mask = mask.any(dim=-1)
             return self[residue_mask]
         return optree.tree_map(
-            lambda x: operator.getitem(x, key), self, namespace="beignet"
+            lambda x: operator.getitem(x, key),
+            self,
+            namespace="beignet",
         )
 
     def to_pdb(self, f):
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_pdb only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_pdb only supported for ndim == 1 {self.ndim=}",
             )
 
         array = self.to_atom_array()
@@ -405,7 +420,7 @@ class ResidueArray:
     def to_mmcif(self, f):
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_mmcif only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_mmcif only supported for ndim == 1 {self.ndim=}",
             )
         array = self.to_atom_array()
         cif = pdbx.CIFFile()
@@ -418,7 +433,7 @@ class ResidueArray:
     def to_pdb_string(self) -> str:
         if self.ndim != 1:
             raise RuntimeError(
-                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}"
+                f"ResidueArray.to_atom_array only supported for ndim == 1 {self.ndim=}",
             )
 
         buffer = io.StringIO()
@@ -443,7 +458,8 @@ class ResidueArray:
         )
 
     def renumber(
-        self: "ResidueArray", numbering: dict[str, list[tuple[int, str]]]
+        self: "ResidueArray",
+        numbering: dict[str, list[tuple[int, str]]],
     ) -> "ResidueArray":
         return renumber(self, numbering)
 
@@ -507,7 +523,9 @@ def cat(input, dim=0):
     if dim < 0:
         dim = input[0].ndim + dim
     return optree.tree_map(
-        lambda *x: torch.cat([*x], dim=dim), *input, namespace="beignet"
+        lambda *x: torch.cat([*x], dim=dim),
+        *input,
+        namespace="beignet",
     )
 
 
@@ -516,7 +534,9 @@ def stack(input, dim=0):
     if dim < 0:
         dim = input[0].ndim + dim + 1
     return optree.tree_map(
-        lambda *x: torch.stack([*x], dim=dim), *input, namespace="beignet"
+        lambda *x: torch.stack([*x], dim=dim),
+        *input,
+        namespace="beignet",
     )
 
 
@@ -525,7 +545,9 @@ def unbind(input, dim=0):
     if dim < 0:
         dim = input.ndim + dim
     return optree.tree_transpose_map(
-        lambda x: torch.unbind(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.unbind(x, dim=dim),
+        input,
+        namespace="beignet",
     )
 
 
@@ -534,7 +556,9 @@ def unsqueeze(input, dim: int):
     if dim < 0:
         dim = input.ndim + dim + 1
     return optree.tree_map(
-        lambda x: torch.unsqueeze(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.unsqueeze(x, dim=dim),
+        input,
+        namespace="beignet",
     )
 
 
@@ -543,5 +567,7 @@ def squeeze(input, dim: int):
     if dim < 0:
         dim = input.ndim + dim
     return optree.tree_map(
-        lambda x: torch.squeeze(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.squeeze(x, dim=dim),
+        input,
+        namespace="beignet",
     )

@@ -32,7 +32,8 @@ def laguerre_polynomial_to_polynomial(input: Tensor) -> Tensor:
             c1 = add_polynomial(
                 tmp,
                 subtract_polynomial(
-                    (2 * i - 1) * c1, multiply_polynomial_by_x(c1, "same")
+                    (2 * i - 1) * c1,
+                    multiply_polynomial_by_x(c1, "same"),
                 )
                 / i,
             )
@@ -51,5 +52,6 @@ def laguerre_polynomial_to_polynomial(input: Tensor) -> Tensor:
         c0, c1 = y
 
         return add_polynomial(
-            c0, subtract_polynomial(c1, multiply_polynomial_by_x(c1, "same"))
+            c0,
+            subtract_polynomial(c1, multiply_polynomial_by_x(c1, "same")),
         )

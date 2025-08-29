@@ -48,5 +48,8 @@ def test_quaternion_to_rotation_matrix(data):
 
     determinants = torch.det(result_unnormalized)
     torch.testing.assert_close(
-        determinants, torch.ones_like(determinants), atol=1e-5, rtol=1e-5
+        determinants,
+        torch.ones_like(determinants),
+        atol=1e-5,
+        rtol=1e-5,
     )

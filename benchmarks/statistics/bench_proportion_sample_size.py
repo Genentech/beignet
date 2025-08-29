@@ -40,12 +40,20 @@ class BenchProportionSampleSize:
 
     def time_proportion_sample_size_greater(self, batch_size, dtype):
         return self.func(
-            self.p0_values, self.p1_values, power=0.8, alpha=0.05, alternative="greater"
+            self.p0_values,
+            self.p1_values,
+            power=0.8,
+            alpha=0.05,
+            alternative="greater",
         )
 
     def time_proportion_sample_size_less(self, batch_size, dtype):
         return self.func(
-            self.p0_values, self.p1_values, power=0.8, alpha=0.05, alternative="less"
+            self.p0_values,
+            self.p1_values,
+            power=0.8,
+            alpha=0.05,
+            alternative="less",
         )
 
     def peakmem_proportion_sample_size(self, batch_size, dtype):

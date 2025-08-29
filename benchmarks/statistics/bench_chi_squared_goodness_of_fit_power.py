@@ -31,5 +31,8 @@ class BenchChiSquareGoodnessOfFitPower:
 
     def peakmem_chisquare_gof_power(self, batch_size, dtype):
         return beignet.statistics.chi_squared_goodness_of_fit_power(
-            self.effect_size, self.sample_size, self.df, alpha=0.05
+            self.effect_size,
+            self.sample_size,
+            self.df,
+            alpha=0.05,
         )

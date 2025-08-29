@@ -50,7 +50,7 @@ def physicists_hermite_polynomial_from_roots(input):
                         b.shape[0] - a.shape[0],
                         dtype=a.dtype,
                     ),
-                ]
+                ],
             )
 
             y = b + y

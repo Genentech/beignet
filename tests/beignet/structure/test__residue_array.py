@@ -17,7 +17,9 @@ def test_atom_thin_atoms():
 
 
 def test_residue_array_from_cif(
-    structure_7k7r_pdb, structure_7k7r_cif, structure_7k7r_bcif
+    structure_7k7r_pdb,
+    structure_7k7r_cif,
+    structure_7k7r_bcif,
 ):
     p0 = ResidueArray.from_pdb(structure_7k7r_pdb)
     p1 = ResidueArray.from_mmcif(structure_7k7r_cif)
@@ -48,7 +50,7 @@ def test_residue_array_from_cif_with_seqres(structure_7k7r_cif):
                 p_seqres.chain_id.tolist(),
                 p_seqres.residue_index.tolist(),
                 strict=True,
-            )
+            ),
         )
     }
     indices = torch.tensor(

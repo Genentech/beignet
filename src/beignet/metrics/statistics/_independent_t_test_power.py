@@ -142,7 +142,7 @@ class IndependentTTestPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -204,7 +204,7 @@ class IndependentTTestPower(Metric):
             x_label = "Sample Size Ratio (n2/n1)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'nobs1', or 'ratio', got {dep_var}"
+                f"dep_var must be 'effect_size', 'nobs1', or 'ratio', got {dep_var}",
             )
 
         # Plot power curves for different parameter values

@@ -42,10 +42,13 @@ def _make_atom_thin_is_symmetric_mask() -> list[int]:
 
 
 def swap_symmetric_atom_thin_atoms(
-    residue_type: Tensor, atom_thin_xyz: Tensor, atom_thin_mask: Tensor | None = None
+    residue_type: Tensor,
+    atom_thin_xyz: Tensor,
+    atom_thin_mask: Tensor | None = None,
 ) -> tuple[Tensor, Tensor | None]:
     symmetric_swap_indices = torch.as_tensor(
-        _make_symmetric_atom_swap_indices(), device=residue_type.device
+        _make_symmetric_atom_swap_indices(),
+        device=residue_type.device,
     )
 
     symmetric_swap_indices = symmetric_swap_indices[residue_type]
@@ -74,7 +77,9 @@ def rename_symmetric_atoms(
     eps: float = 1e-12,
 ):
     atom_thin_xyz_alt, _ = swap_symmetric_atom_thin_atoms(
-        residue_type, atom_thin_xyz, atom_thin_mask
+        residue_type,
+        atom_thin_xyz,
+        atom_thin_mask,
     )
 
     dist = torch.sqrt(
@@ -86,7 +91,7 @@ def rename_symmetric_atoms(
             ),
             dim=-1,
         )
-        + 1e-12
+        + 1e-12,
     )
 
     dist_alt = torch.sqrt(
@@ -98,7 +103,7 @@ def rename_symmetric_atoms(
             ),
             dim=-1,
         )
-        + 1e-12
+        + 1e-12,
     )
 
     dist_reference = torch.sqrt(
@@ -110,7 +115,7 @@ def rename_symmetric_atoms(
             ),
             dim=-1,
         )
-        + 1e-12
+        + 1e-12,
     )
 
     lddt = torch.sqrt(eps + torch.pow((dist - dist_reference), 2))

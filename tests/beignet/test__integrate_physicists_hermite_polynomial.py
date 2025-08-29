@@ -65,7 +65,7 @@ def test_integrate_physicists_hermite_polynomial():
                         ),
                         order=1,
                         k=[i],
-                    )
+                    ),
                 ),
                 tol=0.000001,
             ),
@@ -144,7 +144,9 @@ def test_integrate_physicists_hermite_polynomial():
 
             for k in range(j):
                 target = beignet.integrate_physicists_hermite_polynomial(
-                    target, order=1, k=[k]
+                    target,
+                    order=1,
+                    k=[k],
                 )
 
             torch.testing.assert_close(
@@ -221,7 +223,7 @@ def test_integrate_physicists_hermite_polynomial():
     c2d = torch.rand(3, 4)
 
     target = torch.vstack(
-        [beignet.integrate_physicists_hermite_polynomial(c) for c in c2d.T]
+        [beignet.integrate_physicists_hermite_polynomial(c) for c in c2d.T],
     ).T
 
     torch.testing.assert_close(
@@ -233,7 +235,7 @@ def test_integrate_physicists_hermite_polynomial():
     )
 
     target = torch.vstack(
-        [beignet.integrate_physicists_hermite_polynomial(c) for c in c2d]
+        [beignet.integrate_physicists_hermite_polynomial(c) for c in c2d],
     )
 
     torch.testing.assert_close(
@@ -245,7 +247,7 @@ def test_integrate_physicists_hermite_polynomial():
     )
 
     target = torch.vstack(
-        [beignet.integrate_physicists_hermite_polynomial(c, k=3) for c in c2d]
+        [beignet.integrate_physicists_hermite_polynomial(c, k=3) for c in c2d],
     )
 
     torch.testing.assert_close(

@@ -71,7 +71,7 @@ def test_differentiate_physicists_hermite_polynomial():
     torch.testing.assert_close(
         beignet.differentiate_physicists_hermite_polynomial(c2d, axis=0),
         torch.vstack(
-            [beignet.differentiate_physicists_hermite_polynomial(c) for c in c2d.T]
+            [beignet.differentiate_physicists_hermite_polynomial(c) for c in c2d.T],
         ).T,
     )
 
@@ -81,6 +81,6 @@ def test_differentiate_physicists_hermite_polynomial():
             axis=1,
         ),
         torch.vstack(
-            [beignet.differentiate_physicists_hermite_polynomial(c) for c in c2d]
+            [beignet.differentiate_physicists_hermite_polynomial(c) for c in c2d],
         ),
     )

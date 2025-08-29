@@ -34,7 +34,7 @@ def test_multiply_laguerre_polynomial_by_x(float64):
             ),
             beignet.trim_laguerre_polynomial_coefficients(
                 torch.tensor(
-                    [0.0] * (index - 1) + [-index, 2.0 * index + 1.0, -(index + 1.0)]
+                    [0.0] * (index - 1) + [-index, 2.0 * index + 1.0, -(index + 1.0)],
                 ),
                 tol=0.000001,
             ),

@@ -30,6 +30,8 @@ class BenchMultiplyPhysicistsHermitePolynomialByX:
         self.func(self.input, self.mode)
 
     def peak_memory_multiply_physicists_hermite_polynomial_by_x(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.input, self.mode)

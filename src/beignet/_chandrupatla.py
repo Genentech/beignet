@@ -144,7 +144,9 @@ def chandrupatla(
             fa = ft.clone()
 
             xm = torch.where(
-                converged, xm, torch.where(torch.abs(fa) < torch.abs(fb), a, b)
+                converged,
+                xm,
+                torch.where(torch.abs(fa) < torch.abs(fb), a, b),
             )
 
             iterations = iterations + ~converged
@@ -161,7 +163,9 @@ def chandrupatla(
         )
 
     a, b, c, fa, fb, fc, xm, converged, iterations = while_loop(
-        condition, loop_body, (a, b, c, fa, fb, fc, xm, converged, iterations)
+        condition,
+        loop_body,
+        (a, b, c, fa, fb, fc, xm, converged, iterations),
     )
 
     if return_solution_info:

@@ -29,11 +29,15 @@ class BenchEvaluateProbabilistsHermitePolynomialCartesian2D:
         self.c = torch.randn(batch_size, dtype=dtype)
 
     def time_evaluate_probabilists_hermite_polynomial_cartesian_2d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.c, self.x, self.y)
 
     def peak_memory_evaluate_probabilists_hermite_polynomial_cartesian_2d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.c, self.x, self.y)

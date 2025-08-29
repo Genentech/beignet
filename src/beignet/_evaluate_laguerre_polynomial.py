@@ -3,7 +3,9 @@ from torch import Tensor
 
 
 def evaluate_laguerre_polynomial(
-    input: Tensor, coefficients: Tensor, tensor: bool = True
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
 ):
     coefficients = torch.atleast_1d(coefficients)
 

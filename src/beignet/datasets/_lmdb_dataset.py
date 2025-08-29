@@ -31,7 +31,7 @@ class LMDBDataset(Dataset):
                 LMDB datasets require the `lmdb` dependency:
 
                     $ pip install "beignet[lmdb]"
-                """
+                """,
             ) from error
 
         self._root = root

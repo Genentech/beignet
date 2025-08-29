@@ -16,7 +16,8 @@ def polynomial_to_physicists_hermite_polynomial(input: Tensor) -> Tensor:
         output = multiply_physicists_hermite_polynomial_by_x(output, mode="same")
 
         output = add_physicists_hermite_polynomial(
-            output, input[input.shape[0] - 1 - index]
+            output,
+            input[input.shape[0] - 1 - index],
         )
 
     return output

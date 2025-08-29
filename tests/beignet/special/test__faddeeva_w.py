@@ -17,13 +17,19 @@ def _strategy(function):
 
     x = function(
         hypothesis.strategies.floats(
-            min_value=-limit, max_value=limit, allow_nan=False, allow_infinity=False
-        )
+            min_value=-limit,
+            max_value=limit,
+            allow_nan=False,
+            allow_infinity=False,
+        ),
     )
     y = function(
         hypothesis.strategies.floats(
-            min_value=-limit, max_value=limit, allow_nan=False, allow_infinity=False
-        )
+            min_value=-limit,
+            max_value=limit,
+            allow_nan=False,
+            allow_infinity=False,
+        ),
     )
 
     input = torch.complex(torch.tensor(x, dtype=dtype), torch.tensor(y, dtype=dtype))
@@ -43,7 +49,10 @@ def test_faddeeva_w(data):
         rtol, atol = None, None
 
     torch.testing.assert_close(
-        beignet.special.faddeeva_w(input), output, rtol=rtol, atol=atol
+        beignet.special.faddeeva_w(input),
+        output,
+        rtol=rtol,
+        atol=atol,
     )
 
 

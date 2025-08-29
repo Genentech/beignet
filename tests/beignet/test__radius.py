@@ -15,7 +15,12 @@ def test_radius():
     max_radius = 1.0
 
     edge_index = radius(
-        x, y, max_radius, batch_x=batch_x, batch_y=batch_y, ignore_same_index=False
+        x,
+        y,
+        max_radius,
+        batch_x=batch_x,
+        batch_y=batch_y,
+        ignore_same_index=False,
     )
 
     src, dst = edge_index.unbind(dim=0)

@@ -34,7 +34,7 @@ class BenchEulerAngleMagnitude:
                 "yzx",
                 "zxy",
                 "zyx",
-            ]
+            ],
         )
 
         self.degrees = random.choice([True, False])

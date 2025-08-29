@@ -22,7 +22,11 @@ def test_welch_t_test_power(batch_size, dtype):
     n2_vals = torch.ceil(n1_vals * ratios)
 
     p = beignet.statistics.welch_t_test_power(
-        d_vals, n1_vals, n2_vals, var_ratio=vr, alpha=0.05
+        d_vals,
+        n1_vals,
+        n2_vals,
+        var_ratio=vr,
+        alpha=0.05,
     )
     assert p.shape == d_vals.shape
     assert p.dtype == dtype
@@ -82,5 +86,8 @@ def test_welch_t_test_power(batch_size, dtype):
                 sm = (1 - stats.norm.cdf(zcrit - ncp)) + stats.norm.cdf(-zcrit - ncp)
                 # Allow loose tolerance due to approximations
                 assert torch.isclose(
-                    beignet_p, torch.tensor(sm, dtype=dtype), rtol=0.35, atol=0.02
+                    beignet_p,
+                    torch.tensor(sm, dtype=dtype),
+                    rtol=0.35,
+                    atol=0.02,
                 ), f"d={d0}, n1={n10}, n2={n20}"

@@ -28,7 +28,11 @@ def test_proportion_power(batch_size, dtype):
 
     # Test basic functionality - two-sided test
     result = beignet.statistics.proportion_power(
-        p0_values, p1_values, sample_sizes, alpha=0.05, alternative="two-sided"
+        p0_values,
+        p1_values,
+        sample_sizes,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert result.shape == p0_values.shape
     assert result.dtype == dtype
@@ -37,10 +41,18 @@ def test_proportion_power(batch_size, dtype):
 
     # Test one-sided tests
     result_greater = beignet.statistics.proportion_power(
-        p0_values, p1_values, sample_sizes, alpha=0.05, alternative="greater"
+        p0_values,
+        p1_values,
+        sample_sizes,
+        alpha=0.05,
+        alternative="greater",
     )
     result_less = beignet.statistics.proportion_power(
-        p0_values, p1_values, sample_sizes, alpha=0.05, alternative="less"
+        p0_values,
+        p1_values,
+        sample_sizes,
+        alpha=0.05,
+        alternative="less",
     )
 
     assert torch.all(result_greater >= 0.0)
@@ -51,7 +63,12 @@ def test_proportion_power(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(p0_values)
     result_out = beignet.statistics.proportion_power(
-        p0_values, p1_values, sample_sizes, alpha=0.05, alternative="two-sided", out=out
+        p0_values,
+        p1_values,
+        sample_sizes,
+        alpha=0.05,
+        alternative="two-sided",
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
@@ -100,7 +117,8 @@ def test_proportion_power(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_proportion_power = torch.compile(
-        beignet.statistics.proportion_power, fullgraph=True
+        beignet.statistics.proportion_power,
+        fullgraph=True,
     )
     result_compiled = compiled_proportion_power(p0_values, p1_values, sample_sizes)
     assert torch.allclose(result, result_compiled, atol=1e-5)
@@ -123,7 +141,11 @@ def test_proportion_power(batch_size, dtype):
     p1 = torch.tensor(0.6, dtype=dtype)
     n = torch.tensor(100.0, dtype=dtype)
     power = beignet.statistics.proportion_power(
-        p0, p1, n, alpha=0.05, alternative="two-sided"
+        p0,
+        p1,
+        n,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should be somewhere between 0.3 and 0.7 for these parameters

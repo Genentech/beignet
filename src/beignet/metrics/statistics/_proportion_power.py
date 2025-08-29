@@ -132,7 +132,7 @@ class ProportionPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -146,7 +146,9 @@ class ProportionPower(Metric):
             if p1 is None:
                 # Center range around p0 with reasonable spread
                 x_values = np.linspace(
-                    max(0.01, self.p0 - 0.4), min(0.99, self.p0 + 0.4), 100
+                    max(0.01, self.p0 - 0.4),
+                    min(0.99, self.p0 + 0.4),
+                    100,
                 )
             else:
                 x_values = np.asarray(p1)

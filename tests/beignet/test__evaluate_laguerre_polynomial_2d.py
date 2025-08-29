@@ -42,7 +42,9 @@ def test_evaluate_laguerre_polynomial_2d(float64):
         torch.ones([2, 3]),
         torch.ones([2, 3]),
         torch.einsum(
-            "i,j->ij", torch.tensor([9.0, -14.0, 6.0]), torch.tensor([9.0, -14.0, 6.0])
+            "i,j->ij",
+            torch.tensor([9.0, -14.0, 6.0]),
+            torch.tensor([9.0, -14.0, 6.0]),
         ),
     )
 

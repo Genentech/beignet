@@ -67,15 +67,18 @@ def multiply_probabilists_hermite_polynomial(
                 size = size - 1
 
                 a = subtract_probabilists_hermite_polynomial(
-                    x[-i] * y, b * (size - 1.0)
+                    x[-i] * y,
+                    b * (size - 1.0),
                 )
 
                 b = add_probabilists_hermite_polynomial(
-                    previous, multiply_probabilists_hermite_polynomial_by_x(b, "same")
+                    previous,
+                    multiply_probabilists_hermite_polynomial_by_x(b, "same"),
                 )
 
     output = add_probabilists_hermite_polynomial(
-        a, multiply_probabilists_hermite_polynomial_by_x(b, "same")
+        a,
+        multiply_probabilists_hermite_polynomial_by_x(b, "same"),
     )
 
     if mode == "same":

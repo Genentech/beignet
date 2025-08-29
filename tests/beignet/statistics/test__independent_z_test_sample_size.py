@@ -26,7 +26,11 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
 
     # Test basic computation
     sample_size = independent_z_test_sample_size(
-        effect_size, ratio, power, alpha=0.05, alternative="two-sided"
+        effect_size,
+        ratio,
+        power,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Check output properties
@@ -37,13 +41,22 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
 
     # Test different alternatives
     sample_size_larger = independent_z_test_sample_size(
-        effect_size, ratio, power, alternative="larger"
+        effect_size,
+        ratio,
+        power,
+        alternative="larger",
     )
     sample_size_smaller = independent_z_test_sample_size(
-        effect_size, ratio, power, alternative="smaller"
+        effect_size,
+        ratio,
+        power,
+        alternative="smaller",
     )
     sample_size_two_sided = independent_z_test_sample_size(
-        effect_size, ratio, power, alternative="two-sided"
+        effect_size,
+        ratio,
+        power,
+        alternative="two-sided",
     )
 
     # One-sided tests should generally require smaller samples than two-sided
@@ -54,10 +67,16 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
     small_effect = effect_size * 0.5
     large_effect = effect_size * 1.5
     sample_small = independent_z_test_sample_size(
-        small_effect, ratio, power, alternative="larger"
+        small_effect,
+        ratio,
+        power,
+        alternative="larger",
     )
     sample_large = independent_z_test_sample_size(
-        large_effect, ratio, power, alternative="larger"
+        large_effect,
+        ratio,
+        power,
+        alternative="larger",
     )
     assert torch.all(sample_small >= sample_large)
 
@@ -65,10 +84,16 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
     low_power = power * 0.8
     high_power = torch.clamp(power * 1.2, max=0.95)
     sample_low = independent_z_test_sample_size(
-        effect_size, ratio, low_power, alternative="larger"
+        effect_size,
+        ratio,
+        low_power,
+        alternative="larger",
     )
     sample_high = independent_z_test_sample_size(
-        effect_size, ratio, high_power, alternative="larger"
+        effect_size,
+        ratio,
+        high_power,
+        alternative="larger",
     )
     assert torch.all(sample_high >= sample_low)
 
@@ -78,7 +103,10 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
     power.requires_grad_(True)
 
     sample_size = independent_z_test_sample_size(
-        effect_size, ratio, power, alternative="larger"
+        effect_size,
+        ratio,
+        power,
+        alternative="larger",
     )
     loss = sample_size.sum()
     loss.backward()
@@ -129,7 +157,11 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
     power_known = torch.tensor(0.8, dtype=dtype)
 
     sample_size_one_sided = independent_z_test_sample_size(
-        effect_size_known, ratio_known, power_known, alpha=0.05, alternative="larger"
+        effect_size_known,
+        ratio_known,
+        power_known,
+        alpha=0.05,
+        alternative="larger",
     )
 
     # Should be reasonable sample size (between 15 and 150 for moderate effect)
@@ -138,18 +170,27 @@ def test_independent_z_test_sample_size(batch_size: int, dtype: torch.dtype) -> 
     # Test invalid alternative
     with pytest.raises(ValueError):
         independent_z_test_sample_size(
-            effect_size_known, ratio_known, power_known, alternative="invalid"
+            effect_size_known,
+            ratio_known,
+            power_known,
+            alternative="invalid",
         )
 
     # Test extreme values
     with pytest.raises(ValueError):
         independent_z_test_sample_size(
-            effect_size_known, ratio_known, torch.tensor(1.5, dtype=dtype), alpha=0.05
+            effect_size_known,
+            ratio_known,
+            torch.tensor(1.5, dtype=dtype),
+            alpha=0.05,
         )  # Power > 1
 
     with pytest.raises(ValueError):
         independent_z_test_sample_size(
-            effect_size_known, ratio_known, torch.tensor(-0.1, dtype=dtype), alpha=0.05
+            effect_size_known,
+            ratio_known,
+            torch.tensor(-0.1, dtype=dtype),
+            alpha=0.05,
         )  # Power < 0
 
     # Test against statsmodels for verification

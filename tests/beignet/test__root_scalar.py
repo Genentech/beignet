@@ -47,7 +47,10 @@ def test_root_scalar(compile, method):
     }
 
     solver = partial(
-        beignet.root_scalar, method=method, implicit_diff=True, options=options
+        beignet.root_scalar,
+        method=method,
+        implicit_diff=True,
+        options=options,
     )
     if compile:
         solver = torch.compile(solver, fullgraph=False)
@@ -83,7 +86,10 @@ def test_root_scalar_compile_fullgraph(method):
     }
 
     solver = partial(
-        beignet.root_scalar, method=method, implicit_diff=False, options=options
+        beignet.root_scalar,
+        method=method,
+        implicit_diff=False,
+        options=options,
     )
     solver = torch.compile(solver, fullgraph=True)
 
@@ -106,8 +112,8 @@ def test_root_scalar_grad(method):
 
     grad = torch.func.vmap(
         torch.func.grad(
-            lambda c: beignet.root_scalar(f, c, method=method, options=options)
-        )
+            lambda c: beignet.root_scalar(f, c, method=method, options=options),
+        ),
     )(c)
 
     expected = torch.func.vmap(torch.func.grad(xstar))(c)
@@ -124,7 +130,7 @@ def test_root_scalar_jacrev(method):
     options = {"a": lower, "b": upper, "dtype": torch.float64}
 
     jac = torch.func.jacrev(
-        lambda c: beignet.root_scalar(f, c, method=method, options=options)
+        lambda c: beignet.root_scalar(f, c, method=method, options=options),
     )(c)
 
     expected = torch.func.vmap(torch.func.grad(xstar))(c)

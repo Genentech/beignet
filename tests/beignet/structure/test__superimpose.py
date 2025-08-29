@@ -50,7 +50,9 @@ def test_superimpose_with_rename_symmetric_atoms(structure_7k7r_pdb):
     p_T = dataclasses.replace(
         p,
         atom_thin_xyz=swap_symmetric_atom_thin_atoms(
-            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
+            p.residue_type,
+            T(p.atom_thin_xyz),
+            p.atom_thin_mask,
         )[0],
     )
 
@@ -71,16 +73,18 @@ def test_superimpose_batched(structure_7k7r_pdb):
     p_T = dataclasses.replace(
         p,
         atom_thin_xyz=swap_symmetric_atom_thin_atoms(
-            p.residue_type, T(p.atom_thin_xyz), p.atom_thin_mask
+            p.residue_type,
+            T(p.atom_thin_xyz),
+            p.atom_thin_mask,
         )[0],
     )
 
     batch = torch.stack(
-        [p[ChainSelector([c])].pad_to_target_length(256) for c in p.chain_id_list]
+        [p[ChainSelector([c])].pad_to_target_length(256) for c in p.chain_id_list],
     )
 
     batch_T = torch.stack(
-        [p_T[ChainSelector([c])].pad_to_target_length(256) for c in p.chain_id_list]
+        [p_T[ChainSelector([c])].pad_to_target_length(256) for c in p.chain_id_list],
     )
 
     _, _, rmsd = superimpose(batch_T, batch)

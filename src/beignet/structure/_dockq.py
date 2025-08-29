@@ -72,7 +72,7 @@ def dockq_irmsd_score(
                     radius_cutoff=radius_cutoff,
                 ),
                 PeptideBackboneSelector(include_oxygen=True),
-            ]
+            ],
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -95,7 +95,7 @@ def dockq_lrmsd_score(
             [
                 ChainSelector(receptor_chains),
                 PeptideBackboneSelector(include_oxygen=True),
-            ]
+            ],
         ),
         rename_symmetric_atoms=rename_symmetric_atoms,
     )
@@ -108,7 +108,7 @@ def dockq_lrmsd_score(
             [
                 ChainSelector(ligand_chains),
                 PeptideBackboneSelector(include_oxygen=True),
-            ]
+            ],
         ),
     )
 

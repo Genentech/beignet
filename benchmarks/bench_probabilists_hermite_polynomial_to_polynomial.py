@@ -28,6 +28,8 @@ class BenchProbabilistsHermitePolynomialToPolynomial:
         self.func(self.input)
 
     def peak_memory_probabilists_hermite_polynomial_to_polynomial(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.input)

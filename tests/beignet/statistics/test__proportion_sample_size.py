@@ -24,7 +24,11 @@ def test_proportion_sample_size(batch_size, dtype):
 
     # Test basic functionality - two-sided test
     result = beignet.statistics.proportion_sample_size(
-        p0_values, p1_values, power=0.8, alpha=0.05, alternative="two-sided"
+        p0_values,
+        p1_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert result.shape == p0_values.shape
     assert result.dtype == dtype
@@ -33,10 +37,18 @@ def test_proportion_sample_size(batch_size, dtype):
 
     # Test one-sided tests
     result_greater = beignet.statistics.proportion_sample_size(
-        p0_values, p1_values, power=0.8, alpha=0.05, alternative="greater"
+        p0_values,
+        p1_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="greater",
     )
     result_less = beignet.statistics.proportion_sample_size(
-        p0_values, p1_values, power=0.8, alpha=0.05, alternative="less"
+        p0_values,
+        p1_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="less",
     )
 
     assert torch.all(result_greater >= 1.0)
@@ -49,27 +61,40 @@ def test_proportion_sample_size(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(p0_values)
     result_out = beignet.statistics.proportion_sample_size(
-        p0_values, p1_values, power=0.8, alpha=0.05, alternative="two-sided", out=out
+        p0_values,
+        p1_values,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
 
     # Test sample size decreases with effect size
     small_effect = beignet.statistics.proportion_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.51, dtype=dtype), power=0.8
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.51, dtype=dtype),
+        power=0.8,
     )
     large_effect = beignet.statistics.proportion_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.8
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.8,
     )
 
     assert large_effect < small_effect
 
     # Test sample size increases with power
     low_power = beignet.statistics.proportion_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.5
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.5,
     )
     high_power = beignet.statistics.proportion_sample_size(
-        torch.tensor(0.5, dtype=dtype), torch.tensor(0.6, dtype=dtype), power=0.9
+        torch.tensor(0.5, dtype=dtype),
+        torch.tensor(0.6, dtype=dtype),
+        power=0.9,
     )
 
     assert high_power > low_power
@@ -88,7 +113,8 @@ def test_proportion_sample_size(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_proportion_sample_size = torch.compile(
-        beignet.statistics.proportion_sample_size, fullgraph=True
+        beignet.statistics.proportion_sample_size,
+        fullgraph=True,
     )
     result_compiled = compiled_proportion_sample_size(p0_values, p1_values, power=0.8)
     assert torch.allclose(result, result_compiled, atol=1e-5)
@@ -109,7 +135,11 @@ def test_proportion_sample_size(batch_size, dtype):
     p0 = torch.tensor(0.5, dtype=dtype)
     p1 = torch.tensor(0.6, dtype=dtype)
     n = beignet.statistics.proportion_sample_size(
-        p0, p1, power=0.8, alpha=0.05, alternative="two-sided"
+        p0,
+        p1,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should be somewhere between 100 and 500 for these parameters
@@ -117,7 +147,9 @@ def test_proportion_sample_size(batch_size, dtype):
 
     # For large effect (0.5 vs 0.8), sample size should be smaller
     large_effect_n = beignet.statistics.proportion_sample_size(
-        p0, torch.tensor(0.8, dtype=dtype), power=0.8
+        p0,
+        torch.tensor(0.8, dtype=dtype),
+        power=0.8,
     )
     assert large_effect_n < n
 
@@ -130,7 +162,10 @@ def test_proportion_sample_size(batch_size, dtype):
 
     # Calculate required sample size
     n = beignet.statistics.proportion_sample_size(
-        p0, p1, power=target_power, alpha=alpha
+        p0,
+        p1,
+        power=target_power,
+        alpha=alpha,
     )
 
     # Calculate power with that sample size

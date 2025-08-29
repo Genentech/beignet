@@ -15,7 +15,8 @@ def test_evaluate_laguerre_polynomial_cartesian_3d(float64):
 
     target = torch.einsum("i,j,k->ijk", y1, y2, y3)
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial_cartesian_3d(a, b, x3, c3d), target
+        beignet.evaluate_laguerre_polynomial_cartesian_3d(a, b, x3, c3d),
+        target,
     )
 
     z = torch.ones([2, 3])

@@ -30,7 +30,12 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test basic functionality - two-sided test
     result = beignet.statistics.proportion_two_sample_power(
-        p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="two-sided"
+        p1_values,
+        p2_values,
+        n1_values,
+        n2_values,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert result.shape == p1_values.shape
     assert result.dtype == dtype
@@ -39,19 +44,39 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test with equal sample sizes (n2=None)
     result_equal = beignet.statistics.proportion_two_sample_power(
-        p1_values, p2_values, n1_values, None, alpha=0.05, alternative="two-sided"
+        p1_values,
+        p2_values,
+        n1_values,
+        None,
+        alpha=0.05,
+        alternative="two-sided",
     )
     result_explicit = beignet.statistics.proportion_two_sample_power(
-        p1_values, p2_values, n1_values, n1_values, alpha=0.05, alternative="two-sided"
+        p1_values,
+        p2_values,
+        n1_values,
+        n1_values,
+        alpha=0.05,
+        alternative="two-sided",
     )
     assert torch.allclose(result_equal, result_explicit)
 
     # Test one-sided tests
     result_greater = beignet.statistics.proportion_two_sample_power(
-        p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="greater"
+        p1_values,
+        p2_values,
+        n1_values,
+        n2_values,
+        alpha=0.05,
+        alternative="greater",
     )
     result_less = beignet.statistics.proportion_two_sample_power(
-        p1_values, p2_values, n1_values, n2_values, alpha=0.05, alternative="less"
+        p1_values,
+        p2_values,
+        n1_values,
+        n2_values,
+        alpha=0.05,
+        alternative="less",
     )
 
     assert torch.all(result_greater >= 0.0)
@@ -111,7 +136,10 @@ def test_proportion_two_sample_power(batch_size, dtype):
     n1_grad = n1_values.clone().requires_grad_(True)
     n2_grad = n2_values.clone().requires_grad_(True)
     result_grad = beignet.statistics.proportion_two_sample_power(
-        p1_grad, p2_grad, n1_grad, n2_grad
+        p1_grad,
+        p2_grad,
+        n1_grad,
+        n2_grad,
     )
 
     # Compute gradients
@@ -125,10 +153,14 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_proportion_two_sample_power = torch.compile(
-        beignet.statistics.proportion_two_sample_power, fullgraph=True
+        beignet.statistics.proportion_two_sample_power,
+        fullgraph=True,
     )
     result_compiled = compiled_proportion_two_sample_power(
-        p1_values, p2_values, n1_values, n2_values
+        p1_values,
+        p2_values,
+        n1_values,
+        n2_values,
     )
     assert torch.allclose(result, result_compiled, atol=1e-5)
 
@@ -152,7 +184,12 @@ def test_proportion_two_sample_power(batch_size, dtype):
     n1 = torch.tensor(100.0, dtype=dtype)
     n2 = torch.tensor(100.0, dtype=dtype)
     power = beignet.statistics.proportion_two_sample_power(
-        p1, p2, n1, n2, alpha=0.05, alternative="two-sided"
+        p1,
+        p2,
+        n1,
+        n2,
+        alpha=0.05,
+        alternative="two-sided",
     )
 
     # Should be somewhere between 0.15 and 0.8 for these parameters
@@ -160,7 +197,11 @@ def test_proportion_two_sample_power(batch_size, dtype):
 
     # Test edge cases - same proportions should give power ≈ alpha
     same_props = beignet.statistics.proportion_two_sample_power(
-        p1, p1, n1, n2, alpha=0.05
+        p1,
+        p1,
+        n1,
+        n2,
+        alpha=0.05,
     )
     assert torch.abs(same_props - 0.05) < 0.03
 
@@ -189,7 +230,7 @@ def test_proportion_two_sample_power(batch_size, dtype):
             if alt == "two-sided":
                 zcrit = stats.norm.ppf(1 - 0.05 / 2)
                 ref = (1 - stats.norm.cdf(zcrit - delta)) + stats.norm.cdf(
-                    -zcrit - delta
+                    -zcrit - delta,
                 )
             elif alt == "greater":
                 zcrit = stats.norm.ppf(1 - 0.05)
@@ -229,7 +270,10 @@ def test_proportion_two_sample_power(batch_size, dtype):
     tiny_p2 = torch.tensor(0.002, dtype=dtype)
     large_n = torch.tensor(1000.0, dtype=dtype)
     tiny_power = beignet.statistics.proportion_two_sample_power(
-        tiny_p1, tiny_p2, large_n, large_n
+        tiny_p1,
+        tiny_p2,
+        large_n,
+        large_n,
     )
     assert 0.0 <= tiny_power <= 1.0
 
@@ -237,7 +281,10 @@ def test_proportion_two_sample_power(batch_size, dtype):
     large_p1 = torch.tensor(0.998, dtype=dtype)
     large_p2 = torch.tensor(0.999, dtype=dtype)
     large_power = beignet.statistics.proportion_two_sample_power(
-        large_p1, large_p2, large_n, large_n
+        large_p1,
+        large_p2,
+        large_n,
+        large_n,
     )
     assert 0.0 <= large_power <= 1.0
 

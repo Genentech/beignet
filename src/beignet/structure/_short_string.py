@@ -3,7 +3,9 @@ def short_string_to_int(input: str):
     assert input.isascii()
     assert len(input) <= 8
     return int.from_bytes(
-        input.ljust(8, "\0").encode("ascii"), byteorder="little", signed=False
+        input.ljust(8, "\0").encode("ascii"),
+        byteorder="little",
+        signed=False,
     )
 
 

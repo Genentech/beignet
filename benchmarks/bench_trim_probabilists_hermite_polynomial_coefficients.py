@@ -30,6 +30,8 @@ class BenchTrimProbabilistsHermitePolynomialCoefficients:
         self.func(self.input, self.tol)
 
     def peak_memory_trim_probabilists_hermite_polynomial_coefficients(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.input, self.tol)

@@ -9,7 +9,10 @@ def _pad_end(input: Tensor, pad_len: int, dim: int = 0, value=None) -> Tensor:
 
 
 def pad_to_target_length(
-    input: Tensor, target_length: int, dim: int = 0, value=None
+    input: Tensor,
+    target_length: int,
+    dim: int = 0,
+    value=None,
 ) -> Tensor:
     pad_len = target_length - input.shape[dim]
     if pad_len < 0:

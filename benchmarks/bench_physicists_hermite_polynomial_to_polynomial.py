@@ -28,6 +28,8 @@ class BenchPhysicistsHermitePolynomialToPolynomial:
         self.func(self.input)
 
     def peak_memory_physicists_hermite_polynomial_to_polynomial(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.input)

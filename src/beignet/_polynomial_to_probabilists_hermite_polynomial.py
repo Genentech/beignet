@@ -16,7 +16,8 @@ def polynomial_to_probabilists_hermite_polynomial(input: Tensor) -> Tensor:
         output = multiply_probabilists_hermite_polynomial_by_x(output, mode="same")
 
         output = add_probabilists_hermite_polynomial(
-            output, input[input.shape[0] - 1 - i]
+            output,
+            input[input.shape[0] - 1 - i],
         )
 
     return output

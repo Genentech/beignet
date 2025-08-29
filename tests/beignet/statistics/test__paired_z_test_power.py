@@ -24,10 +24,12 @@ def test_paired_z_test_power(batch_size, dtype):
 
     # Monotonic in n
     p_small = beignet.statistics.paired_z_test_power(
-        d_vals, torch.full_like(d_vals, 10.0)
+        d_vals,
+        torch.full_like(d_vals, 10.0),
     )
     p_large = beignet.statistics.paired_z_test_power(
-        d_vals, torch.full_like(d_vals, 100.0)
+        d_vals,
+        torch.full_like(d_vals, 100.0),
     )
     assert torch.all(p_large >= p_small)
 

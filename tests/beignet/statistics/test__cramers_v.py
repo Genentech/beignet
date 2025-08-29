@@ -40,7 +40,10 @@ def test_cramers_v(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(chi_square_values)
     result_out = beignet.statistics.cramers_v(
-        chi_square_values, sample_sizes, min_dims, out=out
+        chi_square_values,
+        sample_sizes,
+        min_dims,
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
@@ -142,7 +145,9 @@ def test_cramers_v(batch_size, dtype):
             sample_size = torch.tensor(float(n), dtype=dtype)
             min_dimension = torch.tensor(float(min_dim), dtype=dtype)
             beignet_result = beignet.statistics.cramers_v(
-                chi_sq, sample_size, min_dimension
+                chi_sq,
+                sample_size,
+                min_dimension,
             )
 
             # Scipy implementation

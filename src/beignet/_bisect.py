@@ -105,7 +105,9 @@ def bisect(
             return a, b, c, fa.clone(), fb.clone(), fc, converged, iterations
 
     a, b, c, fa, fb, fc, converged, iterations = while_loop(
-        condition, loop_body, (a, b, c, fa, fb, fc, converged, iterations)
+        condition,
+        loop_body,
+        (a, b, c, fa, fb, fc, converged, iterations),
     )
 
     if return_solution_info:

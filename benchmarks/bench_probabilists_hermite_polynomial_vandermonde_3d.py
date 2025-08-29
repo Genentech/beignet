@@ -36,6 +36,8 @@ class BenchProbabilistsHermitePolynomialVandermonde3D:
         self.func(self.x, self.y, self.z, self.degree)
 
     def peak_memory_probabilists_hermite_polynomial_vandermonde_3d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.x, self.y, self.z, self.degree)

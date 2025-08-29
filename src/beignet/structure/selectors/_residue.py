@@ -93,7 +93,7 @@ class CDRResidueSelector:
 
     def __post_init__(self):
         if not set(self.which_cdrs).issubset(
-            {"H1", "H2", "H3", "H4", "L1", "L2", "L3", "L4"}
+            {"H1", "H2", "H3", "H4", "L1", "L2", "L3", "L4"},
         ):
             raise KeyError(f"{self.which_cdrs=} not valid")
 

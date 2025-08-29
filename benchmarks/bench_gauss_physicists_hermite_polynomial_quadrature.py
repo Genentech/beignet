@@ -30,6 +30,8 @@ class BenchGaussPhysicistsHermitePolynomialQuadrature:
         self.func(self.degree)
 
     def peak_memory_gauss_physicists_hermite_polynomial_quadrature(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.degree)

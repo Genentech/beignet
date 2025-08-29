@@ -32,7 +32,9 @@ class Rigid:
 
     def __getitem__(self, key):
         return optree.tree_map(
-            lambda x: operator.getitem(x, key), self, namespace="beignet"
+            lambda x: operator.getitem(x, key),
+            self,
+            namespace="beignet",
         )
 
     @property
@@ -47,7 +49,8 @@ class Rigid:
     def rand(cls, *size, dtype=None, device=None):
         t = torch.randn((*size, 3), dtype=dtype, device=device)
         q = torch.nn.functional.normalize(
-            torch.randn((*size, 4), dtype=dtype, device=device), dim=-1
+            torch.randn((*size, 4), dtype=dtype, device=device),
+            dim=-1,
         )
         r = quaternion_to_rotation_matrix(q)
         return cls(t, r)
@@ -98,7 +101,9 @@ class Rigid:
 
     def to(self, dtype=None, device=None):
         return optree.tree_map(
-            lambda x: x.to(dtype=dtype, device=device), self, namespace="beignet"
+            lambda x: x.to(dtype=dtype, device=device),
+            self,
+            namespace="beignet",
         )
 
     def compose(self, other: "Rigid"):
@@ -118,7 +123,9 @@ def cat(input, dim: int = 0):
     if dim < 0:
         dim = input[0].ndim + dim
     return optree.tree_map(
-        lambda *x: torch.cat([*x], dim=dim), *input, namespace="beignet"
+        lambda *x: torch.cat([*x], dim=dim),
+        *input,
+        namespace="beignet",
     )
 
 
@@ -127,7 +134,9 @@ def stack(input, dim: int = 0):
     if dim < 0:
         dim = input[0].ndim + dim + 1
     return optree.tree_map(
-        lambda *x: torch.stack([*x], dim=dim), *input, namespace="beignet"
+        lambda *x: torch.stack([*x], dim=dim),
+        *input,
+        namespace="beignet",
     )
 
 
@@ -136,7 +145,9 @@ def unbind(input, dim: int = 0):
     if dim < 0:
         dim = input.ndim + dim
     return optree.tree_transpose_map(
-        lambda x: torch.unbind(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.unbind(x, dim=dim),
+        input,
+        namespace="beignet",
     )
 
 
@@ -145,7 +156,9 @@ def unsqueeze(input, dim: int):
     if dim < 0:
         dim = input.ndim + dim + 1
     return optree.tree_map(
-        lambda x: torch.unsqueeze(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.unsqueeze(x, dim=dim),
+        input,
+        namespace="beignet",
     )
 
 
@@ -154,5 +167,7 @@ def squeeze(input, dim: int):
     if dim < 0:
         dim = input.ndim + dim
     return optree.tree_map(
-        lambda x: torch.squeeze(x, dim=dim), input, namespace="beignet"
+        lambda x: torch.squeeze(x, dim=dim),
+        input,
+        namespace="beignet",
     )

@@ -25,7 +25,11 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
 
     # Test basic computation
     power = chi_square_independence_power(
-        effect_size, sample_size, rows, cols, alpha=0.05
+        effect_size,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
 
     # Check output properties
@@ -36,10 +40,18 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
 
     # Test with different alpha levels
     power_01 = chi_square_independence_power(
-        effect_size, sample_size, rows, cols, alpha=0.01
+        effect_size,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.01,
     )
     power_05 = chi_square_independence_power(
-        effect_size, sample_size, rows, cols, alpha=0.05
+        effect_size,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
 
     # Lower alpha should give lower power (stricter test)
@@ -49,7 +61,11 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
     # Zero effect size should give power close to alpha
     zero_effect = torch.zeros_like(effect_size)
     power_zero = chi_square_independence_power(
-        zero_effect, sample_size, rows, cols, alpha=0.05
+        zero_effect,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
     assert torch.all(power_zero <= 0.1)  # Should be close to alpha
 
@@ -57,7 +73,11 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
     large_effect = torch.ones_like(effect_size)
     large_sample = torch.ones_like(sample_size) * 1000
     power_large = chi_square_independence_power(
-        large_effect, large_sample, rows, cols, alpha=0.05
+        large_effect,
+        large_sample,
+        rows,
+        cols,
+        alpha=0.05,
     )
     assert torch.all(power_large >= 0.9)
 
@@ -65,10 +85,18 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
     small_effect = effect_size * 0.5
     large_effect = effect_size * 2.0
     power_small = chi_square_independence_power(
-        small_effect, sample_size, rows, cols, alpha=0.05
+        small_effect,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
     power_large = chi_square_independence_power(
-        large_effect, sample_size, rows, cols, alpha=0.05
+        large_effect,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
     assert torch.all(power_large >= power_small)
 
@@ -76,10 +104,18 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
     small_sample = sample_size * 0.5
     large_sample = sample_size * 2.0
     power_small = chi_square_independence_power(
-        effect_size, small_sample, rows, cols, alpha=0.05
+        effect_size,
+        small_sample,
+        rows,
+        cols,
+        alpha=0.05,
     )
     power_large = chi_square_independence_power(
-        effect_size, large_sample, rows, cols, alpha=0.05
+        effect_size,
+        large_sample,
+        rows,
+        cols,
+        alpha=0.05,
     )
     assert torch.all(power_large >= power_small)
 
@@ -110,7 +146,11 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
     cols.requires_grad_(True)
 
     power = chi_square_independence_power(
-        effect_size, sample_size, rows, cols, alpha=0.05
+        effect_size,
+        sample_size,
+        rows,
+        cols,
+        alpha=0.05,
     )
     loss = power.sum()
     loss.backward()
@@ -229,10 +269,16 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
 
     # Test larger tables
     power_3x3 = chi_square_independence_power(
-        effect_size, sample_size, torch.tensor(3), torch.tensor(3)
+        effect_size,
+        sample_size,
+        torch.tensor(3),
+        torch.tensor(3),
     )
     power_4x4 = chi_square_independence_power(
-        effect_size, sample_size, torch.tensor(4), torch.tensor(4)
+        effect_size,
+        sample_size,
+        torch.tensor(4),
+        torch.tensor(4),
     )
 
     # All should be valid probabilities
@@ -241,10 +287,16 @@ def test_chi_square_independence_power(batch_size: int, dtype: torch.dtype) -> N
 
     # Test rectangular tables
     power_2x5 = chi_square_independence_power(
-        effect_size, sample_size, torch.tensor(2), torch.tensor(5)
+        effect_size,
+        sample_size,
+        torch.tensor(2),
+        torch.tensor(5),
     )
     power_5x2 = chi_square_independence_power(
-        effect_size, sample_size, torch.tensor(5), torch.tensor(2)
+        effect_size,
+        sample_size,
+        torch.tensor(5),
+        torch.tensor(2),
     )
 
     # Should give same result (symmetry)

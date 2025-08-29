@@ -88,12 +88,16 @@ def antibody_fv_rmsd(
         light_cdrs = [*light_cdrs, "L4"]
 
     HCDR = CDRResidueSelector(
-        heavy_cdrs, heavy_chain=heavy_chain, light_chain=light_chain
+        heavy_cdrs,
+        heavy_chain=heavy_chain,
+        light_chain=light_chain,
     )
     HFW = AndSelector([ChainSelector([heavy_chain]), NotSelector(HCDR)])
 
     LCDR = CDRResidueSelector(
-        light_cdrs, heavy_chain=heavy_chain, light_chain=light_chain
+        light_cdrs,
+        heavy_chain=heavy_chain,
+        light_chain=light_chain,
     )
     LFW = AndSelector([ChainSelector([light_chain]), NotSelector(LCDR)])
 
@@ -138,7 +142,7 @@ def antibody_fv_rmsd(
                             light_chain=light_chain,
                         ),
                         selector,
-                    ]
+                    ],
                 ),
             )
             for cdr in heavy_cdrs
@@ -172,7 +176,7 @@ def antibody_fv_rmsd(
                             light_chain=light_chain,
                         ),
                         selector,
-                    ]
+                    ],
                 ),
             )
             for cdr in light_cdrs

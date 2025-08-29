@@ -81,7 +81,7 @@ def test_fit_polynomial(float64):
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-            ]
+            ],
         ).T,
     )
 
@@ -103,7 +103,7 @@ def test_fit_polynomial(float64):
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-            ]
+            ],
         ).T,
     )
 

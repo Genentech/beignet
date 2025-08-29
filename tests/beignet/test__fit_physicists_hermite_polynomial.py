@@ -122,7 +122,7 @@ def test_fit_physicists_hermite_polynomial(float64):
                         degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
-            ]
+            ],
         ).T,
     )
 
@@ -181,7 +181,7 @@ def test_fit_physicists_hermite_polynomial(float64):
                         degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
-            ]
+            ],
         ).T,
     )
 
@@ -208,7 +208,7 @@ def test_fit_physicists_hermite_polynomial(float64):
                         degree=torch.tensor([0, 1, 2, 3]),
                     )
                 ),
-            ]
+            ],
         ).T,
     )
 

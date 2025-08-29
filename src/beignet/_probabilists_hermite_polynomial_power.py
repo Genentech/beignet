@@ -53,13 +53,15 @@ def probabilists_hermite_polynomial_power(
                             input.shape[0] - output.shape[0],
                             dtype=output.dtype,
                         ),
-                    ]
+                    ],
                 )
 
                 output = input + output
 
             for _ in range(2, _exponent + 1):
                 output = multiply_probabilists_hermite_polynomial(
-                    output, input, mode="same"
+                    output,
+                    input,
+                    mode="same",
                 )
     return output

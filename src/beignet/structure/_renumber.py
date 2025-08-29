@@ -54,13 +54,14 @@ def _renumber(
 
         if chain_length != len(chain_numbering):
             raise AssertionError(
-                f"{chain=}: {chain_length=} != {len(chain_numbering)=}"
+                f"{chain=}: {chain_length=} != {len(chain_numbering)=}",
             )
 
         ids, ins = list(zip(*chain_numbering, strict=True))
         ids = torch.as_tensor(ids, dtype=torch.int64, device=author_seq_id.device)
         ins = torch.frombuffer(
-            bytearray(numpy.array(ins).astype("|S8").tobytes()), dtype=torch.int64
+            bytearray(numpy.array(ins).astype("|S8").tobytes()),
+            dtype=torch.int64,
         ).to(device=author_ins_code.device)
 
         author_seq_id = torch.masked_scatter(author_seq_id, chain_mask, ids)
@@ -80,7 +81,10 @@ def _renumber_from_gapped(
 ) -> tuple[Tensor, Tensor]:
     numbering = {
         k: _gapped_domain_to_numbering(
-            gapped=v, full=sequence[k], pre_gap=pre_gap, post_gap=post_gap
+            gapped=v,
+            full=sequence[k],
+            pre_gap=pre_gap,
+            post_gap=post_gap,
         )
         for k, v in gapped.items()
     }
@@ -96,7 +100,8 @@ def _renumber_from_gapped(
 
 
 def renumber(
-    input: "ResidueArray", numbering: dict[str, list[tuple[int, str]]]
+    input: "ResidueArray",
+    numbering: dict[str, list[tuple[int, str]]],
 ) -> "ResidueArray":
     author_seq_id, author_ins_code = _renumber(
         numbering,

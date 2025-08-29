@@ -20,18 +20,28 @@ def test_mann_whitney_u_test_power_and_sample_size(dtype):
 
     # Power increases with n1
     small = beignet.statistics.mann_whitney_u_test_power(
-        auc, torch.tensor(20.0, dtype=dtype), ratio=r
+        auc,
+        torch.tensor(20.0, dtype=dtype),
+        ratio=r,
     )
     large = beignet.statistics.mann_whitney_u_test_power(
-        auc, torch.tensor(100.0, dtype=dtype), ratio=r
+        auc,
+        torch.tensor(100.0, dtype=dtype),
+        ratio=r,
     )
     assert large > small
 
     # Sample size consistency (rough)
     n_req = beignet.statistics.mann_whitney_u_test_sample_size(
-        auc, ratio=r, power=0.8, alpha=0.05
+        auc,
+        ratio=r,
+        power=0.8,
+        alpha=0.05,
     )
     p_ach = beignet.statistics.mann_whitney_u_test_power(
-        auc, n_req, ratio=r, alpha=0.05
+        auc,
+        n_req,
+        ratio=r,
+        alpha=0.05,
     )
     assert abs(float(p_ach) - 0.8) < 0.2

@@ -16,7 +16,8 @@ def test_cohens_f_squared(batch_size, dtype):
     # Generate test parameters - create group means for 3 groups
     group_means = (
         torch.tensor(
-            [[10.0, 12.0, 14.0], [5.0, 7.0, 9.0], [20.0, 22.0, 24.0]], dtype=dtype
+            [[10.0, 12.0, 14.0], [5.0, 7.0, 9.0], [20.0, 22.0, 24.0]],
+            dtype=dtype,
         )
         .repeat(batch_size, 1, 1)
         .view(-1, 3)
@@ -57,7 +58,8 @@ def test_cohens_f_squared(batch_size, dtype):
     group_means_grad = group_means.clone().requires_grad_(True)
     pooled_stds_grad = pooled_stds.clone().requires_grad_(True)
     result_grad = beignet.statistics.cohens_f_squared(
-        group_means_grad, pooled_stds_grad
+        group_means_grad,
+        pooled_stds_grad,
     )
 
     # Compute gradients
@@ -69,7 +71,8 @@ def test_cohens_f_squared(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_cohens_f_squared = torch.compile(
-        beignet.statistics.cohens_f_squared, fullgraph=True
+        beignet.statistics.cohens_f_squared,
+        fullgraph=True,
     )
     result_compiled = compiled_cohens_f_squared(group_means, pooled_stds)
     assert torch.allclose(result, result_compiled, atol=1e-6)
@@ -89,7 +92,8 @@ def test_cohens_f_squared(batch_size, dtype):
     # Test interpretation guidelines
     # Small effect: f² = 0.01
     small_means = torch.tensor(
-        [10.0, 10.14, 10.28], dtype=dtype
+        [10.0, 10.14, 10.28],
+        dtype=dtype,
     )  # Adjusted for small f²
     pooled_std_small = torch.tensor(2.0, dtype=dtype)
     f2_small = beignet.statistics.cohens_f_squared(small_means, pooled_std_small)
@@ -145,7 +149,8 @@ def test_cohens_f_squared(batch_size, dtype):
     # f² = 0.8164965809277261² ≈ 0.6666666666666666
 
     result_manual = beignet.statistics.cohens_f_squared(
-        group_means_manual, pooled_std_manual
+        group_means_manual,
+        pooled_std_manual,
     )
     expected_manual = 0.6666666666666666
 

@@ -8,7 +8,10 @@ from ._polynomial_vandermonde import polynomial_vandermonde
 
 
 def polynomial_vandermonde_3d(
-    x: Tensor, y: Tensor, z: Tensor, degree: Tensor
+    x: Tensor,
+    y: Tensor,
+    z: Tensor,
+    degree: Tensor,
 ) -> Tensor:
     r"""
     Parameters

@@ -20,5 +20,6 @@ def _rename_chains(chain_id: Tensor, mapping: dict[str, str]) -> Tensor:
 
 def rename_chains(input: "ResidueArray", mapping: dict[str, str]):
     return dataclasses.replace(
-        input, chain_id=_rename_chains(input.chain_id, mapping=mapping)
+        input,
+        chain_id=_rename_chains(input.chain_id, mapping=mapping),
     )

@@ -3,7 +3,9 @@ from torch import Tensor
 
 
 def evaluate_polynomial(
-    input: Tensor, coefficients: Tensor, tensor: bool = True
+    input: Tensor,
+    coefficients: Tensor,
+    tensor: bool = True,
 ) -> Tensor:
     r"""
     Parameters

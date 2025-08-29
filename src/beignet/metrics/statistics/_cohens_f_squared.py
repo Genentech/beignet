@@ -112,12 +112,12 @@ class CohensFSquared(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         if not self.group_means_list or not self.pooled_std_list:
             raise RuntimeError(
-                "No samples have been added to the metric. Call update() first."
+                "No samples have been added to the metric. Call update() first.",
             )
 
         # Get the accumulated data
@@ -184,13 +184,25 @@ class CohensFSquared(Metric):
 
             # Add reference lines for effect size thresholds
             ax.axhline(
-                y=0.02, color="gray", linestyle=":", alpha=0.5, label="Small (0.02)"
+                y=0.02,
+                color="gray",
+                linestyle=":",
+                alpha=0.5,
+                label="Small (0.02)",
             )
             ax.axhline(
-                y=0.15, color="gray", linestyle="--", alpha=0.5, label="Medium (0.15)"
+                y=0.15,
+                color="gray",
+                linestyle="--",
+                alpha=0.5,
+                label="Medium (0.15)",
             )
             ax.axhline(
-                y=0.35, color="gray", linestyle="-", alpha=0.5, label="Large (0.35)"
+                y=0.35,
+                color="gray",
+                linestyle="-",
+                alpha=0.5,
+                label="Large (0.35)",
             )
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.3)
 
@@ -201,7 +213,7 @@ class CohensFSquared(Metric):
                 title = f"Effect Size: Cohen's f² = {float(effect_size):.3f}"
         else:
             raise ValueError(
-                f"plot_type must be 'means' or 'effect_size', got {plot_type}"
+                f"plot_type must be 'means' or 'effect_size', got {plot_type}",
             )
 
         ax.set_title(title)

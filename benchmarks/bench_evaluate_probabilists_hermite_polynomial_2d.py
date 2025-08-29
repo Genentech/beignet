@@ -32,6 +32,8 @@ class BenchEvaluateProbabilistsHermitePolynomial2D:
         self.func(self.coefficients, self.x, self.y)
 
     def peak_memory_evaluate_probabilists_hermite_polynomial_2d(
-        self, batch_size, dtype
+        self,
+        batch_size,
+        dtype,
     ):
         self.func(self.coefficients, self.x, self.y)

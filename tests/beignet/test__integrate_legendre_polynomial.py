@@ -66,7 +66,7 @@ def test_integrate_legendre_polynomial():
                         ),
                         order=1,
                         k=[i],
-                    )
+                    ),
                 ),
                 tol=0.000001,
             ),
@@ -103,7 +103,7 @@ def test_integrate_legendre_polynomial():
                         order=1,
                         k=[i],
                         scale=2,
-                    )
+                    ),
                 ),
                 tol=0.000001,
             ),
