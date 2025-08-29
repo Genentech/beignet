@@ -53,9 +53,8 @@ class KolmogorovSmirnovTestSampleSize(Metric):
 
         # State for storing analysis parameters
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_ratio_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, effect_size: Tensor, sample_ratio: Tensor) -> None:
+    def update(self, effect_size: Tensor) -> None:
         """
         Update the metric state with test parameters.
 
@@ -63,11 +62,8 @@ class KolmogorovSmirnovTestSampleSize(Metric):
         ----------
         effect_size : Tensor
             Effect size (maximum difference between cumulative distributions).
-        sample_ratio : Tensor
-            Ratio of sample sizes (n2/n1).
         """
-        self.effect_size_values.append(effect_size)
-        self.sample_ratio_values.append(sample_ratio)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
 
     def compute(self) -> Tensor:
         """
@@ -76,19 +72,17 @@ class KolmogorovSmirnovTestSampleSize(Metric):
         Returns
         -------
         Tensor
-            The computed required sample size for first group.
+            The computed required sample size.
         """
-        if not self.effect_size_values or not self.sample_ratio_values:
+        if not self.effect_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
         effect_size = self.effect_size_values[-1]
-        sample_ratio = self.sample_ratio_values[-1]
 
         # Use functional implementation
         return kolmogorov_smirnov_test_sample_size(
             effect_size,
-            sample_ratio,
             power=self.power,
             alpha=self.alpha,
         )
@@ -97,7 +91,6 @@ class KolmogorovSmirnovTestSampleSize(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.effect_size_values = []
-        self.sample_ratio_values = []
 
     def plot(
         self,

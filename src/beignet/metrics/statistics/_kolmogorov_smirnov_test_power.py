@@ -48,14 +48,12 @@ class KolmogorovSmirnovTestPower(Metric):
 
         # State for storing analysis parameters
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_size_1_values", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_size_2_values", default=[], dist_reduce_fx="cat")
+        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
         effect_size: Tensor,
-        sample_size_1: Tensor,
-        sample_size_2: Tensor,
+        sample_size: Tensor,
     ) -> None:
         """
         Update the metric state with test parameters.
@@ -64,14 +62,11 @@ class KolmogorovSmirnovTestPower(Metric):
         ----------
         effect_size : Tensor
             Effect size (maximum difference between cumulative distributions).
-        sample_size_1 : Tensor
-            Sample size of first group.
-        sample_size_2 : Tensor
-            Sample size of second group.
+        sample_size : Tensor
+            Combined sample size or effective sample size.
         """
-        self.effect_size_values.append(effect_size)
-        self.sample_size_1_values.append(sample_size_1)
-        self.sample_size_2_values.append(sample_size_2)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> Tensor:
         """
@@ -82,23 +77,17 @@ class KolmogorovSmirnovTestPower(Metric):
         Tensor
             The computed statistical power.
         """
-        if (
-            not self.effect_size_values
-            or not self.sample_size_1_values
-            or not self.sample_size_2_values
-        ):
+        if not self.effect_size_values or not self.sample_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
         effect_size = self.effect_size_values[-1]
-        sample_size_1 = self.sample_size_1_values[-1]
-        sample_size_2 = self.sample_size_2_values[-1]
+        sample_size = self.sample_size_values[-1]
 
         # Use functional implementation
         return kolmogorov_smirnov_test_power(
             effect_size,
-            sample_size_1,
-            sample_size_2,
+            sample_size,
             alpha=self.alpha,
         )
 
@@ -106,8 +95,7 @@ class KolmogorovSmirnovTestPower(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.effect_size_values = []
-        self.sample_size_1_values = []
-        self.sample_size_2_values = []
+        self.sample_size_values = []
 
     def plot(
         self,

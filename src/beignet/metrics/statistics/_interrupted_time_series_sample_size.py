@@ -54,14 +54,10 @@ class InterruptedTimeSeriesSampleSize(Metric):
 
         # State for storing analysis parameters
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("pre_periods_values", default=[], dist_reduce_fx="cat")
-        self.add_state("post_periods_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
         effect_size: Tensor,
-        pre_periods: Tensor,
-        post_periods: Tensor,
     ) -> None:
         """
         Update the metric state with analysis parameters.
@@ -70,14 +66,8 @@ class InterruptedTimeSeriesSampleSize(Metric):
         ----------
         effect_size : Tensor
             Effect size of the intervention.
-        pre_periods : Tensor
-            Number of pre-intervention periods.
-        post_periods : Tensor
-            Number of post-intervention periods.
         """
-        self.effect_size_values.append(effect_size)
-        self.pre_periods_values.append(pre_periods)
-        self.post_periods_values.append(post_periods)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
 
     def compute(self) -> Tensor:
         """
@@ -88,23 +78,17 @@ class InterruptedTimeSeriesSampleSize(Metric):
         Tensor
             The computed required sample size.
         """
-        if (
-            not self.effect_size_values
-            or not self.pre_periods_values
-            or not self.post_periods_values
-        ):
+        if not self.effect_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
         effect_size = self.effect_size_values[-1]
-        pre_periods = self.pre_periods_values[-1]
-        post_periods = self.post_periods_values[-1]
 
         # Use functional implementation
         return interrupted_time_series_sample_size(
             effect_size,
-            pre_periods,
-            post_periods,
+            pre_post_ratio=torch.tensor(1.0),
+            autocorrelation=torch.tensor(0.0),
             power=self.power,
             alpha=self.alpha,
         )
@@ -113,8 +97,6 @@ class InterruptedTimeSeriesSampleSize(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.effect_size_values = []
-        self.pre_periods_values = []
-        self.post_periods_values = []
 
     def plot(
         self,

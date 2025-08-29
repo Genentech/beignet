@@ -44,7 +44,7 @@ def interrupted_time_series_power(
 
     n_pre_intervention = torch.atleast_1d(n_pre_intervention)
 
-    autocorrelation = torch.atleast_1d(autocorrelation)
+    autocorrelation = torch.atleast_1d(torch.as_tensor(autocorrelation))
 
     dtype = torch.promote_types(input.dtype, n_time_points.dtype)
     dtype = torch.promote_types(dtype, n_pre_intervention.dtype)

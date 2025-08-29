@@ -45,34 +45,25 @@ class ProportionTwoSamplePower(Metric):
         self.alpha = alpha
         self.alternative = alternative
 
-        self.add_state("p1_values", default=[], dist_reduce_fx="cat")
-        self.add_state("p2_values", default=[], dist_reduce_fx="cat")
-        self.add_state("n1_values", default=[], dist_reduce_fx="cat")
-        self.add_state("n2_values", default=[], dist_reduce_fx="cat")
+        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
+        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
 
     def update(
-        self, p1: Tensor, p2: Tensor, n1: Tensor, n2: Tensor | None = None
+        self,
+        effect_size: Tensor,
+        sample_size: Tensor,
     ) -> None:
-        """Update the metric state with new proportion and sample size values.
+        """Update the metric state with new effect size and sample size values.
 
         Parameters
         ----------
-        p1 : Tensor
-            Proportion in group 1.
-        p2 : Tensor
-            Proportion in group 2.
-        n1 : Tensor
-            Sample size for group 1.
-        n2 : Tensor, optional
-            Sample size for group 2. If None, assumes equal sample sizes.
+        effect_size : Tensor
+            Effect size (difference in proportions).
+        sample_size : Tensor
+            Sample size per group.
         """
-        if n2 is None:
-            n2 = n1
-
-        self.p1_values.append(torch.atleast_1d(p1.detach()))
-        self.p2_values.append(torch.atleast_1d(p2.detach()))
-        self.n1_values.append(torch.atleast_1d(n1.detach()))
-        self.n2_values.append(torch.atleast_1d(n2.detach()))
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> Tensor:
         """Compute the statistical power for the accumulated data.
@@ -82,19 +73,22 @@ class ProportionTwoSamplePower(Metric):
         Tensor
             Statistical power values.
         """
-        if not self.p1_values:
+        if not self.effect_size_values or not self.sample_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
-        p1_tensor = torch.cat(self.p1_values, dim=0)
-        p2_tensor = torch.cat(self.p2_values, dim=0)
-        n1_tensor = torch.cat(self.n1_values, dim=0)
-        n2_tensor = torch.cat(self.n2_values, dim=0)
+        effect_size_tensor = torch.cat(self.effect_size_values, dim=0)
+        sample_size_tensor = torch.cat(self.sample_size_values, dim=0)
+
+        # Convert effect size to p1, p2 assuming baseline p1=0.5 and p2 = p1 + effect_size
+        p1 = torch.full_like(effect_size_tensor, 0.5)
+        p2 = p1 + effect_size_tensor
+        p2 = torch.clamp(p2, 0.0, 1.0)  # Ensure valid probabilities
 
         return beignet.statistics.proportion_two_sample_power(
-            p1=p1_tensor,
-            p2=p2_tensor,
-            n1=n1_tensor,
-            n2=n2_tensor,
+            p1=p1,
+            p2=p2,
+            n1=sample_size_tensor,
+            n2=sample_size_tensor,  # Equal sample sizes
             alpha=self.alpha,
             alternative=self.alternative,
         )

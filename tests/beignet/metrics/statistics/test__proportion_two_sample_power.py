@@ -33,10 +33,14 @@ def test_proportion_two_sample_power(
     output = metric.compute()
 
     assert isinstance(output, Tensor)
-    assert output.shape == (batch_size,)
+    if batch_size == 1:
+        assert output.shape == ()  # Scalar output for single element
+        assert 0.0 <= output.item() <= 1.0
+    else:
+        assert output.shape == (batch_size,)
+        assert torch.all(output >= 0.0)
+        assert torch.all(output <= 1.0)
     assert output.dtype == dtype
-    assert torch.all(output >= 0.0)
-    assert torch.all(output <= 1.0)
 
     repr_str = repr(metric)
     assert "ProportionTwoSamplePower" in repr_str

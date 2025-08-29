@@ -49,20 +49,27 @@ class ZTestSampleSize(Metric):
         self.alpha = alpha
         self.alternative = alternative
         self.add_state("effect_size", default=torch.tensor(0.0), dist_reduce_fx="mean")
+        self.add_state("power_state", default=torch.tensor(0.0), dist_reduce_fx="mean")
         self.add_state("total", default=torch.tensor(0), dist_reduce_fx="sum")
 
-    def update(self, effect_size: Tensor) -> None:
+    def update(self, effect_size: Tensor, power: Tensor) -> None:
         """Update the metric state.
 
         Parameters
         ----------
         effect_size : Tensor
             Standardized effect size (Cohen's d).
+        power : Tensor
+            Desired statistical power.
         """
         if self.total == 0:
             self.effect_size = effect_size
+            self.power_state = power
         else:
             self.effect_size = (self.effect_size * self.total + effect_size) / (
+                self.total + 1
+            )
+            self.power_state = (self.power_state * self.total + power) / (
                 self.total + 1
             )
         self.total += 1
@@ -70,8 +77,8 @@ class ZTestSampleSize(Metric):
     def compute(self) -> Tensor:
         """Compute the required sample size."""
         return z_test_sample_size(
-            effect_size=self.effect_size,
-            power=self.power,
+            input=self.effect_size,
+            power=self.power_state,
             alpha=self.alpha,
             alternative=self.alternative,
         )
@@ -120,7 +127,7 @@ class ZTestSampleSize(Metric):
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from None
 
         # Create figure if no axis provided
@@ -176,7 +183,7 @@ class ZTestSampleSize(Metric):
             x_label = "Significance Level (α)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'power', or 'alpha', got {dep_var}"
+                f"dep_var must be 'effect_size', 'power', or 'alpha', got {dep_var}",
             )
 
         # Plot sample size curves for different parameter values

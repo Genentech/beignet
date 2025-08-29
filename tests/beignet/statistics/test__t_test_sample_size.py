@@ -29,17 +29,22 @@ def test_t_test_sample_size(batch_size, dtype):
     # Test with out parameter
     out = torch.empty_like(effect_sizes)
     result_out = beignet.statistics.t_test_sample_size(
-        effect_sizes, power=0.8, alpha=0.05, out=out
+        effect_sizes,
+        power=0.8,
+        alpha=0.05,
+        out=out,
     )
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
 
     # Test that sample size decreases with effect size
     small_effect = beignet.statistics.t_test_sample_size(
-        torch.tensor(0.2, dtype=dtype), power=0.8
+        torch.tensor(0.2, dtype=dtype),
+        power=0.8,
     )
     large_effect = beignet.statistics.t_test_sample_size(
-        torch.tensor(0.8, dtype=dtype), power=0.8
+        torch.tensor(0.8, dtype=dtype),
+        power=0.8,
     )
     assert small_effect > large_effect
 
@@ -55,11 +60,14 @@ def test_t_test_sample_size(batch_size, dtype):
 
     # Test torch.compile compatibility
     compiled_ttest_sample_size = torch.compile(
-        beignet.statistics.t_test_sample_size, fullgraph=True
+        beignet.statistics.t_test_sample_size,
+        fullgraph=True,
     )
     result_compiled = compiled_ttest_sample_size(effect_sizes, power=0.8)
     assert torch.allclose(
-        result, result_compiled, atol=1e-0
+        result,
+        result_compiled,
+        atol=1e-0,
     )  # Allow integer rounding differences
 
     # Test sample size calculation for different power levels
@@ -72,10 +80,14 @@ def test_t_test_sample_size(batch_size, dtype):
     # Test different alternative hypotheses
     # Two-sided test should require larger sample size than one-sided
     n_two_sided = beignet.statistics.t_test_sample_size(
-        effect_size, power=0.8, alternative="two-sided"
+        effect_size,
+        power=0.8,
+        alternative="two-sided",
     )
     n_one_sided = beignet.statistics.t_test_sample_size(
-        effect_size, power=0.8, alternative="one-sided"
+        effect_size,
+        power=0.8,
+        alternative="greater",
     )
     assert n_two_sided > n_one_sided
 
@@ -84,7 +96,10 @@ def test_t_test_sample_size(batch_size, dtype):
     # Expected sample size ≈ 34 (from power analysis literature)
     effect_size_known = torch.tensor(0.5, dtype=dtype)
     sample_size = beignet.statistics.t_test_sample_size(
-        effect_size_known, power=0.8, alpha=0.05, alternative="two-sided"
+        effect_size_known,
+        power=0.8,
+        alpha=0.05,
+        alternative="two-sided",
     )
     expected = 34
     # Allow some tolerance for approximation differences
@@ -116,25 +131,29 @@ def test_t_test_sample_size(batch_size, dtype):
 
                 # Allow reasonable tolerance for different approximations and rounding
                 assert torch.abs(beignet_n - statsmodels_n) < max(
-                    40, 0.25 * statsmodels_n
+                    40,
+                    0.25 * statsmodels_n,
                 ), f"Failed for effect_size={effect_size_val}, power={power_val}"
 
     # Test edge cases
     # Very small effect size should require large sample size
     small_effect_edge = beignet.statistics.t_test_sample_size(
-        torch.tensor(0.01, dtype=dtype), power=0.8
+        torch.tensor(0.01, dtype=dtype),
+        power=0.8,
     )
     assert small_effect_edge > 1000
 
     # Very large effect size should require small sample size
     large_effect_edge = beignet.statistics.t_test_sample_size(
-        torch.tensor(2.0, dtype=dtype), power=0.8
+        torch.tensor(2.0, dtype=dtype),
+        power=0.8,
     )
     assert large_effect_edge < 10
 
     # Check minimum sample size constraint
     tiny_effect = beignet.statistics.t_test_sample_size(
-        torch.tensor(1e-8, dtype=dtype), power=0.8
+        torch.tensor(1e-8, dtype=dtype),
+        power=0.8,
     )
     assert tiny_effect >= 2.0
 
@@ -143,11 +162,13 @@ def test_t_test_sample_size(batch_size, dtype):
     target_power = 0.8
     # Calculate required sample size
     sample_size_consistency = beignet.statistics.t_test_sample_size(
-        effect_size_consistency, power=target_power
+        effect_size_consistency,
+        power=target_power,
     )
     # Calculate power with that sample size
     achieved_power = beignet.statistics.t_test_power(
-        effect_size_consistency, sample_size_consistency
+        effect_size_consistency,
+        sample_size_consistency,
     )
     # Should achieve approximately the target power
     assert torch.abs(achieved_power - target_power) < 0.05
@@ -156,9 +177,13 @@ def test_t_test_sample_size(batch_size, dtype):
     effect_size_alpha = torch.tensor(0.5, dtype=dtype)
     # Stricter alpha should require larger sample size
     n_strict = beignet.statistics.t_test_sample_size(
-        effect_size_alpha, power=0.8, alpha=0.01
+        effect_size_alpha,
+        power=0.8,
+        alpha=0.01,
     )
     n_lenient = beignet.statistics.t_test_sample_size(
-        effect_size_alpha, power=0.8, alpha=0.05
+        effect_size_alpha,
+        power=0.8,
+        alpha=0.05,
     )
     assert n_strict > n_lenient

@@ -32,7 +32,7 @@ def test_two_one_sided_tests_one_sample_t_sample_size(
     output = metric.compute()
 
     assert isinstance(output, Tensor)
-
+    assert output.shape == ()  # TorchMetrics converts single element to scalar
     assert output.item() > 0
 
     metric.reset()

@@ -27,10 +27,9 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
     >>> import torch
     >>> from beignet.metrics import TwoOneSidedTestsOneSampleTSampleSize
     >>> metric = TwoOneSidedTestsOneSampleTSampleSize()
-    >>> lower_equivalence_bound = torch.tensor(-0.5)
-    >>> upper_equivalence_bound = torch.tensor(0.5)
-    >>> true_effect = torch.tensor(0.1)
-    >>> metric.update(lower_equivalence_bound, upper_equivalence_bound, true_effect)
+    >>> effect_size = torch.tensor(0.1)
+    >>> equivalence_margin = torch.tensor(0.5)
+    >>> metric.update(effect_size, equivalence_margin)
     >>> metric.compute()
     tensor(...)
     """
@@ -53,31 +52,26 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("lower_bound_values", default=[], dist_reduce_fx="cat")
-        self.add_state("upper_bound_values", default=[], dist_reduce_fx="cat")
-        self.add_state("true_effect_values", default=[], dist_reduce_fx="cat")
+        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
+        self.add_state("margin_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
-        lower_equivalence_bound: Tensor,
-        upper_equivalence_bound: Tensor,
-        true_effect: Tensor,
+        effect_size: Tensor,
+        equivalence_margin: Tensor,
     ) -> None:
         """
         Update the metric state with TOST parameters.
 
         Parameters
         ----------
-        lower_equivalence_bound : Tensor
-            Lower bound for equivalence region.
-        upper_equivalence_bound : Tensor
-            Upper bound for equivalence region.
-        true_effect : Tensor
+        effect_size : Tensor
             True effect size.
+        equivalence_margin : Tensor
+            Equivalence margin (creates symmetric bounds [-margin, +margin]).
         """
-        self.lower_bound_values.append(lower_equivalence_bound)
-        self.upper_bound_values.append(upper_equivalence_bound)
-        self.true_effect_values.append(true_effect)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.margin_values.append(torch.atleast_1d(equivalence_margin))
 
     def compute(self) -> Tensor:
         """
@@ -88,19 +82,17 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
         Tensor
             The computed required sample size.
         """
-        if (
-            not self.lower_bound_values
-            or not self.upper_bound_values
-            or not self.true_effect_values
-        ):
+        if not self.effect_size_values or not self.margin_values:
             raise RuntimeError("No values have been added to the metric.")
 
-        # Use the most recent values
-        lower_bound = self.lower_bound_values[-1]
-        upper_bound = self.upper_bound_values[-1]
-        true_effect = self.true_effect_values[-1]
+        effect_size_tensor = torch.cat(self.effect_size_values, dim=0)
+        margin_tensor = torch.cat(self.margin_values, dim=0)
 
-        # Use functional implementation
+        # Create symmetric equivalence bounds: [-margin, +margin]
+        lower_bound = -margin_tensor
+        upper_bound = margin_tensor
+        true_effect = effect_size_tensor
+
         return two_one_sided_tests_one_sample_t_sample_size(
             lower_bound,
             upper_bound,
@@ -112,9 +104,8 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.lower_bound_values = []
-        self.upper_bound_values = []
-        self.true_effect_values = []
+        self.effect_size_values = []
+        self.margin_values = []
 
     def plot(
         self,
@@ -132,11 +123,7 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
                 "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
-        if (
-            not self.lower_bound_values
-            or not self.upper_bound_values
-            or not self.true_effect_values
-        ):
+        if not self.effect_size_values or not self.margin_values:
             raise RuntimeError(
                 "No values have been added to the metric. Call update() first.",
             )
@@ -148,9 +135,10 @@ class TwoOneSidedTestsOneSampleTSampleSize(Metric):
             fig = ax.get_figure()
 
         if plot_type == "sample_size_curve":
-            current_lower = float(self.lower_bound_values[-1])
-            current_upper = float(self.upper_bound_values[-1])
-            current_effect = float(self.true_effect_values[-1])
+            current_margin = float(self.margin_values[-1])
+            current_lower = -current_margin
+            current_upper = current_margin
+            current_effect = float(self.effect_size_values[-1])
 
             # Create range of true effects within equivalence bounds
             min_effect = min(current_lower, current_upper)

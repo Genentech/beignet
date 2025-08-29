@@ -50,25 +50,25 @@ class TTestSampleSize(Metric):
             raise ValueError(f"power must be between 0 and 1, got {power}")
         if alternative not in ["two-sided", "greater", "less"]:
             raise ValueError(
-                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}"
+                f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
             )
 
         self.power = power
         self.alpha = alpha
         self.alternative = alternative
 
-        self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
-        self.add_state("group2_samples", default=[], dist_reduce_fx="cat")
+        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
+        self.add_state("power_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, group1: torch.Tensor, group2: torch.Tensor) -> None:
-        """Update the metric state with new samples.
+    def update(self, effect_size: torch.Tensor, power: torch.Tensor) -> None:
+        """Update the metric state with effect size and power values.
 
         Args:
-            group1: Samples from the first group.
-            group2: Samples from the second group.
+            effect_size: Effect size values.
+            power: Statistical power values.
         """
-        self.group1_samples.append(group1.detach())
-        self.group2_samples.append(group2.detach())
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.power_values.append(torch.atleast_1d(power))
 
     def compute(self) -> torch.Tensor:
         """Compute the required sample size for all accumulated effect sizes.
@@ -76,28 +76,18 @@ class TTestSampleSize(Metric):
         Returns:
             Required sample sizes.
         """
-        if not self.group1_samples or not self.group2_samples:
-            raise RuntimeError("No samples have been added to the metric.")
+        if not self.effect_size_values or not self.power_values:
+            raise RuntimeError("No values have been added to the metric.")
 
-        # Concatenate all samples
-        group1_all = torch.cat(self.group1_samples, dim=0)
-        group2_all = torch.cat(self.group2_samples, dim=0)
+        effect_size_tensor = torch.cat(self.effect_size_values, dim=0)
+        power_tensor = torch.cat(self.power_values, dim=0)
 
-        # Compute Cohen's d effect size
-        mean1 = torch.mean(group1_all, dim=0)
-        mean2 = torch.mean(group2_all, dim=0)
-
-        # Use pooled standard deviation
-        var1 = torch.var(group1_all, dim=0, unbiased=True)
-        var2 = torch.var(group2_all, dim=0, unbiased=True)
-        n1 = group1_all.shape[0]
-        n2 = group2_all.shape[0]
-        pooled_std = torch.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-        effect_size = (mean1 - mean2) / pooled_std
+        # The underlying function expects scalar power, so we use the first power value
+        power_scalar = float(power_tensor[0].item())
 
         return beignet.statistics.t_test_sample_size(
-            effect_size,
-            power=self.power,
+            effect_size_tensor,
+            power=power_scalar,
             alpha=self.alpha,
             alternative=self.alternative,
         )
@@ -146,7 +136,7 @@ class TTestSampleSize(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -202,7 +192,7 @@ class TTestSampleSize(Metric):
             x_label = "Significance Level (α)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'power', or 'alpha', got {dep_var}"
+                f"dep_var must be 'effect_size', 'power', or 'alpha', got {dep_var}",
             )
 
         # Plot sample size curves for different parameter values

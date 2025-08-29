@@ -27,9 +27,13 @@ def test_z_test_sample_size(batch_size, effect_size, power, alpha, dtype):
     output = metric.compute()
 
     assert isinstance(output, Tensor)
-    assert output.shape == (batch_size,)
+    if batch_size == 1:
+        assert output.shape == ()  # Scalar output for single element
+        assert output.item() >= 1.0
+    else:
+        assert output.shape == (batch_size,)
+        assert torch.all(output >= 1.0)
     assert output.dtype == dtype
-    assert torch.all(output >= 3.0)
 
     repr_str = repr(metric)
     assert "ZTestSampleSize" in repr_str

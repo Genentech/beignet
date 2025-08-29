@@ -53,13 +53,11 @@ class FTestMinimumDetectableEffect(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
         self.add_state("degrees_of_freedom_1_values", default=[], dist_reduce_fx="cat")
         self.add_state("degrees_of_freedom_2_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
-        sample_size: Tensor,
         degrees_of_freedom_1: Tensor,
         degrees_of_freedom_2: Tensor,
     ) -> None:
@@ -68,16 +66,13 @@ class FTestMinimumDetectableEffect(Metric):
 
         Parameters
         ----------
-        sample_size : Tensor
-            Sample size.
         degrees_of_freedom_1 : Tensor
             Numerator degrees of freedom.
         degrees_of_freedom_2 : Tensor
             Denominator degrees of freedom.
         """
-        self.sample_size_values.append(sample_size)
-        self.degrees_of_freedom_1_values.append(degrees_of_freedom_1)
-        self.degrees_of_freedom_2_values.append(degrees_of_freedom_2)
+        self.degrees_of_freedom_1_values.append(torch.atleast_1d(degrees_of_freedom_1))
+        self.degrees_of_freedom_2_values.append(torch.atleast_1d(degrees_of_freedom_2))
 
     def compute(self) -> Tensor:
         """
@@ -88,21 +83,15 @@ class FTestMinimumDetectableEffect(Metric):
         Tensor
             The computed minimum detectable effect size.
         """
-        if (
-            not self.sample_size_values
-            or not self.degrees_of_freedom_1_values
-            or not self.degrees_of_freedom_2_values
-        ):
+        if not self.degrees_of_freedom_1_values or not self.degrees_of_freedom_2_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        sample_size = self.sample_size_values[-1]
         df1 = self.degrees_of_freedom_1_values[-1]
         df2 = self.degrees_of_freedom_2_values[-1]
 
         # Use functional implementation
         return f_test_minimum_detectable_effect(
-            sample_size,
             df1,
             df2,
             power=self.power,
@@ -112,7 +101,6 @@ class FTestMinimumDetectableEffect(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.sample_size_values = []
         self.degrees_of_freedom_1_values = []
         self.degrees_of_freedom_2_values = []
 

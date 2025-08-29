@@ -28,8 +28,7 @@ class McnemarsTestMinimumDetectableEffect(Metric):
     >>> from beignet.metrics import McnemarsTestMinimumDetectableEffect
     >>> metric = McnemarsTestMinimumDetectableEffect()
     >>> sample_size = torch.tensor(100)
-    >>> discordant_proportion = torch.tensor(0.2)
-    >>> metric.update(sample_size, discordant_proportion)
+    >>> metric.update(sample_size)
     >>> metric.compute()
     tensor(...)
     """
@@ -53,9 +52,8 @@ class McnemarsTestMinimumDetectableEffect(Metric):
 
         # State for storing analysis parameters
         self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("discordant_proportion_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, sample_size: Tensor, discordant_proportion: Tensor) -> None:
+    def update(self, sample_size: Tensor) -> None:
         """
         Update the metric state with test parameters.
 
@@ -63,11 +61,8 @@ class McnemarsTestMinimumDetectableEffect(Metric):
         ----------
         sample_size : Tensor
             Sample size.
-        discordant_proportion : Tensor
-            Total proportion of discordant pairs.
         """
-        self.sample_size_values.append(sample_size)
-        self.discordant_proportion_values.append(discordant_proportion)
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> Tensor:
         """
@@ -78,17 +73,21 @@ class McnemarsTestMinimumDetectableEffect(Metric):
         Tensor
             The computed minimum detectable effect.
         """
-        if not self.sample_size_values or not self.discordant_proportion_values:
+        if not self.sample_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
-        # Use the most recent values
-        sample_size = self.sample_size_values[-1]
-        discordant_proportion = self.discordant_proportion_values[-1]
+        sample_size_tensor = torch.cat(self.sample_size_values, dim=0)
 
-        # Use functional implementation
+        # Use default discordant rate of 0.2 for balanced case
+        discordant_rate = torch.full_like(
+            sample_size_tensor,
+            0.2,
+            dtype=sample_size_tensor.dtype,
+        )
+
         return mcnemars_test_minimum_detectable_effect(
-            sample_size,
-            discordant_proportion,
+            discordant_rate,
+            sample_size_tensor,
             power=self.power,
             alpha=self.alpha,
         )
@@ -97,7 +96,6 @@ class McnemarsTestMinimumDetectableEffect(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.sample_size_values = []
-        self.discordant_proportion_values = []
 
     def plot(
         self,
@@ -115,7 +113,7 @@ class McnemarsTestMinimumDetectableEffect(Metric):
                 "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
-        if not self.sample_size_values or not self.discordant_proportion_values:
+        if not self.sample_size_values:
             raise RuntimeError(
                 "No values have been added to the metric. Call update() first.",
             )
@@ -128,7 +126,7 @@ class McnemarsTestMinimumDetectableEffect(Metric):
 
         if plot_type == "effect_curve":
             current_n = float(self.sample_size_values[-1])
-            current_discord = float(self.discordant_proportion_values[-1])
+            current_discord = 0.2  # Default discordant rate
 
             # Create range of sample sizes
             sample_sizes = np.logspace(1, 3, 100)  # 10 to 1000

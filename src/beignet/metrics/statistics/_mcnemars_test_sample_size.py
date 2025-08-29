@@ -52,22 +52,20 @@ class McnemarsTestSampleSize(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
         self.add_state("discordant_proportion_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, effect_size: Tensor, discordant_proportion: Tensor) -> None:
+    def update(self, discordant_proportion: Tensor) -> None:
         """
         Update the metric state with test parameters.
 
         Parameters
         ----------
-        effect_size : Tensor
-            Effect size (difference in discordant proportions).
         discordant_proportion : Tensor
             Total proportion of discordant pairs.
         """
-        self.effect_size_values.append(effect_size)
-        self.discordant_proportion_values.append(discordant_proportion)
+        self.discordant_proportion_values.append(
+            torch.atleast_1d(discordant_proportion),
+        )
 
     def compute(self) -> Tensor:
         """
@@ -78,17 +76,19 @@ class McnemarsTestSampleSize(Metric):
         Tensor
             The computed required sample size.
         """
-        if not self.effect_size_values or not self.discordant_proportion_values:
+        if not self.discordant_proportion_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        effect_size = self.effect_size_values[-1]
         discordant_proportion = self.discordant_proportion_values[-1]
+
+        # Split discordant proportion equally for balanced case
+        p01 = p10 = discordant_proportion / 2.0
 
         # Use functional implementation
         return mcnemars_test_sample_size(
-            effect_size,
-            discordant_proportion,
+            p01,
+            p10,
             power=self.power,
             alpha=self.alpha,
         )
@@ -96,7 +96,6 @@ class McnemarsTestSampleSize(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.effect_size_values = []
         self.discordant_proportion_values = []
 
     def plot(

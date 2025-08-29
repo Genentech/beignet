@@ -49,16 +49,14 @@ class InterruptedTimeSeriesPower(Metric):
 
         # State for storing analysis parameters
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("pre_periods_values", default=[], dist_reduce_fx="cat")
-        self.add_state("post_periods_values", default=[], dist_reduce_fx="cat")
+        self.add_state("n_time_points_values", default=[], dist_reduce_fx="cat")
+        self.add_state("n_pre_intervention_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
         effect_size: Tensor,
-        sample_size: Tensor,
-        pre_periods: Tensor,
-        post_periods: Tensor,
+        n_time_points: Tensor,
+        n_pre_intervention: Tensor,
     ) -> None:
         """
         Update the metric state with analysis parameters.
@@ -67,17 +65,14 @@ class InterruptedTimeSeriesPower(Metric):
         ----------
         effect_size : Tensor
             Effect size of the intervention.
-        sample_size : Tensor
-            Total sample size (number of observations).
-        pre_periods : Tensor
+        n_time_points : Tensor
+            Total number of time points.
+        n_pre_intervention : Tensor
             Number of pre-intervention periods.
-        post_periods : Tensor
-            Number of post-intervention periods.
         """
-        self.effect_size_values.append(effect_size)
-        self.sample_size_values.append(sample_size)
-        self.pre_periods_values.append(pre_periods)
-        self.post_periods_values.append(post_periods)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.n_time_points_values.append(torch.atleast_1d(n_time_points))
+        self.n_pre_intervention_values.append(torch.atleast_1d(n_pre_intervention))
 
     def compute(self) -> Tensor:
         """
@@ -90,24 +85,22 @@ class InterruptedTimeSeriesPower(Metric):
         """
         if (
             not self.effect_size_values
-            or not self.sample_size_values
-            or not self.pre_periods_values
-            or not self.post_periods_values
+            or not self.n_time_points_values
+            or not self.n_pre_intervention_values
         ):
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
         effect_size = self.effect_size_values[-1]
-        sample_size = self.sample_size_values[-1]
-        pre_periods = self.pre_periods_values[-1]
-        post_periods = self.post_periods_values[-1]
+        n_time_points = self.n_time_points_values[-1]
+        n_pre_intervention = self.n_pre_intervention_values[-1]
 
         # Use functional implementation
         return interrupted_time_series_power(
             effect_size,
-            sample_size,
-            pre_periods,
-            post_periods,
+            n_time_points,
+            n_pre_intervention,
+            autocorrelation=torch.tensor(0.0),
             alpha=self.alpha,
         )
 
@@ -115,9 +108,8 @@ class InterruptedTimeSeriesPower(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.effect_size_values = []
-        self.sample_size_values = []
-        self.pre_periods_values = []
-        self.post_periods_values = []
+        self.n_time_points_values = []
+        self.n_pre_intervention_values = []
 
     def plot(
         self,

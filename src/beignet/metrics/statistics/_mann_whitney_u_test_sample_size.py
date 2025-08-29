@@ -58,19 +58,23 @@ class MannWhitneyUTestSampleSize(Metric):
                 f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
             )
 
-        # State for storing effect size parameters
-        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
+        # State for storing test parameters
+        self.add_state("auc_values", default=[], dist_reduce_fx="cat")
+        self.add_state("ratio_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, effect_size: Tensor) -> None:
+    def update(self, auc: Tensor, ratio: Tensor) -> None:
         """
-        Update the metric state with effect size.
+        Update the metric state with test parameters.
 
         Parameters
         ----------
-        effect_size : Tensor
-            Effect size measure.
+        auc : Tensor
+            Area under the curve (effect size measure).
+        ratio : Tensor
+            Sample size ratio between groups.
         """
-        self.effect_size_values.append(effect_size)
+        self.auc_values.append(torch.atleast_1d(auc))
+        self.ratio_values.append(torch.atleast_1d(ratio))
 
     def compute(self) -> Tensor:
         """
@@ -81,15 +85,17 @@ class MannWhitneyUTestSampleSize(Metric):
         Tensor
             The computed required sample size.
         """
-        if not self.effect_size_values:
+        if not self.auc_values or not self.ratio_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        effect_size = self.effect_size_values[-1]
+        auc = self.auc_values[-1]
+        ratio = self.ratio_values[-1]
 
         # Use functional implementation
         return mann_whitney_u_test_sample_size(
-            effect_size,
+            auc,
+            ratio=ratio,
             power=self.power,
             alpha=self.alpha,
             alternative=self.alternative,
@@ -98,7 +104,8 @@ class MannWhitneyUTestSampleSize(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.effect_size_values = []
+        self.auc_values = []
+        self.ratio_values = []
 
     def plot(
         self,

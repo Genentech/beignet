@@ -48,10 +48,9 @@ class KruskalWallisTestPower(Metric):
 
         # State for storing analysis parameters
         self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
-        self.add_state("groups_values", default=[], dist_reduce_fx="cat")
+        self.add_state("sample_sizes_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, effect_size: Tensor, sample_size: Tensor, groups: Tensor) -> None:
+    def update(self, effect_size: Tensor, sample_sizes: Tensor) -> None:
         """
         Update the metric state with test parameters.
 
@@ -59,14 +58,11 @@ class KruskalWallisTestPower(Metric):
         ----------
         effect_size : Tensor
             Effect size measure.
-        sample_size : Tensor
-            Total sample size.
-        groups : Tensor
-            Number of groups.
+        sample_sizes : Tensor
+            Sample sizes for each group.
         """
-        self.effect_size_values.append(effect_size)
-        self.sample_size_values.append(sample_size)
-        self.groups_values.append(groups)
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.sample_sizes_values.append(torch.atleast_1d(sample_sizes))
 
     def compute(self) -> Tensor:
         """
@@ -77,23 +73,17 @@ class KruskalWallisTestPower(Metric):
         Tensor
             The computed statistical power.
         """
-        if (
-            not self.effect_size_values
-            or not self.sample_size_values
-            or not self.groups_values
-        ):
+        if not self.effect_size_values or not self.sample_sizes_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
         effect_size = self.effect_size_values[-1]
-        sample_size = self.sample_size_values[-1]
-        groups = self.groups_values[-1]
+        sample_sizes = self.sample_sizes_values[-1]
 
         # Use functional implementation
         return kruskal_wallis_test_power(
             effect_size,
-            sample_size,
-            groups,
+            sample_sizes,
             alpha=self.alpha,
         )
 
@@ -101,8 +91,7 @@ class KruskalWallisTestPower(Metric):
         """Reset the metric to its initial state."""
         super().reset()
         self.effect_size_values = []
-        self.sample_size_values = []
-        self.groups_values = []
+        self.sample_sizes_values = []
 
     def plot(
         self,

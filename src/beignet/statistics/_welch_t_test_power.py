@@ -38,9 +38,9 @@ def welch_t_test_power(
     -------
     Tensor
     """
-    input = torch.atleast_1d(input)
-    nobs1 = torch.atleast_1d(nobs1)
-    nobs2 = torch.atleast_1d(nobs2)
+    input = torch.atleast_1d(torch.as_tensor(input))
+    nobs1 = torch.atleast_1d(torch.as_tensor(nobs1))
+    nobs2 = torch.atleast_1d(torch.as_tensor(nobs2))
     var_ratio = torch.atleast_1d(torch.as_tensor(var_ratio))
 
     dtype = functools.reduce(

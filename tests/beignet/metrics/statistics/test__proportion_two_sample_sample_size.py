@@ -33,9 +33,13 @@ def test_proportion_two_sample_sample_size(
     output = metric.compute()
 
     assert isinstance(output, Tensor)
-    assert output.shape == (batch_size,)
+    if batch_size == 1:
+        assert output.shape == ()  # Scalar output for single element
+        assert output.item() >= 2.0
+    else:
+        assert output.shape == (batch_size,)
+        assert torch.all(output >= 2.0)
     assert output.dtype == dtype
-    assert torch.all(output >= 2.0)
 
     repr_str = repr(metric)
     assert "ProportionTwoSampleSampleSize" in repr_str

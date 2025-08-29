@@ -47,14 +47,12 @@ class McnemarsTestPower(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("prob_discordant_values", default=[], dist_reduce_fx="cat")
-        self.add_state("odds_ratio_values", default=[], dist_reduce_fx="cat")
+        self.add_state("discordant_prop_values", default=[], dist_reduce_fx="cat")
         self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
-        prob_discordant: Tensor,
-        odds_ratio: Tensor,
+        discordant_prop: Tensor,
         sample_size: Tensor,
     ) -> None:
         """
@@ -62,16 +60,13 @@ class McnemarsTestPower(Metric):
 
         Parameters
         ----------
-        prob_discordant : Tensor
-            Probability of discordant pairs.
-        odds_ratio : Tensor
-            Expected odds ratio.
+        discordant_prop : Tensor
+            Total proportion of discordant pairs.
         sample_size : Tensor
             Sample size.
         """
-        self.prob_discordant_values.append(prob_discordant)
-        self.odds_ratio_values.append(odds_ratio)
-        self.sample_size_values.append(sample_size)
+        self.discordant_prop_values.append(torch.atleast_1d(discordant_prop))
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> Tensor:
         """
@@ -82,22 +77,20 @@ class McnemarsTestPower(Metric):
         Tensor
             The computed statistical power.
         """
-        if (
-            not self.prob_discordant_values
-            or not self.odds_ratio_values
-            or not self.sample_size_values
-        ):
+        if not self.discordant_prop_values or not self.sample_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        prob_discordant = self.prob_discordant_values[-1]
-        odds_ratio = self.odds_ratio_values[-1]
+        discordant_prop = self.discordant_prop_values[-1]
         sample_size = self.sample_size_values[-1]
+
+        # Split the discordant proportion equally between p01 and p10 for balanced case
+        p01 = p10 = discordant_prop / 2.0
 
         # Use functional implementation
         return mcnemars_test_power(
-            prob_discordant,
-            odds_ratio,
+            p01,
+            p10,
             sample_size,
             alpha=self.alpha,
         )
@@ -105,8 +98,7 @@ class McnemarsTestPower(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.prob_discordant_values = []
-        self.odds_ratio_values = []
+        self.discordant_prop_values = []
         self.sample_size_values = []
 
     def plot(
