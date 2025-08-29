@@ -1,4 +1,3 @@
-"""Test CorrelationMinimumDetectableEffect metric."""
 
 import pytest
 import torch

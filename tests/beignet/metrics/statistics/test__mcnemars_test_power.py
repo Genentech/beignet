@@ -1,4 +1,3 @@
-"""Test McnemarsTestPower metric."""
 
 import pytest
 import torch

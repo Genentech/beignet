@@ -1,4 +1,3 @@
-"""Test PairedTTestSampleSize metric."""
 
 import pytest
 import torch

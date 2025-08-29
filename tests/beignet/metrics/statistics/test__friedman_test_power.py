@@ -1,4 +1,3 @@
-"""Test FriedmanTestPower metric."""
 
 import pytest
 import torch

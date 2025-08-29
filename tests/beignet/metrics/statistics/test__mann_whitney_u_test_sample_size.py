@@ -1,4 +1,3 @@
-"""Test MannWhitneyUTestSampleSize metric."""
 
 import pytest
 import torch

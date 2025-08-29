@@ -1,4 +1,3 @@
-"""Test LogisticRegressionSampleSize metric."""
 
 import pytest
 import torch

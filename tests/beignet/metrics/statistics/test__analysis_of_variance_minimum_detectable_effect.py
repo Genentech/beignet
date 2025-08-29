@@ -1,4 +1,3 @@
-"""Test AnalysisOfVarianceMinimumDetectableEffect metric."""
 
 import pytest
 import torch

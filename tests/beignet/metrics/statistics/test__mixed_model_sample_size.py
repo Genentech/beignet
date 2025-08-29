@@ -1,4 +1,3 @@
-"""Test MixedModelSampleSize metric."""
 
 import pytest
 import torch

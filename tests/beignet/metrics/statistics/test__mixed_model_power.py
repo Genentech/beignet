@@ -1,4 +1,3 @@
-"""Test MixedModelPower metric."""
 
 import pytest
 import torch

@@ -1,4 +1,3 @@
-"""Test PoissonRegressionSampleSize metric."""
 
 import pytest
 import torch

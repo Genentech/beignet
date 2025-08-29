@@ -1,4 +1,3 @@
-"""Test WilcoxonSignedRankTestMinimumDetectableEffect metric."""
 
 import pytest
 import torch

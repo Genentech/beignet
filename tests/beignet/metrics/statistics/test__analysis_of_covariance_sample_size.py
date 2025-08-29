@@ -1,4 +1,3 @@
-"""Test AnalysisOfCovarianceSampleSize metric."""
 
 import pytest
 import torch

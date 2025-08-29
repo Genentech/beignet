@@ -1,4 +1,3 @@
-"""Test PoissonRegressionPower metric."""
 
 import pytest
 import torch

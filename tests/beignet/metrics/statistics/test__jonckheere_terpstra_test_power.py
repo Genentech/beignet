@@ -1,4 +1,3 @@
-"""Test JonckheereTerpstraTestPower metric."""
 
 import pytest
 import torch

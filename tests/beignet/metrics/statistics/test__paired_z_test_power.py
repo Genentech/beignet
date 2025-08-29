@@ -1,4 +1,3 @@
-"""Test PairedZTestPower metric."""
 
 import pytest
 import torch

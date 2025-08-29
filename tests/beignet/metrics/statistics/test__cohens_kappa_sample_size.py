@@ -1,4 +1,3 @@
-"""Test CohensKappaSampleSize metric."""
 
 import pytest
 import torch

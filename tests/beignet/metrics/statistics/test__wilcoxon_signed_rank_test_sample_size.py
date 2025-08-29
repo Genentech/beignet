@@ -1,4 +1,3 @@
-"""Test WilcoxonSignedRankTestSampleSize metric."""
 
 import pytest
 import torch

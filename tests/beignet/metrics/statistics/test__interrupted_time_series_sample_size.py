@@ -1,4 +1,3 @@
-"""Test InterruptedTimeSeriesSampleSize metric."""
 
 import pytest
 import torch

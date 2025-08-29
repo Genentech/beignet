@@ -1,4 +1,3 @@
-"""Test CohensKappaPower metric."""
 
 import pytest
 import torch

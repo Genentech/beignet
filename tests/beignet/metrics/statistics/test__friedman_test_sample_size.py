@@ -1,4 +1,3 @@
-"""Test FriedmanTestSampleSize metric."""
 
 import pytest
 import torch

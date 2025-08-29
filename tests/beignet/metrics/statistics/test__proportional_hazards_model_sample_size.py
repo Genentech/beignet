@@ -1,4 +1,3 @@
-"""Test ProportionalHazardsModelSampleSize metric."""
 
 import pytest
 import torch

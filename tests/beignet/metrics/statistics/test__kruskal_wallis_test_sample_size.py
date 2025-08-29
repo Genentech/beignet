@@ -1,4 +1,3 @@
-"""Test KruskalWallisTestSampleSize metric."""
 
 import pytest
 import torch

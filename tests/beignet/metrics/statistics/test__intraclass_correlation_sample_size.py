@@ -1,4 +1,3 @@
-"""Test IntraclassCorrelationSampleSize metric."""
 
 import pytest
 import torch

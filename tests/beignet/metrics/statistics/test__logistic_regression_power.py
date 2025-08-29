@@ -1,4 +1,3 @@
-"""Test LogisticRegressionPower metric."""
 
 import pytest
 import torch

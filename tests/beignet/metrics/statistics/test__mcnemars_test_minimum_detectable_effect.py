@@ -1,4 +1,3 @@
-"""Test McnemarsTestMinimumDetectableEffect metric."""
 
 import pytest
 import torch

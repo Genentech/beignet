@@ -1,4 +1,3 @@
-"""Test MannWhitneyUTestMinimumDetectableEffect metric."""
 
 import pytest
 import torch

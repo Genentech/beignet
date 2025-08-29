@@ -1,4 +1,3 @@
-"""Test TwoOneSidedTestsTwoSampleTSampleSize metric."""
 
 import pytest
 import torch

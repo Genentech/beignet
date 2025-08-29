@@ -1,4 +1,3 @@
-"""Test InterruptedTimeSeriesPower metric."""
 
 import pytest
 import torch

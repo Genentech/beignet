@@ -1,4 +1,3 @@
-"""Test FTestMinimumDetectableEffect metric."""
 
 import pytest
 import torch

@@ -1,4 +1,3 @@
-"""Test MannWhitneyUTestPower metric."""
 
 import pytest
 import torch

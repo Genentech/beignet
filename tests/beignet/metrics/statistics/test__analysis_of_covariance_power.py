@@ -1,4 +1,3 @@
-"""Test AnalysisOfCovariancePower metric."""
 
 import pytest
 import torch

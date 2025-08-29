@@ -1,4 +1,3 @@
-"""Test IntraclassCorrelationPower metric."""
 
 import pytest
 import torch

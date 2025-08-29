@@ -1,4 +1,3 @@
-"""Test PartialEtaSquared metric."""
 
 import pytest
 import torch

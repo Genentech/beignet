@@ -1,4 +1,3 @@
-"""Test PairedZTestSampleSize metric."""
 
 import pytest
 import torch

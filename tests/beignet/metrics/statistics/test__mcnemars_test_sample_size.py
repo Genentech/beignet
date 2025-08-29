@@ -1,4 +1,3 @@
-"""Test McnemarsTestSampleSize metric."""
 
 import pytest
 import torch
