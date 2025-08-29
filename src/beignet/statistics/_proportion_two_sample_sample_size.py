@@ -64,6 +64,7 @@ def proportion_two_sample_sample_size(
         z_alpha = torch.erfinv(torch.tensor(1 - alpha, dtype=dtype)) * math.sqrt(2.0)
 
         z_beta = torch.erfinv(torch.tensor(power, dtype=dtype)) * math.sqrt(2.0)
+    else:
         raise ValueError(f"Unknown alternative: {alternative}")
 
     result = torch.clamp(
