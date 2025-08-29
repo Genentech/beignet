@@ -74,7 +74,7 @@ class FTestPower(Metric):
     def compute(self) -> Tensor:
         """Compute the statistical power."""
         return f_test_power(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             df1=self.df1,
             df2=self.df2,
             alpha=self.alpha,
@@ -127,7 +127,7 @@ class FTestPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from None
 
         # Create figure if no axis provided
@@ -189,7 +189,7 @@ class FTestPower(Metric):
             x_label = "Denominator Degrees of Freedom (df2)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'df1', or 'df2', got {dep_var}"
+                f"dep_var must be 'effect_size', 'df1', or 'df2', got {dep_var}",
             )
 
         # Plot power curves for different parameter values

@@ -67,8 +67,8 @@ class CorrelationPower(Metric):
         sample_size : Tensor
             Sample size for the correlation test.
         """
-        self.r_values.append(r)
-        self.n_values.append(sample_size)
+        self.r_values.append(torch.atleast_1d(r))
+        self.n_values.append(torch.atleast_1d(sample_size).float())
 
     def compute(self) -> Tensor:
         """
@@ -207,7 +207,7 @@ class CorrelationPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
