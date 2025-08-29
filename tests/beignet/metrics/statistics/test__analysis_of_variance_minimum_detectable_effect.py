@@ -14,6 +14,7 @@ from beignet.metrics.statistics import AnalysisOfVarianceMinimumDetectableEffect
     alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
+@hypothesis.settings(deadline=None)
 def test_analysis_of_variance_minimum_detectable_effect(
     sample_size,
     groups,

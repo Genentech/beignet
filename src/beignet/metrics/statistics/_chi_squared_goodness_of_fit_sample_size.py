@@ -67,9 +67,11 @@ class ChiSquareGoodnessOfFitSampleSize(Metric):
 
     def compute(self) -> Tensor:
         """Compute the required sample size."""
+        if self.total == 0:
+            raise RuntimeError("No values have been added to the metric.")
         return chi_square_goodness_of_fit_sample_size(
-            effect_size=self.effect_size,
-            df=self.df,
+            input=self.effect_size,
+            degrees_of_freedom=self.df,
             power=self.power,
             alpha=self.alpha,
         )

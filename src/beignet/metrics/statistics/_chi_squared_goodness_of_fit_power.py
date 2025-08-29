@@ -134,7 +134,7 @@ class ChiSquareGoodnessOfFitPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -196,7 +196,7 @@ class ChiSquareGoodnessOfFitPower(Metric):
             x_label = "Degrees of Freedom"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'sample_size', or 'df', got {dep_var}"
+                f"dep_var must be 'effect_size', 'sample_size', or 'df', got {dep_var}",
             )
 
         # Plot power curves for different parameter values
