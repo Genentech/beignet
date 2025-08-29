@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -26,10 +27,10 @@ def test_jonckheere_terpstra_test_sample_size(
     groups_tensor = torch.tensor(groups, dtype=dtype)
 
     metric.update(effect_size_tensor, groups_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    assert isinstance(output, Tensor)
+    assert output.item() > 0
 
     metric.reset()
     with pytest.raises(RuntimeError):

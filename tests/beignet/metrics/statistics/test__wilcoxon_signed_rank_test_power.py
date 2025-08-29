@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -21,14 +22,18 @@ def test_wilcoxon_signed_rank_test_power(
     metric = WilcoxonSignedRankTestPower(alpha=alpha)
 
     effect_size_tensor = torch.tensor(effect_size, dtype=dtype)
+
     sample_size_tensor = torch.tensor(sample_size, dtype=dtype)
 
     metric.update(effect_size_tensor, sample_size_tensor)
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

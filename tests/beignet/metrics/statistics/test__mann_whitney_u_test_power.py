@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -27,10 +28,10 @@ def test_mann_whitney_u_test_power(
     sample_size_2_tensor = torch.tensor(sample_size_2, dtype=dtype)
 
     metric.update(effect_size_tensor, sample_size_1_tensor, sample_size_2_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    assert isinstance(output, Tensor)
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
     with pytest.raises(RuntimeError):

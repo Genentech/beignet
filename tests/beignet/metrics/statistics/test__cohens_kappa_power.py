@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -27,10 +28,10 @@ def test_cohens_kappa_power(
     categories_tensor = torch.tensor(categories, dtype=dtype)
 
     metric.update(kappa_tensor, sample_size_tensor, categories_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    assert isinstance(output, Tensor)
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
     with pytest.raises(RuntimeError):

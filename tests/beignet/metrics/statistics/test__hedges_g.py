@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,10 +8,10 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    sample_size_group1=st.integers(min_value=5, max_value=30),
-    sample_size_group2=st.integers(min_value=5, max_value=30),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    sample_size_group1=hypothesis.strategies.integers(min_value=5, max_value=30),
+    sample_size_group2=hypothesis.strategies.integers(min_value=5, max_value=30),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_hedges_g(batch_size, sample_size_group1, sample_size_group2, dtype):
@@ -23,11 +23,11 @@ def test_hedges_g(batch_size, sample_size_group1, sample_size_group2, dtype):
     group2 = torch.randn(batch_size, sample_size_group2, dtype=dtype)
 
     metric.update(group1, group2)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
 
     # Test symmetry: Hedges' g(A, B) = -Hedges' g(B, A)
     metric_forward = beignet.metrics.statistics.HedgesG()

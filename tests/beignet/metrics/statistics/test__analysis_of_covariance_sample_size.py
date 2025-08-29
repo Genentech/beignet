@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -37,11 +38,14 @@ def test_analysis_of_covariance_sample_size(
         covariate_r2_tensor,
         num_covariates_tensor,
     )
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert output.item() > 0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

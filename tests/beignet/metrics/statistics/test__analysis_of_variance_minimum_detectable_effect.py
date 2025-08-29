@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -23,14 +24,18 @@ def test_analysis_of_variance_minimum_detectable_effect(
     metric = AnalysisOfVarianceMinimumDetectableEffect(power=power, alpha=alpha)
 
     sample_size_tensor = torch.tensor(sample_size, dtype=dtype)
+
     groups_tensor = torch.tensor(groups, dtype=dtype)
 
     metric.update(sample_size_tensor, groups_tensor)
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert output.item() > 0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class AnalysisOfVarianceSampleSize(Metric):
@@ -57,8 +57,8 @@ class AnalysisOfVarianceSampleSize(Metric):
         k : Tensor
             Number of groups in the Analysis of Variance.
         """
-        self.effect_size_list.append(effect_size.detach())
-        self.k_list.append(k.detach())
+        self.effect_size_list.append(torch.atleast_1d(effect_size.detach()))
+        self.k_list.append(torch.atleast_1d(k.detach()))
 
     def compute(self) -> Tensor:
         """Compute the required sample sizes for the accumulated data.
@@ -69,14 +69,14 @@ class AnalysisOfVarianceSampleSize(Metric):
             Required total sample size values.
         """
         if not self.effect_size_list:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         effect_size_tensor = torch.cat(self.effect_size_list, dim=0)
         k_tensor = torch.cat(self.k_list, dim=0)
 
-        return beignet.analysis_of_variance_sample_size(
-            effect_size=effect_size_tensor,
-            k=k_tensor,
+        return beignet.statistics.analysis_of_variance_sample_size(
+            input=effect_size_tensor,
+            groups=k_tensor,
             power=self.power,
             alpha=self.alpha,
         )

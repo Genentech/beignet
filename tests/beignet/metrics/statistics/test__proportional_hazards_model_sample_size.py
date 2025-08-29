@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -23,14 +24,18 @@ def test_proportional_hazards_model_sample_size(
     metric = ProportionalHazardsModelSampleSize(power=power, alpha=alpha)
 
     hazard_ratio_tensor = torch.tensor(hazard_ratio, dtype=dtype)
+
     event_probability_tensor = torch.tensor(event_probability, dtype=dtype)
 
     metric.update(hazard_ratio_tensor, event_probability_tensor)
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert output.item() > 0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

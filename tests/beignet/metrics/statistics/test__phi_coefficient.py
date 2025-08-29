@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,8 +8,8 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_phi_coefficient(batch_size, dtype):
@@ -23,13 +23,13 @@ def test_phi_coefficient(batch_size, dtype):
     )
 
     metric.update(contingency_table)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= -1.0)
-    assert torch.all(result <= 1.0)
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= -1.0)
+    assert torch.all(output <= 1.0)
 
     metric.reset()
     try:

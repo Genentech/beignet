@@ -1456,7 +1456,7 @@ wheels = [
 
 [[package]]
 name = "lightning"
-version = "2.5.3"
+version = "2.5.4"
 source = { registry = "https://code.roche.com/api/v4/projects/28907/packages/pypi/simple" }
 dependencies = [
     { name = "fsspec", extra = ["http"] },
@@ -1469,9 +1469,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/01/80/dddb5a382aa0ff18045aee6491f81e40371102cb05da2ad5a8436a51c475/lightning-2.5.3.tar.gz", hash = "sha256:4ed3e12369a1e0f928beecf5c9f5efdabda60a9216057954851e2d89f1abecde", size = 636577, upload-time = "2025-08-13T20:29:32.361Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/da/2e0bb05c037db033e36916654479678d97cba8e05f2fd8abbed558cff957/lightning-2.5.4.tar.gz", hash = "sha256:cec9459a356117f11c501b591fe80f327947614fc345dc6b6c9f8d4d373f214e", size = 637370, upload-time = "2025-08-29T11:45:19.06Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/6b/00e9c2b03a449c21d7a4d73a7104ac94f56c37a1e6eae77b1c702d8dddf0/lightning-2.5.3-py3-none-any.whl", hash = "sha256:c551111fda0db0bce267791f9a90cd4f9cf94bc327d36348af0ef79ec752d666", size = 824181, upload-time = "2025-08-13T20:29:30.244Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/7e/bff6e2846da7b7f6b1ac67b96dbc7148664d69f9f2b12e11fd6b0d7cda01/lightning-2.5.4-py3-none-any.whl", hash = "sha256:49fdc84df9d809e4f396ab38a5d327df725fe6dd9303473c49e52cba4fbdcc2b", size = 825219, upload-time = "2025-08-29T11:45:16.845Z" },
 ]
 
 [[package]]
@@ -1642,14 +1642,14 @@ wheels = [
 
 [[package]]
 name = "mistune"
-version = "3.1.3"
+version = "3.1.4"
 source = { registry = "https://code.roche.com/api/v4/projects/28907/packages/pypi/simple" }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c4/79/bda47f7dd7c3c55770478d6d02c9960c430b0cf1773b72366ff89126ea31/mistune-3.1.3.tar.gz", hash = "sha256:a7035c21782b2becb6be62f8f25d3df81ccb4d6fa477a6525b15af06539f02a0", size = 94347, upload-time = "2025-03-19T14:27:24.955Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d7/02/a7fb8b21d4d55ac93cdcde9d3638da5dd0ebdd3a4fed76c7725e10b81cbe/mistune-3.1.4.tar.gz", hash = "sha256:b5a7f801d389f724ec702840c11d8fc48f2b33519102fc7ee739e8177b672164", size = 94588, upload-time = "2025-08-29T07:20:43.594Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/01/4d/23c4e4f09da849e127e9f123241946c23c1e30f45a88366879e064211815/mistune-3.1.3-py3-none-any.whl", hash = "sha256:1a32314113cff28aa6432e99e522677c8587fd83e3d51c29b82a52409c842bd9", size = 53410, upload-time = "2025-03-19T14:27:23.451Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/f0/8282d9641415e9e33df173516226b404d367a0fc55e1a60424a152913abc/mistune-3.1.4-py3-none-any.whl", hash = "sha256:93691da911e5d9d2e23bc54472892aff676df27a75274962ff9edc210364266d", size = 53481, upload-time = "2025-08-29T07:20:42.218Z" },
 ]
 
 [[package]]
@@ -2760,7 +2760,7 @@ wheels = [
 
 [[package]]
 name = "pytorch-lightning"
-version = "2.5.3"
+version = "2.5.4"
 source = { registry = "https://code.roche.com/api/v4/projects/28907/packages/pypi/simple" }
 dependencies = [
     { name = "fsspec", extra = ["http"] },
@@ -2772,9 +2772,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/32/a8/31fe79bf96dab33cee5537ed6f08230ed6f032834bb4ff529cc487fb40e8/pytorch_lightning-2.5.3.tar.gz", hash = "sha256:65f4eee774ee1adba181aacacffb9f677fe5c5f9fd3d01a95f603403f940be6a", size = 639897, upload-time = "2025-08-13T20:29:39.161Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/eb/27/14a3ea1d70d1d2dcda0b9912a6b50e0730d86076b3cf2299185c446415b4/pytorch_lightning-2.5.4.tar.gz", hash = "sha256:159b63f3dcd72da50566dc4b599adb4adcd07503193ade4fa518e51ccd0751ef", size = 640485, upload-time = "2025-08-29T11:45:23.934Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/a2/5f2b7b40ec5213db5282e98dd32fd419fe5b73b5b53895dfff56fe12fed0/pytorch_lightning-2.5.3-py3-none-any.whl", hash = "sha256:7476bd36282d9253dda175b9263b07942489d70ad90bbd1bc0a59c46e012f353", size = 828186, upload-time = "2025-08-13T20:29:37.41Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/b7/620102f830b3bfcdb11953040754e606d7c8e6730352a6c6febe6ec6270b/pytorch_lightning-2.5.4-py3-none-any.whl", hash = "sha256:cbdc45c1fbd6dbaf856990c618de994c3bcca7fea599b8471ac9fa59df598b38", size = 829166, upload-time = "2025-08-29T11:45:21.478Z" },
 ]
 
 [[package]]

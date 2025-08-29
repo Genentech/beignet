@@ -27,10 +27,10 @@ def test_intraclass_correlation_power(
     groups_tensor = torch.tensor(groups, dtype=dtype)
 
     metric.update(icc_tensor, sample_size_tensor, groups_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    assert isinstance(output, Tensor)
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
     with pytest.raises(RuntimeError):

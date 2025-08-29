@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class AnalysisOfVariancePower(Metric):
@@ -57,9 +57,9 @@ class AnalysisOfVariancePower(Metric):
         k : Tensor
             Number of groups in the Analysis of Variance.
         """
-        self.effect_size_list.append(effect_size.detach())
-        self.sample_size_list.append(sample_size.detach())
-        self.k_list.append(k.detach())
+        self.effect_size_list.append(torch.atleast_1d(effect_size.detach()))
+        self.sample_size_list.append(torch.atleast_1d(sample_size.detach()))
+        self.k_list.append(torch.atleast_1d(k.detach()))
 
     def compute(self) -> Tensor:
         """Compute the statistical power for the accumulated data.
@@ -70,16 +70,16 @@ class AnalysisOfVariancePower(Metric):
             Statistical power values.
         """
         if not self.effect_size_list:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         effect_size_tensor = torch.cat(self.effect_size_list, dim=0)
         sample_size_tensor = torch.cat(self.sample_size_list, dim=0)
         k_tensor = torch.cat(self.k_list, dim=0)
 
-        return beignet.analysis_of_variance_power(
-            effect_size=effect_size_tensor,
+        return beignet.statistics.analysis_of_variance_power(
+            input=effect_size_tensor,
             sample_size=sample_size_tensor,
-            k=k_tensor,
+            groups=k_tensor,
             alpha=self.alpha,
         )
 
@@ -202,24 +202,24 @@ class AnalysisOfVariancePower(Metric):
 
             for x_val in x_values:
                 if dep_var == "effect_size":
-                    power_val = beignet.analysis_of_variance_power(
-                        effect_size=torch.tensor(float(x_val)),
+                    power_val = beignet.statistics.analysis_of_variance_power(
+                        input=torch.tensor(float(x_val)),
                         sample_size=torch.tensor(float(default_sample_size)),
-                        k=torch.tensor(int(param_val)),
+                        groups=torch.tensor(int(param_val)),
                         alpha=alpha,
                     )
                 elif dep_var == "sample_size":
-                    power_val = beignet.analysis_of_variance_power(
-                        effect_size=torch.tensor(float(param_val)),
+                    power_val = beignet.statistics.analysis_of_variance_power(
+                        input=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(x_val)),
-                        k=torch.tensor(int(default_k)),
+                        groups=torch.tensor(int(default_k)),
                         alpha=alpha,
                     )
                 elif dep_var == "k":
-                    power_val = beignet.analysis_of_variance_power(
-                        effect_size=torch.tensor(float(param_val)),
+                    power_val = beignet.statistics.analysis_of_variance_power(
+                        input=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(default_sample_size)),
-                        k=torch.tensor(int(x_val)),
+                        groups=torch.tensor(int(x_val)),
                         alpha=alpha,
                     )
 

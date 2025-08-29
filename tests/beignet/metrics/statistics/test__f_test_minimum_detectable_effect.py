@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -26,10 +27,10 @@ def test_f_test_minimum_detectable_effect(
     df2_tensor = torch.tensor(degrees_of_freedom_2, dtype=dtype)
 
     metric.update(df1_tensor, df2_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() >= 0
+    assert isinstance(output, Tensor)
+    assert output.item() >= 0
 
     metric.reset()
     with pytest.raises(RuntimeError):

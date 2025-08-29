@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -23,10 +24,10 @@ def test_mcnemars_test_minimum_detectable_effect(
     sample_size_tensor = torch.tensor(sample_size, dtype=dtype)
 
     metric.update(sample_size_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() >= 0
+    assert isinstance(output, Tensor)
+    assert output.item() >= 0
 
     metric.reset()
     with pytest.raises(RuntimeError):

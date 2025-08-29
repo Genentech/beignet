@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,11 +8,11 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    effect_size=st.floats(min_value=0.1, max_value=2.0),
-    power=st.floats(min_value=0.1, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=2.0),
+    power=hypothesis.strategies.floats(min_value=0.1, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_independent_t_test_sample_size(batch_size, effect_size, power, alpha, dtype):
@@ -24,12 +24,12 @@ def test_independent_t_test_sample_size(batch_size, effect_size, power, alpha, d
     power_tensor = torch.full((batch_size,), power, dtype=dtype)
 
     metric.update(effect_size_tensor, power_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= 2.0)
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= 2.0)
 
     # Small effect should require larger sample size
     small_effect = torch.full((batch_size,), 0.1, dtype=dtype)

@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -23,10 +24,10 @@ def test_mcnemars_test_sample_size(
     discordant_prop_tensor = torch.tensor(discordant_proportion, dtype=dtype)
 
     metric.update(discordant_prop_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    assert isinstance(output, Tensor)
+    assert output.item() > 0
 
     metric.reset()
     with pytest.raises(RuntimeError):

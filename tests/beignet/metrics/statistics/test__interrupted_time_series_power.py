@@ -27,10 +27,10 @@ def test_interrupted_time_series_power(
     time_points_tensor = torch.tensor(time_points, dtype=dtype)
 
     metric.update(effect_size_tensor, sample_size_tensor, time_points_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    assert isinstance(output, Tensor)
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
     with pytest.raises(RuntimeError):

@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,11 +8,11 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    effect_size=st.floats(min_value=0.1, max_value=0.9),
-    sample_size=st.integers(min_value=10, max_value=100),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=0.9),
+    sample_size=hypothesis.strategies.integers(min_value=10, max_value=100),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_correlation_power(batch_size, effect_size, sample_size, alpha, dtype):
@@ -31,14 +31,14 @@ def test_correlation_power(batch_size, effect_size, sample_size, alpha, dtype):
     metric.update(effect_size_tensor, sample_size_tensor)
 
     # Test compute method
-    result = metric.compute()
+    output = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= 0.0)
-    assert torch.all(result <= 1.0)
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= 0.0)
+    assert torch.all(output <= 1.0)
 
     # Test multiple updates
     metric.update(effect_size_tensor * 0.5, sample_size_tensor)
@@ -59,7 +59,7 @@ def test_correlation_power(batch_size, effect_size, sample_size, alpha, dtype):
     metric.update(effect_size_tensor, sample_size_tensor)
     result3 = metric.compute()
     assert result3.shape == (batch_size,)
-    assert torch.allclose(result, result3, atol=1e-6)
+    assert torch.allclose(output, result3, atol=1e-6)
 
     # Test repr
     repr_str = repr(metric)

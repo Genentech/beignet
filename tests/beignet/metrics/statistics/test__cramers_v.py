@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,10 +8,10 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    n_rows=st.integers(min_value=2, max_value=5),
-    n_cols=st.integers(min_value=2, max_value=5),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    n_rows=hypothesis.strategies.integers(min_value=2, max_value=5),
+    n_cols=hypothesis.strategies.integers(min_value=2, max_value=5),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_cramers_v(batch_size, n_rows, n_cols, dtype):
@@ -34,14 +34,14 @@ def test_cramers_v(batch_size, n_rows, n_cols, dtype):
     metric.update(contingency_table)
 
     # Test compute method
-    result = metric.compute()
+    output = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= 0.0)
-    assert torch.all(result <= 1.0)  # Cramer's V is bounded [0, 1]
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= 0.0)
+    assert torch.all(output <= 1.0)  # Cramer's V is bounded [0, 1]
 
     # Test multiple updates
     new_table = torch.randint(
@@ -68,7 +68,7 @@ def test_cramers_v(batch_size, n_rows, n_cols, dtype):
     metric.update(contingency_table)
     result3 = metric.compute()
     assert result3.shape == (batch_size,)
-    assert torch.allclose(result, result3, atol=1e-6)
+    assert torch.allclose(output, result3, atol=1e-6)
 
     # Test with different dtypes
     if dtype == torch.float32:

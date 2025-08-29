@@ -34,7 +34,7 @@ def test_incomplete_gamma(batch_size, dtype):
 
     # Test with out parameter
     out = torch.empty_like(a_values)
-    result_out = beignet.special.igamma(a_values, x_values, out=out)
+    result_out = beignet.special.incomplete_gamma(a_values, x_values, out=out)
     assert torch.allclose(result_out, out)
     assert torch.allclose(result_out, result)
 
@@ -46,13 +46,13 @@ def test_incomplete_gamma(batch_size, dtype):
     # Test boundary conditions
     # igamma(a, 0) should be approximately 0
     zero_x = torch.zeros_like(a_values)
-    result_zero = beignet.special.igamma(a_values, zero_x)
+    result_zero = beignet.special.incomplete_gamma(a_values, zero_x)
     assert torch.allclose(result_zero, torch.zeros_like(result_zero), atol=1e-6)
 
     # Test gradient computation for x
     x_grad = torch.tensor([1.0, 2.0], dtype=dtype, requires_grad=True)
     a_const = torch.tensor([2.0, 3.0], dtype=dtype)
-    result_grad = beignet.special.igamma(a_const, x_grad)
+    result_grad = beignet.special.incomplete_gamma(a_const, x_grad)
     loss = result_grad.sum()
     loss.backward()
 
@@ -61,9 +61,9 @@ def test_incomplete_gamma(batch_size, dtype):
     assert torch.all(torch.isfinite(x_grad.grad))
 
     # Test torch.compile compatibility
-    compiled_igamma = torch.compile(beignet.special.igamma, fullgraph=True)
+    compiled_igamma = torch.compile(beignet.special.incomplete_gamma, fullgraph=True)
     a_simple = torch.tensor([2.0], dtype=dtype)
     x_simple = torch.tensor([1.0], dtype=dtype)
     result_compiled = compiled_igamma(a_simple, x_simple)
-    result_normal = beignet.special.igamma(a_simple, x_simple)
+    result_normal = beignet.special.incomplete_gamma(a_simple, x_simple)
     assert torch.allclose(result_compiled, result_normal)

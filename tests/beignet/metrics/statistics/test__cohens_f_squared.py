@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,10 +8,10 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    sample_size_per_group=st.integers(min_value=5, max_value=20),
-    num_groups=st.integers(min_value=3, max_value=6),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    sample_size_per_group=hypothesis.strategies.integers(min_value=5, max_value=20),
+    num_groups=hypothesis.strategies.integers(min_value=3, max_value=6),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
@@ -32,13 +32,13 @@ def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
     metric.update(groups)
 
     # Test compute method
-    result = metric.compute()
+    output = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= 0.0)  # Cohen's f² should be non-negative
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= 0.0)  # Cohen's f² should be non-negative
 
     # Test multiple updates
     groups_new = []
@@ -68,7 +68,7 @@ def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
     metric.update(groups)
     result3 = metric.compute()
     assert result3.shape == (batch_size,)
-    assert torch.allclose(result, result3, atol=1e-6)
+    assert torch.allclose(output, result3, atol=1e-6)
 
     # Test with different dtypes
     if dtype == torch.float32:
@@ -100,7 +100,7 @@ def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
 
     # Cohen's f² should be Cohen's f squared
     expected_f_squared = result_f**2
-    assert torch.allclose(result, expected_f_squared, atol=1e-6)
+    assert torch.allclose(output, expected_f_squared, atol=1e-6)
 
     # Test with large effect - groups with very different means
     large_effect_groups = []
@@ -115,7 +115,7 @@ def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
     metric_large = beignet.metrics.statistics.CohensFSquared()
     metric_large.update(large_effect_groups)
     result_large = metric_large.compute()
-    assert torch.all(result_large > result)  # Should be larger effect
+    assert torch.all(result_large > output)  # Should be larger effect
 
     # Test repr
     repr_str = repr(metric)
@@ -132,7 +132,7 @@ def test_cohens_f_squared(batch_size, sample_size_per_group, num_groups, dtype):
         assert result_cuda.device == device
 
         # Results should be close between CPU and CUDA
-        assert torch.allclose(result.cpu(), result_cuda.cpu(), atol=1e-5)
+        assert torch.allclose(output.cpu(), result_cuda.cpu(), atol=1e-5)
 
     # Test gradient computation
     groups_grad = [group.clone().requires_grad_(True) for group in groups]

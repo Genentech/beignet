@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,11 +8,11 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    sample_size_group1=st.integers(min_value=5, max_value=30),
-    sample_size_group2=st.integers(min_value=5, max_value=30),
-    pooled=st.booleans(),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    sample_size_group1=hypothesis.strategies.integers(min_value=5, max_value=30),
+    sample_size_group2=hypothesis.strategies.integers(min_value=5, max_value=30),
+    pooled=hypothesis.strategies.booleans(),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dtype):
@@ -31,17 +31,17 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
     metric.update(group1, group2)
 
     # Test compute method
-    result = metric.compute()
+    output = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, Tensor)
+    assert isinstance(output, Tensor)
     if batch_size == 1:
-        assert result.shape == () or result.shape == (
+        assert output.shape == () or output.shape == (
             1,
         )  # Could be scalar or 1-element tensor
     else:
-        assert result.shape == (batch_size,)
-    assert result.dtype == dtype
+        assert output.shape == (batch_size,)
+    assert output.dtype == dtype
 
     # Test multiple updates
     group1_new = torch.randn(batch_size, sample_size_group1, dtype=dtype)
@@ -66,7 +66,7 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
         assert result3.shape == () or result3.shape == (1,)
     else:
         assert result3.shape == (batch_size,)
-    assert torch.allclose(result, result3, atol=1e-6)
+    assert torch.allclose(output, result3, atol=1e-6)
 
     # Test with different dtypes
     if dtype == torch.float32:
@@ -129,7 +129,7 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
         assert result_cuda.device == device
 
         # Results should be close between CPU and CUDA
-        assert torch.allclose(result.cpu(), result_cuda.cpu(), atol=1e-5)
+        assert torch.allclose(output.cpu(), result_cuda.cpu(), atol=1e-5)
 
     # Test gradient computation
     group1_grad = group1.clone().requires_grad_(True)
@@ -155,5 +155,5 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
     metric_different.update(different_group1, different_group2)
     result_different = metric_different.compute()
 
-    # Basic sanity check - result should be finite or NaN
+    # Basic sanity check - output should be finite or NaN
     assert torch.all(torch.isfinite(result_different) | torch.isnan(result_different))

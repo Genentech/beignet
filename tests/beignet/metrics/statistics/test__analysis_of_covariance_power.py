@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -26,24 +27,21 @@ def test_analysis_of_covariance_power(
 ):
     metric = AnalysisOfCovariancePower(alpha=alpha)
 
-    effect_size_tensor = torch.tensor(effect_size, dtype=dtype)
-    sample_size_tensor = torch.tensor(sample_size, dtype=dtype)
-    groups_tensor = torch.tensor(groups, dtype=dtype)
-    covariate_r2_tensor = torch.tensor(covariate_r2, dtype=dtype)
-    num_covariates_tensor = torch.tensor(num_covariates, dtype=dtype)
-
     metric.update(
-        effect_size_tensor,
-        sample_size_tensor,
-        groups_tensor,
-        covariate_r2_tensor,
-        num_covariates_tensor,
+        torch.tensor(effect_size, dtype=dtype),
+        torch.tensor(sample_size, dtype=dtype),
+        torch.tensor(groups, dtype=dtype),
+        torch.tensor(covariate_r2, dtype=dtype),
+        torch.tensor(num_covariates, dtype=dtype),
     )
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert 0.0 <= result.item() <= 1.0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert 0.0 <= output.item() <= 1.0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

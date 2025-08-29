@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 
 import beignet.metrics.functional.statistics
@@ -7,8 +7,8 @@ from beignet.metrics.statistics import WelchTTestPower
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_welch_t_test_power_metric(batch_size, dtype):
@@ -29,7 +29,7 @@ def test_welch_t_test_power_metric(batch_size, dtype):
     # Update metric
     metric.update(effect_size, sample_size1, sample_size2)
 
-    # Compute result
+    # Compute output
     result_metric = metric.compute()
 
     # Compare with functional implementation

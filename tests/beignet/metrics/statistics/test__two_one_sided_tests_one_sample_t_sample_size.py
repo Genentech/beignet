@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -23,14 +24,18 @@ def test_two_one_sided_tests_one_sample_t_sample_size(
     metric = TwoOneSidedTestsOneSampleTSampleSize(power=power, alpha=alpha)
 
     effect_size_tensor = torch.tensor(effect_size, dtype=dtype)
+
     margin_tensor = torch.tensor(equivalence_margin, dtype=dtype)
 
     metric.update(effect_size_tensor, margin_tensor)
-    result = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    output = metric.compute()
+
+    assert isinstance(output, Tensor)
+
+    assert output.item() > 0
 
     metric.reset()
+
     with pytest.raises(RuntimeError):
         metric.compute()

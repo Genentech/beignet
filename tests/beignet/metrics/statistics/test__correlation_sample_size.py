@@ -1,5 +1,5 @@
 import hypothesis
-import hypothesis.strategies as st
+import hypothesis.strategies
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,11 +8,11 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=st.integers(min_value=1, max_value=10),
-    effect_size=st.floats(min_value=0.1, max_value=0.9),
-    power=st.floats(min_value=0.1, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=0.9),
+    power=hypothesis.strategies.floats(min_value=0.1, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
 def test_correlation_sample_size(batch_size, effect_size, power, alpha, dtype):
@@ -31,13 +31,13 @@ def test_correlation_sample_size(batch_size, effect_size, power, alpha, dtype):
     metric.update(effect_size_tensor, power_tensor)
 
     # Test compute method
-    result = metric.compute()
+    output = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, Tensor)
-    assert result.shape == (batch_size,)
-    assert result.dtype == dtype
-    assert torch.all(result >= 3.0)  # Minimum for correlation
+    assert isinstance(output, Tensor)
+    assert output.shape == (batch_size,)
+    assert output.dtype == dtype
+    assert torch.all(output >= 3.0)  # Minimum for correlation
 
     # Test multiple updates
     metric.update(effect_size_tensor * 0.8, power_tensor)
@@ -58,7 +58,7 @@ def test_correlation_sample_size(batch_size, effect_size, power, alpha, dtype):
     metric.update(effect_size_tensor, power_tensor)
     result3 = metric.compute()
     assert result3.shape == (batch_size,)
-    assert torch.allclose(result, result3, atol=1e-6)
+    assert torch.allclose(output, result3, atol=1e-6)
 
     # Test repr
     repr_str = repr(metric)

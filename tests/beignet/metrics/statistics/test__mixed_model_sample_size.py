@@ -1,3 +1,4 @@
+import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
@@ -29,10 +30,10 @@ def test_mixed_model_sample_size(
     icc_tensor = torch.tensor(intraclass_correlation, dtype=dtype)
 
     metric.update(effect_size_tensor, cluster_size_tensor, icc_tensor)
-    result = metric.compute()
+    output = metric.compute()
 
-    assert isinstance(result, Tensor)
-    assert result.item() > 0
+    assert isinstance(output, Tensor)
+    assert output.item() > 0
 
     metric.reset()
     with pytest.raises(RuntimeError):
