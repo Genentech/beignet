@@ -42,7 +42,10 @@ class IndependentZTestPower(Metric):
     full_state_update: bool = False
 
     def __init__(
-        self, alpha: float = 0.05, alternative: str = "two-sided", **kwargs
+        self,
+        alpha: float = 0.05,
+        alternative: str = "two-sided",
+        **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.alpha = alpha
@@ -91,7 +94,7 @@ class IndependentZTestPower(Metric):
     def compute(self) -> Tensor:
         """Compute the statistical power."""
         return independent_z_test_power(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             sample_size1=self.sample_size1,
             sample_size2=self.sample_size2,
             alpha=self.alpha,
@@ -145,7 +148,7 @@ class IndependentZTestPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -205,7 +208,7 @@ class IndependentZTestPower(Metric):
             x_label = "Sample Size (Group 2)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'sample_size1', or 'sample_size2', got {dep_var}"
+                f"dep_var must be 'effect_size', 'sample_size1', or 'sample_size2', got {dep_var}",
             )
 
         # Plot power curves for different parameter values

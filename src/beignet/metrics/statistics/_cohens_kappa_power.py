@@ -47,14 +47,12 @@ class CohensKappaPower(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("kappa0_values", default=[], dist_reduce_fx="cat")
-        self.add_state("kappa1_values", default=[], dist_reduce_fx="cat")
+        self.add_state("kappa_values", default=[], dist_reduce_fx="cat")
         self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
 
     def update(
         self,
-        kappa0: Tensor,
-        kappa1: Tensor,
+        kappa: Tensor,
         sample_size: Tensor,
     ) -> None:
         """
@@ -62,16 +60,13 @@ class CohensKappaPower(Metric):
 
         Parameters
         ----------
-        kappa0 : Tensor
-            Null hypothesis kappa value.
-        kappa1 : Tensor
-            Alternative hypothesis kappa value.
+        kappa : Tensor
+            Kappa parameter value.
         sample_size : Tensor
             Sample size.
         """
-        self.kappa0_values.append(kappa0)
-        self.kappa1_values.append(kappa1)
-        self.sample_size_values.append(sample_size)
+        self.kappa_values.append(torch.atleast_1d(kappa))
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> Tensor:
         """
@@ -82,22 +77,16 @@ class CohensKappaPower(Metric):
         Tensor
             The computed statistical power.
         """
-        if (
-            not self.kappa0_values
-            or not self.kappa1_values
-            or not self.sample_size_values
-        ):
+        if not self.kappa_values or not self.sample_size_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        kappa0 = self.kappa0_values[-1]
-        kappa1 = self.kappa1_values[-1]
+        kappa = self.kappa_values[-1]
         sample_size = self.sample_size_values[-1]
 
         # Use functional implementation
         return cohens_kappa_power(
-            kappa0,
-            kappa1,
+            kappa,
             sample_size,
             alpha=self.alpha,
         )
@@ -105,8 +94,7 @@ class CohensKappaPower(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.kappa0_values = []
-        self.kappa1_values = []
+        self.kappa_values = []
         self.sample_size_values = []
 
     def plot(
@@ -142,11 +130,7 @@ class CohensKappaPower(Metric):
                 "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
-        if (
-            not self.kappa0_values
-            or not self.kappa1_values
-            or not self.sample_size_values
-        ):
+        if not self.kappa_values or not self.sample_size_values:
             raise RuntimeError(
                 "No values have been added to the metric. Call update() first.",
             )
@@ -159,33 +143,31 @@ class CohensKappaPower(Metric):
 
         if plot_type == "power_curve":
             # Get current parameters
-            current_kappa0 = float(self.kappa0_values[-1])
-            current_kappa1 = float(self.kappa1_values[-1])
+            current_kappa = float(self.kappa_values[-1])
             current_n = float(self.sample_size_values[-1])
 
-            # Create range of alternative kappa values
-            kappa1_values = np.linspace(current_kappa0 + 0.1, 1.0, 100)
+            # Create range of kappa values
+            kappa_values = np.linspace(0.1, 0.9, 100)
             powers = []
 
-            for k1 in kappa1_values:
+            for k in kappa_values:
                 power = cohens_kappa_power(
-                    torch.tensor(current_kappa0),
-                    torch.tensor(k1),
+                    torch.tensor(k),
                     torch.tensor(current_n),
                     alpha=self.alpha,
                 )
                 powers.append(float(power))
 
-            ax.plot(kappa1_values, powers, **kwargs)
+            ax.plot(kappa_values, powers, **kwargs)
 
             # Mark current point
             current_power = float(self.compute())
             ax.plot(
-                current_kappa1,
+                current_kappa,
                 current_power,
                 "ro",
                 markersize=8,
-                label=f"Current (κ₁={current_kappa1:.2f}, Power={current_power:.3f})",
+                label=f"Current (κ={current_kappa:.2f}, Power={current_power:.3f})",
             )
 
             # Add reference lines
@@ -204,14 +186,14 @@ class CohensKappaPower(Metric):
                 label="Power = 0.5",
             )
 
-            ax.set_xlabel("Alternative Kappa (κ₁)")
+            ax.set_xlabel("Kappa (κ)")
             ax.set_ylabel("Statistical Power")
             ax.set_ylim(0, 1)
             ax.legend()
             ax.grid(True, alpha=0.3)
 
             if title is None:
-                title = f"Cohen's Kappa Power Analysis (κ₀={current_kappa0}, N={current_n}, α={self.alpha})"
+                title = f"Cohen's Kappa Power Analysis (κ={current_kappa}, N={current_n}, α={self.alpha})"
         else:
             raise ValueError(f"plot_type must be 'power_curve', got {plot_type}")
 

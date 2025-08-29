@@ -10,19 +10,18 @@ from ..functional.statistics import t_test_power
 
 
 class TTestPower(Metric):
-    """TorchMetrics wrapper for one-sample and paired t-test power calculation.
+    """TorchMetrics wrapper for t-test power calculation.
 
-    This metric computes the statistical power for one-sample t-tests or
-    paired-samples t-tests, which is the probability of correctly rejecting
-    a false null hypothesis.
+    This metric computes the statistical power for t-tests given effect size
+    and sample size parameters.
 
     Example:
         >>> metric = TTestPower()
-        >>> effect_sizes = torch.tensor([0.3, 0.5, 0.8])
-        >>> sample_sizes = torch.tensor([20, 30, 40])
-        >>> metric.update(effect_sizes, sample_sizes)
+        >>> effect_size = torch.tensor(0.5)
+        >>> sample_size = torch.tensor(30)
+        >>> metric.update(effect_size, sample_size)
         >>> metric.compute()
-        tensor([0.3684, 0.6595, 0.9422])
+        tensor(0.6595)
     """
 
     is_differentiable: bool = True
@@ -35,12 +34,12 @@ class TTestPower(Metric):
         alternative: str = "two-sided",
         **kwargs: Any,
     ) -> None:
-        """Initialize the TTestOneSamplePower metric.
+        """Initialize the TTestPower metric.
 
         Args:
             alpha: Significance level (Type I error rate). Default: 0.05.
-            alternative: Type of alternative hypothesis. Either "two-sided"
-                or "one-sided". Default: "two-sided".
+            alternative: Type of alternative hypothesis. Either "two-sided",
+                "greater", or "less". Default: "two-sided".
             **kwargs: Additional keyword arguments passed to the parent class.
         """
         super().__init__(**kwargs)
@@ -55,39 +54,45 @@ class TTestPower(Metric):
                 f"alternative must be 'two-sided', 'greater', or 'less', got {alternative}",
             )
 
-        self.add_state("group1_samples", default=[], dist_reduce_fx="cat")
-        self.add_state("group2_samples", default=[], dist_reduce_fx="cat")
+        self.add_state("effect_size_values", default=[], dist_reduce_fx="cat")
+        self.add_state("sample_size_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, group1: torch.Tensor, group2: torch.Tensor) -> None:
-        """Update the metric state with new samples.
+    def update(self, effect_size: torch.Tensor, sample_size: torch.Tensor) -> None:
+        """Update the metric state with power analysis parameters.
 
         Args:
-            group1: Samples from the first group.
-            group2: Samples from the second group.
+            effect_size: Effect size values.
+            sample_size: Sample size values.
         """
-        self.group1_samples.append(group1.detach())
-        self.group2_samples.append(group2.detach())
+        self.effect_size_values.append(torch.atleast_1d(effect_size))
+        self.sample_size_values.append(torch.atleast_1d(sample_size))
 
     def compute(self) -> torch.Tensor:
-        """Compute the statistical power for all accumulated values.
+        """Compute the statistical power for stored parameters.
 
         Returns:
             Statistical power values.
         """
-        if not self.group1_samples or not self.group2_samples:
-            raise RuntimeError("No samples have been added to the metric.")
+        if not self.effect_size_values or not self.sample_size_values:
+            raise RuntimeError("No values have been added to the metric.")
 
-        # Concatenate all samples
-        group1_all = torch.cat(self.group1_samples, dim=0)
-        group2_all = torch.cat(self.group2_samples, dim=0)
+        # Use the most recent values
+        effect_size = self.effect_size_values[-1]
+        sample_size = self.sample_size_values[-1]
 
         # Use functional implementation
         return t_test_power(
-            group1_all,
-            group2_all,
+            effect_size,
+            sample_size,
             alpha=self.alpha,
             alternative=self.alternative,
         )
+
+    def reset(self) -> None:
+        """Reset the metric to its initial state."""
+        super().reset()
+        self.effect_size_values = []
+        self.sample_size_values = []
 
     def plot(
         self,

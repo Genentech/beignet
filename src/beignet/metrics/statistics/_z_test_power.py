@@ -39,7 +39,10 @@ class ZTestPower(Metric):
     full_state_update: bool = False
 
     def __init__(
-        self, alpha: float = 0.05, alternative: str = "two-sided", **kwargs
+        self,
+        alpha: float = 0.05,
+        alternative: str = "two-sided",
+        **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.alpha = alpha
@@ -73,7 +76,7 @@ class ZTestPower(Metric):
     def compute(self) -> Tensor:
         """Compute the statistical power."""
         return beignet.statistics.z_test_power(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             sample_size=self.sample_size,
             alpha=self.alpha,
             alternative=self.alternative,
@@ -123,7 +126,7 @@ class ZTestPower(Metric):
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from None
 
         # Create figure if no axis provided
@@ -179,7 +182,7 @@ class ZTestPower(Metric):
             x_label = "Significance Level (α)"
         else:
             raise ValueError(
-                f"dep_var must be 'sample_size', 'effect_size', or 'alpha', got {dep_var}"
+                f"dep_var must be 'sample_size', 'effect_size', or 'alpha', got {dep_var}",
             )
 
         # Plot power curves for different parameter values
