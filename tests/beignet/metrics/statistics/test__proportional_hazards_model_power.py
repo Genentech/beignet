@@ -1,4 +1,3 @@
-import hypothesis
 import hypothesis.strategies
 import pytest
 import torch
