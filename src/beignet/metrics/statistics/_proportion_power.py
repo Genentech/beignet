@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class ProportionPower(Metric):
@@ -62,8 +62,8 @@ class ProportionPower(Metric):
         sample_size : Tensor
             Sample size(s) for the test.
         """
-        self.p1_values.append(p1.detach())
-        self.sample_sizes.append(sample_size.detach())
+        self.p1_values.append(torch.atleast_1d(p1.detach()))
+        self.sample_sizes.append(torch.atleast_1d(sample_size.detach()))
 
     def compute(self) -> Tensor:
         """Compute the statistical power for the accumulated data.
@@ -74,13 +74,13 @@ class ProportionPower(Metric):
             Statistical power values.
         """
         if not self.p1_values:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         p1_tensor = torch.cat(self.p1_values, dim=0)
         sample_size_tensor = torch.cat(self.sample_sizes, dim=0)
         p0_tensor = torch.full_like(p1_tensor, self.p0)
 
-        return beignet.proportion_power(
+        return beignet.statistics.proportion_power(
             p0=p0_tensor,
             p1=p1_tensor,
             sample_size=sample_size_tensor,
@@ -187,7 +187,7 @@ class ProportionPower(Metric):
 
             for x_val in x_values:
                 if dep_var == "p1":
-                    power_val = beignet.proportion_power(
+                    power_val = beignet.statistics.proportion_power(
                         p0=torch.tensor(float(self.p0)),
                         p1=torch.tensor(float(x_val)),
                         sample_size=torch.tensor(float(param_val)),
@@ -195,7 +195,7 @@ class ProportionPower(Metric):
                         alternative=self.alternative,
                     )
                 elif dep_var == "sample_size":
-                    power_val = beignet.proportion_power(
+                    power_val = beignet.statistics.proportion_power(
                         p0=torch.tensor(float(self.p0)),
                         p1=torch.tensor(float(param_val)),
                         sample_size=torch.tensor(float(x_val)),

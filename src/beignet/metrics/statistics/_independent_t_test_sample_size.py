@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class IndependentTTestSampleSize(Metric):
@@ -64,11 +64,11 @@ class IndependentTTestSampleSize(Metric):
             ratio: Ratio of sample size for group 2 relative to group 1.
                 If None, uses the default ratio from initialization.
         """
-        self.effect_sizes.append(effect_size.detach())
+        self.effect_sizes.append(torch.atleast_1d(effect_size.detach()))
 
         if ratio is None:
             ratio = torch.full_like(effect_size, self.ratio)
-        self.ratio_values.append(ratio.detach())
+        self.ratio_values.append(torch.atleast_1d(ratio.detach()))
 
     def compute(self) -> torch.Tensor:
         """Compute the required sample size for all accumulated values.
@@ -79,9 +79,12 @@ class IndependentTTestSampleSize(Metric):
         effect_sizes = torch.cat(self.effect_sizes, dim=0)
         ratio_values = torch.cat(self.ratio_values, dim=0)
 
-        return beignet.independent_t_test_sample_size(
-            effect_sizes,
-            ratio_values,
+        if not self.effect_sizes:
+            raise RuntimeError("No values have been added to the metric.")
+
+        return beignet.statistics.independent_t_test_sample_size(
+            input=effect_sizes,
+            ratio=ratio_values,
             power=self.power,
             alpha=self.alpha,
             alternative=self.alternative,
@@ -200,24 +203,24 @@ class IndependentTTestSampleSize(Metric):
 
             for x_val in x_values:
                 if dep_var == "effect_size":
-                    sample_size_val = beignet.independent_t_test_sample_size(
-                        effect_size=torch.tensor(float(x_val)),
+                    sample_size_val = beignet.statistics.independent_t_test_sample_size(
+                        input=torch.tensor(float(x_val)),
                         ratio=torch.tensor(float(self.ratio)),
                         power=float(param_val),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "power":
-                    sample_size_val = beignet.independent_t_test_sample_size(
-                        effect_size=torch.tensor(float(param_val)),
+                    sample_size_val = beignet.statistics.independent_t_test_sample_size(
+                        input=torch.tensor(float(param_val)),
                         ratio=torch.tensor(float(self.ratio)),
                         power=float(x_val),
                         alpha=alpha,
                         alternative=self.alternative,
                     )
                 elif dep_var == "ratio":
-                    sample_size_val = beignet.independent_t_test_sample_size(
-                        effect_size=torch.tensor(float(param_val)),
+                    sample_size_val = beignet.statistics.independent_t_test_sample_size(
+                        input=torch.tensor(float(param_val)),
                         ratio=torch.tensor(float(x_val)),
                         power=self.power,
                         alpha=alpha,

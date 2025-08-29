@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class ProportionSampleSize(Metric):
@@ -59,8 +59,8 @@ class ProportionSampleSize(Metric):
         p1 : Tensor
             Alternative hypothesis proportion(s).
         """
-        self.p0_values.append(p0.detach())
-        self.p1_values.append(p1.detach())
+        self.p0_values.append(torch.atleast_1d(p0.detach()))
+        self.p1_values.append(torch.atleast_1d(p1.detach()))
 
     def compute(self) -> Tensor:
         """Compute the required sample sizes for the accumulated data.
@@ -71,12 +71,12 @@ class ProportionSampleSize(Metric):
             Required sample size values.
         """
         if not self.p0_values:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         p0_tensor = torch.cat(self.p0_values, dim=0)
         p1_tensor = torch.cat(self.p1_values, dim=0)
 
-        return beignet.proportion_sample_size(
+        return beignet.statistics.proportion_sample_size(
             p0=p0_tensor,
             p1=p1_tensor,
             power=self.power,

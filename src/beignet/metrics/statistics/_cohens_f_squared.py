@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class CohensFSquared(Metric):
@@ -48,8 +48,8 @@ class CohensFSquared(Metric):
         pooled_std : Tensor
             Pooled within-group standard deviation.
         """
-        self.group_means_list.append(group_means.detach())
-        self.pooled_std_list.append(pooled_std.detach())
+        self.group_means_list.append(torch.atleast_1d(group_means.detach()))
+        self.pooled_std_list.append(torch.atleast_1d(pooled_std.detach()))
 
     def compute(self) -> Tensor:
         """Compute Cohen's f² effect size for the accumulated data.
@@ -60,14 +60,14 @@ class CohensFSquared(Metric):
             Cohen's f² effect size values.
         """
         if not self.group_means_list:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         group_means_tensor = torch.cat(self.group_means_list, dim=0)
         pooled_std_tensor = torch.cat(self.pooled_std_list, dim=0)
 
-        return beignet.cohens_f_squared(
-            group_means=group_means_tensor,
-            pooled_std=pooled_std_tensor,
+        return beignet.statistics.cohens_f_squared(
+            input=group_means_tensor,
+            other=pooled_std_tensor,
         )
 
     def plot(

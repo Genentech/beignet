@@ -84,8 +84,11 @@ class ChiSquareIndependencePower(Metric):
 
     def compute(self) -> Tensor:
         """Compute the statistical power."""
+        if self.total == 0:
+            raise RuntimeError("No values have been added to the metric.")
+            
         return chi_square_independence_power(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             sample_size=self.sample_size,
             rows=self.rows,
             cols=self.cols,

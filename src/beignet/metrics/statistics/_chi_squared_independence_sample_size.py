@@ -75,8 +75,11 @@ class ChiSquareIndependenceSampleSize(Metric):
 
     def compute(self) -> Tensor:
         """Compute the required sample size."""
+        if self.total == 0:
+            raise RuntimeError("No values have been added to the metric.")
+            
         return chi_square_independence_sample_size(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             rows=self.rows,
             cols=self.cols,
             power=self.power,

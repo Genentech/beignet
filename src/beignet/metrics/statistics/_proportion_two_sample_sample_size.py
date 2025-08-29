@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class ProportionTwoSampleSampleSize(Metric):
@@ -63,8 +63,8 @@ class ProportionTwoSampleSampleSize(Metric):
         p2 : Tensor
             Proportion in group 2.
         """
-        self.p1_values.append(p1.detach())
-        self.p2_values.append(p2.detach())
+        self.p1_values.append(torch.atleast_1d(p1.detach()))
+        self.p2_values.append(torch.atleast_1d(p2.detach()))
 
     def compute(self) -> Tensor:
         """Compute the required sample sizes for the accumulated data.
@@ -76,12 +76,12 @@ class ProportionTwoSampleSampleSize(Metric):
             Sample size for group 2 = ratio * sample_size_group1.
         """
         if not self.p1_values:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         p1_tensor = torch.cat(self.p1_values, dim=0)
         p2_tensor = torch.cat(self.p2_values, dim=0)
 
-        return beignet.proportion_two_sample_sample_size(
+        return beignet.statistics.proportion_two_sample_sample_size(
             p1=p1_tensor,
             p2=p2_tensor,
             power=self.power,

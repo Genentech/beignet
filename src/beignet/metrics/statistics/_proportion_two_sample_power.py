@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torchmetrics import Metric
 
-import beignet
+import beignet.statistics
 
 
 class ProportionTwoSamplePower(Metric):
@@ -69,10 +69,10 @@ class ProportionTwoSamplePower(Metric):
         if n2 is None:
             n2 = n1
 
-        self.p1_values.append(p1.detach())
-        self.p2_values.append(p2.detach())
-        self.n1_values.append(n1.detach())
-        self.n2_values.append(n2.detach())
+        self.p1_values.append(torch.atleast_1d(p1.detach()))
+        self.p2_values.append(torch.atleast_1d(p2.detach()))
+        self.n1_values.append(torch.atleast_1d(n1.detach()))
+        self.n2_values.append(torch.atleast_1d(n2.detach()))
 
     def compute(self) -> Tensor:
         """Compute the statistical power for the accumulated data.
@@ -83,14 +83,14 @@ class ProportionTwoSamplePower(Metric):
             Statistical power values.
         """
         if not self.p1_values:
-            return torch.tensor([], dtype=torch.float32)
+            raise RuntimeError("No values have been added to the metric.")
 
         p1_tensor = torch.cat(self.p1_values, dim=0)
         p2_tensor = torch.cat(self.p2_values, dim=0)
         n1_tensor = torch.cat(self.n1_values, dim=0)
         n2_tensor = torch.cat(self.n2_values, dim=0)
 
-        return beignet.proportion_two_sample_power(
+        return beignet.statistics.proportion_two_sample_power(
             p1=p1_tensor,
             p2=p2_tensor,
             n1=n1_tensor,

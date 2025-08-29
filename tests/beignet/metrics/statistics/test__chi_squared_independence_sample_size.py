@@ -26,7 +26,13 @@ def test_chi_squared_independence_sample_size(
     effect_size_tensor = torch.tensor(effect_size, dtype=dtype)
     degrees_of_freedom_tensor = torch.tensor(degrees_of_freedom, dtype=dtype)
 
-    metric.update(effect_size_tensor, degrees_of_freedom_tensor)
+    # Convert degrees_of_freedom to rows and cols
+    # degrees_of_freedom = (rows-1) * (cols-1)
+    # For simplicity, use cols=2, so rows = degrees_of_freedom + 1
+    rows_tensor = torch.tensor(degrees_of_freedom + 1, dtype=dtype)
+    cols_tensor = torch.tensor(2, dtype=dtype)
+    
+    metric.update(effect_size_tensor, rows_tensor, cols_tensor)
     output = metric.compute()
 
     assert isinstance(output, Tensor)
