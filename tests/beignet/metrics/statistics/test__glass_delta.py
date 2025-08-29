@@ -45,7 +45,7 @@ def test_glass_delta_metric(batch_size, dtype):
 
     # Test metric reset
     metric.reset()
-    with pytest.raises(RuntimeError, match="No values have been added to the metric"):
+    with pytest.raises(RuntimeError, match="No samples have been added to the metric"):
         metric.compute()
 
     # Test metric with new data after reset
