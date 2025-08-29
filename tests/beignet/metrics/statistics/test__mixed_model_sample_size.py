@@ -1,19 +1,19 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import MixedModelSampleSize
 
 
-@given(
-    effect_size=st.floats(min_value=0.1, max_value=1.0),
-    cluster_size=st.integers(min_value=5, max_value=50),
-    intraclass_correlation=st.floats(min_value=0.01, max_value=0.5),
-    power=st.floats(min_value=0.7, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=1.0),
+    cluster_size=hypothesis.strategies.integers(min_value=5, max_value=50),
+    intraclass_correlation=hypothesis.strategies.floats(min_value=0.01, max_value=0.5),
+    power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_mixed_model_sample_size(
     effect_size,
@@ -32,7 +32,7 @@ def test_mixed_model_sample_size(
     metric.update(effect_size_tensor, cluster_size_tensor, icc_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.item() > 0
 
     metric.reset()

@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.strategies as st
 import torch
+from torch import Tensor
 from torchmetrics import Metric
 
 import beignet.metrics.statistics
@@ -34,7 +35,7 @@ def test_cohens_f(batch_size, sample_size_per_group, num_groups, dtype):
     result = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.shape == (batch_size,)
     assert result.dtype == dtype
     assert torch.all(result >= 0.0)  # Cohen's f should be non-negative

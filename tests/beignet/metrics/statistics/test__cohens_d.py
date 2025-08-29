@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.strategies as st
 import torch
+from torch import Tensor
 from torchmetrics import Metric
 
 import beignet.metrics.statistics
@@ -33,7 +34,7 @@ def test_cohens_d(batch_size, sample_size_group1, sample_size_group2, pooled, dt
     result = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     if batch_size == 1:
         assert result.shape == () or result.shape == (
             1,

@@ -1,20 +1,20 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import AnalysisOfCovarianceSampleSize
 
 
-@given(
-    effect_size=st.floats(min_value=0.1, max_value=1.0),
-    groups=st.integers(min_value=2, max_value=6),
-    covariate_r2=st.floats(min_value=0.1, max_value=0.8),
-    num_covariates=st.integers(min_value=1, max_value=5),
-    power=st.floats(min_value=0.7, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=1.0),
+    groups=hypothesis.strategies.integers(min_value=2, max_value=6),
+    covariate_r2=hypothesis.strategies.floats(min_value=0.1, max_value=0.8),
+    num_covariates=hypothesis.strategies.integers(min_value=1, max_value=5),
+    power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_analysis_of_covariance_sample_size(
     effect_size,
@@ -40,7 +40,7 @@ def test_analysis_of_covariance_sample_size(
     )
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.item() > 0
 
     metric.reset()

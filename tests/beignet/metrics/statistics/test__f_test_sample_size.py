@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.strategies as st
 import torch
+from torch import Tensor
 from torchmetrics import Metric
 
 import beignet.metrics.statistics
@@ -29,7 +30,7 @@ def test_f_test_sample_size(batch_size, effect_size, power, df1, df2, alpha, dty
     metric.update(effect_size_tensor, power_tensor, df1_tensor, df2_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.shape == (batch_size,)
     assert result.dtype == dtype
     assert torch.all(result >= 1.0)

@@ -1,18 +1,18 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import MannWhitneyUTestPower
 
 
-@given(
-    effect_size=st.floats(min_value=0.1, max_value=1.0),
-    sample_size_1=st.integers(min_value=10, max_value=100),
-    sample_size_2=st.integers(min_value=10, max_value=100),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=1.0),
+    sample_size_1=hypothesis.strategies.integers(min_value=10, max_value=100),
+    sample_size_2=hypothesis.strategies.integers(min_value=10, max_value=100),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_mann_whitney_u_test_power(
     effect_size,
@@ -30,7 +30,7 @@ def test_mann_whitney_u_test_power(
     metric.update(effect_size_tensor, sample_size_1_tensor, sample_size_2_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert 0.0 <= result.item() <= 1.0
 
     metric.reset()

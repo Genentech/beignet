@@ -1,17 +1,17 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import McnemarsTestSampleSize
 
 
-@given(
-    discordant_proportion=st.floats(min_value=0.05, max_value=0.5),
-    power=st.floats(min_value=0.7, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    discordant_proportion=hypothesis.strategies.floats(min_value=0.05, max_value=0.5),
+    power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_mcnemars_test_sample_size(
     discordant_proportion,
@@ -26,7 +26,7 @@ def test_mcnemars_test_sample_size(
     metric.update(discordant_prop_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.item() > 0
 
     metric.reset()

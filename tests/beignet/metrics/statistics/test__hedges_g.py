@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.strategies as st
 import torch
+from torch import Tensor
 from torchmetrics import Metric
 
 import beignet.metrics.statistics
@@ -24,7 +25,7 @@ def test_hedges_g(batch_size, sample_size_group1, sample_size_group2, dtype):
     metric.update(group1, group2)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.shape == (batch_size,)
     assert result.dtype == dtype
 

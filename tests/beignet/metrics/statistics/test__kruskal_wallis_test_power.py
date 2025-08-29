@@ -1,18 +1,18 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import KruskalWallisTestPower
 
 
-@given(
-    effect_size=st.floats(min_value=0.1, max_value=1.0),
-    sample_size=st.integers(min_value=30, max_value=200),
-    groups=st.integers(min_value=3, max_value=6),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=1.0),
+    sample_size=hypothesis.strategies.integers(min_value=30, max_value=200),
+    groups=hypothesis.strategies.integers(min_value=3, max_value=6),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_kruskal_wallis_test_power(
     effect_size,
@@ -30,7 +30,7 @@ def test_kruskal_wallis_test_power(
     metric.update(effect_size_tensor, sample_size_tensor, groups_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert 0.0 <= result.item() <= 1.0
 
     metric.reset()

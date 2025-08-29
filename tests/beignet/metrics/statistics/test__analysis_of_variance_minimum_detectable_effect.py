@@ -1,18 +1,18 @@
-
+import hypothesis
+import hypothesis.strategies
 import pytest
 import torch
-from hypothesis import given
-from hypothesis import strategies as st
+from torch import Tensor
 
 from beignet.metrics.statistics import AnalysisOfVarianceMinimumDetectableEffect
 
 
-@given(
-    sample_size=st.integers(min_value=30, max_value=300),
-    groups=st.integers(min_value=2, max_value=6),
-    power=st.floats(min_value=0.7, max_value=0.95),
-    alpha=st.floats(min_value=0.01, max_value=0.1),
-    dtype=st.sampled_from([torch.float32, torch.float64]),
+@hypothesis.given(
+    sample_size=hypothesis.strategies.integers(min_value=30, max_value=300),
+    groups=hypothesis.strategies.integers(min_value=2, max_value=6),
+    power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
+    alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
+    dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_analysis_of_variance_minimum_detectable_effect(
     sample_size,
@@ -29,7 +29,7 @@ def test_analysis_of_variance_minimum_detectable_effect(
     metric.update(sample_size_tensor, groups_tensor)
     result = metric.compute()
 
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.item() > 0
 
     metric.reset()

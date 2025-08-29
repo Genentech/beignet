@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.strategies as st
 import torch
+from torch import Tensor
 from torchmetrics import Metric
 
 import beignet.metrics.statistics
@@ -33,7 +34,7 @@ def test_correlation_sample_size(batch_size, effect_size, power, alpha, dtype):
     result = metric.compute()
 
     # Verify output properties
-    assert isinstance(result, torch.Tensor)
+    assert isinstance(result, Tensor)
     assert result.shape == (batch_size,)
     assert result.dtype == dtype
     assert torch.all(result >= 3.0)  # Minimum for correlation
