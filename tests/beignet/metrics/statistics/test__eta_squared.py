@@ -1,5 +1,6 @@
 import hypothesis
 import hypothesis.strategies
+import pytest
 import torch
 
 import beignet.metrics.functional.statistics
@@ -48,11 +49,8 @@ def test_eta_squared_metric(batch_size, dtype):
 
     # Test metric reset
     metric.reset()
-    try:
+    with pytest.raises(RuntimeError, match="No values have been added to the metric"):
         metric.compute()
-        assert False, "Should raise RuntimeError after reset"
-    except RuntimeError:
-        pass  # Expected
 
     # Test metric with new data after reset
     metric.update(ss_between, ss_total)

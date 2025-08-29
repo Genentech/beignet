@@ -82,8 +82,6 @@ def test_f_edge_cases():
     small_dist = F(torch.tensor(1.0), torch.tensor(2.0))
 
     # Should handle edge probabilities
-    eps = torch.finfo(torch.float32).eps
-
     low_quantile = small_dist.icdf(torch.tensor(0.01))
     high_quantile = small_dist.icdf(torch.tensor(0.99))
 

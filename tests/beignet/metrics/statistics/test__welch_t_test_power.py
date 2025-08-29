@@ -1,5 +1,6 @@
 import hypothesis
 import hypothesis.strategies
+import pytest
 import torch
 
 import beignet.metrics.functional.statistics
@@ -57,11 +58,8 @@ def test_welch_t_test_power_metric(batch_size, dtype):
 
     # Test metric reset
     metric.reset()
-    try:
+    with pytest.raises(RuntimeError, match="No values have been added to the metric"):
         metric.compute()
-        assert False, "Should raise RuntimeError after reset"
-    except RuntimeError:
-        pass  # Expected
 
     # Test metric with new data after reset
     metric.update(effect_size, sample_size1, sample_size2)
@@ -69,14 +67,8 @@ def test_welch_t_test_power_metric(batch_size, dtype):
     assert torch.allclose(result_after_reset, result_functional, atol=1e-6)
 
     # Test parameter validation
-    try:
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
         WelchTTestPower(alpha=1.5)
-        assert False, "Should raise ValueError for invalid alpha"
-    except ValueError:
-        pass  # Expected
 
-    try:
+    with pytest.raises(ValueError, match="alternative must be"):
         WelchTTestPower(alternative="invalid")
-        assert False, "Should raise ValueError for invalid alternative"
-    except ValueError:
-        pass  # Expected

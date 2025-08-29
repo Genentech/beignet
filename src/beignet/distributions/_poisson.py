@@ -75,7 +75,6 @@ class Poisson(torch.distributions.Poisson):
         # Method selection based on rate size (using torch.where to avoid branching)
         large_rate_mask = rate_clamped > 30.0
         medium_rate_mask = (rate_clamped > 10.0) & (rate_clamped <= 30.0)
-        small_rate_mask = rate_clamped <= 10.0
 
         # Compute all approximations (torch.compile friendly)
         large_result = self._large_rate_approximation(value, rate_clamped)
