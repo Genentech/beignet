@@ -81,7 +81,7 @@ class IndependentZTestSampleSize(Metric):
     def compute(self) -> Tensor:
         """Compute the required sample size."""
         return beignet.statistics.independent_z_test_sample_size(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             ratio=self.ratio,
             power=self.power,
             alpha=self.alpha,
@@ -135,7 +135,7 @@ class IndependentZTestSampleSize(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -191,7 +191,7 @@ class IndependentZTestSampleSize(Metric):
             x_label = "Sample Size Ratio (Group 2 / Group 1)"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'power', or 'ratio', got {dep_var}"
+                f"dep_var must be 'effect_size', 'power', or 'ratio', got {dep_var}",
             )
 
         # Plot sample size curves for different parameter values
