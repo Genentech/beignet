@@ -9,14 +9,12 @@ from beignet.metrics.statistics import CohensKappaSampleSize
 
 @hypothesis.given(
     kappa=hypothesis.strategies.floats(min_value=0.1, max_value=0.9),
-    categories=hypothesis.strategies.integers(min_value=2, max_value=5),
     power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
     alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 def test_cohens_kappa_sample_size(
     kappa,
-    categories,
     power,
     alpha,
     dtype,
@@ -24,9 +22,8 @@ def test_cohens_kappa_sample_size(
     metric = CohensKappaSampleSize(power=power, alpha=alpha)
 
     kappa_tensor = torch.tensor(kappa, dtype=dtype)
-    categories_tensor = torch.tensor(categories, dtype=dtype)
 
-    metric.update(kappa_tensor, categories_tensor)
+    metric.update(kappa_tensor)
     output = metric.compute()
 
     assert isinstance(output, Tensor)

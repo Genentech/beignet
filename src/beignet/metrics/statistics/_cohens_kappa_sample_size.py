@@ -52,22 +52,18 @@ class CohensKappaSampleSize(Metric):
             raise ValueError(f"alpha must be between 0 and 1, got {alpha}")
 
         # State for storing analysis parameters
-        self.add_state("kappa0_values", default=[], dist_reduce_fx="cat")
-        self.add_state("kappa1_values", default=[], dist_reduce_fx="cat")
+        self.add_state("kappa_values", default=[], dist_reduce_fx="cat")
 
-    def update(self, kappa0: Tensor, kappa1: Tensor) -> None:
+    def update(self, kappa: Tensor) -> None:
         """
         Update the metric state with kappa values.
 
         Parameters
         ----------
-        kappa0 : Tensor
-            Null hypothesis kappa value.
-        kappa1 : Tensor
-            Alternative hypothesis kappa value.
+        kappa : Tensor
+            Kappa value.
         """
-        self.kappa0_values.append(kappa0)
-        self.kappa1_values.append(kappa1)
+        self.kappa_values.append(torch.atleast_1d(kappa))
 
     def compute(self) -> Tensor:
         """
@@ -78,17 +74,15 @@ class CohensKappaSampleSize(Metric):
         Tensor
             The computed required sample size.
         """
-        if not self.kappa0_values or not self.kappa1_values:
+        if not self.kappa_values:
             raise RuntimeError("No values have been added to the metric.")
 
         # Use the most recent values
-        kappa0 = self.kappa0_values[-1]
-        kappa1 = self.kappa1_values[-1]
+        kappa = self.kappa_values[-1]
 
         # Use functional implementation
         return cohens_kappa_sample_size(
-            kappa0,
-            kappa1,
+            kappa,
             power=self.power,
             alpha=self.alpha,
         )
@@ -96,8 +90,7 @@ class CohensKappaSampleSize(Metric):
     def reset(self) -> None:
         """Reset the metric to its initial state."""
         super().reset()
-        self.kappa0_values = []
-        self.kappa1_values = []
+        self.kappa_values = []
 
     def plot(
         self,

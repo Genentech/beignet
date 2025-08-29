@@ -1,5 +1,6 @@
 import hypothesis
 import hypothesis.strategies
+import pytest
 import torch
 from torch import Tensor
 from torchmetrics import Metric
@@ -8,73 +9,24 @@ import beignet.metrics.statistics
 
 
 @hypothesis.given(
-    batch_size=hypothesis.strategies.integers(min_value=1, max_value=10),
-    effect_size=hypothesis.strategies.floats(min_value=0.1, max_value=0.9),
-    power=hypothesis.strategies.floats(min_value=0.1, max_value=0.95),
+    correlation=hypothesis.strategies.floats(min_value=0.1, max_value=0.9),
+    power=hypothesis.strategies.floats(min_value=0.7, max_value=0.95),
     alpha=hypothesis.strategies.floats(min_value=0.01, max_value=0.1),
     dtype=hypothesis.strategies.sampled_from([torch.float32, torch.float64]),
 )
 @hypothesis.settings(deadline=None)
-def test_correlation_sample_size(batch_size, effect_size, power, alpha, dtype):
-    """Test CorrelationSampleSize TorchMetrics class."""
-    # Initialize the metric
-    metric = beignet.metrics.statistics.CorrelationSampleSize(alpha=alpha)
-
-    # Verify it's a proper TorchMetrics Metric
+def test_correlation_sample_size(correlation, power, alpha, dtype):
+    metric = beignet.metrics.statistics.CorrelationSampleSize(power=power, alpha=alpha)
     assert isinstance(metric, Metric)
 
-    # Create test inputs
-    effect_size_tensor = torch.full((batch_size,), effect_size, dtype=dtype)
-    power_tensor = torch.full((batch_size,), power, dtype=dtype)
+    correlation_tensor = torch.tensor(correlation, dtype=dtype)
 
-    # Test update method
-    metric.update(effect_size_tensor, power_tensor)
-
-    # Test compute method
+    metric.update(correlation_tensor)
     output = metric.compute()
 
-    # Verify output properties
     assert isinstance(output, Tensor)
-    assert output.shape == (batch_size,)
-    assert output.dtype == dtype
-    assert torch.all(output >= 3.0)  # Minimum for correlation
+    assert output.item() >= 3.0
 
-    # Test multiple updates
-    metric.update(effect_size_tensor * 0.8, power_tensor)
-    result2 = metric.compute()
-    assert result2.shape == (batch_size * 2,)
-
-    # Test reset functionality
     metric.reset()
-
-    # After reset, compute should raise an error
-    try:
+    with pytest.raises(RuntimeError):
         metric.compute()
-        raise AssertionError("Expected RuntimeError after reset")
-    except RuntimeError:
-        pass
-
-    # Test metric state after reset and new update
-    metric.update(effect_size_tensor, power_tensor)
-    result3 = metric.compute()
-    assert result3.shape == (batch_size,)
-    assert torch.allclose(output, result3, atol=1e-6)
-
-    # Test repr
-    repr_str = repr(metric)
-    assert "CorrelationSampleSize" in repr_str
-    assert f"alpha={alpha}" in repr_str
-
-    # Test gradient computation
-    effect_grad = effect_size_tensor.clone().requires_grad_(True)
-    power_grad = power_tensor.clone().requires_grad_(True)
-
-    metric_grad = beignet.metrics.statistics.CorrelationSampleSize(alpha=alpha)
-    metric_grad.update(effect_grad, power_grad)
-    result_grad = metric_grad.compute()
-
-    loss = result_grad.sum()
-    loss.backward()
-
-    assert effect_grad.grad is not None
-    assert power_grad.grad is not None

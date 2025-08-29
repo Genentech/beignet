@@ -69,7 +69,7 @@ class FTestSampleSize(Metric):
     def compute(self) -> Tensor:
         """Compute the required sample size."""
         return f_test_sample_size(
-            effect_size=self.effect_size,
+            input=self.effect_size,
             df1=self.df1,
             power=self.power,
             alpha=self.alpha,
@@ -122,7 +122,7 @@ class FTestSampleSize(Metric):
             import matplotlib.pyplot as plt
         except ImportError as err:
             raise ImportError(
-                "matplotlib is required for plotting. Install with: pip install matplotlib"
+                "matplotlib is required for plotting. Install with: pip install matplotlib",
             ) from err
 
         # Create figure if no axis provided
@@ -178,7 +178,7 @@ class FTestSampleSize(Metric):
             x_label = "Statistical Power"
         else:
             raise ValueError(
-                f"dep_var must be 'effect_size', 'df1', or 'power', got {dep_var}"
+                f"dep_var must be 'effect_size', 'df1', or 'power', got {dep_var}",
             )
 
         # Plot sample size curves for different parameter values
