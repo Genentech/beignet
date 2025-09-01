@@ -1,3 +1,3 @@
-::: beignet.special.error_erf
-::: beignet.special.error_erfc
-::: beignet.special.error_erfi
+::: beignet.special_functions.error_erf
+::: beignet.special_functions.error_erfc
+::: beignet.special_functions.error_erfi

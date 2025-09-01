@@ -1,2 +1,2 @@
-::: beignet.special.dawson_integral_f
-::: beignet.special.faddeeva_w
+::: beignet.special_functions.dawson_integral_f
+::: beignet.special_functions.faddeeva_w
