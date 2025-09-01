@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_fit_laguerre_polynomial(float64):
@@ -12,9 +12,9 @@ def test_fit_laguerre_polynomial(float64):
     other = f(input)
 
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial(
+        beignet.polynomials.evaluate_laguerre_polynomial(
             input,
-            beignet.fit_laguerre_polynomial(
+            beignet.polynomials.fit_laguerre_polynomial(
                 input,
                 other,
                 degree=3,
@@ -24,9 +24,9 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial(
+        beignet.polynomials.evaluate_laguerre_polynomial(
             input,
-            beignet.fit_laguerre_polynomial(
+            beignet.polynomials.fit_laguerre_polynomial(
                 input,
                 other,
                 degree=torch.tensor([0, 1, 2, 3]),
@@ -36,9 +36,9 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial(
+        beignet.polynomials.evaluate_laguerre_polynomial(
             input,
-            beignet.fit_laguerre_polynomial(
+            beignet.polynomials.fit_laguerre_polynomial(
                 input,
                 other,
                 degree=4,
@@ -48,9 +48,9 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial(
+        beignet.polynomials.evaluate_laguerre_polynomial(
             input,
-            beignet.fit_laguerre_polynomial(
+            beignet.polynomials.fit_laguerre_polynomial(
                 input,
                 other,
                 degree=torch.tensor([0, 1, 2, 3, 4]),
@@ -60,19 +60,19 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=3,
         ),
         torch.stack(
             [
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -82,19 +82,19 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.stack(
             [
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -108,13 +108,13 @@ def test_fit_laguerre_polynomial(float64):
     weight[1::2] = 1.0
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             other,
             degree=3,
             weight=weight,
         ),
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             other,
             degree=torch.tensor([0, 1, 2, 3]),
@@ -122,13 +122,13 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             other,
             degree=torch.tensor([0, 1, 2, 3]),
             weight=weight,
         ),
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             other,
             degree=torch.tensor([0, 1, 2, 3]),
@@ -136,7 +136,7 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=3,
@@ -144,12 +144,12 @@ def test_fit_laguerre_polynomial(float64):
         ),
         torch.stack(
             [
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -159,7 +159,7 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_laguerre_polynomial(
+        beignet.polynomials.fit_laguerre_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=torch.tensor([0, 1, 2, 3]),
@@ -167,12 +167,12 @@ def test_fit_laguerre_polynomial(float64):
         ),
         torch.stack(
             [
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_laguerre_polynomial(
+                beignet.polynomials.fit_laguerre_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -182,7 +182,7 @@ def test_fit_laguerre_polynomial(float64):
     )
 
     # torch.testing.assert_close(
-    #     beignet.lagfit(
+    #     beignet.polynomials.lagfit(
     #         torch.tensor([1, 1j, -1, -1j]),
     #         torch.tensor([1, 1j, -1, -1j]),
     #         degree=torch.tensor([1]),
@@ -191,7 +191,7 @@ def test_fit_laguerre_polynomial(float64):
     # )
 
     # torch.testing.assert_close(
-    #     beignet.lagfit(
+    #     beignet.polynomials.lagfit(
     #         torch.tensor([1, 1j, -1, -1j]),
     #         torch.tensor([1, 1j, -1, -1j]),
     #         degree=torch.tensor([0, 1]),

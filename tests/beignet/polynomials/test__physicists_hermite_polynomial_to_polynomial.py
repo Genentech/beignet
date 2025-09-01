@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_physicists_hermite_polynomial_to_polynomial():
@@ -19,7 +19,7 @@ def test_physicists_hermite_polynomial_to_polynomial():
 
     for index in range(10):
         torch.testing.assert_close(
-            beignet.physicists_hermite_polynomial_to_polynomial(
+            beignet.polynomials.physicists_hermite_polynomial_to_polynomial(
                 torch.tensor([0.0] * index + [1.0]),
             ),
             coefficients[index],

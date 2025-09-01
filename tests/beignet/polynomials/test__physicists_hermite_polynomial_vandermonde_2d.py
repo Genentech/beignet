@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_physicists_hermite_polynomial_vandermonde_2d():
@@ -8,7 +8,7 @@ def test_physicists_hermite_polynomial_vandermonde_2d():
 
     coefficients = torch.rand(2, 3)
 
-    output = beignet.physicists_hermite_polynomial_vandermonde_2d(
+    output = beignet.polynomials.physicists_hermite_polynomial_vandermonde_2d(
         a,
         b,
         degree=torch.tensor([1, 2]),
@@ -16,14 +16,14 @@ def test_physicists_hermite_polynomial_vandermonde_2d():
 
     torch.testing.assert_close(
         output @ torch.ravel(coefficients),
-        beignet.evaluate_physicists_hermite_polynomial_2d(
+        beignet.polynomials.evaluate_physicists_hermite_polynomial_2d(
             a,
             b,
             coefficients,
         ),
     )
 
-    output = beignet.physicists_hermite_polynomial_vandermonde_2d(
+    output = beignet.polynomials.physicists_hermite_polynomial_vandermonde_2d(
         a,
         b,
         degree=torch.tensor([1, 2]),

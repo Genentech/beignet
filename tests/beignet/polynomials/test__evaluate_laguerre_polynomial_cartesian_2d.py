@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_laguerre_polynomial_cartesian_2d(float64):
@@ -9,10 +9,12 @@ def test_evaluate_laguerre_polynomial_cartesian_2d(float64):
 
     x = torch.rand(3, 5) * 2 - 1
     a, b, x3 = x
-    y1, y2, y3 = beignet.evaluate_polynomial(x, torch.tensor([1.0, 2.0, 3.0]))
+    y1, y2, y3 = beignet.polynomials.evaluate_polynomial(
+        x, torch.tensor([1.0, 2.0, 3.0])
+    )
 
     torch.testing.assert_close(
-        beignet.evaluate_laguerre_polynomial_cartesian_2d(
+        beignet.polynomials.evaluate_laguerre_polynomial_cartesian_2d(
             a,
             b,
             c2d,
@@ -22,7 +24,7 @@ def test_evaluate_laguerre_polynomial_cartesian_2d(float64):
 
     z = torch.ones([2, 3])
     assert (
-        beignet.evaluate_laguerre_polynomial_cartesian_2d(
+        beignet.polynomials.evaluate_laguerre_polynomial_cartesian_2d(
             z,
             z,
             c2d,

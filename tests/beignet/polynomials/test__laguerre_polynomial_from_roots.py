@@ -1,12 +1,12 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_laguerre_polynomial_from_roots():
     torch.testing.assert_close(
-        beignet.trim_laguerre_polynomial_coefficients(
-            beignet.laguerre_polynomial_from_roots(
+        beignet.polynomials.trim_laguerre_polynomial_coefficients(
+            beignet.polynomials.laguerre_polynomial_from_roots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -21,8 +21,8 @@ def test_laguerre_polynomial_from_roots():
     #
     #     roots = torch.cos(roots)
     #
-    #     output = beignet.lag2poly(
-    #         beignet.lagfromroots(
+    #     output = beignet.polynomials.lag2poly(
+    #         beignet.polynomials.lagfromroots(
     #             roots,
     #         ),
     #     )
@@ -32,9 +32,9 @@ def test_laguerre_polynomial_from_roots():
     #         torch.tensor([1.0]),
     #     )
     #
-    #     output = beignet.lagval(
+    #     output = beignet.polynomials.lagval(
     #         roots,
-    #         beignet.lagfromroots(
+    #         beignet.polynomials.lagfromroots(
     #             roots,
     #         ),
     #     )

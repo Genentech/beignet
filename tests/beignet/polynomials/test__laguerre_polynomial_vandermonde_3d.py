@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_laguerre_polynomial_vandermonde_3d():
@@ -8,7 +8,7 @@ def test_laguerre_polynomial_vandermonde_3d():
 
     coefficients = torch.rand(2, 3, 4)
 
-    output = beignet.laguerre_polynomial_vandermonde_3d(
+    output = beignet.polynomials.laguerre_polynomial_vandermonde_3d(
         a,
         b,
         c,
@@ -16,7 +16,7 @@ def test_laguerre_polynomial_vandermonde_3d():
     )
     torch.testing.assert_close(
         output @ torch.ravel(coefficients),
-        beignet.evaluate_laguerre_polynomial_3d(
+        beignet.polynomials.evaluate_laguerre_polynomial_3d(
             a,
             b,
             c,
@@ -24,7 +24,7 @@ def test_laguerre_polynomial_vandermonde_3d():
         ),
     )
 
-    output = beignet.laguerre_polynomial_vandermonde_3d(
+    output = beignet.polynomials.laguerre_polynomial_vandermonde_3d(
         a,
         b,
         c,

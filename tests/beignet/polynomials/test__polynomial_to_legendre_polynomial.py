@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_polynomial_to_legendre_polynomial():
@@ -19,7 +19,7 @@ def test_polynomial_to_legendre_polynomial():
 
     for index in range(10):
         torch.testing.assert_close(
-            beignet.polynomial_to_legendre_polynomial(
+            beignet.polynomials.polynomial_to_legendre_polynomial(
                 coefficients[index],
             ),
             torch.tensor([0.0] * index + [1.0]),

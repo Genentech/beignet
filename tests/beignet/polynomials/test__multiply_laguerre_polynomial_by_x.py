@@ -1,12 +1,12 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_multiply_laguerre_polynomial_by_x(float64):
     torch.testing.assert_close(
-        beignet.trim_laguerre_polynomial_coefficients(
-            beignet.multiply_laguerre_polynomial_by_x(
+        beignet.polynomials.trim_laguerre_polynomial_coefficients(
+            beignet.polynomials.multiply_laguerre_polynomial_by_x(
                 torch.tensor([0.0]),
             ),
             tol=0.000001,
@@ -15,8 +15,8 @@ def test_multiply_laguerre_polynomial_by_x(float64):
     )
 
     torch.testing.assert_close(
-        beignet.trim_laguerre_polynomial_coefficients(
-            beignet.multiply_laguerre_polynomial_by_x(
+        beignet.polynomials.trim_laguerre_polynomial_coefficients(
+            beignet.polynomials.multiply_laguerre_polynomial_by_x(
                 torch.tensor([1.0]),
             ),
             tol=0.000001,
@@ -26,13 +26,13 @@ def test_multiply_laguerre_polynomial_by_x(float64):
 
     for index in range(1, 5):
         torch.testing.assert_close(
-            beignet.trim_laguerre_polynomial_coefficients(
-                beignet.multiply_laguerre_polynomial_by_x(
+            beignet.polynomials.trim_laguerre_polynomial_coefficients(
+                beignet.polynomials.multiply_laguerre_polynomial_by_x(
                     torch.tensor([0.0] * index + [1.0]),
                 ),
                 tol=0.000001,
             ),
-            beignet.trim_laguerre_polynomial_coefficients(
+            beignet.polynomials.trim_laguerre_polynomial_coefficients(
                 torch.tensor(
                     [0.0] * (index - 1) + [-index, 2.0 * index + 1.0, -(index + 1.0)]
                 ),

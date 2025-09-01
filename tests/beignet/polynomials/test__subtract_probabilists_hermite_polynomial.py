@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_subtract_probabilists_hermite_polynomial():
@@ -15,14 +15,14 @@ def test_subtract_probabilists_hermite_polynomial():
             other = torch.tensor([0.0] * k + [1.0])
 
             torch.testing.assert_close(
-                beignet.trim_probabilists_hermite_polynomial_coefficients(
-                    beignet.subtract_probabilists_hermite_polynomial(
+                beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
+                    beignet.polynomials.subtract_probabilists_hermite_polynomial(
                         input,
                         other,
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_probabilists_hermite_polynomial_coefficients(
+                beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
                     target,
                     tol=0.000001,
                 ),

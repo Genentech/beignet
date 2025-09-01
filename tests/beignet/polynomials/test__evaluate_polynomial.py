@@ -2,11 +2,11 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_polynomial(float64):
-    output = beignet.evaluate_polynomial(
+    output = beignet.polynomials.evaluate_polynomial(
         torch.tensor([]),
         torch.tensor([1.0]),
     )
@@ -25,7 +25,7 @@ def test_evaluate_polynomial(float64):
 
     for index in range(5):
         torch.testing.assert_close(
-            beignet.evaluate_polynomial(
+            beignet.polynomials.evaluate_polynomial(
                 input,
                 torch.tensor([0.0] * index + [1.0]),
             ),
@@ -33,7 +33,7 @@ def test_evaluate_polynomial(float64):
         )
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial(
+        beignet.polynomials.evaluate_polynomial(
             input,
             torch.tensor([0, -1, 0, 1]),
         ),
@@ -45,21 +45,21 @@ def test_evaluate_polynomial(float64):
 
         input = torch.zeros(shape)
 
-        output = beignet.evaluate_polynomial(
+        output = beignet.polynomials.evaluate_polynomial(
             input,
             torch.tensor([1.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_polynomial(
+        output = beignet.polynomials.evaluate_polynomial(
             input,
             torch.tensor([1.0, 0.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_polynomial(
+        output = beignet.polynomials.evaluate_polynomial(
             input,
             torch.tensor([1.0, 0.0, 0.0]),
         )

@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_physicists_hermite_polynomial_cartesian_3d(float64):
@@ -14,10 +14,12 @@ def test_evaluate_physicists_hermite_polynomial_cartesian_3d(float64):
 
     x = torch.rand(3, 5) * 2 - 1
     a, b, x3 = x
-    y1, y2, y3 = beignet.evaluate_polynomial(x, torch.tensor([1.0, 2.0, 3.0]))
+    y1, y2, y3 = beignet.polynomials.evaluate_polynomial(
+        x, torch.tensor([1.0, 2.0, 3.0])
+    )
 
     torch.testing.assert_close(
-        beignet.evaluate_physicists_hermite_polynomial_cartesian_3d(
+        beignet.polynomials.evaluate_physicists_hermite_polynomial_cartesian_3d(
             a,
             b,
             x3,
@@ -34,6 +36,8 @@ def test_evaluate_physicists_hermite_polynomial_cartesian_3d(float64):
     z = torch.ones([2, 3])
 
     assert (
-        beignet.evaluate_physicists_hermite_polynomial_cartesian_3d(z, z, z, c3d).shape
+        beignet.polynomials.evaluate_physicists_hermite_polynomial_cartesian_3d(
+            z, z, z, c3d
+        ).shape
         == (2, 3) * 3
     )

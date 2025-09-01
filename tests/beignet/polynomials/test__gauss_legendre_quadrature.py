@@ -1,11 +1,11 @@
-# import beignet
+# import beignet.polynomials
 # import torch
 #
 #
 # def test_gauss_legendre_quadrature():
-#     x, w = beignet.gauss_legendre_quadrature(100)
+#     x, w = beignet.polynomials.gauss_legendre_quadrature(100)
 #
-#     v = beignet.legvander(
+#     v = beignet.polynomials.legvander(
 #         x,
 #         degree=torch.tensor([99]),
 #     )

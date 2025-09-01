@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_legendre_polynomial_vandermonde_2d():
@@ -8,21 +8,21 @@ def test_legendre_polynomial_vandermonde_2d():
 
     coefficients = torch.rand(2, 3)
 
-    output = beignet.legendre_polynomial_vandermonde_2d(
+    output = beignet.polynomials.legendre_polynomial_vandermonde_2d(
         a,
         b,
         degree=torch.tensor([1, 2]),
     )
     torch.testing.assert_close(
         output @ torch.ravel(coefficients),
-        beignet.evaluate_legendre_polynomial_2d(
+        beignet.polynomials.evaluate_legendre_polynomial_2d(
             a,
             b,
             coefficients,
         ),
     )
 
-    output = beignet.legendre_polynomial_vandermonde_2d(
+    output = beignet.polynomials.legendre_polynomial_vandermonde_2d(
         a,
         b,
         degree=torch.tensor([1, 2]),

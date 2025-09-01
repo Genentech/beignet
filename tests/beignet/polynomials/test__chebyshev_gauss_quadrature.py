@@ -2,13 +2,13 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_chebyshev_gauss_quadrature(float64):
-    output, weight = beignet.chebyshev_gauss_quadrature(100)
+    output, weight = beignet.polynomials.chebyshev_gauss_quadrature(100)
 
-    output = beignet.chebyshev_polynomial_vandermonde(
+    output = beignet.polynomials.chebyshev_polynomial_vandermonde(
         output,
         degree=torch.tensor([99]),
     )

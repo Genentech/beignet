@@ -2,13 +2,13 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_legendre_polynomial_from_roots():
     torch.testing.assert_close(
-        beignet.trim_legendre_polynomial_coefficients(
-            beignet.legendre_polynomial_from_roots(
+        beignet.polynomials.trim_legendre_polynomial_coefficients(
+            beignet.polynomials.legendre_polynomial_from_roots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -19,7 +19,7 @@ def test_legendre_polynomial_from_roots():
     for index in range(1, 5):
         input = torch.linspace(-math.pi, 0, 2 * index + 1)[1::2]
 
-        output = beignet.legendre_polynomial_from_roots(
+        output = beignet.polynomials.legendre_polynomial_from_roots(
             torch.cos(
                 input,
             ),
@@ -28,8 +28,8 @@ def test_legendre_polynomial_from_roots():
         assert output.shape[-1] == index + 1
 
         # torch.testing.assert_close(
-        #     beignet.leg2poly(
-        #         beignet.legfromroots(
+        #     beignet.polynomials.leg2poly(
+        #         beignet.polynomials.legfromroots(
         #             torch.cos(
         #                 input,
         #             ),
@@ -39,11 +39,11 @@ def test_legendre_polynomial_from_roots():
         # )
 
         # torch.testing.assert_close(
-        #     beignet.legval(
+        #     beignet.polynomials.legval(
         #         torch.cos(
         #             input,
         #         ),
-        #         beignet.legfromroots(
+        #         beignet.polynomials.legfromroots(
         #             torch.cos(
         #                 input,
         #             ),

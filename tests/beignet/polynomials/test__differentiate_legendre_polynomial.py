@@ -1,32 +1,32 @@
 import pytest
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_differentiate_legendre_polynomial():
     with pytest.raises(TypeError):
-        beignet.differentiate_legendre_polynomial(
+        beignet.polynomials.differentiate_legendre_polynomial(
             torch.tensor([0.0]),
             order=0.5,
         )
 
     with pytest.raises(ValueError):
-        beignet.differentiate_legendre_polynomial(
+        beignet.polynomials.differentiate_legendre_polynomial(
             torch.tensor([0.0]),
             order=-1,
         )
 
     for i in range(5):
         torch.testing.assert_close(
-            beignet.trim_legendre_polynomial_coefficients(
-                beignet.differentiate_legendre_polynomial(
+            beignet.polynomials.trim_legendre_polynomial_coefficients(
+                beignet.polynomials.differentiate_legendre_polynomial(
                     torch.tensor([0.0] * i + [1.0]),
                     order=0,
                 ),
                 tol=0.000001,
             ),
-            beignet.trim_legendre_polynomial_coefficients(
+            beignet.polynomials.trim_legendre_polynomial_coefficients(
                 torch.tensor([0.0] * i + [1.0]),
                 tol=0.000001,
             ),
@@ -35,9 +35,9 @@ def test_differentiate_legendre_polynomial():
     for i in range(5):
         for j in range(2, 5):
             torch.testing.assert_close(
-                beignet.trim_legendre_polynomial_coefficients(
-                    beignet.differentiate_legendre_polynomial(
-                        beignet.integrate_legendre_polynomial(
+                beignet.polynomials.trim_legendre_polynomial_coefficients(
+                    beignet.polynomials.differentiate_legendre_polynomial(
+                        beignet.polynomials.integrate_legendre_polynomial(
                             torch.tensor([0.0] * i + [1.0]),
                             order=j,
                         ),
@@ -45,7 +45,7 @@ def test_differentiate_legendre_polynomial():
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_legendre_polynomial_coefficients(
+                beignet.polynomials.trim_legendre_polynomial_coefficients(
                     torch.tensor([0.0] * i + [1.0]),
                     tol=0.000001,
                 ),
@@ -54,9 +54,9 @@ def test_differentiate_legendre_polynomial():
     for i in range(5):
         for j in range(2, 5):
             torch.testing.assert_close(
-                beignet.trim_legendre_polynomial_coefficients(
-                    beignet.differentiate_legendre_polynomial(
-                        beignet.integrate_legendre_polynomial(
+                beignet.polynomials.trim_legendre_polynomial_coefficients(
+                    beignet.polynomials.differentiate_legendre_polynomial(
+                        beignet.polynomials.integrate_legendre_polynomial(
                             torch.tensor([0.0] * i + [1.0]),
                             order=j,
                             scale=2,
@@ -66,7 +66,7 @@ def test_differentiate_legendre_polynomial():
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_legendre_polynomial_coefficients(
+                beignet.polynomials.trim_legendre_polynomial_coefficients(
                     torch.tensor([0.0] * i + [1.0]),
                     tol=0.000001,
                 ),
@@ -79,13 +79,13 @@ def test_differentiate_legendre_polynomial():
     for input in coefficients.T:
         target = [
             *target,
-            beignet.differentiate_legendre_polynomial(
+            beignet.polynomials.differentiate_legendre_polynomial(
                 input,
             ),
         ]
 
     torch.testing.assert_close(
-        beignet.differentiate_legendre_polynomial(
+        beignet.polynomials.differentiate_legendre_polynomial(
             coefficients,
             axis=0,
         ),
@@ -97,13 +97,13 @@ def test_differentiate_legendre_polynomial():
     for input in coefficients:
         target = [
             *target,
-            beignet.differentiate_legendre_polynomial(
+            beignet.polynomials.differentiate_legendre_polynomial(
                 input,
             ),
         ]
 
     # torch.testing.assert_close(
-    #     beignet.legder(
+    #     beignet.polynomials.legder(
     #         coefficients,
     #         axis=1,
     #     ),
@@ -111,7 +111,7 @@ def test_differentiate_legendre_polynomial():
     # )
 
     torch.testing.assert_close(
-        beignet.differentiate_legendre_polynomial(
+        beignet.polynomials.differentiate_legendre_polynomial(
             torch.tensor([1.0, 2.0, 3.0, 4.0]),
             order=4,
         ),

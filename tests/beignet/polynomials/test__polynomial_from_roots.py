@@ -13,8 +13,8 @@
 #     ]
 #
 #     torch.testing.assert_close(
-#         beignet.trim_polynomial_coefficients(
-#             beignet.polynomial_from_roots(
+#         beignet.polynomials.trim_polynomial_coefficients(
+#             beignet.polynomials.polynomial_from_roots(
 #                 torch.tensor([]),
 #             ),
 #             tol=0.000001,
@@ -29,14 +29,14 @@
 #
 #         input = torch.cos(input)
 #
-#         output = beignet.polynomial_from_roots(input) * 2 ** (index - 1)
+#         output = beignet.polynomials.polynomial_from_roots(input) * 2 ** (index - 1)
 #
 #         torch.testing.assert_close(
-#             beignet.trim_polynomial_coefficients(
+#             beignet.polynomials.trim_polynomial_coefficients(
 #                 output,
 #                 tol=0.000001,
 #             ),
-#             beignet.trim_polynomial_coefficients(
+#             beignet.polynomials.trim_polynomial_coefficients(
 #                 coefficients[index],
 #                 tol=0.000001,
 #             ),

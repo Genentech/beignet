@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_physicists_hermite_polynomial_3d(float64):
@@ -9,10 +9,12 @@ def test_evaluate_physicists_hermite_polynomial_3d(float64):
 
     a, b, c = input
 
-    x, y, z = beignet.evaluate_polynomial(input, torch.tensor([1.0, 2.0, 3.0]))
+    x, y, z = beignet.polynomials.evaluate_polynomial(
+        input, torch.tensor([1.0, 2.0, 3.0])
+    )
 
     with pytest.raises(ValueError):
-        beignet.evaluate_physicists_hermite_polynomial_3d(
+        beignet.polynomials.evaluate_physicists_hermite_polynomial_3d(
             a,
             b,
             c[:2],
@@ -25,7 +27,7 @@ def test_evaluate_physicists_hermite_polynomial_3d(float64):
         )
 
     torch.testing.assert_close(
-        beignet.evaluate_physicists_hermite_polynomial_3d(
+        beignet.polynomials.evaluate_physicists_hermite_polynomial_3d(
             a,
             b,
             c,
@@ -39,7 +41,7 @@ def test_evaluate_physicists_hermite_polynomial_3d(float64):
         x * y * z,
     )
 
-    output = beignet.evaluate_physicists_hermite_polynomial_3d(
+    output = beignet.polynomials.evaluate_physicists_hermite_polynomial_3d(
         torch.ones([2, 3]),
         torch.ones([2, 3]),
         torch.ones([2, 3]),

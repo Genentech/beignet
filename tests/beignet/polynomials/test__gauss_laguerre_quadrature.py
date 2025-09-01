@@ -1,11 +1,11 @@
-# import beignet
+# import beignet.polynomials
 # import torch
 #
 #
 # def test_gauss_laguerre_quadrature():
-#     x, w = beignet.gauss_laguerre_quadrature(100)
+#     x, w = beignet.polynomials.gauss_laguerre_quadrature(100)
 #
-#     v = beignet.lagvander(x, 99)
+#     v = beignet.polynomials.lagvander(x, 99)
 #     vv = (v.T * w) @ v
 #     vd = 1 / torch.sqrt(vv.diagonal())
 #     vv = vd[:, None] * vv * vd

@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_chebyshev_polynomial_vandermonde_3d():
@@ -8,7 +8,7 @@ def test_chebyshev_polynomial_vandermonde_3d():
 
     coefficients = torch.rand(2, 3, 4)
 
-    output = beignet.chebyshev_polynomial_vandermonde_3d(
+    output = beignet.polynomials.chebyshev_polynomial_vandermonde_3d(
         a,
         b,
         c,
@@ -17,7 +17,7 @@ def test_chebyshev_polynomial_vandermonde_3d():
 
     torch.testing.assert_close(
         output @ torch.ravel(coefficients),
-        beignet.evaluate_chebyshev_polynomial_3d(
+        beignet.polynomials.evaluate_chebyshev_polynomial_3d(
             a,
             b,
             c,
@@ -25,7 +25,7 @@ def test_chebyshev_polynomial_vandermonde_3d():
         ),
     )
 
-    output = beignet.chebyshev_polynomial_vandermonde_3d(
+    output = beignet.polynomials.chebyshev_polynomial_vandermonde_3d(
         a,
         b,
         c,

@@ -2,7 +2,7 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_laguerre_polynomial(float64):
@@ -16,7 +16,7 @@ def test_evaluate_laguerre_polynomial(float64):
         torch.tensor([720, -4320, 5400, -2400, 450, -36, 1]) / 720,
     ]
 
-    output = beignet.evaluate_laguerre_polynomial(
+    output = beignet.polynomials.evaluate_laguerre_polynomial(
         torch.tensor([]),
         torch.tensor([1.0]),
     )
@@ -30,7 +30,7 @@ def test_evaluate_laguerre_polynomial(float64):
     for coefficient in coefficients:
         ys = [
             *ys,
-            beignet.evaluate_polynomial(
+            beignet.polynomials.evaluate_polynomial(
                 input,
                 coefficient,
             ),
@@ -38,7 +38,7 @@ def test_evaluate_laguerre_polynomial(float64):
 
     for i in range(7):
         torch.testing.assert_close(
-            beignet.evaluate_laguerre_polynomial(
+            beignet.polynomials.evaluate_laguerre_polynomial(
                 input,
                 torch.tensor([0.0] * i + [1.0]),
             ),
@@ -50,21 +50,21 @@ def test_evaluate_laguerre_polynomial(float64):
 
         input = torch.zeros(shape)
 
-        output = beignet.evaluate_laguerre_polynomial(
+        output = beignet.polynomials.evaluate_laguerre_polynomial(
             input,
             torch.tensor([1.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_laguerre_polynomial(
+        output = beignet.polynomials.evaluate_laguerre_polynomial(
             input,
             torch.tensor([1.0, 0.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_laguerre_polynomial(
+        output = beignet.polynomials.evaluate_laguerre_polynomial(
             input,
             torch.tensor([1.0, 0.0, 0.0]),
         )

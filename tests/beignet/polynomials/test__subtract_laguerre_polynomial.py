@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_subtract_laguerre_polynomial():
@@ -12,14 +12,14 @@ def test_subtract_laguerre_polynomial():
             target[j] = target[j] - 1
 
             torch.testing.assert_close(
-                beignet.trim_laguerre_polynomial_coefficients(
-                    beignet.subtract_laguerre_polynomial(
+                beignet.polynomials.trim_laguerre_polynomial_coefficients(
+                    beignet.polynomials.subtract_laguerre_polynomial(
                         torch.tensor([0.0] * i + [1.0]),
                         torch.tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_laguerre_polynomial_coefficients(
+                beignet.polynomials.trim_laguerre_polynomial_coefficients(
                     target,
                     tol=0.000001,
                 ),

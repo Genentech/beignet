@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_polynomial_2d(float64):
@@ -8,13 +8,13 @@ def test_evaluate_polynomial_2d(float64):
 
     a, b, c = input
 
-    x, y, z = beignet.evaluate_polynomial(
+    x, y, z = beignet.polynomials.evaluate_polynomial(
         input,
         torch.tensor([1.0, 2.0, 3.0]),
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial_2d(
+        beignet.polynomials.evaluate_polynomial_2d(
             a,
             b,
             torch.einsum(
@@ -26,7 +26,7 @@ def test_evaluate_polynomial_2d(float64):
         x * y,
     )
 
-    output = beignet.evaluate_polynomial_2d(
+    output = beignet.polynomials.evaluate_polynomial_2d(
         torch.ones([2, 3]),
         torch.ones([2, 3]),
         torch.einsum(

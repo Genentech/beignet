@@ -2,7 +2,7 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_legendre_polynomial(float64):
@@ -19,7 +19,7 @@ def test_evaluate_legendre_polynomial(float64):
         torch.tensor([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128,
     ]
 
-    output = beignet.evaluate_legendre_polynomial(
+    output = beignet.polynomials.evaluate_legendre_polynomial(
         torch.tensor([]),
         torch.tensor([1.0]),
     )
@@ -31,7 +31,7 @@ def test_evaluate_legendre_polynomial(float64):
     for coefficient in coefficients:
         ys = [
             *ys,
-            beignet.evaluate_polynomial(
+            beignet.polynomials.evaluate_polynomial(
                 torch.linspace(-1, 1, 50),
                 coefficient,
             ),
@@ -39,7 +39,7 @@ def test_evaluate_legendre_polynomial(float64):
 
     for i in range(10):
         torch.testing.assert_close(
-            beignet.evaluate_legendre_polynomial(
+            beignet.polynomials.evaluate_legendre_polynomial(
                 torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * i + [1.0]),
             ),
@@ -51,21 +51,21 @@ def test_evaluate_legendre_polynomial(float64):
 
         input = torch.zeros(shape)
 
-        output = beignet.evaluate_legendre_polynomial(
+        output = beignet.polynomials.evaluate_legendre_polynomial(
             input,
             torch.tensor([1.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_legendre_polynomial(
+        output = beignet.polynomials.evaluate_legendre_polynomial(
             input,
             torch.tensor([1.0, 0.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_legendre_polynomial(
+        output = beignet.polynomials.evaluate_legendre_polynomial(
             input,
             torch.tensor([1.0, 0.0, 0.0]),
         )

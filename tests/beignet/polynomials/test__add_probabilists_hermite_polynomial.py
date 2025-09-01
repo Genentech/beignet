@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_add_probabilists_hermite_polynomial():
@@ -12,14 +12,14 @@ def test_add_probabilists_hermite_polynomial():
             target[k] = target[k] + 1
 
             torch.testing.assert_close(
-                beignet.trim_probabilists_hermite_polynomial_coefficients(
-                    beignet.add_probabilists_hermite_polynomial(
+                beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
+                    beignet.polynomials.add_probabilists_hermite_polynomial(
                         torch.tensor([0.0] * j + [1.0]),
                         torch.tensor([0.0] * k + [1.0]),
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_probabilists_hermite_polynomial_coefficients(
+                beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
                     target,
                     tol=0.000001,
                 ),

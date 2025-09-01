@@ -2,16 +2,16 @@
 #     for i in range(5):
 #         for j in range(5):
 #             torch.testing.assert_close(
-#                 beignet.trim_polynomial_coefficients(
-#                     beignet.polynomial_power(
+#                 beignet.polynomials.trim_polynomial_coefficients(
+#                     beignet.polynomials.polynomial_power(
 #                         torch.arange(0.0, i + 1),
 #                         j,
 #                     ),
 #                     tol=0.000001,
 #                 ),
-#                 beignet.trim_polynomial_coefficients(
+#                 beignet.polynomials.trim_polynomial_coefficients(
 #                     functools.reduce(
-#                         beignet.multiply_polynomial,
+#                         beignet.polynomials.multiply_polynomial,
 #                         [torch.arange(0.0, i + 1)] * j,
 #                         torch.tensor([1.0]),
 #                     ),

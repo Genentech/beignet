@@ -1,10 +1,10 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_chebyshev_polynomial_vandermonde():
-    v = beignet.chebyshev_polynomial_vandermonde(
+    v = beignet.polynomials.chebyshev_polynomial_vandermonde(
         torch.arange(3),
         degree=torch.tensor([3]),
     )
@@ -14,13 +14,13 @@ def test_chebyshev_polynomial_vandermonde():
     for i in range(4):
         torch.testing.assert_close(
             v[..., i],
-            beignet.evaluate_chebyshev_polynomial(
+            beignet.polynomials.evaluate_chebyshev_polynomial(
                 torch.arange(3),
                 torch.tensor([0.0] * i + [1.0]),
             ),
         )
 
-    v = beignet.chebyshev_polynomial_vandermonde(
+    v = beignet.polynomials.chebyshev_polynomial_vandermonde(
         torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
         degree=torch.tensor([3]),
     )
@@ -30,7 +30,7 @@ def test_chebyshev_polynomial_vandermonde():
     for i in range(4):
         torch.testing.assert_close(
             v[..., i],
-            beignet.evaluate_chebyshev_polynomial(
+            beignet.polynomials.evaluate_chebyshev_polynomial(
                 torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]),
                 torch.tensor([0.0] * i + [1.0]),
             ),

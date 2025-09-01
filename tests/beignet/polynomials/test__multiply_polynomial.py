@@ -6,14 +6,14 @@
 #             target[j + k] = target[j + k] + 1
 #
 #             torch.testing.assert_close(
-#                 beignet.trim_polynomial_coefficients(
-#                     beignet.multiply_polynomial(
+#                 beignet.polynomials.trim_polynomial_coefficients(
+#                     beignet.polynomials.multiply_polynomial(
 #                         torch.tensor([0.0] * j + [1.0]),
 #                         torch.tensor([0.0] * k + [1.0]),
 #                     ),
 #                     tol=0.000001,
 #                 ),
-#                 beignet.trim_polynomial_coefficients(
+#                 beignet.polynomials.trim_polynomial_coefficients(
 #                     target,
 #                     tol=0.000001,
 #                 ),

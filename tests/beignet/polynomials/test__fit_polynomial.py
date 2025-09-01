@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-import beignet
+import beignet.polynomials
 
 
 def test_fit_polynomial(float64):
@@ -16,9 +16,9 @@ def test_fit_polynomial(float64):
     other = f(input)
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial(
+        beignet.polynomials.evaluate_polynomial(
             input,
-            beignet.fit_polynomial(
+            beignet.polynomials.fit_polynomial(
                 input,
                 other,
                 degree=3,
@@ -28,9 +28,9 @@ def test_fit_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial(
+        beignet.polynomials.evaluate_polynomial(
             input,
-            beignet.fit_polynomial(
+            beignet.polynomials.fit_polynomial(
                 input,
                 other,
                 degree=torch.tensor([0, 1, 2, 3]),
@@ -40,9 +40,9 @@ def test_fit_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial(
+        beignet.polynomials.evaluate_polynomial(
             input,
-            beignet.fit_polynomial(
+            beignet.polynomials.fit_polynomial(
                 input,
                 other,
                 degree=4,
@@ -52,9 +52,9 @@ def test_fit_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial(
+        beignet.polynomials.evaluate_polynomial(
             input,
-            beignet.fit_polynomial(
+            beignet.polynomials.fit_polynomial(
                 input,
                 other,
                 degree=torch.tensor([0, 1, 2, 3, 4]),
@@ -64,19 +64,19 @@ def test_fit_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_polynomial(
+        beignet.polynomials.fit_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=3,
         ),
         torch.stack(
             [
-                beignet.fit_polynomial(
+                beignet.polynomials.fit_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_polynomial(
+                beignet.polynomials.fit_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -86,19 +86,19 @@ def test_fit_polynomial(float64):
     )
 
     torch.testing.assert_close(
-        beignet.fit_polynomial(
+        beignet.polynomials.fit_polynomial(
             input,
             torch.stack([other, other]).T,
             degree=torch.tensor([0, 1, 2, 3]),
         ),
         torch.stack(
             [
-                beignet.fit_polynomial(
+                beignet.polynomials.fit_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
                 ),
-                beignet.fit_polynomial(
+                beignet.polynomials.fit_polynomial(
                     input,
                     other,
                     degree=torch.tensor([0, 1, 2, 3]),
@@ -112,13 +112,13 @@ def test_fit_polynomial(float64):
     weight[1::2] = 1.0
 
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other.at[0::2].set(0),
     #         degree=3,
     #         weight=weight,
     #     ),
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other,
     #         degree=torch.tensor([0, 1, 2, 3]),
@@ -126,13 +126,13 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other.at[0::2].set(0),
     #         degree=torch.tensor([0, 1, 2, 3]),
     #         weight=weight,
     #     ),
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other,
     #         degree=torch.tensor([0, 1, 2, 3]),
@@ -140,7 +140,7 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
     #         degree=3,
@@ -148,12 +148,12 @@ def test_fit_polynomial(float64):
     #     ),
     #     torch.tensor(
     #         [
-    #             beignet.polyfit(
+    #             beignet.polynomials.polyfit(
     #                 input,
     #                 other,
     #                 degree=torch.tensor([0, 1, 2, 3]),
     #             ),
-    #             beignet.polyfit(
+    #             beignet.polynomials.polyfit(
     #                 input,
     #                 other,
     #                 degree=torch.tensor([0, 1, 2, 3]),
@@ -163,7 +163,7 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         torch.tensor([other.at[0::2].set(0), other.at[0::2].set(0)]).T,
     #         degree=torch.tensor([0, 1, 2, 3]),
@@ -171,12 +171,12 @@ def test_fit_polynomial(float64):
     #     ),
     #     torch.tensor(
     #         [
-    #             beignet.polyfit(
+    #             beignet.polynomials.polyfit(
     #                 input,
     #                 other,
     #                 degree=torch.tensor([0, 1, 2, 3]),
     #             ),
-    #             beignet.polyfit(
+    #             beignet.polynomials.polyfit(
     #                 input,
     #                 other,
     #                 degree=torch.tensor([0, 1, 2, 3]),
@@ -186,7 +186,7 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         torch.tensor([1, 1j, -1, -1j]),
     #         torch.tensor([1, 1j, -1, -1j]),
     #         1,
@@ -195,7 +195,7 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         torch.tensor([1, 1j, -1, -0 - 1j]),
     #         torch.tensor([1, 1j, -1, -0 - 1j]),
     #         (0, 1),
@@ -208,9 +208,9 @@ def test_fit_polynomial(float64):
     # other = g(input)
     #
     # torch.testing.assert_close(
-    #     beignet.polyval(
+    #     beignet.polynomials.polyval(
     #         input,
-    #         beignet.polyfit(
+    #         beignet.polynomials.polyfit(
     #             input,
     #             other,
     #             degree=torch.tensor([4]),
@@ -220,9 +220,9 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyval(
+    #     beignet.polynomials.polyval(
     #         input,
-    #         beignet.polyfit(
+    #         beignet.polynomials.polyfit(
     #             input,
     #             other,
     #             degree=torch.tensor([0, 2, 4]),
@@ -232,12 +232,12 @@ def test_fit_polynomial(float64):
     # )
     #
     # torch.testing.assert_close(
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other,
     #         degree=torch.tensor([4]),
     #     ),
-    #     beignet.polyfit(
+    #     beignet.polynomials.polyfit(
     #         input,
     #         other,
     #         degree=torch.tensor([0, 2, 4]),

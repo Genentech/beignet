@@ -1,12 +1,12 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_physicists_hermite_polynomial_from_roots():
     torch.testing.assert_close(
-        beignet.trim_physicists_hermite_polynomial_coefficients(
-            beignet.physicists_hermite_polynomial_from_roots(
+        beignet.polynomials.trim_physicists_hermite_polynomial_coefficients(
+            beignet.polynomials.physicists_hermite_polynomial_from_roots(
                 torch.tensor([]),
             ),
             tol=0.000001,
@@ -19,8 +19,8 @@ def test_physicists_hermite_polynomial_from_roots():
     #     target = 0
     #
     #     torch.testing.assert_close(
-    #         beignet.herm2poly(
-    #             beignet.hermfromroots(
+    #         beignet.polynomials.herm2poly(
+    #             beignet.polynomials.hermfromroots(
     #                 roots,
     #             ),
     #         )[-1],
@@ -28,9 +28,9 @@ def test_physicists_hermite_polynomial_from_roots():
     #     )
     #
     #     torch.testing.assert_close(
-    #         beignet.hermval(
+    #         beignet.polynomials.hermval(
     #             roots,
-    #             beignet.hermfromroots(
+    #             beignet.polynomials.hermfromroots(
     #                 roots,
     #             ),
     #         ),

@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_legendre_polynomial_3d(float64):
@@ -8,14 +8,14 @@ def test_evaluate_legendre_polynomial_3d(float64):
 
     coefficients = torch.rand(2, 3, 4)
 
-    target = beignet.evaluate_legendre_polynomial_3d(
+    target = beignet.polynomials.evaluate_legendre_polynomial_3d(
         a,
         b,
         c,
         coefficients,
     )
 
-    output = beignet.legendre_polynomial_vandermonde_3d(
+    output = beignet.polynomials.legendre_polynomial_vandermonde_3d(
         a,
         b,
         c,
@@ -27,7 +27,7 @@ def test_evaluate_legendre_polynomial_3d(float64):
         target,
     )
 
-    output = beignet.legendre_polynomial_vandermonde_3d(
+    output = beignet.polynomials.legendre_polynomial_vandermonde_3d(
         a,
         b,
         c,

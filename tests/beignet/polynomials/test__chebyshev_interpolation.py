@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_chebyshev_interpolation():
@@ -9,10 +9,10 @@ def test_chebyshev_interpolation():
         return x * (x - 1) * (x - 2)
 
     with pytest.raises(ValueError):
-        beignet.chebyshev_interpolation(f, -1)
+        beignet.polynomials.chebyshev_interpolation(f, -1)
 
     for i in range(1, 5):
-        assert beignet.chebyshev_interpolation(f, i).shape == (i + 1,)
+        assert beignet.polynomials.chebyshev_interpolation(f, i).shape == (i + 1,)
 
     def powx(x, p):
         return x**p
@@ -21,13 +21,13 @@ def test_chebyshev_interpolation():
 
     for i in range(0, 10):
         for j in range(0, i + 1):
-            c = beignet.chebyshev_interpolation(
+            c = beignet.polynomials.chebyshev_interpolation(
                 powx,
                 i,
                 j,
             )
 
             torch.testing.assert_close(
-                beignet.evaluate_chebyshev_polynomial(x, c),
+                beignet.polynomials.evaluate_chebyshev_polynomial(x, c),
                 powx(x, j),
             )

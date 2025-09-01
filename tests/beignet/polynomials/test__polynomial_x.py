@@ -1,11 +1,11 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_polynomial_x():
     torch.testing.assert_close(
-        beignet.polynomial_x,
+        beignet.polynomials.polynomial_x,
         torch.tensor([0.0, 1.0]),
         check_dtype=False,
     )

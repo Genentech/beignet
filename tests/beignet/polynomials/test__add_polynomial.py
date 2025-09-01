@@ -1,6 +1,6 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_add_polynomial():
@@ -12,14 +12,14 @@ def test_add_polynomial():
             target[j] = target[j] + 1
 
             torch.testing.assert_close(
-                beignet.trim_polynomial_coefficients(
-                    beignet.add_polynomial(
+                beignet.polynomials.trim_polynomial_coefficients(
+                    beignet.polynomials.add_polynomial(
                         torch.tensor([0.0] * i + [1.0]),
                         torch.tensor([0.0] * j + [1.0]),
                     ),
                     tol=0.000001,
                 ),
-                beignet.trim_polynomial_coefficients(
+                beignet.polynomials.trim_polynomial_coefficients(
                     target,
                     tol=0.000001,
                 ),

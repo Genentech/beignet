@@ -1,12 +1,12 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_polynomial_cartesian_3d(float64):
     x = torch.rand(3, 5) * 2 - 1
 
-    y = beignet.evaluate_polynomial(
+    y = beignet.polynomials.evaluate_polynomial(
         x,
         torch.tensor([1.0, 2.0, 3.0]),
     )
@@ -15,7 +15,7 @@ def test_evaluate_polynomial_cartesian_3d(float64):
     y1, y2, y3 = y
 
     torch.testing.assert_close(
-        beignet.evaluate_polynomial_cartesian_3d(
+        beignet.polynomials.evaluate_polynomial_cartesian_3d(
             a,
             b,
             x3,
@@ -34,7 +34,7 @@ def test_evaluate_polynomial_cartesian_3d(float64):
         ),
     )
 
-    output = beignet.evaluate_polynomial_cartesian_3d(
+    output = beignet.polynomials.evaluate_polynomial_cartesian_3d(
         torch.ones([2, 3]),
         torch.ones([2, 3]),
         torch.ones([2, 3]),

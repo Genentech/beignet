@@ -1,12 +1,12 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_multiply_probabilists_hermite_polynomial_by_x(float64):
     torch.testing.assert_close(
-        beignet.trim_probabilists_hermite_polynomial_coefficients(
-            beignet.multiply_probabilists_hermite_polynomial_by_x(
+        beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
+            beignet.polynomials.multiply_probabilists_hermite_polynomial_by_x(
                 torch.tensor([0.0]),
             ),
             tol=0.000001,
@@ -14,8 +14,8 @@ def test_multiply_probabilists_hermite_polynomial_by_x(float64):
         torch.tensor([0.0]),
     )
     torch.testing.assert_close(
-        beignet.trim_probabilists_hermite_polynomial_coefficients(
-            beignet.multiply_probabilists_hermite_polynomial_by_x(
+        beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
+            beignet.polynomials.multiply_probabilists_hermite_polynomial_by_x(
                 torch.tensor([1.0]),
             ),
             tol=0.000001,
@@ -25,8 +25,8 @@ def test_multiply_probabilists_hermite_polynomial_by_x(float64):
 
     for index in range(1, 5):
         torch.testing.assert_close(
-            beignet.trim_probabilists_hermite_polynomial_coefficients(
-                beignet.multiply_probabilists_hermite_polynomial_by_x(
+            beignet.polynomials.trim_probabilists_hermite_polynomial_coefficients(
+                beignet.polynomials.multiply_probabilists_hermite_polynomial_by_x(
                     torch.tensor([0.0] * index + [1.0]),
                 ),
                 tol=0.000001,

@@ -1,11 +1,11 @@
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_probabilists_hermite_polynomial_vandermonde():
     x = torch.arange(3)
-    v = beignet.probabilists_hermite_polynomial_vandermonde(
+    v = beignet.polynomials.probabilists_hermite_polynomial_vandermonde(
         x,
         3,
     )
@@ -14,11 +14,13 @@ def test_probabilists_hermite_polynomial_vandermonde():
         coefficients = torch.tensor([0.0] * i + [1.0])
         torch.testing.assert_close(
             v[..., i],
-            beignet.evaluate_probabilists_hermite_polynomial(x, coefficients),
+            beignet.polynomials.evaluate_probabilists_hermite_polynomial(
+                x, coefficients
+            ),
         )
 
     x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-    v = beignet.probabilists_hermite_polynomial_vandermonde(
+    v = beignet.polynomials.probabilists_hermite_polynomial_vandermonde(
         x,
         3,
     )
@@ -27,5 +29,7 @@ def test_probabilists_hermite_polynomial_vandermonde():
         coefficients = torch.tensor([0.0] * i + [1.0])
         torch.testing.assert_close(
             v[..., i],
-            beignet.evaluate_probabilists_hermite_polynomial(x, coefficients),
+            beignet.polynomials.evaluate_probabilists_hermite_polynomial(
+                x, coefficients
+            ),
         )

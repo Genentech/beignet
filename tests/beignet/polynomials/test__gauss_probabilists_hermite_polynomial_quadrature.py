@@ -2,13 +2,13 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_gauss_probabilists_hermite_polynomial_quadrature(float64):
-    x, w = beignet.gauss_probabilists_hermite_polynomial_quadrature(100)
+    x, w = beignet.polynomials.gauss_probabilists_hermite_polynomial_quadrature(100)
 
-    v = beignet.probabilists_hermite_polynomial_vandermonde(x, 99)
+    v = beignet.polynomials.probabilists_hermite_polynomial_vandermonde(x, 99)
     vv = (v.T * w) @ v
     vd = 1 / torch.sqrt(vv.diagonal())
     vv = vd[:, None] * vv * vd

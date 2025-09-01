@@ -2,7 +2,7 @@ import math
 
 import torch
 
-import beignet
+import beignet.polynomials
 
 
 def test_evaluate_physicists_hermite_polynomial(float64):
@@ -19,7 +19,7 @@ def test_evaluate_physicists_hermite_polynomial(float64):
         torch.tensor([0, 30240, 0, -80640, 0, 48384, 0, -9216, 0, 512]),
     ]
 
-    output = beignet.evaluate_physicists_hermite_polynomial(
+    output = beignet.polynomials.evaluate_physicists_hermite_polynomial(
         torch.tensor([]),
         torch.tensor([1.0]),
     )
@@ -33,7 +33,7 @@ def test_evaluate_physicists_hermite_polynomial(float64):
     for coefficient in coefficients:
         ys = [
             *ys,
-            beignet.evaluate_polynomial(
+            beignet.polynomials.evaluate_polynomial(
                 input,
                 coefficient,
             ),
@@ -41,7 +41,7 @@ def test_evaluate_physicists_hermite_polynomial(float64):
 
     for index in range(10):
         torch.testing.assert_close(
-            beignet.evaluate_physicists_hermite_polynomial(
+            beignet.polynomials.evaluate_physicists_hermite_polynomial(
                 input,
                 torch.tensor([0.0] * index + [1.0]),
             ),
@@ -53,21 +53,21 @@ def test_evaluate_physicists_hermite_polynomial(float64):
 
         input = torch.zeros(shape)
 
-        output = beignet.evaluate_physicists_hermite_polynomial(
+        output = beignet.polynomials.evaluate_physicists_hermite_polynomial(
             input,
             torch.tensor([1.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_physicists_hermite_polynomial(
+        output = beignet.polynomials.evaluate_physicists_hermite_polynomial(
             input,
             torch.tensor([1.0, 0.0]),
         )
 
         assert output.shape == shape
 
-        output = beignet.evaluate_physicists_hermite_polynomial(
+        output = beignet.polynomials.evaluate_physicists_hermite_polynomial(
             input,
             torch.tensor([1.0, 0.0, 0.0]),
         )
