@@ -3,7 +3,7 @@ import hypothesis.strategies
 import scipy
 import torch
 
-import beignet.special
+import beignet.special_functions
 
 
 @hypothesis.strategies.composite
