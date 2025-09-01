@@ -3,7 +3,7 @@ import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -68,7 +68,7 @@ def test_euler_angle_to_quaternion(data):
 
     torch.testing.assert_close(
         torch.abs(
-            beignet.euler_angle_to_quaternion(
+            beignet.rotations.euler_angle_to_quaternion(
                 **parameters,
             ),
         ),

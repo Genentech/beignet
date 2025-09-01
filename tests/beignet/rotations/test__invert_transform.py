@@ -2,7 +2,7 @@ import hypothesis.strategies
 import torch
 import torch.testing
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -23,9 +23,9 @@ def _strategy(function):
 
     return (
         (input, transform),
-        beignet.apply_transform(
-            beignet.apply_transform(input, transform),
-            beignet.invert_transform(transform),
+        beignet.rotations.apply_transform(
+            beignet.rotations.apply_transform(input, transform),
+            beignet.rotations.invert_transform(transform),
         ),
     )
 
@@ -39,8 +39,8 @@ def test_invert_transform(float64, data):
 
     torch.testing.assert_close(
         input,
-        beignet.apply_transform(
-            beignet.apply_transform(input, transform),
-            beignet.invert_transform(transform),
+        beignet.rotations.apply_transform(
+            beignet.rotations.apply_transform(input, transform),
+            beignet.rotations.invert_transform(transform),
         ),
     )

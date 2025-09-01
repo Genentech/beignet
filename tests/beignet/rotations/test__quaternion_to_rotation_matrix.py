@@ -2,7 +2,7 @@ import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -37,12 +37,14 @@ def test_quaternion_to_rotation_matrix(data):
 
     # Test with normalized quaternions from scipy
     torch.testing.assert_close(
-        beignet.quaternion_to_rotation_matrix(**parameters),
+        beignet.rotations.quaternion_to_rotation_matrix(**parameters),
         expected,
     )
 
     unnormalized_quat = parameters["input"] * 2.5  # Scale it
-    result_unnormalized = beignet.quaternion_to_rotation_matrix(unnormalized_quat)
+    result_unnormalized = beignet.rotations.quaternion_to_rotation_matrix(
+        unnormalized_quat
+    )
 
     torch.testing.assert_close(result_unnormalized, expected, atol=1e-5, rtol=1e-5)
 

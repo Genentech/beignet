@@ -1,7 +1,7 @@
 import hypothesis.strategies
 import torch
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -25,7 +25,7 @@ def _strategy(function):
 def test_random_rotation_matrix(data):
     parameters, _ = data
 
-    rotation_matrices = beignet.random_rotation_matrix(**parameters)
+    rotation_matrices = beignet.rotations.random_rotation_matrix(**parameters)
 
     assert rotation_matrices.shape == (parameters["size"], 3, 3)
 

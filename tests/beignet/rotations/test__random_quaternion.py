@@ -1,7 +1,7 @@
 import hypothesis.strategies
 import torch
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -29,7 +29,7 @@ def test_random_quaternion(data):
     """Test that random_quaternion generates normalized quaternions with correct properties."""
     parameters, _ = data
 
-    quaternions = beignet.random_quaternion(**parameters)
+    quaternions = beignet.rotations.random_quaternion(**parameters)
 
     assert quaternions.shape == (parameters["size"], 4)
 

@@ -2,7 +2,7 @@ import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -30,6 +30,6 @@ def test_rotation_matrix_identity(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.rotation_matrix_identity(**parameters),
+        beignet.rotations.rotation_matrix_identity(**parameters),
         expected,
     )

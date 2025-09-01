@@ -4,7 +4,7 @@ import numpy
 import torch.testing
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -49,6 +49,6 @@ def test_apply_quaternion(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.apply_quaternion(**parameters),
+        beignet.rotations.apply_quaternion(**parameters),
         expected,
     )

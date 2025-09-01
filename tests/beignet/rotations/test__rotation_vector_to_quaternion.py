@@ -3,7 +3,7 @@ import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -47,7 +47,7 @@ def test_rotation_vector_to_quaternion(data):
 
     torch.testing.assert_close(
         torch.abs(
-            beignet.rotation_vector_to_quaternion(
+            beignet.rotations.rotation_vector_to_quaternion(
                 **parameters,
             ),
         ),

@@ -4,7 +4,7 @@ import numpy
 import torch.testing
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -56,7 +56,7 @@ def test_apply_rotation_matrix(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.apply_rotation_matrix(
+        beignet.rotations.apply_rotation_matrix(
             **parameters,
         ),
         expected,

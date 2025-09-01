@@ -4,7 +4,7 @@ import hypothesis.strategies
 import torch.testing
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -56,6 +56,6 @@ def test_compose_euler_angle(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.compose_euler_angle(**parameters),
+        beignet.rotations.compose_euler_angle(**parameters),
         expected,
     )

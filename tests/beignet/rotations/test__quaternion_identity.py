@@ -2,7 +2,7 @@ import hypothesis.strategies
 import torch
 from scipy.spatial.transform import Rotation
 
-import beignet
+import beignet.rotations
 
 
 @hypothesis.strategies.composite
@@ -30,6 +30,6 @@ def test_quaternion_identity(data):
     parameters, expected = data
 
     torch.testing.assert_close(
-        beignet.quaternion_identity(**parameters),
+        beignet.rotations.quaternion_identity(**parameters),
         expected,
     )
