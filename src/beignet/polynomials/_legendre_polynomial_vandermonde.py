@@ -6,7 +6,7 @@ def legendre_polynomial_vandermonde(x: Tensor, degree: Tensor) -> Tensor:
     if degree < 0:
         raise ValueError
 
-    x = torch.tensor(x)
+    x = torch.as_tensor(x)
     x = torch.atleast_1d(x)
 
     dims = (degree + 1,) + x.shape

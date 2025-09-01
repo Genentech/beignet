@@ -42,7 +42,7 @@ def test_evaluate_laguerre_polynomial(float64):
                 input,
                 torch.tensor([0.0] * i + [1.0]),
             ),
-            torch.tensor(torch.tensor(ys[i])),
+            ys[i],
         )
 
     for index in range(3):

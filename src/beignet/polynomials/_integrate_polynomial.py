@@ -40,7 +40,7 @@ def integrate_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+    lower_bound, scale = map(torch.as_tensor, (lower_bound, scale))
 
     if not numpy.iterable(k):
         k = [k]
@@ -87,12 +87,14 @@ def integrate_polynomial(
 
     input = torch.moveaxis(input, dim, 0)
 
-    d = torch.arange(n + order) + 1
+    d = (torch.arange(n + order) + 1).to(dtype=input.dtype, device=input.device)
 
     for i in range(0, order):
         input = input * scale
 
-        input = (input.T / d).T
+        # Broadcast division along leading dimension without deprecated .T
+        d_view = d.reshape(-1, *([1] * (input.ndim - 1)))
+        input = input / d_view
 
         input = torch.roll(input, 1, dims=[0])
 

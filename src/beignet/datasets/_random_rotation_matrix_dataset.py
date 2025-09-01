@@ -2,7 +2,7 @@ from typing import Callable, Generator
 
 import torch
 
-import beignet
+import beignet.rotations
 from beignet.datasets._random_rotation_dataset import RandomRotationDataset
 from beignet.transforms import Transform
 
@@ -48,7 +48,7 @@ class RandomRotationMatrixDataset(RandomRotationDataset):
             `False`.
         """
         super().__init__(
-            beignet.random_rotation_matrix(
+            beignet.rotations.random_rotation_matrix(
                 size,
                 generator=generator,
                 dtype=dtype,

@@ -19,7 +19,7 @@ def integrate_legendre_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lbnd, scl = map(torch.tensor, (lower_bound, scale))
+    lbnd, scl = map(torch.as_tensor, (lower_bound, scale))
 
     if not numpy.iterable(k):
         k = [k]
@@ -55,7 +55,10 @@ def integrate_legendre_polynomial(
         else:
             j = torch.arange(2, n)
 
-        t = (output[j].T / (2 * j + 1)).T
+        # Avoid deprecated .T on non-2D tensors; broadcast along leading dim
+        denom = (2 * j + 1).to(dtype=output.dtype, device=output.device)
+        denom = denom.reshape(-1, *([1] * (output[j].ndim - 1)))
+        t = output[j] / denom
         tmp[j + 1] = t
         tmp[j - 1] += -t
         legval_value = evaluate_legendre_polynomial(lbnd, tmp)

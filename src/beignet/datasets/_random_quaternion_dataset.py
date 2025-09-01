@@ -2,7 +2,7 @@ from typing import Callable, Generator
 
 import torch
 
-import beignet
+import beignet.rotations
 from beignet.transforms import Transform
 
 from ._random_rotation_dataset import RandomRotationDataset
@@ -58,7 +58,7 @@ class RandomQuaternionDataset(RandomRotationDataset):
             Default, `False`.
         """
         super().__init__(
-            beignet.random_quaternion(
+            beignet.rotations.random_quaternion(
                 size,
                 canonical,
                 generator=generator,

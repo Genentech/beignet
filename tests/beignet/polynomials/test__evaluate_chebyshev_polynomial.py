@@ -43,7 +43,7 @@ def test_evaluate_chebyshev_polynomial(float64):
                 torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * index + [1.0]),
             ),
-            torch.tensor(ys[index]),
+            ys[index],
         )
 
     for index in range(3):

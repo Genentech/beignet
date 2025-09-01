@@ -20,9 +20,9 @@ def integrate_chebyshev_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lower_bound = torch.tensor(lower_bound)
+    lower_bound = torch.as_tensor(lower_bound)
 
-    scale = torch.tensor(scale)
+    scale = torch.as_tensor(scale)
 
     if not numpy.iterable(k):
         k = [k]
@@ -63,7 +63,10 @@ def integrate_chebyshev_polynomial(
         else:
             j = torch.arange(2, n)
 
-        tmp[j + 1] = (input[j].T / (2 * (j + 1))).T
+        # Broadcast along leading dimension without deprecated .T
+        denom = (2 * (j + 1)).to(dtype=input.dtype, device=input.device)
+        denom = denom.reshape(-1, *([1] * (input[j].ndim - 1)))
+        tmp[j + 1] = input[j] / denom
         tmp[j - 1] = tmp[j - 1] + -(input[j] / (2 * (j - 1)))
 
         tmp[0] = tmp[0] + (k[i] - evaluate_chebyshev_polynomial(lower_bound, tmp))

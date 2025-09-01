@@ -1,6 +1,6 @@
 import hypothesis.strategies
 
-import beignet
+import beignet.rotations
 from beignet.datasets import RandomEulerAngleDataset
 
 
@@ -40,7 +40,7 @@ def _strategy(function):
             "axes": axes,
             "degrees": degrees,
         },
-        beignet.random_euler_angle(size, axes=axes, degrees=degrees),
+        beignet.rotations.random_euler_angle(size, axes=axes, degrees=degrees),
     )
 
 

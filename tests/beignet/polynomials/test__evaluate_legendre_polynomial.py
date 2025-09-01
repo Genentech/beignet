@@ -43,7 +43,7 @@ def test_evaluate_legendre_polynomial(float64):
                 torch.linspace(-1, 1, 50),
                 torch.tensor([0.0] * i + [1.0]),
             ),
-            torch.tensor(ys[i]),
+            ys[i],
         )
 
     for index in range(3):

@@ -1,6 +1,6 @@
 import hypothesis.strategies
 
-import beignet
+import beignet.rotations
 from beignet.datasets import RandomQuaternionDataset
 
 
@@ -20,7 +20,7 @@ def _strategy(function):
             "size": size,
             "canonical": canonical,
         },
-        beignet.random_quaternion(size, canonical=canonical),
+        beignet.rotations.random_quaternion(size, canonical=canonical),
     )
 
 

@@ -51,7 +51,10 @@ def differentiate_probabilists_hermite_polynomial(
 
             j = torch.arange(n, 0, -1)
 
-            der[j - 1] = (j * (input[j]).T).T
+            # Broadcast j along leading dim without deprecated .T
+            coeff = j.to(dtype=input.dtype, device=input.device)
+            coeff = coeff.reshape(-1, *([1] * (input[j].ndim - 1)))
+            der[j - 1] = coeff * input[j]
 
             input = der
 

@@ -19,8 +19,8 @@ def integrate_probabilists_hermite_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lower_bound = torch.tensor(lower_bound)
-    scale = torch.tensor(scale)
+    lower_bound = torch.as_tensor(lower_bound)
+    scale = torch.as_tensor(scale)
 
     if not numpy.iterable(k):
         k = [k]
@@ -51,9 +51,12 @@ def integrate_probabilists_hermite_polynomial(
 
         j = torch.arange(1, n)
 
-        tmp[j + 1] = (input[j].T / (j + 1)).T
+        # Broadcast j along the leading dimension without using deprecated .T
+        denom = (j + 1).to(dtype=input.dtype, device=input.device)
+        denom = denom.reshape(-1, *([1] * (input[j].ndim - 1)))
+        tmp[j + 1] = input[j] / denom
 
-        hermeval_value = torch.tensor(
+        hermeval_value = torch.as_tensor(
             evaluate_probabilists_hermite_polynomial(lower_bound, tmp)
         )
         tmp[0] += k[i] - hermeval_value

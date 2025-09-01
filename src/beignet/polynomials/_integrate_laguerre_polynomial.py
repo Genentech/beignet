@@ -19,7 +19,7 @@ def integrate_laguerre_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+    lower_bound, scale = map(torch.as_tensor, (lower_bound, scale))
 
     if not numpy.iterable(k):
         k = [k]
@@ -53,7 +53,7 @@ def integrate_laguerre_polynomial(
         tmp[j] += input[j]
         tmp[j + 1] += -input[j]
 
-        tmp_value = torch.tensor(evaluate_laguerre_polynomial(lower_bound, tmp))
+        tmp_value = torch.as_tensor(evaluate_laguerre_polynomial(lower_bound, tmp))
         tmp[0] += k[i] - tmp_value
 
         input = tmp

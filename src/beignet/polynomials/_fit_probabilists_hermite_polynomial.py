@@ -16,9 +16,9 @@ def fit_probabilists_hermite_polynomial(
     full: bool = False,
     weight: Tensor | None = None,
 ):
-    input = torch.tensor(input)
-    other = torch.tensor(other)
-    degree = torch.tensor(degree)
+    input = torch.as_tensor(input)
+    other = torch.as_tensor(other)
+    degree = torch.as_tensor(degree)
     if degree.ndim > 1:
         raise TypeError
     # if deg.dtype.kind not in "iu":
@@ -44,7 +44,7 @@ def fit_probabilists_hermite_polynomial(
         van = probabilists_hermite_polynomial_vandermonde(input, lmax)[:, degree]
     # set up the least squares matrices in transposed form
     lhs = van.T
-    rhs = other.T
+    rhs = other if other.ndim == 1 else other.T
     if weight is not None:
         if weight.ndim != 1:
             raise TypeError("expected 1D vector for w")
@@ -66,8 +66,12 @@ def fit_probabilists_hermite_polynomial(
         scl = torch.sqrt(torch.square(lhs).sum(1))
     scl = torch.where(scl == 0, 1, scl)
     # Solve the least squares problem.
-    c, resids, rank, s = torch.linalg.lstsq(lhs.T / scl, rhs.T, relative_condition)
-    c = (c.T / scl).T
+    rhs_T = rhs if rhs.ndim == 1 else rhs.T
+    c, resids, rank, s = torch.linalg.lstsq(lhs.T / scl, rhs_T, relative_condition)
+    if c.ndim == 1:
+        c = c / scl
+    else:
+        c = c / scl.reshape(-1, 1)
     # Expand c to include non-fitted coefficients which are set to zero
     if degree.ndim > 0:
         if c.ndim == 2:

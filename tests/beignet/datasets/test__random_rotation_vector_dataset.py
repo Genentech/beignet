@@ -1,6 +1,6 @@
 import hypothesis.strategies
 
-import beignet
+import beignet.rotations
 from beignet.datasets import RandomRotationVectorDataset
 
 
@@ -20,7 +20,7 @@ def _strategy(function):
             "size": size,
             "degrees": degrees,
         },
-        beignet.random_rotation_vector(size, degrees=degrees),
+        beignet.rotations.random_rotation_vector(size, degrees=degrees),
     )
 
 

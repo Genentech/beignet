@@ -19,7 +19,7 @@ def integrate_physicists_hermite_polynomial(
 
     input = torch.atleast_1d(input)
 
-    lower_bound, scale = map(torch.tensor, (lower_bound, scale))
+    lower_bound, scale = map(torch.as_tensor, (lower_bound, scale))
 
     if not numpy.iterable(k):
         k = [k]
@@ -51,7 +51,10 @@ def integrate_physicists_hermite_polynomial(
 
         j = torch.arange(1, n)
 
-        tmp[j + 1] = (input[j].T / (2 * (j + 1))).T
+        # Broadcast along leading dimension without deprecated .T
+        denom = (2 * (j + 1)).to(dtype=input.dtype, device=input.device)
+        denom = denom.reshape(-1, *([1] * (input[j].ndim - 1)))
+        tmp[j + 1] = input[j] / denom
 
         tmp_value = evaluate_physicists_hermite_polynomial(lower_bound, tmp)
         tmp[0] += k[i] - tmp_value
