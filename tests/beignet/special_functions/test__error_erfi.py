@@ -46,7 +46,8 @@ def _strategy(function):
 
     input = x + 1.0j * y
 
-    return input, scipy.special.erfi(input)
+    # Call SciPy with NumPy input to avoid NumPy __array_wrap__ deprecation warnings
+    return input, torch.as_tensor(scipy.special.erfi(input.numpy()))
 
 
 @hypothesis.given(_strategy())

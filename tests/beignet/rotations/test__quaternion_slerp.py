@@ -148,5 +148,8 @@ def test_slerp_properties(data):
     parameters, expected_rotations = data
 
     torch.testing.assert_close(
-        beignet.rotations.quaternion_slerp(*parameters), expected_rotations
+        beignet.rotations.quaternion_slerp(*parameters),
+        expected_rotations,
+        atol=1e-6,
+        rtol=1e-6,
     )

@@ -1,4 +1,5 @@
 import functools
+import warnings
 from os import PathLike
 from pathlib import Path
 from typing import Any, Callable
@@ -27,6 +28,9 @@ class TrajectoryDataset(Dataset):
 
         self.root = root.resolve()
 
+        # Keep the data format handy (e.g., 'pdb') for warning handling
+        self.extension = extension
+
         self.transform = transform
 
         self.stride = stride
@@ -36,7 +40,17 @@ class TrajectoryDataset(Dataset):
         super().__init__()
 
     def __getitem__(self, index: int) -> "Trajectory":
-        item = self.func(self.paths[index], stride=self.stride)
+        # Suppress known mdtraj warning for dummy CRYST1 records in small test PDBs
+        if self.extension.lower() == "pdb":
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message=r"Unlikely unit cell vectors detected.*dummy CRYST1 record",
+                    category=UserWarning,
+                )
+                item = self.func(self.paths[index], stride=self.stride)
+        else:
+            item = self.func(self.paths[index], stride=self.stride)
 
         if self.transform:
             item = self.transform(item)

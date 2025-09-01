@@ -34,7 +34,7 @@ def _strategy(function):
 def test_convolve(data):
     parameters, expected = data
 
-    torch.testing.assert_allclose(
+    torch.testing.assert_close(
         beignet.convolve(**parameters),
         expected,
     )

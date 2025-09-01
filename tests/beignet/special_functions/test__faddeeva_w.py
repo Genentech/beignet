@@ -28,7 +28,8 @@ def _strategy(function):
 
     input = torch.complex(torch.tensor(x, dtype=dtype), torch.tensor(y, dtype=dtype))
 
-    return input, scipy.special.wofz(input)
+    # Call SciPy with NumPy input to avoid NumPy __array_wrap__ deprecation warnings
+    return input, torch.as_tensor(scipy.special.wofz(input.numpy()))
 
 
 @hypothesis.given(_strategy())
