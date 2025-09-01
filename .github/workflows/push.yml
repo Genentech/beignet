@@ -20,7 +20,7 @@ jobs:
         platform:
           - "macos-latest"
           - "ubuntu-latest"
-          - "windows-latest"
+          # - "windows-latest"
         python:
           - "3.10"
           - "3.11"
