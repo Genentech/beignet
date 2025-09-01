@@ -21,7 +21,6 @@ nav:
               - "Transform": "reference/operators/geometry/transformations/transform.md"
               - "Translation": "reference/operators/geometry/transformations/translation.md"
       - "Integral transforms": "reference/operators/integral-transforms.md"
-      - "Interatomic potentials": "reference/operators/interatomic-potentials.md"
       - "Numerical methods":
           - "Numerical integration": "reference/operators/numerical-methods/numerical-integration.md"
       - "Special functions":
@@ -34,7 +33,6 @@ nav:
               - "Probabilists’ Hermite polynomial": "reference/operators/special-functions/orthogonal-polynomials/probabilists-hermite-polynomial.md"
               - "Laguerre polynomial": "reference/operators/special-functions/orthogonal-polynomials/laguerre-polynomial.md"
               - "Legendre polynomial": "reference/operators/special-functions/orthogonal-polynomials/legendre-polynomial.md"
-      - "Thermodynamics": "reference/operators/thermodynamics.md"
     - "beignet.datasets": "reference/beignet.datasets.md"
     - "beignet.features":
         - "General-purpose": "reference/features/general-purpose.md"

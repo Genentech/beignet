@@ -1,0 +1,37 @@
+import torch
+
+import beignet.polynomials
+
+
+def test_evaluate_legendre_polynomial_3d(float64):
+    a, b, c = torch.rand(3, 5) * 2 - 1
+
+    coefficients = torch.rand(2, 3, 4)
+
+    target = beignet.polynomials.evaluate_legendre_polynomial_3d(
+        a,
+        b,
+        c,
+        coefficients,
+    )
+
+    output = beignet.polynomials.legendre_polynomial_vandermonde_3d(
+        a,
+        b,
+        c,
+        degree=torch.tensor([1, 2, 3]),
+    )
+
+    torch.testing.assert_close(
+        output @ torch.ravel(coefficients),
+        target,
+    )
+
+    output = beignet.polynomials.legendre_polynomial_vandermonde_3d(
+        a,
+        b,
+        c,
+        degree=torch.tensor([1, 2, 3]),
+    )
+
+    assert output.shape == (5, 24)

@@ -2,7 +2,7 @@ from typing import Callable, Generator
 
 import torch
 
-import beignet
+import beignet.rotations
 from beignet.datasets._random_rotation_dataset import RandomRotationDataset
 from beignet.transforms import Transform
 
@@ -53,7 +53,7 @@ class RandomRotationVectorDataset(RandomRotationDataset):
             `False`.
         """
         super().__init__(
-            beignet.random_rotation_vector(
+            beignet.rotations.random_rotation_vector(
                 size,
                 degrees,
                 generator=generator,

@@ -1,6 +1,6 @@
 import hypothesis.strategies
 
-import beignet
+import beignet.rotations
 from beignet.datasets import RandomRotationMatrixDataset
 
 
@@ -17,7 +17,7 @@ def _strategy(function):
         {
             "size": size,
         },
-        beignet.random_rotation_matrix(size),
+        beignet.rotations.random_rotation_matrix(size),
     )
 
 

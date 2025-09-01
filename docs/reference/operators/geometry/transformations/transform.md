@@ -1,2 +1,2 @@
-::: beignet.apply_transform
-::: beignet.invert_transform
+::: beignet.rotations.apply_transform
+::: beignet.rotations.invert_transform

@@ -6,7 +6,8 @@ import torch
 from optree.dataclasses import dataclass
 from torch import Tensor
 
-from beignet import identity_matrix, kabsch, quaternion_to_rotation_matrix
+from beignet import identity_matrix, kabsch
+from beignet.rotations import quaternion_to_rotation_matrix
 
 HANDLED_FUNCTIONS = {}
 

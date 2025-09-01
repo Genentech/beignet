@@ -1,1 +1,1 @@
-::: beignet.translation_identity
+::: beignet.rotations.translation_identity

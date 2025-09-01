@@ -2,7 +2,7 @@ from typing import Callable, Generator
 
 import torch
 
-import beignet
+import beignet.rotations
 from beignet.transforms import Transform
 
 from ._random_rotation_dataset import RandomRotationDataset
@@ -60,7 +60,7 @@ class RandomEulerAngleDataset(RandomRotationDataset):
             `False`.
         """
         super().__init__(
-            beignet.random_euler_angle(
+            beignet.rotations.random_euler_angle(
                 size,
                 axes,
                 degrees,

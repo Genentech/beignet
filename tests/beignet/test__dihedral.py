@@ -13,8 +13,6 @@ def test_dihedral():
 
     phi = dihedral_angle(x)
 
-    print(f"{(phi - phi_ref).abs().max()=}")
-
     torch.testing.assert_close(phi, torch.as_tensor(phi_ref))
 
 
