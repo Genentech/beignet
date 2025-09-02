@@ -24,6 +24,7 @@ from ._root_scalar import root_scalar
 from ._smooth_local_distance_difference_test import (
     smooth_local_distance_difference_test,
 )
+from ._weighted_rigid_align import weighted_rigid_align
 
 __all__ = [
     "bisect",
@@ -43,4 +44,5 @@ __all__ = [
     "radius_graph",
     "root_scalar",
     "smooth_local_distance_difference_test",
+    "weighted_rigid_align",
 ]
