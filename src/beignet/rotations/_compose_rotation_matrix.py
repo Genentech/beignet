@@ -1,13 +1,5 @@
+import torch
 from torch import Tensor
-
-from beignet.rotations._quaternion_to_rotation_matrix import (
-    quaternion_to_rotation_matrix,
-)
-from beignet.rotations._rotation_matrix_to_quaternion import (
-    rotation_matrix_to_quaternion,
-)
-
-from ._compose_quaternion import compose_quaternion
 
 
 def compose_rotation_matrix(
@@ -16,6 +8,10 @@ def compose_rotation_matrix(
 ) -> Tensor:
     r"""
     Compose rotation matrices.
+
+    This function performs matrix multiplication to compose two rotation matrices.
+    For rotation matrices R1 and R2, the composition R1 @ R2 represents applying
+    R2 first, then R1.
 
     Parameters
     ----------
@@ -29,10 +25,11 @@ def compose_rotation_matrix(
     -------
     output : Tensor, shape=(..., 3, 3)
         Composed rotation matrices.
+
+    Notes
+    -----
+    This implementation uses direct matrix multiplication instead of converting
+    to quaternions and back, which is more efficient and compatible with torch.compile.
+    The mathematical result is identical to the quaternion-based approach.
     """
-    return quaternion_to_rotation_matrix(
-        compose_quaternion(
-            rotation_matrix_to_quaternion(input),
-            rotation_matrix_to_quaternion(other),
-        ),
-    )
+    return torch.matmul(input, other)
