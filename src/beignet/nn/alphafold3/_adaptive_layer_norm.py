@@ -1,9 +1,9 @@
 import torch
-import torch.nn as nn
 from torch import Tensor
+from torch.nn import LayerNorm, Linear, Module
 
 
-class AdaptiveLayerNorm(nn.Module):
+class AdaptiveLayerNorm(Module):
     r"""
     Adaptive LayerNorm from AlphaFold 3 Algorithm 26.
 
@@ -42,14 +42,14 @@ class AdaptiveLayerNorm(nn.Module):
         self.c_s = c_s
 
         # Step 1: LayerNorm(a, scale=False, offset=False)
-        self.layer_norm_a = nn.LayerNorm(c, elementwise_affine=False)
+        self.layer_norm_a = LayerNorm(c, elementwise_affine=False)
 
         # Step 2: LayerNorm(s, offset=False)
-        self.layer_norm_s = nn.LayerNorm(c_s, elementwise_affine=False)
+        self.layer_norm_s = LayerNorm(c_s, elementwise_affine=False)
 
         # Step 3: Linear layers for conditioning
-        self.linear_s_sigmoid = nn.Linear(c_s, c, bias=False)
-        self.linear_s_scale = nn.Linear(c_s, c, bias=False)
+        self.linear_s_sigmoid = Linear(c_s, c, bias=False)
+        self.linear_s_scale = Linear(c_s, c, bias=False)
 
     def forward(self, a: Tensor, s: Tensor) -> Tensor:
         r"""

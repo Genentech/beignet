@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from .. import one_hot
+from beignet import one_hot
 
 
 class RelativePositionEncoding(nn.Module):

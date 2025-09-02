@@ -18,6 +18,15 @@ class AlphaFold3LightningModule(LightningModule):
     ):
         super().__init__()
 
+        self.loss_weights = {
+            "aligned_error": 0.5,
+            "diffusion": 1.0,
+            "distance_error": 0.25,
+            "distogram": 1.0,
+            "experimentally_resolved": 0.25,
+            "local_distance_difference_test": 0.0,
+        }
+
         self.module = module
 
         self.optimizer, self.scheduler = optimizer, scheduler

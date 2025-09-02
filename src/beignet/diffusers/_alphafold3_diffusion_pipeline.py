@@ -7,6 +7,7 @@ import torch
 from diffusers import DiffusionPipeline
 from torch import Tensor, nn
 
+from ..nn.alphafold3 import SampleDiffusion
 from .schedulers import AlphaFold3Scheduler
 
 
@@ -28,7 +29,7 @@ class AlphaFold3DiffusionPipeline(DiffusionPipeline):
     def __init__(
         self,
         trunk: nn.Module,
-        diffusion: nn.Module,
+        diffusion: SampleDiffusion,
         scheduler: AlphaFold3Scheduler,
         centre_aug: nn.Module,
     ):

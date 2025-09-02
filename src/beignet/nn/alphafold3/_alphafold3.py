@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from .._one_hot import one_hot
-from . import AtomAttentionEncoder
+from beignet._one_hot import one_hot
+
+from ._atom_attention_encoder import AtomAttentionEncoder
 from ._msa import MSA
 from ._pairformer_stack import PairformerStack
 from ._relative_position_encoding import RelativePositionEncoding

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from . import AdaptiveLayerNorm
+from ._adaptive_layer_norm import AdaptiveLayerNorm
 from ._attention_pair_bias import AttentionPairBias
 
 
