@@ -8,10 +8,12 @@ except PackageNotFoundError:
 
 from ._bisect import bisect
 from ._chandrupatla import chandrupatla
+from ._compute_alignment_error import compute_alignment_error
 from ._convolve import convolve
 from ._default_dtype_manager import default_dtype_manager
 from ._dihedral_angle import dihedral_angle
 from ._distogram_loss import distogram_loss
+from ._express_coordinates_in_frame import express_coordinates_in_frame
 from ._farthest_first_traversal import farthest_first_traversal
 from ._frame_aligned_point_error import frame_aligned_point_error
 from ._identity_matrix import identity_matrix
@@ -29,10 +31,12 @@ from ._weighted_rigid_align import weighted_rigid_align
 __all__ = [
     "bisect",
     "chandrupatla",
+    "compute_alignment_error",
     "convolve",
     "default_dtype_manager",
     "dihedral_angle",
     "distogram_loss",
+    "express_coordinates_in_frame",
     "frame_aligned_point_error",
     "farthest_first_traversal",
     "identity_matrix",
