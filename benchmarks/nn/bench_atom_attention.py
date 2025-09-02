@@ -3,9 +3,9 @@ import os
 import torch
 
 from beignet.nn import (
-    AtomAttentionDecoder,
     AtomAttentionEncoder,
     RelativePositionEncoding,
+    _AtomAttentionDecoder,
 )
 
 # Set benchmark seed for reproducibility
@@ -116,7 +116,7 @@ class TimeAtomAttentionDecoder:
 
         # Create module and compile for optimal performance
         module = (
-            AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
+            _AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
             .to(device)
             .to(dtype)
         )
@@ -198,7 +198,7 @@ class TimeAtomAttentionScaling:
         )
 
         self.decoder = (
-            AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
+            _AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
             .to(device)
             .to(dtype)
         )
@@ -271,7 +271,7 @@ class TimeAtomAttentionGradients:
         )
 
         self.decoder = (
-            AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
+            _AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
             .to(device)
             .to(dtype)
         )

@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from beignet.nn import AdaptiveLayerNorm, ConditionedTransitionBlock
+from beignet.nn import AdaptiveLayerNorm, _ConditionedTransitionBlock
 
 # Set benchmark seed for reproducibility
 SEED = int(os.environ.get("BEIGNET_BENCHMARK_SEED", 42))
@@ -58,7 +58,7 @@ class TimeConditionedTransitionBlock:
         self.seq_len = 15
 
         # Create module and compile for optimal performance
-        module = ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
+        module = _ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data
@@ -86,7 +86,9 @@ class TimeConditionedTransitionBlockLarge:
         self.n = 4  # Standard expansion factor
 
         # Create module and compile for optimal performance
-        module = ConditionedTransitionBlock(c=c, c_s=c_s, n=self.n).to(device).to(dtype)
+        module = (
+            _ConditionedTransitionBlock(c=c, c_s=c_s, n=self.n).to(device).to(dtype)
+        )
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data
@@ -115,7 +117,7 @@ class TimeConditionedTransitionBlockGradients:
 
         # Create module (don't compile for gradient benchmarks)
         self.module = (
-            ConditionedTransitionBlock(c=c, c_s=c_s, n=self.n).to(device).to(dtype)
+            _ConditionedTransitionBlock(c=c, c_s=c_s, n=self.n).to(device).to(dtype)
         )
 
         # Generate test data
@@ -205,7 +207,7 @@ class TimeConditionedTransitionBlockScaling:
         n = 4
 
         # Create module and compile for optimal performance
-        module = ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
+        module = _ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data

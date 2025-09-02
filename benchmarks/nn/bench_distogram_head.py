@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import AlphaFold3Distogram
+from beignet.nn import _Distogram
 
 
 class TimeAlphaFold3Distogram:
@@ -12,7 +12,7 @@ class TimeAlphaFold3Distogram:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3Distogram(
+        self.module = _Distogram(
             c_z=128,
             n_bins=64,
         )
@@ -36,7 +36,7 @@ class PeakMemoryAlphaFold3Distogram:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3Distogram(
+        self.module = _Distogram(
             c_z=64,  # Smaller for memory test
             n_bins=32,
         )

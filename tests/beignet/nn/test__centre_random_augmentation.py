@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import CentreRandomAugmentation
+from beignet.nn import _CentreRandomAugmentation
 
 
 @given(
@@ -15,7 +15,7 @@ from beignet.nn import CentreRandomAugmentation
 def test__centre_random_augmentation(batch_size, n_atoms, s_trans, dtype):
     """Test CentreRandomAugmentation with various input configurations."""
 
-    module = CentreRandomAugmentation(s_trans=s_trans)
+    module = _CentreRandomAugmentation(s_trans=s_trans)
 
     # Create test input positions
     x_t = torch.randn(batch_size, n_atoms, 3, dtype=dtype)
@@ -79,10 +79,10 @@ def test__centre_random_augmentation(batch_size, n_atoms, s_trans, dtype):
     # (We can't directly test this from the output, but we can test the generator)
     R = module.uniform_random_rotation(2, x_t.device, dtype)
 
-    # Check that R is orthogonal: R @ R.T = I
-    I = torch.bmm(R, R.transpose(-2, -1))
-    expected_I = torch.eye(3, dtype=R.dtype, device=R.device).expand_as(I)
-    assert torch.allclose(I, expected_I, atol=1e-5)
+    # Check that R is orthogonal: R @ R.T = i
+    i = torch.bmm(R, R.transpose(-2, -1))
+    expected_I = torch.eye(3, dtype=R.dtype, device=R.device).expand_as(i)
+    assert torch.allclose(i, expected_I, atol=1e-5)
 
     # Check that det(R) = 1 (proper rotation, not reflection)
     det_R = torch.det(R)
@@ -105,7 +105,7 @@ def test__centre_random_augmentation(batch_size, n_atoms, s_trans, dtype):
     assert torch.allclose(orig_dist_two, new_dist_two, atol=1e-5)
 
     # Test different s_trans values produce different translation scales
-    module_large = CentreRandomAugmentation(s_trans=10.0)
+    module_large = _CentreRandomAugmentation(s_trans=10.0)
     output_large = module_large(x_t)
 
     mean_large = output_large.mean(dim=1)

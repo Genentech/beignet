@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from ._msa_pair_weighted_averaging import MSAPairWeightedAveraging
-from ._outer_product_mean import OuterProductMean
 from ._transition import Transition
 from ._triangle_attention_ending_node import TriangleAttentionEndingNode
 from ._triangle_attention_starting_node import TriangleAttentionStartingNode
@@ -11,7 +9,7 @@ from ._triangle_multiplication_incoming import TriangleMultiplicationIncoming
 from ._triangle_multiplication_outgoing import TriangleMultiplicationOutgoing
 
 
-class AlphaFold3MSA(nn.Module):
+class MSA(nn.Module):
     r"""
     Multiple Sequence Alignment Module from AlphaFold 3.
 
@@ -46,11 +44,11 @@ class AlphaFold3MSA(nn.Module):
     Examples
     --------
     >>> import torch
-    >>> from beignet.nn import AlphaFold3MSA
+    >>> from beignet.nn import MSA
     >>> batch_size, seq_len, n_seq = 2, 32, 16
     >>> c_m, c_z, c_s = 64, 128, 256
     >>>
-    >>> module = AlphaFold3MSA(n_block=2, c_m=c_m, c_z=c_z, c_s=c_s)
+    >>> module = MSA(n_block=2, c_m=c_m, c_z=c_z, c_s=c_s)
     >>>
     >>> # Input features
     >>> f_msa = torch.randn(batch_size, seq_len, n_seq, 23)  # MSA features
@@ -97,10 +95,10 @@ class AlphaFold3MSA(nn.Module):
         self.single_linear = nn.Linear(c_s, c_m, bias=False)
 
         # Communication: OuterProductMean (step 6)
-        self.outer_product_mean = OuterProductMean(c=c_m, c_z=c_z)
+        self.outer_product_mean = _OuterProductMean(c=c_m, c_z=c_z)
 
         # MSA stack components (step 7-8)
-        self.msa_pair_weighted_averaging = MSAPairWeightedAveraging(
+        self.msa_pair_weighted_averaging = _MSAPairWeightedAveraging(
             c_m=c_m, c_z=c_z, n_head=n_head_msa
         )
         self.msa_transition = Transition(c=c_m, n=4)
@@ -227,3 +225,194 @@ class AlphaFold3MSA(nn.Module):
             z_ij = z_ij + self.pair_transition(z_ij)
 
         return z_ij
+
+
+class _OuterProductMean(nn.Module):
+    r"""
+    Outer Product Mean module from AlphaFold 3.
+
+    This implements Algorithm 9 from AlphaFold 3, which computes outer products
+    between MSA sequence representations and applies linear transformations.
+    The "mean" in outer product mean refers to averaging outer products computed
+    across all MSA sequences, capturing coevolutionary information.
+
+    The algorithm follows these steps:
+    1. Apply layer normalization to input MSA representation
+    2. Compute linear projections without bias to get two vectors for each sequence
+    3. For each MSA sequence s, compute pairwise outer products a_s,i ⊗ b_s,j
+       for all residue pairs (i, j), flatten the (c × c) matrix to length c*c
+    4. Average outer products over all MSA sequences (this is the "mean")
+    5. Apply final linear transformation to produce pair features
+
+    Parameters
+    ----------
+    c : int, default=32
+        Input channel dimension
+    c_z : int, default=128
+        Output channel dimension for final projection
+    """
+
+    def __init__(self, c: int = 32, c_z: int = 128):
+        super().__init__()
+
+        self.c = c
+        self.c_z = c_z
+
+        # Layer normalization (step 1)
+        self.layer_norm = nn.LayerNorm(c)
+
+        # Linear projection without bias to get a and b vectors (step 2)
+        self.linear_no_bias = nn.Linear(c, 2 * c, bias=False)
+
+        # Final linear projection (step 4)
+        self.final_linear = nn.Linear(c * c, c_z)
+
+    def forward(self, m_si: Tensor) -> Tensor:
+        r"""
+        Forward pass of outer product mean.
+
+        Parameters
+        ----------
+        m_si : Tensor, shape=(..., s, n_seq, c)
+            Input MSA representation where s is sequence length,
+            n_seq is number of MSA sequences, and c is channel dimension.
+
+        Returns
+        -------
+        z_ij : Tensor, shape=(..., s, s, c_z)
+            Pairwise representation after outer product mean operation.
+        """
+        m_si = self.layer_norm(m_si)  # (..., s, n_seq, c)
+
+        a_si, b_si = torch.chunk(
+            self.linear_no_bias(m_si),
+            2,
+            dim=-1,
+        )
+
+        return self.final_linear(
+            torch.mean(
+                torch.flatten(
+                    torch.unsqueeze(torch.unsqueeze(a_si, -3), -1)
+                    * torch.unsqueeze(torch.unsqueeze(b_si, -4), -2),
+                    start_dim=-2,
+                ),
+                dim=-2,
+            )
+        )
+
+
+class _MSAPairWeightedAveraging(nn.Module):
+    r"""
+    MSA pair weighted averaging with gating from AlphaFold 3.
+
+    This implements Algorithm 10 from AlphaFold 3, which performs weighted
+    averaging of MSA representations using pair representations as weights,
+    with gating for controlled information flow.
+
+    Parameters
+    ----------
+    c_m : int, default=32
+        Channel dimension for the MSA representation
+    c_z : int, default=128
+        Channel dimension for the pair representation
+    n_head : int, default=8
+        Number of attention heads
+
+    Examples
+    --------
+    >>> import torch
+    >>> from beignet.nn import _MSAPairWeightedAveraging
+    >>> batch_size, seq_len, n_seq, c_m, c_z = 2, 10, 5, 32, 128
+    >>> n_head = 8
+    >>> module = _MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head)
+    >>> m_si = torch.randn(batch_size, seq_len, n_seq, c_m)
+    >>> z_ij = torch.randn(batch_size, seq_len, seq_len, c_z)
+    >>> m_tilde_si = module(m_si, z_ij)
+    >>> m_tilde_si.shape
+    torch.Size([2, 10, 5, 32])
+
+    References
+    ----------
+    .. [1] AlphaFold 3 paper, Algorithm 10: MSA pair weighted averaging with gating
+    """
+
+    def __init__(self, c_m: int = 32, c_z: int = 128, n_head: int = 8):
+        super().__init__()
+
+        self.c_m = c_m
+        self.c_z = c_z
+        self.n_head = n_head
+        self.head_dim = c_m // n_head
+
+        if c_m % n_head != 0:
+            raise ValueError(
+                f"MSA channel dimension {c_m} must be divisible by number of heads {n_head}"
+            )
+
+        # Layer normalization for MSA input (step 1)
+        self.msa_layer_norm = nn.LayerNorm(c_m)
+
+        # Linear projection for MSA values (step 2)
+        self.linear_v = nn.Linear(c_m, c_m, bias=False)
+
+        # Linear projection for pair weights (step 3)
+        self.linear_b = nn.Linear(c_z, n_head, bias=False)
+        self.pair_layer_norm = nn.LayerNorm(c_z)
+
+        # Gate projection for MSA (step 4)
+        self.linear_g = nn.Linear(c_m, c_m, bias=False)
+
+        # Output projection (step 7)
+        self.output_linear = nn.Linear(c_m, c_m, bias=False)
+
+    def forward(self, m_si: Tensor, z_ij: Tensor) -> Tensor:
+        r"""
+        Forward pass of MSA pair weighted averaging with gating.
+
+        Parameters
+        ----------
+        m_si : Tensor, shape=(..., s, n_seq, c_m)
+            Input MSA representation where s is sequence length,
+            n_seq is number of sequences, and c_m is MSA channel dimension.
+        z_ij : Tensor, shape=(..., s, s, c_z)
+            Input pair representation where s is sequence length
+            and c_z is pair channel dimension.
+
+        Returns
+        -------
+        m_tilde_si : Tensor, shape=(..., s, n_seq, c_m)
+            Updated MSA representation after pair-weighted averaging.
+        """
+        m_si = self.msa_layer_norm(m_si)
+
+        return self.output_linear(
+            (
+                torch.sigmoid(self.linear_g(m_si)).view(
+                    *(m_si.shape[:-3]),
+                    m_si.shape[-3],
+                    m_si.shape[-2],
+                    self.n_head,
+                    self.head_dim,
+                )
+                * torch.einsum(
+                    "...ijh,...jnhd->...inhd",
+                    torch.softmax(
+                        self.linear_b(self.pair_layer_norm(z_ij)),
+                        dim=-2,
+                    ),
+                    self.linear_v(m_si).view(
+                        *(m_si.shape[:-3]),
+                        m_si.shape[-3],
+                        m_si.shape[-2],
+                        self.n_head,
+                        self.head_dim,
+                    ),
+                )
+            ).view(
+                *(m_si.shape[:-3]),
+                m_si.shape[-3],
+                m_si.shape[-2],
+                self.c_m,
+            )
+        )

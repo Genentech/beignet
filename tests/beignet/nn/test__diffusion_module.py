@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AlphaFold3Diffusion
+from beignet.nn import _Diffusion
 
 
 @given(
@@ -17,7 +17,7 @@ def test_diffusion_module(batch_size, n_tokens, n_atoms, dtype):
     device = torch.device("cpu")
 
     # Use default parameters for simplicity
-    module = AlphaFold3Diffusion().to(device).to(dtype)
+    module = _Diffusion().to(device).to(dtype)
 
     # Generate test inputs
     x_noisy = torch.randn(batch_size, n_atoms, 3, dtype=dtype, device=device)
@@ -76,7 +76,6 @@ def test_diffusion_module(batch_size, n_tokens, n_atoms, dtype):
     assert hasattr(module, "atom_attention_decoder"), "Should have AtomAttentionDecoder"
 
     # Test that the module transforms the input (should be different from x_noisy)
-    diff = torch.norm(x_out - x_noisy)
     assert torch.all(torch.isfinite(x_out)), "Output should be finite"
 
     # Test Algorithm 20 step-by-step behavior verification

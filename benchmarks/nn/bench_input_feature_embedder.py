@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import InputFeatureEmbedder
+from beignet.nn import _InputFeatureEmbedder
 
 
 class TimeInputFeatureEmbedder:
@@ -12,7 +12,7 @@ class TimeInputFeatureEmbedder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = InputFeatureEmbedder(
+        self.module = _InputFeatureEmbedder(
             c_s=32,
             c_z=16,
             c_atom=8,
@@ -47,7 +47,7 @@ class PeakMemoryInputFeatureEmbedder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = InputFeatureEmbedder(
+        self.module = _InputFeatureEmbedder(
             c_s=32,
             c_z=16,
             c_atom=8,

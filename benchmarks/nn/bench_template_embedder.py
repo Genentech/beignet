@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import AlphaFold3TemplateEmbedder
+from beignet.nn import TemplateEmbedder
 
 
 class TimeAlphaFold3TemplateEmbedder:
@@ -12,7 +12,7 @@ class TimeAlphaFold3TemplateEmbedder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3TemplateEmbedder(
+        self.module = TemplateEmbedder(
             c_z=128,
             c_template=64,
             n_head=4,
@@ -42,7 +42,7 @@ class PeakMemoryAlphaFold3TemplateEmbedder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3TemplateEmbedder(
+        self.module = TemplateEmbedder(
             c_z=64,  # Smaller for memory test
             c_template=32,
             n_head=4,

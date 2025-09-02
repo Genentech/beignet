@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from beignet.nn import AttentionPairBias, PairformerStack, PairformerStackBlock
+from beignet.nn import AttentionPairBias, PairformerStack, _PairformerStackBlock
 
 # Set benchmark seed for reproducibility
 SEED = int(os.environ.get("BEIGNET_BENCHMARK_SEED", 42))
@@ -52,7 +52,7 @@ class TimePairformerStackBlock:
 
         # Create module with Algorithm 17 specifications
         module = (
-            PairformerStackBlock(
+            _PairformerStackBlock(
                 c_s=c_s, c_z=c_z, n_head_single=16, n_head_pair=4, dropout_rate=0.25
             )
             .to(device)

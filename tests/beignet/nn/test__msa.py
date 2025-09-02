@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AlphaFold3MSA
+from beignet.nn import MSA
 
 
 @given(
@@ -24,7 +24,7 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
 
     # Create module
     module = (
-        AlphaFold3MSA(
+        MSA(
             n_block=n_block,
             c_m=c_m,
             c_z=c_z,
@@ -128,7 +128,7 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
     # Test with different n_block values
     if n_block > 1:
         single_block_module = (
-            AlphaFold3MSA(
+            MSA(
                 n_block=1,
                 c_m=c_m,
                 c_z=c_z,

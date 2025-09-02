@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from beignet.nn import AlphaFold3Diffusion
+from beignet.nn import _Diffusion
 
 # Set benchmark seed for reproducibility
 SEED = int(os.environ.get("BEIGNET_BENCHMARK_SEED", 42))
@@ -25,7 +25,7 @@ class TimeAlphaFold3Diffusion:
 
         # Create module with smaller parameters for benchmarking
         module = (
-            AlphaFold3Diffusion(
+            _Diffusion(
                 c_token=256,  # Smaller than default for faster benchmarks
                 c_atom=64,
                 c_atompair=16,
@@ -93,9 +93,7 @@ class TimeAlphaFold3DiffusionComponents:
 
         # Create module with smaller parameters
         self.module = (
-            AlphaFold3Diffusion(
-                c_token=256, c_atom=64, c_atompair=16, n_head=8, n_block=2
-            )
+            _Diffusion(c_token=256, c_atom=64, c_atompair=16, n_head=8, n_block=2)
             .to(device)
             .to(dtype)
         )
@@ -166,9 +164,7 @@ class TimeAlphaFold3DiffusionScaling:
 
         # Create module with minimal parameters for scaling tests
         self.module = (
-            AlphaFold3Diffusion(
-                c_token=128, c_atom=32, c_atompair=8, n_head=4, n_block=1
-            )
+            _Diffusion(c_token=128, c_atom=32, c_atompair=8, n_head=4, n_block=1)
             .to(device)
             .to(dtype)
         )
@@ -225,9 +221,7 @@ class TimeAlphaFold3DiffusionGradients:
 
         # Create module with minimal parameters for gradient tests
         self.module = (
-            AlphaFold3Diffusion(
-                c_token=64, c_atom=32, c_atompair=8, n_head=4, n_block=1
-            )
+            _Diffusion(c_token=64, c_atom=32, c_atompair=8, n_head=4, n_block=1)
             .to(device)
             .to(dtype)
         )
@@ -348,9 +342,7 @@ class TimeAlphaFold3DiffusionTimesteps:
 
         # Create module with minimal parameters
         self.module = (
-            AlphaFold3Diffusion(
-                c_token=64, c_atom=32, c_atompair=8, n_head=4, n_block=1
-            )
+            _Diffusion(c_token=64, c_atom=32, c_atompair=8, n_head=4, n_block=1)
             .to(device)
             .to(dtype)
         )

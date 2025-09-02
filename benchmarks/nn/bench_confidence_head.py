@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import AlphaFold3Confidence
+from beignet.nn import _Confidence
 
 
 class TimeAlphaFold3Confidence:
@@ -12,7 +12,7 @@ class TimeAlphaFold3Confidence:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3Confidence(
+        self.module = _Confidence(
             c_s=32,
             c_z=16,
             n_blocks=2,  # Smaller for benchmark
@@ -45,7 +45,7 @@ class PeakMemoryAlphaFold3Confidence:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AlphaFold3Confidence(
+        self.module = _Confidence(
             c_s=32,
             c_z=16,
             n_blocks=1,  # Even smaller for memory test

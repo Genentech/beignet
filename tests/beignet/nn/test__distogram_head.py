@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AlphaFold3Distogram
+from beignet.nn import _Distogram
 
 
 @given(
@@ -16,7 +16,7 @@ from beignet.nn import AlphaFold3Distogram
 def test__distogram_head(batch_size, n_tokens, c_z, n_bins, dtype):
     """Test AlphaFold3Distogram with various input configurations."""
 
-    module = AlphaFold3Distogram(
+    module = _Distogram(
         c_z=c_z,
         n_bins=n_bins,
         min_dist=2.0,
@@ -68,7 +68,7 @@ def test__distogram_head(batch_size, n_tokens, c_z, n_bins, dtype):
     assert module.distance_bins[-1] <= 20.0  # max_dist
 
     # Test different number of bins
-    module_small = AlphaFold3Distogram(c_z=c_z, n_bins=8).to(dtype=dtype)
+    module_small = _Distogram(c_z=c_z, n_bins=8).to(dtype=dtype)
     p_small = module_small(z_ij)
     assert p_small.shape == (batch_size, n_tokens, n_tokens, 8)
 

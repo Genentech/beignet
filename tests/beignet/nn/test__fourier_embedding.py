@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import FourierEmbedding
+from beignet.nn import _FourierEmbedding
 
 
 @given(
@@ -17,7 +17,7 @@ def test_fourier_embedding(batch_size, seq_len, c, dtype):
     device = torch.device("cpu")
 
     # Create module
-    module = FourierEmbedding(c=c).to(device).to(dtype)
+    module = _FourierEmbedding(c=c).to(device).to(dtype)
 
     # Test basic functionality with different input shapes
     # Test with shape (..., 1)

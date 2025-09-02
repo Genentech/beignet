@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import AtomAttentionDecoder
+from beignet.nn import _AtomAttentionDecoder
 
 
 class TimeAtomAttentionDecoder:
@@ -12,7 +12,7 @@ class TimeAtomAttentionDecoder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AtomAttentionDecoder(
+        self.module = _AtomAttentionDecoder(
             c_token=64,
             c_atom=32,
             n_queries=8,
@@ -41,7 +41,7 @@ class PeakMemoryAtomAttentionDecoder:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = AtomAttentionDecoder(
+        self.module = _AtomAttentionDecoder(
             c_token=64,
             c_atom=32,
             n_queries=8,

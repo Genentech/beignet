@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import CentreRandomAugmentation
+from beignet.nn import _CentreRandomAugmentation
 
 
 class TimeCentreRandomAugmentation:
@@ -12,7 +12,7 @@ class TimeCentreRandomAugmentation:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = CentreRandomAugmentation(s_trans=1.0)
+        self.module = _CentreRandomAugmentation(s_trans=1.0)
         self.x_t = torch.randn(batch_size, 128, 3, dtype=dtype)
 
     def time_centre_random_augmentation(self, batch_size, dtype):
@@ -29,7 +29,7 @@ class PeakMemoryCentreRandomAugmentation:
     def setup(self, batch_size, dtype):
         """Setup test data."""
         torch.manual_seed(42)
-        self.module = CentreRandomAugmentation(s_trans=1.0)
+        self.module = _CentreRandomAugmentation(s_trans=1.0)
         self.x_t = torch.randn(
             batch_size, 64, 3, dtype=dtype
         )  # Smaller for memory test

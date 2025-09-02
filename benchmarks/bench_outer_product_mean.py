@@ -1,6 +1,6 @@
 import torch
 
-from beignet.nn import OuterProductMean
+from beignet.nn import _OuterProductMean
 
 
 class TimeOuterProductMean:
@@ -15,7 +15,7 @@ class TimeOuterProductMean:
         n_seq = 16  # Number of MSA sequences
 
         # Create module
-        self.module = OuterProductMean(c=c, c_z=c_z).to(device).to(dtype)
+        self.module = _OuterProductMean(c=c, c_z=c_z).to(device).to(dtype)
 
         # Generate input - MSA representation
         self.m_si = torch.randn(
@@ -47,7 +47,7 @@ class PeakMemoryOuterProductMean:
         n_seq = 16  # Number of MSA sequences
 
         # Create module
-        self.module = OuterProductMean(c=c, c_z=c_z).to(device).to(dtype)
+        self.module = _OuterProductMean(c=c, c_z=c_z).to(device).to(dtype)
 
         # Generate input - MSA representation
         self.m_si = torch.randn(

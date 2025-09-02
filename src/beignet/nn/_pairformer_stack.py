@@ -9,7 +9,130 @@ from ._triangle_multiplication_incoming import TriangleMultiplicationIncoming
 from ._triangle_multiplication_outgoing import TriangleMultiplicationOutgoing
 
 
-class PairformerStackBlock(nn.Module):
+class PairformerStack(nn.Module):
+    r"""
+    Pairformer stack from AlphaFold 3 Algorithm 17.
+
+    This is the exact implementation of the Pairformer stack as specified
+    in Algorithm 17, which processes single and pair representations through
+    N_block iterations of triangle operations and attention mechanisms.
+
+    Parameters
+    ----------
+    n_block : int, default=48
+        Number of Pairformer blocks (N_block in Algorithm 17)
+    c_s : int, default=384
+        Channel dimension for single representation
+    c_z : int, default=128
+        Channel dimension for pair representation
+    n_head_single : int, default=16
+        Number of attention heads for single representation
+    n_head_pair : int, default=4
+        Number of attention heads for pair representation
+    dropout_rate : float, default=0.25
+        Dropout rate as specified in Algorithm 17
+    transition_n : int, default=4
+        Multiplier for transition layer hidden dimension
+
+    Examples
+    --------
+    >>> import torch
+    >>> from beignet.nn import PairformerStack
+    >>> batch_size, seq_len = 2, 10
+    >>> n_block, c_s, c_z = 4, 384, 128
+    >>> module = PairformerStack(n_block=n_block, c_s=c_s, c_z=c_z)
+    >>> s_i = torch.randn(batch_size, seq_len, c_s)
+    >>> z_ij = torch.randn(batch_size, seq_len, seq_len, c_z)
+    >>> s_out, z_out = module(s_i, z_ij)
+    >>> s_out.shape
+    torch.Size([2, 10, 384])
+    >>> z_out.shape
+    torch.Size([2, 10, 10, 128])
+
+    References
+    ----------
+    .. [1] Abramson, J., Adler, J., Dunger, J. et al. Accurate structure prediction
+           of biomolecular interactions with AlphaFold 3. Nature 630, 493–500 (2024).
+           Algorithm 17: Pairformer stack
+    """
+
+    def __init__(
+        self,
+        n_block: int = 48,
+        c_s: int = 384,
+        c_z: int = 128,
+        n_head_single: int = 16,
+        n_head_pair: int = 4,
+        dropout_rate: float = 0.25,
+        transition_n: int = 4,
+    ):
+        super().__init__()
+
+        self.n_block = n_block
+        self.c_s = c_s
+        self.c_z = c_z
+
+        # Create n_block Pairformer stack blocks (each with its own parameters)
+        self.blocks = nn.ModuleList(
+            [
+                _PairformerStackBlock(
+                    c_s=c_s,
+                    c_z=c_z,
+                    n_head_single=n_head_single,
+                    n_head_pair=n_head_pair,
+                    dropout_rate=dropout_rate,
+                    transition_n=transition_n,
+                )
+                for _ in range(n_block)
+            ]
+        )
+
+    def forward(self, s_i: Tensor, z_ij: Tensor) -> tuple[Tensor, Tensor]:
+        r"""
+        Forward pass of Pairformer stack.
+
+        Parameters
+        ----------
+        s_i : Tensor, shape=(..., s, c_s)
+            Single representation where s is sequence length
+        z_ij : Tensor, shape=(..., s, s, c_z)
+            Pair representation
+
+        Returns
+        -------
+        s_out : Tensor, shape=(..., s, c_s)
+            Updated single representation after all blocks
+        z_out : Tensor, shape=(..., s, s, c_z)
+            Updated pair representation after all blocks
+        """
+        # Validate input shapes
+        if s_i.shape[-2] != z_ij.shape[-2] or s_i.shape[-2] != z_ij.shape[-3]:
+            raise ValueError(
+                f"Sequence length mismatch: single representation has {s_i.shape[-2]} "
+                f"residues but pair representation has shape {z_ij.shape[-3:]}"
+            )
+
+        if s_i.shape[-1] != self.c_s:
+            raise ValueError(
+                f"Single representation has {s_i.shape[-1]} channels, "
+                f"expected {self.c_s}"
+            )
+
+        if z_ij.shape[-1] != self.c_z:
+            raise ValueError(
+                f"Pair representation has {z_ij.shape[-1]} channels, "
+                f"expected {self.c_z}"
+            )
+
+        # Algorithm 17: for all l ∈ [1, ..., N_block] do
+        for block in self.blocks:
+            s_i, z_ij = block(s_i, z_ij)
+
+        # Algorithm 17 step 10: return {s_i}, {z_ij}
+        return s_i, z_ij
+
+
+class _PairformerStackBlock(nn.Module):
     r"""
     Single block of the Pairformer stack from AlphaFold 3 Algorithm 17.
 
@@ -34,10 +157,10 @@ class PairformerStackBlock(nn.Module):
     Examples
     --------
     >>> import torch
-    >>> from beignet.nn._pairformer_stack import PairformerStackBlock
+    >>> from beignet.nn._pairformer_stack import _PairformerStackBlock
     >>> batch_size, seq_len = 2, 10
     >>> c_s, c_z = 384, 128
-    >>> module = PairformerStackBlock(c_s=c_s, c_z=c_z)
+    >>> module = _PairformerStackBlock(c_s=c_s, c_z=c_z)
     >>> s_i = torch.randn(batch_size, seq_len, c_s)
     >>> z_ij = torch.randn(batch_size, seq_len, seq_len, c_z)
     >>> s_out, z_out = module(s_i, z_ij)
@@ -127,127 +250,4 @@ class PairformerStackBlock(nn.Module):
         # Step 8: Single transition
         s_i = s_i + self.single_transition(s_i)
 
-        return s_i, z_ij
-
-
-class PairformerStack(nn.Module):
-    r"""
-    Pairformer stack from AlphaFold 3 Algorithm 17.
-
-    This is the exact implementation of the Pairformer stack as specified
-    in Algorithm 17, which processes single and pair representations through
-    N_block iterations of triangle operations and attention mechanisms.
-
-    Parameters
-    ----------
-    n_block : int, default=48
-        Number of Pairformer blocks (N_block in Algorithm 17)
-    c_s : int, default=384
-        Channel dimension for single representation
-    c_z : int, default=128
-        Channel dimension for pair representation
-    n_head_single : int, default=16
-        Number of attention heads for single representation
-    n_head_pair : int, default=4
-        Number of attention heads for pair representation
-    dropout_rate : float, default=0.25
-        Dropout rate as specified in Algorithm 17
-    transition_n : int, default=4
-        Multiplier for transition layer hidden dimension
-
-    Examples
-    --------
-    >>> import torch
-    >>> from beignet.nn import PairformerStack
-    >>> batch_size, seq_len = 2, 10
-    >>> n_block, c_s, c_z = 4, 384, 128
-    >>> module = PairformerStack(n_block=n_block, c_s=c_s, c_z=c_z)
-    >>> s_i = torch.randn(batch_size, seq_len, c_s)
-    >>> z_ij = torch.randn(batch_size, seq_len, seq_len, c_z)
-    >>> s_out, z_out = module(s_i, z_ij)
-    >>> s_out.shape
-    torch.Size([2, 10, 384])
-    >>> z_out.shape
-    torch.Size([2, 10, 10, 128])
-
-    References
-    ----------
-    .. [1] Abramson, J., Adler, J., Dunger, J. et al. Accurate structure prediction
-           of biomolecular interactions with AlphaFold 3. Nature 630, 493–500 (2024).
-           Algorithm 17: Pairformer stack
-    """
-
-    def __init__(
-        self,
-        n_block: int = 48,
-        c_s: int = 384,
-        c_z: int = 128,
-        n_head_single: int = 16,
-        n_head_pair: int = 4,
-        dropout_rate: float = 0.25,
-        transition_n: int = 4,
-    ):
-        super().__init__()
-
-        self.n_block = n_block
-        self.c_s = c_s
-        self.c_z = c_z
-
-        # Create n_block Pairformer stack blocks (each with its own parameters)
-        self.blocks = nn.ModuleList(
-            [
-                PairformerStackBlock(
-                    c_s=c_s,
-                    c_z=c_z,
-                    n_head_single=n_head_single,
-                    n_head_pair=n_head_pair,
-                    dropout_rate=dropout_rate,
-                    transition_n=transition_n,
-                )
-                for _ in range(n_block)
-            ]
-        )
-
-    def forward(self, s_i: Tensor, z_ij: Tensor) -> tuple[Tensor, Tensor]:
-        r"""
-        Forward pass of Pairformer stack.
-
-        Parameters
-        ----------
-        s_i : Tensor, shape=(..., s, c_s)
-            Single representation where s is sequence length
-        z_ij : Tensor, shape=(..., s, s, c_z)
-            Pair representation
-
-        Returns
-        -------
-        s_out : Tensor, shape=(..., s, c_s)
-            Updated single representation after all blocks
-        z_out : Tensor, shape=(..., s, s, c_z)
-            Updated pair representation after all blocks
-        """
-        # Validate input shapes
-        if s_i.shape[-2] != z_ij.shape[-2] or s_i.shape[-2] != z_ij.shape[-3]:
-            raise ValueError(
-                f"Sequence length mismatch: single representation has {s_i.shape[-2]} "
-                f"residues but pair representation has shape {z_ij.shape[-3:]}"
-            )
-
-        if s_i.shape[-1] != self.c_s:
-            raise ValueError(
-                f"Single representation has {s_i.shape[-1]} channels, "
-                f"expected {self.c_s}"
-            )
-
-        if z_ij.shape[-1] != self.c_z:
-            raise ValueError(
-                f"Pair representation has {z_ij.shape[-1]} channels, "
-                f"expected {self.c_z}"
-            )
-
-        # Algorithm 17: for all l ∈ [1, ..., N_block] do
-        for block in self.blocks:
-            s_i, z_ij = block(s_i, z_ij)
-
-        # Algorithm 17 step 10: return {s_i}, {z_ij}
         return s_i, z_ij

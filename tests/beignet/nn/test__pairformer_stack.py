@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AttentionPairBias, PairformerStack, PairformerStackBlock
+from beignet.nn import AttentionPairBias, PairformerStack, _PairformerStackBlock
 
 
 @given(
@@ -103,7 +103,7 @@ def test_pairformer_stack_block(batch_size, seq_len, c_s, c_z, dtype):
 
     # Create module with Algorithm 17 specifications
     module = (
-        PairformerStackBlock(
+        _PairformerStackBlock(
             c_s=c_s, c_z=c_z, n_head_single=16, n_head_pair=4, dropout_rate=0.25
         )
         .to(device)
@@ -321,7 +321,7 @@ def test_pairformer_stack(batch_size, seq_len, n_block, c_s, c_z, dtype):
     # Test component accessibility and Algorithm 17 compliance
     assert len(module.blocks) == n_block, f"Should have {n_block} blocks"
     for i, block in enumerate(module.blocks):
-        assert isinstance(block, PairformerStackBlock), (
+        assert isinstance(block, _PairformerStackBlock), (
             f"Block {i} should be PairformerStackBlock"
         )
 

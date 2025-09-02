@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AlphaFold3TemplateEmbedder
+from beignet.nn import TemplateEmbedder
 
 
 @given(
@@ -20,7 +20,7 @@ def test__template_embedder(batch_size, n_tokens, c_z, c_template, n_head, dtype
     # Ensure c_z is divisible by n_head
     c_z = (c_z // n_head) * n_head if c_z % n_head != 0 else c_z
 
-    module = AlphaFold3TemplateEmbedder(
+    module = TemplateEmbedder(
         c_z=c_z,
         c_template=c_template,
         n_head=n_head,

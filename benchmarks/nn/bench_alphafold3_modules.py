@@ -1,12 +1,12 @@
 import torch
 
 from beignet.nn import (
-    MSAPairWeightedAveraging,
     Transition,
     TriangleAttentionEndingNode,
     TriangleAttentionStartingNode,
     TriangleMultiplicationIncoming,
     TriangleMultiplicationOutgoing,
+    _MSAPairWeightedAveraging,
 )
 
 
@@ -105,7 +105,7 @@ class TimeMSAPairWeightedAveraging:
         n_seq = 8
 
         self.module = (
-            MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head)
+            _MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head)
             .to(device)
             .to(dtype)
         )
@@ -174,7 +174,7 @@ class PeakMemoryMSAPairWeightedAveraging:
         n_seq = 8
 
         self.module = (
-            MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head)
+            _MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head)
             .to(device)
             .to(dtype)
         )

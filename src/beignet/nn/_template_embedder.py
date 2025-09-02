@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch import Tensor
 
 
-class AlphaFold3TemplateEmbedder(nn.Module):
+class TemplateEmbedder(nn.Module):
     r"""
     Template Embedder for AlphaFold 3.
 
@@ -22,9 +22,9 @@ class AlphaFold3TemplateEmbedder(nn.Module):
     Examples
     --------
     >>> import torch
-    >>> from beignet.nn import AlphaFold3TemplateEmbedder
+    >>> from beignet.nn import TemplateEmbedder
     >>> batch_size, n_tokens = 2, 64
-    >>> module = AlphaFold3TemplateEmbedder()
+    >>> module = TemplateEmbedder()
     >>> f_star = {'template_features': torch.randn(batch_size, n_tokens, n_tokens, 64)}
     >>> z_ij = torch.randn(batch_size, n_tokens, n_tokens, 128)
     >>> output = module(f_star, z_ij)

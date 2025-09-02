@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from beignet.nn import FourierEmbedding
+from beignet.nn import _FourierEmbedding
 
 # Set benchmark seed for reproducibility
 SEED = int(os.environ.get("BEIGNET_BENCHMARK_SEED", 42))
@@ -24,7 +24,7 @@ class TimeFourierEmbedding:
         device = torch.device("cpu")
 
         # Create module and compile for optimal performance
-        module = FourierEmbedding(c=c).to(device).to(dtype)
+        module = _FourierEmbedding(c=c).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data - both input shapes (..., 1) and (...)
@@ -62,7 +62,7 @@ class TimeFourierEmbeddingLarge:
         device = torch.device("cpu")
 
         # Create module and compile for optimal performance
-        module = FourierEmbedding(c=c).to(device).to(dtype)
+        module = _FourierEmbedding(c=c).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data
@@ -88,7 +88,7 @@ class TimeFourierEmbeddingScaling:
         batch_size = 1
 
         # Create module and compile for optimal performance
-        module = FourierEmbedding(c=c).to(device).to(dtype)
+        module = _FourierEmbedding(c=c).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data
@@ -113,7 +113,7 @@ class TimeFourierEmbeddingGradients:
         device = torch.device("cpu")
 
         # Create module (don't compile for gradient benchmarks)
-        self.module = FourierEmbedding(c=c).to(device).to(dtype)
+        self.module = _FourierEmbedding(c=c).to(device).to(dtype)
 
         # Generate test data
         self.t = torch.randn(
@@ -162,7 +162,7 @@ class TimeFourierEmbeddingDifferentValues:
         batch_size, seq_len = 4, 20
 
         # Create module and compile for optimal performance
-        module = FourierEmbedding(c=c).to(device).to(dtype)
+        module = _FourierEmbedding(c=c).to(device).to(dtype)
         self.module = torch.compile(module, fullgraph=True)
 
         # Generate test data with different value ranges

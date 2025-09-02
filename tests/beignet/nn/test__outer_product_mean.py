@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import OuterProductMean
+from beignet.nn import _OuterProductMean
 
 
 @given(
@@ -20,7 +20,7 @@ def test_outer_product_mean(batch_size, seq_len, n_seq, c, c_z, dtype):
     device = torch.device("cpu")
 
     # Create module
-    module = OuterProductMean(c=c, c_z=c_z).to(device)
+    module = _OuterProductMean(c=c, c_z=c_z).to(device)
     module = module.to(dtype)
 
     # Generate test input - MSA representation

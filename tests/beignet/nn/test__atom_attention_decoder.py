@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AtomAttentionDecoder
+from beignet.nn import _AtomAttentionDecoder
 
 
 @given(
@@ -34,7 +34,7 @@ def test_atom_attention_decoder(
 
     # Create module
     module = (
-        AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
+        _AtomAttentionDecoder(c_token=c_token, c_atom=c_atom, n_head=n_head)
         .to(device)
         .to(dtype)
     )

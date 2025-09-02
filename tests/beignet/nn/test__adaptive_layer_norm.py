@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AdaptiveLayerNorm, ConditionedTransitionBlock
+from beignet.nn import AdaptiveLayerNorm, _ConditionedTransitionBlock
 
 
 @given(
@@ -150,7 +150,7 @@ def test_conditioned_transition_block(batch_size, seq_len, c, c_s, n, dtype):
     device = torch.device("cpu")
 
     # Create module
-    module = ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
+    module = _ConditionedTransitionBlock(c=c, c_s=c_s, n=n).to(device).to(dtype)
 
     # Generate test inputs
     a = torch.randn(batch_size, seq_len, c, dtype=dtype, device=device)
@@ -254,7 +254,7 @@ def test_conditioned_transition_block(batch_size, seq_len, c, c_s, n, dtype):
     if n > 2:
         # Test with different n to ensure expansion works correctly
         module_alt = (
-            ConditionedTransitionBlock(c=c, c_s=c_s, n=n - 1).to(device).to(dtype)
+            _ConditionedTransitionBlock(c=c, c_s=c_s, n=n - 1).to(device).to(dtype)
         )
         a_alt = module_alt(a, s)
         assert a_alt.shape == a.shape, "Different expansion factor should work"

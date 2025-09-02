@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AlphaFold3Confidence
+from beignet.nn import _Confidence
 
 
 @given(
@@ -24,7 +24,7 @@ def test__confidence_head(batch_size, n_atoms, n_tokens, c_s, c_z, dtype):
     # Ensure n_atoms is divisible by or larger than n_tokens for testing
     n_atoms = max(n_atoms, n_tokens)
 
-    module = AlphaFold3Confidence(
+    module = _Confidence(
         n_block=2,  # Use smaller number for testing
         c_s=c_s,
         c_z=c_z,

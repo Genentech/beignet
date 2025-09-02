@@ -3,12 +3,12 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from beignet.nn import (
-    MSAPairWeightedAveraging,
     Transition,
     TriangleAttentionEndingNode,
     TriangleAttentionStartingNode,
     TriangleMultiplicationIncoming,
     TriangleMultiplicationOutgoing,
+    _MSAPairWeightedAveraging,
 )
 
 
@@ -143,7 +143,7 @@ def test_msa_pair_weighted_averaging(
     device = torch.device("cpu")
 
     module = (
-        MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head).to(device).to(dtype)
+        _MSAPairWeightedAveraging(c_m=c_m, c_z=c_z, n_head=n_head).to(device).to(dtype)
     )
 
     m_si = torch.randn(batch_size, seq_len, n_seq, c_m, dtype=dtype, device=device)
