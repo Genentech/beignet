@@ -51,7 +51,6 @@ def test__one_hot(batch_size, seq_len, n_bins, dtype):
 
     # Test gradient computation (one_hot is discrete, so gradients will be zero)
     x_grad = torch.randn(batch_size, seq_len, dtype=dtype, requires_grad=True)
-    result_grad = one_hot(x_grad, v_bins)
 
     # Since one_hot is discrete, we need to create a differentiable loss
     # We'll use the input directly in a differentiable computation

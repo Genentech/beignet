@@ -20,7 +20,6 @@ class TimeSampleDiffusion:
         )
 
         n_tokens = 16  # Small for benchmark
-        n_atoms = 32
 
         # Create feature dictionary
         self.f_star = {
@@ -64,7 +63,6 @@ class PeakMemorySampleDiffusion:
         )
 
         n_tokens = 8  # Very small for memory test
-        n_atoms = 16
 
         # Create feature dictionary
         self.f_star = {
