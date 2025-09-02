@@ -74,36 +74,21 @@ class OuterProductMean(nn.Module):
         z_ij : Tensor, shape=(..., s, s, c_z)
             Pairwise representation after outer product mean operation.
         """
-        # Step 1: Layer normalization applied to each MSA sequence
         m_si = self.layer_norm(m_si)  # (..., s, n_seq, c)
 
-        # Step 2: Linear projection without bias to get a and b for each MSA sequence
-        ab = self.linear_no_bias(m_si)  # (..., s, n_seq, 2*c)
-        a_si, b_si = torch.chunk(ab, 2, dim=-1)  # Each: (..., s, n_seq, c)
-
-        # Step 3: Compute outer products for all residue pairs across all MSA sequences
-        # For each MSA sequence, compute outer products between all residue pairs
-
-        # Expand dimensions for pairwise outer products
-        # a_si: (..., s, n_seq, c) -> (..., s, 1, n_seq, c) (expand for j dimension)
-        # b_si: (..., s, n_seq, c) -> (..., 1, s, n_seq, c) (expand for i dimension)
-        a_expanded = torch.unsqueeze(a_si, -3)  # (..., s, 1, n_seq, c)
-        b_expanded = torch.unsqueeze(b_si, -4)  # (..., 1, s, n_seq, c)
-
-        # Compute outer product: (..., s, s, n_seq, c, c)
-        # For each MSA sequence seq_idx, compute outer product a[i, seq_idx] ⊗ b[j, seq_idx]
-        outer_product = torch.unsqueeze(a_expanded, -1) * torch.unsqueeze(
-            b_expanded, -2
+        a_si, b_si = torch.chunk(
+            self.linear_no_bias(m_si),
+            2,
+            dim=-1,
         )
 
-        # Flatten the c×c outer product: (..., s, s, n_seq, c*c)
-        outer_product_flat = torch.flatten(outer_product, start_dim=-2)
-
-        # Step 4: Average over MSA sequences (this is the "mean" in outer product mean)
-        # This captures coevolutionary information by averaging across evolutionary sequences
-        o_ij_mean = torch.mean(outer_product_flat, dim=-2)  # (..., s, s, c*c)
-
-        # Step 5: Final linear transformation
-        z_ij = self.final_linear(o_ij_mean)  # (..., s, s, c_z)
-
-        return z_ij
+        return self.final_linear(
+            torch.mean(
+                torch.flatten(
+                    torch.unsqueeze(torch.unsqueeze(a_si, -3), -1)
+                    * torch.unsqueeze(torch.unsqueeze(b_si, -4), -2),
+                    start_dim=-2,
+                ),
+                dim=-2,
+            )
+        )

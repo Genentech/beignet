@@ -13,8 +13,10 @@ authors = [
 ]
 dependencies = [
     "biotite",
+    "diffusers[torch]>=0.35.1",
     "einops>=0.8.1",
     "fastpdb",
+    "lightning>=2.5.4",
     "numpy>=2",
     "optree",
     "pandas>=2.3.1",

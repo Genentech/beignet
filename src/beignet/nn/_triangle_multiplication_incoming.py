@@ -1,9 +1,9 @@
 import torch
-import torch.nn as nn
 from torch import Tensor
+from torch.nn import LayerNorm, Linear, Module
 
 
-class TriangleMultiplicationIncoming(nn.Module):
+class TriangleMultiplicationIncoming(Module):
     r"""
     Triangular multiplicative update using "incoming" edges from AlphaFold 3.
 
@@ -39,18 +39,18 @@ class TriangleMultiplicationIncoming(nn.Module):
         self.c = c
 
         # Layer normalization (step 1)
-        self.layer_norm = nn.LayerNorm(c)
+        self.layer_norm = LayerNorm(c)
 
         # Linear projections without bias for a and b (step 2)
-        self.linear_a = nn.Linear(c, c, bias=False)
-        self.linear_b = nn.Linear(c, c, bias=False)
+        self.linear_a = Linear(c, c, bias=False)
+        self.linear_b = Linear(c, c, bias=False)
 
         # Linear projection without bias for g (step 3)
-        self.linear_g = nn.Linear(c, c, bias=False)
+        self.linear_g = Linear(c, c, bias=False)
 
         # Final linear projection without bias with layer norm (step 4)
-        self.final_layer_norm = nn.LayerNorm(c)
-        self.final_linear = nn.Linear(c, c, bias=False)
+        self.final_layer_norm = LayerNorm(c)
+        self.final_linear = Linear(c, c, bias=False)
 
     def forward(self, z_ij: Tensor) -> Tensor:
         r"""
@@ -67,27 +67,14 @@ class TriangleMultiplicationIncoming(nn.Module):
         z_tilde_ij : Tensor, shape=(..., s, s, c)
             Updated pair representation after triangular multiplicative update.
         """
-        # Step 1: Layer normalization
         z_ij = self.layer_norm(z_ij)
 
-        # Step 2: Linear projections for a and b with sigmoid activation
-        a_ij = torch.sigmoid(self.linear_a(z_ij))  # (..., s, s, c)
-        b_ij = torch.sigmoid(self.linear_b(z_ij))  # (..., s, s, c)
-
-        # Step 3: Linear projection for g with sigmoid activation
-        g_ij = torch.sigmoid(self.linear_g(z_ij))  # (..., s, s, c)
-
-        # Step 4: Triangular multiplicative update (incoming)
-        # z̃_ij = g_ij ⊙ LinearNoBias(LayerNorm(∑_k a_ki ⊙ b_kj))
-        # Use einsum to explicitly reduce over k.
-        # a^T: (..., k, i, c), b: (..., k, j, c)
-        sum_k = torch.einsum("...kic,...kjc->...ijc", a_ij.transpose(-3, -2), b_ij)
-
-        # Apply layer norm and final linear projection
-        normalized = self.final_layer_norm(sum_k)  # (..., s, s, c)
-        linear_output = self.final_linear(normalized)  # (..., s, s, c)
-
-        # Apply gating
-        z_tilde_ij = g_ij * linear_output  # (..., s, s, c)
-
-        return z_tilde_ij
+        return torch.sigmoid(self.linear_g(z_ij)) * self.final_linear(
+            self.final_layer_norm(
+                torch.einsum(
+                    "...kic,...kjc->...ijc",
+                    torch.sigmoid(self.linear_a(z_ij)).transpose(-3, -2),
+                    torch.sigmoid(self.linear_b(z_ij)),
+                )
+            )
+        )

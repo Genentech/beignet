@@ -68,21 +68,10 @@ class Transition(nn.Module):
         x : Tensor, shape=(..., c)
             Output tensor after transition layer processing.
         """
-        # Step 1: Layer normalization
         x = self.layer_norm(x)
 
-        # Step 2: First linear projection
-        a = self.linear_1(x)  # (..., n*c)
-
-        # Step 3: Second linear projection
-        b = self.linear_2(x)  # (..., n*c)
-
-        # Step 4: SwiGLU activation and final projection
-        # SwiGLU: swish(a) ⊙ b where swish(x) = x * sigmoid(x)
-        swish_a = a * torch.sigmoid(a)  # (..., n*c)
-        gated = swish_a * b  # (..., n*c)
-
-        # Final linear projection
-        x = self.output_linear(gated)  # (..., c)
+        x = self.output_linear(
+            self.linear_1(x) * torch.sigmoid(self.linear_1(x)) * self.linear_2(x),
+        )  # (..., c)
 
         return x

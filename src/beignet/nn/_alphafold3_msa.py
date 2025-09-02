@@ -11,7 +11,7 @@ from ._triangle_multiplication_incoming import TriangleMultiplicationIncoming
 from ._triangle_multiplication_outgoing import TriangleMultiplicationOutgoing
 
 
-class MultipleSequenceAlignment(nn.Module):
+class AlphaFold3MSA(nn.Module):
     r"""
     Multiple Sequence Alignment Module from AlphaFold 3.
 
@@ -46,11 +46,11 @@ class MultipleSequenceAlignment(nn.Module):
     Examples
     --------
     >>> import torch
-    >>> from beignet.nn import MultipleSequenceAlignment
+    >>> from beignet.nn import AlphaFold3MSA
     >>> batch_size, seq_len, n_seq = 2, 32, 16
     >>> c_m, c_z, c_s = 64, 128, 256
     >>>
-    >>> module = MultipleSequenceAlignment(n_block=2, c_m=c_m, c_z=c_z, c_s=c_s)
+    >>> module = AlphaFold3MSA(n_block=2, c_m=c_m, c_z=c_z, c_s=c_s)
     >>>
     >>> # Input features
     >>> f_msa = torch.randn(batch_size, seq_len, n_seq, 23)  # MSA features
@@ -181,21 +181,16 @@ class MultipleSequenceAlignment(nn.Module):
                 f"got ({z_ij.shape[-3]}, {z_ij.shape[-2]})"
             )
 
-        # Step 1: Concatenate MSA features
-        m_si = torch.cat([f_msa, f_has_deletion, f_deletion_value], dim=-1)
-
-        # Step 2: Sample random subset without replacement (simplified - use all sequences)
-        # In practice, this would subsample sequences for computational efficiency
-        # For now, we'll use all sequences: {S} = SampleRandomWithoutReplacement({S})
-
-        # Step 3: Linear projection for MSA
-        m_si = self.msa_linear(m_si)  # (..., s, n_seq, c_m)
-
-        # Step 4: Add single representation contribution
-        # s_inputs: (..., s, c_s) -> (..., s, c_m)
-        s_projected = self.single_linear(s_inputs)  # (..., s, c_m)
-        s_expanded = torch.unsqueeze(s_projected, -2)  # (..., s, 1, c_m)
-        m_si = m_si + s_expanded  # Broadcast over sequence dimension
+        m_si = self.msa_linear(
+            torch.concatenate(
+                [
+                    f_msa,
+                    f_has_deletion,
+                    f_deletion_value,
+                ],
+                dim=-1,
+            )
+        ) + torch.unsqueeze(self.single_linear(s_inputs), -2)
 
         # Step 5: Process through N_block iterations
         for _ in range(self.n_block):
@@ -231,5 +226,4 @@ class MultipleSequenceAlignment(nn.Module):
             # Step 13: Pair Transition
             z_ij = z_ij + self.pair_transition(z_ij)
 
-        # Step 15: Return updated pair representation
         return z_ij

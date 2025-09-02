@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import MultipleSequenceAlignment
+from beignet.nn import AlphaFold3MSA
 
 
 @given(
@@ -19,12 +19,12 @@ from beignet.nn import MultipleSequenceAlignment
 )
 @settings(deadline=None, max_examples=5)
 def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
-    """Test MultipleSequenceAlignment comprehensively."""
+    """Test AlphaFold3MSA comprehensively."""
     device = torch.device("cpu")
 
     # Create module
     module = (
-        MultipleSequenceAlignment(
+        AlphaFold3MSA(
             n_block=n_block,
             c_m=c_m,
             c_z=c_z,
@@ -40,7 +40,7 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
     # Generate test inputs according to Algorithm 8
     f_msa = torch.randn(
         batch_size, seq_len, n_seq, 23, dtype=dtype, device=device
-    )  # MSA features
+    )  # AlphaFold3MSA features
     f_has_deletion = torch.randn(
         batch_size, seq_len, n_seq, 1, dtype=dtype, device=device
     )
@@ -78,7 +78,9 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
     loss = z_out_grad.sum()
     loss.backward()
 
-    assert f_msa_grad.grad is not None, "Should have gradients for MSA features"
+    assert f_msa_grad.grad is not None, (
+        "Should have gradients for AlphaFold3MSA features"
+    )
     assert f_has_deletion_grad.grad is not None, (
         "Should have gradients for deletion features"
     )
@@ -88,7 +90,9 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
     assert s_inputs_grad.grad is not None, "Should have gradients for single inputs"
     assert z_ij_grad.grad is not None, "Should have gradients for pair inputs"
 
-    assert torch.all(torch.isfinite(f_msa_grad.grad)), "MSA gradients should be finite"
+    assert torch.all(torch.isfinite(f_msa_grad.grad)), (
+        "AlphaFold3MSA gradients should be finite"
+    )
     assert torch.all(torch.isfinite(f_has_deletion_grad.grad)), (
         "Deletion gradients should be finite"
     )
@@ -124,7 +128,7 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
     # Test with different n_block values
     if n_block > 1:
         single_block_module = (
-            MultipleSequenceAlignment(
+            AlphaFold3MSA(
                 n_block=1,
                 c_m=c_m,
                 c_z=c_z,
@@ -201,7 +205,7 @@ def test_msa_module(batch_size, seq_len, n_seq, n_block, c_m, c_z, c_s, dtype):
         "Should have outer_product_mean component"
     )
     assert hasattr(module, "msa_pair_weighted_averaging"), (
-        "Should have MSA pair weighted averaging"
+        "Should have AlphaFold3MSA pair weighted averaging"
     )
     assert hasattr(module, "triangle_mult_outgoing"), (
         "Should have triangle multiplication components"

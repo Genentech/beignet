@@ -1,9 +1,9 @@
 import torch
 
-from beignet.nn import MultipleSequenceAlignment
+from beignet.nn import MSA
 
 
-class TimeMultipleSequenceAlignment:
+class TimeMSA:
     params = ([1, 2], [1, 2], [64], [128], [torch.float32])
     param_names = ["batch_size", "n_block", "c_m", "c_z", "dtype"]
 
@@ -17,7 +17,7 @@ class TimeMultipleSequenceAlignment:
 
         # Create module
         self.module = (
-            MultipleSequenceAlignment(
+            MSA(
                 n_block=n_block,
                 c_m=c_m,
                 c_z=c_z,
@@ -53,7 +53,7 @@ class TimeMultipleSequenceAlignment:
         except Exception:
             self.compiled_module = self.module
 
-    def time_multiple_sequence_alignment(self, batch_size, n_block, c_m, c_z, dtype):
+    def time_msa(self, batch_size, n_block, c_m, c_z, dtype):
         return self.module(
             self.f_msa,
             self.f_has_deletion,
@@ -74,7 +74,7 @@ class TimeMultipleSequenceAlignment:
         )
 
 
-class PeakMemoryMultipleSequenceAlignment:
+class PeakMemoryMSA:
     params = ([1], [1], [64], [128], [torch.float32])
     param_names = ["batch_size", "n_block", "c_m", "c_z", "dtype"]
 
@@ -88,7 +88,7 @@ class PeakMemoryMultipleSequenceAlignment:
 
         # Create module
         self.module = (
-            MultipleSequenceAlignment(
+            MSA(
                 n_block=n_block,
                 c_m=c_m,
                 c_z=c_z,
@@ -118,7 +118,7 @@ class PeakMemoryMultipleSequenceAlignment:
             batch_size, seq_len, seq_len, c_z, dtype=dtype, device=device
         )
 
-    def peakmem_multiple_sequence_alignment(self, batch_size, n_block, c_m, c_z, dtype):
+    def peakmem_msa(self, batch_size, n_block, c_m, c_z, dtype):
         return self.module(
             self.f_msa,
             self.f_has_deletion,

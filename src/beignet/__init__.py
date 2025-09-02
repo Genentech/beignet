@@ -19,6 +19,7 @@ from ._frame_aligned_point_error import frame_aligned_point_error
 from ._identity_matrix import identity_matrix
 from ._kabsch import kabsch
 from ._lennard_jones_potential import lennard_jones_potential
+from ._one_hot import one_hot
 from ._optional_dependencies import optional_dependencies
 from ._pad import pad_to_target_length
 from ._radius import radius, radius_graph
@@ -42,6 +43,7 @@ __all__ = [
     "identity_matrix",
     "kabsch",
     "lennard_jones_potential",
+    "one_hot",
     "optional_dependencies",
     "pad_to_target_length",
     "radius",
