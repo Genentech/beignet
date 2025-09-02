@@ -2,7 +2,8 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AdaptiveLayerNorm, _ConditionedTransitionBlock
+from beignet.nn.alphafold3._adaptive_layer_norm import AdaptiveLayerNorm
+from beignet.nn.alphafold3._diffusion_transformer import _ConditionedTransitionBlock
 
 
 @given(

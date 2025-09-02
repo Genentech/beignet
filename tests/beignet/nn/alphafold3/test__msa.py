@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import MSA
+from beignet.nn.alphafold3 import MSA
 
 
 @given(

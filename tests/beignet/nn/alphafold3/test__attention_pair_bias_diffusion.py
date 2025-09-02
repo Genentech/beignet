@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import AttentionPairBias
+from beignet.nn.alphafold3 import AttentionPairBias
 
 
 @given(
@@ -138,7 +138,6 @@ def test_attention_pair_bias_diffusion(
     )
 
     # Test that the module transforms the input
-    diff = torch.norm(a_out - a)
     # With conditioning and proper initialization, output should be different
     assert torch.all(torch.isfinite(a_out)), "Output should be finite"
 

@@ -2,14 +2,14 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import (
+from beignet.nn.alphafold3 import (
     Transition,
     TriangleAttentionEndingNode,
     TriangleAttentionStartingNode,
     TriangleMultiplicationIncoming,
     TriangleMultiplicationOutgoing,
-    _MSAPairWeightedAveraging,
 )
+from beignet.nn.alphafold3._msa import _MSAPairWeightedAveraging
 
 
 @given(

@@ -8,14 +8,10 @@ except PackageNotFoundError:
 
 from ._bisect import bisect
 from ._chandrupatla import chandrupatla
-from ._compute_alignment_error import compute_alignment_error
 from ._convolve import convolve
 from ._default_dtype_manager import default_dtype_manager
 from ._dihedral_angle import dihedral_angle
-from ._distogram_loss import distogram_loss
-from ._express_coordinates_in_frame import express_coordinates_in_frame
 from ._farthest_first_traversal import farthest_first_traversal
-from ._frame_aligned_point_error import frame_aligned_point_error
 from ._identity_matrix import identity_matrix
 from ._kabsch import kabsch
 from ._lennard_jones_potential import lennard_jones_potential
@@ -24,10 +20,18 @@ from ._optional_dependencies import optional_dependencies
 from ._pad import pad_to_target_length
 from ._radius import radius, radius_graph
 from ._root_scalar import root_scalar
-from ._smooth_local_distance_difference_test import (
+from .nn.functional.alphafold3._compute_alignment_error import compute_alignment_error
+from .nn.functional.alphafold3._distogram_loss import distogram_loss
+from .nn.functional.alphafold3._express_coordinates_in_frame import (
+    express_coordinates_in_frame,
+)
+from .nn.functional.alphafold3._frame_aligned_point_error import (
+    frame_aligned_point_error,
+)
+from .nn.functional.alphafold3._smooth_local_distance_difference_test import (
     smooth_local_distance_difference_test,
 )
-from ._weighted_rigid_align import weighted_rigid_align
+from .nn.functional.alphafold3._weighted_rigid_align import weighted_rigid_align
 
 __all__ = [
     "bisect",
@@ -38,8 +42,8 @@ __all__ = [
     "dihedral_angle",
     "distogram_loss",
     "express_coordinates_in_frame",
-    "frame_aligned_point_error",
     "farthest_first_traversal",
+    "frame_aligned_point_error",
     "identity_matrix",
     "kabsch",
     "lennard_jones_potential",

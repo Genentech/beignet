@@ -2,7 +2,7 @@ import torch
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from beignet.nn import DiffusionTransformer
+from beignet.nn.alphafold3 import DiffusionTransformer
 
 
 @given(
@@ -109,7 +109,6 @@ def test_diffusion_transformer(
         assert hasattr(transition, "n") and transition.n == n
 
     # Test that the module transforms the input (should be different from input)
-    diff = torch.norm(a_out - a)
     # With proper initialization, the output should be different from input
     # Initial bias of -2.0 makes gates small but not zero
     assert torch.all(torch.isfinite(a_out)), "Output should be finite"

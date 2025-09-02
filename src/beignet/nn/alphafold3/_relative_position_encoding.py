@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from beignet import one_hot
+from ..._one_hot import one_hot
 
 
 class RelativePositionEncoding(nn.Module):
@@ -52,8 +52,9 @@ class RelativePositionEncoding(nn.Module):
         self.c_z = c_z
 
         # Final linear projection
+        # 2 rel distance features (residue, token) * (2*r_max+2) + 1 same_entity + 1 chain feature * (2*s_max+2)
         self.linear = nn.Linear(
-            4 * (2 * r_max + 1) + 2 * (2 * s_max + 1), c_z, bias=False
+            2 * (2 * r_max + 2) + 1 + (2 * s_max + 2), c_z, bias=False
         )
 
     def forward(self, f_star: dict) -> Tensor:

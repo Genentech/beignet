@@ -1,0 +1,16 @@
+::: beignet.nn.AlphaFold3
+::: beignet.nn.alphafold3.AtomAttentionDecoder
+::: beignet.nn.alphafold3.AtomAttentionEncoder
+::: beignet.nn.alphafold3.AtomTransformer
+::: beignet.nn.alphafold3.AttentionPairBias
+::: beignet.nn.alphafold3.DiffusionTransformer
+::: beignet.nn.alphafold3.MSA
+::: beignet.nn.alphafold3.PairformerStack
+::: beignet.nn.alphafold3.RelativePositionEncoding
+::: beignet.nn.alphafold3.SampleDiffusion
+::: beignet.nn.alphafold3.TemplateEmbedder
+::: beignet.nn.alphafold3.Transition
+::: beignet.nn.alphafold3.TriangleAttentionEndingNode
+::: beignet.nn.alphafold3.TriangleAttentionStartingNode
+::: beignet.nn.alphafold3.TriangleMultiplicationIncoming
+::: beignet.nn.alphafold3.TriangleMultiplicationOutgoing

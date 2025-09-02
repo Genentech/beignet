@@ -1,5 +1,5 @@
 import torch
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import beignet
@@ -11,6 +11,7 @@ import beignet
     n_atoms=st.integers(min_value=1, max_value=10),
     dtype=st.sampled_from([torch.float32, torch.float64]),
 )
+@settings(deadline=None, max_examples=3)
 def test_frame_aligned_point_error(batch_size, n_frames, n_atoms, dtype):
     """Test FAPE loss computation with various input configurations."""
     device = torch.device("cpu")

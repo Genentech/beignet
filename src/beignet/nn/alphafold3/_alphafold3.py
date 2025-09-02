@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from beignet._one_hot import one_hot
-
+from ..._one_hot import one_hot
 from ._atom_attention_encoder import AtomAttentionEncoder
 from ._msa import MSA
 from ._pairformer_stack import PairformerStack

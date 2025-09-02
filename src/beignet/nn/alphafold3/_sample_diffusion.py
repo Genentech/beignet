@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from . import AtomAttentionEncoder, DiffusionTransformer, RelativePositionEncoding
 from ._atom_attention_decoder import AtomAttentionDecoder
+from ._atom_attention_encoder import AtomAttentionEncoder
+from ._diffusion_transformer import DiffusionTransformer
+from ._relative_position_encoding import RelativePositionEncoding
 from ._transition import Transition
 
 

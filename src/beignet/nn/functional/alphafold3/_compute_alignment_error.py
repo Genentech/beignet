@@ -1,7 +1,9 @@
 import torch
 from torch import Tensor
 
-from ._express_coordinates_in_frame import express_coordinates_in_frame
+from beignet.nn.functional.alphafold3._express_coordinates_in_frame import (
+    express_coordinates_in_frame,
+)
 
 
 def compute_alignment_error(

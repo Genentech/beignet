@@ -245,7 +245,7 @@ class _PairformerStackBlock(nn.Module):
         # Steps 7-8: Single representation processing
 
         # Step 7: Attention with pair bias (θij = 0, Nhead = 16)
-        s_i = s_i + self.attention_pair_bias(s_i, z_ij)
+        s_i = s_i + self.attention_pair_bias(s_i, s_i, z_ij)
 
         # Step 8: Single transition
         s_i = s_i + self.single_transition(s_i)
