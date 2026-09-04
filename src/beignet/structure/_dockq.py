@@ -133,13 +133,19 @@ def dockq(
     receptor_chains: list[str],
     ligand_chains: list[str],
     rename_symmetric_atoms: bool = True,
-) -> dict[str, Tensor]:
+) -> dict[str, Tensor] | None:
     contact = dockq_contact_score(
         model=model,
         native=native,
         receptor_chains=receptor_chains,
         ligand_chains=ligand_chains,
     )
+
+    # Match upstream DockQ: if the native has no interface contacts between the
+    # receptor and ligand chain groups, there is nothing to score.
+    # https://github.com/bjornwallner/DockQ/blob/75db7ab4f6b824c70d120c5f620582e164ed5479/src/DockQ/DockQ.py#L291-L294
+    if (contact["native_contacts"] == 0).all():
+        return None
 
     irmsd = dockq_irmsd_score(
         model=model,
