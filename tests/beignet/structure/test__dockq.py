@@ -137,3 +137,16 @@ def test_dockq_batched(dockq_test_data_path):
     assert results1["DockQ"].item() == pytest.approx(
         ref["best_result"]["BC"]["DockQ"], abs=1e-3
     )
+
+
+def test_dockq_empty_native_interface():
+    """Upstream DockQ returns None when the native has no interface contacts.
+
+    ResidueArray.from_chain_sequences builds chains with no atom coordinates, so
+    contact scoring finds zero native interface contacts and must not divide by
+    zero in f1 / DockQ.
+    """
+    native = ResidueArray.from_chain_sequences({"A": "AAAA", "B": "LLLL"})
+    model = ResidueArray.from_chain_sequences({"A": "AAAA", "B": "LLLL"})
+
+    assert dockq(model, native, receptor_chains=["A"], ligand_chains=["B"]) is None
